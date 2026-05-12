@@ -728,6 +728,42 @@ class TeamLayout extends PureComponent {
     dispatch(routerRedux.replace(link))
   }
 
+  canAccessResourceCenter = () => {
+    const { currentUser, rainbondInfo } = this.props;
+    const isSaas = !!(rainbondInfo && rainbondInfo.is_saas);
+    return !isSaas || !!(currentUser && currentUser.is_enterprise_admin);
+  };
+
+  isResourceCenterRoute = (pathname = '') => {
+    return typeof pathname === 'string' && pathname.indexOf('/k8s-center') > -1;
+  };
+
+  isAppAssetRoute = (pathname = '') => {
+    return typeof pathname === 'string' && /\/apps\/[^/]+\/asset(\/|$)/.test(pathname);
+  };
+
+  filterResourceCenterMenus = (menuGroups = [], canAccessResourceCenter) => {
+    if (canAccessResourceCenter) {
+      return menuGroups;
+    }
+
+    const removeResourceCenterItem = item => {
+      const itemPath = item && item.path ? item.path : '';
+      return itemPath.indexOf('/k8s-center') === -1;
+    };
+
+    if ((menuGroups || []).some(group => Array.isArray(group.items))) {
+      return (menuGroups || [])
+        .map(group => ({
+          ...group,
+          items: (group.items || []).filter(removeResourceCenterItem)
+        }))
+        .filter(group => group.items && group.items.length > 0);
+    }
+
+    return (menuGroups || []).filter(removeResourceCenterItem);
+  };
+
   render() {
     const {
       memoryTip,
@@ -774,6 +810,7 @@ class TeamLayout extends PureComponent {
     const { teamName, regionName } = this.props.match.params;
     const autoWidth = collapsed ? 'calc(100% - 416px)' : 'calc(100% - 116px)';
     const isSaas = rainbondInfo?.is_saas || false;
+    const canAccessResourceCenter = this.canAccessResourceCenter();
     if (!isAuthorizationLoading) {
       // 需要授权但未获取到授权信息
       if (isNeedAuthz && !licenseInfo) {
@@ -814,6 +851,10 @@ class TeamLayout extends PureComponent {
       !currentTeamPermissionsInfo
     ) {
       return <PageLoading />;
+    }
+
+    if ((this.isResourceCenterRoute(pathname) || this.isAppAssetRoute(pathname)) && !canAccessResourceCenter) {
+      return <Exception />;
     }
 
     // 避免在 render 中触发副作用；迁移到生命周期里处理
@@ -911,6 +952,7 @@ class TeamLayout extends PureComponent {
         currentTeam.tenant_actions
       );
     }
+    menuData = this.filterResourceCenterMenus(menuData, canAccessResourceCenter);
     const safeEnterprise = buildTeamMenuEnterpriseSettings(enterprise, currentEnterprise);
     const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, safeEnterprise) || logo;
     const SiteTitle = rainbondUtil.fetchSiteTitle(rainbondInfo);

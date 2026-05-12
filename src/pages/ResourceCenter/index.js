@@ -6,6 +6,7 @@ import { formatMessage } from '@/utils/intl';
 import CodeMirrorForm from '@/components/CodeMirrorForm';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
+import Exception from '../Exception/403';
 import jsYaml from 'js-yaml';
 import styles from './index.less';
 import { getHelmChartUrlValidation, getHelmChartUrlValidationMessage } from './helmChartUrl';
@@ -35,13 +36,15 @@ import ConfigTab from './tabs/ConfigTab';
 import StorageTab from './tabs/StorageTab';
 import HelmTab from './tabs/HelmTab';
 
-@connect(({ teamResources, enterprise, loading }) => ({
+@connect(({ teamResources, enterprise, loading, global, user }) => ({
   resources: teamResources.resources,
   helmReleases: teamResources.helmReleases,
   helmPreview: teamResources.helmPreview,
   helmReleaseHistory: teamResources.helmReleaseHistory,
   total: teamResources.total,
   currentEnterprise: enterprise.currentEnterprise,
+  rainbondInfo: global.rainbondInfo,
+  currentUser: user.currentUser,
   resourceListLoading: loading.effects['teamResources/fetchResources'],
   configListLoading: loading.effects['teamResources/fetchConfigResources'],
   helmListLoading: loading.effects['teamResources/fetchHelmReleases'],
@@ -142,6 +145,9 @@ class ResourceCenter extends PureComponent {
   };
 
   componentDidMount() {
+    if (!this.canAccessResourceCenter()) {
+      return;
+    }
     const initialViewState = this.getInitialViewState();
     const { openHelmInstall, openCreateResource, ...initialState } = initialViewState;
     this.setState(initialState, () => {
@@ -163,6 +169,9 @@ class ResourceCenter extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
+    if (!this.canAccessResourceCenter()) {
+      return;
+    }
     const prevQuery = this.getLocationQuery(prevProps.location);
     const nextQuery = this.getLocationQuery();
     const prevOpenHelmInstall = this.shouldOpenHelmInstall(prevQuery.openHelmInstall);
@@ -226,6 +235,12 @@ class ResourceCenter extends PureComponent {
 
   componentWillUnmount() {
   }
+
+  canAccessResourceCenter = () => {
+    const { rainbondInfo, currentUser } = this.props;
+    const isSaas = !!(rainbondInfo && rainbondInfo.is_saas);
+    return !isSaas || !!(currentUser && currentUser.is_enterprise_admin);
+  };
 
   getParams() {
     const { match } = this.props;
@@ -2048,6 +2063,10 @@ class ResourceCenter extends PureComponent {
   };
 
   render() {
+    if (!this.canAccessResourceCenter()) {
+      return <Exception />;
+    }
+
     const {
       yamlModalVisible,
       yamlContent,

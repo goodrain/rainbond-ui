@@ -148,6 +148,8 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const [currentLocalVersionInfo, setCurrentLocalVersionInfo] = useState({});
   const [localSubmitLoading, setLocalSubmitLoading] = useState(false);
 
+  const canAccessResourceCenter = !(rainbondInfo && rainbondInfo.is_saas) || !!(currentUser && currentUser.is_enterprise_admin);
+
   const marketListRef = useRef(null);
   const localMarketListRef = useRef(null);
   const viewHistoryRef = useRef([]);
@@ -835,7 +837,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   ];
 
   const advancedSectionItems = [
-    ...(!isComponentView ? [{
+    ...(!isComponentView && canAccessResourceCenter ? [{
       icon: 'file-text',
       iconSrc: FileTextIcon,
       title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.yaml_entry' }),
@@ -850,8 +852,8 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       key: 'helm',
       navigateToResourceCenterHelm: true,
       iconColor: '#722ed1',
-    },
-    {
+    }] : []),
+    ...(!isComponentView ? [{
       icon: 'block',
       iconSrc: ContainerIcon,
       title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.docker_compose' }),
@@ -2627,7 +2629,10 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   );
 };
 
-export default connect(({ global, teamControl }) => ({
+export default connect(({ global, teamControl, user, enterprise }) => ({
   groups: global.groups,
-  pluginsList: teamControl.pluginsList
+  pluginsList: teamControl.pluginsList,
+  rainbondInfo: global.rainbondInfo,
+  currentEnterprise: enterprise.currentEnterprise || global.enterprise,
+  currentUser: user.currentUser
 }))(CreateComponentModal);

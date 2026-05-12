@@ -4,6 +4,7 @@ import {
   Dropdown,
   Icon,
   Layout,
+  Modal,
   notification,
   Spin
 } from 'antd';
@@ -21,6 +22,7 @@ import styles from './index.less';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
 import { isAgentRouteHidden } from '../../utils/agentContext';
+const { resolveAgentLauncherAction } = require('./agentLauncherAction');
 
 const { Header } = Layout;
 
@@ -132,6 +134,7 @@ class GlobalHeader extends PureComponent {
       // 视图切换器状态
       isTeamViewForSwitcher: !!(teamName && regionName),
       isAdmin: !!(currentUser?.is_enterprise_admin && eid),
+      agentPluginStatus: 'pending',
       // 滑块位置
       sliderStyle: { left: 3, width: 0 }
     };
@@ -290,11 +293,26 @@ class GlobalHeader extends PureComponent {
         region_name: regionName
       },
       callback: (res) => {
-        if (res?.list?.some(item => item.name === 'rainbond-bill')) {
-          this.setState({ showBill: true }, () => {
-            this.fetchBalance();
-          });
-        }
+        const pluginList = Array.isArray(res?.list) ? res.list : [];
+        const hasAgentPlugin = pluginList.some(item => item.name === 'rainbond-agent');
+        const hasBillPlugin = pluginList.some(item => item.name === 'rainbond-bill');
+
+        this.setState(
+          {
+            agentPluginStatus: hasAgentPlugin ? 'installed' : 'missing',
+            showBill: hasBillPlugin
+          },
+          () => {
+            if (hasAgentPlugin || hasBillPlugin) {
+              this.fetchBalance();
+            }
+          }
+        );
+      },
+      handleError: () => {
+        this.setState({
+          agentPluginStatus: 'error'
+        });
       }
     });
   };
@@ -507,10 +525,80 @@ class GlobalHeader extends PureComponent {
     this.setState({ showProductDrawer: false });
   };
 
+  getEnterpriseExtensionPath = () => {
+    const { currentUser, enterprise, eid } = this.props;
+    const enterpriseId =
+      currentUser?.enterprise_id ||
+      enterprise?.enterprise_id ||
+      globalUtil.getCurrEnterpriseId() ||
+      eid;
+
+    return enterpriseId ? `/enterprise/${enterpriseId}/extension` : '';
+  };
+
   openAgentDrawer = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'agent/show'
+    const { dispatch, currentUser } = this.props;
+    const { agentPluginStatus } = this.state;
+    const action = resolveAgentLauncherAction({
+      pluginStatus: agentPluginStatus,
+      isEnterpriseAdmin: !!currentUser?.is_enterprise_admin
+    });
+
+    if (action === 'open') {
+      dispatch({
+        type: 'agent/show'
+      });
+      return;
+    }
+
+    if (action === 'install') {
+      const extensionPath = this.getEnterpriseExtensionPath();
+      Modal.confirm({
+        title: formatMessage({
+          id: 'GlobalHeader.agent.install.title',
+          defaultMessage: 'AI助手插件未安装'
+        }),
+        content: formatMessage({
+          id: 'GlobalHeader.agent.install.content',
+          defaultMessage: '当前企业还没有安装 rainbond-agent 插件，是否前往扩展中心安装？'
+        }),
+        okText: formatMessage({
+          id: 'GlobalHeader.agent.install.ok',
+          defaultMessage: '去安装'
+        }),
+        cancelText: formatMessage({
+          id: 'GlobalHeader.agent.install.cancel',
+          defaultMessage: '取消'
+        }),
+        onOk: () => {
+          if (extensionPath) {
+            dispatch(routerRedux.push(extensionPath));
+          }
+        }
+      });
+      return;
+    }
+
+    if (action === 'contact_admin') {
+      notification.warning({
+        message: formatMessage({
+          id: 'GlobalHeader.agent.contact_admin',
+          defaultMessage: '当前企业未安装 AI 助手插件，请联系企业管理员安装。'
+        })
+      });
+      return;
+    }
+
+    notification.warning({
+      message: formatMessage({
+        id: action === 'error'
+          ? 'GlobalHeader.agent.load_error'
+          : 'GlobalHeader.agent.loading',
+        defaultMessage:
+          action === 'error'
+            ? 'AI 助手插件状态获取失败，请稍后重试。'
+            : '正在检查 AI 助手插件状态，请稍后重试。'
+      })
     });
   };
 
