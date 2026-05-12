@@ -319,11 +319,12 @@ async function streamRun({
 
 export async function sendAgentMessage(payload = {}) {
   const message = (payload.message || '').trim();
+  const selectedActionId = (payload.selectedActionId || '').trim();
   const selectedActionKey = (payload.selectedActionKey || '').trim();
   const context = normalizeContext(payload.context);
   const currentUser = payload.currentUser || {};
 
-  if (!message && !selectedActionKey) {
+  if (!message && !selectedActionId && !selectedActionKey) {
     return {
       sessionId: payload.conversation_id || 'global-default',
       runId: '',
@@ -349,6 +350,7 @@ export async function sendAgentMessage(payload = {}) {
         },
         body: JSON.stringify({
           message,
+          selected_action_id: selectedActionId || undefined,
           selected_action_key: selectedActionKey || undefined,
           stream: true,
           context: buildAgentSessionPayload(context).context

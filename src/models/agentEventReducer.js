@@ -228,6 +228,25 @@ function applyAgentEvent(state, payload = {}) {
       );
       break;
     }
+    case 'workflow.completed': {
+      const data = event.data || {};
+      const structuredResult = data.structured_result || {};
+      const suggestedActions = Array.isArray(structuredResult.suggestedActions)
+        ? structuredResult.suggestedActions
+        : [];
+      if (suggestedActions.length > 0) {
+        const assistantMessageIndex = findLatestAssistantNormalMessageIndex(nextMessages);
+        if (assistantMessageIndex > -1 && !nextMessages[assistantMessageIndex].suggestedActions) {
+          nextMessages[assistantMessageIndex] = {
+            ...nextMessages[assistantMessageIndex],
+            suggestedActions,
+            suggestedActionSummary: '后续建议',
+            eventSequence,
+          };
+        }
+      }
+      break;
+    }
     default:
       break;
   }

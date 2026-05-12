@@ -637,6 +637,7 @@ export default class AgentHost extends PureComponent {
     }
 
     this.resumeAutoScroll();
+    const actionId = action.actionId || '';
     const optionKey = action.optionKey || '';
     const label = action.label || '';
 
@@ -644,6 +645,7 @@ export default class AgentHost extends PureComponent {
       type: 'agent/sendMessage',
       payload: {
         message: optionKey ? `选择方案 ${optionKey}${label ? `：${label}` : ''}` : label || '执行推荐方案',
+        selectedActionId: actionId,
         selectedActionKey: optionKey,
         suppressUserEcho: true,
         context: this.props.agent && this.props.agent.context,

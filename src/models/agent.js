@@ -629,6 +629,27 @@ function applyAgentEvents({
         break;
       }
       case 'workflow.completed': {
+        const structuredResult =
+          event.data && event.data.structured_result
+            ? event.data.structured_result
+            : {};
+        const suggestedActions = Array.isArray(structuredResult.suggestedActions)
+          ? structuredResult.suggestedActions
+          : [];
+        if (suggestedActions.length > 0) {
+          const assistantMessageIndex = findLatestAssistantNormalMessageIndex(nextMessages);
+          if (
+            assistantMessageIndex > -1 &&
+            !nextMessages[assistantMessageIndex].suggestedActions
+          ) {
+            nextMessages[assistantMessageIndex] = {
+              ...nextMessages[assistantMessageIndex],
+              suggestedActions,
+              suggestedActionSummary: '后续建议',
+              eventSequence,
+            };
+          }
+        }
         break;
       }
       default:
@@ -891,6 +912,7 @@ export default {
         const response = yield call(sendAgentMessage, {
           conversation_id: state.conversationId,
           message: text,
+          selectedActionId: payload && payload.selectedActionId,
           selectedActionKey: payload && payload.selectedActionKey,
           context: contextSnapshot,
           currentUser,
