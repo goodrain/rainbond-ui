@@ -44,7 +44,6 @@ const {
   defaultCompactionState,
 } = require('./agentCompactionReducer');
 const { formatToolLabel } = require('../utils/agentToolLabels');
-const { shouldResetOnTeamSwitch } = require('./agentTeamSwitch');
 
 const { extractWorkflowState } = agentWorkflowState;
 
@@ -800,20 +799,6 @@ export default {
       const nextSignature = getAgentContextSignature(context);
       const currentSignature = state.lastContextSignature || '';
       const isChanged = !!currentSignature && currentSignature !== nextSignature;
-
-      // See agentTeamSwitch.shouldResetOnTeamSwitch: when the route's
-      // team changes while a live conversation exists, drop the local
-      // session anchor so the next sendMessage lets the backend's
-      // idempotent createSession produce / fetch the right session for
-      // the new team. Without this the old conversationId travels with
-      // the new team headers and the backend (tenant-scoped) returns
-      // "Session not found".
-      const resetOnTeamSwitch = shouldResetOnTeamSwitch({
-        previousContext: state.context,
-        nextContext: context,
-        conversationId: state.conversationId,
-      });
-
       const nextMessages = isChanged
         ? state.messages.concat(
             createMessage(
@@ -829,36 +814,14 @@ export default {
         currentSignature !== nextSignature ||
         JSON.stringify(state.context || {}) !== JSON.stringify(context || {})
       ) {
-        const patch = {
-          context,
-          lastContextSignature: nextSignature,
-          messages: resetOnTeamSwitch ? [] : nextMessages,
-          updatedAt: Date.now(),
-        };
-        if (resetOnTeamSwitch) {
-          patch.conversationId = 'global-default';
-          patch.pendingApproval = null;
-          patch.activeRunId = '';
-          patch.lastEventSequence = 0;
-          patch.workflowState = null;
-          patch.structuredResult = null;
-          patch.sessionPendingApprovals = [];
-          patch.draft = '';
-          patch.lastError = '';
-          patch.pendingMutationTool = '';
-          patch.pendingMutationRoute = '';
-          patch.pendingMutationNavigationKey = '';
-          patch.pendingMutationRefreshKey = '';
-          patch.pendingMutationRefreshMode = '';
-          patch.lastMutationResult = null;
-          patch.lastMutationRunId = '';
-          patch.runConflict = null;
-          patch.pendingDraft = '';
-          patch.pendingDraftMode = '';
-        }
         yield put({
           type: 'saveState',
-          payload: patch,
+          payload: {
+            context,
+            lastContextSignature: nextSignature,
+            messages: nextMessages,
+            updatedAt: Date.now(),
+          },
         });
       }
     },
