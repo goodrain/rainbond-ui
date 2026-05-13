@@ -128,6 +128,8 @@ const componentOverview = {
     'componentOverview.body.tab.overview.vmHotUpdateExecuting': 'VM hot update submitted and running',
     'componentOverview.body.tab.overview.vmHotUpdateEdit': 'Edit compute',
     'componentOverview.body.tab.overview.vmHotUpdateConfirm': 'Save compute',
+    'componentOverview.body.tab.overview.vmHotUpdateCpuShrinkBlocked': 'CPU hot updates only support increasing resources for a running VM. Stop it before reducing CPU.',
+    'componentOverview.body.tab.overview.vmHotUpdateMemoryShrinkBlocked': 'Memory hot updates only support increasing resources for a running VM. Stop it before reducing memory.',
     'componentOverview.body.tab.overview.vmGpuPassthroughScalingLocked': 'Virtual machines with GPU passthrough enabled do not support scaling.',
     'componentOverview.body.mnt.vmRuntimeMixedTip': 'Disk order and boot changes take effect on the next VM restart; newly added data disks on a running VM are hot-plugged online.',
     'componentOverview.body.mnt.vmRuntimeStoppedTip': 'This virtual machine is stopped. New data disks and disk-order changes will take effect the next time it starts.',

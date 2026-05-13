@@ -958,6 +958,23 @@ export default class Index extends PureComponent {
         const key = Object.keys(cpuMarksObj).find(item => cpuMarksObj[item] === new_cpu);
         cpu = key ? Number(key) : 0;
       }
+
+      if (method === 'vm' && !isVMStopped) {
+        const currentCpu = Number(extendInfo.current_cpu);
+        const currentMemory = Number(extendInfo.current_memory);
+        if (!Number.isNaN(currentCpu) && Number(cpu) < currentCpu) {
+          notification.warning({
+            message: formatMessage({ id: 'componentOverview.body.tab.overview.vmHotUpdateCpuShrinkBlocked' })
+          });
+          return;
+        }
+        if (!Number.isNaN(currentMemory) && Number(memory) < currentMemory) {
+          notification.warning({
+            message: formatMessage({ id: 'componentOverview.body.tab.overview.vmHotUpdateMemoryShrinkBlocked' })
+          });
+          return;
+        }
+      }
       
       dispatch({
         type: 'appControl/newVertical',
