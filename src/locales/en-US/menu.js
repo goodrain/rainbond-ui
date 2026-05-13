@@ -80,6 +80,13 @@ const CustomFooter = {
   'GlobalHeader.market':'Application Market',
   'GlobalHeader.balance':'Balance',
   'GlobalHeader.account':'Account Center',
+  'GlobalHeader.agent.install.title': 'AI assistant plugin not installed',
+  'GlobalHeader.agent.install.content': 'The current enterprise has not installed the rainbond-agent plugin yet. Do you want to open the Extension Center to install it?',
+  'GlobalHeader.agent.install.ok': 'Install now',
+  'GlobalHeader.agent.install.cancel': 'Cancel',
+  'GlobalHeader.agent.contact_admin': 'The AI assistant plugin is not installed for this enterprise. Please contact an enterprise administrator.',
+  'GlobalHeader.agent.load_error': 'Failed to load the AI assistant plugin status. Please try again later.',
+  'GlobalHeader.agent.loading': 'Checking the AI assistant plugin status. Please try again in a moment.',
 
 }
 

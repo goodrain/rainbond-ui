@@ -1,15 +1,17 @@
-const { shouldRenderMessageItem } = require('./displayFilters');
+import * as displayFilters from './displayFilters';
 
-const EMPTY_COMPOSER_PLACEHOLDER = '输入命令，例如，帮我排查这个组件的问题。';
-const DEFAULT_COMPOSER_PLACEHOLDER = '请输入命令';
-const DEFAULT_EMPTY_MESSAGE = '帮我排查这个组件的问题。';
-const PENDING_APPROVAL_PLACEHOLDER = '请先取消未处理审批';
+const { shouldRenderMessageItem } = displayFilters;
 
-function hasRenderableMessages(messages = []) {
+export const EMPTY_COMPOSER_PLACEHOLDER = '输入命令，例如，帮我排查这个组件的问题。';
+export const DEFAULT_COMPOSER_PLACEHOLDER = '请输入命令';
+export const DEFAULT_EMPTY_MESSAGE = '帮我排查这个组件的问题。';
+export const PENDING_APPROVAL_PLACEHOLDER = '请先取消未处理审批';
+
+export function hasRenderableMessages(messages = []) {
   return Array.isArray(messages) && messages.some(item => shouldRenderMessageItem(item));
 }
 
-function getComposerPlaceholder(options = {}) {
+export function getComposerPlaceholder(options = {}) {
   const { messages, hasSessionPending } = options;
 
   if (hasSessionPending) {
@@ -21,7 +23,7 @@ function getComposerPlaceholder(options = {}) {
     : EMPTY_COMPOSER_PLACEHOLDER;
 }
 
-function resolveComposerMessage(options = {}) {
+export function resolveComposerMessage(options = {}) {
   const { draft, messages } = options;
   const trimmedDraft = typeof draft === 'string' ? draft.trim() : '';
 
@@ -31,13 +33,3 @@ function resolveComposerMessage(options = {}) {
 
   return hasRenderableMessages(messages) ? '' : DEFAULT_EMPTY_MESSAGE;
 }
-
-module.exports = {
-  DEFAULT_EMPTY_MESSAGE,
-  DEFAULT_COMPOSER_PLACEHOLDER,
-  EMPTY_COMPOSER_PLACEHOLDER,
-  PENDING_APPROVAL_PLACEHOLDER,
-  getComposerPlaceholder,
-  hasRenderableMessages,
-  resolveComposerMessage,
-};
