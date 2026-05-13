@@ -4,6 +4,7 @@ import { Link } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
 import { FormattedMessage } from 'umi';
 import AddVolumes from '../../components/AddOrEditVolume';
+import AddOrEditVMVolume from '../../components/AddOrEditVMVolume';
 import AddRelationMnt from '../../components/AddRelationMnt';
 import ConfirmModal from '../../components/ConfirmModal';
 import DirectoryPersistence from '../../components/DirectoryPersistence';
@@ -16,6 +17,7 @@ import handleAPIError from '@/utils/error';
 import globalUtil from '../../utils/global';
 import { formatMessage } from '@/utils/intl';
 import { getVolumeTypeShowName } from '../../utils/utils';
+import { filterVMLiveMigrationVolumeOptions } from '../../utils/vmVolumeOptions';
 
 const {
   getVMStorageAlertKey,
@@ -681,6 +683,8 @@ export default class Index extends PureComponent {
       vmDiskChanged, vmDiskSaving
     } = this.state;
     const { volumes, vmDisks, method, appDetail, appAlias } = this.props;
+    const vmAddVolumeOpts = filterVMLiveMigrationVolumeOptions(this.state.volumeOpts);
+    const vmFormVolumeOpts = this.state.editor ? this.state.volumeOpts : vmAddVolumeOpts;
 
     if (!this.canView()) return <NoPermTip />;
     const volumeColumns = [
@@ -838,13 +842,22 @@ export default class Index extends PureComponent {
                 >
                   {formatMessage({ id: 'button.save' })}
                 </Button>
-                <Button onClick={this.handleAddVar}>
+                <Button onClick={this.handleAddVar} disabled={vmAddVolumeOpts.length === 0}>
                   <Icon type="plus" />
                   {formatMessage({ id: 'componentOverview.body.mnt.add_storage' })}
                 </Button>
               </div>
             }
           >
+            {vmAddVolumeOpts.length === 0 ? (
+              <Alert
+                showIcon
+                message={formatMessage({ id: 'Vm.createVm.noLiveMigrationStorage' })}
+                description={formatMessage({ id: 'Vm.createVm.noLiveMigrationStorageHint' })}
+                type="warning"
+                style={{ marginBottom: 16 }}
+              />
+            ) : null}
             <Alert
               showIcon
               message={formatMessage({ id: vmDiskAlertKey })}
@@ -887,14 +900,24 @@ export default class Index extends PureComponent {
           </Card>
         )}
         {this.state.showAddVar && (
-          <AddVolumes
-            onCancel={this.handleCancelAddVar}
-            onSubmit={this.handleSubmitAddVar}
-            data={this.state.showAddVar}
-            volumeOpts={this.state.volumeOpts}
-            editor={this.state.editor}
-            method={method}
-          />
+          method === 'vm' ? (
+            <AddOrEditVMVolume
+              onCancel={this.handleCancelAddVar}
+              onSubmit={this.handleSubmitAddVar}
+              data={this.state.showAddVar}
+              volumeOpts={vmFormVolumeOpts}
+              editor={this.state.editor}
+            />
+          ) : (
+            <AddVolumes
+              onCancel={this.handleCancelAddVar}
+              onSubmit={this.handleSubmitAddVar}
+              data={this.state.showAddVar}
+              volumeOpts={this.state.volumeOpts}
+              editor={this.state.editor}
+              method={method}
+            />
+          )
         )}
         {this.state.showAddRelation && (
           <AddRelationMnt

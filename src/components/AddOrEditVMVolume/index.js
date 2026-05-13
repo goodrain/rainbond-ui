@@ -312,7 +312,7 @@ export default class AddVolumes extends PureComponent {
                 getPopupContainer={triggerNode => triggerNode.parentNode}
                 placeholder={formatMessage({ id: 'Vm.createVm.selectLiveMigrationStorage' })}
                 onChange={this.handleChange}
-                disabled={volumeOpts.length === 0}
+                disabled={!!this.props.editor || volumeOpts.length === 0}
               >
                 {volumeOpts.map(item => (
                   <Option key={item.volume_type} value={item.volume_type}>
