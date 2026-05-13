@@ -131,6 +131,7 @@ const componentOverview = {
     'componentOverview.body.tab.overview.vmHotUpdateCpuShrinkBlocked': '虚拟机 CPU 热更新仅支持扩容，不支持缩容，请停机后再修改规格。',
     'componentOverview.body.tab.overview.vmHotUpdateMemoryShrinkBlocked': '虚拟机内存热更新仅支持扩容，不支持缩容，请停机后再修改规格。',
     'componentOverview.body.tab.overview.vmGpuPassthroughScalingLocked': '已绑定 GPU 直通的虚拟机不支持扩缩容。',
+    'componentOverview.body.tab.overview.vmUsbPassthroughScalingLocked': '已绑定 USB 透传的虚拟机不支持扩缩容。',
     'componentOverview.body.mnt.vmRuntimeMixedTip': '磁盘顺序和启动项调整将在下次重启虚拟机时生效；运行中的新增数据盘会在线挂载。',
     'componentOverview.body.mnt.vmRuntimeStoppedTip': '当前虚拟机处于停机状态，新增数据盘和磁盘顺序调整都会在下次启动后生效。',
     'componentOverview.body.mnt.vmHotplugSuccess': '新的数据盘已提交在线挂载，请稍后在虚拟机内确认新磁盘。',

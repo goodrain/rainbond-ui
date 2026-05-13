@@ -33,7 +33,10 @@ import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
 import cookie from '../../utils/cookie';
 import handleAPIError from '../../utils/error';
-import { isVmGpuPassthroughScalingLocked } from './expansionHelpers';
+import {
+  getVmPassthroughScalingLockMessageId,
+  isVmGpuPassthroughScalingLocked
+} from './expansionHelpers';
 
 
 const { Option } = Select;
@@ -910,9 +913,14 @@ export default class Index extends PureComponent {
         vmRuntime: appDetail?.vm_profile?.runtime,
         extendInfo
       });
+      const vmScalingLockMessageId = getVmPassthroughScalingLockMessageId({
+        method,
+        vmRuntime: appDetail?.vm_profile?.runtime,
+        extendInfo
+      });
       if (isVmGpuScalingLocked) {
         notification.warning({
-          message: formatMessage({ id: 'componentOverview.body.tab.overview.vmGpuPassthroughScalingLocked' })
+          message: formatMessage({ id: vmScalingLockMessageId })
         });
         return;
       }
@@ -1270,6 +1278,11 @@ export default class Index extends PureComponent {
       vmRuntime: appDetail?.vm_profile?.runtime,
       extendInfo
     });
+    const vmScalingLockMessageId = getVmPassthroughScalingLockMessageId({
+      method,
+      vmRuntime: appDetail?.vm_profile?.runtime,
+      extendInfo
+    });
 
     const minNumber = getFieldValue('minNum') || 0;
     const formItemLayout = {
@@ -1378,7 +1391,7 @@ export default class Index extends PureComponent {
         {isVmGpuScalingLocked && (
           <Alert
             style={{ marginTop: '16px' }}
-            message={formatMessage({ id: 'componentOverview.body.tab.overview.vmGpuPassthroughScalingLocked' })}
+            message={formatMessage({ id: vmScalingLockMessageId })}
             type="warning"
           />
         )}
