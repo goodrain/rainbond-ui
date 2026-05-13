@@ -128,6 +128,7 @@ const componentOverview = {
     'componentOverview.body.tab.overview.vmHotUpdateExecuting': '虚拟机热更新已提交，正在执行中',
     'componentOverview.body.tab.overview.vmHotUpdateEdit': '修改规格',
     'componentOverview.body.tab.overview.vmHotUpdateConfirm': '保存规格',
+    'componentOverview.body.tab.overview.vmGpuPassthroughScalingLocked': '已绑定 GPU 直通的虚拟机不支持扩缩容。',
     'componentOverview.body.mnt.vmRuntimeMixedTip': '磁盘顺序和启动项调整将在下次重启虚拟机时生效；运行中的新增数据盘会在线挂载。',
     'componentOverview.body.mnt.vmRuntimeStoppedTip': '当前虚拟机处于停机状态，新增数据盘和磁盘顺序调整都会在下次启动后生效。',
     'componentOverview.body.mnt.vmHotplugSuccess': '新的数据盘已提交在线挂载，请稍后在虚拟机内确认新磁盘。',

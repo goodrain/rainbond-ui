@@ -33,6 +33,7 @@ import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
 import cookie from '../../utils/cookie';
 import handleAPIError from '../../utils/error';
+import { isVmGpuPassthroughScalingLocked } from './expansionHelpers';
 
 
 const { Option } = Select;
@@ -284,6 +285,37 @@ export default class Index extends PureComponent {
     const { dispatch } = this.props;
     dispatch({ type: 'appControl/clearExtendInfo' });
     this.timeClick && clearInterval(this.timeClick);
+  }
+
+  componentDidUpdate(prevProps) {
+    const wasVmGpuScalingLocked = isVmGpuPassthroughScalingLocked({
+      method: prevProps.method,
+      vmRuntime: prevProps.appDetail?.vm_profile?.runtime,
+      extendInfo: prevProps.extendInfo
+    });
+    const isVmGpuScalingLocked = isVmGpuPassthroughScalingLocked({
+      method: this.props.method,
+      vmRuntime: this.props.appDetail?.vm_profile?.runtime,
+      extendInfo: this.props.extendInfo
+    });
+
+    if (!wasVmGpuScalingLocked && isVmGpuScalingLocked && this.state.editBillInfo) {
+      const { form } = this.props;
+      const values = this.initializeConfigValues();
+
+      this.setState(
+        {
+          ...values,
+          editBillInfo: false
+        },
+        () => {
+          form.setFieldsValue({
+            new_memory: values.memoryValue,
+            new_cpu: values.cpuValue
+          });
+        }
+      );
+    }
   }
   // 是否可以浏览当前界面
   canView() {
@@ -869,10 +901,21 @@ export default class Index extends PureComponent {
   };
 
   handleFromData = () => {
-    const { form, appAlias, extendInfo, dispatch, method, status } = this.props;
+    const { form, appAlias, appDetail, extendInfo, dispatch, method, status } = this.props;
     const { cpuMarksObj, memoryMarksObj, isCustomMemory, isCustomCpu, customMemoryValue, customCpuValue, customMemoryUnit } = this.state;
     form.validateFields((err, values) => {
       if (err) return;
+      const isVmGpuScalingLocked = isVmGpuPassthroughScalingLocked({
+        method,
+        vmRuntime: appDetail?.vm_profile?.runtime,
+        extendInfo
+      });
+      if (isVmGpuScalingLocked) {
+        notification.warning({
+          message: formatMessage({ id: 'componentOverview.body.tab.overview.vmGpuPassthroughScalingLocked' })
+        });
+        return;
+      }
       const isVMStopped = status && ['closed', 'undeploy'].includes(status.status);
       if (
         method === 'vm' &&
@@ -1205,6 +1248,12 @@ export default class Index extends PureComponent {
       return null;
     }
 
+    const isVmGpuScalingLocked = isVmGpuPassthroughScalingLocked({
+      method,
+      vmRuntime: appDetail?.vm_profile?.runtime,
+      extendInfo
+    });
+
     const minNumber = getFieldValue('minNum') || 0;
     const formItemLayout = {
       labelCol: {
@@ -1309,7 +1358,14 @@ export default class Index extends PureComponent {
             type="warning"
           />
         )}
-        {method === 'vm' && extendInfo && (!extendInfo.cpu_hot_update_supported || !extendInfo.memory_hot_update_supported) && (
+        {isVmGpuScalingLocked && (
+          <Alert
+            style={{ marginTop: '16px' }}
+            message={formatMessage({ id: 'componentOverview.body.tab.overview.vmGpuPassthroughScalingLocked' })}
+            type="warning"
+          />
+        )}
+        {method === 'vm' && !isVmGpuScalingLocked && extendInfo && (!extendInfo.cpu_hot_update_supported || !extendInfo.memory_hot_update_supported) && (
           <Alert
             style={{ marginTop: '16px' }}
             message={
@@ -1337,7 +1393,7 @@ export default class Index extends PureComponent {
               }
               {this.state.editBillInfo ?
                 <div style={{ marginLeft: 10 }}>
-                  <Button type='primary' icon='save' style={{ marginRight: 10 }} onClick={this.handleFromData}>
+                  <Button type='primary' icon='save' style={{ marginRight: 10 }} onClick={this.handleFromData} disabled={isVmGpuScalingLocked}>
                     {method === 'vm'
                       ? formatMessage({ id: 'componentOverview.body.tab.overview.vmHotUpdateConfirm' })
                       : formatMessage({ id: 'appPublish.table.btn.confirm' })}
@@ -1360,7 +1416,7 @@ export default class Index extends PureComponent {
                   </Button>
                 </div>
                 :
-                <Button icon='edit' onClick={() => this.setState({ editBillInfo: true })}>
+                <Button icon='edit' onClick={() => this.setState({ editBillInfo: true })} disabled={isVmGpuScalingLocked}>
                   {method === 'vm'
                     ? formatMessage({ id: 'componentOverview.body.tab.overview.vmHotUpdateEdit' })
                     : formatMessage({ id: 'componentOverview.body.tab.env.table.column.edit' })}
@@ -1375,7 +1431,7 @@ export default class Index extends PureComponent {
                 initialValue: memoryValue,
               })(
                 <Slider
-                  disabled={!this.state.editBillInfo}
+                  disabled={!this.state.editBillInfo || isVmGpuScalingLocked}
                   style={{ width: '500px' }}
                   marks={memoryMarks}
                   min={memorySliderMin}
@@ -1403,13 +1459,13 @@ export default class Index extends PureComponent {
                     type="number"
                     min={1}
                     step={this.state.customMemoryUnit === 'GB' ? 0.1 : 1}
-                    disabled={!this.state.editBillInfo}
+                    disabled={!this.state.editBillInfo || isVmGpuScalingLocked}
                   />
                   <Select
                     value={this.state.customMemoryUnit}
                     onChange={this.handleMemoryUnitChange}
                     style={{ width: 80 }}
-                    disabled={!this.state.editBillInfo}
+                    disabled={!this.state.editBillInfo || isVmGpuScalingLocked}
                   >
                     <Option value="MB">MB</Option>
                     <Option value="GB">GB</Option>
@@ -1422,7 +1478,7 @@ export default class Index extends PureComponent {
                 initialValue: cpuValue,
               })(
                 <Slider
-                  disabled={!this.state.editBillInfo}
+                  disabled={!this.state.editBillInfo || isVmGpuScalingLocked}
                   style={{ width: '500px' }}
                   marks={cpuMarks}
                   min={cpuSliderMin}
@@ -1444,7 +1500,7 @@ export default class Index extends PureComponent {
                   type="number"
                   min={0.1}
                   step={0.1}
-                  disabled={!this.state.editBillInfo}
+                  disabled={!this.state.editBillInfo || isVmGpuScalingLocked}
                 />
               </Form.Item>
             )}
