@@ -70,9 +70,12 @@ const suggestedActions = adaptAgentEvent({
     summary: '当前建议优先走方案A。',
     actions: [
       {
+        actionId: 'sa_scale_component_memory',
         optionKey: 'A',
         label: '调回合理资源',
-        description: '将组件调整到 250m CPU / 512MB 内存'
+        description: '将组件调整到 250m CPU / 512MB 内存',
+        requiresApproval: true,
+        source: 'workflow'
       }
     ]
   }
@@ -81,9 +84,12 @@ assert.strictEqual(suggestedActions.type, 'suggested_actions', 'adapter should n
 assert.strictEqual(suggestedActions.summary, '当前建议优先走方案A。', 'adapter should expose suggested action summary');
 assert.deepStrictEqual(suggestedActions.actions, [
   {
+    actionId: 'sa_scale_component_memory',
     optionKey: 'A',
     label: '调回合理资源',
-    description: '将组件调整到 250m CPU / 512MB 内存'
+    description: '将组件调整到 250m CPU / 512MB 内存',
+    requiresApproval: true,
+    source: 'workflow'
   }
 ], 'adapter should expose suggested action items');
 

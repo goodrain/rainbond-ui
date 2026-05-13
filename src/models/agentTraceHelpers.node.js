@@ -1,5 +1,3 @@
-import * as agentToolLabels from '../utils/agentToolLabels';
-
 function nextTraceHeuristicIndex(messages, trace) {
   return messages.findIndex(item => (
     item &&
@@ -35,7 +33,7 @@ function findTraceMessageIndex(messages, trace) {
     : -1;
 }
 
-const { formatToolLabel } = agentToolLabels;
+const { formatToolLabel } = require('../utils/agentToolLabels');
 
 function buildTraceDisplayTitle(friendlyTitle, toolName) {
   if (friendlyTitle && toolName && friendlyTitle !== toolName) {
@@ -44,7 +42,7 @@ function buildTraceDisplayTitle(friendlyTitle, toolName) {
   return friendlyTitle || toolName || '工具调用';
 }
 
-export function buildTraceContent(data = {}) {
+function buildTraceContent(data = {}) {
   const toolName = data.tool_name || '';
   const friendlyTitle = formatToolLabel(toolName, data.input);
   const displayTitle = buildTraceDisplayTitle(friendlyTitle, toolName);
@@ -64,7 +62,7 @@ export function buildTraceContent(data = {}) {
   };
 }
 
-export function applyTraceEvent(nextMessages, event, contextSnapshot, eventSequence, createMessage) {
+function applyTraceEvent(nextMessages, event, contextSnapshot, eventSequence, createMessage) {
   const trace = buildTraceContent((event && event.data) || {});
   const traceIndex = findTraceMessageIndex(nextMessages, trace);
 
@@ -92,4 +90,8 @@ export function applyTraceEvent(nextMessages, event, contextSnapshot, eventSeque
   return nextMessages;
 }
 
-export { findTraceMessageIndex };
+module.exports = {
+  applyTraceEvent,
+  buildTraceContent,
+  findTraceMessageIndex,
+};

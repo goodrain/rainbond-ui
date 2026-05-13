@@ -3,7 +3,7 @@ const {
   applyTraceEvent,
   buildTraceContent,
   findTraceMessageIndex,
-} = require('./agentTraceHelpers');
+} = require('./agentTraceHelpers.node');
 
 function createMessage(role, kind, content, contextSnapshot = {}, extra = {}) {
   return {

@@ -19,6 +19,7 @@ import PluginUtil from '../utils/pulginUtils';
 function menuData(teamName, regionName, appID, permissionsInfo, pluginList, currentUser, rainbondInfo) {
   const pluginArr = PluginUtil.segregatePluginsByHierarchy(pluginList, 'Application');
   const appPermissions = roleUtil.queryTeamOrAppPermissionsInfo(permissionsInfo.team, 'app', `app_${appID}`);
+  const canAccessAppK8sResources = !(rainbondInfo && rainbondInfo.is_saas) || !!(currentUser && currentUser.is_enterprise_admin);
   const {
     isAppRelease,
     isAppUpgrade,
@@ -74,7 +75,11 @@ function menuData(teamName, regionName, appID, permissionsInfo, pluginList, curr
     });
   }
 
-  if (isAppResources && (currentUser.is_enterprise_admin || !rainbondInfo?.security_restrictions?.enable)) {
+  if (
+    isAppResources &&
+    (currentUser.is_enterprise_admin || !rainbondInfo?.security_restrictions?.enable) &&
+    canAccessAppK8sResources
+  ) {
     adminItems.push({
       name: formatMessage({ id: 'menu.app.k8s' }),
       icon: getMenuSvg.getSvg('kubenetes'),

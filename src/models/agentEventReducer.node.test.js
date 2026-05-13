@@ -88,9 +88,12 @@ const suggestedState = applyAgentEvent(assistantState, {
       summary: '当前建议优先走方案A。',
       actions: [
         {
+          actionId: 'sa_scale_component_memory',
           optionKey: 'A',
           label: '调回合理资源',
-          description: '将组件调整到 250m CPU / 512MB 内存'
+          description: '将组件调整到 250m CPU / 512MB 内存',
+          requiresApproval: true,
+          source: 'workflow'
         }
       ]
     }
@@ -102,11 +105,48 @@ assert.strictEqual(suggestedState.messages.length, 3, 'suggested action event sh
 assert.strictEqual(suggestedState.messages[2].kind, 'normal', 'assistant message kind should stay normal');
 assert.deepStrictEqual(suggestedState.messages[2].suggestedActions, [
   {
+    actionId: 'sa_scale_component_memory',
     optionKey: 'A',
     label: '调回合理资源',
-    description: '将组件调整到 250m CPU / 512MB 内存'
+    description: '将组件调整到 250m CPU / 512MB 内存',
+    requiresApproval: true,
+    source: 'workflow'
   }
 ], 'latest assistant message should carry parsed suggested actions');
+
+const workflowFallbackState = applyAgentEvent(assistantState, {
+  event: {
+    type: 'workflow.completed',
+    sequence: 8,
+    data: {
+      structured_result: {
+        summary: '分析完成',
+        suggestedActions: [
+          {
+            actionId: 'sa_get_component_logs',
+            optionKey: '1',
+            label: '先抓日志',
+            description: '先查看最近 200 行日志再决定是否修复',
+            requiresApproval: false,
+            source: 'workflow'
+          }
+        ]
+      }
+    }
+  },
+  contextSnapshot: { appId: 'app-1' }
+});
+
+assert.deepStrictEqual(workflowFallbackState.messages[2].suggestedActions, [
+  {
+    actionId: 'sa_get_component_logs',
+    optionKey: '1',
+    label: '先抓日志',
+    description: '先查看最近 200 行日志再决定是否修复',
+    requiresApproval: false,
+    source: 'workflow'
+  }
+], 'workflow completion should backfill suggested actions when chat.suggested_actions is absent');
 
 const custom = createAgentMessage('system', 'status', '测试');
 assert.strictEqual(custom.kind, 'status', 'helper should create the requested message kind');

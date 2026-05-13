@@ -12,7 +12,7 @@ import {
   sendAgentMessage,
   subscribeToActiveRun,
 } from '../services/agent';
-const { adaptAgentEvent } = require('../services/agentEventAdapter');
+import * as agentEventAdapter from '../services/agentEventAdapter';
 import {
   formatAgentContextMessage,
   getAgentContextSignature,
@@ -25,27 +25,41 @@ import {
   shouldUseSlidePanelContentRefresh,
 } from '../utils/agentMutationRouteMap';
 import agentWorkflowState from './agentWorkflowState';
-const { getNextInteractionLocked } = require('./agentInteractionLock');
-const { applyStreamingAssistantEvent } = require('./agentStreamMessages');
-const autoApprovalPolicy = require('../components/AgentHost/autoApprovalPolicy');
-const inFlightAutoApprovals = require('../components/AgentHost/inFlightAutoApprovals');
+import * as agentInteractionLock from './agentInteractionLock';
+import * as agentStreamMessages from './agentStreamMessages';
+import * as autoApprovalPolicy from '../components/AgentHost/autoApprovalPolicy';
+import * as inFlightAutoApprovals from '../components/AgentHost/inFlightAutoApprovals';
+import * as agentTraceHelpers from './agentTraceHelpers';
+import * as agentCrossTab from './agentCrossTab';
+import * as agentClearConversation from './agentClearConversation';
+import * as agentCompactionReducer from './agentCompactionReducer';
+import * as agentToolLabels from '../utils/agentToolLabels';
+import * as agentComponentMutationFinalizer from './agentComponentMutationFinalizer';
+
+const { extractWorkflowState } = agentWorkflowState;
+const { adaptAgentEvent } = agentEventAdapter;
+const { getNextInteractionLocked } = agentInteractionLock;
+const { applyStreamingAssistantEvent } = agentStreamMessages;
 const {
   applyTraceEvent,
   buildTraceContent,
-} = require('./agentTraceHelpers');
+} = agentTraceHelpers;
 const {
   buildCrossTabOnEventDispatcher,
-} = require('./agentCrossTab');
+} = agentCrossTab;
 const {
   resolveClearTargetSessionId,
-} = require('./agentClearConversation');
+} = agentClearConversation;
 const {
   applyCompactionEvent,
   defaultCompactionState,
-} = require('./agentCompactionReducer');
-const { formatToolLabel } = require('../utils/agentToolLabels');
-
-const { extractWorkflowState } = agentWorkflowState;
+} = agentCompactionReducer;
+const { formatToolLabel } = agentToolLabels;
+const {
+  buildComponentMutationTrackingPatch,
+  buildFinalComponentOverviewNavigationPayload,
+  createClearedComponentMutationTrackingState,
+} = agentComponentMutationFinalizer;
 
 // F5 — cross-tab SSE observer registry.
 // When tab B gets 409, the local run never produces events here; we have to
@@ -139,6 +153,7 @@ const defaultState = {
   pendingMutationRefreshMode: '',
   lastMutationResult: null,
   lastMutationRunId: '',
+  ...createClearedComponentMutationTrackingState(),
   updatedAt: 0,
 };
 
@@ -286,6 +301,11 @@ function buildHydratedState(snapshot) {
     pendingMutationRefreshMode: snapshot.pendingMutationRefreshMode || '',
     lastMutationResult: snapshot.lastMutationResult || null,
     lastMutationRunId: snapshot.lastMutationRunId || '',
+    lastComponentMutationAlias: snapshot.lastComponentMutationAlias || '',
+    lastComponentMutationAppId: snapshot.lastComponentMutationAppId || '',
+    lastComponentMutationTeamName: snapshot.lastComponentMutationTeamName || '',
+    lastComponentMutationRegionName: snapshot.lastComponentMutationRegionName || '',
+    lastComponentMutationTool: snapshot.lastComponentMutationTool || '',
     sessionList: [],
     sessionListLoading: false,
     sessionPendingApprovals: [],
@@ -609,6 +629,27 @@ function applyAgentEvents({
         break;
       }
       case 'workflow.completed': {
+        const structuredResult =
+          event.data && event.data.structured_result
+            ? event.data.structured_result
+            : {};
+        const suggestedActions = Array.isArray(structuredResult.suggestedActions)
+          ? structuredResult.suggestedActions
+          : [];
+        if (suggestedActions.length > 0) {
+          const assistantMessageIndex = findLatestAssistantNormalMessageIndex(nextMessages);
+          if (
+            assistantMessageIndex > -1 &&
+            !nextMessages[assistantMessageIndex].suggestedActions
+          ) {
+            nextMessages[assistantMessageIndex] = {
+              ...nextMessages[assistantMessageIndex],
+              suggestedActions,
+              suggestedActionSummary: '后续建议',
+              eventSequence,
+            };
+          }
+        }
         break;
       }
       default:
@@ -720,6 +761,7 @@ export default {
         patch.pendingMutationRefreshMode = '';
         patch.lastMutationResult = null;
         patch.lastMutationRunId = '';
+        Object.assign(patch, createClearedComponentMutationTrackingState());
       }
       yield put({ type: 'saveState', payload: patch });
     },
@@ -747,6 +789,7 @@ export default {
           pendingMutationRefreshMode: '',
           lastMutationResult: null,
           lastMutationRunId: '',
+          ...createClearedComponentMutationTrackingState(),
         },
       });
 
@@ -858,6 +901,7 @@ export default {
           pendingMutationRefreshMode: '',
           lastMutationResult: null,
           lastMutationRunId: '',
+          ...createClearedComponentMutationTrackingState(),
           updatedAt: Date.now(),
         },
       });
@@ -868,6 +912,7 @@ export default {
         const response = yield call(sendAgentMessage, {
           conversation_id: state.conversationId,
           message: text,
+          selectedActionId: payload && payload.selectedActionId,
           selectedActionKey: payload && payload.selectedActionKey,
           context: contextSnapshot,
           currentUser,
@@ -1271,11 +1316,17 @@ export default {
           appDetail: nextRootState.appControl && nextRootState.appControl.appDetail,
         });
         const navigationPayload = buildMutationNavigationPayload(pa.skillId, route);
+        const componentMutationTrackingPatch = buildComponentMutationTrackingPatch({
+          toolName: pa.skillId,
+          context: nextState.context,
+          targetRef: pa.targetRef,
+        });
         yield put({
           type: 'saveState',
           payload: {
             pendingMutationTool: pa.skillId || '',
             ...(navigationPayload || {}),
+            ...componentMutationTrackingPatch,
           },
         });
       }
@@ -1404,6 +1455,8 @@ export default {
         prevState.pendingMutationTool &&
         shouldUseRouteQueryRefresh(prevState.pendingMutationTool)
       ) {
+        const finalOverviewNavigationPayload =
+          buildFinalComponentOverviewNavigationPayload(prevState);
         yield put({
           type: 'saveState',
           payload: {
@@ -1411,9 +1464,38 @@ export default {
             pendingMutationRoute: '',
             pendingMutationNavigationKey: '',
             ...buildMutationRefreshPayload(prevState.pendingMutationTool, 'route'),
+            ...(finalOverviewNavigationPayload || {}),
+            ...createClearedComponentMutationTrackingState(),
             updatedAt: Date.now(),
           },
         });
+      } else if (
+        adaptedEvent &&
+        adaptedEvent.type === 'run_status' &&
+        adaptedEvent.status === 'done'
+      ) {
+        const finalOverviewNavigationPayload =
+          buildFinalComponentOverviewNavigationPayload(prevState);
+        if (finalOverviewNavigationPayload) {
+          yield put({
+            type: 'saveState',
+            payload: {
+              pendingMutationTool: '',
+              pendingMutationRefreshMode: '',
+              ...finalOverviewNavigationPayload,
+              ...createClearedComponentMutationTrackingState(),
+              updatedAt: Date.now(),
+            },
+          });
+        } else if (prevState.lastComponentMutationTool) {
+          yield put({
+            type: 'saveState',
+            payload: {
+              ...createClearedComponentMutationTrackingState(),
+              updatedAt: Date.now(),
+            },
+          });
+        }
       } else if (
         adaptedEvent &&
         adaptedEvent.type === 'run_status' &&
@@ -1426,6 +1508,8 @@ export default {
             pendingMutationRoute: '',
             pendingMutationNavigationKey: '',
             pendingMutationRefreshMode: '',
+            ...createClearedComponentMutationTrackingState(),
+            updatedAt: Date.now(),
           },
         });
       }
@@ -1557,6 +1641,7 @@ export default {
         pendingMutationRefreshMode: '',
         lastMutationResult: null,
         lastMutationRunId: '',
+        ...createClearedComponentMutationTrackingState(),
         updatedAt: Date.now(),
       };
     },

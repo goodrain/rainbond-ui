@@ -82,6 +82,13 @@ const CustomFooter = {
   'GlobalHeader.market':'应用市场',
   'GlobalHeader.balance':'余额',
   'GlobalHeader.account':'账户中心',
+  'GlobalHeader.agent.install.title': 'AI助手插件未安装',
+  'GlobalHeader.agent.install.content': '当前企业还没有安装 rainbond-agent 插件，是否前往扩展中心安装？',
+  'GlobalHeader.agent.install.ok': '去安装',
+  'GlobalHeader.agent.install.cancel': '取消',
+  'GlobalHeader.agent.contact_admin': '当前企业未安装 AI 助手插件，请联系企业管理员安装。',
+  'GlobalHeader.agent.load_error': 'AI 助手插件状态获取失败，请稍后重试。',
+  'GlobalHeader.agent.loading': '正在检查 AI 助手插件状态，请稍后重试。'
 }
 
 

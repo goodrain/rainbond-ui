@@ -17,7 +17,15 @@ const result = extractWorkflowState([
       structured_result: {
         workflowId: 'rainbond-app-assistant',
         selectedWorkflow: 'rainbond-fullstack-bootstrap',
-        summary: '已进入 bootstrap 子流程'
+        summary: '已进入 bootstrap 子流程',
+        suggestedActions: [
+          {
+            actionId: 'sa_get_component_logs',
+            optionKey: '1',
+            label: '先抓日志',
+            description: '先查看最近 200 行日志再决定是否修复'
+          }
+        ]
       }
     }
   }
@@ -32,7 +40,15 @@ assert.deepStrictEqual(result, {
   structuredResult: {
     workflowId: 'rainbond-app-assistant',
     selectedWorkflow: 'rainbond-fullstack-bootstrap',
-    summary: '已进入 bootstrap 子流程'
+    summary: '已进入 bootstrap 子流程',
+    suggestedActions: [
+      {
+        actionId: 'sa_get_component_logs',
+        optionKey: '1',
+        label: '先抓日志',
+        description: '先查看最近 200 行日志再决定是否修复'
+      }
+    ]
   }
 });
 
