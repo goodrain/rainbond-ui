@@ -107,12 +107,43 @@ function extractAppId(result = {}, context = {}) {
 function extractComponentAlias(result = {}, context = {}) {
   const firstItem = pickFirstItem(result.items);
   return (
+    result.result_ref?.service_alias ||
+    result.result_ref?.component_alias ||
     result.service_alias ||
     (result.service && result.service.service_alias) ||
     (firstItem && (firstItem.service_alias || firstItem.dep_app_alias)) ||
     context.componentAlias ||
     ''
   );
+}
+
+function extractRouteRef(ref = null) {
+  if (!ref || typeof ref !== 'object') {
+    return null;
+  }
+  return ref;
+}
+
+function buildRouteContext(context = {}, ref = null) {
+  const routeRef = extractRouteRef(ref);
+  if (!routeRef) {
+    return context;
+  }
+
+  return {
+    ...context,
+    teamName: routeRef.team_name || routeRef.teamName || context.teamName || '',
+    regionName:
+      routeRef.region_name || routeRef.regionName || context.regionName || '',
+    appId: routeRef.app_id || routeRef.appId || context.appId || '',
+    componentAlias:
+      routeRef.service_alias ||
+      routeRef.serviceAlias ||
+      routeRef.component_alias ||
+      routeRef.componentAlias ||
+      context.componentAlias ||
+      '',
+  };
 }
 
 function isThirdPartyComponent(appDetail) {
@@ -202,27 +233,27 @@ const MUTATION_ROUTE_POLICIES = {
   },
   rainbond_create_app_version_snapshot: {
     pre: { routeKind: 'app-version' },
-    post: { routeKind: 'route-query-refresh' },
+    post: { routeKind: 'app-version-refresh' },
   },
   rainbond_delete_app_version_snapshot: {
     pre: { routeKind: 'app-version' },
-    post: { routeKind: 'route-query-refresh' },
+    post: { routeKind: 'app-version-refresh' },
   },
   rainbond_rollback_app_version_snapshot: {
     pre: { routeKind: 'app-version' },
-    post: { routeKind: 'route-query-refresh' },
+    post: { routeKind: 'app-version-refresh' },
   },
   rainbond_delete_app_version_rollback_record: {
     pre: { routeKind: 'app-version' },
-    post: { routeKind: 'route-query-refresh' },
+    post: { routeKind: 'app-version-refresh' },
   },
   rainbond_create_app_share_record: {
     pre: { routeKind: 'app-version' },
-    post: { routeKind: 'route-query-refresh' },
+    post: { routeKind: 'app-version-refresh' },
   },
   rainbond_delete_app_share_record: {
     pre: { routeKind: 'app-version' },
-    post: { routeKind: 'route-query-refresh' },
+    post: { routeKind: 'app-version-refresh' },
   },
   rainbond_submit_app_share_info: {
     post: { routeKind: 'route-query-refresh' },
@@ -238,27 +269,27 @@ const MUTATION_ROUTE_POLICIES = {
   },
   rainbond_create_gateway_rules: {
     pre: { routeKind: 'app-gateway' },
-    post: { routeKind: 'route-query-refresh' },
+    post: { routeKind: 'app-gateway-refresh' },
   },
   rainbond_create_app_upgrade_record: {
     pre: { routeKind: 'app-upgrade' },
-    post: { routeKind: 'route-query-refresh' },
+    post: { routeKind: 'app-upgrade-refresh' },
   },
   rainbond_execute_app_upgrade_record: {
     pre: { routeKind: 'app-upgrade' },
-    post: { routeKind: 'route-query-refresh' },
+    post: { routeKind: 'app-upgrade-refresh' },
   },
   rainbond_deploy_app_upgrade_record: {
     pre: { routeKind: 'app-upgrade' },
-    post: { routeKind: 'route-query-refresh' },
+    post: { routeKind: 'app-upgrade-refresh' },
   },
   rainbond_rollback_app_upgrade_record: {
     pre: { routeKind: 'app-upgrade' },
-    post: { routeKind: 'route-query-refresh' },
+    post: { routeKind: 'app-upgrade-refresh' },
   },
   rainbond_upgrade_app: {
     pre: { routeKind: 'app-upgrade' },
-    post: { routeKind: 'route-query-refresh' },
+    post: { routeKind: 'app-upgrade-refresh' },
   },
 };
 
@@ -295,29 +326,36 @@ export function shouldUseRouteQueryRefresh(toolName) {
   );
 }
 
-function resolveRouteByKind(kind, context = {}, appDetail, result, routeMeta = {}) {
+function resolveRouteByKind(kind, context = {}, appDetail, result, routeMeta = {}, ref = null) {
   const refresh = routeMeta.refresh || '';
+  const routeContext = buildRouteContext(context, ref || (result && result.result_ref));
 
   switch (kind) {
     case 'team-index':
-      return buildTeamIndexRoute(context);
+      return buildTeamIndexRoute(routeContext);
     case 'app-overview':
-      return buildAppOverviewRoute(context, refresh ? { refresh } : {});
+      return buildAppOverviewRoute(routeContext, refresh ? { refresh } : {});
     case 'app-version':
-      return buildAppVersionRoute(context, refresh ? { refresh } : {});
+      return buildAppVersionRoute(routeContext, refresh ? { refresh } : {});
+    case 'app-version-refresh':
+      return buildAppVersionRoute(routeContext, { refresh: refresh || Date.now() });
     case 'app-gateway':
-      return buildAppGatewayRoute(context, refresh ? { refresh } : {});
+      return buildAppGatewayRoute(routeContext, refresh ? { refresh } : {});
+    case 'app-gateway-refresh':
+      return buildAppGatewayRoute(routeContext, { refresh: refresh || Date.now() });
     case 'app-upgrade':
-      return buildAppUpgradeRoute(context, refresh ? { refresh } : {});
+      return buildAppUpgradeRoute(routeContext, refresh ? { refresh } : {});
+    case 'app-upgrade-refresh':
+      return buildAppUpgradeRoute(routeContext, { refresh: refresh || Date.now() });
     case 'component': {
-      return buildComponentOverviewRoute(context, {
+      return buildComponentOverviewRoute(routeContext, {
         tab: routeMeta.tab,
         subTab: routeMeta.subTab,
         refresh,
       });
     }
     case 'component-refresh': {
-      return buildComponentOverviewRoute(context, {
+      return buildComponentOverviewRoute(routeContext, {
         tab: routeMeta.tab,
         subTab: routeMeta.subTab,
         refresh: refresh || Date.now(),
@@ -325,12 +363,12 @@ function resolveRouteByKind(kind, context = {}, appDetail, result, routeMeta = {
     }
     case 'component-port': {
       if (isThirdPartyComponent(appDetail)) {
-        return buildComponentOverviewRoute(context, {
+        return buildComponentOverviewRoute(routeContext, {
           tab: 'port',
           refresh,
         });
       }
-      return buildComponentOverviewRoute(context, {
+      return buildComponentOverviewRoute(routeContext, {
         tab: 'advancedSettings',
         subTab: 'port',
         refresh,
@@ -338,28 +376,29 @@ function resolveRouteByKind(kind, context = {}, appDetail, result, routeMeta = {
     }
     case 'component-port-refresh': {
       if (isThirdPartyComponent(appDetail)) {
-        return buildComponentOverviewRoute(context, {
+        return buildComponentOverviewRoute(routeContext, {
           tab: 'port',
           refresh: refresh || Date.now(),
         });
       }
-      return buildComponentOverviewRoute(context, {
+      return buildComponentOverviewRoute(routeContext, {
         tab: 'advancedSettings',
         subTab: 'port',
         refresh: refresh || Date.now(),
       });
     }
     case 'created-app-overview': {
-      const appId = extractAppId(result, context);
+      const appId = routeContext.appId || extractAppId(result, context);
       if (!appId) return '';
-      return buildAppOverviewRoute({ ...context, appId });
+      return buildAppOverviewRoute({ ...routeContext, appId });
     }
     case 'created-component-overview': {
-      const appId = extractAppId(result, context);
-      const componentAlias = extractComponentAlias(result, context);
+      const appId = routeContext.appId || extractAppId(result, context);
+      const componentAlias =
+        routeContext.componentAlias || extractComponentAlias(result, context);
       if (!appId || !componentAlias) return '';
       return buildComponentOverviewRoute(
-        { ...context, appId, componentAlias },
+        { ...routeContext, appId, componentAlias },
         { tab: 'overview' }
       );
     }
@@ -368,14 +407,28 @@ function resolveRouteByKind(kind, context = {}, appDetail, result, routeMeta = {
   }
 }
 
-export function resolvePreActionRoute({ toolName, context, appDetail }) {
+export function resolvePreActionRoute({ toolName, context, appDetail, targetRef }) {
   const policy = getAgentMutationRoutePolicy(toolName);
   if (!policy || !policy.pre) return '';
-  return resolveRouteByKind(policy.pre.routeKind, context, appDetail, null, policy.pre);
+  return resolveRouteByKind(
+    policy.pre.routeKind,
+    context,
+    appDetail,
+    null,
+    policy.pre,
+    targetRef
+  );
 }
 
-export function resolvePostActionRoute({ toolName, context, appDetail, result }) {
+export function resolvePostActionRoute({ toolName, context, appDetail, result, resultRef }) {
   const policy = getAgentMutationRoutePolicy(toolName);
   if (!policy || !policy.post) return '';
-  return resolveRouteByKind(policy.post.routeKind, context, appDetail, result, policy.post);
+  return resolveRouteByKind(
+    policy.post.routeKind,
+    context,
+    appDetail,
+    result,
+    policy.post,
+    resultRef
+  );
 }

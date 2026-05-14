@@ -8,7 +8,18 @@ function isNearBottom(metrics = {}, threshold = BOTTOM_THRESHOLD_PX) {
   return scrollHeight - (scrollTop + clientHeight) <= threshold;
 }
 
-function getNextAutoScrollEnabled(currentEnabled, metrics = {}, threshold = BOTTOM_THRESHOLD_PX) {
+function getNextAutoScrollEnabled(
+  currentEnabled,
+  metrics = {},
+  options = {}
+) {
+  const threshold =
+    typeof options.threshold === 'number'
+      ? options.threshold
+      : BOTTOM_THRESHOLD_PX;
+  if (options.isStreaming) {
+    return true;
+  }
   return isNearBottom(metrics, threshold);
 }
 

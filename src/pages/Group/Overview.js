@@ -68,6 +68,11 @@ export default class Overview extends Component {
     if (this.props.location !== prevProps.location) {
       this.handleUrlParams();
     }
+    if (
+      this.props.currentTeamPermissionsInfo !== prevProps.currentTeamPermissionsInfo
+    ) {
+      this.getPermissionInfo();
+    }
   }
 
   // 提取路由监听相关方法

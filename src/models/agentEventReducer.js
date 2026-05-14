@@ -51,7 +51,16 @@ function findLatestAssistantNormalMessageIndex(messages) {
 function applyAgentEvent(state, payload = {}) {
   const event = payload.event;
   const contextSnapshot = payload.contextSnapshot || {};
-  const nextMessages = Array.isArray(state.messages) ? state.messages.slice() : [];
+  const baseMessages = Array.isArray(state.messages) ? state.messages : [];
+  let nextMessages = baseMessages;
+  let messagesCloned = false;
+  const ensureMutableMessages = () => {
+    if (!messagesCloned) {
+      nextMessages = baseMessages.slice();
+      messagesCloned = true;
+    }
+    return nextMessages;
+  };
   let pendingApproval = normalizePendingApproval(state.pendingApproval);
   let lastEventSequence = state.lastEventSequence || 0;
 
@@ -71,7 +80,7 @@ function applyAgentEvent(state, payload = {}) {
   switch (event.type) {
     case 'chat.message': {
       const data = event.data || {};
-      nextMessages.push(
+      ensureMutableMessages().push(
         createAgentMessage(
           data.role === 'user' ? 'user' : 'assistant',
           'normal',
@@ -83,7 +92,7 @@ function applyAgentEvent(state, payload = {}) {
       break;
     }
     case 'chat.trace': {
-      nextMessages.push(
+      ensureMutableMessages().push(
         createAgentMessage(
           'system',
           'trace',
@@ -101,14 +110,15 @@ function applyAgentEvent(state, payload = {}) {
       const data = event.data || {};
       const assistantMessageIndex = findLatestAssistantNormalMessageIndex(nextMessages);
       if (assistantMessageIndex > -1) {
-        nextMessages[assistantMessageIndex] = {
-          ...nextMessages[assistantMessageIndex],
+        const mutableMessages = ensureMutableMessages();
+        mutableMessages[assistantMessageIndex] = {
+          ...mutableMessages[assistantMessageIndex],
           suggestedActions: Array.isArray(data.actions) ? data.actions : [],
           suggestedActionSummary: data.summary || '后续建议',
           eventSequence,
         };
       } else {
-        nextMessages.push(
+        ensureMutableMessages().push(
           createAgentMessage(
             'system',
             'suggested_actions',
@@ -149,7 +159,7 @@ function applyAgentEvent(state, payload = {}) {
         pendingApproval.approvalId
       );
       if (existingApprovalIndex === -1) {
-        nextMessages.push(
+        ensureMutableMessages().push(
           createAgentMessage(
             'system',
             'approval',
@@ -169,10 +179,11 @@ function applyAgentEvent(state, payload = {}) {
       const approvalId = data.approval_id;
       const index = findApprovalMessageIndex(nextMessages, approvalId);
       if (index > -1) {
-        nextMessages[index] = {
-          ...nextMessages[index],
+        const mutableMessages = ensureMutableMessages();
+        mutableMessages[index] = {
+          ...mutableMessages[index],
           approval: {
-            ...(nextMessages[index].approval || {}),
+            ...(mutableMessages[index].approval || {}),
             approvalId,
             status: data.status || 'approved',
             lastSequence: eventSequence,
@@ -187,7 +198,7 @@ function applyAgentEvent(state, payload = {}) {
     case 'run.status': {
       const data = event.data || {};
       if (data.status === 'cancelled') {
-        nextMessages.push(
+        ensureMutableMessages().push(
           createAgentMessage(
             'system',
             'status',
@@ -197,7 +208,7 @@ function applyAgentEvent(state, payload = {}) {
           )
         );
       } else if (data.status === 'error') {
-        nextMessages.push(
+        ensureMutableMessages().push(
           createAgentMessage(
             'system',
             'error',
@@ -217,7 +228,7 @@ function applyAgentEvent(state, payload = {}) {
     }
     case 'run.error': {
       const data = event.data || {};
-      nextMessages.push(
+      ensureMutableMessages().push(
         createAgentMessage(
           'system',
           'error',
@@ -237,8 +248,9 @@ function applyAgentEvent(state, payload = {}) {
       if (suggestedActions.length > 0) {
         const assistantMessageIndex = findLatestAssistantNormalMessageIndex(nextMessages);
         if (assistantMessageIndex > -1 && !nextMessages[assistantMessageIndex].suggestedActions) {
-          nextMessages[assistantMessageIndex] = {
-            ...nextMessages[assistantMessageIndex],
+          const mutableMessages = ensureMutableMessages();
+          mutableMessages[assistantMessageIndex] = {
+            ...mutableMessages[assistantMessageIndex],
             suggestedActions,
             suggestedActionSummary: '后续建议',
             eventSequence,

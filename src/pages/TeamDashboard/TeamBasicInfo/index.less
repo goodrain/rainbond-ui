@@ -4,7 +4,6 @@
   width: 100%;
   gap: 16px;
   position: relative;
-  min-height: 632px;
 
   .emptyTip {
     position: absolute;
@@ -73,7 +72,8 @@
       .appStatusBar {
         width: 6px;
         min-width: 6px;
-        height: 100%;
+        height: auto;
+        align-self: stretch;
         border-radius: 12px 0 0 12px;
       }
 
@@ -172,7 +172,7 @@
         .appCardResources {
           display: flex;
           align-items: center;
-          gap: 20px;
+          gap: 12px;
           margin-top: 20px;
           padding-bottom: 20px;
           border-bottom: 1px solid #f0f0f0;
@@ -180,6 +180,8 @@
           .resourceItem {
             display: flex;
             align-items: center;
+            flex: 1 1 0;
+            min-width: 0;
             font-size: 13px;
             color: @rbd-auxiliary-color-secondary;
             white-space: nowrap;
@@ -245,12 +247,20 @@
 }
 
 .teamHotAppListCompact {
-  >div {
-    height: 184px;
+  column-gap: 16px;
+  row-gap: 10px;
 
-    .teamHotAppItem,
+  >div {
+    height: 144px;
+    min-height: 144px;
+
     .teamHotAppItemEmpty {
-      height: 184px;
+      height: 144px;
+    }
+
+    .teamHotAppItem {
+      height: 144px;
+      min-height: 144px;
     }
 
     .teamHotAppItem {
@@ -260,10 +270,13 @@
       }
 
       .appCardContent {
-        padding: 12px 14px;
-        justify-content: center;
+        padding: 10px 14px 8px;
+        justify-content: flex-start;
 
         .appCardHeader {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) auto;
+          column-gap: 8px;
           align-items: flex-start;
 
           .appCardHeaderLeft {
@@ -293,17 +306,16 @@
           }
 
           .appCardHeaderRight {
-            margin-left: 6px;
+            margin-left: 0;
             padding-top: 0;
           }
         }
 
         .appCardResources {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 8px;
-          margin-top: 12px;
-          padding-bottom: 12px;
+          display: flex;
+          gap: 6px;
+          margin-top: 6px;
+          padding-bottom: 6px;
 
           .resourceItem {
             min-width: 0;
@@ -329,6 +341,7 @@
               color: @text-color;
               font-size: 12px;
               line-height: 16px;
+              min-width: 0;
               white-space: nowrap;
             }
           }
@@ -357,7 +370,9 @@
 
   .addNewAppCard {
     .addNewAppContent {
-      padding: 12px 14px;
+      padding: 10px 14px 8px;
+      justify-content: flex-start;
+      gap: 8px;
 
       .addNewAppHeader {
         align-items: flex-start;
@@ -389,7 +404,7 @@
       }
 
       .addNewAppIcons {
-        margin-top: 12px;
+        margin-top: 0;
         gap: 8px;
         flex-wrap: wrap;
 
@@ -406,12 +421,156 @@
       }
 
       .addNewAppFooterWrapper {
-        margin-top: 10px;
+        margin-top: 0;
         align-items: flex-end;
 
         .addNewAppFooter {
           font-size: 11px;
           line-height: 16px;
+        }
+      }
+    }
+  }
+}
+
+.teamHotAppListMini {
+  row-gap: 12px;
+
+  >div {
+    height: auto;
+    min-height: 196px;
+
+    .teamHotAppItemEmpty {
+      height: 196px;
+    }
+
+    .teamHotAppItem {
+      height: auto;
+      min-height: 196px;
+    }
+
+    .teamHotAppItem {
+      .appCardContent {
+        padding: 10px 12px;
+
+        .appCardHeader {
+          grid-template-columns: minmax(0, 1fr) 28px;
+          column-gap: 6px;
+
+          .appCardHeaderLeft {
+            .appIcon {
+              width: 34px;
+              height: 34px;
+              margin-right: 8px;
+              padding: 5px;
+            }
+
+            .appNameWrapper {
+              .appName {
+                font-size: 13px;
+                line-height: 18px;
+              }
+
+              .appCardStatus {
+                .statusText {
+                  font-size: 12px;
+                }
+              }
+            }
+          }
+        }
+
+        .appCardResources {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          column-gap: 8px;
+          row-gap: 0;
+          margin-top: 6px;
+          padding-bottom: 6px;
+
+          .resourceItemMini {
+            gap: 1px;
+            line-height: 15px;
+
+            .resourceLabel {
+              font-size: 11px;
+              line-height: 14px;
+            }
+
+            .resourceValue {
+              font-size: 11px;
+              line-height: 14px;
+              letter-spacing: -0.1px;
+            }
+          }
+        }
+
+        .appCardTimeRow {
+          margin-top: 8px;
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          align-items: center;
+          gap: 4px 8px;
+
+          .timeItem {
+            flex: none;
+            width: auto;
+            min-width: 0;
+          }
+        }
+      }
+    }
+  }
+
+  .compactVisitTrigger {
+    width: 24px;
+    height: 24px;
+  }
+
+  .addNewAppCard {
+    .addNewAppContent {
+      padding: 10px 12px;
+      gap: 6px;
+
+      .addNewAppHeader {
+        .addNewAppIcon {
+          width: 34px;
+          height: 34px;
+          margin-right: 8px;
+
+          i {
+            font-size: 16px;
+          }
+        }
+
+        .addNewAppTitleWrapper {
+          .addNewAppTitle {
+            font-size: 13px;
+            line-height: 18px;
+          }
+
+          .addNewAppSubtitle {
+            display: none;
+          }
+        }
+      }
+
+      .addNewAppIcons {
+        display: grid;
+        grid-template-columns: repeat(3, 28px);
+        grid-auto-rows: 28px;
+        gap: 8px;
+
+        .iconItem {
+          width: 28px;
+          height: 28px;
+        }
+      }
+
+      .addNewAppFooterWrapper {
+        justify-content: flex-end;
+
+        .addNewAppFooter {
+          display: none;
         }
       }
     }

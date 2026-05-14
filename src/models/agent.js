@@ -382,7 +382,16 @@ function applyAgentEvents({
   currentLastMutationResult,
   currentLastMutationRunId,
 }) {
-  const nextMessages = Array.isArray(messages) ? messages.slice() : [];
+  const baseMessages = Array.isArray(messages) ? messages : [];
+  let nextMessages = baseMessages;
+  let messagesCloned = false;
+  const ensureMutableMessages = () => {
+    if (!messagesCloned) {
+      nextMessages = baseMessages.slice();
+      messagesCloned = true;
+    }
+    return nextMessages;
+  };
   let pendingApproval = normalizePendingApproval(currentPendingApproval);
   let lastEventSequence = 0;
   let lastMutationResult = currentLastMutationResult || null;
@@ -415,7 +424,7 @@ function applyAgentEvents({
           lastMutationRunId = event.runId || '';
         }
         applyTraceEvent(
-          nextMessages,
+          ensureMutableMessages(),
           event,
           contextSnapshot,
           eventSequence,
@@ -435,8 +444,8 @@ function applyAgentEvents({
           createMessage,
           contextSnapshot
         );
-        nextMessages.length = 0;
-        streamedMessages.forEach(item => nextMessages.push(item));
+        nextMessages = streamedMessages;
+        messagesCloned = true;
         break;
       }
       case 'message': {
@@ -458,12 +467,12 @@ function applyAgentEvents({
             item => item && item.streamMessageId === adaptedEvent.messageId
           );
           if (matchedIndex > -1) {
-            nextMessages.length = 0;
-            streamedMessages.forEach(item => nextMessages.push(item));
+            nextMessages = streamedMessages;
+            messagesCloned = true;
             break;
           }
         }
-        nextMessages.push(
+        ensureMutableMessages().push(
           createMessage(
             adaptedEvent.role === 'user' ? 'user' : 'assistant',
             'normal',
@@ -477,8 +486,9 @@ function applyAgentEvents({
       case 'suggested_actions': {
         const assistantMessageIndex = findLatestAssistantNormalMessageIndex(nextMessages);
         if (assistantMessageIndex > -1) {
-          nextMessages[assistantMessageIndex] = {
-            ...nextMessages[assistantMessageIndex],
+          const mutableMessages = ensureMutableMessages();
+          mutableMessages[assistantMessageIndex] = {
+            ...mutableMessages[assistantMessageIndex],
             suggestedActions: Array.isArray(adaptedEvent.actions)
               ? adaptedEvent.actions
               : [],
@@ -486,7 +496,7 @@ function applyAgentEvents({
             eventSequence,
           };
         } else {
-          nextMessages.push(
+          ensureMutableMessages().push(
             createMessage(
               'system',
               'suggested_actions',
@@ -528,7 +538,7 @@ function applyAgentEvents({
           pendingApproval.approvalId
         );
         if (existingApprovalIndex === -1) {
-          nextMessages.push(
+          ensureMutableMessages().push(
             createMessage(
               'system',
               'approval',
@@ -547,10 +557,11 @@ function applyAgentEvents({
         const approvalId = adaptedEvent.approvalId;
         const index = findApprovalMessageIndex(nextMessages, approvalId);
         if (index > -1) {
-          nextMessages[index] = {
-            ...nextMessages[index],
+          const mutableMessages = ensureMutableMessages();
+          mutableMessages[index] = {
+            ...mutableMessages[index],
             approval: {
-              ...(nextMessages[index].approval || {}),
+              ...(mutableMessages[index].approval || {}),
               approvalId,
               status: adaptedEvent.status || 'approved',
               lastSequence: eventSequence,
@@ -564,7 +575,7 @@ function applyAgentEvents({
       }
       case 'run_status': {
         if (adaptedEvent.status === 'cancelled') {
-          nextMessages.push(
+          ensureMutableMessages().push(
             createMessage(
               'system',
               'status',
@@ -574,7 +585,7 @@ function applyAgentEvents({
             )
           );
         } else if (adaptedEvent.status === 'error') {
-          nextMessages.push(
+          ensureMutableMessages().push(
             createMessage(
               'system',
               'error',
@@ -593,7 +604,7 @@ function applyAgentEvents({
         break;
       }
       case 'run_error': {
-        nextMessages.push(
+        ensureMutableMessages().push(
           createMessage(
             'system',
             'error',
@@ -605,7 +616,7 @@ function applyAgentEvents({
         break;
       }
       case 'workflow.selected': {
-        nextMessages.push(
+        ensureMutableMessages().push(
           createMessage(
             'system',
             'status',
@@ -617,7 +628,7 @@ function applyAgentEvents({
         break;
       }
       case 'workflow.stage': {
-        nextMessages.push(
+        ensureMutableMessages().push(
           createMessage(
             'system',
             'status',
@@ -642,8 +653,9 @@ function applyAgentEvents({
             assistantMessageIndex > -1 &&
             !nextMessages[assistantMessageIndex].suggestedActions
           ) {
-            nextMessages[assistantMessageIndex] = {
-              ...nextMessages[assistantMessageIndex],
+            const mutableMessages = ensureMutableMessages();
+            mutableMessages[assistantMessageIndex] = {
+              ...mutableMessages[assistantMessageIndex],
               suggestedActions,
               suggestedActionSummary: '后续建议',
               eventSequence,
@@ -1016,6 +1028,7 @@ export default {
 
     *abortRun({ payload }, { call, put, select }) {
       const state = yield select(s => s.agent);
+      const hideAfterAbort = !!(payload && payload.hideAfterAbort);
       const sessionId =
         (payload && payload.sessionId) ||
         state.conversationId;
@@ -1035,6 +1048,7 @@ export default {
           yield put({
             type: 'saveState',
             payload: {
+              visible: hideAfterAbort ? false : state.visible,
               cancellingRun: false,
               sending: false,
               interactionLocked: false,
@@ -1314,6 +1328,7 @@ export default {
           toolName: pa.skillId,
           context: nextState.context,
           appDetail: nextRootState.appControl && nextRootState.appControl.appDetail,
+          targetRef: pa.targetRef,
         });
         const navigationPayload = buildMutationNavigationPayload(pa.skillId, route);
         const componentMutationTrackingPatch = buildComponentMutationTrackingPatch({
@@ -1349,6 +1364,9 @@ export default {
           payload.event.data.output.structuredContent
             ? payload.event.data.output.structuredContent
             : payload.event.data.output || null;
+        const resultRef = resultPayload && resultPayload.result_ref
+          ? resultPayload.result_ref
+          : null;
         const shouldRefreshContent = shouldUseSlidePanelContentRefresh(
           mutationToolName
         );
@@ -1392,6 +1410,7 @@ export default {
             context: nextState.context,
             appDetail: nextRootState.appControl && nextRootState.appControl.appDetail,
             result: resultPayload,
+            resultRef,
           });
           const navigationPayload = buildMutationNavigationPayload(
             mutationToolName,
@@ -1429,6 +1448,13 @@ export default {
             nextState.lastMutationResult.output &&
             nextState.lastMutationResult.output.structuredContent
               ? nextState.lastMutationResult.output.structuredContent
+              : null,
+          resultRef:
+            nextState.lastMutationResult &&
+            nextState.lastMutationResult.output &&
+            nextState.lastMutationResult.output.structuredContent &&
+            nextState.lastMutationResult.output.structuredContent.result_ref
+              ? nextState.lastMutationResult.output.structuredContent.result_ref
               : null,
         });
         const navigationPayload = buildMutationNavigationPayload(
