@@ -233,6 +233,29 @@ assert.strictEqual(
   'pendingApproval should still reflect the approval after dedupe'
 );
 
+const waitingApprovalSource = {
+  messages: approvalWithTarget.messages,
+  pendingApproval: approvalWithTarget.pendingApproval,
+  lastEventSequence: approvalWithTarget.lastEventSequence,
+  debugPromptData: null,
+};
+const waitingApprovalState = applyAgentEvent(waitingApprovalSource, {
+  event: {
+    type: 'run.status',
+    sequence: 8,
+    data: {
+      status: 'waiting_approval',
+    }
+  },
+  contextSnapshot: { appId: 'app-1' }
+});
+
+assert.strictEqual(
+  waitingApprovalState.messages,
+  waitingApprovalSource.messages,
+  'waiting_approval without any new visible message should preserve the messages array reference'
+);
+
 // F14 — backend emits compaction.started / compaction.completed /
 // compaction.failed / compaction.forced_sync_due_to_pressure SSE events
 // in the 2_000_000_001+ sequence band. The local reducer must surface a

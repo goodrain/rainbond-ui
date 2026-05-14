@@ -111,7 +111,8 @@ class TeamLayout extends PureComponent {
       isTime: false,
       isNeedAuthz: false,
       showFooter: true,
-      showHeader: true
+      showHeader: true,
+      permissionsRefreshing: false
     };
   }
 
@@ -177,9 +178,13 @@ class TeamLayout extends PureComponent {
     const { appID: stateAppID } = this.state;
     if (newAppID && newAppID !== stateAppID) {
       this.setState(
-        { appID: newAppID, currentApp: false },
+        { appID: newAppID, currentApp: false, permissionsRefreshing: true },
         () => {
-          this.fetchGroup();
+          this.fetchGroup(() => {
+            if (globalUtil.getAppID() === newAppID) {
+              this.setState({ permissionsRefreshing: false });
+            }
+          });
           this.fetchAppDetail(newAppID);
         }
       );
@@ -278,7 +283,7 @@ class TeamLayout extends PureComponent {
       });
     }
   };
-  fetchGroup = () => {
+  fetchGroup = callback => {
     const { dispatch } = this.props;
     dispatch({
       type: 'user/fetchCurrent',
@@ -288,21 +293,29 @@ class TeamLayout extends PureComponent {
       callback: res => {
         if (res && res.bean) {
           const team = userUtil.getTeamByTeamName(res.bean, globalUtil.getCurrTeamName());
-          setTimeout(() => {
-            dispatch({
-              type: 'teamControl/fetchCurrentTeamPermissions',
-              payload: team && team.tenant_actions
-            });
-          }, 10)
+          dispatch({
+            type: 'teamControl/fetchCurrentTeamPermissions',
+            payload: team && team.tenant_actions
+          });
           const region = userUtil.hasTeamAndRegion(res.bean, globalUtil.getCurrTeamName(), globalUtil.getCurrRegionName());
           dispatch({ type: 'teamControl/fetchCurrentTeam', payload: team });
           this.setState({
             currentTeam: team,
             currentRegion: region
+          }, () => {
+            if (callback) {
+              callback(team);
+            }
           });
 
         }
       },
+      handleError: () => {
+        this.setState({ permissionsRefreshing: false });
+        if (callback) {
+          callback(null);
+        }
+      }
     });
   };
   // 获取当前团队下的所有应用名称
@@ -807,7 +820,8 @@ class TeamLayout extends PureComponent {
       isNeedAuthz,
       showFooter,
       showHeader,
-      overflow
+      overflow,
+      permissionsRefreshing
     } = this.state;  
     const { teamName, regionName } = this.props.match.params;
     const autoWidth = collapsed ? 'calc(100% - 416px)' : 'calc(100% - 116px)';
@@ -850,7 +864,8 @@ class TeamLayout extends PureComponent {
       isAuthorizationLoading ||
       !currentEnterprise ||
       !currentTeam ||
-      !currentTeamPermissionsInfo
+      !currentTeamPermissionsInfo ||
+      permissionsRefreshing
     ) {
       return <PageLoading />;
     }

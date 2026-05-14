@@ -5,6 +5,7 @@ import styles from './index.less';
 import * as autoApprovalPolicy from './autoApprovalPolicy';
 import * as approvalMeta from './approvalMeta';
 import * as composerState from './composerState';
+import * as closeBehavior from './closeBehavior';
 import * as displayFilters from './displayFilters';
 import * as markdownHelpers from './markdownHelpers';
 import * as scrollBehavior from './scrollBehavior';
@@ -491,6 +492,9 @@ export default class AgentHost extends PureComponent {
     this.state = { historyPopoverVisible: false };
     this.messagesRef = null;
     this.isAutoScrollEnabled = true;
+    this.lastRenderedMessagesRef = null;
+    this.lastRenderedMessagesSending = null;
+    this.lastRenderedMessagesOutput = null;
   }
 
   componentDidMount() {
@@ -546,21 +550,16 @@ export default class AgentHost extends PureComponent {
 
     this.isAutoScrollEnabled = getNextAutoScrollEnabled(
       this.isAutoScrollEnabled,
-      target
+      target,
+      {
+        isStreaming: !!(this.props.agent && this.props.agent.sending),
+      }
     );
   };
 
   closeDrawer = () => {
     const { dispatch, agent } = this.props;
-    const hasActiveSession = !!(
-      agent &&
-      (agent.sending ||
-        agent.cancellingRun ||
-        agent.interactionLocked ||
-        agent.activeRunId)
-    );
-
-    if (!hasActiveSession) {
+    if (!closeBehavior.shouldConfirmClose(agent)) {
       dispatch({
         type: 'agent/hide',
       });
@@ -568,14 +567,12 @@ export default class AgentHost extends PureComponent {
     }
 
     confirm({
-      title: '确认退出聊天窗口',
-      content: '当前有会话正在执行，退出后可稍后重新打开查看结果。',
-      okText: '退出',
+      title: '确认停止并关闭聊天窗口',
+      content: '当前对话正在输出中，确认后会先停止本次对话，再关闭聊天窗口。',
+      okText: '停止并关闭',
       cancelText: '取消',
       onOk: () => {
-        dispatch({
-          type: 'agent/hide',
-        });
+        this.handleStopRun({ hideAfterAbort: true });
       },
     });
   };
@@ -716,9 +713,14 @@ export default class AgentHost extends PureComponent {
     });
   };
 
-  handleStopRun = () => {
+  handleStopRun = options => {
     const { dispatch } = this.props;
-    dispatch({ type: 'agent/abortRun' });
+    dispatch({
+      type: 'agent/abortRun',
+      payload: {
+        hideAfterAbort: !!(options && options.hideAfterAbort),
+      },
+    });
   };
 
   handleConflictStopAndSend = () => {
@@ -1028,6 +1030,14 @@ export default class AgentHost extends PureComponent {
   renderMessages = () => {
     const { agent } = this.props;
     const messages = (agent && agent.messages) || [];
+    const sending = !!(agent && agent.sending);
+    if (
+      this.lastRenderedMessagesRef === messages &&
+      this.lastRenderedMessagesSending === sending &&
+      this.lastRenderedMessagesOutput
+    ) {
+      return this.lastRenderedMessagesOutput;
+    }
     const hasVisibleMessages = hasRenderableMessages(messages);
 
     if (!hasVisibleMessages) {
@@ -1136,6 +1146,10 @@ export default class AgentHost extends PureComponent {
     if (pendingTraceItems.length > 0) {
       rendered.push(this.renderStandaloneTraceGroup(pendingTraceItems));
     }
+
+    this.lastRenderedMessagesRef = messages;
+    this.lastRenderedMessagesSending = sending;
+    this.lastRenderedMessagesOutput = rendered;
 
     return rendered;
   };

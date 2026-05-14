@@ -12,6 +12,13 @@ import {
 import * as agentViewport from '../../utils/agentViewport';
 import { persistAgentSession } from '../../services/agent';
 import { getAgentPanelConfig } from '../../utils/agentLayout';
+import {
+  buildRefreshedRouteFromLocation,
+  getLiveLocationRoute,
+} from './rootShellRouteHelpers';
+import {
+  shouldPersistAgentSnapshotImmediately,
+} from './rootShellPersistence';
 import * as sessionPersistenceScheduler from './sessionPersistenceScheduler';
 import * as viewportLockState from './viewportLockState';
 
@@ -224,6 +231,7 @@ export default class AgentRootShell extends PureComponent {
     const mutationRoute = agent && agent.pendingMutationRoute;
     const mutationRefreshKey = agent && agent.pendingMutationRefreshKey;
     const mutationRefreshMode = agent && agent.pendingMutationRefreshMode;
+    const mutationTool = agent && agent.pendingMutationTool;
 
     if (loginKey !== previousLoginKey) {
       this.prevLoginKey = loginKey;
@@ -285,7 +293,7 @@ export default class AgentRootShell extends PureComponent {
     ) {
       const panelClosed = !!(previousAgent && previousAgent.visible && !agent.visible);
       this.persistenceScheduler.schedule(agent, loginKey, {
-        immediate: !agent.sending || panelClosed,
+        immediate: shouldPersistAgentSnapshotImmediately(agent, { panelClosed }),
       });
       this.prevAgentUpdatedAt = agent.updatedAt;
     }
@@ -296,10 +304,7 @@ export default class AgentRootShell extends PureComponent {
       mutationNavigationKey !== this.prevMutationNavigationKey
     ) {
       this.prevMutationNavigationKey = mutationNavigationKey;
-      const currentRoute = this.buildLocationRoute(location);
-      if (currentRoute !== mutationRoute) {
-        this.store.dispatch(routerRedux.push(mutationRoute));
-      }
+      this.navigateToRouteIfNeeded(mutationRoute, location);
     }
 
     if (
@@ -330,25 +335,26 @@ export default class AgentRootShell extends PureComponent {
   };
 
   buildLocationRoute = location => {
-    if (!location) {
-      return '';
-    }
-
-    return `${location.pathname || ''}${location.search || ''}`;
+    return getLiveLocationRoute(location);
   };
 
   buildRefreshedRoute = location => {
-    if (!location || !location.pathname) {
-      return '';
+    return buildRefreshedRouteFromLocation(location);
+  };
+
+  navigateToRouteIfNeeded = (route, locationOverride) => {
+    if (!this.store || !route) {
+      return;
     }
-
-    const search = location.search || '';
-    const queryString = search.indexOf('?') === 0 ? search.slice(1) : search;
-    const params = new URLSearchParams(queryString);
-    params.set('refresh', `${Date.now()}`);
-    const nextSearch = params.toString();
-
-    return `${location.pathname}${nextSearch ? `?${nextSearch}` : ''}`;
+    const storeState = this.store.getState() || {};
+    const location =
+      locationOverride ||
+      (storeState.routing && storeState.routing.location) ||
+      {};
+    const currentRoute = this.buildLocationRoute(location);
+    if (currentRoute !== route) {
+      this.store.dispatch(routerRedux.push(route));
+    }
   };
 
   shouldShowAgent = () => {

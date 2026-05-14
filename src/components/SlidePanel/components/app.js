@@ -81,6 +81,13 @@ export default class app extends Component {
     this.handleGroupAllResource()
     this.getStorageUsed();
   }
+  componentDidUpdate(prevProps) {
+    if (prevProps.permissions !== this.props.permissions) {
+      this.setState({
+        permissions: this.props.permissions,
+      });
+    }
+  }
   loading = () => {
     this.fetchAppDetail();
     this.loadTopology(true);

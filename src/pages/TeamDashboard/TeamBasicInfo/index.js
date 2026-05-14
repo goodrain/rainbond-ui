@@ -24,7 +24,13 @@ const { Search } = Input;
 const { Option } = Select;
 const CARD_COLUMNS = 4;
 const CARD_GAP = 16;
-const COMPACT_CARD_MIN_WIDTH = 260;
+const COMPACT_CARD_MIN_WIDTH = 320;
+const MINI_CARD_MIN_WIDTH = 240;
+const CARD_LAYOUT_MODE = {
+  DEFAULT: 'default',
+  COMPACT: 'compact',
+  MINI: 'mini',
+};
 
 @connect(({ user, index, loading, global, teamControl, enterprise }) => ({
   currentUser: user.currentUser,
@@ -53,7 +59,7 @@ export default class index extends Component {
       appListLoading: true,
       teamHotAppList: [],
       appListTotal: 0,
-      isCompactCards: false,
+      cardLayoutMode: CARD_LAYOUT_MODE.DEFAULT,
       teamAppCreatePermission: newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'team_app_create'),
       language: cookie.get('language') === 'zh-CN',
       createComponentVisible: false,
@@ -72,7 +78,7 @@ export default class index extends Component {
       window.addEventListener('resize', this.handleCardListWindowResize);
     }
     if (this.cardListNode) {
-      this.updateCompactCardsState(this.cardListNode.getBoundingClientRect().width);
+      this.updateCardLayoutMode(this.cardListNode.getBoundingClientRect().width);
     }
 
     // 解析 URL 参数（只在首次加载时处理）
@@ -119,14 +125,14 @@ export default class index extends Component {
       return;
     }
 
-    this.updateCompactCardsState(node.getBoundingClientRect().width);
+    this.updateCardLayoutMode(node.getBoundingClientRect().width);
 
     if (typeof ResizeObserver !== 'undefined') {
       if (!this.cardListResizeObserver) {
         this.cardListResizeObserver = new ResizeObserver(entries => {
           const entry = entries && entries[0];
           if (entry) {
-            this.updateCompactCardsState(entry.contentRect.width);
+            this.updateCardLayoutMode(entry.contentRect.width);
           }
         });
       }
@@ -137,28 +143,37 @@ export default class index extends Component {
 
   handleCardListWindowResize = () => {
     if (this.cardListNode) {
-      this.updateCompactCardsState(this.cardListNode.getBoundingClientRect().width);
+      this.updateCardLayoutMode(this.cardListNode.getBoundingClientRect().width);
     }
   };
 
-  shouldUseCompactCards = width => {
+  getCardLayoutMode = width => {
     if (!width || width <= 0) {
-      return false;
+      return CARD_LAYOUT_MODE.DEFAULT;
     }
 
     const totalGap = CARD_GAP * (CARD_COLUMNS - 1);
     const cardWidth = (width - totalGap) / CARD_COLUMNS;
-    return cardWidth > 0 && cardWidth < COMPACT_CARD_MIN_WIDTH;
+    if (cardWidth <= 0) {
+      return CARD_LAYOUT_MODE.DEFAULT;
+    }
+    if (cardWidth < MINI_CARD_MIN_WIDTH) {
+      return CARD_LAYOUT_MODE.MINI;
+    }
+    if (cardWidth < COMPACT_CARD_MIN_WIDTH) {
+      return CARD_LAYOUT_MODE.COMPACT;
+    }
+    return CARD_LAYOUT_MODE.DEFAULT;
   };
 
-  updateCompactCardsState = width => {
+  updateCardLayoutMode = width => {
     if (!this._isMounted) {
       return;
     }
 
-    const nextCompactState = this.shouldUseCompactCards(width);
-    if (this.state.isCompactCards !== nextCompactState) {
-      this.setState({ isCompactCards: nextCompactState });
+    const nextCardLayoutMode = this.getCardLayoutMode(width);
+    if (this.state.cardLayoutMode !== nextCardLayoutMode) {
+      this.setState({ cardLayoutMode: nextCardLayoutMode });
     }
   };
 
@@ -290,7 +305,8 @@ export default class index extends Component {
   }
 
   renderCreateAppCard = () => {
-    const { isCompactCards } = this.state;
+    const { cardLayoutMode } = this.state;
+    const isCompactCards = cardLayoutMode !== CARD_LAYOUT_MODE.DEFAULT;
 
     return (
       <div style={{ marginLeft: '0px' }}>
@@ -360,10 +376,16 @@ export default class index extends Component {
 
   // 添加卡片视图渲染函数
   renderCardView = () => {
-    const { teamHotAppList, teamAppCreatePermission, isCompactCards } = this.state;
+    const { teamHotAppList, teamAppCreatePermission, cardLayoutMode } = this.state;
     const { dispatch } = this.props;
+    const isCompactCards = cardLayoutMode !== CARD_LAYOUT_MODE.DEFAULT;
+    const isMiniCards = cardLayoutMode === CARD_LAYOUT_MODE.MINI;
     const isAppCreate = teamAppCreatePermission?.isAccess;
-    const teamHotAppListClassName = `${styles.teamHotAppList} ${isCompactCards ? styles.teamHotAppListCompact : ''}`;
+    const teamHotAppListClassName = [
+      styles.teamHotAppList,
+      isCompactCards ? styles.teamHotAppListCompact : '',
+      isMiniCards ? styles.teamHotAppListMini : '',
+    ].filter(Boolean).join(' ');
     const visterSvg = (
       <svg t="1735296596548" style={{ marginRight: '2px' }} className="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10566" width="12" height="12"><path d="M864.107583 960.119537H63.880463V159.892417h447.928278V96.011954H0v927.988046h927.988046V527.874486h-63.880463v432.245051z" p-id="10567" fill='currentColor'></path><path d="M592.137467 0v63.880463h322.462458L457.491222 521.371685l45.137093 45.137093L960.119537 109.400075v322.462458h63.880463V0H592.137467z" p-id="10568" fill='currentColor'></path></svg>
     )
@@ -452,7 +474,22 @@ export default class index extends Component {
                       </div>
                       {/* 第二行：组件数 + 内存 + CPU */}
                       <div className={styles.appCardResources}>
-                        {isCompactCards ? (
+                        {isMiniCards ? (
+                          <>
+                            <span className={`${styles.resourceItem} ${styles.resourceItemMini}`}>
+                              <span className={styles.resourceLabel}>组件</span>
+                              <span className={styles.resourceValue}>{item.services_num}个</span>
+                            </span>
+                            <span className={`${styles.resourceItem} ${styles.resourceItemMini}`}>
+                              <span className={styles.resourceLabel}>MEM</span>
+                              <span className={styles.resourceValue}>{memoryValue} {memoryUnit}</span>
+                            </span>
+                            <span className={`${styles.resourceItem} ${styles.resourceItemMini}`}>
+                              <span className={styles.resourceLabel}>CPU</span>
+                              <span className={styles.resourceValue}>{cpuValue} {cpuUnit}</span>
+                            </span>
+                          </>
+                        ) : isCompactCards ? (
                           <>
                             <span className={styles.resourceItem}>
                               <span className={styles.resourceLabel}>组件</span>
