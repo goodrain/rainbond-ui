@@ -1,23 +1,18 @@
-// F14 — compaction lifecycle reducer.
+// Compaction lifecycle reducer.
 //
-// The backend (rainbond-copilot) emits four SSE event types as it
-// compresses long conversation histories before re-feeding them to the
-// LLM. Sequence numbers for these events live in a high band
-// (2_000_000_001+) so they never collide with the regular chat stream.
+// The backend (rainbond-copilot) emits SSE event types as it compresses
+// long conversation histories at the end of each turn (after the LLM has
+// already responded). Sequence numbers live in a high band (2_000_000_001+)
+// so they never collide with the regular chat stream.
 //
-//   compaction.started                       — async pass kicked off
-//   compaction.forced_sync_due_to_pressure   — backend upgraded the
-//                                              in-flight pass to sync
-//                                              because token pressure
-//                                              required it
-//   compaction.completed                     — pass finished successfully
-//   compaction.failed                        — pass aborted, original
-//                                              history will be reused
+//   compaction.started    — compaction LLM call kicked off
+//   compaction.completed  — pass finished successfully
+//   compaction.failed     — pass aborted, original history will be reused
 //
-// Before this reducer existed, agentEventAdapter dropped these events
-// silently (default branch), which left the local UI with no signal that
-// the LLM was waiting on a compaction round. This reducer maintains a
-// dedicated `compaction` slice the UI can render as a status banner.
+// In the post-turn design, compaction.completed always arrives before
+// run.status:done. The run.status reset below is a safety net for edge
+// cases (network replay, partial streams) that would otherwise leave the
+// banner stuck in the active state.
 
 const defaultCompactionState = Object.freeze({
   active: false,
@@ -36,6 +31,21 @@ function applyCompactionEvent(prevCompaction, event) {
     return prev;
   }
   const type = event.type;
+
+  // Safety net: clear the banner whenever the run terminates. In the
+  // post-turn design compaction.completed always arrives before
+  // run.status:done, but this guard ensures the banner can never get
+  // permanently stuck due to partial streams or missed events.
+  if (
+    type === 'run.status' &&
+    event.data &&
+    (event.data.status === 'done' ||
+      event.data.status === 'error' ||
+      event.data.status === 'cancelled')
+  ) {
+    return { ...defaultCompactionState };
+  }
+
   if (!isCompactionEventType(type)) {
     return prev;
   }
@@ -46,16 +56,7 @@ function applyCompactionEvent(prevCompaction, event) {
     case 'compaction.started': {
       return {
         active: true,
-        mode: typeof data.mode === 'string' && data.mode ? data.mode : 'async',
-        lastFailedAt: prev.lastFailedAt || 0,
-        lastFailedReason: prev.lastFailedReason || '',
-      };
-    }
-    case 'compaction.forced_sync_due_to_pressure': {
-      // Upgrade in-flight pass to sync; do NOT clear active.
-      return {
-        active: true,
-        mode: 'sync_forced',
+        mode: 'post_turn',
         lastFailedAt: prev.lastFailedAt || 0,
         lastFailedReason: prev.lastFailedReason || '',
       };
