@@ -5,6 +5,7 @@ import { FormattedMessage } from 'umi';
 import logo from '../../public/logo-white.png';
 import globalUtil from '../utils/global';
 import oauthUtil from '../utils/oauth';
+import { buildPortalLoginUrl } from '../utils/portal';
 import rainbondUtil from '../utils/rainbond';
 import { setLocale, getLocale } from 'umi'
 import CustomFooter from './CustomFooter';
@@ -94,7 +95,7 @@ class UserLayout extends React.PureComponent {
           if (isLogin && portalSite && isSaas && isDisableAutoLogin !== 'true' && !hasToken) {
             // 构造重定向URL，登录后门户会携带token重定向回来
             const currentUrl = window.location.origin + window.location.pathname + window.location.hash;
-            const portalLoginUrl = `${portalSite}?redirect=${encodeURIComponent(currentUrl)}`;
+            const portalLoginUrl = buildPortalLoginUrl(portalSite, currentUrl);
             globalUtil.removeCookie();
             window.location.href = portalLoginUrl;
             return;
