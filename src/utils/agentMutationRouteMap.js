@@ -153,7 +153,7 @@ function isThirdPartyComponent(appDetail) {
 const MUTATION_ROUTE_POLICIES = {
   rainbond_delete_component: {
     pre: { routeKind: 'component', tab: 'overview' },
-    post: { routeKind: 'app-overview' },
+    post: { routeKind: 'app-overview-refresh' },
   },
   rainbond_delete_app: {
     pre: { routeKind: 'app-overview' },
@@ -335,6 +335,8 @@ function resolveRouteByKind(kind, context = {}, appDetail, result, routeMeta = {
       return buildTeamIndexRoute(routeContext);
     case 'app-overview':
       return buildAppOverviewRoute(routeContext, refresh ? { refresh } : {});
+    case 'app-overview-refresh':
+      return buildAppOverviewRoute(routeContext, { refresh: refresh || Date.now() });
     case 'app-version':
       return buildAppVersionRoute(routeContext, refresh ? { refresh } : {});
     case 'app-version-refresh':
@@ -399,7 +401,7 @@ function resolveRouteByKind(kind, context = {}, appDetail, result, routeMeta = {
       if (!appId || !componentAlias) return '';
       return buildComponentOverviewRoute(
         { ...routeContext, appId, componentAlias },
-        { tab: 'overview' }
+        { tab: 'overview', refresh: Date.now() }
       );
     }
     default:
