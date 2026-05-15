@@ -976,7 +976,7 @@ class TeamLayout extends PureComponent {
     const customerServiceQrcode = rainbondInfo && rainbondInfo.customer_service_qrcode && rainbondInfo.customer_service_qrcode.value || '';
     const showEnterprisebase = PluginUtil.isInstallPlugin(showPipeline, 'rainbond-enterprise-base');
     const pluginsLoaded = Array.isArray(showPipeline);
-    const agentVisible = !!(this.props.agent && this.props.agent.visible);
+    const { agentVisible } = this.props;
     const showCustomerServiceFloat = shouldShowCustomerServiceFloat({
       pluginsLoaded,
       showEnterprisebase,
@@ -1178,7 +1178,7 @@ class TeamLayout extends PureComponent {
 export default connect(
   ({ user, global, index, loading, teamControl, application, agent }) => ({
     currentUser: user.currentUser,
-    agent,
+    agentVisible: !!(agent && agent.visible),
     notifyCount: user.notifyCount,
     collapsed: global.collapsed,
     groups: global.groups,
