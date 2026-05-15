@@ -100,6 +100,42 @@ function startCrossTabRunSubscription({ sessionId, runId, contextSnapshot }) {
     });
 }
 
+// Used after page refresh to resume watching a run that was in-flight. Unlike
+// startCrossTabRunSubscription this forwards ALL event types so the UI can
+// continue rendering streaming output where it left off.
+function startReattachSubscription({ sessionId, runId, afterSequence, contextSnapshot }) {
+  if (!sessionId || !runId) return;
+  if (crossTabSubscriptions.has(runId)) return;
+
+  const controller = typeof AbortController === 'function' ? new AbortController() : null;
+  const entry = { controller, contextSnapshot: contextSnapshot || {} };
+  crossTabSubscriptions.set(runId, entry);
+
+  const dvaApp = getDvaApp();
+  const dispatch = dvaApp && dvaApp._store && dvaApp._store.dispatch;
+
+  subscribeToActiveRun({
+    sessionId,
+    runId,
+    afterSequence: afterSequence || 0,
+    abortSignal: controller && controller.signal,
+    onEvent(event) {
+      if (typeof dispatch !== 'function') return;
+      dispatch({
+        type: 'agent/applyStreamEvent',
+        payload: { event, contextSnapshot: contextSnapshot || {} },
+      });
+    },
+  })
+    .catch(() => {
+      // Run may already be terminal — applyStreamEvent handles the cleanup via
+      // the terminal run.status path. Silence is correct here.
+    })
+    .then(() => {
+      crossTabSubscriptions.delete(runId);
+    });
+}
+
 function stopAllCrossTabSubscriptions() {
   crossTabSubscriptions.forEach(entry => {
     if (entry.controller) {
@@ -725,6 +761,20 @@ export default {
         type: 'hydrateState',
         payload: snapshot,
       });
+
+      // If the page was refreshed while a run was in-flight, auto-reattach to
+      // the SSE stream instead of surfacing a "another window" conflict dialog.
+      const restoredRunId = snapshot && snapshot.activeRunId;
+      const restoredSessionId = snapshot && snapshot.conversationId;
+      if (restoredRunId && restoredSessionId && restoredSessionId !== 'global-default') {
+        yield put({ type: 'saveState', payload: { sending: true } });
+        startReattachSubscription({
+          sessionId: restoredSessionId,
+          runId: restoredRunId,
+          afterSequence: (snapshot && snapshot.lastEventSequence) || 0,
+          contextSnapshot: snapshot && snapshot.context,
+        });
+      }
     },
 
     *loadSessionList(_, { call, put }) {
@@ -1136,13 +1186,26 @@ export default {
         });
         return;
       }
-      // Auto-send is fired from `applyStreamEvent` when run reaches terminal.
-      // But if no SSE stream is local (the running tab is another browser),
-      // we still want to send eventually. Fire after a short delay fallback.
+
+      // Abort returned 202 — the server has accepted the cancellation request.
+      // Stop watching the foreign run and send directly; waiting for an SSE
+      // terminal event is unreliable (stream may have dropped on refresh).
+      stopAllCrossTabSubscriptions();
       yield put({
         type: 'saveState',
-        payload: { pendingDraft: stashedText },
+        payload: {
+          pendingDraft: '',
+          pendingDraftMode: '',
+          cancellingRun: false,
+          runConflict: null,
+        },
       });
+      if (stashedText) {
+        yield put({
+          type: 'sendMessage',
+          payload: { message: stashedText, context: state.context },
+        });
+      }
     },
 
     *keepWaiting(_, { put }) {
@@ -1308,6 +1371,13 @@ export default {
           yield put({
             type: 'saveState',
             payload: { cancellingRun: false },
+          });
+        } else if (flushedState.sending) {
+          // Run terminated after a page-refresh reattach: clear the sending
+          // lock and activeRunId that hydrateSession set.
+          yield put({
+            type: 'saveState',
+            payload: { sending: false, activeRunId: '' },
           });
         }
       }
