@@ -309,7 +309,7 @@ class Index extends PureComponent {
                       </Tooltip>
                     </div>
                     <div className={styles.nowarpText}>
-                      <span>
+                      <span style={{fontSize: 12}}>
                         <Tooltip title={UserNames}>{UserNames}</Tooltip>
                       </span>
                     </div>
@@ -318,7 +318,7 @@ class Index extends PureComponent {
                         {end_time &&
                           create_time &&
                           globalUtil.fetchSvg('runTime')}
-                        <span>
+                        <span style={{fontSize: 12}}>
                           {end_time && create_time
                             ? globalUtil.fetchTime(
                               new Date(end_time).getTime()

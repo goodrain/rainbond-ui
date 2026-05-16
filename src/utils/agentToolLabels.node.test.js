@@ -28,10 +28,18 @@ assert.strictEqual(
   formatToolLabel('rainbond_manage_component_envs', { operation: 'summary' }),
   '查看环境变量'
 );
+assert.strictEqual(
+  formatToolLabel('rainbond_manage_component_envs', { operation: 'replace_build_envs' }),
+  '修改构建源'
+);
 // Without operation, falls back to the base label.
 assert.strictEqual(
   formatToolLabel('rainbond_manage_component_envs', {}),
   '管理环境变量'
+);
+assert.strictEqual(
+  formatToolLabel('rainbond_update_component_build_source', {}),
+  '修改构建源'
 );
 
 // Operate_app refines by operation too.

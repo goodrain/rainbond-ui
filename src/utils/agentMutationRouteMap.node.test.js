@@ -12,6 +12,7 @@ function loadRouteMapModule() {
   vm.runInNewContext(
     `${source}
 module.exports = {
+  resolvePreActionRoute,
   resolvePostActionRoute,
 };`,
     {
@@ -25,6 +26,7 @@ module.exports = {
 }
 
 const {
+  resolvePreActionRoute,
   resolvePostActionRoute,
 } = loadRouteMapModule();
 
@@ -74,6 +76,83 @@ function runTests() {
     deletedComponentRoute,
     /[?&]refresh=\d+/,
     'deleted component route should include refresh to reload the topology iframe'
+  );
+
+  const buildSourcePreRoute = resolvePreActionRoute({
+    toolName: 'rainbond_manage_component_envs',
+    context: {
+      teamName: 'demo',
+      regionName: 'test',
+      appId: '8',
+      componentAlias: 'api',
+    },
+    targetRef: {
+      kind: 'service',
+      team_name: 'demo',
+      region_name: 'test',
+      app_id: '8',
+      service_alias: 'api',
+      operation: 'replace_build_envs',
+    },
+  });
+
+  assert.ok(
+    buildSourcePreRoute.includes('type=components'),
+    'replace_build_envs route should open the component slide panel'
+  );
+  assert.ok(
+    buildSourcePreRoute.includes('componentID=api'),
+    'replace_build_envs route should target the component'
+  );
+  assert.ok(
+    buildSourcePreRoute.includes('tab=advancedSettings'),
+    'replace_build_envs route should open advanced settings'
+  );
+  assert.ok(
+    buildSourcePreRoute.includes('subTab=resource'),
+    'replace_build_envs route should open the build source sub tab'
+  );
+
+  const runtimeEnvPreRoute = resolvePreActionRoute({
+    toolName: 'rainbond_manage_component_envs',
+    context: {
+      teamName: 'demo',
+      regionName: 'test',
+      appId: '8',
+      componentAlias: 'api',
+    },
+    targetRef: {
+      kind: 'service',
+      team_name: 'demo',
+      region_name: 'test',
+      app_id: '8',
+      service_alias: 'api',
+      operation: 'upsert',
+    },
+  });
+
+  assert.ok(
+    runtimeEnvPreRoute.includes('tab=environmentConfiguration'),
+    'runtime env route should still open the environment configuration tab'
+  );
+
+  const updateBuildSourceRoute = resolvePreActionRoute({
+    toolName: 'rainbond_update_component_build_source',
+    context: {
+      teamName: 'demo',
+      regionName: 'test',
+      appId: '8',
+      componentAlias: 'api',
+    },
+  });
+
+  assert.ok(
+    updateBuildSourceRoute.includes('tab=advancedSettings'),
+    'update_component_build_source route should open advanced settings'
+  );
+  assert.ok(
+    updateBuildSourceRoute.includes('subTab=resource'),
+    'update_component_build_source route should open the build source sub tab'
   );
 }
 
