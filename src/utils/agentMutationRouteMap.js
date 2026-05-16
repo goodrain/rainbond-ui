@@ -143,6 +143,7 @@ function buildRouteContext(context = {}, ref = null) {
       routeRef.componentAlias ||
       context.componentAlias ||
       '',
+    operation: routeRef.operation || routeRef.action || context.operation || '',
   };
 }
 
@@ -196,6 +197,10 @@ const MUTATION_ROUTE_POLICIES = {
     post: { routeKind: 'component-refresh', tab: 'expansion' },
   },
   rainbond_change_component_image: {
+    pre: { routeKind: 'component', tab: 'advancedSettings', subTab: 'resource' },
+    post: { routeKind: 'component-refresh', tab: 'advancedSettings', subTab: 'resource' },
+  },
+  rainbond_update_component_build_source: {
     pre: { routeKind: 'component', tab: 'advancedSettings', subTab: 'resource' },
     post: { routeKind: 'component-refresh', tab: 'advancedSettings', subTab: 'resource' },
   },
@@ -409,15 +414,36 @@ function resolveRouteByKind(kind, context = {}, appDetail, result, routeMeta = {
   }
 }
 
+function isBuildSourceEnvMutation(toolName, ref = null) {
+  const routeRef = extractRouteRef(ref);
+  const operation = routeRef && (routeRef.operation || routeRef.action);
+  return (
+    toolName === 'rainbond_manage_component_envs' &&
+    operation === 'replace_build_envs'
+  );
+}
+
+function resolveRouteMeta(toolName, routeMeta = {}, ref = null) {
+  if (isBuildSourceEnvMutation(toolName, ref)) {
+    return {
+      ...routeMeta,
+      tab: 'advancedSettings',
+      subTab: 'resource',
+    };
+  }
+  return routeMeta;
+}
+
 export function resolvePreActionRoute({ toolName, context, appDetail, targetRef }) {
   const policy = getAgentMutationRoutePolicy(toolName);
   if (!policy || !policy.pre) return '';
+  const routeMeta = resolveRouteMeta(toolName, policy.pre, targetRef);
   return resolveRouteByKind(
-    policy.pre.routeKind,
+    routeMeta.routeKind,
     context,
     appDetail,
     null,
-    policy.pre,
+    routeMeta,
     targetRef
   );
 }
@@ -425,12 +451,13 @@ export function resolvePreActionRoute({ toolName, context, appDetail, targetRef 
 export function resolvePostActionRoute({ toolName, context, appDetail, result, resultRef }) {
   const policy = getAgentMutationRoutePolicy(toolName);
   if (!policy || !policy.post) return '';
+  const routeMeta = resolveRouteMeta(toolName, policy.post, resultRef || (result && result.result_ref));
   return resolveRouteByKind(
-    policy.post.routeKind,
+    routeMeta.routeKind,
     context,
     appDetail,
     result,
-    policy.post,
+    routeMeta,
     resultRef
   );
 }

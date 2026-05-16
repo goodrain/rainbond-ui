@@ -94,6 +94,7 @@ const BASE_LABELS = {
   rainbond_horizontal_scale_component: '水平伸缩组件',
   rainbond_rollback_app_upgrade_record: '回滚升级',
   rainbond_rollback_app_version_snapshot: '回滚到快照',
+  rainbond_update_component_build_source: '修改构建源',
   rainbond_update_region: '更新集群',
   rainbond_vertical_scale_component: '垂直伸缩组件',
 
@@ -173,6 +174,12 @@ const OPERATION_VERB = {
   scale: '伸缩',
 };
 
+const OPERATION_LABEL_OVERRIDES = {
+  rainbond_manage_component_envs: {
+    replace_build_envs: '修改构建源',
+  },
+};
+
 const NOUN_BY_TOOL = {
   rainbond_manage_component_autoscaler: '自动伸缩',
   rainbond_manage_component_connection_envs: '连接信息',
@@ -197,6 +204,12 @@ function refineByOperation(toolName, input) {
         : '';
   if (!op) {
     return null;
+  }
+  const override =
+    OPERATION_LABEL_OVERRIDES[toolName] &&
+    OPERATION_LABEL_OVERRIDES[toolName][op];
+  if (override) {
+    return override;
   }
   const verb = OPERATION_VERB[op];
   const noun = NOUN_BY_TOOL[toolName];
