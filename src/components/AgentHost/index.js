@@ -210,7 +210,7 @@ class ApprovalMessageCard extends PureComponent {
   renderNormalRiskActions() {
     const { approval, isSending, onDecision } = this.props;
     const targetRef = approval.targetRef || null;
-    const targetKey = targetRef ? `${targetRef.kind}:${targetRef.id}` : null;
+    const targetKey = autoApprovalPolicy.targetRefToKey(targetRef);
     const targetLabel = targetRef
       ? targetRef.kind === 'service' ? '该组件'
         : targetRef.kind === 'app' ? '该应用'
