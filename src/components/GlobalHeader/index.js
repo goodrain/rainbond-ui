@@ -22,6 +22,7 @@ import styles from './index.less';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
 import { isAgentRouteHidden } from '../../utils/agentContext';
+import { buildPortalSsoUrl } from '../../utils/portal';
 import * as agentLauncherAction from './agentLauncherAction';
 
 const { resolveAgentLauncherAction } = agentLauncherAction;
@@ -404,7 +405,7 @@ class GlobalHeader extends PureComponent {
     const token = cookie.get('token');
 
     if (portalSite && token) {
-      const url = `${portalSite}?token=${token}&redirect=${key}`;
+      const url = buildPortalSsoUrl(portalSite, token, key);
       window.location.href = url;
     }
   };
