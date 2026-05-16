@@ -59,8 +59,22 @@ function clearPolicies() {
 }
 
 function targetRefToKey(targetRef) {
-  if (!targetRef || !targetRef.kind || !targetRef.id) return null;
-  return `${targetRef.kind}:${targetRef.id}`;
+  if (!targetRef || !targetRef.kind) return null;
+  // Server emits { kind, service_id, service_alias, app_id, team_name, ... }
+  // (see rainbond-copilot/src/server/services/mutation-navigation-ref.ts).
+  // It does NOT include a generic `id` field, so the previous
+  // `targetRef.id` read always returned undefined and the "记住选择"
+  // policy entries showed up as `service:undefined` / `app:undefined`,
+  // never matching subsequent approvals. Pick the right id by kind.
+  let id = null;
+  if (targetRef.kind === 'service') {
+    id = targetRef.service_id || targetRef.service_alias;
+  } else if (targetRef.kind === 'app') {
+    id = targetRef.app_id;
+  } else if (targetRef.kind === 'team') {
+    id = targetRef.team_name;
+  }
+  return id ? `${targetRef.kind}:${id}` : null;
 }
 
 function policyMatches(policy, ctx) {
@@ -93,6 +107,7 @@ function matches(ctx) {
 
 module.exports = {
   STORAGE_KEY,
+  targetRefToKey,
   getPolicies,
   addPolicy,
   removePolicy,

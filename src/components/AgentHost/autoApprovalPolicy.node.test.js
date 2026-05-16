@@ -51,7 +51,7 @@ test('session-target matches by targetKey', () => {
     matches({
       risk: 'low',
       skillId: 'any',
-      targetRef: { kind: 'service', id: 's1' },
+      targetRef: { kind: 'service', service_id: 's1' },
     }),
     true
   );
@@ -59,7 +59,7 @@ test('session-target matches by targetKey', () => {
     matches({
       risk: 'low',
       skillId: 'any',
-      targetRef: { kind: 'service', id: 's2' },
+      targetRef: { kind: 'service', service_id: 's2' },
     }),
     false
   );
@@ -75,7 +75,7 @@ test('session-target-op requires both targetKey and skillId match', () => {
     matches({
       risk: 'low',
       skillId: 'rainbond_restart',
-      targetRef: { kind: 'service', id: 's1' },
+      targetRef: { kind: 'service', service_id: 's1' },
     }),
     true
   );
@@ -83,7 +83,7 @@ test('session-target-op requires both targetKey and skillId match', () => {
     matches({
       risk: 'low',
       skillId: 'rainbond_other',
-      targetRef: { kind: 'service', id: 's1' },
+      targetRef: { kind: 'service', service_id: 's1' },
     }),
     false
   );
@@ -132,7 +132,7 @@ test('multiple policies: any match wins', () => {
     matches({
       risk: 'low',
       skillId: 'restart',
-      targetRef: { kind: 'service', id: 'other' },
+      targetRef: { kind: 'service', service_id: 'other' },
     }),
     true
   );
