@@ -154,6 +154,62 @@ function runTests() {
     updateBuildSourceRoute.includes('subTab=resource'),
     'update_component_build_source route should open the build source sub tab'
   );
+
+  const updateBuildSourcePostRoute = resolvePostActionRoute({
+    toolName: 'rainbond_update_component_build_source',
+    context: {
+      teamName: 'demo',
+      regionName: 'test',
+      appId: '8',
+      componentAlias: 'api',
+    },
+  });
+
+  assert.ok(
+    updateBuildSourcePostRoute.includes('tab=advancedSettings'),
+    'update_component_build_source post route should open advanced settings after success'
+  );
+  assert.ok(
+    updateBuildSourcePostRoute.includes('subTab=resource'),
+    'update_component_build_source post route should open the build source sub tab after success'
+  );
+  assert.match(
+    updateBuildSourcePostRoute,
+    /[?&]refresh=\d+/,
+    'update_component_build_source post route should include refresh after success'
+  );
+
+  const buildSourceEnvPostRoute = resolvePostActionRoute({
+    toolName: 'rainbond_manage_component_envs',
+    context: {
+      teamName: 'demo',
+      regionName: 'test',
+      appId: '8',
+      componentAlias: 'api',
+    },
+    resultRef: {
+      kind: 'service',
+      team_name: 'demo',
+      region_name: 'test',
+      app_id: '8',
+      service_alias: 'api',
+      operation: 'replace_build_envs',
+    },
+  });
+
+  assert.ok(
+    buildSourceEnvPostRoute.includes('tab=advancedSettings'),
+    'replace_build_envs post route should open advanced settings after success'
+  );
+  assert.ok(
+    buildSourceEnvPostRoute.includes('subTab=resource'),
+    'replace_build_envs post route should open the build source sub tab after success'
+  );
+  assert.match(
+    buildSourceEnvPostRoute,
+    /[?&]refresh=\d+/,
+    'replace_build_envs post route should include refresh after success'
+  );
 }
 
 if (typeof test === 'function') {

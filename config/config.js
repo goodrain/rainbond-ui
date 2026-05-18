@@ -7,7 +7,7 @@ if (process.env.SEPARATION === 'true') {
   publcPath = `/`;
 }
 const isHistory = process.env.ROUTE_MODE === 'history';
-const proxyTarget = process.env.CONSOLE_PROXY_TARGET || 'http://127.0.0.1:7070/';
+const proxyTarget = process.env.CONSOLE_PROXY_TARGET || 'http://14.103.233.199:7070/';
 const agentProxyTarget = process.env.AGENT_PROXY_TARGET || 'http://127.0.0.1:8787/';
 
 export default {

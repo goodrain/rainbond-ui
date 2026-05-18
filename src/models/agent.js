@@ -57,8 +57,10 @@ const {
 const { formatToolLabel } = agentToolLabels;
 const {
   buildComponentMutationTrackingPatch,
+  buildComponentMutationTrackingPatchFromResult,
   buildFinalComponentOverviewNavigationPayload,
   createClearedComponentMutationTrackingState,
+  shouldSkipComponentMutationPreNavigation,
 } = agentComponentMutationFinalizer;
 
 // F5 — cross-tab SSE observer registry.
@@ -1394,13 +1396,20 @@ export default {
         pa.status === 'pending' &&
         pa.approvalId !== prevApprovalId
       ) {
-        const route = resolvePreActionRoute({
-          toolName: pa.skillId,
-          context: nextState.context,
-          appDetail: nextRootState.appControl && nextRootState.appControl.appDetail,
-          targetRef: pa.targetRef,
-        });
-        const navigationPayload = buildMutationNavigationPayload(pa.skillId, route);
+        const shouldSkipPreActionNavigation = shouldSkipComponentMutationPreNavigation(
+          pa.skillId
+        );
+        const route = shouldSkipPreActionNavigation
+          ? ''
+          : resolvePreActionRoute({
+              toolName: pa.skillId,
+              context: nextState.context,
+              appDetail: nextRootState.appControl && nextRootState.appControl.appDetail,
+              targetRef: pa.targetRef,
+            });
+        const navigationPayload = shouldSkipPreActionNavigation
+          ? null
+          : buildMutationNavigationPayload(pa.skillId, route);
         const componentMutationTrackingPatch = buildComponentMutationTrackingPatch({
           toolName: pa.skillId,
           context: nextState.context,
@@ -1443,8 +1452,44 @@ export default {
         const shouldRefreshRoute = shouldUseRouteQueryRefresh(
           mutationToolName
         );
+        const shouldSkipPreActionNavigation = shouldSkipComponentMutationPreNavigation(
+          mutationToolName
+        );
 
-        if (shouldRefreshContent) {
+        if (shouldSkipPreActionNavigation) {
+          const route = resolvePostActionRoute({
+            toolName: mutationToolName,
+            context: nextState.context,
+            appDetail: nextRootState.appControl && nextRootState.appControl.appDetail,
+            result: resultPayload,
+            resultRef,
+          });
+          const navigationPayload = buildMutationNavigationPayload(
+            mutationToolName,
+            route
+          );
+          const refreshPayload = navigationPayload
+            ? null
+            : buildMutationRefreshPayload(
+                mutationToolName,
+                shouldRefreshRoute ? 'route' : 'content'
+              );
+          const componentMutationTrackingPatch =
+            buildComponentMutationTrackingPatchFromResult(nextState, {
+              toolName: mutationToolName,
+              context: nextState.context,
+              targetRef: resultRef,
+            });
+          yield put({
+            type: 'saveState',
+            payload: {
+              ...(navigationPayload || {}),
+              ...(refreshPayload || {}),
+              ...componentMutationTrackingPatch,
+              updatedAt: Date.now(),
+            },
+          });
+        } else if (shouldRefreshContent) {
           const refreshPayload = buildMutationRefreshPayload(
             mutationToolName,
             'content'
