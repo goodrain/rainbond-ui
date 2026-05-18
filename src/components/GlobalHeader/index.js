@@ -151,10 +151,11 @@ class GlobalHeader extends PureComponent {
     this.sliderDebounceTimer = null;
     // 记录上次激活的索引
     this.lastActiveIndex = null;
+    this.lastPluginListKey = null;
   }
 
   componentDidMount() {
-    this.initializeComponent();
+    this.syncPluginStatusFromProps();
     this.initializeLanguage();
     this.updateSliderPosition();
   }
@@ -193,6 +194,13 @@ class GlobalHeader extends PureComponent {
 
     // 更新滑块位置
     this.updateSliderPosition();
+
+    if (
+      prevProps.pluginsList !== this.props.pluginsList ||
+      prevProps.pluginsLoaded !== this.props.pluginsLoaded
+    ) {
+      this.syncPluginStatusFromProps();
+    }
   }
 
   /**
@@ -257,17 +265,35 @@ class GlobalHeader extends PureComponent {
     return { regionName, teamName };
   };
 
-  /**
-   * 初始化组件数据
-   */
-  initializeComponent = () => {
-    const { currentUser } = this.props;
-    const eid = globalUtil.getCurrEnterpriseId() || currentUser?.enterprise_id;
-    const { regionName } = this.getCurrentTeamAndRegion();
-
-    if (regionName) {
-      this.fetchPipePipeline(eid, regionName);
+  syncPluginStatusFromProps = () => {
+    const { pluginsList, pluginsLoaded } = this.props;
+    if (!pluginsLoaded) {
+      return;
     }
+
+    const pluginList = Array.isArray(pluginsList) ? pluginsList : [];
+    const pluginListKey = pluginList
+      .map(item => `${item.name}:${item.enable_status}`)
+      .join('|');
+    if (this.lastPluginListKey === pluginListKey) {
+      return;
+    }
+    this.lastPluginListKey = pluginListKey;
+
+    const hasAgentPlugin = pluginList.some(item => item.name === 'rainbond-agent');
+    const hasBillPlugin = pluginList.some(item => item.name === 'rainbond-bill');
+
+    this.setState(
+      {
+        agentPluginStatus: hasAgentPlugin ? 'installed' : 'missing',
+        showBill: hasBillPlugin
+      },
+      () => {
+        if (hasAgentPlugin || hasBillPlugin) {
+          this.fetchBalance();
+        }
+      }
+    );
   };
 
   /**
@@ -282,42 +308,6 @@ class GlobalHeader extends PureComponent {
       setLocale(language);
       this.setState({ language: isZh });
     }
-  };
-
-  /**
-   * 获取插件 URL 列表
-   */
-  fetchPipePipeline = (eid, regionName) => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'teamControl/fetchPluginUrl',
-      payload: {
-        enterprise_id: eid,
-        region_name: regionName
-      },
-      callback: (res) => {
-        const pluginList = Array.isArray(res?.list) ? res.list : [];
-        const hasAgentPlugin = pluginList.some(item => item.name === 'rainbond-agent');
-        const hasBillPlugin = pluginList.some(item => item.name === 'rainbond-bill');
-
-        this.setState(
-          {
-            agentPluginStatus: hasAgentPlugin ? 'installed' : 'missing',
-            showBill: hasBillPlugin
-          },
-          () => {
-            if (hasAgentPlugin || hasBillPlugin) {
-              this.fetchBalance();
-            }
-          }
-        );
-      },
-      handleError: () => {
-        this.setState({
-          agentPluginStatus: 'error'
-        });
-      }
-    });
   };
 
   /**
@@ -947,10 +937,12 @@ class GlobalHeader extends PureComponent {
   }
 }
 
-export default connect(({ user, global, agent }) => ({
+export default connect(({ user, global, agent, teamControl }) => ({
   rainbondInfo: global.rainbondInfo,
   currentUser: user.currentUser,
   enterprise: global.enterprise,
   collapsed: global.collapsed,
-  agentVisible: !!(agent && agent.visible)
+  agentVisible: !!(agent && agent.visible),
+  pluginsList: teamControl.pluginsList,
+  pluginsLoaded: teamControl.pluginsLoaded
 }))(GlobalHeader);

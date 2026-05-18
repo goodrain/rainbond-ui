@@ -86,6 +86,7 @@ class TeamLayout extends PureComponent {
 
   constructor(props) {
     super(props);
+    this.lastPluginUrlKey = '';
     this.state = {
       isMobile,
       enterpriseList: [],
@@ -344,11 +345,17 @@ class TeamLayout extends PureComponent {
     if (!enterpriseId) {
       return; // 无有效 enterpriseId 时不发起请求，避免 404/undefined
     }
+    const regionName = globalUtil.getCurrRegionName();
+    const pluginUrlKey = `${enterpriseId}:${regionName}`;
+    if (this.lastPluginUrlKey === pluginUrlKey) {
+      return;
+    }
+    this.lastPluginUrlKey = pluginUrlKey;
     dispatch({
       type: 'teamControl/fetchPluginUrl',
       payload: {
         enterprise_id: enterpriseId,
-        region_name: globalUtil.getCurrRegionName()
+        region_name: regionName
       },
       callback: res => {
         if (res && res.list) {
@@ -375,6 +382,9 @@ class TeamLayout extends PureComponent {
             showPipeline: res.list
           })
         }
+      },
+      handleError: () => {
+        this.lastPluginUrlKey = '';
       }
     })
   }
@@ -749,12 +759,22 @@ class TeamLayout extends PureComponent {
     return !isSaas || !!(currentUser && currentUser.is_enterprise_admin);
   };
 
+  canAccessAppBackup = () => {
+    const { currentUser, rainbondInfo } = this.props;
+    const isSaas = !!(rainbondInfo && rainbondInfo.is_saas);
+    return !isSaas || !!(currentUser && currentUser.is_enterprise_admin);
+  };
+
   isResourceCenterRoute = (pathname = '') => {
     return typeof pathname === 'string' && pathname.indexOf('/k8s-center') > -1;
   };
 
   isAppAssetRoute = (pathname = '') => {
     return typeof pathname === 'string' && /\/apps\/[^/]+\/asset(\/|$)/.test(pathname);
+  };
+
+  isAppBackupRoute = (pathname = '') => {
+    return typeof pathname === 'string' && /\/apps\/[^/]+\/backup(\/|$)/.test(pathname);
   };
 
   filterResourceCenterMenus = (menuGroups = [], canAccessResourceCenter) => {
@@ -827,6 +847,7 @@ class TeamLayout extends PureComponent {
     const autoWidth = collapsed ? 'calc(100% - 416px)' : 'calc(100% - 116px)';
     const isSaas = rainbondInfo?.is_saas || false;
     const canAccessResourceCenter = this.canAccessResourceCenter();
+    const canAccessAppBackup = this.canAccessAppBackup();
     if (!isAuthorizationLoading) {
       // 需要授权但未获取到授权信息
       if (isNeedAuthz && !licenseInfo) {
@@ -871,6 +892,9 @@ class TeamLayout extends PureComponent {
     }
 
     if ((this.isResourceCenterRoute(pathname) || this.isAppAssetRoute(pathname)) && !canAccessResourceCenter) {
+      return <Exception />;
+    }
+    if (this.isAppBackupRoute(pathname) && !canAccessAppBackup) {
       return <Exception />;
     }
 

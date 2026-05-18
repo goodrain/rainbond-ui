@@ -36,7 +36,6 @@ export default class Index extends PureComponent {
     this.state = {
       loading: false,
       userTeamList: [],
-      showPipeline: [],
       currentTeam: this.props.currentTeam || {},
       indexLoading: true,
       showEditName: false,
@@ -81,8 +80,6 @@ export default class Index extends PureComponent {
           this.setState({
             userTeamList: res.list,
             loading: false
-          }, () => {
-            this.fetchPipePipeline(eid);
           });
         } else {
           this.setState({ loading: false });
@@ -102,35 +99,12 @@ export default class Index extends PureComponent {
     return pluginMenu.some(item => item.name === menuName);
   };
 
-  // 获取团队插件
-  fetchPipePipeline = (eid) => {
-    const { dispatch } = this.props;
-    const enterpriseId = eid || this.getEnterpriseId();
-
-    if (!enterpriseId) {
-      return;
-    }
-
-    dispatch({
-      type: 'teamControl/fetchPluginUrl',
-      payload: {
-        enterprise_id: enterpriseId,
-        region_name: globalUtil.getCurrRegionName()
-      },
-      callback: res => {
-        if (res && res.list) {
-          const pluginArr = PluginUtil.segregatePluginsByHierarchy(res.list, 'Team');
-          const pluginList = pluginArr.map(item => ({
-            name: item.display_name,
-            path: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/plugins/${item.name}`
-          }));
-          this.setState({ showPipeline: pluginList });
-        }
-      },
-      handleError: err => {
-        handleAPIError(err);
-      }
-    });
+  getTeamPluginMenu = pluginsList => {
+    const pluginArr = PluginUtil.segregatePluginsByHierarchy(pluginsList, 'Team');
+    return pluginArr.map(item => ({
+      name: item.display_name,
+      path: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/plugins/${item.name}`
+    }));
   };
   // 获取当前团队信息
   fetchGroup = () => {
@@ -219,7 +193,8 @@ export default class Index extends PureComponent {
     });
   };
   getPluginsMenu = () => {
-    const { showPipeline } = this.state;
+    const { pluginsList } = this.props;
+    const showPipeline = this.getTeamPluginMenu(pluginsList);
 
     if (showPipeline.length === 0) {
       return null;
