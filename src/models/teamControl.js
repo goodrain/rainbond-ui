@@ -69,6 +69,7 @@ export default {
     allAppNames: [],
     // 插件列表
     pluginsList: [],
+    pluginsLoaded: false,
     // 集群命名空间列表
     clusterNamespaces: []
   },
@@ -441,7 +442,8 @@ export default {
     savePluginList(state, { payload }) {
       return {
         ...state,
-        pluginsList:  payload.bean && payload.list && payload.list.length > 0 ? payload.list : []
+        pluginsList:  payload.bean && payload.list && payload.list.length > 0 ? payload.list : [],
+        pluginsLoaded: true
       };
     },
     saveClusterNamespaces(state, action) {

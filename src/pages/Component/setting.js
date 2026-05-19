@@ -97,6 +97,9 @@ export default class Index extends React.Component {
   }
   componentWillUnmount() {
     const { dispatch } = this.props;
+    if (this.shouldKeepSettingStateOnUnmount()) {
+      return;
+    }
     dispatch({ type: 'appControl/clearTags' });
     dispatch({ type: 'appControl/clearPorts' });
     dispatch({ type: 'appControl/clearInnerEnvs' });
@@ -104,6 +107,23 @@ export default class Index extends React.Component {
     dispatch({ type: 'appControl/clearRunningProbe' });
     dispatch({ type: 'appControl/clearMembers' });
   }
+
+  shouldKeepSettingStateOnUnmount = () => {
+    const { appAlias } = this.props;
+    if (!appAlias || typeof window === 'undefined') {
+      return false;
+    }
+    const currentPath = window.location.hash || window.location.pathname || '';
+    const panelComponentID = globalUtil.getSlidePanelComponentID();
+    const panelSubTab = globalUtil.getSlidePanelSubTab();
+    const samePanelSetting =
+      panelSubTab === 'setting' && decodeURIComponent(panelComponentID || '') === appAlias;
+    const sameRouteSetting =
+      currentPath.indexOf(`/components/${encodeURIComponent(appAlias)}/setting`) > -1 ||
+      currentPath.indexOf(`/components/${appAlias}/setting`) > -1;
+
+    return samePanelSetting || sameRouteSetting;
+  };
 
   onTransfer = data => {
     this.setState({ transfer: data });

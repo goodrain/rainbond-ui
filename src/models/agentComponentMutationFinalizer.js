@@ -1,4 +1,5 @@
 const FINALIZE_COMPONENT_TOOLS = {
+  rainbond_build_component: true,
   rainbond_manage_component_envs: true,
   rainbond_manage_component_connection_envs: true,
   rainbond_manage_component_dependency: true,
@@ -9,10 +10,15 @@ const FINALIZE_COMPONENT_TOOLS = {
   rainbond_horizontal_scale_component: true,
   rainbond_vertical_scale_component: true,
   rainbond_change_component_image: true,
+  rainbond_update_component_build_source: true,
 };
 
 function shouldFinalizeToComponentOverview(toolName) {
   return !!FINALIZE_COMPONENT_TOOLS[toolName];
+}
+
+function shouldSkipComponentMutationPreNavigation(toolName) {
+  return shouldFinalizeToComponentOverview(toolName);
 }
 
 function resolveComponentMutationTarget(options = {}) {
@@ -82,6 +88,25 @@ function buildComponentMutationTrackingPatch(options = {}) {
   };
 }
 
+function buildComponentMutationTrackingPatchFromResult(state = {}, options = {}) {
+  const patch = buildComponentMutationTrackingPatch(options);
+  if (!shouldFinalizeToComponentOverview(patch.lastComponentMutationTool)) {
+    return patch;
+  }
+
+  return {
+    lastComponentMutationAlias:
+      patch.lastComponentMutationAlias || state.lastComponentMutationAlias || '',
+    lastComponentMutationAppId:
+      patch.lastComponentMutationAppId || state.lastComponentMutationAppId || '',
+    lastComponentMutationTeamName:
+      patch.lastComponentMutationTeamName || state.lastComponentMutationTeamName || '',
+    lastComponentMutationRegionName:
+      patch.lastComponentMutationRegionName || state.lastComponentMutationRegionName || '',
+    lastComponentMutationTool: patch.lastComponentMutationTool,
+  };
+}
+
 function buildFinalComponentOverviewNavigationPayload(state = {}) {
   if (!shouldFinalizeToComponentOverview(state.lastComponentMutationTool)) {
     return null;
@@ -106,10 +131,12 @@ function buildFinalComponentOverviewNavigationPayload(state = {}) {
 
 module.exports = {
   buildComponentMutationTrackingPatch,
+  buildComponentMutationTrackingPatchFromResult,
   buildFinalComponentOverviewNavigationPayload,
   buildFinalComponentOverviewRoute,
   createClearedComponentMutationTrackingState,
   hasCompleteComponentMutationTarget,
   resolveComponentMutationTarget,
   shouldFinalizeToComponentOverview,
+  shouldSkipComponentMutationPreNavigation,
 };
