@@ -1,4 +1,5 @@
 const FINALIZE_COMPONENT_TOOLS = {
+  rainbond_build_component: true,
   rainbond_manage_component_envs: true,
   rainbond_manage_component_connection_envs: true,
   rainbond_manage_component_dependency: true,

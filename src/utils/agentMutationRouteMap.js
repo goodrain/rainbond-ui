@@ -152,6 +152,9 @@ function isThirdPartyComponent(appDetail) {
 }
 
 const MUTATION_ROUTE_POLICIES = {
+  rainbond_build_component: {
+    post: { routeKind: 'component-refresh', tab: 'overview' },
+  },
   rainbond_delete_component: {
     pre: { routeKind: 'component', tab: 'overview' },
     post: { routeKind: 'app-overview-refresh' },
@@ -203,6 +206,9 @@ const MUTATION_ROUTE_POLICIES = {
   rainbond_update_component_build_source: {
     pre: { routeKind: 'component', tab: 'advancedSettings', subTab: 'resource' },
     post: { routeKind: 'component-refresh', tab: 'advancedSettings', subTab: 'resource' },
+  },
+  rainbond_operate_app: {
+    post: { routeKind: 'app-overview-refresh' },
   },
   rainbond_create_app: {
     pre: { routeKind: 'team-index' },
@@ -304,6 +310,18 @@ export function getAgentMutationRoutePolicy(toolName) {
 
 export function isSupportedAgentMutationTool(toolName) {
   return !!getAgentMutationRoutePolicy(toolName);
+}
+
+export function shouldHandleApprovedMutationTrace({
+  toolName,
+  pendingMutationTool,
+}) {
+  return !!(
+    toolName &&
+    pendingMutationTool &&
+    toolName === pendingMutationTool &&
+    isSupportedAgentMutationTool(toolName)
+  );
 }
 
 function isSlidePanelRefreshRouteKind(routeKind) {

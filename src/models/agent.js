@@ -20,7 +20,7 @@ import {
 import {
   isSupportedAgentMutationTool,
   resolvePostActionRoute,
-  resolvePreActionRoute,
+  shouldHandleApprovedMutationTrace,
   shouldUseRouteQueryRefresh,
   shouldUseSlidePanelContentRefresh,
 } from '../utils/agentMutationRouteMap';
@@ -60,7 +60,7 @@ const {
   buildComponentMutationTrackingPatchFromResult,
   buildFinalComponentOverviewNavigationPayload,
   createClearedComponentMutationTrackingState,
-  shouldSkipComponentMutationPreNavigation,
+  shouldFinalizeToComponentOverview,
 } = agentComponentMutationFinalizer;
 
 // F5 — cross-tab SSE observer registry.
@@ -1396,20 +1396,6 @@ export default {
         pa.status === 'pending' &&
         pa.approvalId !== prevApprovalId
       ) {
-        const shouldSkipPreActionNavigation = shouldSkipComponentMutationPreNavigation(
-          pa.skillId
-        );
-        const route = shouldSkipPreActionNavigation
-          ? ''
-          : resolvePreActionRoute({
-              toolName: pa.skillId,
-              context: nextState.context,
-              appDetail: nextRootState.appControl && nextRootState.appControl.appDetail,
-              targetRef: pa.targetRef,
-            });
-        const navigationPayload = shouldSkipPreActionNavigation
-          ? null
-          : buildMutationNavigationPayload(pa.skillId, route);
         const componentMutationTrackingPatch = buildComponentMutationTrackingPatch({
           toolName: pa.skillId,
           context: nextState.context,
@@ -1419,7 +1405,8 @@ export default {
           type: 'saveState',
           payload: {
             pendingMutationTool: pa.skillId || '',
-            ...(navigationPayload || {}),
+            pendingMutationRoute: '',
+            pendingMutationNavigationKey: '',
             ...componentMutationTrackingPatch,
           },
         });
@@ -1431,8 +1418,10 @@ export default {
         payload &&
         payload.event &&
         payload.event.data &&
-        payload.event.data.tool_name &&
-        isSupportedAgentMutationTool(payload.event.data.tool_name) &&
+        shouldHandleApprovedMutationTrace({
+          toolName: payload.event.data.tool_name,
+          pendingMutationTool: prevState.pendingMutationTool,
+        }) &&
         payload.event.data.output &&
         !isDuplicateMutationTrace
       ) {
@@ -1452,11 +1441,11 @@ export default {
         const shouldRefreshRoute = shouldUseRouteQueryRefresh(
           mutationToolName
         );
-        const shouldSkipPreActionNavigation = shouldSkipComponentMutationPreNavigation(
+        const shouldFinalizeComponentMutation = shouldFinalizeToComponentOverview(
           mutationToolName
         );
 
-        if (shouldSkipPreActionNavigation) {
+        if (shouldFinalizeComponentMutation) {
           const route = resolvePostActionRoute({
             toolName: mutationToolName,
             context: nextState.context,

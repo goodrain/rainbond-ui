@@ -20,6 +20,12 @@ function runTests() {
     'build source updates should finalize back to component overview'
   );
 
+  assert.strictEqual(
+    shouldFinalizeToComponentOverview('rainbond_build_component'),
+    true,
+    'component builds should keep the component finalizer active until the run is done'
+  );
+
   const payload = buildFinalComponentOverviewNavigationPayload({
     lastComponentMutationTool: 'rainbond_update_component_build_source',
     lastComponentMutationTeamName: 'demo',

@@ -14,6 +14,7 @@ function loadRouteMapModule() {
 module.exports = {
   resolvePreActionRoute,
   resolvePostActionRoute,
+  shouldHandleApprovedMutationTrace,
 };`,
     {
       module,
@@ -28,6 +29,7 @@ module.exports = {
 const {
   resolvePreActionRoute,
   resolvePostActionRoute,
+  shouldHandleApprovedMutationTrace,
 } = loadRouteMapModule();
 
 function runTests() {
@@ -209,6 +211,68 @@ function runTests() {
     buildSourceEnvPostRoute,
     /[?&]refresh=\d+/,
     'replace_build_envs post route should include refresh after success'
+  );
+
+  const buildComponentPostRoute = resolvePostActionRoute({
+    toolName: 'rainbond_build_component',
+    context: {
+      teamName: 'demo',
+      regionName: 'test',
+      appId: '8',
+      componentAlias: 'api',
+    },
+  });
+
+  assert.ok(
+    buildComponentPostRoute.includes('componentID=api'),
+    'build_component post route should target the component after success'
+  );
+  assert.ok(
+    buildComponentPostRoute.includes('tab=overview'),
+    'build_component post route should open the component overview after success'
+  );
+  assert.match(
+    buildComponentPostRoute,
+    /[?&]refresh=\d+/,
+    'build_component post route should include refresh after success'
+  );
+
+  const operateAppPostRoute = resolvePostActionRoute({
+    toolName: 'rainbond_operate_app',
+    context: {
+      teamName: 'demo',
+      regionName: 'test',
+      appId: '8',
+      componentAlias: 'api',
+    },
+  });
+
+  assert.match(
+    operateAppPostRoute,
+    /^\/team\/demo\/region\/test\/apps\/8\/overview\?/,
+    'operate_app post route should refresh the app overview after success'
+  );
+  assert.match(
+    operateAppPostRoute,
+    /[?&]refresh=\d+/,
+    'operate_app post route should include refresh after success'
+  );
+
+  assert.strictEqual(
+    shouldHandleApprovedMutationTrace({
+      toolName: 'rainbond_manage_component_autoscaler',
+      pendingMutationTool: '',
+    }),
+    false,
+    'autoscaler query traces without approval should not trigger navigation'
+  );
+  assert.strictEqual(
+    shouldHandleApprovedMutationTrace({
+      toolName: 'rainbond_manage_component_autoscaler',
+      pendingMutationTool: 'rainbond_manage_component_autoscaler',
+    }),
+    true,
+    'approved autoscaler mutation traces should trigger navigation'
   );
 }
 
