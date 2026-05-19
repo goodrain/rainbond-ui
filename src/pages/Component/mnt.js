@@ -545,15 +545,6 @@ export default class Index extends PureComponent {
       )
     },
     {
-      title: formatMessage({ id: 'Vm.createVm.status' }),
-      dataIndex: 'status',
-      render: text => (
-        text === 'not_bound'
-          ? <span style={{ color: 'red' }}>{formatMessage({ id: 'status.not_mount' })}</span>
-          : <span style={{ color: 'green' }}>{formatMessage({ id: 'status.mounted' })}</span>
-      )
-    },
-    {
       title: formatMessage({ id: 'Vm.createVm.handle' }),
       dataIndex: 'action',
       render: (_, data, index) => (
@@ -584,15 +575,6 @@ export default class Index extends PureComponent {
               {data.deletable ? (
                 <a onClick={() => this.onDeleteVolume({ ...data, ID: data.volume_id || data.ID })} href="javascript:;">
                   {formatMessage({ id: 'componentOverview.body.mnt.deldete' })}
-                </a>
-              ) : null}
-              {data.volume_id || data.ID ? (
-                <a
-                  onClick={() => this.onEditVolume({ ...data, ID: data.volume_id || data.ID })}
-                  href="javascript:;"
-                  style={{ marginLeft: 8 }}
-                >
-                  {formatMessage({ id: 'componentOverview.body.mnt.edit' })}
                 </a>
               ) : null}
             </Fragment>
