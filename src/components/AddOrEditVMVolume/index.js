@@ -44,6 +44,15 @@ export default class AddVolumes extends PureComponent {
     const { data = {}, volumeOpts = [] } = props;
     return data.volume_type || (volumeOpts[0] && volumeOpts[0].volume_type) || '';
   };
+  getDevicePathValue = (data = {}) => {
+    if (data.device_path) {
+      return data.device_path;
+    }
+    if (data.device_type) {
+      return `/${data.device_type}`;
+    }
+    return data.volume_path || '/disk';
+  };
   // eslint-disable-next-line react/sort-comp
   handleSubmit = e => {
     e.preventDefault();
@@ -253,7 +262,7 @@ export default class AddVolumes extends PureComponent {
           </FormItem>
           <FormItem {...layoutConfig} label={<FormattedMessage id='componentOverview.body.AddVolumes.mount_format' />}>
             {getFieldDecorator('volume_path', {
-              initialValue: data.volume_path || '',
+              initialValue: this.getDevicePathValue(data),
               rules: [
                 {
                   required: true,
@@ -263,7 +272,6 @@ export default class AddVolumes extends PureComponent {
             })(
               <Select
                 getPopupContainer={triggerNode => triggerNode.parentNode}
-                defaultValue={'/disk'}
               >
                 <Option value="/lun">LUN</Option>
                 <Option value="/disk"><FormattedMessage id='componentOverview.body.AddVolumes.disk' /></Option>

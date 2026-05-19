@@ -379,6 +379,15 @@ export default class Index extends PureComponent {
     };
     return formatMap[key] || '-';
   };
+  getVmDiskDevicePath = record => {
+    if (record && record.device_path) {
+      return record.device_path;
+    }
+    if (record && record.device_type) {
+      return `/${record.device_type}`;
+    }
+    return record && record.volume_path;
+  };
 
   handleVmDiskSource = sourceKind => {
     const sourceMap = {
@@ -514,7 +523,7 @@ export default class Index extends PureComponent {
     {
       title: formatMessage({ id: 'Vm.createVm.Storagetype' }),
       dataIndex: 'volume_path',
-      render: (_, data) => <span>{this.handleMountFormat(data.volume_path || `/${data.device_type}`)}</span>
+      render: (_, data) => <span>{this.handleMountFormat(this.getVmDiskDevicePath(data))}</span>
     },
     {
       title: formatMessage({ id: 'componentOverview.body.mnt.vmDiskSource' }),

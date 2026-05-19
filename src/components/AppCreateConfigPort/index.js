@@ -1002,6 +1002,15 @@ class VmMnt extends PureComponent {
     }
     return obj[key] || '-'
   }
+  getVmDiskDevicePath = record => {
+    if (record && record.device_path) {
+      return record.device_path;
+    }
+    if (record && record.device_type) {
+      return `/${record.device_type}`;
+    }
+    return record && record.volume_path;
+  }
   handleVmDiskSource = sourceKind => {
     const sourceMap = {
       volume: formatMessage({ id: 'componentOverview.body.mnt.vmDiskSource.volume' }),
@@ -1102,7 +1111,7 @@ class VmMnt extends PureComponent {
       {
         title: formatMessage({ id: 'Vm.createVm.Storagetype' }),
         dataIndex: 'volume_path',
-        render: (text, record) => <span>{this.handleMountFormat(text || `/${record.device_type}`)}</span>
+        render: (_, record) => <span>{this.handleMountFormat(this.getVmDiskDevicePath(record))}</span>
       },
       {
         title: formatMessage({ id: 'componentOverview.body.mnt.vmDiskSource' }),
