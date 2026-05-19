@@ -23,7 +23,39 @@ function isVmGpuPassthroughScalingLocked(options) {
   return !!getVmPassthroughScalingLockMessageId(options);
 }
 
+function isVMStoppedStatus(status) {
+  return !!(status && ['closed', 'undeploy'].includes(status.status));
+}
+
+function getRunningVMLiveUpdateChangedResource({
+  method,
+  status,
+  currentCpu,
+  currentMemory,
+  nextCpu,
+  nextMemory
+}) {
+  if (method !== 'vm' || isVMStoppedStatus(status)) {
+    return '';
+  }
+
+  const cpuChanged = Number(nextCpu) !== Number(currentCpu);
+  const memoryChanged = Number(nextMemory) !== Number(currentMemory);
+
+  if (cpuChanged && memoryChanged) {
+    return 'both';
+  }
+  if (cpuChanged) {
+    return 'cpu';
+  }
+  if (memoryChanged) {
+    return 'memory';
+  }
+  return '';
+}
+
 module.exports = {
+  getRunningVMLiveUpdateChangedResource,
   getVmPassthroughScalingLockMessageId,
   isVmGpuPassthroughScalingLocked
 };

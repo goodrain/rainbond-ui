@@ -20,6 +20,12 @@ assert.strictEqual(
 );
 
 assert.strictEqual(
+  typeof helpers.getRunningVMLiveUpdateChangedResource,
+  'function',
+  'should expose a helper for detecting running vm live update resource changes'
+);
+
+assert.strictEqual(
   helpers.isVmGpuPassthroughScalingLocked({
     method: 'vm',
     vmRuntime: {
@@ -142,6 +148,71 @@ assert.strictEqual(
   }),
   false,
   'should ignore gpu markers for non-vm components'
+);
+
+assert.strictEqual(
+  helpers.getRunningVMLiveUpdateChangedResource({
+    method: 'vm',
+    status: { status: 'running' },
+    currentCpu: 8000,
+    currentMemory: 16384,
+    nextCpu: 10000,
+    nextMemory: 16384
+  }),
+  'cpu',
+  'should detect cpu-only changes for a running vm'
+);
+
+assert.strictEqual(
+  helpers.getRunningVMLiveUpdateChangedResource({
+    method: 'vm',
+    status: { status: 'running' },
+    currentCpu: 8000,
+    currentMemory: 16384,
+    nextCpu: 8000,
+    nextMemory: 24576
+  }),
+  'memory',
+  'should detect memory-only changes for a running vm'
+);
+
+assert.strictEqual(
+  helpers.getRunningVMLiveUpdateChangedResource({
+    method: 'vm',
+    status: { status: 'running' },
+    currentCpu: 8000,
+    currentMemory: 16384,
+    nextCpu: 10000,
+    nextMemory: 24576
+  }),
+  'both',
+  'should detect combined cpu and memory changes for a running vm'
+);
+
+assert.strictEqual(
+  helpers.getRunningVMLiveUpdateChangedResource({
+    method: 'vm',
+    status: { status: 'closed' },
+    currentCpu: 8000,
+    currentMemory: 16384,
+    nextCpu: 10000,
+    nextMemory: 24576
+  }),
+  '',
+  'should not lock resource edits for a stopped vm'
+);
+
+assert.strictEqual(
+  helpers.getRunningVMLiveUpdateChangedResource({
+    method: 'stateless_multiple',
+    status: { status: 'running' },
+    currentCpu: 8000,
+    currentMemory: 16384,
+    nextCpu: 10000,
+    nextMemory: 24576
+  }),
+  '',
+  'should ignore resource change locks for non-vm components'
 );
 
 console.log('expansion helper tests passed');

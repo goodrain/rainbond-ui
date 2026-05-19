@@ -34,6 +34,7 @@ import { formatMessage } from '@/utils/intl';
 import cookie from '../../utils/cookie';
 import handleAPIError from '../../utils/error';
 import {
+  getRunningVMLiveUpdateChangedResource,
   getVmPassthroughScalingLockMessageId,
   isVmGpuPassthroughScalingLocked
 } from './expansionHelpers';
@@ -247,6 +248,10 @@ export default class Index extends PureComponent {
     if ((cpuValue === 0 && memoryValue === 0) || bool) {
       this.setState(this.initializeConfigValues());
     }
+  }
+  isRunningVMHotUpdate = () => {
+    const { method, status } = this.props;
+    return method === 'vm' && !(status && ['closed', 'undeploy'].includes(status.status));
   }
   componentDidMount() {
     if (!this.canView()) return;
@@ -970,6 +975,19 @@ export default class Index extends PureComponent {
       if (method === 'vm' && !isVMStopped) {
         const currentCpu = Number(extendInfo.current_cpu);
         const currentMemory = Number(extendInfo.current_memory);
+        if (getRunningVMLiveUpdateChangedResource({
+          method,
+          status,
+          currentCpu,
+          currentMemory,
+          nextCpu: cpu,
+          nextMemory: memory
+        }) === 'both') {
+          notification.warning({
+            message: formatMessage({ id: 'componentOverview.body.tab.overview.vmHotUpdateCombinedBlocked' })
+          });
+          return;
+        }
         if (!Number.isNaN(currentCpu) && Number(cpu) < currentCpu) {
           notification.warning({
             message: formatMessage({ id: 'componentOverview.body.tab.overview.vmHotUpdateCpuShrinkBlocked' })
@@ -1030,6 +1048,18 @@ export default class Index extends PureComponent {
     const newCpuValue = memoryToCpuMap[value] !== undefined ? memoryToCpuMap[value] : 8;
     const isCustomMemory = value === 10;
     const isCustomCpu = newCpuValue === 9;
+
+    if (this.isRunningVMHotUpdate()) {
+      this.setState({
+        memoryValue: value,
+        isCustomMemory
+      }, () => {
+        form.setFieldsValue({
+          new_memory: value
+        });
+      });
+      return;
+    }
     
     this.setState({
       memoryValue: value,
@@ -1327,6 +1357,21 @@ export default class Index extends PureComponent {
       );
     }
     const descBox = text => <div className={styles.remindDesc}>{text}</div>;
+    const vmChangedResource = getRunningVMLiveUpdateChangedResource({
+      method,
+      status,
+      currentCpu: extendInfo.current_cpu,
+      currentMemory: extendInfo.current_memory,
+      nextCpu: this.getFormValues(cpuValue, 'cpu'),
+      nextMemory: this.getFormValues(memoryValue, 'memory')
+    });
+    const vmMemoryLockedByCpuChange = vmChangedResource === 'cpu';
+    const vmCpuLockedByMemoryChange = vmChangedResource === 'memory';
+    const vmLiveUpdateEditLockMessageId = {
+      cpu: 'componentOverview.body.tab.overview.vmHotUpdateMemoryLockedByCpuChange',
+      memory: 'componentOverview.body.tab.overview.vmHotUpdateCpuLockedByMemoryChange',
+      both: 'componentOverview.body.tab.overview.vmHotUpdateCombinedBlocked'
+    }[vmChangedResource];
     return (
       <div>
         <Card
@@ -1455,13 +1500,20 @@ export default class Index extends PureComponent {
             </div>
           }
         >
+          {this.state.editBillInfo && vmLiveUpdateEditLockMessageId && (
+            <Alert
+              style={{ marginBottom: '16px' }}
+              message={formatMessage({ id: vmLiveUpdateEditLockMessageId })}
+              type={vmChangedResource === 'both' ? 'warning' : 'info'}
+            />
+          )}
           <Form hideRequiredMark className={styles.fromItem} onSubmit={this.handleFromData} >
             <Form.Item {...formItemLayout} label={formatMessage({ id: 'componentCheck.advanced.setup.basic_info.label.min_memory' })}>
               {getFieldDecorator('new_memory', {
                 initialValue: memoryValue,
               })(
                 <Slider
-                  disabled={!this.state.editBillInfo || isVmGpuScalingLocked}
+                  disabled={!this.state.editBillInfo || isVmGpuScalingLocked || vmMemoryLockedByCpuChange}
                   style={{ width: '500px' }}
                   marks={memoryMarks}
                   min={memorySliderMin}
@@ -1489,13 +1541,13 @@ export default class Index extends PureComponent {
                     type="number"
                     min={1}
                     step={this.state.customMemoryUnit === 'GB' ? 0.1 : 1}
-                    disabled={!this.state.editBillInfo || isVmGpuScalingLocked}
+                    disabled={!this.state.editBillInfo || isVmGpuScalingLocked || vmMemoryLockedByCpuChange}
                   />
                   <Select
                     value={this.state.customMemoryUnit}
                     onChange={this.handleMemoryUnitChange}
                     style={{ width: 80 }}
-                    disabled={!this.state.editBillInfo || isVmGpuScalingLocked}
+                    disabled={!this.state.editBillInfo || isVmGpuScalingLocked || vmMemoryLockedByCpuChange}
                   >
                     <Option value="MB">MB</Option>
                     <Option value="GB">GB</Option>
@@ -1508,7 +1560,7 @@ export default class Index extends PureComponent {
                 initialValue: cpuValue,
               })(
                 <Slider
-                  disabled={!this.state.editBillInfo || isVmGpuScalingLocked}
+                  disabled={!this.state.editBillInfo || isVmGpuScalingLocked || vmCpuLockedByMemoryChange}
                   style={{ width: '500px' }}
                   marks={cpuMarks}
                   min={cpuSliderMin}
@@ -1530,7 +1582,7 @@ export default class Index extends PureComponent {
                   type="number"
                   min={0.1}
                   step={0.1}
-                  disabled={!this.state.editBillInfo || isVmGpuScalingLocked}
+                  disabled={!this.state.editBillInfo || isVmGpuScalingLocked || vmCpuLockedByMemoryChange}
                 />
               </Form.Item>
             )}
