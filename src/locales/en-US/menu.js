@@ -87,6 +87,10 @@ const CustomFooter = {
   'GlobalHeader.agent.contact_admin': 'The AI assistant plugin is not installed for this enterprise. Please contact an enterprise administrator.',
   'GlobalHeader.agent.load_error': 'Failed to load the AI assistant plugin status. Please try again later.',
   'GlobalHeader.agent.loading': 'Checking the AI assistant plugin status. Please try again in a moment.',
+  'GlobalHeader.agent.access.title': 'AI assistant is unavailable',
+  'GlobalHeader.agent.access.open_source_upgrade': 'The open source edition only allows the first registered enterprise administrator to use the AI assistant. Please upgrade to the enterprise edition for other users.',
+  'GlobalHeader.agent.access.ok': 'Got it',
+  'GlobalHeader.agent.access.load_error': 'Failed to check AI assistant access. Please try again later.',
 
 }
 

@@ -438,11 +438,12 @@ i.trigger {
 }
 
 .agentEntry {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  height: 36px;
-  padding: 0 14px;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
   margin-right: 12px;
   border: none;
   border-radius: 999px;
@@ -468,20 +469,43 @@ i.trigger {
   }
 }
 
+.agentEntryRestricted {
+  padding-right: 16px;
+  background: linear-gradient(90deg, #2f63f5 0%, #5a47ee 100%);
+}
+
+.agentEntryBadge {
+  position: absolute;
+  top: -6px;
+  right: -5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #ff8a00;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 4px 10px rgba(255, 138, 0, 0.28);
+  pointer-events: none;
+}
+
 .agentEntryIcon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.18);
+  width: 16px;
+  height: 16px;
   color: #fff;
-  font-size: 13px;
+  font-size: 12px;
 
   svg {
-    width: 14px;
-    height: 14px;
+    width: 13px;
+    height: 13px;
     display: block;
   }
 }
