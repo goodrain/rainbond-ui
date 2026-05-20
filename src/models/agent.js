@@ -12,6 +12,7 @@ import {
   sendAgentMessage,
   subscribeToActiveRun,
 } from '../services/agent';
+import { getAgentAccess } from '../services/agentAccess';
 import * as agentEventAdapter from '../services/agentEventAdapter';
 import {
   formatAgentContextMessage,
@@ -756,6 +757,19 @@ export default {
   state: defaultState,
 
   effects: {
+    *checkAccess({ callback }, { call }) {
+      try {
+        const response = yield call(getAgentAccess);
+        if (callback) {
+          callback(response);
+        }
+      } catch (e) {
+        if (callback) {
+          callback(null, e);
+        }
+      }
+    },
+
     *hydrateSession({ payload }, { call, put }) {
       const userId = payload && payload.userId;
       const snapshot = yield call(hydrateAgentSession, userId);

@@ -88,7 +88,11 @@ const CustomFooter = {
   'GlobalHeader.agent.install.cancel': '取消',
   'GlobalHeader.agent.contact_admin': '当前企业未安装 AI 助手插件，请联系企业管理员安装。',
   'GlobalHeader.agent.load_error': 'AI 助手插件状态获取失败，请稍后重试。',
-  'GlobalHeader.agent.loading': '正在检查 AI 助手插件状态，请稍后重试。'
+  'GlobalHeader.agent.loading': '正在检查 AI 助手插件状态，请稍后重试。',
+  'GlobalHeader.agent.access.title': 'AI助手暂不可用',
+  'GlobalHeader.agent.access.open_source_upgrade': '开源版仅允许首个注册的企业管理员使用 AI 助手，其他用户请升级企业版后使用。',
+  'GlobalHeader.agent.access.ok': '知道了',
+  'GlobalHeader.agent.access.load_error': 'AI 助手权限检查失败，请稍后重试。'
 }
 
 

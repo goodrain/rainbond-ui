@@ -138,6 +138,8 @@ class GlobalHeader extends PureComponent {
       isTeamViewForSwitcher: !!(teamName && regionName),
       isAdmin: !!(currentUser?.is_enterprise_admin && eid),
       agentPluginStatus: 'pending',
+      checkingAgentAccess: false,
+      agentAccess: null,
       // 滑块位置
       sliderStyle: { left: 3, width: 0 }
     };
@@ -152,6 +154,7 @@ class GlobalHeader extends PureComponent {
     // 记录上次激活的索引
     this.lastActiveIndex = null;
     this.lastPluginListKey = null;
+    this.lastAgentAccessKey = null;
   }
 
   componentDidMount() {
@@ -197,7 +200,8 @@ class GlobalHeader extends PureComponent {
 
     if (
       prevProps.pluginsList !== this.props.pluginsList ||
-      prevProps.pluginsLoaded !== this.props.pluginsLoaded
+      prevProps.pluginsLoaded !== this.props.pluginsLoaded ||
+      prevProps.currentUser !== this.props.currentUser
     ) {
       this.syncPluginStatusFromProps();
     }
@@ -276,6 +280,7 @@ class GlobalHeader extends PureComponent {
       .map(item => `${item.name}:${item.enable_status}`)
       .join('|');
     if (this.lastPluginListKey === pluginListKey) {
+      this.loadAgentAccessState();
       return;
     }
     this.lastPluginListKey = pluginListKey;
@@ -286,14 +291,39 @@ class GlobalHeader extends PureComponent {
     this.setState(
       {
         agentPluginStatus: hasAgentPlugin ? 'installed' : 'missing',
+        agentAccess: hasAgentPlugin ? this.state.agentAccess : null,
         showBill: hasBillPlugin
       },
       () => {
+        this.loadAgentAccessState();
         if (hasAgentPlugin || hasBillPlugin) {
           this.fetchBalance();
         }
       }
     );
+  };
+
+  loadAgentAccessState = () => {
+    const { currentUser, dispatch } = this.props;
+    const { agentPluginStatus } = this.state;
+    if (agentPluginStatus !== 'installed' || !currentUser) {
+      return;
+    }
+
+    const accessKey = `${currentUser.user_id || ''}:${currentUser.enterprise_id || ''}:${agentPluginStatus}`;
+    if (this.lastAgentAccessKey === accessKey) {
+      return;
+    }
+    this.lastAgentAccessKey = accessKey;
+
+    dispatch({
+      type: 'agent/checkAccess',
+      callback: (response) => {
+        if (response && response.bean) {
+          this.setState({ agentAccess: response.bean });
+        }
+      }
+    });
   };
 
   /**
@@ -531,15 +561,55 @@ class GlobalHeader extends PureComponent {
 
   openAgentDrawer = () => {
     const { dispatch, currentUser } = this.props;
-    const { agentPluginStatus } = this.state;
+    const { agentPluginStatus, checkingAgentAccess } = this.state;
+    if (checkingAgentAccess) {
+      return;
+    }
     const action = resolveAgentLauncherAction({
       pluginStatus: agentPluginStatus,
       isEnterpriseAdmin: !!currentUser?.is_enterprise_admin
     });
 
     if (action === 'open') {
+      this.setState({ checkingAgentAccess: true });
       dispatch({
-        type: 'agent/show'
+        type: 'agent/checkAccess',
+        callback: (response, error) => {
+          if (error) {
+            notification.warning({
+              message: formatMessage({
+                id: 'GlobalHeader.agent.access.load_error',
+                defaultMessage: 'AI 助手权限检查失败，请稍后重试。'
+              })
+            });
+            this.setState({ checkingAgentAccess: false });
+            return;
+          }
+
+          const access = response && response.bean;
+          if (access && access.can_open_agent) {
+            dispatch({
+              type: 'agent/show'
+            });
+            this.setState({ checkingAgentAccess: false });
+            return;
+          }
+          Modal.info({
+            title: formatMessage({
+              id: 'GlobalHeader.agent.access.title',
+              defaultMessage: 'AI助手暂不可用'
+            }),
+            content: formatMessage({
+              id: 'GlobalHeader.agent.access.open_source_upgrade',
+              defaultMessage: '开源版仅允许首个注册的企业管理员使用 AI 助手，其他用户请升级企业版后使用。'
+            }),
+            okText: formatMessage({
+              id: 'GlobalHeader.agent.access.ok',
+              defaultMessage: '知道了'
+            })
+          });
+          this.setState({ checkingAgentAccess: false });
+        }
       });
       return;
     }
@@ -817,7 +887,8 @@ class GlobalHeader extends PureComponent {
       balance,
       balanceStatus,
       showChangePassword,
-      showProductDrawer
+      showProductDrawer,
+      agentAccess
     } = this.state;
 
     // 获取 Logo
@@ -831,6 +902,11 @@ class GlobalHeader extends PureComponent {
     const showFullLogo = !isTeamView || !collapsed;
     const showAppMarket = rainbondUtil.isShowAppMarket(rainbondInfo);
     const showAgentLauncher = !agentVisible && !isAgentRouteHidden();
+    const showAgentEnterpriseBadge = !!(
+      agentAccess &&
+      agentAccess.is_open_source &&
+      agentAccess.deny_reason === 'open_source_requires_enterprise'
+    );
 
     return (
       <ScrollerX sm={900}>
@@ -894,9 +970,12 @@ class GlobalHeader extends PureComponent {
               {showAgentLauncher && (
                 <button
                   type="button"
-                  className={styles.agentEntry}
+                  className={`${styles.agentEntry} ${showAgentEnterpriseBadge ? styles.agentEntryRestricted : ''}`}
                   onClick={this.openAgentDrawer}
                 >
+                  {showAgentEnterpriseBadge && (
+                    <span className={styles.agentEntryBadge}>企</span>
+                  )}
                   <span className={styles.agentEntryIcon}>
                     <AgentEntryIcon />
                   </span>
