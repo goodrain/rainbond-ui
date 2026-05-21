@@ -20,6 +20,11 @@ class AppShareAppInfo extends PureComponent {
     this.props.form.setFieldsValue(name);
   };
 
+  isVMComponent = () => {
+    const { app = {} } = this.props;
+    return app.extend_method === 'vm' || app.service_type === 'vm' || !!app.vm;
+  };
+
   renderConnectInfo = () => {
     const { app = {}, form, ID } = this.props;
     const { getFieldDecorator } = form;
@@ -130,11 +135,7 @@ class AppShareAppInfo extends PureComponent {
     const { app = {} } = this.props;
     const vm = app.vm || {};
     const diskLayout = Array.isArray(vm.disk_layout) ? vm.disk_layout : [];
-    if (
-      app.extend_method !== 'vm' &&
-      app.service_type !== 'vm' &&
-      diskLayout.length === 0
-    ) {
+    if (!this.isVMComponent() && diskLayout.length === 0) {
       return null;
     }
     const rootDisk =
@@ -178,6 +179,9 @@ class AppShareAppInfo extends PureComponent {
     const { app = {}, ID = 'extend', form } = this.props;
     const { getFieldDecorator, getFieldValue } = form;
     const pd16 = { padding: 16 };
+    if (this.isVMComponent()) {
+      return null;
+    }
     if (app.extend_method_map) {
       const steps = getFieldValue(`${ID}||step_node`);
       return (
