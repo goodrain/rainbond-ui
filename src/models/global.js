@@ -150,6 +150,7 @@ import {
 } from '../services/api';
 import { getTeamRegionGroups } from '../services/team';
 import { getPlatformSettings, updatePlatformSettings } from '../services/platformSettings';
+import { getAgentLlmConfig, updateAgentLlmConfig } from '../services/agentLlmConfig';
 import cookie from '../utils/cookie';
 import rainbondUtil from '../utils/rainbond';
 import { getDvaApp } from 'umi';
@@ -692,6 +693,18 @@ export default {
           payload: { ...enterprise, enable_team_resource_view: payload.enable_team_resource_view }
         });
         if (callback) callback(response);
+      }
+    },
+    *fetchAgentLlmConfig({ payload, callback }, { call }) {
+      const response = yield call(getAgentLlmConfig, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *updateAgentLlmConfig({ payload, callback }, { call }) {
+      const response = yield call(updateAgentLlmConfig, payload);
+      if (response && callback) {
+        callback(response);
       }
     },
     *saveLog({ payload, callback }, { call }) {

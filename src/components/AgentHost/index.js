@@ -495,6 +495,8 @@ export default class AgentHost extends PureComponent {
     this.lastRenderedMessagesRef = null;
     this.lastRenderedMessagesSending = null;
     this.lastRenderedMessagesOutput = null;
+    this.composerRef = null;
+    this.composerFocusFrame = null;
   }
 
   componentDidMount() {
@@ -515,13 +517,68 @@ export default class AgentHost extends PureComponent {
     })) {
       this.scrollToBottom();
     }
+
+    if (this.shouldFocusComposerAfterRun(prevProps)) {
+      this.focusComposerInput();
+    }
   }
 
   componentWillUnmount() {
+    if (
+      this.composerFocusFrame &&
+      typeof window !== 'undefined' &&
+      window.cancelAnimationFrame
+    ) {
+      window.cancelAnimationFrame(this.composerFocusFrame);
+    }
   }
 
   setMessagesRef = node => {
     this.messagesRef = node;
+  };
+
+  setComposerRef = node => {
+    this.composerRef = node;
+  };
+
+  shouldFocusComposerAfterRun = prevProps => {
+    const prevAgent = (prevProps && prevProps.agent) || {};
+    const nextAgent = (this.props && this.props.agent) || {};
+    const wasSending = !!prevAgent.sending;
+    const isSending = !!nextAgent.sending;
+    const isVisible = !!nextAgent.visible;
+    const hasSessionPending =
+      Array.isArray(nextAgent.sessionPendingApprovals) &&
+      nextAgent.sessionPendingApprovals.length > 0;
+
+    return wasSending && !isSending && isVisible && !hasSessionPending;
+  };
+
+  focusComposerInput = () => {
+    const runFocus = () => {
+      this.composerFocusFrame = null;
+      const ref = this.composerRef;
+      const target =
+        ref && typeof ref.focus === 'function'
+          ? ref
+          : ref && ref.textArea && typeof ref.textArea.focus === 'function'
+            ? ref.textArea
+            : null;
+
+      if (target) {
+        target.focus();
+      }
+    };
+
+    if (typeof window !== 'undefined' && window.requestAnimationFrame) {
+      if (this.composerFocusFrame && window.cancelAnimationFrame) {
+        window.cancelAnimationFrame(this.composerFocusFrame);
+      }
+      this.composerFocusFrame = window.requestAnimationFrame(runFocus);
+      return;
+    }
+
+    runFocus();
   };
 
   scrollToBottom = options => {
@@ -1315,6 +1372,7 @@ export default class AgentHost extends PureComponent {
               <div className={styles.footer}>
                 <div className={styles.footerComposer}>
                   <TextArea
+                    ref={this.setComposerRef}
                     className={styles.footerTextarea}
                     value={draft}
                     onChange={this.handleDraftChange}

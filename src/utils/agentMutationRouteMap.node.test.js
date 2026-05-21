@@ -14,6 +14,7 @@ function loadRouteMapModule() {
 module.exports = {
   resolvePreActionRoute,
   resolvePostActionRoute,
+  shouldHandleApprovedMutationTrace,
 };`,
     {
       module,
@@ -28,6 +29,7 @@ module.exports = {
 const {
   resolvePreActionRoute,
   resolvePostActionRoute,
+  shouldHandleApprovedMutationTrace,
 } = loadRouteMapModule();
 
 function runTests() {
@@ -153,6 +155,124 @@ function runTests() {
   assert.ok(
     updateBuildSourceRoute.includes('subTab=resource'),
     'update_component_build_source route should open the build source sub tab'
+  );
+
+  const updateBuildSourcePostRoute = resolvePostActionRoute({
+    toolName: 'rainbond_update_component_build_source',
+    context: {
+      teamName: 'demo',
+      regionName: 'test',
+      appId: '8',
+      componentAlias: 'api',
+    },
+  });
+
+  assert.ok(
+    updateBuildSourcePostRoute.includes('tab=advancedSettings'),
+    'update_component_build_source post route should open advanced settings after success'
+  );
+  assert.ok(
+    updateBuildSourcePostRoute.includes('subTab=resource'),
+    'update_component_build_source post route should open the build source sub tab after success'
+  );
+  assert.match(
+    updateBuildSourcePostRoute,
+    /[?&]refresh=\d+/,
+    'update_component_build_source post route should include refresh after success'
+  );
+
+  const buildSourceEnvPostRoute = resolvePostActionRoute({
+    toolName: 'rainbond_manage_component_envs',
+    context: {
+      teamName: 'demo',
+      regionName: 'test',
+      appId: '8',
+      componentAlias: 'api',
+    },
+    resultRef: {
+      kind: 'service',
+      team_name: 'demo',
+      region_name: 'test',
+      app_id: '8',
+      service_alias: 'api',
+      operation: 'replace_build_envs',
+    },
+  });
+
+  assert.ok(
+    buildSourceEnvPostRoute.includes('tab=advancedSettings'),
+    'replace_build_envs post route should open advanced settings after success'
+  );
+  assert.ok(
+    buildSourceEnvPostRoute.includes('subTab=resource'),
+    'replace_build_envs post route should open the build source sub tab after success'
+  );
+  assert.match(
+    buildSourceEnvPostRoute,
+    /[?&]refresh=\d+/,
+    'replace_build_envs post route should include refresh after success'
+  );
+
+  const buildComponentPostRoute = resolvePostActionRoute({
+    toolName: 'rainbond_build_component',
+    context: {
+      teamName: 'demo',
+      regionName: 'test',
+      appId: '8',
+      componentAlias: 'api',
+    },
+  });
+
+  assert.ok(
+    buildComponentPostRoute.includes('componentID=api'),
+    'build_component post route should target the component after success'
+  );
+  assert.ok(
+    buildComponentPostRoute.includes('tab=overview'),
+    'build_component post route should open the component overview after success'
+  );
+  assert.match(
+    buildComponentPostRoute,
+    /[?&]refresh=\d+/,
+    'build_component post route should include refresh after success'
+  );
+
+  const operateAppPostRoute = resolvePostActionRoute({
+    toolName: 'rainbond_operate_app',
+    context: {
+      teamName: 'demo',
+      regionName: 'test',
+      appId: '8',
+      componentAlias: 'api',
+    },
+  });
+
+  assert.match(
+    operateAppPostRoute,
+    /^\/team\/demo\/region\/test\/apps\/8\/overview\?/,
+    'operate_app post route should refresh the app overview after success'
+  );
+  assert.match(
+    operateAppPostRoute,
+    /[?&]refresh=\d+/,
+    'operate_app post route should include refresh after success'
+  );
+
+  assert.strictEqual(
+    shouldHandleApprovedMutationTrace({
+      toolName: 'rainbond_manage_component_autoscaler',
+      pendingMutationTool: '',
+    }),
+    false,
+    'autoscaler query traces without approval should not trigger navigation'
+  );
+  assert.strictEqual(
+    shouldHandleApprovedMutationTrace({
+      toolName: 'rainbond_manage_component_autoscaler',
+      pendingMutationTool: 'rainbond_manage_component_autoscaler',
+    }),
+    true,
+    'approved autoscaler mutation traces should trigger navigation'
   );
 }
 
