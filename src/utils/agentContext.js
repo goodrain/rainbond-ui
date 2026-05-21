@@ -76,6 +76,10 @@ function resolveComponentContext() {
 }
 
 function resolveComponentRuntimeId(state = {}, fallbackComponentId = '') {
+  if (!fallbackComponentId) {
+    return '';
+  }
+
   const appDetail =
     state &&
     state.appControl &&
@@ -83,7 +87,7 @@ function resolveComponentRuntimeId(state = {}, fallbackComponentId = '') {
     state.appControl.appDetail.service;
 
   if (!appDetail || !appDetail.service_id) {
-    return fallbackComponentId || '';
+    return fallbackComponentId;
   }
 
   const runtimeServiceId = appDetail.service_id;

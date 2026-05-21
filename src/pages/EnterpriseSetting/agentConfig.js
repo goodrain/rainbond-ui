@@ -14,6 +14,13 @@ const FormItem = Form.Item;
   updatingConfig: loading.effects['global/updateAgentLlmConfig']
 }))
 class AgentConfig extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      config: {}
+    };
+  }
+
   componentDidMount() {
     this.fetchConfig();
   }
@@ -32,6 +39,7 @@ class AgentConfig extends PureComponent {
       payload: { eid },
       callback: res => {
         const config = (res && res.bean) || {};
+        this.setState({ config });
         form.setFieldsValue({
           openai_api_key: '',
           openai_model: '',
@@ -70,6 +78,8 @@ class AgentConfig extends PureComponent {
         type: 'global/updateAgentLlmConfig',
         payload,
         callback: res => {
+          const config = (res && res.bean) || {};
+          this.setState({ config });
           form.setFieldsValue({ openai_api_key: '' });
           notification.success({
             message: formatMessage({ id: 'enterpriseSetting.agentConfig.save.success' })
@@ -86,6 +96,17 @@ class AgentConfig extends PureComponent {
     }
     callback(formatMessage({ id: 'enterpriseSetting.agentConfig.baseUrl.invalid' }));
   };
+
+  renderApiKeyExtra() {
+    const { config } = this.state;
+    if (config.openai_api_key_set) {
+      return formatMessage(
+        { id: 'enterpriseSetting.agentConfig.apiKey.configured' },
+        { key: config.openai_api_key_masked || '********' }
+      );
+    }
+    return formatMessage({ id: 'enterpriseSetting.agentConfig.apiKey.empty' });
+  }
 
   render() {
     const { form, loadingConfig, updatingConfig } = this.props;
@@ -108,6 +129,7 @@ class AgentConfig extends PureComponent {
             <FormItem
               {...formItemLayout}
               label={formatMessage({ id: 'enterpriseSetting.agentConfig.label.apiKey' })}
+              extra={this.renderApiKeyExtra()}
             >
               {getFieldDecorator('openai_api_key', {
                 rules: [
