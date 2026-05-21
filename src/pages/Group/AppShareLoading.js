@@ -29,6 +29,7 @@ class ShareEvent extends React.Component {
       data: data || {},
       eventId: (data && data.event_id) || '',
       status: (data && data.event_status) || 'not_start',
+      errorMessage: '',
       openedEventId: false
     };
     this.mount = false;
@@ -56,8 +57,9 @@ class ShareEvent extends React.Component {
   };
 
   reStart = () => {
-    this.setState({ eventId: '' });
-    this.startShareEvent();
+    this.setState({ eventId: '', errorMessage: '', status: 'not_start' }, () => {
+      this.startShareEvent();
+    });
   };
 
   fetchParams = () => {
@@ -120,13 +122,34 @@ class ShareEvent extends React.Component {
     }
   };
   startShareEvent = () => {
-    const { data, dispatch, onStartSuccess } = this.props;
+    const { data, dispatch, onFail, onStartSuccess } = this.props;
     // 开始分享事件
     let dispatchtype = 'application/startShareEvent';
     if (data.type === 'plugin') {
       // 在共享应用中启动插件共享事件
       dispatchtype = 'application/startPluginShareEventInShareApp';
     }
+    this.setState({ status: 'start', errorMessage: '' });
+
+    const markStartFailure = err => {
+      const responseData = (err && err.response && err.response.data) || {};
+      const errorMessage =
+        responseData.msg_show ||
+        responseData.msg ||
+        (err && err.message) ||
+        formatMessage({ id: 'confirmModal.check.appShare.title.error' });
+      this.setState(
+        {
+          status: 'failure',
+          errorMessage
+        },
+        () => {
+          if (onFail) {
+            onFail(this);
+          }
+        }
+      );
+    };
 
     dispatch({
       type: dispatchtype,
@@ -146,7 +169,12 @@ class ShareEvent extends React.Component {
               }
             }
           );
+        } else {
+          markStartFailure();
         }
+      },
+      handleError: err => {
+        markStartFailure(err);
       }
     });
   };
@@ -175,7 +203,7 @@ class ShareEvent extends React.Component {
   };
 
   render() {
-    const { openedEventId, data, status, eventId } = this.state;
+    const { openedEventId, data, status, eventId, errorMessage } = this.state;
     const datas = data || {};
     const isSuccess = status && status === 'success';
     const isShowSocket = !isSuccess;
@@ -215,6 +243,17 @@ class ShareEvent extends React.Component {
                 </div>
               }
             />
+            {errorMessage && (
+              <div
+                style={{
+                  color: '#f5222d',
+                  lineHeight: '20px',
+                  marginTop: 8
+                }}
+              >
+                {errorMessage}
+              </div>
+            )}
           </Card>
         </List.Item>
 
@@ -299,7 +338,9 @@ export default class shareCheck extends PureComponent {
     }
   };
   handleFail = com => {
-    this.fails.push(com);
+    if (this.fails.indexOf(com) === -1) {
+      this.fails.push(com);
+    }
     this.setState({ status: 'failure' });
   };
 
