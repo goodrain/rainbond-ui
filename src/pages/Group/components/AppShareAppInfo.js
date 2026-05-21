@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-no-bind */
 import React, { Fragment, PureComponent } from 'react';
-import { Checkbox, Col, Divider, Form, Input, InputNumber, Row } from 'antd';
+import { Checkbox, Col, Divider, Form, Input, InputNumber, Row, Tag } from 'antd';
 import { formatMessage } from '@/utils/intl';
 import styles from '../publish.less';
 
@@ -124,6 +124,54 @@ class AppShareAppInfo extends PureComponent {
       );
     }
     return null;
+  };
+
+  renderVMDiskInfo = () => {
+    const { app = {} } = this.props;
+    const vm = app.vm || {};
+    const diskLayout = Array.isArray(vm.disk_layout) ? vm.disk_layout : [];
+    if (
+      app.extend_method !== 'vm' &&
+      app.service_type !== 'vm' &&
+      diskLayout.length === 0
+    ) {
+      return null;
+    }
+    const rootDisk =
+      diskLayout.find(disk => disk && disk.disk_role === 'root') ||
+      diskLayout[0] ||
+      {};
+    const diskName =
+      rootDisk.disk_name || rootDisk.volume_name || rootDisk.disk_key || 'system-disk';
+    const diskImage = rootDisk.image || app.share_image || app.image || '-';
+    const diskFormat = rootDisk.format || vm.boot_source_format || 'qcow2';
+    const requestSize = rootDisk.request_size || '-';
+    const sourceType = rootDisk.source_type || 'registry';
+
+    return (
+      <div className={styles.componentSection}>
+        <div className={styles.componentSectionHeader}>
+          <div>
+            <div className={styles.componentSectionTitle}>虚拟机系统盘</div>
+            <div className={styles.componentSectionDesc}>
+              发布时会导出当前系统盘并转换为 qcow2 镜像，导入后按下列信息恢复 DataVolume。
+            </div>
+          </div>
+        </div>
+        <div className={styles.vmDiskPreview}>
+          <div className={styles.vmDiskPreviewMain}>
+            <div className={styles.vmDiskName}>{diskName}</div>
+            <div className={styles.vmDiskImage}>{diskImage}</div>
+          </div>
+          <div className={styles.vmDiskTags}>
+            <Tag color="blue">root</Tag>
+            <Tag>{diskFormat}</Tag>
+            <Tag>{requestSize}</Tag>
+            <Tag>{sourceType}</Tag>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   renderExtend = () => {
@@ -312,6 +360,7 @@ class AppShareAppInfo extends PureComponent {
   render() {
     return (
       <Fragment>
+        {this.renderVMDiskInfo()}
         {this.renderConnectInfo()}
         {this.renderEnv()}
         {this.renderExtend()}
