@@ -42,7 +42,7 @@ import HelmTab from './tabs/HelmTab';
   helmReleaseHistory: teamResources.helmReleaseHistory,
   total: teamResources.total,
   currentEnterprise: enterprise.currentEnterprise,
-  resourceListLoading: loading.effects['teamResources/fetchResources'],
+  resourceListLoading: loading.effects['teamResources/fetchResources'] || loading.effects['teamResources/fetchNetworkResources'],
   configListLoading: loading.effects['teamResources/fetchConfigResources'],
   helmListLoading: loading.effects['teamResources/fetchHelmReleases'],
   resourceYamlLoading: loading.effects['teamResources/fetchResource'],
@@ -374,6 +374,13 @@ class ResourceCenter extends PureComponent {
       });
       return;
     }
+    if (tab === 'network') {
+      dispatch({
+        type: 'teamResources/fetchNetworkResources',
+        payload: { team: teamName, region: regionName },
+      });
+      return;
+    }
     const resourceParams = tab === 'workload'
       ? { group: extra.group || workloadKindGroup || 'apps', version: 'v1', resource: extra.resource || workloadKind || 'deployments' }
       : TAB_RESOURCE_MAP[tab] || TAB_RESOURCE_MAP.workload;
@@ -411,6 +418,13 @@ class ResourceCenter extends PureComponent {
     if (tab === 'config') {
       const kind = ((record && record.kind) || '').toLowerCase();
       return { group: '', version: 'v1', resource: kind === 'secret' ? 'secrets' : 'configmaps' };
+    }
+    if (tab === 'network') {
+      const kind = ((record && record.kind) || '').toLowerCase();
+      if (kind === 'ingress') {
+        return { group: 'networking.k8s.io', version: 'v1', resource: 'ingresses' };
+      }
+      return { group: '', version: 'v1', resource: 'services' };
     }
     return this.getCurrentResourceParams(tab);
   };
@@ -651,9 +665,11 @@ class ResourceCenter extends PureComponent {
     }
 
     if (activeTab === 'network') {
-      const portCount = list.reduce((total, item) => total + ((item.ports || []).length || 0), 0);
-      const exposedCount = list.filter(item => item.type && item.type !== 'ClusterIP').length;
-      const selectorlessCount = list.filter(item => !item.selector || Object.keys(item.selector).length === 0).length;
+      const serviceList = list.filter(item => ((item.kind || 'Service').toLowerCase() === 'service'));
+      const ingressCount = list.filter(item => ((item.kind || '').toLowerCase() === 'ingress')).length;
+      const portCount = serviceList.reduce((total, item) => total + ((item.ports || []).length || 0), 0);
+      const exposedCount = serviceList.filter(item => item.type && item.type !== 'ClusterIP').length + ingressCount;
+      const selectorlessCount = serviceList.filter(item => !item.selector || Object.keys(item.selector).length === 0).length;
       return [
         { label: formatMessage({ id: 'resourceCenter.metrics.network.total' }), value: list.length, helper: formatMessage({ id: 'resourceCenter.metrics.network.totalHelper' }), tone: 'default' },
         { label: formatMessage({ id: 'resourceCenter.metrics.network.ports' }), value: portCount, helper: formatMessage({ id: 'resourceCenter.metrics.network.portsHelper' }), tone: 'running' },
@@ -825,6 +841,15 @@ class ResourceCenter extends PureComponent {
     dispatch(routerRedux.push({
       pathname: `/team/${teamName}/region/${regionName}/k8s-center/services/${serviceName}`,
     }));
+  };
+
+  handleNetworkDetail = (record) => {
+    const kind = ((record && record.kind) || '').toLowerCase();
+    if (kind === 'ingress') {
+      this.handleOpenResourceYaml(record, this.getRecordResourceParams(record, 'network'));
+      return;
+    }
+    this.jumpToServiceDetail(record);
   };
 
   jumpToHelmDetail = (record, query = {}) => {
@@ -2085,8 +2110,8 @@ class ResourceCenter extends PureComponent {
           onRefresh={() => this.fetchTabData(activeTab)}
           refreshLoading={tabLoading}
           onCreate={this.openCreateChooser}
-          onDetail={this.jumpToServiceDetail}
-          onEditYaml={record => this.handleOpenResourceYaml(record, { group: '', version: 'v1', resource: 'services' })}
+          onDetail={this.handleNetworkDetail}
+          onEditYaml={record => this.handleOpenResourceYaml(record, this.getRecordResourceParams(record, 'network'))}
           onDelete={this.handleDeleteResource}
           deletingName={deletingResourceName}
           yamlLoadingName={openingYamlName}
