@@ -463,8 +463,42 @@ export default class AppVersion extends PureComponent {
     }, 2000);
   };
 
-  canExportSnapshot = version => {
+  isVMTemplateComponent = component => {
+    if (!component) {
+      return false;
+    }
+    return !!(
+      component.vm ||
+      component.extend_method === 'vm' ||
+      component.service_type === 'vm' ||
+      component.service_source === 'vm_run'
+    );
+  };
+
+  isVMSnapshotDetail = detail => {
+    if (!detail || !detail.version_id) {
+      return false;
+    }
+    const templateApps = detail.template && detail.template.apps;
+    if (Array.isArray(templateApps)) {
+      return templateApps.some(this.isVMTemplateComponent);
+    }
+    return (
+      detail.can_rollback === false &&
+      detail.rollback_disabled_reason &&
+      detail.rollback_disabled_reason.indexOf('虚拟机') > -1
+    );
+  };
+
+  isVMSnapshotItem = item => {
+    return this.isVMSnapshotDetail(item && item.detail);
+  };
+
+  canExportSnapshot = (version, detail) => {
     if (!version) {
+      return false;
+    }
+    if (this.isVMSnapshotDetail(detail)) {
       return false;
     }
     const { overview } = this.state;
@@ -2190,6 +2224,10 @@ export default class AppVersion extends PureComponent {
   };
 
   showSnapshotExport = detail => {
+    if (this.isVMSnapshotDetail(detail)) {
+      notification.warning({ message: '携带虚拟机的快照需发布后从发布记录导出' });
+      return;
+    }
     const exporterAppData = this.buildSnapshotExportData(detail);
     if (!exporterAppData) {
       notification.warning({ message: '当前快照暂不可导出' });
@@ -2215,6 +2253,9 @@ export default class AppVersion extends PureComponent {
   isSnapshotRollbackActionCandidate = item => {
     const { overview } = this.state;
     if (!item || !item.detail || !item.detail.version_id) {
+      return false;
+    }
+    if (this.isVMSnapshotItem(item)) {
       return false;
     }
     if (item.timelineState === 'runtime') {
@@ -2263,6 +2304,9 @@ export default class AppVersion extends PureComponent {
     if (!item || !item.detail || !item.detail.version_id) {
       return false;
     }
+    if (this.isVMSnapshotItem(item)) {
+      return false;
+    }
     if (!['history', 'upgrade'].includes(item.timelineState)) {
       return false;
     }
@@ -2280,6 +2324,16 @@ export default class AppVersion extends PureComponent {
       return true;
     }
     return !!currentOverview.has_changes;
+  };
+
+  shouldShowSnapshotExportAction = item => {
+    return !!(
+      item &&
+      item.timelineState !== 'runtime' &&
+      item.detail &&
+      item.detail.version &&
+      !this.isVMSnapshotItem(item)
+    );
   };
 
   renderRollbackStatusTag = status => {
@@ -2744,12 +2798,12 @@ export default class AppVersion extends PureComponent {
                           ghost: true
                         })
                       ) : null}
-                      {item.timelineState !== 'runtime' && item.detail && item.detail.version ? (
+                      {this.shouldShowSnapshotExportAction(item) ? (
                         <Button
                           size="small"
                           type="primary"
                           ghost
-                          disabled={!this.canExportSnapshot(item.actionVersion)}
+                          disabled={!this.canExportSnapshot(item.actionVersion, item.detail)}
                           onClick={() => this.showSnapshotExport(item.detail)}
                         >
                           {formatMessage({ id: 'button.export' })}
