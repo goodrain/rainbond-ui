@@ -24,6 +24,7 @@ const utils ={
 // app
 'utils.app.Operation':'Running',
 'utils.app.Starting':'Starting',
+'utils.app.Building':'Building',
 'utils.app.Testing':'Checking',
 'utils.app.Closing':'Terminating',
 'utils.app.Error':'Abnormal',
