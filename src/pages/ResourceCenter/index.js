@@ -2216,6 +2216,14 @@ class ResourceCenter extends PureComponent {
                 ) : null}
               </div>
             </div>
+            {yamlModalMode === 'create' && !yamlResultStep ? (
+              <div className={styles.modalSectionNotice} style={{ marginBottom: 12 }}>
+                {formatMessage({
+                  id: 'resourceCenter.yaml.nativeResourceNotice',
+                  defaultMessage: '这里创建的是 Kubernetes 原生资源，创建后在「K8S 原生资源」中查看和管理，不会自动出现在「应用管理」。如需应用管理中的应用或组件，请从应用管理入口创建。',
+                })}
+              </div>
+            ) : null}
             {yamlResultStep ? this.renderYamlResultPanel() : (
               <CodeMirrorForm
                 mode="yaml"

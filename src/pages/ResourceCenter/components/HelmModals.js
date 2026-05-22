@@ -69,6 +69,18 @@ class HelmModals extends PureComponent {
     );
   }
 
+  renderHelmNativeResourceNotice() {
+    const helmModalMode = this.getStateValue('helmModalMode', 'install');
+    if (helmModalMode !== 'install') {
+      return null;
+    }
+    return (
+      <div className={styles.modalSectionNotice} style={{ marginBottom: 16 }}>
+        {t('resourceCenter.helm.modal.nativeResourceNotice', '这里安装的是 Helm Release，会作为 Kubernetes 原生资源在「K8S 原生资源」中查看和管理，不会自动出现在「应用管理」。如需应用管理中的应用或组件，请从应用管理入口创建。')}
+      </div>
+    );
+  }
+
   renderHelmBrowse() {
     const helmRepos = this.getStateValue('helmRepos', []);
     const helmRepoLoading = this.getStateValue('helmRepoLoading', false);
@@ -785,6 +797,7 @@ class HelmModals extends PureComponent {
         bodyStyle={{ padding: '16px 24px', minHeight: 560 }}
       >
         {this.renderHelmUpgradeAssistant()}
+        {this.renderHelmNativeResourceNotice()}
         {helmStep === 'source' && this.renderHelmSourceTabs()}
         {this.renderHelmStepContent()}
       </Modal>
