@@ -1,9 +1,8 @@
 /* eslint-disable camelcase */
-import { Alert, Button, Card, Form, Input, notification, Select, Spin, Switch } from 'antd';
+import { Button, Card, Col, Form, Input, Modal, notification, Row, Select, Spin, Switch } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
-import styles from './index.less';
 
 const { Option } = Select;
 const FormItem = Form.Item;
@@ -11,7 +10,8 @@ const FormItem = Form.Item;
 @Form.create()
 @connect(({ loading }) => ({
   loadingConfig: loading.effects['global/fetchAgentLlmConfig'],
-  updatingConfig: loading.effects['global/updateAgentLlmConfig']
+  updatingConfig: loading.effects['global/updateAgentLlmConfig'],
+  clearingConfig: loading.effects['global/clearAgentLlmConfig']
 }))
 class AgentConfig extends PureComponent {
   constructor(props) {
@@ -25,10 +25,31 @@ class AgentConfig extends PureComponent {
     this.fetchConfig();
   }
 
+  setFormValues = (config = {}) => {
+    const { form } = this.props;
+    form.setFieldsValue({
+      openai_api_key: '',
+      openai_model: config.openai_model || '',
+      openai_base_url: config.openai_base_url || '',
+      llm_thinking_enabled: !!config.llm_thinking_enabled,
+      llm_reasoning_effort: config.llm_reasoning_effort || 'medium'
+    });
+  };
+
+  resetFormValues = () => {
+    const { form } = this.props;
+    form.setFieldsValue({
+      openai_api_key: '',
+      openai_model: '',
+      openai_base_url: '',
+      llm_thinking_enabled: false,
+      llm_reasoning_effort: 'medium'
+    });
+  };
+
   fetchConfig = () => {
     const {
       dispatch,
-      form,
       match: {
         params: { eid }
       }
@@ -40,13 +61,7 @@ class AgentConfig extends PureComponent {
       callback: res => {
         const config = (res && res.bean) || {};
         this.setState({ config });
-        form.setFieldsValue({
-          openai_api_key: '',
-          openai_model: '',
-          openai_base_url: '',
-          llm_thinking_enabled: !!config.llm_thinking_enabled,
-          llm_reasoning_effort: config.llm_reasoning_effort || 'medium'
-        });
+        this.setFormValues(config);
       }
     });
   };
@@ -89,6 +104,37 @@ class AgentConfig extends PureComponent {
     });
   };
 
+  handleClearConfig = () => {
+    Modal.confirm({
+      title: formatMessage({ id: 'enterpriseSetting.agentConfig.clear.title' }),
+      content: formatMessage({ id: 'enterpriseSetting.agentConfig.clear.content' }),
+      okText: formatMessage({ id: 'enterpriseSetting.agentConfig.clear' }),
+      okType: 'danger',
+      cancelText: formatMessage({ id: 'enterpriseSetting.agentConfig.clear.cancel' }),
+      onOk: () => {
+        const {
+          dispatch,
+          match: {
+            params: { eid }
+          }
+        } = this.props;
+
+        dispatch({
+          type: 'global/clearAgentLlmConfig',
+          payload: { eid },
+          callback: res => {
+            const config = (res && res.bean) || {};
+            this.setState({ config });
+            this.resetFormValues();
+            notification.success({
+              message: formatMessage({ id: 'enterpriseSetting.agentConfig.clear.success' })
+            });
+          }
+        });
+      }
+    });
+  };
+
   validateBaseUrl = (_, value, callback) => {
     if (!value || /^https?:\/\//.test(value)) {
       callback();
@@ -109,106 +155,123 @@ class AgentConfig extends PureComponent {
   }
 
   render() {
-    const { form, loadingConfig, updatingConfig } = this.props;
+    const { form, loadingConfig, updatingConfig, clearingConfig } = this.props;
     const { getFieldDecorator } = form;
     const formItemLayout = {
       labelCol: { span: 8 },
-      wrapperCol: { span: 8 }
+      wrapperCol: { span: 12 }
     };
+    const actionLoading = !!updatingConfig || !!clearingConfig;
 
     return (
       <Spin spinning={!!loadingConfig}>
-        <Card bordered={false} className={styles.agentConfigCard}>
-          <Alert
-            type="info"
-            showIcon
-            className={styles.agentConfigAlert}
-            message={formatMessage({ id: 'enterpriseSetting.agentConfig.notice' })}
-          />
+        <Card style={{padding:24}}>
           <Form>
-            <FormItem
-              {...formItemLayout}
-              label={formatMessage({ id: 'enterpriseSetting.agentConfig.label.apiKey' })}
-              extra={this.renderApiKeyExtra()}
-            >
-              {getFieldDecorator('openai_api_key', {
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({ id: 'enterpriseSetting.agentConfig.apiKey.required' })
-                  }
-                ]
-              })(
-                <Input.Password
-                  autoComplete="new-password"
-                  placeholder={formatMessage({ id: 'enterpriseSetting.agentConfig.apiKey.placeholder' })}
-                />
-              )}
-            </FormItem>
-            <FormItem {...formItemLayout} label={formatMessage({ id: 'enterpriseSetting.agentConfig.label.model' })}>
-              {getFieldDecorator('openai_model', {
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({ id: 'enterpriseSetting.agentConfig.model.required' })
-                  }
-                ]
-              })(
-                <Input placeholder={formatMessage({ id: 'enterpriseSetting.agentConfig.model.placeholder' })} />
-              )}
-            </FormItem>
-            <FormItem {...formItemLayout} label={formatMessage({ id: 'enterpriseSetting.agentConfig.label.baseUrl' })}>
-              {getFieldDecorator('openai_base_url', {
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({ id: 'enterpriseSetting.agentConfig.baseUrl.required' })
-                  },
-                  { validator: this.validateBaseUrl }
-                ]
-              })(
-                <Input placeholder={formatMessage({ id: 'enterpriseSetting.agentConfig.baseUrl.placeholder' })} />
-              )}
-            </FormItem>
-            <FormItem {...formItemLayout} label={formatMessage({ id: 'enterpriseSetting.agentConfig.label.thinkingEnabled' })}>
-              {getFieldDecorator('llm_thinking_enabled', {
-                valuePropName: 'checked',
-                initialValue: false
-              })(
-                <Switch />
-              )}
-            </FormItem>
-            <FormItem {...formItemLayout} label={formatMessage({ id: 'enterpriseSetting.agentConfig.label.reasoningEffort' })}>
-              {getFieldDecorator('llm_reasoning_effort', {
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({ id: 'enterpriseSetting.agentConfig.reasoning.required' })
-                  }
-                ],
-                initialValue: 'medium'
-              })(
-                <Select
-                  placeholder={formatMessage({ id: 'enterpriseSetting.agentConfig.reasoning.placeholder' })}
+            <Row gutter={24}>
+              <Col span={12}>
+                <FormItem
+                  {...formItemLayout}
+                  label={formatMessage({ id: 'enterpriseSetting.agentConfig.label.apiKey' })}
+                  extra={this.renderApiKeyExtra()}
                 >
-                  <Option value="low">低</Option>
-                  <Option value="medium">中</Option>
-                  <Option value="high">高</Option>
-                </Select>
-              )}
-            </FormItem>
-            <FormItem wrapperCol={{ span: 8, offset: 8 }}>
+                  {getFieldDecorator('openai_api_key', {
+                    rules: [
+                      {
+                        required: true,
+                        message: formatMessage({ id: 'enterpriseSetting.agentConfig.apiKey.required' })
+                      }
+                    ]
+                  })(
+                    <Input.Password
+                      autoComplete="new-password"
+                      placeholder={formatMessage({ id: 'enterpriseSetting.agentConfig.apiKey.placeholder' })}
+                    />
+                  )}
+                </FormItem>
+              </Col>
+              <Col span={12}>
+                <FormItem {...formItemLayout} label={formatMessage({ id: 'enterpriseSetting.agentConfig.label.baseUrl' })}>
+                  {getFieldDecorator('openai_base_url', {
+                    rules: [
+                      {
+                        required: true,
+                        message: formatMessage({ id: 'enterpriseSetting.agentConfig.baseUrl.required' })
+                      },
+                      { validator: this.validateBaseUrl }
+                    ]
+                  })(
+                    <Input placeholder={formatMessage({ id: 'enterpriseSetting.agentConfig.baseUrl.placeholder' })} />
+                  )}
+                </FormItem>
+              </Col>
+            </Row>
+            <Row gutter={24}>
+              <Col span={12}>
+                <FormItem {...formItemLayout} label={formatMessage({ id: 'enterpriseSetting.agentConfig.label.model' })}>
+                  {getFieldDecorator('openai_model', {
+                    rules: [
+                      {
+                        required: true,
+                        message: formatMessage({ id: 'enterpriseSetting.agentConfig.model.required' })
+                      }
+                    ]
+                  })(
+                    <Input placeholder={formatMessage({ id: 'enterpriseSetting.agentConfig.model.placeholder' })} />
+                  )}
+                </FormItem>
+              </Col>
+              <Col span={12}>
+                <FormItem {...formItemLayout} label={formatMessage({ id: 'enterpriseSetting.agentConfig.label.reasoningEffort' })}>
+                  {getFieldDecorator('llm_reasoning_effort', {
+                    rules: [
+                      {
+                        required: true,
+                        message: formatMessage({ id: 'enterpriseSetting.agentConfig.reasoning.required' })
+                      }
+                    ],
+                    initialValue: 'medium'
+                  })(
+                    <Select
+                      placeholder={formatMessage({ id: 'enterpriseSetting.agentConfig.reasoning.placeholder' })}
+                    >
+                      <Option value="low">低</Option>
+                      <Option value="medium">中</Option>
+                      <Option value="high">高</Option>
+                    </Select>
+                  )}
+                </FormItem>
+              </Col>
+            </Row>
+            <Row gutter={24}>
+              <Col span={12}>
+                <FormItem {...formItemLayout} label={formatMessage({ id: 'enterpriseSetting.agentConfig.label.thinkingEnabled' })}>
+                  {getFieldDecorator('llm_thinking_enabled', {
+                    valuePropName: 'checked',
+                    initialValue: false
+                  })(
+                    <Switch />
+                  )}
+                </FormItem>
+              </Col>
+            </Row>
+            <div style={{ textAlign: 'center' }}>
               <Button
                 type="primary"
                 loading={!!updatingConfig}
+                disabled={!!clearingConfig}
                 onClick={this.handleSubmit}
               >
                 {formatMessage({ id: 'enterpriseSetting.agentConfig.save' })}
               </Button>
-              <Button className={styles.agentConfigReloadButton} onClick={this.fetchConfig}>
-                {formatMessage({ id: 'enterpriseSetting.agentConfig.reload' })}
+              <Button
+                loading={!!clearingConfig}
+                disabled={actionLoading && !clearingConfig}
+                style={{ marginLeft: 12 }}
+                onClick={this.handleClearConfig}
+              >
+                {formatMessage({ id: 'enterpriseSetting.agentConfig.clear' })}
               </Button>
-            </FormItem>
+            </div>
           </Form>
         </Card>
       </Spin>

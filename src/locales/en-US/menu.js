@@ -14,6 +14,7 @@ const enterpriseMenu = {
   'menu.enterprise.billing': 'Billing',
   'menu.enterprise.plugins': 'Plugins',
   'menu.enterprise.platform_resources': 'Platform Resources',
+  'menu.enterprise.agent_config': 'AI Assistant Config',
   'menu.team.resource_center': 'K8S Native Resources',
   // Group titles
   'menu.group.basic': 'Basic',
@@ -21,6 +22,7 @@ const enterpriseMenu = {
   'menu.group.commercial': 'Commercial',
   'menu.group.administration': 'Administration',
   'menu.group.plugins': 'Plugins',
+  'menu.group.ai': 'AI',
   // View switcher
   'menu.switcher.workspace': 'Workspace',
   'menu.switcher.platform': 'Platform',
@@ -91,6 +93,11 @@ const CustomFooter = {
   'GlobalHeader.agent.access.open_source_upgrade': 'The open source edition only allows the first registered enterprise administrator to use the AI assistant. Please upgrade to the enterprise edition for other users.',
   'GlobalHeader.agent.access.ok': 'Got it',
   'GlobalHeader.agent.access.load_error': 'Failed to check AI assistant access. Please try again later.',
+  'GlobalHeader.agent.config.missing.title': 'AI assistant configuration is incomplete',
+  'GlobalHeader.agent.config.missing.content': 'The AI assistant plugin is installed, but the API key is not configured yet. Complete the AI assistant configuration before using it.',
+  'GlobalHeader.agent.config.missing.contact_admin': 'The AI assistant plugin is installed, but the API key is not configured yet. Please contact an enterprise administrator to complete the configuration.',
+  'GlobalHeader.agent.config.missing.ok': 'Configure',
+  'GlobalHeader.agent.config.load_error': 'Failed to load the AI assistant configuration. Please try again later.',
 
 }
 

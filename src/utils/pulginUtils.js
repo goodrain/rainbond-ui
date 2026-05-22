@@ -5,11 +5,11 @@ export default {
   segregatePluginsByHierarchy(list, type) {
       // 根据不同视图定义需要屏蔽的插件
       const excludePluginsByView = {
-        'Team': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs'],
-        'Application': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs'],
-        'Platform': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs','rainbond-gpu'],
-        'Component': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs'],
-        'TeamModal': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs']
+        'Team': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs', 'rainbond-agent'],
+        'Application': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs',"rainbond-agent"],
+        'Platform': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs','rainbond-gpu',"rainbond-agent"],
+        'Component': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs','rainbond-agent'],
+        'TeamModal': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs','rainbond-agent'],
       };
 
       // 获取当前视图需要排除的插件列表,如果没有配置则使用默认值
