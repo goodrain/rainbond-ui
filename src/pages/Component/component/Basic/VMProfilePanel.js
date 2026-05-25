@@ -2,10 +2,12 @@ import { Alert, Button, Card, Col, Form, InputNumber, Row, Select, Switch, Tag, 
 import React, { PureComponent } from 'react';
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
-import { addKubernetes, deleteKubernetes, editKubernetes, getKubernetes } from '../../../../services/app';
+import { addKubernetes, deleteKubernetes, editKubernetes, getKubernetes, getPorts } from '../../../../services/app';
 import { getVMCapabilities } from '../../../../services/createApp';
+import { getNsResource } from '../../../../services/teamResource';
 import handleAPIError from '../../../../utils/error';
 import globalUtil from '../../../../utils/global';
+import { getEnabledVMServiceNames, getServiceClusterIP } from '../../vmNetworkHelpers';
 
 const { Option } = Select;
 
@@ -62,8 +64,14 @@ class VMProfilePanel extends PureComponent {
     loadingEditor: false,
     vmCapabilities: EMPTY_CAPABILITIES,
     currentAttributes: {},
-    runtimeDraft: null
+    runtimeDraft: null,
+    clusterIP: ''
   };
+
+  componentDidMount() {
+    this.mounted = true;
+    this.fetchClusterIP();
+  }
 
   componentDidUpdate(prevProps) {
     if (
@@ -75,6 +83,13 @@ class VMProfilePanel extends PureComponent {
         runtimeDraft: null
       });
     }
+    if (prevProps.serviceAlias !== this.props.serviceAlias) {
+      this.fetchClusterIP();
+    }
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
   }
 
   getSourceLabel = (sourceType) => {
@@ -116,6 +131,47 @@ class VMProfilePanel extends PureComponent {
   getCurrentPodIP = () => {
     const { vmProfile = {} } = this.props;
     return vmProfile.current_pod_ip || '';
+  };
+
+  fetchClusterIP = async () => {
+    const { serviceAlias } = this.props;
+    if (!serviceAlias) {
+      this.setClusterIP('');
+      return;
+    }
+    try {
+      const portsRes = await getPorts({
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: serviceAlias,
+        showLoading: false,
+        showMessage: false
+      });
+      const serviceNames = getEnabledVMServiceNames((portsRes && portsRes.list) || []);
+      if (serviceNames.length === 0) {
+        this.setClusterIP('');
+        return;
+      }
+      const serviceRes = await getNsResource({
+        team: globalUtil.getCurrTeamName(),
+        region: globalUtil.getCurrRegionName(),
+        name: serviceNames[0],
+        group: '',
+        version: 'v1',
+        resource: 'services',
+        showLoading: false,
+        handleError: () => {}
+      });
+      const serviceResource = (serviceRes && serviceRes.bean) || {};
+      this.setClusterIP(getServiceClusterIP(serviceResource));
+    } catch (err) {
+      this.setClusterIP('');
+    }
+  };
+
+  setClusterIP = clusterIP => {
+    if (this.mounted) {
+      this.setState({ clusterIP });
+    }
   };
 
   getRuntimeStatus = () => {
@@ -553,6 +609,7 @@ class VMProfilePanel extends PureComponent {
     const runtimeStatus = this.getRuntimeStatus();
     const connections = vmProfile.connections || {};
     const currentPodIP = this.getCurrentPodIP();
+    const { clusterIP } = this.state;
     const overviewColStyle = { display: 'flex' };
     const overviewCardStyle = {
       width: '100%',
@@ -624,6 +681,10 @@ class VMProfilePanel extends PureComponent {
                   formatMessage({ id: 'componentOverview.body.tab.overview.vmCurrentPodIP' }),
                   currentPodIP
                 )}
+                {clusterIP ? this.renderLine(
+                  formatMessage({ id: 'componentOverview.body.tab.overview.vmClusterIP' }),
+                  clusterIP
+                ) : null}
                 {this.renderLine(
                   formatMessage({ id: 'componentOverview.body.tab.overview.vmBootMode' }),
                   runtime.boot_mode

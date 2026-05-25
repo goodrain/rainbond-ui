@@ -108,6 +108,7 @@ const componentOverview = {
     'componentOverview.body.tab.overview.vmAssetReferences': 'References',
     'componentOverview.body.tab.overview.vmNetworkInfo': 'Network',
     'componentOverview.body.tab.overview.vmCurrentPodIP': 'Current Pod IP',
+    'componentOverview.body.tab.overview.vmClusterIP': 'Cluster IP',
     'componentOverview.body.tab.overview.vmBootMode': 'Boot Mode',
     'componentOverview.body.tab.overview.vmAccelerationInfo': 'GPU & USB Passthrough',
     'componentOverview.body.tab.overview.vmGpu': 'GPU Passthrough',

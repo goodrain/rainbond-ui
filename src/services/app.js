@@ -746,7 +746,10 @@ export async function getPorts(
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/ports`,
     {
-      method: 'get'
+      method: 'get',
+      showLoading: body.showLoading,
+      showMessage: body.showMessage,
+      handleError: body.handleError
     }
   );
 }
