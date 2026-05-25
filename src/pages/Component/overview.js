@@ -25,6 +25,7 @@ import OperationRecord from './component/Basic/operationRecord';
 import BuildHistory from './component/BuildHistory/index';
 import Instance from './component/Instance/index';
 import styles from './Index.less';
+import { shouldRefreshVMProfileForVNC } from './vmProfileRefreshHelpers';
 
 const ButtonGroup = Button.Group;
 
@@ -405,6 +406,13 @@ export default class Index extends PureComponent {
     }
     this.fetchAppDiskAndMemory();
     this.load();
+    this.refreshVMProfileForVNC();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.status !== this.props.status) {
+      this.refreshVMProfileForVNC();
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -741,6 +749,30 @@ export default class Index extends PureComponent {
         }
       });
     });
+  };
+
+  refreshVMProfileForVNC = () => {
+    if (
+      !shouldRefreshVMProfileForVNC({
+        appDetail: this.props.appDetail,
+        status: this.props.status,
+        refreshing: this.vmProfileRefreshing
+      })
+    ) {
+      return;
+    }
+
+    this.vmProfileRefreshing = true;
+    this.refreshVMProfile()
+      .then(() => {
+        this.vmProfileRefreshing = false;
+      })
+      .catch(err => {
+        this.vmProfileRefreshing = false;
+        if (this.mounted) {
+          this.handleError(err);
+        }
+      });
   };
 
   render() {
