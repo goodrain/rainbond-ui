@@ -4,6 +4,7 @@ import userUtil from '../utils/user';
 import { isUrl } from '../utils/utils';
 import getMenuSvg from './getMenuSvg';
 import PluginUtil from '../utils/pulginUtils'
+import { isRainbondInfoAgentEnabled } from '../utils/agentVisibility';
 
 /**
  * 生成分组菜单数据
@@ -12,10 +13,12 @@ import PluginUtil from '../utils/pulginUtils'
  * @param {object} enterprise - 企业信息
  * @param {object} pluginList - 插件列表
  * @param {array} clusterList - 集群列表
+ * @param {object} rainbondInfo - 平台个性化配置
  * @returns {array} 分组菜单数组
  */
-function menuData(eid, currentUser, enterprise, pluginList, clusterList) {
+function menuData(eid, currentUser, enterprise, pluginList, clusterList, rainbondInfo) {
   const adminer = userUtil.isCompanyAdmin(currentUser);
+  const agentEnabled = isRainbondInfoAgentEnabled(rainbondInfo);
   const menuGroups = [];
 
   // ============ 第一组：企业总览（无标题） ============
@@ -123,7 +126,7 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList) {
   }
 
   // ============ 第四组：AI功能 ============
-  if (adminer) {
+  if (adminer && agentEnabled) {
     menuGroups.push({
       groupKey: 'ai',
       groupName: formatMessage({ id: 'menu.group.ai', defaultMessage: 'AI功能' }),
@@ -283,15 +286,15 @@ function formatter(menuGroups) {
 /**
  * 获取分组菜单数据
  */
-export const getMenuData = (eid, currentUser, enterprise, pluginList, clusterList) => {
-  const menuGroups = menuData(eid, currentUser, enterprise, pluginList, clusterList);
+export const getMenuData = (eid, currentUser, enterprise, pluginList, clusterList, rainbondInfo) => {
+  const menuGroups = menuData(eid, currentUser, enterprise, pluginList, clusterList, rainbondInfo);
   return formatter(menuGroups);
 };
 
 /**
  * 将分组菜单展平为普通菜单数组（兼容旧代码）
  */
-export const getFlatMenuData = (eid, currentUser, enterprise, pluginList, clusterList) => {
-  const menuGroups = getMenuData(eid, currentUser, enterprise, pluginList, clusterList);
+export const getFlatMenuData = (eid, currentUser, enterprise, pluginList, clusterList, rainbondInfo) => {
+  const menuGroups = getMenuData(eid, currentUser, enterprise, pluginList, clusterList, rainbondInfo);
   return menuGroups.reduce((acc, group) => [...acc, ...group.items], []);
 };

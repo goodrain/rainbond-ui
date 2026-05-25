@@ -401,7 +401,7 @@ class EnterpriseLayout extends PureComponent {
                 }
                 currentUser={currentUser}
                 Authorized={Authorized}
-                menuData={getMenuData(eid, currentUser, enterprise, pluginList, clusterList)}
+                menuData={getMenuData(eid, currentUser, enterprise, pluginList, clusterList, rainbondInfo)}
                 showMenu={showMenu}
                 pathname={pathname}
                 location={location}
