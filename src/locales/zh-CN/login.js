@@ -139,9 +139,9 @@ const login = {
     'layout.userLayout.saas.and':'和',
     'layout.userLayout.saas.privacyPolicy':'隐私条款',
     // UserLayout - Normal mode
-    'layout.userLayout.normal.title1':'无需学习 Kubernetes',
-    'layout.userLayout.normal.title2':'的容器平台',
-    'layout.userLayout.normal.description':'在 Kubernetes 上构建、部署、组装和管理应用，无需 K8s 专业知识，全流程图形化管理',
+    'layout.userLayout.normal.title1':'AI 时代的',
+    'layout.userLayout.normal.title2':'开源容器平台',
+    'layout.userLayout.normal.description':'Rainbond 基于 Kubernetes，屏蔽底层复杂度，用 AI 增强应用部署、排障和运维流程，帮助团队交付业务应用、AI 应用',
     'layout.userLayout.normal.companyInfo':'北京好雨科技有限公司出品',
 }
 

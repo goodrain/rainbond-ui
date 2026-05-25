@@ -102,6 +102,14 @@ export default {
       const resources = [...configMaps, ...secrets];
       yield put({ type: 'save', payload: { resources, total: resources.length } });
     },
+    *fetchNetworkResources({ payload }, { call, put }) {
+      const servicesRes = yield call(listNsResources, { ...payload, group: '', version: 'v1', resource: 'services' });
+      const ingressesRes = yield call(listNsResources, { ...payload, group: 'networking.k8s.io', version: 'v1', resource: 'ingresses' });
+      const services = (servicesRes && servicesRes.bean && servicesRes.bean.list) || [];
+      const ingresses = (ingressesRes && ingressesRes.bean && ingressesRes.bean.list) || [];
+      const resources = [...services, ...ingresses];
+      yield put({ type: 'save', payload: { resources, total: resources.length } });
+    },
     *createResource({ payload, callback, handleError }, { call }) {
       const res = yield call(createNsResource, { ...payload, handleError });
       if (res && callback) callback(res);
