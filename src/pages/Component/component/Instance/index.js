@@ -442,7 +442,7 @@ class Index extends PureComponent {
           >
             <FormattedMessage
               id={
-                podType === 'vm' && status && ['starting', 'waiting'].includes(status.status)
+                podType === 'vm' && status && ['starting', 'waiting', 'restoring'].includes(status.status)
                   ? 'componentOverview.body.tab.overview.instance.vmPreparing'
                   : 'componentOverview.body.tab.overview.instance.noRun'
               }

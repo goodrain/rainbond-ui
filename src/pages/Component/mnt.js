@@ -344,7 +344,7 @@ export default class Index extends PureComponent {
   isComponentOperational = () => {
     const { status } = this.props;
     if (!status?.status) return false;
-    const disabledStatuses = ['undeploy', 'closed', 'abnormal', 'stopping', 'starting', 'deploying', 'upgrade'];
+    const disabledStatuses = ['undeploy', 'closed', 'abnormal', 'stopping', 'starting', 'restoring', 'deploying', 'upgrade'];
     return !disabledStatuses.includes(status.status);
   };
 
@@ -363,6 +363,7 @@ export default class Index extends PureComponent {
       abnormal: 'componentOverview.body.mnt.status.abnormal',
       stopping: 'componentOverview.body.mnt.status.stopping',
       starting: 'componentOverview.body.mnt.status.starting',
+      restoring: 'componentOverview.body.mnt.status.restoring',
       deploying: 'componentOverview.body.mnt.status.deploying',
       upgrade: 'componentOverview.body.mnt.status.upgrade'
     };

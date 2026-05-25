@@ -24,6 +24,13 @@ const appStatusMap = {
     activeAction: ['stop'],
     iconUrl: '/static/www/img/appOutline/appOutline7.png',
   },
+  restoring: {
+    statusCN: formatMessage({id:'utils.app.Restoring'}),
+    bgClass: 'bg-yellow',
+    disabledAction: ['deploy', 'restart', 'visit', 'manage_container'],
+    activeAction: ['stop'],
+    iconUrl: '/static/www/img/appOutline/appOutline7.png',
+  },
   checking: {
     statusCN: formatMessage({id:'utils.app.Testing'}),
     bgClass: 'bg-yellow',
@@ -102,6 +109,7 @@ const appUtil = {
       creating: 'default',
       starting: 'processing',
       building: 'processing',
+      restoring: 'processing',
       checking: 'processing',
       stoping: 'processing',
       unusual: 'error',
