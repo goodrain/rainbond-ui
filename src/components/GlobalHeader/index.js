@@ -26,7 +26,7 @@ import { isRainbondInfoAgentEnabled } from '../../utils/agentVisibility';
 import { buildPortalSsoUrl } from '../../utils/portal';
 import * as agentLauncherAction from './agentLauncherAction';
 
-const { resolveAgentLauncherAction } = agentLauncherAction;
+const { resolveAgentLauncherAction, resolveAgentPlatformPolicy } = agentLauncherAction;
 
 const { Header } = Layout;
 const AGENT_ENTERPRISE_EDITION_URL = 'https://rainbond.feishu.cn/share/base/shrcnv2iqnRsNJM6Y3hN5VhTJvg';
@@ -763,24 +763,68 @@ class GlobalHeader extends PureComponent {
     });
   };
 
-  openAgentDrawer = (skipPluginRefresh = false) => {
+  showOpenSourceUpgradeModal = () => {
+    Modal.confirm({
+      title: formatMessage({
+        id: 'GlobalHeader.agent.access.title',
+        defaultMessage: 'AI 助手暂未对当前账号开放'
+      }),
+      content: formatMessage({
+        id: 'GlobalHeader.agent.access.open_source_upgrade',
+        defaultMessage: 'AI 助手是 Rainbond 的可选增强插件。当前社区版默认开放首位企业管理员体验；如需团队成员共同使用，可开通企业版插件权限。Rainbond 核心能力仍保持开源可用。'
+      }),
+      okText: formatMessage({
+        id: 'GlobalHeader.agent.access.enterprise',
+        defaultMessage: '了解企业版'
+      }),
+      cancelText: formatMessage({
+        id: 'GlobalHeader.agent.access.cancel',
+        defaultMessage: '我知道了'
+      }),
+      onOk: () => {
+        window.open(AGENT_ENTERPRISE_EDITION_URL, '_blank', 'noopener,noreferrer');
+      }
+    });
+  };
+
+  fetchAgentConfig = ({ onConfigured, onMissing, onError }) => {
     const { dispatch, currentUser } = this.props;
-    const { agentPluginStatus, checkingAgentAccess } = this.state;
-    if (checkingAgentAccess) {
-      return;
-    }
+    dispatch({
+      type: 'global/fetchAgentLlmConfig',
+      payload: { eid: currentUser?.enterprise_id || globalUtil.getCurrEnterpriseId() },
+      callback: res => {
+        const config = (res && res.bean) || {};
+        if (!config.openai_api_key_set) {
+          if (onMissing) {
+            onMissing(config);
+          }
+          return;
+        }
+        if (onConfigured) {
+          onConfigured(config);
+        }
+      },
+      handleError: () => {
+        if (onError) {
+          onError();
+        }
+      }
+    });
+  };
+
+  continueAgentOpenForAdmin = (skipPluginRefresh = false) => {
+    const { dispatch, currentUser } = this.props;
+    const { agentPluginStatus } = this.state;
 
     if (!skipPluginRefresh && agentPluginStatus !== 'installed') {
-      this.setState({ checkingAgentAccess: true });
       this.fetchAgentPluginStatus({
         force: true,
         callback: status => {
           this.setState(
             {
-              checkingAgentAccess: false,
               agentPluginStatus: status || this.state.agentPluginStatus
             },
-            () => this.openAgentDrawer(true)
+            () => this.continueAgentOpenForAdmin(true)
           );
         }
       });
@@ -791,79 +835,6 @@ class GlobalHeader extends PureComponent {
       pluginStatus: agentPluginStatus,
       isEnterpriseAdmin: !!currentUser?.is_enterprise_admin
     });
-
-    if (action === 'open') {
-      this.setState({ checkingAgentAccess: true });
-      dispatch({
-        type: 'global/fetchAgentLlmConfig',
-        payload: { eid: currentUser?.enterprise_id || globalUtil.getCurrEnterpriseId() },
-        callback: res => {
-          const config = (res && res.bean) || {};
-          if (!config.openai_api_key_set) {
-            this.setState({ checkingAgentAccess: false });
-            this.handleMissingAgentApiKey();
-            return;
-          }
-
-          dispatch({
-            type: 'agent/checkAccess',
-            callback: (response, error) => {
-              if (error) {
-                notification.warning({
-                  message: formatMessage({
-                    id: 'GlobalHeader.agent.access.load_error',
-                    defaultMessage: 'AI 助手权限检查失败，请稍后重试。'
-                  })
-                });
-                this.setState({ checkingAgentAccess: false });
-                return;
-              }
-
-              const access = response && response.bean;
-              if (access && access.can_open_agent) {
-                dispatch({
-                  type: 'agent/show'
-                });
-                this.setState({ checkingAgentAccess: false });
-                return;
-              }
-              Modal.confirm({
-                title: formatMessage({
-                  id: 'GlobalHeader.agent.access.title',
-                  defaultMessage: 'AI 助手暂未对当前账号开放'
-                }),
-                content: formatMessage({
-                  id: 'GlobalHeader.agent.access.open_source_upgrade',
-                  defaultMessage: 'AI 助手是 Rainbond 的可选增强插件。当前社区版默认开放首位企业管理员体验；如需团队成员共同使用，可开通企业版插件权限。Rainbond 核心能力仍保持开源可用。'
-                }),
-                okText: formatMessage({
-                  id: 'GlobalHeader.agent.access.enterprise',
-                  defaultMessage: '了解企业版'
-                }),
-                cancelText: formatMessage({
-                  id: 'GlobalHeader.agent.access.cancel',
-                  defaultMessage: '我知道了'
-                }),
-                onOk: () => {
-                  window.open(AGENT_ENTERPRISE_EDITION_URL, '_blank', 'noopener,noreferrer');
-                }
-              });
-              this.setState({ checkingAgentAccess: false });
-            }
-          });
-        },
-        handleError: () => {
-          this.setState({ checkingAgentAccess: false });
-          notification.warning({
-            message: formatMessage({
-              id: 'GlobalHeader.agent.config.load_error',
-              defaultMessage: 'AI 助手配置获取失败，请稍后重试。'
-            })
-          });
-        }
-      });
-      return;
-    }
 
     if (action === 'install') {
       const extensionPath = this.getEnterpriseExtensionPath();
@@ -903,16 +874,112 @@ class GlobalHeader extends PureComponent {
       return;
     }
 
-    notification.warning({
-      message: formatMessage({
-        id: action === 'error'
-          ? 'GlobalHeader.agent.load_error'
-          : 'GlobalHeader.agent.loading',
-        defaultMessage:
-          action === 'error'
-            ? 'AI 助手插件状态获取失败，请稍后重试。'
-            : '正在检查 AI 助手插件状态，请稍后重试。'
-      })
+    if (action === 'error' || action === 'pending') {
+      notification.warning({
+        message: formatMessage({
+          id: action === 'error'
+            ? 'GlobalHeader.agent.load_error'
+            : 'GlobalHeader.agent.loading',
+          defaultMessage:
+            action === 'error'
+              ? 'AI 助手插件状态获取失败，请稍后重试。'
+              : '正在检查 AI 助手插件状态，请稍后重试。'
+        })
+      });
+      return;
+    }
+
+    this.fetchAgentConfig({
+      onConfigured: () => {
+        dispatch({
+          type: 'agent/show'
+        });
+        this.setState({ checkingAgentAccess: false });
+      },
+      onMissing: () => {
+        this.setState({ checkingAgentAccess: false });
+        this.handleMissingAgentApiKey();
+      },
+      onError: () => {
+        this.setState({ checkingAgentAccess: false });
+        notification.warning({
+          message: formatMessage({
+            id: 'GlobalHeader.agent.config.load_error',
+            defaultMessage: 'AI 助手配置获取失败，请稍后重试。'
+          })
+        });
+      }
+    });
+  };
+
+  continueAgentOpenForEnterpriseUser = () => {
+    const { dispatch } = this.props;
+    this.fetchAgentConfig({
+      onConfigured: () => {
+        dispatch({
+          type: 'agent/show'
+        });
+        this.setState({ checkingAgentAccess: false });
+      },
+      onMissing: () => {
+        this.setState({ checkingAgentAccess: false });
+        this.handleMissingAgentApiKey();
+      },
+      onError: () => {
+        this.setState({ checkingAgentAccess: false });
+        notification.warning({
+          message: formatMessage({
+            id: 'GlobalHeader.agent.config.load_error',
+            defaultMessage: 'AI 助手配置获取失败，请稍后重试。'
+          })
+        });
+      }
+    });
+  };
+
+  openAgentDrawer = () => {
+    const { dispatch, currentUser } = this.props;
+    const { checkingAgentAccess } = this.state;
+    if (checkingAgentAccess) {
+      return;
+    }
+
+    this.setState({ checkingAgentAccess: true });
+    dispatch({
+      type: 'agent/checkAccess',
+      callback: (response, error) => {
+        if (error) {
+          notification.warning({
+            message: formatMessage({
+              id: 'GlobalHeader.agent.access.load_error',
+              defaultMessage: 'AI 助手权限检查失败，请稍后重试。'
+            })
+          });
+          this.setState({ checkingAgentAccess: false });
+          return;
+        }
+
+        const access = response && response.bean;
+        this.setState({ agentAccess: access || null });
+
+        const policy = resolveAgentPlatformPolicy({
+          isEnterpriseAdmin: !!currentUser?.is_enterprise_admin,
+          access
+        });
+
+        if (policy === 'open_source_upgrade') {
+          this.setState({ checkingAgentAccess: false });
+          this.showOpenSourceUpgradeModal();
+          return;
+        }
+
+        if (policy === 'config_only') {
+          this.continueAgentOpenForEnterpriseUser();
+          return;
+        }
+
+        this.continueAgentOpenForAdmin();
+      }
     });
   };
 
