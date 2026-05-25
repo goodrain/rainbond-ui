@@ -395,6 +395,15 @@ class Index extends PureComponent {
     handleGoManage = () => {
         const { regionName } = this.props;
         const { confirmInstallPlugin, installResultBean } = this.state;
+        const pluginId = confirmInstallPlugin && confirmInstallPlugin.plugin_id;
+        if (pluginId === 'rainbond-agent') {
+            const eid = this.getEid();
+            this.handleCloseInstallConfirm();
+            if (eid) {
+                this.props.dispatch(routerRedux.push(`/enterprise/${eid}/ai/agent-config`));
+            }
+            return;
+        }
         const bean = installResultBean || {};
         const teamName = bean.team_name || (confirmInstallPlugin && confirmInstallPlugin.team_name);
         const appId = bean.app_id || (confirmInstallPlugin && confirmInstallPlugin.app_id);
@@ -611,6 +620,7 @@ class Index extends PureComponent {
     render() {
         const { pluginList, loading, defaultPluginList, isAuthorizationCode, authCode, confirmInstallPlugin, installModalPhase, isServiceExpired, subscribeUntil } = this.state;
         const eid = this.getEid();
+        const isAgentInstallSuccess = confirmInstallPlugin && confirmInstallPlugin.plugin_id === 'rainbond-agent';
         return (
             <div>
                 {isServiceExpired && (
@@ -710,11 +720,16 @@ class Index extends PureComponent {
                                     </div>
                                     <div className={styles.successText}>安装成功</div>
                                     <div className={styles.successSubText}>
-                                        「{confirmInstallPlugin.plugin_name || confirmInstallPlugin.plugin_id}」已安装完成，可前往管理页面查看
+                                        {isAgentInstallSuccess
+                                            ? `「${confirmInstallPlugin.plugin_name || confirmInstallPlugin.plugin_id}」已安装完成，请继续配置接口密钥后使用`
+                                            : `「${confirmInstallPlugin.plugin_name || confirmInstallPlugin.plugin_id}」已安装完成，可前往管理页面查看`
+                                        }
                                     </div>
                                     <div className={styles.installConfirmFooter}>
                                         <Button size="large" style={{ flex: 1 }} onClick={this.handleCloseInstallConfirm}>关闭</Button>
-                                        <Button size="large" type="primary" style={{ flex: 1 }} onClick={this.handleGoManage}>管理</Button>
+                                        <Button size="large" type="primary" style={{ flex: 1 }} onClick={this.handleGoManage}>
+                                            {isAgentInstallSuccess ? '去配置' : '管理'}
+                                        </Button>
                                     </div>
                                 </div>
                             )}

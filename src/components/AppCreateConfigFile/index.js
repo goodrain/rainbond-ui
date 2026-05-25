@@ -24,8 +24,10 @@ import cookie from '@/utils/cookie';
 import CodeBuildConfig from '../CodeBuildConfig';
 import PriceCard from '../../components/PriceCard';
 import handleAPIError from '../../utils/error';
-const { mergeCreateRuntimeInfo } = require('../CodeBuildConfig/buildEnvHelpers');
+import buildEnvHelpers from '../CodeBuildConfig/buildEnvHelpers';
 import styles from './setting.less';
+
+const { mergeCreateRuntimeInfo } = buildEnvHelpers;
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;

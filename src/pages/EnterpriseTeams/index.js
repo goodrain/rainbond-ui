@@ -516,7 +516,8 @@ export default class EnterpriseTeams extends PureComponent {
         title: formatMessage({ id: 'enterpriseTeamManagement.table.teamName' }),
         dataIndex: 'team_alias',
         align: 'center',
-        width: 150,
+        width: 180,
+        fixed: 'left',
         render: (val, row) => (
           <a
             style={{ color: globalUtil.getPublicColor(), fontWeight: '600', fontSize: '16px' }}
@@ -527,16 +528,11 @@ export default class EnterpriseTeams extends PureComponent {
         )
       },
       {
-        title: formatMessage({ id: 'enterpriseTeamManagement.table.number' }),
-        dataIndex: 'user_number',
-        align: 'center',
-        width: 80
-      },
-      {
         title: formatMessage({ id: 'enterpriseTeamManagement.table.colony' }),
         dataIndex: 'region_list',
         align: 'center',
-        width: 200,
+        width: 220,
+        fixed: 'left',
         render: (regions, row) => this.showRegions(row.team_name, regions)
       }
     ];
@@ -567,7 +563,6 @@ export default class EnterpriseTeams extends PureComponent {
         title: formatMessage({ id: 'enterpriseTeamManagement.table.quota_total' }),
         dataIndex: 'storage_request',
         align: 'center',
-        width: 180,
         render: (val, row) => `${val}/${row.set_limit_storage === 0 ? formatMessage({ id: 'appOverview.no_limit' }) : `${row.set_limit_storage}(GB)`}`
       }
     ];
@@ -578,14 +573,13 @@ export default class EnterpriseTeams extends PureComponent {
         title: formatMessage({ id: 'enterpriseTeamManagement.table.memory' }),
         dataIndex: 'memory_request',
         align: 'center',
-        width: 100,
+        width: 140,
         render: (val) => val === 0 ? 0 : val % 1024 === 0 ? (val / 1024) : (val / 1024).toFixed(1)
       },
       {
         title: formatMessage({ id: 'enterpriseTeamManagement.table.CUP' }),
         dataIndex: 'cpu_request',
-        align: 'center',
-        width: 100
+        align: 'center'
       }
     ];
 
@@ -595,13 +589,15 @@ export default class EnterpriseTeams extends PureComponent {
         title: formatMessage({ id: 'enterpriseTeamManagement.table.operation' }),
         dataIndex: 'running_apps',
         align: 'center',
-        width: 100
+        width: 120,
+        fixed: 'right'
       },
       {
         title: formatMessage({ id: 'enterpriseTeamManagement.table.handle' }),
         dataIndex: 'action',
         align: 'center',
         width: 80,
+        fixed: 'right',
         render: (_, row) => (
           <Dropdown overlay={managementMenu(row.team_name)} placement="bottomLeft">
             <Icon component={moreSvg} style={{ cursor: 'pointer' }} />
@@ -635,6 +631,8 @@ export default class EnterpriseTeams extends PureComponent {
           rowKey="team_id"
           dataSource={teamList}
           columns={columns}
+          tableLayout="fixed"
+          scroll={{ x: showEnterprisePlugin ? 1140 : 880 }}
           pagination={{
             current: this.state.page,
             pageSize: this.state.page_size,

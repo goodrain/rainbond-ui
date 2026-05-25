@@ -95,6 +95,47 @@ export default class AppList extends PureComponent {
     this.getApplication();
     this.fetchAppLastUpgradeRecord();
   }
+
+  componentDidUpdate(prevProps) {
+    const prevRefreshKey = this.getRouteRefreshKey(prevProps.location);
+    const nextRefreshKey = this.getRouteRefreshKey(this.props.location);
+
+    if (prevRefreshKey !== nextRefreshKey && nextRefreshKey) {
+      this.handleRouteRefresh();
+    }
+  }
+
+  getRouteRefreshKey = location => {
+    const query = (location && location.query) || {};
+    if (query.refresh) {
+      return query.refresh;
+    }
+    const search = (location && location.search) || '';
+    const queryString = search.indexOf('?') === 0 ? search.slice(1) : search;
+    if (!queryString) {
+      return '';
+    }
+    const params = new URLSearchParams(queryString);
+    return params.get('refresh') || '';
+  };
+
+  handleRouteRefresh = () => {
+    const { activeKey, appDetail } = this.state;
+    this.fetchAppDetail();
+    this.fetchAppLastUpgradeRecord();
+
+    if (appDetail && appDetail.app_type === 'helm') {
+      this.getUpgradeRecordsHelmList();
+      return;
+    }
+
+    if (activeKey === '2') {
+      this.getUpgradeRecordsList();
+      return;
+    }
+
+    this.getApplication();
+  };
   getHelmvs = (vals, index) => {
     const { dispatch } = this.props;
     const repo_name = vals.source.substr(vals.source.indexOf(':') + 1)

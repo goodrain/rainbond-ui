@@ -8,10 +8,25 @@ export default class AppShare extends PureComponent {
     return query.mode === 'snapshot';
   };
 
-  render() {
-    if (this.isSnapshotMode()) {
-      return <AppSnapshotSetting {...this.props} />;
+  getRefreshKey = () => {
+    const query = (this.props.location && this.props.location.query) || {};
+    if (query.refresh) {
+      return query.refresh;
     }
-    return <AppPublishSetting {...this.props} />;
+    const search = (this.props.location && this.props.location.search) || '';
+    const queryString = search.indexOf('?') === 0 ? search.slice(1) : search;
+    if (!queryString) {
+      return 'steady';
+    }
+    const params = new URLSearchParams(queryString);
+    return params.get('refresh') || 'steady';
+  };
+
+  render() {
+    const refreshKey = this.getRefreshKey();
+    if (this.isSnapshotMode()) {
+      return <AppSnapshotSetting key={`snapshot-${refreshKey}`} {...this.props} />;
+    }
+    return <AppPublishSetting key={`publish-${refreshKey}`} {...this.props} />;
   }
 }

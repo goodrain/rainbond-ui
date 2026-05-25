@@ -18,7 +18,6 @@ import {
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
-import ScrollerX from '@/components/ScrollerX';
 import EditClusterInfo from '../../components/Cluster/EditClusterInfo';
 import ConfirmModal from '../../components/ConfirmModal';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
@@ -64,7 +63,10 @@ export default class EnterpriseClusters extends PureComponent {
       clusterLoadings: true,
       licenseInfo: null,
       isNeedAuthz: false,
+      tableViewportWidth: 0,
     };
+    this.tableContainerNode = null;
+    this.tableResizeObserver = null;
   }
   componentWillMount() {
     const { adminer } = this.state;
@@ -77,6 +79,68 @@ export default class EnterpriseClusters extends PureComponent {
     this.loadClusters();
     this.handleGetEnterpriseAuthorization();
   }
+
+  componentWillUnmount() {
+    if (typeof ResizeObserver === 'undefined') {
+      window.removeEventListener('resize', this.handleTableContainerWindowResize);
+    }
+    if (this.tableResizeObserver) {
+      this.tableResizeObserver.disconnect();
+      this.tableResizeObserver = null;
+    }
+    this.tableContainerNode = null;
+  }
+
+  setTableContainerNode = node => {
+    if (this.tableContainerNode === node) {
+      return;
+    }
+
+    if (this.tableResizeObserver && this.tableContainerNode) {
+      this.tableResizeObserver.unobserve(this.tableContainerNode);
+    }
+
+    this.tableContainerNode = node;
+
+    if (!node) {
+      return;
+    }
+
+    this.updateTableViewportWidth(node.getBoundingClientRect().width);
+
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', this.handleTableContainerWindowResize);
+      return;
+    }
+
+    if (!this.tableResizeObserver) {
+      this.tableResizeObserver = new ResizeObserver(entries => {
+        const entry = entries && entries[0];
+        if (entry) {
+          this.updateTableViewportWidth(entry.contentRect.width);
+        }
+      });
+    }
+
+    this.tableResizeObserver.observe(node);
+  };
+
+  handleTableContainerWindowResize = () => {
+    if (this.tableContainerNode) {
+      this.updateTableViewportWidth(this.tableContainerNode.getBoundingClientRect().width);
+    }
+  };
+
+  updateTableViewportWidth = width => {
+    const nextWidth = Math.round(width || 0);
+    if (!nextWidth || nextWidth === this.state.tableViewportWidth) {
+      return;
+    }
+
+    this.setState({
+      tableViewportWidth: nextWidth
+    });
+  };
   // 获取企业授权信息
   handleGetEnterpriseAuthorization = () => {
     const {
@@ -364,7 +428,8 @@ export default class EnterpriseClusters extends PureComponent {
       isAddClusters,
       licenseInfo,
       clusterLoadings,
-      isNeedAuthz
+      isNeedAuthz,
+      tableViewportWidth
     } = this.state;
     const region_nums = (licenseInfo && licenseInfo.cluster_limit) || 0;
     const isAdd = region_nums === -1 ? false : region_nums <= (clusters && clusters.length);
@@ -410,7 +475,8 @@ export default class EnterpriseClusters extends PureComponent {
         title: <span>{formatMessage({ id: 'table.tr.name' })}{<Tooltip placement="top" title={formatMessage({ id: 'enterpriseColony.mgt.cluster.intomgt' })}><span className={styles.nameStyle}>{pageheaderSvg.getSvg('helpSvg', 18)}</span></Tooltip>}</span>,
         dataIndex: 'region_alias',
         align: 'center',
-        width: 120,
+        width: 180,
+        fixed: 'left',
         render: (val, row) => {
           return (
             <Link to={`/enterprise/${eid}/clusters/ClustersMGT/${row.region_id}`} className={styles.linkStyle}>
@@ -424,7 +490,7 @@ export default class EnterpriseClusters extends PureComponent {
         title: formatMessage({ id: 'table.tr.wayToInstall' }),
         dataIndex: 'provider',
         align: 'center',
-        width: 80,
+        width: 120,
         render: item => {
           switch (item) {
             case 'ack':
@@ -477,7 +543,7 @@ export default class EnterpriseClusters extends PureComponent {
         title: formatMessage({ id: 'table.tr.memory' }),
         dataIndex: 'total_memory',
         align: 'center',
-        width: 80,
+        width: 120,
         render: (_, item) => {
           return (
             <span
@@ -493,7 +559,7 @@ export default class EnterpriseClusters extends PureComponent {
         title: 'CPU(Core)',
         dataIndex: 'total_cpu',
         align: 'center',
-        width: 80,
+        width: 110,
         render: (_, item) => {
           return (
             <span>{item.used_cpu}/{item.total_cpu}</span>
@@ -505,7 +571,6 @@ export default class EnterpriseClusters extends PureComponent {
         title: formatMessage({ id: 'table.tr.versions' }),
         dataIndex: 'rbd_version',
         align: 'center',
-        width: 180,
         render: val => {
           if (val.length == 0) {
             return "-"
@@ -519,7 +584,7 @@ export default class EnterpriseClusters extends PureComponent {
         title: formatMessage({ id: 'table.tr.status' }),
         dataIndex: 'status',
         align: 'center',
-        width: 60,
+        width: 120,
         render: (val, data) => {
           if (data.health_status === 'failure') {
             return <span style={{ color: 'red' }}>
@@ -585,7 +650,8 @@ export default class EnterpriseClusters extends PureComponent {
         title: formatMessage({ id: 'table.tr.handle' }),
         dataIndex: 'method',
         align: 'center',
-        width: 50,
+        width: 90,
+        fixed: 'right',
         render: (_, item) => {
           const mlist = [
             <a
@@ -639,64 +705,65 @@ export default class EnterpriseClusters extends PureComponent {
         content={<FormattedMessage id='enterpriseColony.PageHeaderLayout.content' />}
         titleSvg={pageheaderSvg.getPageHeaderSvg('clusters', 20)}
       >
-        <ScrollerX sm={1150}>
-          {/* 第一行：按钮区域靠右 */}
-          <div style={{ textAlign: 'right', marginBottom: 16 }}>
-            <div
-              style={{
-                display: 'inline-block',
-                height: '40px',
-                width: '120px',
-                textAlign: 'center'
-              }}
-              onMouseLeave={() => {
-                this.handleIsAddClusters(false);
-              }}
-              onMouseEnter={() => {
-                this.handleIsAddClusters(isNeedAuthz && isAdd);
-              }}
+        {/* 第一行：按钮区域靠右 */}
+        <div style={{ textAlign: 'right', marginBottom: 16 }}>
+          <div
+            style={{
+              display: 'inline-block',
+              height: '40px',
+              width: '120px',
+              textAlign: 'center'
+            }}
+            onMouseLeave={() => {
+              this.handleIsAddClusters(false);
+            }}
+            onMouseEnter={() => {
+              this.handleIsAddClusters(isNeedAuthz && isAdd);
+            }}
+          >
+            <Tooltip
+              title={`当前集群数量达到授权的最大值（授权最大集群数），请联系好雨商务获取更多授权`}
+              visible={isAddClusters}
             >
-              <Tooltip
-                title={`当前集群数量达到授权的最大值（授权最大集群数），请联系好雨商务获取更多授权`}
-                visible={isAddClusters}
-              >
-                <Link to={`/enterprise/${eid}/addCluster`}>
-                  <Button type="primary" disabled={isNeedAuthz && (isAdd || clusterLoadings)} icon="plus" >
-                    <FormattedMessage id='enterpriseColony.button.text' />
-                  </Button>
-                </Link>
-              </Tooltip>
-            </div>
-            <Button
-              style={{ marginLeft: '22px' }}
-              onClick={() => {
-                this.loadClusters();
-              }}
-            >
-              <Icon type="reload" />
-            </Button>
-            {guideStep === 1 &&
-              this.props.novices &&
-              rainbondUtil.handleNewbie(this.props.novices, 'addCluster') &&
-              clusters &&
-              clusters.length === 0 &&
-              this.handleNewbieGuiding({
-                tit: formatMessage({ id: 'enterpriseColony.guideStep.title' }),
-                desc: formatMessage({ id: 'enterpriseColony.guideStep.desc' }),
-                nextStep: 2,
-                configName: 'addCluster',
-                isSuccess: false,
-                conPosition: { right: '100px', bottom: '-180px' },
-                svgPosition: { right: '170px', marginTop: '-11px' }
-              })}
+              <Link to={`/enterprise/${eid}/addCluster`}>
+                <Button type="primary" disabled={isNeedAuthz && (isAdd || clusterLoadings)} icon="plus" >
+                  <FormattedMessage id='enterpriseColony.button.text' />
+                </Button>
+              </Link>
+            </Tooltip>
           </div>
-          {/* 第二行：提示信息 */}
-          <Alert
-            style={{ marginBottom: '16px' }}
-            message={<FormattedMessage id='enterpriseColony.alert.message' />}
-          />
-          {/* 第三行：表格 */}
+          <Button
+            style={{ marginLeft: '22px' }}
+            onClick={() => {
+              this.loadClusters();
+            }}
+          >
+            <Icon type="reload" />
+          </Button>
+          {guideStep === 1 &&
+            this.props.novices &&
+            rainbondUtil.handleNewbie(this.props.novices, 'addCluster') &&
+            clusters &&
+            clusters.length === 0 &&
+            this.handleNewbieGuiding({
+              tit: formatMessage({ id: 'enterpriseColony.guideStep.title' }),
+              desc: formatMessage({ id: 'enterpriseColony.guideStep.desc' }),
+              nextStep: 2,
+              configName: 'addCluster',
+              isSuccess: false,
+              conPosition: { right: '100px', bottom: '-180px' },
+              svgPosition: { right: '170px', marginTop: '-11px' }
+            })}
+        </div>
+        {/* 第二行：提示信息 */}
+        <Alert
+          style={{ marginBottom: '16px' }}
+          message={<FormattedMessage id='enterpriseColony.alert.message' />}
+        />
+        {/* 第三行：表格 */}
+        <div ref={this.setTableContainerNode}>
           <Table
+            key={`enterprise-clusters-table-${tableViewportWidth}`}
             rowKey={(record, index) => index}
             loading={clusterLoading}
             dataSource={clusters}
@@ -704,8 +771,9 @@ export default class EnterpriseClusters extends PureComponent {
             pagination={false}
             onRow={this.onClickRow}
             rowClassName={styles.rowStyle}
+            scroll={{ x: 1040, y: 420 }}
           />
-        </ScrollerX>
+        </div>
         {/* 模态框 */}
         {delVisible && (
           <ConfirmModal

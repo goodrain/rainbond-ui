@@ -14,6 +14,7 @@ const enterpriseMenu = {
   'menu.enterprise.billing': 'Billing',
   'menu.enterprise.plugins': 'Plugins',
   'menu.enterprise.platform_resources': 'Platform Resources',
+  'menu.enterprise.agent_config': 'AI Assistant Config',
   'menu.team.resource_center': 'K8S Native Resources',
   // Group titles
   'menu.group.basic': 'Basic',
@@ -21,6 +22,7 @@ const enterpriseMenu = {
   'menu.group.commercial': 'Commercial',
   'menu.group.administration': 'Administration',
   'menu.group.plugins': 'Plugins',
+  'menu.group.ai': 'AI',
   // View switcher
   'menu.switcher.workspace': 'Workspace',
   'menu.switcher.platform': 'Platform',
@@ -80,6 +82,24 @@ const CustomFooter = {
   'GlobalHeader.market':'Application Market',
   'GlobalHeader.balance':'Balance',
   'GlobalHeader.account':'Account Center',
+  'GlobalHeader.agent.install.title': 'AI assistant plugin not installed',
+  'GlobalHeader.agent.install.content': 'The current enterprise has not installed the rainbond-agent plugin yet. Do you want to open the Extension Center to install it?',
+  'GlobalHeader.agent.install.ok': 'Install now',
+  'GlobalHeader.agent.install.cancel': 'Cancel',
+  'GlobalHeader.agent.contact_admin': 'The AI assistant plugin is not installed for this enterprise. Please contact an enterprise administrator.',
+  'GlobalHeader.agent.load_error': 'Failed to load the AI assistant plugin status. Please try again later.',
+  'GlobalHeader.agent.loading': 'Checking the AI assistant plugin status. Please try again in a moment.',
+  'GlobalHeader.agent.access.title': 'AI assistant is not available for this account yet',
+  'GlobalHeader.agent.access.open_source_upgrade': 'The AI assistant is an optional Rainbond enhancement plugin. The Community Edition currently opens trial access to the first enterprise administrator by default. To enable team members to use it together, enable the Enterprise Edition plugin permission. Rainbond core capabilities remain open source and available.',
+  'GlobalHeader.agent.access.ok': 'Got it',
+  'GlobalHeader.agent.access.enterprise': 'Learn about Enterprise Edition',
+  'GlobalHeader.agent.access.cancel': 'Got it',
+  'GlobalHeader.agent.access.load_error': 'Failed to check AI assistant access. Please try again later.',
+  'GlobalHeader.agent.config.missing.title': 'AI assistant configuration is incomplete',
+  'GlobalHeader.agent.config.missing.content': 'The AI assistant plugin is installed, but the API key is not configured yet. Complete the AI assistant configuration before using it.',
+  'GlobalHeader.agent.config.missing.contact_admin': 'The AI assistant plugin is installed, but the API key is not configured yet. Please contact an enterprise administrator to complete the configuration.',
+  'GlobalHeader.agent.config.missing.ok': 'Configure',
+  'GlobalHeader.agent.config.load_error': 'Failed to load the AI assistant configuration. Please try again later.',
 
 }
 

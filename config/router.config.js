@@ -151,6 +151,12 @@ export default [
             authority: ['admin', 'user']
           },
           {
+            path: '/enterprise/:eid/ai/agent-config',
+            component: './EnterpriseAI/AgentConfig',
+            name: 'EnterpriseAIAgentConfig',
+            authority: ['admin', 'user']
+          },
+          {
             path: '/enterprise/:eid/plugins/:pluginId',
             component: './RbdPlugins',
             name: 'EnterprisePlugins',

@@ -9,7 +9,6 @@ import pageheaderSvg from '@/utils/pageHeaderSvg';
 import BackupManage from './backup';
 import Infrastructure from './infrastructure';
 import { FormattedMessage } from 'umi';
-import { formatMessage } from '@/utils/intl';
 import Management from './management';
 import rainbondUtil from '../../utils/rainbond';
 import pluginUtile from '../../utils/pulginUtils'

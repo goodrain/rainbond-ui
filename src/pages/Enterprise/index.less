@@ -407,15 +407,15 @@
         display: flex;
   
         .content_left {
-            width: 35%;
+            width: 32%;
             height: 166px;
             display: flex;
             align-items: center;
             border-right: 1px solid #e3e3e3;
   
             .clusterIcon {
-                width: 100px;
-                height: 140px;
+                width: 84px;
+                height: 120px;
   
                 p {
                     width: 100%;
@@ -423,8 +423,8 @@
                 }
   
                 .icons {
-                    width: 100px;
-                    height: 100px;
+                    width: 84px;
+                    height: 84px;
   
                     img {
                         width: 100%;
@@ -533,14 +533,19 @@
             }
         }
   
-        .content_right {
-            width: 65%;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            padding: 0px 12px;
+            .content_right {
+                width: 65%;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0px 12px;
+                gap: 12px;
+                flex-wrap: nowrap;
   
             .content_data {
+                flex: 1 1 0;
+                min-width: 0;
+                max-width: 23%;
                 p {
                     display: flex;
                     justify-content: center;
@@ -570,11 +575,14 @@
             }
   
             .node {
+                flex: 0 0 18%;
+                min-width: 0;
                 p {
                     text-align: center;
                     color: @text-color-secondary;
-                    font-size: @rbd-sub-title-size;
+                    font-size: 16px;
                     font-weight: 500;
+                    white-space: nowrap;
   
                     span {
                         color: @primary-color;
@@ -585,7 +593,8 @@
                 }
   
                 .nodeData {
-                    width: 180px;
+                    width: 100%;
+                    min-width: 0;
                     text-align: center;
                     height: 120px;
                     line-height: 130px;

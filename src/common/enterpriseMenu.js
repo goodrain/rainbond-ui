@@ -4,6 +4,7 @@ import userUtil from '../utils/user';
 import { isUrl } from '../utils/utils';
 import getMenuSvg from './getMenuSvg';
 import PluginUtil from '../utils/pulginUtils'
+import { isRainbondInfoAgentEnabled } from '../utils/agentVisibility';
 
 /**
  * 生成分组菜单数据
@@ -12,10 +13,12 @@ import PluginUtil from '../utils/pulginUtils'
  * @param {object} enterprise - 企业信息
  * @param {object} pluginList - 插件列表
  * @param {array} clusterList - 集群列表
+ * @param {object} rainbondInfo - 平台个性化配置
  * @returns {array} 分组菜单数组
  */
-function menuData(eid, currentUser, enterprise, pluginList, clusterList) {
+function menuData(eid, currentUser, enterprise, pluginList, clusterList, rainbondInfo) {
   const adminer = userUtil.isCompanyAdmin(currentUser);
+  const agentEnabled = isRainbondInfoAgentEnabled(rainbondInfo);
   const menuGroups = [];
 
   // ============ 第一组：企业总览（无标题） ============
@@ -122,7 +125,23 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList) {
     });
   }
 
-  // ============ 第四组：可观测性（监控中心、告警中心、日志中心） ============
+  // ============ 第四组：AI功能 ============
+  if (adminer && agentEnabled) {
+    menuGroups.push({
+      groupKey: 'ai',
+      groupName: formatMessage({ id: 'menu.group.ai', defaultMessage: 'AI功能' }),
+      items: [
+        {
+          name: formatMessage({ id: 'menu.enterprise.agent_config', defaultMessage: 'AI助手配置' }),
+          icon: getMenuSvg.getSvg('agentConfig'),
+          path: `/enterprise/${eid}/ai/agent-config`,
+          authority: ['admin', 'user']
+        }
+      ]
+    });
+  }
+
+  // ============ 第五组：可观测性（监控中心、告警中心、日志中心） ============
   const observabilityItems = [];
   const observabilityPlugin = PluginUtil.getPluginInfo(pluginList, 'rainbond-observability');
   const alarmPlugin = PluginUtil.getPluginInfo(pluginList, 'rainbond-enterprise-alarm');
@@ -180,7 +199,7 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList) {
     });
   }
 
-  // ============ 第五组：插件（排除可观测性相关插件） ============
+  // ============ 第六组：插件（排除可观测性相关插件） ============
   const excludePlugins = ['rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs', 'rainbond-bill'];
   // 多集群情况下，排除 rainbond-recovery 插件（从集群管理页面进入）
   if (clusterList && clusterList.length > 1) {
@@ -267,15 +286,15 @@ function formatter(menuGroups) {
 /**
  * 获取分组菜单数据
  */
-export const getMenuData = (eid, currentUser, enterprise, pluginList, clusterList) => {
-  const menuGroups = menuData(eid, currentUser, enterprise, pluginList, clusterList);
+export const getMenuData = (eid, currentUser, enterprise, pluginList, clusterList, rainbondInfo) => {
+  const menuGroups = menuData(eid, currentUser, enterprise, pluginList, clusterList, rainbondInfo);
   return formatter(menuGroups);
 };
 
 /**
  * 将分组菜单展平为普通菜单数组（兼容旧代码）
  */
-export const getFlatMenuData = (eid, currentUser, enterprise, pluginList, clusterList) => {
-  const menuGroups = getMenuData(eid, currentUser, enterprise, pluginList, clusterList);
+export const getFlatMenuData = (eid, currentUser, enterprise, pluginList, clusterList, rainbondInfo) => {
+  const menuGroups = getMenuData(eid, currentUser, enterprise, pluginList, clusterList, rainbondInfo);
   return menuGroups.reduce((acc, group) => [...acc, ...group.items], []);
 };

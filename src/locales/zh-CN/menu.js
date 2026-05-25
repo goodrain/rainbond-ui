@@ -15,6 +15,7 @@ const enterpriseMenu = {
   'menu.enterprise.billing': '计量计费',
   'menu.enterprise.plugins': '插件列表',
   'menu.enterprise.platform_resources': '存储管理',
+  'menu.enterprise.agent_config': 'AI助手配置',
   'menu.team.resource_center': 'K8S 原生资源',
   // 分组标题
   'menu.group.basic': '基础功能',
@@ -22,6 +23,7 @@ const enterpriseMenu = {
   'menu.group.commercial': '商业功能',
   'menu.group.administration': '管理功能',
   'menu.group.plugins': '插件系统',
+  'menu.group.ai': 'AI功能',
   // 视图切换器
   'menu.switcher.workspace': '工作空间',
   'menu.switcher.platform': '平台管理',
@@ -82,6 +84,24 @@ const CustomFooter = {
   'GlobalHeader.market':'应用市场',
   'GlobalHeader.balance':'余额',
   'GlobalHeader.account':'账户中心',
+  'GlobalHeader.agent.install.title': 'AI助手插件未安装',
+  'GlobalHeader.agent.install.content': '当前企业还没有安装 rainbond-agent 插件，是否前往扩展中心安装？',
+  'GlobalHeader.agent.install.ok': '去安装',
+  'GlobalHeader.agent.install.cancel': '取消',
+  'GlobalHeader.agent.contact_admin': '当前企业未安装 AI 助手插件，请联系企业管理员安装。',
+  'GlobalHeader.agent.load_error': 'AI 助手插件状态获取失败，请稍后重试。',
+  'GlobalHeader.agent.loading': '正在检查 AI 助手插件状态，请稍后重试。',
+  'GlobalHeader.agent.access.title': 'AI 助手暂未对当前账号开放',
+  'GlobalHeader.agent.access.open_source_upgrade': 'AI 助手是 Rainbond 的可选增强插件。当前社区版默认开放首位企业管理员体验；如需团队成员共同使用，可开通企业版插件权限。Rainbond 核心能力仍保持开源可用。',
+  'GlobalHeader.agent.access.ok': '我知道了',
+  'GlobalHeader.agent.access.enterprise': '了解企业版',
+  'GlobalHeader.agent.access.cancel': '我知道了',
+  'GlobalHeader.agent.access.load_error': 'AI 助手权限检查失败，请稍后重试。',
+  'GlobalHeader.agent.config.missing.title': 'AI助手配置未完成',
+  'GlobalHeader.agent.config.missing.content': '当前企业已安装 AI 助手插件，但尚未配置接口密钥。请先完成 AI 助手配置后再使用。',
+  'GlobalHeader.agent.config.missing.contact_admin': '当前企业已安装 AI 助手插件，但尚未配置接口密钥，请联系企业管理员完成配置。',
+  'GlobalHeader.agent.config.missing.ok': '去配置',
+  'GlobalHeader.agent.config.load_error': 'AI 助手配置获取失败，请稍后重试。'
 }
 
 

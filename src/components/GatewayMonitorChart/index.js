@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-const echarts = require('echarts');
+import echarts from 'echarts';
 
 export default class GatewayMonitorChart extends Component {
     constructor(props) {

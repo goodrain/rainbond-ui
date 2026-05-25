@@ -22,8 +22,7 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import jsYaml from 'js-yaml';
 import styles from './index.less';
-
-const theme = require('../../../config/theme');
+import theme from '../../../config/theme';
 
 const { TabPane } = Tabs;
 const { Option } = Select;
