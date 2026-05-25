@@ -249,13 +249,13 @@ class UserLayout extends React.PureComponent {
                       <h1>{loginTitleValue}</h1>
                     ) : (
                       <>
-                        <h1><FormattedMessage id="layout.userLayout.normal.title1" defaultMessage="无需学习 Kubernetes" /></h1>
-                        <h1><FormattedMessage id="layout.userLayout.normal.title2" defaultMessage="的容器平台" /></h1>
+                        <h1><FormattedMessage id="layout.userLayout.normal.title1" defaultMessage="AI 时代的" /></h1>
+                        <h1><FormattedMessage id="layout.userLayout.normal.title2" defaultMessage="开源容器平台" /></h1>
                       </>
                     )}
                   </div>
                   <p className={styles.description}>
-                    {loginSloganValue || <FormattedMessage id="layout.userLayout.normal.description" defaultMessage="在 Kubernetes 上构建、部署、组装和管理应用，无需 K8s 专业知识，全流程图形化管理" />}
+                    {loginSloganValue || <FormattedMessage id="layout.userLayout.normal.description" defaultMessage="Rainbond 基于 Kubernetes，屏蔽底层复杂度，用 AI 增强应用部署、排障和运维流程，帮助团队交付业务应用、AI 应用" />}
                   </p>
                 </div>
                 <div className={styles.companyInfo}>
