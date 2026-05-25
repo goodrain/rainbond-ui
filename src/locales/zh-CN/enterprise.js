@@ -1201,6 +1201,8 @@ const enterpriseSetting = {
     // PageHeaderLayout
     'enterpriseSetting.PageHeaderLayout.title': '平台设置',
     'enterpriseSetting.PageHeaderLayout.content': '支持用户注册、Oauth2.0集成等平台设置功能，更丰富的企业管理资源管理功能在资源管理平台提供。',
+    'enterpriseAI.agentConfig.PageHeaderLayout.title': 'AI助手配置',
+    'enterpriseAI.agentConfig.PageHeaderLayout.content': '配置平台全局 AI 助手使用的 OpenAI 兼容模型参数。',
     // tabs>TabPane
     'enterpriseSetting.TabPane.basicsSetting': '基础设置',
     'enterpriseSetting.TabPane.enterpriseAdmin': '平台管理员',
@@ -1233,6 +1235,11 @@ const enterpriseSetting = {
     'enterpriseSetting.agentConfig.reasoning.required': '请选择推理强度',
     'enterpriseSetting.agentConfig.reasoning.placeholder': '请选择推理强度',
     'enterpriseSetting.agentConfig.save': '保存配置',
+    'enterpriseSetting.agentConfig.clear': '清空配置',
+    'enterpriseSetting.agentConfig.clear.title': '确认清空 AI 助手配置？',
+    'enterpriseSetting.agentConfig.clear.content': '清空后将删除接口密钥、模型名称和接口地址等配置，AI 助手会在重新配置前不可用。',
+    'enterpriseSetting.agentConfig.clear.cancel': '取消',
+    'enterpriseSetting.agentConfig.clear.success': 'AI助手配置已清空',
     'enterpriseSetting.agentConfig.reload': '重新加载',
     // tabs>TabPane>basicsSetting
     'enterpriseSetting.basicsSetting.login.title': '用户注册',

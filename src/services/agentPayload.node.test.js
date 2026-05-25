@@ -10,6 +10,9 @@ const payload = buildAgentSessionPayload({
   componentId: 'svc-1',
   componentSource: 'route',
   pathname: '/team/team-a/region/region-a/apps/app-001',
+  routeSignature: '/team/team-a/region/region-a/apps/app-001',
+  pageTitle: '应用概览',
+  locale: 'zh-CN',
 });
 
 assert.deepStrictEqual(payload, {
@@ -23,6 +26,9 @@ assert.deepStrictEqual(payload, {
     component_id: 'svc-1',
     component_source: 'route',
     page: '/team/team-a/region/region-a/apps/app-001',
+    page_title: '应用概览',
+    locale: 'zh-CN',
+    route_signature: '/team/team-a/region/region-a/apps/app-001',
     resource: {
       type: 'component',
       id: 'svc-1',

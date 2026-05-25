@@ -15,6 +15,7 @@ const enterpriseMenu = {
   'menu.enterprise.billing': '计量计费',
   'menu.enterprise.plugins': '插件列表',
   'menu.enterprise.platform_resources': '存储管理',
+  'menu.enterprise.agent_config': 'AI助手配置',
   'menu.team.resource_center': 'K8S 原生资源',
   // 分组标题
   'menu.group.basic': '基础功能',
@@ -22,6 +23,7 @@ const enterpriseMenu = {
   'menu.group.commercial': '商业功能',
   'menu.group.administration': '管理功能',
   'menu.group.plugins': '插件系统',
+  'menu.group.ai': 'AI功能',
   // 视图切换器
   'menu.switcher.workspace': '工作空间',
   'menu.switcher.platform': '平台管理',
@@ -92,7 +94,12 @@ const CustomFooter = {
   'GlobalHeader.agent.access.title': 'AI助手暂不可用',
   'GlobalHeader.agent.access.open_source_upgrade': '开源版仅允许首个注册的企业管理员使用 AI 助手，其他用户请升级企业版后使用。',
   'GlobalHeader.agent.access.ok': '知道了',
-  'GlobalHeader.agent.access.load_error': 'AI 助手权限检查失败，请稍后重试。'
+  'GlobalHeader.agent.access.load_error': 'AI 助手权限检查失败，请稍后重试。',
+  'GlobalHeader.agent.config.missing.title': 'AI助手配置未完成',
+  'GlobalHeader.agent.config.missing.content': '当前企业已安装 AI 助手插件，但尚未配置接口密钥。请先完成 AI 助手配置后再使用。',
+  'GlobalHeader.agent.config.missing.contact_admin': '当前企业已安装 AI 助手插件，但尚未配置接口密钥，请联系企业管理员完成配置。',
+  'GlobalHeader.agent.config.missing.ok': '去配置',
+  'GlobalHeader.agent.config.load_error': 'AI 助手配置获取失败，请稍后重试。'
 }
 
 

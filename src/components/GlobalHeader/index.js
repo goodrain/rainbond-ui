@@ -155,10 +155,13 @@ class GlobalHeader extends PureComponent {
     this.lastActiveIndex = null;
     this.lastPluginListKey = null;
     this.lastAgentAccessKey = null;
+    this.lastAgentPluginFetchKey = null;
+    this.agentPluginFetchInFlight = false;
   }
 
   componentDidMount() {
     this.syncPluginStatusFromProps();
+    this.fetchAgentPluginStatus();
     this.initializeLanguage();
     this.updateSliderPosition();
   }
@@ -204,6 +207,10 @@ class GlobalHeader extends PureComponent {
       prevProps.currentUser !== this.props.currentUser
     ) {
       this.syncPluginStatusFromProps();
+    }
+
+    if (this.getAgentPluginFetchKey(prevProps) !== this.getAgentPluginFetchKey()) {
+      this.fetchAgentPluginStatus({ force: true });
     }
   }
 
@@ -269,15 +276,48 @@ class GlobalHeader extends PureComponent {
     return { regionName, teamName };
   };
 
-  syncPluginStatusFromProps = () => {
-    const { pluginsList, pluginsLoaded } = this.props;
+  getEnterpriseId = (props = this.props) => {
+    const { currentUser, enterprise, eid } = props;
+    return (
+      currentUser?.enterprise_id ||
+      enterprise?.enterprise_id ||
+      globalUtil.getCurrEnterpriseId() ||
+      eid
+    );
+  };
+
+  getAgentPluginFetchKey = (props = this.props) => {
+    const enterpriseId = this.getEnterpriseId(props);
+    return enterpriseId || '';
+  };
+
+  getFallbackPluginRegionName = () => {
+    const { currentUser } = this.props;
+    return globalUtil.getCurrRegionName() || currentUser?.teams?.[0]?.region?.[0]?.team_region_name || '';
+  };
+
+  isInstalledPlugin = (plugin, pluginId) => {
+    if (!plugin) {
+      return false;
+    }
+    const matched = plugin.name === pluginId || plugin.plugin_id === pluginId;
+    if (!matched) {
+      return false;
+    }
+    if (Object.prototype.hasOwnProperty.call(plugin, 'installed')) {
+      return plugin.installed === true;
+    }
+    return true;
+  };
+
+  syncPluginStatusFromList = (pluginsList, pluginsLoaded) => {
     if (!pluginsLoaded) {
       return;
     }
 
     const pluginList = Array.isArray(pluginsList) ? pluginsList : [];
     const pluginListKey = pluginList
-      .map(item => `${item.name}:${item.enable_status}`)
+      .map(item => `${item.name || ''}:${item.plugin_id || ''}:${item.enable_status || item.status || ''}:${item.installed}`)
       .join('|');
     if (this.lastPluginListKey === pluginListKey) {
       this.loadAgentAccessState();
@@ -285,8 +325,8 @@ class GlobalHeader extends PureComponent {
     }
     this.lastPluginListKey = pluginListKey;
 
-    const hasAgentPlugin = pluginList.some(item => item.name === 'rainbond-agent');
-    const hasBillPlugin = pluginList.some(item => item.name === 'rainbond-bill');
+    const hasAgentPlugin = pluginList.some(item => this.isInstalledPlugin(item, 'rainbond-agent'));
+    const hasBillPlugin = pluginList.some(item => this.isInstalledPlugin(item, 'rainbond-bill'));
 
     this.setState(
       {
@@ -301,6 +341,110 @@ class GlobalHeader extends PureComponent {
         }
       }
     );
+  };
+
+  syncPluginStatusFromProps = () => {
+    const { pluginsList, pluginsLoaded } = this.props;
+    this.syncPluginStatusFromList(pluginsList, pluginsLoaded);
+  };
+
+  fetchAgentPluginStatus = ({ force = false, callback } = {}) => {
+    const { dispatch } = this.props;
+    const enterpriseId = this.getEnterpriseId();
+    const fetchKey = this.getAgentPluginFetchKey();
+
+    if (!enterpriseId) {
+      if (callback) {
+        callback(this.state.agentPluginStatus);
+      }
+      return;
+    }
+
+    if (this.agentPluginFetchInFlight) {
+      if (callback) {
+        callback(this.state.agentPluginStatus);
+      }
+      return;
+    }
+    if (!force && this.lastAgentPluginFetchKey === fetchKey) {
+      if (callback) {
+        callback(this.state.agentPluginStatus);
+      }
+      return;
+    }
+
+    this.lastAgentPluginFetchKey = fetchKey;
+    this.agentPluginFetchInFlight = true;
+
+    const loadByRegions = regionNames => {
+      const uniqueRegionNames = Array.from(new Set(regionNames.filter(Boolean)));
+      if (!uniqueRegionNames.length) {
+        this.agentPluginFetchInFlight = false;
+        this.syncPluginStatusFromList([], true);
+        if (callback) {
+          callback('missing');
+        }
+        return;
+      }
+
+      let pending = uniqueRegionNames.length;
+      let successCount = 0;
+      let pluginList = [];
+
+      const finish = () => {
+        pending -= 1;
+        if (pending > 0) {
+          return;
+        }
+
+        this.agentPluginFetchInFlight = false;
+        if (successCount > 0) {
+          this.syncPluginStatusFromList(pluginList, true);
+          if (callback) {
+            const nextStatus = pluginList.some(item => this.isInstalledPlugin(item, 'rainbond-agent'))
+              ? 'installed'
+              : 'missing';
+            callback(nextStatus);
+          }
+          return;
+        }
+
+        if (callback) {
+          callback(this.state.agentPluginStatus);
+        }
+      };
+
+      uniqueRegionNames.forEach(regionName => {
+        dispatch({
+          type: 'global/getPluginList',
+          payload: {
+            enterprise_id: enterpriseId,
+            region_name: regionName
+          },
+          callback: res => {
+            successCount += 1;
+            pluginList = pluginList.concat((res && res.list) || []);
+            finish();
+          },
+          handleError: finish
+        });
+      });
+    };
+
+    dispatch({
+      type: 'region/fetchEnterpriseClusters',
+      payload: {
+        enterprise_id: enterpriseId
+      },
+      callback: res => {
+        const regionNames = ((res && res.list) || []).map(item => item.region_name);
+        const fallbackRegionName = this.getFallbackPluginRegionName();
+        loadByRegions(regionNames.length ? regionNames : [fallbackRegionName]);
+      },
+      handleError: () => {
+        loadByRegions([this.getFallbackPluginRegionName()]);
+      }
+    });
   };
 
   loadAgentAccessState = () => {
@@ -559,12 +703,88 @@ class GlobalHeader extends PureComponent {
     return enterpriseId ? `/enterprise/${enterpriseId}/extension` : '';
   };
 
-  openAgentDrawer = () => {
+  getAgentConfigPath = () => {
+    const { currentUser, enterprise, eid } = this.props;
+    const enterpriseId =
+      currentUser?.enterprise_id ||
+      enterprise?.enterprise_id ||
+      globalUtil.getCurrEnterpriseId() ||
+      eid;
+
+    return enterpriseId ? `/enterprise/${enterpriseId}/ai/agent-config` : '';
+  };
+
+  handleMissingAgentApiKey = () => {
+    const { dispatch, currentUser } = this.props;
+    const agentConfigPath = this.getAgentConfigPath();
+
+    if (!currentUser?.is_enterprise_admin) {
+      Modal.warning({
+        title: formatMessage({
+          id: 'GlobalHeader.agent.config.missing.title',
+          defaultMessage: 'AI助手配置未完成'
+        }),
+        content: formatMessage({
+          id: 'GlobalHeader.agent.config.missing.contact_admin',
+          defaultMessage: '当前企业已安装 AI 助手插件，但尚未配置接口密钥，请联系企业管理员完成配置。'
+        }),
+        okText: formatMessage({
+          id: 'GlobalHeader.agent.access.ok',
+          defaultMessage: '知道了'
+        })
+      });
+      return;
+    }
+
+    Modal.confirm({
+      title: formatMessage({
+        id: 'GlobalHeader.agent.config.missing.title',
+        defaultMessage: 'AI助手配置未完成'
+      }),
+      content: formatMessage({
+        id: 'GlobalHeader.agent.config.missing.content',
+        defaultMessage: '当前企业已安装 AI 助手插件，但尚未配置接口密钥。请先完成 AI 助手配置后再使用。'
+      }),
+      okText: formatMessage({
+        id: 'GlobalHeader.agent.config.missing.ok',
+        defaultMessage: '去配置'
+      }),
+      cancelText: formatMessage({
+        id: 'GlobalHeader.agent.install.cancel',
+        defaultMessage: '取消'
+      }),
+      onOk: () => {
+        if (agentConfigPath) {
+          dispatch(routerRedux.push(agentConfigPath));
+        }
+      }
+    });
+  };
+
+  openAgentDrawer = (skipPluginRefresh = false) => {
     const { dispatch, currentUser } = this.props;
     const { agentPluginStatus, checkingAgentAccess } = this.state;
     if (checkingAgentAccess) {
       return;
     }
+
+    if (!skipPluginRefresh && agentPluginStatus !== 'installed') {
+      this.setState({ checkingAgentAccess: true });
+      this.fetchAgentPluginStatus({
+        force: true,
+        callback: status => {
+          this.setState(
+            {
+              checkingAgentAccess: false,
+              agentPluginStatus: status || this.state.agentPluginStatus
+            },
+            () => this.openAgentDrawer(true)
+          );
+        }
+      });
+      return;
+    }
+
     const action = resolveAgentLauncherAction({
       pluginStatus: agentPluginStatus,
       isEnterpriseAdmin: !!currentUser?.is_enterprise_admin
@@ -573,42 +793,64 @@ class GlobalHeader extends PureComponent {
     if (action === 'open') {
       this.setState({ checkingAgentAccess: true });
       dispatch({
-        type: 'agent/checkAccess',
-        callback: (response, error) => {
-          if (error) {
-            notification.warning({
-              message: formatMessage({
-                id: 'GlobalHeader.agent.access.load_error',
-                defaultMessage: 'AI 助手权限检查失败，请稍后重试。'
-              })
-            });
+        type: 'global/fetchAgentLlmConfig',
+        payload: { eid: currentUser?.enterprise_id || globalUtil.getCurrEnterpriseId() },
+        callback: res => {
+          const config = (res && res.bean) || {};
+          if (!config.openai_api_key_set) {
             this.setState({ checkingAgentAccess: false });
+            this.handleMissingAgentApiKey();
             return;
           }
 
-          const access = response && response.bean;
-          if (access && access.can_open_agent) {
-            dispatch({
-              type: 'agent/show'
-            });
-            this.setState({ checkingAgentAccess: false });
-            return;
-          }
-          Modal.info({
-            title: formatMessage({
-              id: 'GlobalHeader.agent.access.title',
-              defaultMessage: 'AI助手暂不可用'
-            }),
-            content: formatMessage({
-              id: 'GlobalHeader.agent.access.open_source_upgrade',
-              defaultMessage: '开源版仅允许首个注册的企业管理员使用 AI 助手，其他用户请升级企业版后使用。'
-            }),
-            okText: formatMessage({
-              id: 'GlobalHeader.agent.access.ok',
-              defaultMessage: '知道了'
+          dispatch({
+            type: 'agent/checkAccess',
+            callback: (response, error) => {
+              if (error) {
+                notification.warning({
+                  message: formatMessage({
+                    id: 'GlobalHeader.agent.access.load_error',
+                    defaultMessage: 'AI 助手权限检查失败，请稍后重试。'
+                  })
+                });
+                this.setState({ checkingAgentAccess: false });
+                return;
+              }
+
+              const access = response && response.bean;
+              if (access && access.can_open_agent) {
+                dispatch({
+                  type: 'agent/show'
+                });
+                this.setState({ checkingAgentAccess: false });
+                return;
+              }
+              Modal.info({
+                title: formatMessage({
+                  id: 'GlobalHeader.agent.access.title',
+                  defaultMessage: 'AI助手暂不可用'
+                }),
+                content: formatMessage({
+                  id: 'GlobalHeader.agent.access.open_source_upgrade',
+                  defaultMessage: '开源版仅允许首个注册的企业管理员使用 AI 助手，其他用户请升级企业版后使用。'
+                }),
+                okText: formatMessage({
+                  id: 'GlobalHeader.agent.access.ok',
+                  defaultMessage: '知道了'
+                })
+              });
+              this.setState({ checkingAgentAccess: false });
+            }
+          });
+        },
+        handleError: () => {
+          this.setState({ checkingAgentAccess: false });
+          notification.warning({
+            message: formatMessage({
+              id: 'GlobalHeader.agent.config.load_error',
+              defaultMessage: 'AI 助手配置获取失败，请稍后重试。'
             })
           });
-          this.setState({ checkingAgentAccess: false });
         }
       });
       return;
@@ -904,8 +1146,11 @@ class GlobalHeader extends PureComponent {
     const showAgentLauncher = !agentVisible && !isAgentRouteHidden();
     const showAgentEnterpriseBadge = !!(
       agentAccess &&
-      agentAccess.is_open_source &&
-      agentAccess.deny_reason === 'open_source_requires_enterprise'
+      (
+        agentAccess.has_enterprise_base === false ||
+        agentAccess.is_open_source ||
+        agentAccess.edition === 'open_source'
+      )
     );
 
     return (

@@ -26,3 +26,12 @@ export async function updateAgentLlmConfig(body = {}) {
     }
   );
 }
+
+export async function clearAgentLlmConfig(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.eid}/agent-llm-config`,
+    {
+      method: 'delete'
+    }
+  );
+}

@@ -8,9 +8,7 @@ import userUtil from '../../utils/user';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import BackupManage from './backup';
 import Infrastructure from './infrastructure';
-import AgentConfig from './agentConfig';
 import { FormattedMessage } from 'umi';
-import { formatMessage } from '@/utils/intl';
 import Management from './management';
 import rainbondUtil from '../../utils/rainbond';
 import pluginUtile from '../../utils/pulginUtils'
@@ -165,8 +163,6 @@ export default class EnterpriseSetting extends PureComponent {
           ) : null;
         case 'backup':
           return adminer ? <BackupManage {...this.props} /> : null;
-        case 'agentConfig':
-          return adminer ? <AgentConfig {...this.props} /> : null;
         case 'upload':
           return showEnterprisePlugin ? <EnterprisePluginsPage type="PackageUpload" key="PackageUpload" /> : null;
         case 'OverMark':
@@ -217,12 +213,6 @@ export default class EnterpriseSetting extends PureComponent {
             <TabPane
               tab={<FormattedMessage id='enterpriseSetting.TabPane.dataBackups' />}
               key="backup"
-            />
-          )}
-          {adminer && (
-            <TabPane
-              tab={<FormattedMessage id='enterpriseSetting.TabPane.agentConfig' />}
-              key="agentConfig"
             />
           )}
           {showEnterprisePlugin && (

@@ -10,6 +10,9 @@ function buildAgentSessionPayload(context = {}) {
       component_id: context.componentId || '',
       component_source: context.componentSource || '',
       page: context.pathname || '',
+      page_title: context.pageTitle || '',
+      locale: context.locale || '',
+      route_signature: context.routeSignature || context.pathname || '',
       resource: {
         type: context.componentId ? 'component' : context.appId ? 'app' : 'page',
         id: context.componentId || context.appId || context.pathname || '',

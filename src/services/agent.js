@@ -69,7 +69,10 @@ function normalizeContext(context) {
     componentId: context.componentId || '',
     componentAlias: context.componentAlias || '',
     componentSource: context.componentSource || '',
-    pathname: context.pathname || ''
+    pathname: context.pathname || '',
+    routeSignature: context.routeSignature || context.pathname || '',
+    pageTitle: context.pageTitle || '',
+    locale: context.locale || ''
   };
 }
 

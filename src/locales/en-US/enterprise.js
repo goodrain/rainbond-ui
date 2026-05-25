@@ -1195,6 +1195,8 @@ const enterpriseSetting = {
     // PageHeaderLayout
     'enterpriseSetting.PageHeaderLayout.title': 'Enterprise settings',
     'enterpriseSetting.PageHeaderLayout.content': 'Support enterprise setting functions such as user registration and oauth2.0 integration. More abundant enterprise management resource management functions are provided in the enterprise resource management platform',
+    'enterpriseAI.agentConfig.PageHeaderLayout.title': 'AI Assistant Config',
+    'enterpriseAI.agentConfig.PageHeaderLayout.content': 'Configure platform-wide OpenAI-compatible model settings for the AI assistant.',
     // tabs>TabPane
     'enterpriseSetting.TabPane.basicsSetting': 'Basic settings',
     'enterpriseSetting.TabPane.enterpriseAdmin': 'Enterprise administrator',
@@ -1227,6 +1229,11 @@ const enterpriseSetting = {
     'enterpriseSetting.agentConfig.reasoning.required': 'Select a reasoning effort',
     'enterpriseSetting.agentConfig.reasoning.placeholder': 'Select a reasoning effort',
     'enterpriseSetting.agentConfig.save': 'Save',
+    'enterpriseSetting.agentConfig.clear': 'Clear configuration',
+    'enterpriseSetting.agentConfig.clear.title': 'Clear AI assistant configuration?',
+    'enterpriseSetting.agentConfig.clear.content': 'This will remove the API key, model name, base URL, and related settings. The AI assistant will be unavailable until it is configured again.',
+    'enterpriseSetting.agentConfig.clear.cancel': 'Cancel',
+    'enterpriseSetting.agentConfig.clear.success': 'AI assistant configuration cleared',
     'enterpriseSetting.agentConfig.reload': 'Reload',
     // tabs>TabPane>basicsSetting
     'enterpriseSetting.basicsSetting.login.title': 'User registration',

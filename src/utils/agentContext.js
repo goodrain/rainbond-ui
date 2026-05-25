@@ -15,6 +15,32 @@ function normalizeRoutePath(routeSignature = '') {
   return signature.split('?')[0] || '/';
 }
 
+function resolvePageTitle() {
+  if (typeof document === 'undefined') {
+    return '';
+  }
+  return document.title || '';
+}
+
+function resolveLocale() {
+  if (globalUtil.getLocale) {
+    return globalUtil.getLocale() || '';
+  }
+  if (typeof window !== 'undefined' && window.localStorage) {
+    const storedLocale =
+      window.localStorage.getItem('umi_locale') ||
+      window.localStorage.getItem('rainbond_locale') ||
+      '';
+    if (storedLocale) {
+      return storedLocale;
+    }
+  }
+  if (typeof navigator !== 'undefined') {
+    return navigator.language || '';
+  }
+  return '';
+}
+
 function inferView(pathname) {
   if (/^\/team\//.test(pathname)) {
     return 'team';
@@ -76,6 +102,10 @@ function resolveComponentContext() {
 }
 
 function resolveComponentRuntimeId(state = {}, fallbackComponentId = '') {
+  if (!fallbackComponentId) {
+    return '';
+  }
+
   const appDetail =
     state &&
     state.appControl &&
@@ -83,7 +113,7 @@ function resolveComponentRuntimeId(state = {}, fallbackComponentId = '') {
     state.appControl.appDetail.service;
 
   if (!appDetail || !appDetail.service_id) {
-    return fallbackComponentId || '';
+    return fallbackComponentId;
   }
 
   const runtimeServiceId = appDetail.service_id;
@@ -134,7 +164,10 @@ export function buildAgentContext(location = {}, state = {}) {
     componentId,
     componentAlias: resolvedComponent.componentAlias,
     componentSource: resolvedComponent.componentSource,
-    pathname
+    pathname,
+    routeSignature: pathname,
+    pageTitle: resolvePageTitle(),
+    locale: resolveLocale()
   };
 }
 
@@ -147,7 +180,9 @@ export function getAgentContextSignature(context = {}) {
     context.appId || '',
     context.componentId || '',
     context.componentAlias || '',
-    context.componentSource || ''
+    context.componentSource || '',
+    context.routeSignature || context.pathname || '',
+    context.locale || ''
   ].join('|');
 }
 
