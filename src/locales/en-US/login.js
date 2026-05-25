@@ -140,8 +140,8 @@ const login = {
     'layout.userLayout.saas.privacyPolicy':'Privacy Policy',
     // UserLayout - Normal mode
     'layout.userLayout.normal.title1':'Container Platform',
-    'layout.userLayout.normal.title2':'Without Learning K8s',
-    'layout.userLayout.normal.description':'Build, deploy, assemble and manage applications on Kubernetes without K8s expertise, with full graphical management',
+    'layout.userLayout.normal.title2':'The era of AI',
+    'layout.userLayout.normal.description':'Rainbond is based on Kubernetes, masking the underlying complexity and enhancing application deployment, troubleshooting and operation processes through AI, helping teams deliver business applications and AI applications.',
     'layout.userLayout.normal.companyInfo':'Powered by Beijing Goodrain Technology',
 }
 
