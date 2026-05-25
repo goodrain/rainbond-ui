@@ -7,10 +7,6 @@ import dateUtil from '../../../../utils/date-util';
 import globalUtil from '../../../../utils/global';
 import LogSocket from '../../../../utils/logSocket';
 import styles from './index.less';
-import {
-  buildDuplicateLogBudget,
-  consumeDuplicateLogBudget
-} from './logUtils';
 
 @connect(
   ({ user }) => ({
@@ -30,7 +26,6 @@ class Index extends React.Component {
       dynamic: false
     };
     this.state.dockerprogress = new Map();
-    this.historyLogBudget = new Map();
   }
   componentDidMount() {
     this.loadEventLog();
@@ -66,12 +61,10 @@ class Index extends React.Component {
         eventID: EventID
       },
       callback: res => {
-        const historyLogs = (res && res.list) || [];
-        this.historyLogBudget = buildDuplicateLogBudget(historyLogs);
         if (res) {
           this.setState(
             {
-              logs: historyLogs
+              logs: res.list
             },
             () => {
               if (showSocket) {
@@ -87,9 +80,6 @@ class Index extends React.Component {
   }
   handleMessage = data => {
     const logs = this.state.logs || [];
-    if (consumeDuplicateLogBudget(this.historyLogBudget, data)) {
-      return;
-    }
     if (data.message.indexOf('id') !== -1) {
       try {
         const m = JSON.parse(data.message);

@@ -12,7 +12,6 @@ export default class Index extends PureComponent {
     this.state = {};
     this.socketUrl = this.props.socketUrl;
     this.eventId = this.props.eventId;
-    this.socketLogKeys = new Set();
   }
 
   escapeHtml = (str) => {
@@ -24,34 +23,6 @@ export default class Index extends PureComponent {
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;');
   };
-  getLogMessageText = data => {
-    if (!data || data.message === undefined || data.message === null) {
-      return '';
-    }
-    if (typeof data.message === 'string') {
-      return data.message;
-    }
-    try {
-      return JSON.stringify(data.message);
-    } catch (e) {
-      return String(data.message);
-    }
-  };
-  getLogKey = data => {
-    const time = data && data.time ? data.time : '';
-    return `${time}-${this.getLogMessageText(data)}`;
-  };
-  getHistoryLogKeys = () => {
-    const logs = this.props.list || [];
-    return logs.reduce((keys, item) => {
-      keys.add(this.getLogKey(item));
-      return keys;
-    }, new Set());
-  };
-  getVisibleHistoryLogs = logs => logs.filter(item => {
-    const key = this.getLogKey(item);
-    return !this.socketLogKeys.has(key);
-  });
   componentDidMount() {
     this.createTmpElement();
     if (this.socketUrl) {
@@ -73,14 +44,6 @@ export default class Index extends PureComponent {
             this.props.onFail && this.props.onFail(data);
           },
           onMessage: data => {
-            const logKey = this.getLogKey(data);
-            if (
-              this.socketLogKeys.has(logKey) ||
-              this.getHistoryLogKeys().has(logKey)
-            ) {
-              return;
-            }
-            this.socketLogKeys.add(logKey);
             const ele = this.ele.cloneNode();
             try {
               if (this.ref) {
@@ -156,7 +119,7 @@ export default class Index extends PureComponent {
     this.ref = ref;
   };
   render() {
-    const logs = this.getVisibleHistoryLogs(this.props.list || []);
+    const logs = this.props.list || [];
 
     return (
       <div
