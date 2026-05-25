@@ -12,6 +12,7 @@ import {
 import * as agentViewport from '../../utils/agentViewport';
 import { persistAgentSession } from '../../services/agent';
 import { getAgentPanelConfig } from '../../utils/agentLayout';
+import { isRainbondInfoAgentEnabled } from '../../utils/agentVisibility';
 import {
   buildRefreshedRouteFromLocation,
   getLiveLocationRoute,
@@ -219,6 +220,7 @@ export default class AgentRootShell extends PureComponent {
     const storeState = this.store.getState() || {};
     const currentUser = storeState.user && storeState.user.currentUser;
     const needLogin = storeState.global && storeState.global.needLogin;
+    const rainbondInfo = storeState.global && storeState.global.rainbondInfo;
     const location =
       (storeState.routing && storeState.routing.location) || {};
     const agent = storeState.agent || null;
@@ -232,6 +234,11 @@ export default class AgentRootShell extends PureComponent {
     const mutationRefreshKey = agent && agent.pendingMutationRefreshKey;
     const mutationRefreshMode = agent && agent.pendingMutationRefreshMode;
     const mutationTool = agent && agent.pendingMutationTool;
+    const agentEnabled = isRainbondInfoAgentEnabled(rainbondInfo);
+
+    if (agent && agent.visible && !agentEnabled) {
+      this.store.dispatch({ type: 'agent/hide' });
+    }
 
     if (loginKey !== previousLoginKey) {
       this.prevLoginKey = loginKey;
@@ -366,7 +373,14 @@ export default class AgentRootShell extends PureComponent {
       return false;
     }
     const { currentUser, needLogin, location } = snapshot;
-    return !!currentUser && !needLogin && !isAgentRouteHidden(location);
+    const storeState = this.store && this.store.getState ? this.store.getState() : {};
+    const rainbondInfo = storeState.global && storeState.global.rainbondInfo;
+    return (
+      !!currentUser &&
+      !needLogin &&
+      isRainbondInfoAgentEnabled(rainbondInfo) &&
+      !isAgentRouteHidden(location)
+    );
   };
 
   enterViewportLock = () => {

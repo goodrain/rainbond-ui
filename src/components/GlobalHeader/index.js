@@ -22,12 +22,14 @@ import styles from './index.less';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
 import { isAgentRouteHidden } from '../../utils/agentContext';
+import { isRainbondInfoAgentEnabled } from '../../utils/agentVisibility';
 import { buildPortalSsoUrl } from '../../utils/portal';
 import * as agentLauncherAction from './agentLauncherAction';
 
 const { resolveAgentLauncherAction } = agentLauncherAction;
 
 const { Header } = Layout;
+const AGENT_ENTERPRISE_EDITION_URL = 'https://rainbond.feishu.cn/share/base/shrcnv2iqnRsNJM6Y3hN5VhTJvg';
 
 // SVG 图标常量
 const SVG_ICONS = {
@@ -825,19 +827,26 @@ class GlobalHeader extends PureComponent {
                 this.setState({ checkingAgentAccess: false });
                 return;
               }
-              Modal.info({
+              Modal.confirm({
                 title: formatMessage({
                   id: 'GlobalHeader.agent.access.title',
-                  defaultMessage: 'AI助手暂不可用'
+                  defaultMessage: 'AI 助手暂未对当前账号开放'
                 }),
                 content: formatMessage({
                   id: 'GlobalHeader.agent.access.open_source_upgrade',
-                  defaultMessage: '开源版仅允许首个注册的企业管理员使用 AI 助手，其他用户请升级企业版后使用。'
+                  defaultMessage: 'AI 助手是 Rainbond 的可选增强插件。当前社区版默认开放首位企业管理员体验；如需团队成员共同使用，可开通企业版插件权限。Rainbond 核心能力仍保持开源可用。'
                 }),
                 okText: formatMessage({
-                  id: 'GlobalHeader.agent.access.ok',
-                  defaultMessage: '知道了'
-                })
+                  id: 'GlobalHeader.agent.access.enterprise',
+                  defaultMessage: '了解企业版'
+                }),
+                cancelText: formatMessage({
+                  id: 'GlobalHeader.agent.access.cancel',
+                  defaultMessage: '我知道了'
+                }),
+                onOk: () => {
+                  window.open(AGENT_ENTERPRISE_EDITION_URL, '_blank', 'noopener,noreferrer');
+                }
               });
               this.setState({ checkingAgentAccess: false });
             }
@@ -1143,7 +1152,10 @@ class GlobalHeader extends PureComponent {
     const portalSite = rainbondInfo?.portal_site;
     const showFullLogo = !isTeamView || !collapsed;
     const showAppMarket = rainbondUtil.isShowAppMarket(rainbondInfo);
-    const showAgentLauncher = !agentVisible && !isAgentRouteHidden();
+    const showAgentLauncher =
+      isRainbondInfoAgentEnabled(rainbondInfo) &&
+      !agentVisible &&
+      !isAgentRouteHidden();
     const showAgentEnterpriseBadge = !!(
       agentAccess &&
       (
