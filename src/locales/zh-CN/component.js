@@ -589,6 +589,7 @@ const componentOverview = {
     'componentOverview.body.mnt.vmDiskSource': '来源',
     'componentOverview.body.mnt.vmDiskSource.volume': '存储卷',
     'componentOverview.body.mnt.vmDiskSource.installer': '安装光盘',
+    'componentOverview.body.mnt.vmDiskSource.containerDisk': '容器镜像光盘',
     'componentOverview.body.mnt.vmDiskOrder': '启动顺序',
     'componentOverview.body.mnt.vmDiskBoot': '当前优先启动',
     // tabs栏>mnt>RelyComponentModal
@@ -616,6 +617,9 @@ const componentOverview = {
     'componentOverview.body.AddVolumes.input': '请输入存储配额',
     'componentOverview.body.AddVolumes.type': '类型',
     'componentOverview.body.AddVolumes.select_type': '请选择存储类型',
+    'componentOverview.body.AddVolumes.image': '镜像地址',
+    'componentOverview.body.AddVolumes.image_required': '请输入镜像地址',
+    'componentOverview.body.AddVolumes.image_placeholder': '请输入驱动光盘镜像地址，例如 registry.example.com/team/windows-driver:virtio',
     'componentOverview.body.AddVolumes.cancel': '取消',
     'componentOverview.body.AddVolumes.confirm': '确认',
     'componentOverview.body.AddVolumes.mount_format': '挂载格式',

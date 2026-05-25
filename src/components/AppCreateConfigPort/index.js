@@ -903,6 +903,23 @@ class VmMnt extends PureComponent {
     this.setState({ showAddVar: null });
   };
   handleSubmitAddVar = vals => {
+    if (vals.source_kind === 'container_disk') {
+      const image = `${vals.image || ''}`.trim();
+      const volumeName = `${vals.volume_name || ''}`.trim();
+      this.updateVmDiskDraft(current => current.concat([{
+        disk_key: volumeName,
+        disk_name: volumeName,
+        disk_role: 'data',
+        device_type: 'cdrom',
+        device_path: '/cdrom',
+        source_kind: 'container_disk',
+        image,
+        deletable: true,
+        status: 'ready'
+      }]));
+      this.handleCancelAddVar();
+      return;
+    }
     this.props.dispatch({
       type: 'appControl/addVolume',
       payload: {
@@ -943,6 +960,8 @@ class VmMnt extends PureComponent {
   onDeleteVolume = data => {
     if (data.source_kind === 'installer_media') {
       this.removeInstallerDisk(data.disk_key);
+    } else if (data.source_kind === 'container_disk') {
+      this.removeContainerDisk(data.disk_key);
     } else if (data.disk_key === 'disk' || data.disk_role === 'root') {
       notification.warning({ message: formatMessage({ id: 'notification.warn.vm_system_disk_cannot_delete' }) });
     } else {
@@ -1014,7 +1033,8 @@ class VmMnt extends PureComponent {
   handleVmDiskSource = sourceKind => {
     const sourceMap = {
       volume: formatMessage({ id: 'componentOverview.body.mnt.vmDiskSource.volume' }),
-      installer_media: formatMessage({ id: 'componentOverview.body.mnt.vmDiskSource.installer' })
+      installer_media: formatMessage({ id: 'componentOverview.body.mnt.vmDiskSource.installer' }),
+      container_disk: formatMessage({ id: 'componentOverview.body.mnt.vmDiskSource.containerDisk' })
     };
     return sourceMap[sourceKind] || '-';
   };
@@ -1056,6 +1076,11 @@ class VmMnt extends PureComponent {
       current.filter(item => !(item.disk_key === diskKey && item.source_kind === 'installer_media'))
     );
   };
+  removeContainerDisk = diskKey => {
+    this.updateVmDiskDraft(current =>
+      current.filter(item => !(item.disk_key === diskKey && item.source_kind === 'container_disk'))
+    );
+  };
   handleSaveVmDiskLayout = () => {
     const disks = this.getVmDiskDraft().map(item => ({
       disk_key: item.disk_key,
@@ -1063,6 +1088,7 @@ class VmMnt extends PureComponent {
       disk_role: item.disk_role,
       device_type: item.device_type,
       source_kind: item.source_kind,
+      image: item.image,
       order_index: item.order_index,
       boot: item.boot
     }));
@@ -1119,6 +1145,11 @@ class VmMnt extends PureComponent {
         render: text => <span>{this.handleVmDiskSource(text)}</span>
       },
       {
+        title: formatMessage({ id: 'componentOverview.body.AddVolumes.image' }),
+        dataIndex: 'image',
+        render: text => <span>{text || '-'}</span>
+      },
+      {
         title: formatMessage({ id: 'componentOverview.body.mnt.vmDiskOrder' }),
         dataIndex: 'order_index',
         render: (_, __, index) => <span>{index + 1}</span>
@@ -1126,7 +1157,10 @@ class VmMnt extends PureComponent {
       {
         title: formatMessage({ id: 'Vm.createVm.capacity' }),
         dataIndex: 'volume_capacity',
-        render: (text) => {
+        render: (text, record) => {
+          if (record.source_kind === 'container_disk' || record.source_kind === 'installer_media') {
+            return <span>-</span>;
+          }
           if (text == 0 || text === undefined || text === null) {
             return <span>{formatMessage({ id: 'appOverview.no_limit' })}</span>;
           }
@@ -1136,7 +1170,9 @@ class VmMnt extends PureComponent {
       {
         title: formatMessage({ id: 'componentCheck.advanced.setup.storage_setting.label.volume_type' }),
         dataIndex: 'volume_type',
-        render: text => <span>{this.getVolumeTypeShowName(text)}</span>
+        render: (text, record) => (
+          <span>{record.source_kind === 'container_disk' || record.source_kind === 'installer_media' ? '-' : this.getVolumeTypeShowName(text)}</span>
+        )
       },
       {
         title: formatMessage({ id: 'Vm.createVm.handle' }),
@@ -1188,7 +1224,7 @@ class VmMnt extends PureComponent {
           >
             {formatMessage({ id: 'button.save' })}
           </Button>
-          <Button onClick={this.handleAddVar} disabled={this.state.volumeOpts.length === 0}>
+          <Button onClick={this.handleAddVar}>
             <Icon type="plus" />
             {formatMessage({ id: 'componentCheck.advanced.setup.storage_setting.btn.add' })}
           </Button>

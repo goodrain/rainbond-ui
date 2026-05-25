@@ -578,6 +578,7 @@ const componentOverview = {
     'componentOverview.body.mnt.vmDiskSource': 'Source',
     'componentOverview.body.mnt.vmDiskSource.volume': 'Volume',
     'componentOverview.body.mnt.vmDiskSource.installer': 'Installer media',
+    'componentOverview.body.mnt.vmDiskSource.containerDisk': 'Container image media',
     'componentOverview.body.mnt.vmDiskOrder': 'Boot order',
     'componentOverview.body.mnt.vmDiskBoot': 'Boot first',
     // tabs栏>mnt>RelyComponentModal
@@ -605,6 +606,9 @@ const componentOverview = {
     'componentOverview.body.AddVolumes.input': 'Please enter storage quota',
     'componentOverview.body.AddVolumes.type': 'Type',
     'componentOverview.body.AddVolumes.select_type': 'Please select storage type',
+    'componentOverview.body.AddVolumes.image': 'Image',
+    'componentOverview.body.AddVolumes.image_required': 'Please enter the image address',
+    'componentOverview.body.AddVolumes.image_placeholder': 'Enter driver media image, for example registry.example.com/team/windows-driver:virtio',
     'componentOverview.body.AddVolumes.cancel': 'Cancel',
     'componentOverview.body.AddVolumes.confirm': 'Confirm',
     'componentOverview.body.AddVolumes.mount_format': 'Mount Format',
