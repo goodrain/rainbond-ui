@@ -3015,6 +3015,7 @@ const global = {
       'app-restore-deps': formatMessage({ id: 'global.fetchStateOptTypeText.app-restore-deps' }),
       'app-restore-depvols': formatMessage({ id: 'global.fetchStateOptTypeText.app-restore-depvols' }),
       'app-restore-plugins': formatMessage({ id: 'global.fetchStateOptTypeText.app-restore-plugins' }),
+      'vm-disk-restore': formatMessage({ id: 'global.fetchStateOptTypeText.vm-disk-restore' }),
       'create-service-plugin': formatMessage({ id: 'global.fetchStateOptTypeText.create-service-plugin' }),
       'update-service-plugin': formatMessage({ id: 'global.fetchStateOptTypeText.update-service-plugin' }),
       'delete-service-plugin': formatMessage({ id: 'global.fetchStateOptTypeText.delete-service-plugin' }),

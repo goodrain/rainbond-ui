@@ -215,6 +215,29 @@ class Index extends PureComponent {
       showModal: false
     });
   };
+  renderVMRestoreProgress = restore => {
+    if (!restore) {
+      return null;
+    }
+    const progress = restore.progress || 'N/A';
+    const volumes = restore.data_volumes || [];
+    const title = (
+      <div>
+        {volumes.map(volume => (
+          <div key={volume.name || volume.phase}>
+            {volume.name || '-'}: {volume.phase || '-'} {volume.progress || 'N/A'}
+          </div>
+        ))}
+        {restore.message && <div>{restore.message}</div>}
+      </div>
+    );
+    return (
+      <Tooltip title={title}>
+        <span className={styles.restoreProgress}>{progress}</span>
+      </Tooltip>
+    );
+  };
+
   render() {
     const { logList, has_next, recordLoading, isopenLog } = this.props;
     const { logVisible, selectEventID, showSocket, showModalArr, showModal, isLoadingMore } = this.state;
@@ -222,7 +245,8 @@ class Index extends PureComponent {
     const statusMap = {
       success: 'logpassed',
       timeout: 'logcanceled',
-      failure: 'logfailed'
+      failure: 'logfailed',
+      restoring: 'logfored'
     };
     return (
       <Card
@@ -244,7 +268,8 @@ class Index extends PureComponent {
                   end_time,
                   syn_type,
                   event_id,
-                  create_time
+                  create_time,
+                  vm_restore
                 } = item;
                 if (
                   isopenLog &&
@@ -291,6 +316,8 @@ class Index extends PureComponent {
                           &nbsp;
                         </span>
                         {globalUtil.fetchOperation(final_status, status)}
+                        {opt_type === 'vm-disk-restore' &&
+                          this.renderVMRestoreProgress(vm_restore)}
                         &nbsp;
 
                         {status === 'failure' && globalUtil.fetchReason(reason)}

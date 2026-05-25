@@ -179,6 +179,7 @@ const global = {
     'global.fetchStateOptTypeText.app-restore-deps':'Reload application dependencies',
     'global.fetchStateOptTypeText.app-restore-depvols':'Reload application dependent storage',
     'global.fetchStateOptTypeText.app-restore-plugins':'Reload application plugin',
+    'global.fetchStateOptTypeText.vm-disk-restore':'Restore VM disks',
     'global.fetchStateOptTypeText.create-service-plugin':'Create component plugin',
     'global.fetchStateOptTypeText.update-service-plugin':'Update component plugin',
     'global.fetchStateOptTypeText.delete-service-plugin':'Delete component plugin',

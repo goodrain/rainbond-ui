@@ -179,6 +179,7 @@ const global = {
     'global.fetchStateOptTypeText.app-restore-deps':'重新加载应用依赖',
     'global.fetchStateOptTypeText.app-restore-depvols':'重新加载应用依赖存储',
     'global.fetchStateOptTypeText.app-restore-plugins':'重新加载应用插件',
+    'global.fetchStateOptTypeText.vm-disk-restore':'恢复虚拟机磁盘',
     'global.fetchStateOptTypeText.create-service-plugin':'创建组件插件',
     'global.fetchStateOptTypeText.update-service-plugin':'更新组件插件',
     'global.fetchStateOptTypeText.delete-service-plugin':'删除组件插件',
