@@ -1,0 +1,299 @@
+@import '~antd/lib/style/themes/default.less';
+
+.rootShell {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  background: @rbd-background-color;
+}
+
+.appViewport {
+  position: relative;
+  min-width: 0;
+  min-height: 100vh;
+  transition: width 0.24s ease;
+}
+
+.appViewportPush {
+  flex: 0 0 auto;
+}
+
+.appViewportFull {
+  flex: 1 1 auto;
+  width: 100%;
+}
+
+.appViewportLock {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: auto;
+  background: transparent;
+}
+
+.appViewportLockGlow {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, fade(@primary-color, 44%) 0%, fade(@primary-color, 0%) 36%),
+    linear-gradient(270deg, fade(@primary-color, 44%) 0%, fade(@primary-color, 0%) 36%),
+    linear-gradient(180deg, fade(@primary-color, 38%) 0%, fade(@primary-color, 0%) 36%),
+    linear-gradient(0deg, fade(@primary-color, 34%) 0%, fade(@primary-color, 0%) 36%);
+  background-repeat: no-repeat;
+  background-position: left top, right top, left top, left bottom;
+  background-size: 30% 100%, 30% 100%, 100% 30%, 100% 30%;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  will-change: opacity, background-size;
+}
+
+.appViewportLockNotice {
+  position: absolute;
+  left: 50%;
+  bottom: 120px;
+  transform: translateX(-50%) translateY(18px) scale(0.98);
+  display: inline-block;
+  max-width: calc(100% - 48px);
+  border-radius: 999px;
+  box-shadow: 0 14px 28px fade(@primary-color, 7%);
+  opacity: 0;
+  overflow: visible;
+}
+
+.appViewportLockNoticeAura {
+  position: absolute;
+  inset: -14px -18px -18px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    rgba(46, 242, 255, 0.28) 0%,
+    rgba(87, 200, 255, 0.2) 22%,
+    rgba(110, 144, 255, 0.16) 50%,
+    rgba(140, 112, 255, 0.2) 78%,
+    rgba(67, 231, 255, 0.28) 100%
+  );
+  background-size: 200% 100%;
+  filter: blur(24px);
+  opacity: 0.68;
+  pointer-events: none;
+  animation: appViewportLockAuraFlow 3.4s linear infinite;
+}
+
+.appViewportLockBorderSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.appViewportLockBorderTrack {
+  fill: none;
+  stroke-width: 2.2;
+  opacity: 0.62;
+}
+
+.appViewportLockNoticeInner {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 320px;
+  max-width: 100%;
+  margin: 3px;
+  padding: 11px 15px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, fade(#ffffff, 95%) 0%, fade(#f4f7ff, 97%) 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.72),
+    0 10px 24px rgba(72, 116, 255, 0.1);
+  color: @heading-color;
+}
+
+.appViewportLockBorderRunner {
+  fill: none;
+  stroke: url(#appViewportLockBorderGradient);
+  stroke-width: 3.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 1;
+}
+
+.appViewportLockIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: fade(@primary-color, 10%);
+  color: @primary-color;
+  font-size: 15px;
+  flex: 0 0 auto;
+}
+
+.appViewportLockText {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 600;
+  color: @heading-color;
+  white-space: nowrap;
+}
+
+.appViewportLockDots {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 22px;
+  line-height: 1;
+}
+
+.appViewportLockDot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: @primary-color;
+  transform-origin: center bottom;
+  animation: appViewportLockDotBounce 1.1s ease-in-out infinite;
+}
+
+.appViewportLockDot:nth-child(2) {
+  animation-delay: 0.14s;
+}
+
+.appViewportLockDot:nth-child(3) {
+  animation-delay: 0.28s;
+}
+
+.appViewportLockHint {
+  display: inline-flex;
+  align-items: center;
+  padding-left: 10px;
+  border-left: 1px solid fade(@primary-color, 16%);
+  border-top: 0;
+  border-right: 0;
+  border-bottom: 0;
+  background: transparent;
+  color: @text-color-secondary;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: @primary-color;
+  }
+
+  &:focus {
+    outline: none;
+    color: @primary-color;
+  }
+}
+
+.appViewportLockEnter .appViewportLockGlow {
+  animation:
+    appViewportLockGlowExpand 260ms cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    appViewportLockGlowBreathe 2200ms ease-in-out 260ms infinite;
+}
+
+.appViewportLockEnter .appViewportLockNotice {
+  animation: appViewportLockNoticeIn 280ms cubic-bezier(0.22, 1, 0.36, 1) 260ms forwards;
+}
+
+.appViewportLockExit .appViewportLockNotice {
+  animation: appViewportLockNoticeOut 180ms cubic-bezier(0.55, 0.085, 0.68, 0.53) forwards;
+}
+
+.appViewportLockExit .appViewportLockGlow {
+  animation: appViewportLockGlowCollapse 220ms cubic-bezier(0.55, 0.085, 0.68, 0.53) 180ms both;
+}
+
+@keyframes appViewportLockGlowExpand {
+  0% {
+    opacity: 0;
+    background-size: 0% 100%, 0% 100%, 100% 0%, 100% 0%;
+  }
+
+  100% {
+    opacity: 1;
+    background-size: 30% 100%, 30% 100%, 100% 30%, 100% 30%;
+  }
+}
+
+@keyframes appViewportLockNoticeIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(18px) scale(0.98);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+@keyframes appViewportLockNoticeOut {
+  0% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(18px) scale(0.98);
+  }
+}
+
+@keyframes appViewportLockGlowCollapse {
+  0% {
+    opacity: 1;
+    background-size: 30% 100%, 30% 100%, 100% 30%, 100% 30%;
+  }
+
+  100% {
+    opacity: 0;
+    background-size: 0% 100%, 0% 100%, 100% 0%, 100% 0%;
+  }
+}
+
+@keyframes appViewportLockGlowBreathe {
+  0%,
+  100% {
+    opacity: 0.84;
+    background-size: 30% 100%, 30% 100%, 100% 30%, 100% 30%;
+  }
+
+  50% {
+    opacity: 1;
+    background-size: 18% 100%, 18% 100%, 100% 18%, 100% 18%;
+  }
+}
+
+@keyframes appViewportLockDotBounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.36;
+  }
+
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+@keyframes appViewportLockAuraFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  100% {
+    background-position: 200% 50%;
+  }
+}

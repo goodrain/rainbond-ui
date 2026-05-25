@@ -4,6 +4,7 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import globalUtil from '../../utils/global';
 import cookie from '../../utils/cookie';
+import { buildPortalSsoUrl } from '../../utils/portal';
 import styles from './index.less';
 
 @connect(({ user, global }) => ({
@@ -29,7 +30,7 @@ export default class ProductServiceDrawer extends PureComponent {
 
     if (portalSite && token) {
       // 构造跳转URL，携带token和key参数
-      const url = `${portalSite}?token=${token}&redirect=${key}`;
+      const url = buildPortalSsoUrl(portalSite, token, key);
       window.location.href = url;
     }
   };

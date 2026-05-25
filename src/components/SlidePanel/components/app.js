@@ -81,6 +81,13 @@ export default class app extends Component {
     this.handleGroupAllResource()
     this.getStorageUsed();
   }
+  componentDidUpdate(prevProps) {
+    if (prevProps.permissions !== this.props.permissions) {
+      this.setState({
+        permissions: this.props.permissions,
+      });
+    }
+  }
   loading = () => {
     this.fetchAppDetail();
     this.loadTopology(true);
@@ -432,6 +439,7 @@ export default class app extends Component {
         }
       },
     } = this.props;
+    const canAccessAppK8sResources = !(this.props.rainbondInfo && this.props.rainbondInfo.is_saas) || !!(this.props.currUser && this.props.currUser.is_enterprise_admin);
     const BtnDisabled = !(jsonDataLength > 0);
     const allOperations = [
       {
@@ -542,7 +550,7 @@ export default class app extends Component {
         key: 'appResources',
         type: 'button',
         text: <FormattedMessage id="menu.app.k8s" />,
-        show: isAppResources && !isSlidePanel,
+        show: isAppResources && canAccessAppK8sResources && !isSlidePanel,
         disabled: false,
         onClick: () => this.handleJump('asset')
       },
@@ -912,6 +920,7 @@ export default class app extends Component {
       },
       pluginsList
     } = this.props;
+    const canAccessAppK8sResources = !(this.props.rainbondInfo && this.props.rainbondInfo.is_saas) || !!(this.props.currUser && this.props.currUser.is_enterprise_admin);
     const codeObj = {
       start: formatMessage({ id: 'appOverview.btn.start' }),
       restart: formatMessage({ id: 'appOverview.list.table.restart' }),
@@ -1107,7 +1116,7 @@ export default class app extends Component {
                 <div className={styles.app_resource_container}>
                   <div
                     onClick={() => {
-                      isAppResources && this.handleJump('asset');
+                      isAppResources && canAccessAppK8sResources && this.handleJump('asset');
                     }}>
                     <p>{formatMessage({ id: 'appOverview.k8s' })}</p>
                     <h6>{currApp.resources_num || 0}</h6>

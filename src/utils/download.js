@@ -4,6 +4,7 @@
 /* eslint-disable no-underscore-dangle */
 import axios from 'axios';
 import cookie from './cookie';
+import { updateRenewedTokenFromResponse } from './token';
 
 function _download(content, fileName) {
   const blob = new Blob([content]);
@@ -37,6 +38,7 @@ export default function download(url, fileName, options) {
   newOptions.responseType = 'blob';
   newOptions.method = 'get';
   axios(newOptions).then(res => {
+    updateRenewedTokenFromResponse(res);
     const reader = new FileReader();
     const { data } = res;
     reader.onload = () => {

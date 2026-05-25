@@ -236,7 +236,7 @@ class EditName extends PureComponent {
 
 @Form.create()
 @connect(
-  ({ user, appControl, global, teamControl, enterprise, loading, kubeblocks }) => ({
+  ({ user, appControl, global, teamControl, enterprise, loading, kubeblocks, agent }) => ({
     currUser: user.currentUser,
     appDetail: appControl.appDetail,
     pods: appControl.pods,
@@ -256,7 +256,8 @@ class EditName extends PureComponent {
       loading.effects[('appControl/putDeploy', 'appControl/putUpgrade')],
     buildInformationLoading: loading.effects['appControl/getBuildInformation'],
     pluginList: teamControl.pluginsList,
-    clusterDetail: kubeblocks.clusterDetail
+    clusterDetail: kubeblocks.clusterDetail,
+    pendingMutationRefreshKey: agent.pendingMutationRefreshKey,
   }),
   null,
   null,
@@ -506,11 +507,28 @@ class Main extends PureComponent {
   handleTabChange = key => {    
     const { dispatch } = this.props;
     const { app_alias } = this.fetchParameter();
+    const refresh = globalUtil.getRefresh();
+    const currentSubTab = globalUtil.getSlidePanelSubTab();
+    const nextSubTab =
+      key === 'advancedSettings'
+        ? (currentSubTab || (this.state.isShowKubeBlocksComponent ? 'port' : 'mnt'))
+        : '';
     this.setState({
       activeTab: key
     }, () => {
+      const query = [
+        'type=components',
+        `componentID=${encodeURIComponent(app_alias)}`,
+        `tab=${encodeURIComponent(key)}`
+      ];
+      if (nextSubTab) {
+        query.push(`subTab=${encodeURIComponent(nextSubTab)}`);
+      }
+      if (refresh) {
+        query.push(`refresh=${encodeURIComponent(refresh)}`);
+      }
       dispatch(
-        routerRedux.push(`${this.fetchPrefixUrl()}apps/${globalUtil.getAppID()}/overview?type=components&componentID=${app_alias}&tab=${key}`)
+        routerRedux.push(`${this.fetchPrefixUrl()}apps/${globalUtil.getAppID()}/overview?${query.join('&')}`)
       );
     })
   };
@@ -1716,6 +1734,14 @@ class Main extends PureComponent {
       })
     }
     const Com = map[activeTab];
+    const refreshKey = globalUtil.getRefresh() || 'steady';
+    const pendingMutationRefreshKey =
+      this.props.pendingMutationRefreshKey || 'stable';
+    const activeSubTab = globalUtil.getSlidePanelSubTab() || '';
+    const componentRenderKey =
+      activeTab === 'advancedSettings'
+        ? `${activeTab}-${activeSubTab || 'default'}-${refreshKey}-${pendingMutationRefreshKey}`
+        : `${activeTab}-${refreshKey}-${pendingMutationRefreshKey}`;
     const formItemLayout = {
       labelCol: {
         span: 1
@@ -1881,7 +1907,7 @@ class Main extends PureComponent {
           }}
         >
           <CSSTransition
-            key={activeTab}
+            key={componentRenderKey}
             timeout={700}
             classNames="page-zoom"
             unmountOnExit

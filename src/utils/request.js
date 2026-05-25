@@ -8,6 +8,7 @@ import axios from 'axios';
 import globalUtil from '../utils/global';
 import cookie from './cookie';
 import handleAPIError from './error';
+import { updateRenewedTokenFromResponse } from './token';
 import { formatMessage } from '@/utils/intl';
 import { history, getDvaApp } from 'umi';
 
@@ -262,6 +263,7 @@ export default function request(url, options) {
   return axios(newOptions)
     .then(checkStatus)
     .then(response => {
+      updateRenewedTokenFromResponse(response);
       if (showLoading) {
         handleStoreDispatch('global/hiddenLoading');
       }

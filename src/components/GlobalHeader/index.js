@@ -4,6 +4,7 @@ import {
   Dropdown,
   Icon,
   Layout,
+  Modal,
   notification,
   Spin
 } from 'antd';
@@ -20,8 +21,15 @@ import ProductServiceDrawer from '../ProductServiceDrawer';
 import styles from './index.less';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
+import { isAgentRouteHidden } from '../../utils/agentContext';
+import { isRainbondInfoAgentEnabled } from '../../utils/agentVisibility';
+import { buildPortalSsoUrl } from '../../utils/portal';
+import * as agentLauncherAction from './agentLauncherAction';
+
+const { resolveAgentLauncherAction } = agentLauncherAction;
 
 const { Header } = Layout;
+const AGENT_ENTERPRISE_EDITION_URL = 'https://rainbond.feishu.cn/share/base/shrcnv2iqnRsNJM6Y3hN5VhTJvg';
 
 // SVG 图标常量
 const SVG_ICONS = {
@@ -102,6 +110,17 @@ const SVG_ICONS = {
   )
 };
 
+function AgentEntryIcon() {
+  return (
+    <svg viewBox="0 0 1024 1024" focusable="false" aria-hidden="true">
+      <path
+        d="M773.592949 798.845831c92.576542-51.429966 153.877695-140.240271 153.877695-241.381967 0-63.965288-24.779932-122.862644-66.199864-170.673898a387.562305 387.562305 0 0 0 4.647051-56.840678c0-8.829831-0.976271-17.442712-1.562034-26.142373 76.643797 62.863186 124.667661 151.430508 124.667661 249.869017 0 110.409763-60.342237 208.453424-153.882034 271.620339v172.053695l-172.509288-104.695322a463.589966 463.589966 0 0 1-73.697628 6.104949c-118.510644 0-193.874441-44.691525-267.138169-115.317152 12.058034 0.685559 24.055322 1.549017 36.321627 1.549017 17.182373 0 34.130441-0.837424 50.904949-2.169492 57.842983 39.233085 100.200136 62.841492 179.911593 62.841492a394.543729 394.543729 0 0 0 79.620339-8.352543l105.033763 69.020204v-107.485288z m-338.536135-74.517695a913.464407 913.464407 0 0 1-103.515119-7.992407L158.073492 815.338305v-172.045017c-80.414373-67.479864-123.105627-161.219254-123.105628-271.620339 0-190.576814 178.818169-345.070644 400.093289-345.070644 183.942508 0 369.308203 154.493831 369.308203 345.070644s-148.349831 352.655186-369.312542 352.655187z m-110.401085-69.024543c25.6 5.258847 82.926644 8.348203 110.405424 8.348204 186.96678 0 307.75539-129.019661 307.755389-288.190916s-154.719458-288.190915-307.755389-288.190915c-192.256 0-338.536136 129.032678-338.536136 288.190915 0 101.128678 48.023864 181.308746 123.101288 241.36895v107.498305z m279.669152-234.335457a45.507254 45.507254 0 1 1 46.16678-45.507255 45.837017 45.837017 0 0 1-46.16678 45.507255z m-184.654101 0a45.507254 45.507254 0 1 1 46.16244-45.507255A45.841356 45.841356 0 0 1 419.67078 420.968136z m-184.658441 0a45.507254 45.507254 0 1 1 46.16678-45.507255 45.837017 45.837017 0 0 1-46.16678 45.507255z"
+        fill="#FFFFFF"
+      />
+    </svg>
+  );
+}
+
 class GlobalHeader extends PureComponent {
   constructor(props) {
     super(props);
@@ -120,6 +139,9 @@ class GlobalHeader extends PureComponent {
       // 视图切换器状态
       isTeamViewForSwitcher: !!(teamName && regionName),
       isAdmin: !!(currentUser?.is_enterprise_admin && eid),
+      agentPluginStatus: 'pending',
+      checkingAgentAccess: false,
+      agentAccess: null,
       // 滑块位置
       sliderStyle: { left: 3, width: 0 }
     };
@@ -133,10 +155,15 @@ class GlobalHeader extends PureComponent {
     this.sliderDebounceTimer = null;
     // 记录上次激活的索引
     this.lastActiveIndex = null;
+    this.lastPluginListKey = null;
+    this.lastAgentAccessKey = null;
+    this.lastAgentPluginFetchKey = null;
+    this.agentPluginFetchInFlight = false;
   }
 
   componentDidMount() {
-    this.initializeComponent();
+    this.syncPluginStatusFromProps();
+    this.fetchAgentPluginStatus();
     this.initializeLanguage();
     this.updateSliderPosition();
   }
@@ -175,6 +202,18 @@ class GlobalHeader extends PureComponent {
 
     // 更新滑块位置
     this.updateSliderPosition();
+
+    if (
+      prevProps.pluginsList !== this.props.pluginsList ||
+      prevProps.pluginsLoaded !== this.props.pluginsLoaded ||
+      prevProps.currentUser !== this.props.currentUser
+    ) {
+      this.syncPluginStatusFromProps();
+    }
+
+    if (this.getAgentPluginFetchKey(prevProps) !== this.getAgentPluginFetchKey()) {
+      this.fetchAgentPluginStatus({ force: true });
+    }
   }
 
   /**
@@ -239,17 +278,198 @@ class GlobalHeader extends PureComponent {
     return { regionName, teamName };
   };
 
-  /**
-   * 初始化组件数据
-   */
-  initializeComponent = () => {
-    const { currentUser } = this.props;
-    const eid = globalUtil.getCurrEnterpriseId() || currentUser?.enterprise_id;
-    const { regionName } = this.getCurrentTeamAndRegion();
+  getEnterpriseId = (props = this.props) => {
+    const { currentUser, enterprise, eid } = props;
+    return (
+      currentUser?.enterprise_id ||
+      enterprise?.enterprise_id ||
+      globalUtil.getCurrEnterpriseId() ||
+      eid
+    );
+  };
 
-    if (regionName) {
-      this.fetchPipePipeline(eid, regionName);
+  getAgentPluginFetchKey = (props = this.props) => {
+    const enterpriseId = this.getEnterpriseId(props);
+    return enterpriseId || '';
+  };
+
+  getFallbackPluginRegionName = () => {
+    const { currentUser } = this.props;
+    return globalUtil.getCurrRegionName() || currentUser?.teams?.[0]?.region?.[0]?.team_region_name || '';
+  };
+
+  isInstalledPlugin = (plugin, pluginId) => {
+    if (!plugin) {
+      return false;
     }
+    const matched = plugin.name === pluginId || plugin.plugin_id === pluginId;
+    if (!matched) {
+      return false;
+    }
+    if (Object.prototype.hasOwnProperty.call(plugin, 'installed')) {
+      return plugin.installed === true;
+    }
+    return true;
+  };
+
+  syncPluginStatusFromList = (pluginsList, pluginsLoaded) => {
+    if (!pluginsLoaded) {
+      return;
+    }
+
+    const pluginList = Array.isArray(pluginsList) ? pluginsList : [];
+    const pluginListKey = pluginList
+      .map(item => `${item.name || ''}:${item.plugin_id || ''}:${item.enable_status || item.status || ''}:${item.installed}`)
+      .join('|');
+    if (this.lastPluginListKey === pluginListKey) {
+      this.loadAgentAccessState();
+      return;
+    }
+    this.lastPluginListKey = pluginListKey;
+
+    const hasAgentPlugin = pluginList.some(item => this.isInstalledPlugin(item, 'rainbond-agent'));
+    const hasBillPlugin = pluginList.some(item => this.isInstalledPlugin(item, 'rainbond-bill'));
+
+    this.setState(
+      {
+        agentPluginStatus: hasAgentPlugin ? 'installed' : 'missing',
+        agentAccess: hasAgentPlugin ? this.state.agentAccess : null,
+        showBill: hasBillPlugin
+      },
+      () => {
+        this.loadAgentAccessState();
+        if (hasAgentPlugin || hasBillPlugin) {
+          this.fetchBalance();
+        }
+      }
+    );
+  };
+
+  syncPluginStatusFromProps = () => {
+    const { pluginsList, pluginsLoaded } = this.props;
+    this.syncPluginStatusFromList(pluginsList, pluginsLoaded);
+  };
+
+  fetchAgentPluginStatus = ({ force = false, callback } = {}) => {
+    const { dispatch } = this.props;
+    const enterpriseId = this.getEnterpriseId();
+    const fetchKey = this.getAgentPluginFetchKey();
+
+    if (!enterpriseId) {
+      if (callback) {
+        callback(this.state.agentPluginStatus);
+      }
+      return;
+    }
+
+    if (this.agentPluginFetchInFlight) {
+      if (callback) {
+        callback(this.state.agentPluginStatus);
+      }
+      return;
+    }
+    if (!force && this.lastAgentPluginFetchKey === fetchKey) {
+      if (callback) {
+        callback(this.state.agentPluginStatus);
+      }
+      return;
+    }
+
+    this.lastAgentPluginFetchKey = fetchKey;
+    this.agentPluginFetchInFlight = true;
+
+    const loadByRegions = regionNames => {
+      const uniqueRegionNames = Array.from(new Set(regionNames.filter(Boolean)));
+      if (!uniqueRegionNames.length) {
+        this.agentPluginFetchInFlight = false;
+        this.syncPluginStatusFromList([], true);
+        if (callback) {
+          callback('missing');
+        }
+        return;
+      }
+
+      let pending = uniqueRegionNames.length;
+      let successCount = 0;
+      let pluginList = [];
+
+      const finish = () => {
+        pending -= 1;
+        if (pending > 0) {
+          return;
+        }
+
+        this.agentPluginFetchInFlight = false;
+        if (successCount > 0) {
+          this.syncPluginStatusFromList(pluginList, true);
+          if (callback) {
+            const nextStatus = pluginList.some(item => this.isInstalledPlugin(item, 'rainbond-agent'))
+              ? 'installed'
+              : 'missing';
+            callback(nextStatus);
+          }
+          return;
+        }
+
+        if (callback) {
+          callback(this.state.agentPluginStatus);
+        }
+      };
+
+      uniqueRegionNames.forEach(regionName => {
+        dispatch({
+          type: 'global/getPluginList',
+          payload: {
+            enterprise_id: enterpriseId,
+            region_name: regionName
+          },
+          callback: res => {
+            successCount += 1;
+            pluginList = pluginList.concat((res && res.list) || []);
+            finish();
+          },
+          handleError: finish
+        });
+      });
+    };
+
+    dispatch({
+      type: 'region/fetchEnterpriseClusters',
+      payload: {
+        enterprise_id: enterpriseId
+      },
+      callback: res => {
+        const regionNames = ((res && res.list) || []).map(item => item.region_name);
+        const fallbackRegionName = this.getFallbackPluginRegionName();
+        loadByRegions(regionNames.length ? regionNames : [fallbackRegionName]);
+      },
+      handleError: () => {
+        loadByRegions([this.getFallbackPluginRegionName()]);
+      }
+    });
+  };
+
+  loadAgentAccessState = () => {
+    const { currentUser, dispatch } = this.props;
+    const { agentPluginStatus } = this.state;
+    if (agentPluginStatus !== 'installed' || !currentUser) {
+      return;
+    }
+
+    const accessKey = `${currentUser.user_id || ''}:${currentUser.enterprise_id || ''}:${agentPluginStatus}`;
+    if (this.lastAgentAccessKey === accessKey) {
+      return;
+    }
+    this.lastAgentAccessKey = accessKey;
+
+    dispatch({
+      type: 'agent/checkAccess',
+      callback: (response) => {
+        if (response && response.bean) {
+          this.setState({ agentAccess: response.bean });
+        }
+      }
+    });
   };
 
   /**
@@ -264,27 +484,6 @@ class GlobalHeader extends PureComponent {
       setLocale(language);
       this.setState({ language: isZh });
     }
-  };
-
-  /**
-   * 获取插件 URL 列表
-   */
-  fetchPipePipeline = (eid, regionName) => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'teamControl/fetchPluginUrl',
-      payload: {
-        enterprise_id: eid,
-        region_name: regionName
-      },
-      callback: (res) => {
-        if (res?.list?.some(item => item.name === 'rainbond-bill')) {
-          this.setState({ showBill: true }, () => {
-            this.fetchBalance();
-          });
-        }
-      }
-    });
   };
 
   /**
@@ -372,7 +571,7 @@ class GlobalHeader extends PureComponent {
     const token = cookie.get('token');
 
     if (portalSite && token) {
-      const url = `${portalSite}?token=${token}&redirect=${key}`;
+      const url = buildPortalSsoUrl(portalSite, token, key);
       window.location.href = url;
     }
   };
@@ -493,6 +692,228 @@ class GlobalHeader extends PureComponent {
    */
   closeProductDrawer = () => {
     this.setState({ showProductDrawer: false });
+  };
+
+  getEnterpriseExtensionPath = () => {
+    const { currentUser, enterprise, eid } = this.props;
+    const enterpriseId =
+      currentUser?.enterprise_id ||
+      enterprise?.enterprise_id ||
+      globalUtil.getCurrEnterpriseId() ||
+      eid;
+
+    return enterpriseId ? `/enterprise/${enterpriseId}/extension` : '';
+  };
+
+  getAgentConfigPath = () => {
+    const { currentUser, enterprise, eid } = this.props;
+    const enterpriseId =
+      currentUser?.enterprise_id ||
+      enterprise?.enterprise_id ||
+      globalUtil.getCurrEnterpriseId() ||
+      eid;
+
+    return enterpriseId ? `/enterprise/${enterpriseId}/ai/agent-config` : '';
+  };
+
+  handleMissingAgentApiKey = () => {
+    const { dispatch, currentUser } = this.props;
+    const agentConfigPath = this.getAgentConfigPath();
+
+    if (!currentUser?.is_enterprise_admin) {
+      Modal.warning({
+        title: formatMessage({
+          id: 'GlobalHeader.agent.config.missing.title',
+          defaultMessage: 'AI助手配置未完成'
+        }),
+        content: formatMessage({
+          id: 'GlobalHeader.agent.config.missing.contact_admin',
+          defaultMessage: '当前企业已安装 AI 助手插件，但尚未配置接口密钥，请联系企业管理员完成配置。'
+        }),
+        okText: formatMessage({
+          id: 'GlobalHeader.agent.access.ok',
+          defaultMessage: '知道了'
+        })
+      });
+      return;
+    }
+
+    Modal.confirm({
+      title: formatMessage({
+        id: 'GlobalHeader.agent.config.missing.title',
+        defaultMessage: 'AI助手配置未完成'
+      }),
+      content: formatMessage({
+        id: 'GlobalHeader.agent.config.missing.content',
+        defaultMessage: '当前企业已安装 AI 助手插件，但尚未配置接口密钥。请先完成 AI 助手配置后再使用。'
+      }),
+      okText: formatMessage({
+        id: 'GlobalHeader.agent.config.missing.ok',
+        defaultMessage: '去配置'
+      }),
+      cancelText: formatMessage({
+        id: 'GlobalHeader.agent.install.cancel',
+        defaultMessage: '取消'
+      }),
+      onOk: () => {
+        if (agentConfigPath) {
+          dispatch(routerRedux.push(agentConfigPath));
+        }
+      }
+    });
+  };
+
+  openAgentDrawer = (skipPluginRefresh = false) => {
+    const { dispatch, currentUser } = this.props;
+    const { agentPluginStatus, checkingAgentAccess } = this.state;
+    if (checkingAgentAccess) {
+      return;
+    }
+
+    if (!skipPluginRefresh && agentPluginStatus !== 'installed') {
+      this.setState({ checkingAgentAccess: true });
+      this.fetchAgentPluginStatus({
+        force: true,
+        callback: status => {
+          this.setState(
+            {
+              checkingAgentAccess: false,
+              agentPluginStatus: status || this.state.agentPluginStatus
+            },
+            () => this.openAgentDrawer(true)
+          );
+        }
+      });
+      return;
+    }
+
+    const action = resolveAgentLauncherAction({
+      pluginStatus: agentPluginStatus,
+      isEnterpriseAdmin: !!currentUser?.is_enterprise_admin
+    });
+
+    if (action === 'open') {
+      this.setState({ checkingAgentAccess: true });
+      dispatch({
+        type: 'global/fetchAgentLlmConfig',
+        payload: { eid: currentUser?.enterprise_id || globalUtil.getCurrEnterpriseId() },
+        callback: res => {
+          const config = (res && res.bean) || {};
+          if (!config.openai_api_key_set) {
+            this.setState({ checkingAgentAccess: false });
+            this.handleMissingAgentApiKey();
+            return;
+          }
+
+          dispatch({
+            type: 'agent/checkAccess',
+            callback: (response, error) => {
+              if (error) {
+                notification.warning({
+                  message: formatMessage({
+                    id: 'GlobalHeader.agent.access.load_error',
+                    defaultMessage: 'AI 助手权限检查失败，请稍后重试。'
+                  })
+                });
+                this.setState({ checkingAgentAccess: false });
+                return;
+              }
+
+              const access = response && response.bean;
+              if (access && access.can_open_agent) {
+                dispatch({
+                  type: 'agent/show'
+                });
+                this.setState({ checkingAgentAccess: false });
+                return;
+              }
+              Modal.confirm({
+                title: formatMessage({
+                  id: 'GlobalHeader.agent.access.title',
+                  defaultMessage: 'AI 助手暂未对当前账号开放'
+                }),
+                content: formatMessage({
+                  id: 'GlobalHeader.agent.access.open_source_upgrade',
+                  defaultMessage: 'AI 助手是 Rainbond 的可选增强插件。当前社区版默认开放首位企业管理员体验；如需团队成员共同使用，可开通企业版插件权限。Rainbond 核心能力仍保持开源可用。'
+                }),
+                okText: formatMessage({
+                  id: 'GlobalHeader.agent.access.enterprise',
+                  defaultMessage: '了解企业版'
+                }),
+                cancelText: formatMessage({
+                  id: 'GlobalHeader.agent.access.cancel',
+                  defaultMessage: '我知道了'
+                }),
+                onOk: () => {
+                  window.open(AGENT_ENTERPRISE_EDITION_URL, '_blank', 'noopener,noreferrer');
+                }
+              });
+              this.setState({ checkingAgentAccess: false });
+            }
+          });
+        },
+        handleError: () => {
+          this.setState({ checkingAgentAccess: false });
+          notification.warning({
+            message: formatMessage({
+              id: 'GlobalHeader.agent.config.load_error',
+              defaultMessage: 'AI 助手配置获取失败，请稍后重试。'
+            })
+          });
+        }
+      });
+      return;
+    }
+
+    if (action === 'install') {
+      const extensionPath = this.getEnterpriseExtensionPath();
+      Modal.confirm({
+        title: formatMessage({
+          id: 'GlobalHeader.agent.install.title',
+          defaultMessage: 'AI助手插件未安装'
+        }),
+        content: formatMessage({
+          id: 'GlobalHeader.agent.install.content',
+          defaultMessage: '当前企业还没有安装 rainbond-agent 插件，是否前往扩展中心安装？'
+        }),
+        okText: formatMessage({
+          id: 'GlobalHeader.agent.install.ok',
+          defaultMessage: '去安装'
+        }),
+        cancelText: formatMessage({
+          id: 'GlobalHeader.agent.install.cancel',
+          defaultMessage: '取消'
+        }),
+        onOk: () => {
+          if (extensionPath) {
+            dispatch(routerRedux.push(extensionPath));
+          }
+        }
+      });
+      return;
+    }
+
+    if (action === 'contact_admin') {
+      notification.warning({
+        message: formatMessage({
+          id: 'GlobalHeader.agent.contact_admin',
+          defaultMessage: '当前企业未安装 AI 助手插件，请联系企业管理员安装。'
+        })
+      });
+      return;
+    }
+
+    notification.warning({
+      message: formatMessage({
+        id: action === 'error'
+          ? 'GlobalHeader.agent.load_error'
+          : 'GlobalHeader.agent.loading',
+        defaultMessage:
+          action === 'error'
+            ? 'AI 助手插件状态获取失败，请稍后重试。'
+            : '正在检查 AI 助手插件状态，请稍后重试。'
+      })
+    });
   };
 
   /**
@@ -707,7 +1128,8 @@ class GlobalHeader extends PureComponent {
       rainbondInfo,
       collapsed,
       logo,
-      enterprise
+      enterprise,
+      agentVisible
     } = this.props;
     const {
       language,
@@ -716,7 +1138,8 @@ class GlobalHeader extends PureComponent {
       balance,
       balanceStatus,
       showChangePassword,
-      showProductDrawer
+      showProductDrawer,
+      agentAccess
     } = this.state;
 
     // 获取 Logo
@@ -729,6 +1152,18 @@ class GlobalHeader extends PureComponent {
     const portalSite = rainbondInfo?.portal_site;
     const showFullLogo = !isTeamView || !collapsed;
     const showAppMarket = rainbondUtil.isShowAppMarket(rainbondInfo);
+    const showAgentLauncher =
+      isRainbondInfoAgentEnabled(rainbondInfo) &&
+      !agentVisible &&
+      !isAgentRouteHidden();
+    const showAgentEnterpriseBadge = !!(
+      agentAccess &&
+      (
+        agentAccess.has_enterprise_base === false ||
+        agentAccess.is_open_source ||
+        agentAccess.edition === 'open_source'
+      )
+    );
 
     return (
       <ScrollerX sm={900}>
@@ -789,6 +1224,22 @@ class GlobalHeader extends PureComponent {
                 </div>
               )}
 
+              {showAgentLauncher && (
+                <button
+                  type="button"
+                  className={`${styles.agentEntry} ${showAgentEnterpriseBadge ? styles.agentEntryRestricted : ''}`}
+                  onClick={this.openAgentDrawer}
+                >
+                  {showAgentEnterpriseBadge && (
+                    <span className={styles.agentEntryBadge}>企</span>
+                  )}
+                  <span className={styles.agentEntryIcon}>
+                    <AgentEntryIcon />
+                  </span>
+                  <span className={styles.agentEntryText}>AI助手</span>
+                </button>
+              )}
+
               {currentUser ? (
                 <Dropdown overlay={this.renderUserMenu()} placement="bottomRight">
                   <span className={`${styles.action} ${styles.account}`}>
@@ -822,9 +1273,12 @@ class GlobalHeader extends PureComponent {
   }
 }
 
-export default connect(({ user, global }) => ({
+export default connect(({ user, global, agent, teamControl }) => ({
   rainbondInfo: global.rainbondInfo,
   currentUser: user.currentUser,
   enterprise: global.enterprise,
-  collapsed: global.collapsed
+  collapsed: global.collapsed,
+  agentVisible: !!(agent && agent.visible),
+  pluginsList: teamControl.pluginsList,
+  pluginsLoaded: teamControl.pluginsLoaded
 }))(GlobalHeader);

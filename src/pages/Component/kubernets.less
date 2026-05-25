@@ -72,6 +72,48 @@
         }
     }
 }
+
+.keyValueInline{
+    margin: 0 10px 8px 0;
+    padding: 4px;
+    background-color: #f0f4f8;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.keyValueTag{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 5px;
+    background: #39435a;
+    color: #fff;
+    font-size: 11px;
+    line-height: 20px;
+    flex-shrink: 0;
+}
+
+.keyValueText{
+    display: inline-block;
+    max-width: 110px;
+    padding: 0 8px;
+    color: #232b3d;
+    font-size: 12px;
+    line-height: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.keyValueTag + .keyValueText{
+    margin-right: 4px;
+}
+
 .handleBtn_style{
     width: 100%;
     border-top: 1px solid rgb(232, 232, 232);
@@ -136,6 +178,30 @@
 .yamlValue_style{
     display: flex;
     align-items: center;
+}
+
+.attributeValueCell{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    min-height: 28px;
+}
+
+.attributeActionCell{
+    display: flex;
+    align-items: center;
+}
+
+.actionLink{
+    color: @primary-color !important;
+}
+
+.actionLink:hover{
+    color: lighten(@primary-color, 8%) !important;
+}
+
+.actionLink + .actionLink{
+    margin-left: 16px;
 }
 
 .yamlTitle_style{

@@ -4,11 +4,14 @@ import { formatMessage } from '@/utils/intl';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import globalUtil from '@/utils/global';
-const { hasNodePackageManagerPrefix, isBuildEnvTruthy } = require('../buildEnvHelpers');
+import buildEnvHelpers from '../buildEnvHelpers';
+import mirrorConfigHelpers from './mirrorConfig';
+
+const { hasNodePackageManagerPrefix, isBuildEnvTruthy } = buildEnvHelpers;
 const {
   DEFAULT_MIRROR_CONFIGS,
   getConfigForPackageManager
-} = require('./mirrorConfig');
+} = mirrorConfigHelpers;
 
 // 框架图标（内联 SVG）
 export const FRAMEWORK_ICONS = {

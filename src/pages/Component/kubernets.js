@@ -1,4 +1,4 @@
-import { Button, Card, Form, Input, Select, Switch, notification, Icon, Drawer, Row, Col, Empty, Tooltip } from 'antd';
+import { Button, Card, Form, Input, Select, Switch, notification, Icon, Drawer, Row, Col, Empty, Tooltip, Table } from 'antd';
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { FormattedMessage } from 'umi';
@@ -13,6 +13,16 @@ import cookie from '../../utils/cookie';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
 
 const { Option, OptGroup } = Select;
+
+const JSON_ATTRIBUTE_NAMES = ['nodeSelector', 'labels', 'annotations'];
+const YAML_ATTRIBUTE_NAMES = [
+  'volumeMounts', 'hostAliases', 'volumeClaimTemplate', 'envFromSource',
+  'livenessProbe', 'readinessProbe', 'volumes', 'securityContext',
+  'affinity', 'tolerations', 'env', 'dnsConfig', 'resources', 'lifecycle'
+];
+const STRING_ATTRIBUTE_NAMES = ['serviceAccountName', 'cmd'];
+const BOOLEAN_ATTRIBUTE_NAMES = ['privileged', 'shareProcessNamespace', 'hostIPC'];
+
 @Form.create()
 @connect(({ user, appControl }) => ({
   currUser: user.currentUser,
@@ -173,20 +183,125 @@ class Index extends PureComponent {
     });
   }
 
+  isJsonAttribute = name => JSON_ATTRIBUTE_NAMES.includes(name);
+
+  isYamlAttribute = name => YAML_ATTRIBUTE_NAMES.includes(name);
+
+  isStringAttribute = name => STRING_ATTRIBUTE_NAMES.includes(name);
+
+  isBooleanAttribute = name => BOOLEAN_ATTRIBUTE_NAMES.includes(name);
+
+  renderAttributeValue = (item, uploadYaml) => {
+    const { name, attribute_value: attributeValue } = item;
+
+    if (!attributeValue || attributeValue.length === 0) {
+      return '-';
+    }
+
+    if (this.isJsonAttribute(name) && Array.isArray(attributeValue)) {
+      return attributeValue.map((ele, index) => (
+        <Tooltip key={`${name}-${index}`} placement="top" title={<div><p>Key: {ele.key}</p><p>Value: {ele.value}</p></div>}>
+          <div className={styles.keyValueInline}>
+            <span className={styles.keyValueTag}>
+              <FormattedMessage id='componentOverview.body.Kubernetes.key_label' />
+            </span>
+            <span className={styles.keyValueText}>{ele.key}</span>
+            <span className={styles.keyValueTag}>
+              <FormattedMessage id='componentOverview.body.Kubernetes.value_label' />
+            </span>
+            <span className={styles.keyValueText}>{ele.value}</span>
+          </div>
+        </Tooltip>
+      ));
+    }
+
+    if (this.isYamlAttribute(name)) {
+      return (
+        <div className={styles.yamlValue_style}>
+          {uploadYaml}
+          &nbsp;&nbsp;&nbsp;&nbsp;
+          <FormattedMessage id='componentOverview.body.Kubernetes.yaml' />
+        </div>
+      );
+    }
+
+    if (this.isStringAttribute(name)) {
+      return (
+        <div style={{ padding: '10px 15px', backgroundColor: '#f0f4f8', borderRadius: '10px' }}>
+          <Tooltip placement="top" title={attributeValue}>
+            {attributeValue}
+          </Tooltip>
+        </div>
+      );
+    }
+
+    if (this.isBooleanAttribute(name)) {
+      return (
+        <span style={{ paddingTop: '6px' }}>
+          <FormattedMessage id='componentOverview.body.Kubernetes.current' />
+          {attributeValue == 'true'
+            ? <FormattedMessage id='componentOverview.body.Kubernetes.Opened' />
+            : <FormattedMessage id='componentOverview.body.Kubernetes.Closed' />}
+        </span>
+      );
+    }
+
+    if (name == 'dnsPolicy') {
+      return (
+        <span style={{ paddingTop: '6px' }}>
+          {formatMessage({ id: 'componentOverview.body.Kubernetes.is' })} {attributeValue}
+        </span>
+      );
+    }
+
+    return attributeValue;
+  };
+
+  getAttributeColumns = uploadYaml => [
+    {
+      title: <FormattedMessage id='componentOverview.body.Kubernetes.name' />,
+      dataIndex: 'name',
+      key: 'name',
+      width: 200,
+      fixed: 'left',
+      render: text => <span style={{ fontWeight: 600, color: '#5d667a' }}>{text}</span>
+    },
+    {
+      title: <FormattedMessage id='componentOverview.body.Kubernetes.attribute' />,
+      dataIndex: 'attribute_value',
+      key: 'attribute_value',
+      render: (_, item) => (
+        <div className={styles.attributeValueCell}>
+          {this.renderAttributeValue(item, uploadYaml)}
+        </div>
+      )
+    },
+    {
+      title: <FormattedMessage id='componentOverview.body.Kubernetes.edit' />,
+      dataIndex: 'action',
+      key: 'action',
+      width: 170,
+      fixed: 'right',
+      render: (_, item, index) => (
+        <div className={styles.attributeActionCell}>
+          <a className={styles.actionLink} onClick={() => this.changeBtn(item, 'change', index)}>
+            <FormattedMessage id='componentOverview.body.Kubernetes.edit' />
+          </a>
+          <a className={styles.actionLink} onClick={() => this.cancalDeletePort(item)}>
+            <FormattedMessage id='componentOverview.body.Kubernetes.deldete' />
+          </a>
+        </div>
+      )
+    }
+  ];
+
   handleSubmit = (e) => {
     e.preventDefault();
     const { selectVal, TooltipValue } = this.state;
     const { form } = this.props;
 
     // 定义字段类型配置
-    const jsonFields = ['nodeSelector', 'labels', 'annotations'];
-    const yamlFields = [
-      'volumeMounts', 'hostAliases', 'volumeClaimTemplate', 'envFromSource',
-      'livenessProbe', 'readinessProbe', 'volumes', 'securityContext',
-      'affinity', 'tolerations', 'env', 'dnsConfig', 'resources', 'lifecycle'
-    ];
-    const stringFields = ['serviceAccountName', 'cmd'];
-    const booleanFields = ['privileged', 'shareProcessNamespace', 'dnsPolicy', 'hostIPC'];
+    const booleanFields = [...BOOLEAN_ATTRIBUTE_NAMES, 'dnsPolicy'];
 
     form.validateFields((err, value) => {
       if (err) return;
@@ -194,15 +309,15 @@ class Index extends PureComponent {
       const fieldValue = value[selectVal];
       let label = null;
 
-      if (jsonFields.includes(selectVal)) {
+      if (JSON_ATTRIBUTE_NAMES.includes(selectVal)) {
         if (fieldValue && fieldValue[0] && fieldValue[0].key && fieldValue[0].value) {
           label = { name: selectVal, save_type: 'json', attribute_value: fieldValue };
         }
-      } else if (yamlFields.includes(selectVal)) {
+      } else if (YAML_ATTRIBUTE_NAMES.includes(selectVal)) {
         if (fieldValue && fieldValue.length > 0 && fieldValue !== TooltipValue) {
           label = { name: selectVal, save_type: 'yaml', attribute_value: fieldValue };
         }
-      } else if (stringFields.includes(selectVal)) {
+      } else if (STRING_ATTRIBUTE_NAMES.includes(selectVal)) {
         if (fieldValue && fieldValue.length > 0) {
           label = { name: selectVal, save_type: 'string', attribute_value: fieldValue };
         }
@@ -500,74 +615,14 @@ class Index extends PureComponent {
               </Button>
             </div>
           </Drawer>
-          <div className={styles.pageValue_style}>
-            {
-              allData &&
-                allData.length > 0 ? (
-                allData.map((item, index) => {
-                  return <Row key={index}>
-                    {(item.name == "volumes" || item.name == "volumeMounts" || item.name == "hostAliases" || item.name == "volumeClaimTemplate" || item.name == "affinity" || item.name == "tolerations" || item.name == "env" || item.name == "dnsConfig" || item.name == 'resources' || item.name == 'lifecycle' || item.name == 'envFromSource' || item.name == 'securityContext' || item.name=='livenessProbe' || item.name == 'readinessProbe') ? (
-                      <Col span={4} className={styles.yamlTitle_style}>{item.name}:</Col>
-                    ) : (
-                      <Col span={4}>{item.name}:</Col>
-                    )}
-                    <Col span={16}>{
-                      item.name &&
-                      (item.name == "nodeSelector" || item.name == "labels" || item.name == "annotations") &&
-                      item.attribute_value.length > 0 &&
-                      item.attribute_value.map((ele, index) => {
-                        return <Tooltip key={index} placement="top" title={<div><p>Key: {ele.key}</p><p>Value: {ele.value}</p></div>}>
-                          <div className={styles.tipText_style}>
-                            <span>{ele.key}</span>
-                            <span>{ele.value}</span>
-                          </div>
-                        </Tooltip>
-                      })
-                    }
-                      {item.name &&
-                        (item.name == "volumes" || item.name == "volumeMounts" || item.name == "hostAliases" || item.name == "volumeClaimTemplate" || item.name == "affinity" || item.name == "tolerations" || item.name == "env" || item.name == 'dnsConfig' || item.name == 'resources' || item.name == 'lifecycle' || item.name == 'envFromSource' || item.name == 'securityContext' || item.name == 'livenessProbe' || item.name == 'readinessProbe') &&
-                        item.attribute_value.length > 0 &&
-                        <div className={styles.yamlValue_style}>
-                          {uploadYaml} &nbsp;&nbsp;&nbsp;&nbsp;<FormattedMessage id='componentOverview.body.Kubernetes.yaml' />
-                        </div>
-                      }
-                      {item.name &&
-                        (item.name == "serviceAccountName") &&
-                        item.attribute_value.length > 0 &&
-                        <div style={{ padding: "10px 15px", backgroundColor: "#f0f4f8", borderRadius: "10px" }}>
-                          <Tooltip key={index} placement="top" title={item.attribute_value}>
-                            {item.attribute_value}
-                          </Tooltip>
-                        </div>
-                      }
-                      {item.name &&
-                        (item.name == "cmd") &&
-                        item.attribute_value.length > 0 &&
-                        <div style={{ padding: "10px 15px", backgroundColor: "#f0f4f8", borderRadius: "10px" }}>
-                          <Tooltip key={index} placement="top" title={item.attribute_value}>
-                            {item.attribute_value}
-                          </Tooltip>
-                        </div>
-                      }
-                      {item.name &&
-                        (item.name == "privileged" || item.name == 'shareProcessNamespace' || item.name == 'hostIPC') &&
-                        item.attribute_value.length > 0 &&
-                        <span style={{ paddingTop: "6px" }}><FormattedMessage id='componentOverview.body.Kubernetes.current' />{item.attribute_value == "true" ? <FormattedMessage id='componentOverview.body.Kubernetes.Opened' /> : <FormattedMessage id='componentOverview.body.Kubernetes.Closed' />}</span>
-                      }
-                      {item.name &&
-                        (item.name == "dnsPolicy") &&
-                        item.attribute_value.length > 0 &&
-                        <span style={{ paddingTop: "6px" }}> {formatMessage({ id: 'componentOverview.body.Kubernetes.is' })} {item.attribute_value} </span>
-                      }
-                    </Col>
-                    <Col span={3}><span onClick={() => this.changeBtn(item, "change", index)}><FormattedMessage id='componentOverview.body.Kubernetes.edit' /></span>&nbsp;&nbsp;&nbsp;&nbsp;<span onClick={() => this.cancalDeletePort(item)}><FormattedMessage id='componentOverview.body.Kubernetes.deldete' /></span></Col>
-                  </Row>
-                })
-              ) : (
-                <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
-              )
-            }
-          </div>
+          <Table
+            rowKey="name"
+            columns={this.getAttributeColumns(uploadYaml)}
+            dataSource={allData}
+            pagination={false}
+            scroll={{ x: 1100, y: 420 }}
+            locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
+          />
           {this.state.showDeletePort && (
             <ConfirmModal
               title={<FormattedMessage id='confirmModal.deldete.attribute.title' />}

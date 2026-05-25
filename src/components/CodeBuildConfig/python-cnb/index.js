@@ -2,7 +2,9 @@ import React, { PureComponent } from 'react';
 import { Form, Icon, Input, Radio, Switch, Tooltip } from 'antd';
 import { formatMessage } from '@/utils/intl';
 import { resolveCnbPolicyVersion } from '../cnbVersionPolicy';
-const { isBuildEnvTruthy } = require('../buildEnvHelpers');
+import buildEnvHelpers from '../buildEnvHelpers';
+
+const { isBuildEnvTruthy } = buildEnvHelpers;
 
 const RadioGroup = Radio.Group;
 const DEFAULT_PYTHON_MIRROR_SOURCE = 'https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple';

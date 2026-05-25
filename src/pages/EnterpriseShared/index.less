@@ -215,7 +215,9 @@
   display: flex;
   align-items: center;
   padding: 0 5px;
-  width: 800px;
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
   overflow-x: auto;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -252,6 +254,42 @@
       }
     }
   }
+}
+
+.toolbarRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.toolbarLeft {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.toolbarRight {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 0 0 auto;
+  min-width: 0;
+  margin-left: auto;
+}
+
+.toolbarSearchPrimary {
+  width: 100%;
+  max-width: 250px;
+  flex: 0 1 250px;
+}
+
+.toolbarSearchWide {
+  width: 100%;
+  max-width: 400px;
+  flex: 0 1 400px;
+  margin-left: 32px;
 }
 
 .verticalCen {
@@ -411,6 +449,9 @@
     .ant-tabs-nav-container {
       overflow: visible !important;
       margin-left: 0 !important;
+      width: 100%;
+      overflow-x: auto !important;
+      overflow-y: hidden !important;
     }
   }
 

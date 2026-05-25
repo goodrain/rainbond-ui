@@ -1,0 +1,1235 @@
+@import '~antd/lib/style/themes/default.less';
+
+.agentHost {
+  position: relative;
+  z-index: 1080;
+}
+
+.agentPanel {
+  position: relative;
+  flex: 0 0 auto;
+  height: 100vh;
+  transition: width 0.24s ease;
+}
+
+.agentPanelPush {
+  background: #fff;
+  border-left: 1px solid fade(@border-color-base, 85%);
+  box-shadow: -8px 0 24px rgba(15, 23, 42, 0.08);
+}
+
+.agentPanelOverlay {
+  position: fixed;
+  right: 0;
+  top: 0;
+  height: 100vh;
+  z-index: 1200;
+}
+
+.agentPanelVisible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.agentPanelHidden {
+  width: 0 !important;
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-left: none;
+  box-shadow: none;
+}
+
+.overlayMask {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.26);
+}
+
+.panelBody {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #f7f9fc;
+}
+
+.panelBodyPushFixed {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: var(--agent-panel-width, 420px);
+  height: 100vh;
+}
+
+.panelHeader {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  min-height: 56px;
+  padding: 6px 12px;
+  color: #fff;
+  background: linear-gradient(90deg, #1B5DFB 0%, #503BF6 100%);
+  border-bottom: none;
+  box-shadow: 0 8px 24px rgba(54, 74, 247, 0.16);
+}
+
+.panelBrand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.panelBrandIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  color: #fff;
+}
+
+.panelBrandIconSvg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.panelBrandTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.panelBrandTitleText {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.panelBrandBeta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  padding: 0 4px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-size: 10px;
+  line-height: 1;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.closeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.16);
+    color: #fff;
+  }
+}
+
+.panelHeaderActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.headerIconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #fff;
+  font-size: 14px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.headerIconButton:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+}
+
+.autoApprovalPopover :global(.ant-popover-inner-content) {
+  min-width: 240px;
+  max-width: 320px;
+}
+
+.pendingBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 16px 8px;
+  padding: 10px 12px;
+  background: #fff2f0;
+  border: 1px solid #ffccc7;
+  border-radius: 4px;
+  color: #a8071a;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.pendingBannerText {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.historyPopover :global(.ant-popover-inner-content) {
+  min-width: 280px;
+  max-width: 360px;
+  padding: 8px 0;
+}
+
+.historyEmpty {
+  padding: 16px 20px;
+  font-size: 13px;
+  color: #8c8c8c;
+  text-align: center;
+}
+
+.historyList {
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.historyItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: #f5f7fa;
+  }
+}
+
+.historyItemBody {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.historyItemTitle {
+  color: #262626;
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.historyItemMeta {
+  margin-top: 2px;
+  color: #8c8c8c;
+  font-size: 12px;
+}
+
+.historyItemDelete {
+  flex-shrink: 0;
+  background: transparent;
+  border: 0;
+  padding: 4px 6px;
+  color: #8c8c8c;
+  cursor: pointer;
+  font-size: 14px;
+
+  &:hover {
+    color: #ff4d4f;
+  }
+}
+
+.autoApprovalEmpty,
+.autoApprovalList {
+  font-size: 13px;
+  color: #595959;
+}
+
+.autoApprovalItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+.autoApprovalItem:last-of-type {
+  border-bottom: 0;
+}
+
+.autoApprovalActions {
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.autoApprovalHint {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #8c8c8c;
+}
+
+.drawerBody {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.contextPanel {
+  flex-shrink: 0;
+  padding: 18px 20px 14px;
+  background: #fff;
+  border-bottom: 1px solid fade(@border-color-base, 75%);
+}
+
+.contextTitle {
+  color: @heading-color;
+  font-size: @rbd-content-size;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.contextTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.contextTag {
+  margin: 0;
+  border: 1px solid fade(@primary-color, 18%);
+  background: fade(@primary-color, 8%);
+  color: @primary-color;
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+
+.contextFallback {
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+}
+
+.messagesPanel {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 16px;
+  background:
+    linear-gradient(180deg, fade(@primary-color, 4%) 0%, transparent 14%),
+    @rbd-background-color;
+}
+
+.workflowCard {
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid fade(@primary-color, 16%);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+}
+
+.workflowHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: @primary-color;
+  margin-bottom: 8px;
+}
+
+.workflowTitle {
+  font-size: @rbd-content-size;
+  font-weight: 600;
+}
+
+.workflowSummary {
+  color: @heading-color;
+  font-size: @rbd-content-size;
+  line-height: 22px;
+  margin-bottom: 8px;
+}
+
+.workflowMeta {
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  line-height: 20px;
+}
+
+.emptyState {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.emptyTitle {
+  color: @rbd-auxiliary-color;
+  font-size: @rbd-sub-title-size;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.emptyText {
+  color: @text-color-secondary;
+  font-size: @rbd-content-size;
+  line-height: 22px;
+  max-width: 320px;
+}
+
+.emptyFeatureList {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.emptyFeatureItem {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+  font-size: 12px;
+  line-height: 16px;
+  color: @rbd-auxiliary-color-secondary;
+}
+
+
+.emptyList li + li {
+  margin-top: 6px;
+}
+
+.contextRow {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.contextBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: fade(@primary-color, 10%);
+  color: @primary-color;
+  font-size: @rbd-auxiliary-size;
+  line-height: 20px;
+  border: 1px solid fade(@primary-color, 14%);
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: fade(@warning-color, 10%);
+  color: darken(@warning-color, 8%);
+  font-size: @rbd-auxiliary-size;
+  line-height: 20px;
+  border: 1px solid fade(@warning-color, 18%);
+}
+
+.messageRow {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 18px;
+}
+
+.traceRow,
+.approvalRow,
+.errorRow {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 18px;
+}
+
+.userRow {
+  align-items: flex-end;
+}
+
+.assistantRow {
+  align-items: flex-start;
+}
+
+.assistantMessageStack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  max-width: 100%;
+
+  .messageBubble {
+    max-width: 100%;
+  }
+}
+
+.assistantSupportStack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  color: @text-color-secondary;
+}
+
+.messageMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.messageRole {
+  color: @heading-color;
+  font-size: @rbd-auxiliary-size;
+  font-weight: 600;
+}
+
+.messageTime {
+  color: @rbd-label-color;
+  font-size: @rbd-auxiliary-size;
+}
+
+.messageBubble {
+  max-width: calc(100% - 16px);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 20px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  box-shadow: @rbd-min-card-shadow;
+}
+
+.userBubble {
+  background: @primary-color;
+  color: #fff;
+  border-top-right-radius: 6px;
+
+  &::selection,
+  & ::selection {
+    background: #fff;
+    color: @primary-color;
+  }
+}
+
+.assistantBubble {
+  background: #fff;
+  color: @text-color;
+  border: 1px solid fade(@border-color-base, 85%);
+  border-top-left-radius: 6px;
+}
+
+.markdownBody {
+  color: @text-color;
+  font-size: 13px;
+  line-height: 20px;
+
+  :global {
+    h1, h2, h3, h4, h5, h6 {
+      color: @heading-color;
+      font-weight: 600;
+      margin-top: 16px;
+      margin-bottom: 8px;
+
+      &:first-child {
+        margin-top: 0;
+      }
+    }
+
+    h1 {
+      font-size: 20px;
+    }
+
+    h2 {
+      font-size: 17px;
+    }
+
+    h3 {
+      font-size: 15px;
+    }
+
+    p {
+      margin-bottom: 8px;
+      white-space: normal;
+    }
+
+    ul, ol {
+      padding-left: 20px;
+      margin-bottom: 8px;
+      white-space: normal;
+    }
+
+    li {
+      margin-bottom: 3px;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid fade(@border-color-base, 80%);
+      margin: 12px 0;
+    }
+
+    strong {
+      color: @heading-color;
+      font-weight: 600;
+    }
+
+    code {
+      background: #f5f7fb;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
+      font-size: 11px;
+    }
+
+    pre {
+      background: #f5f7fb;
+      border-radius: 8px;
+      padding: 10px 12px;
+      overflow-x: auto;
+      margin-bottom: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 12px;
+      white-space: normal;
+    }
+
+    th, td {
+      border: 1px solid fade(@border-color-base, 85%);
+      padding: 6px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f7f9fc;
+      color: @heading-color;
+      font-weight: 600;
+    }
+  }
+}
+
+.streamingPlainText {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.inlineSuggestionList {
+  margin-top: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.inlineSuggestionTitle {
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  font-weight: 600;
+}
+
+.inlineSuggestionCard {
+  width: 100%;
+  padding: 12px;
+  text-align: left;
+  border: 1px solid fade(@primary-color, 14%);
+  border-radius: 12px;
+  background: fade(@primary-color, 4%);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: fade(@primary-color, 28%);
+    box-shadow: @rbd-min-card-shadow;
+  }
+}
+
+.inlineSuggestionHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.inlineSuggestionCardTitle {
+  color: @heading-color;
+  font-size: @rbd-content-size;
+  font-weight: 600;
+  line-height: 22px;
+}
+
+.inlineSuggestionDescription {
+  margin-top: 4px;
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  line-height: 20px;
+  white-space: normal;
+}
+
+.messageTraceGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+
+  .traceRow {
+    margin-bottom: 0;
+  }
+}
+
+.traceGroupStandalone {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 18px;
+
+  .traceRow {
+    margin-bottom: 0;
+  }
+}
+
+.traceCard,
+.approvalCard,
+.errorCard {
+  width: 100%;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid fade(@border-color-base, 85%);
+  box-shadow: @rbd-min-card-shadow;
+}
+
+.traceCard {
+  padding: 12px 14px;
+}
+
+.traceCollapse {
+  background: transparent;
+  width: 100%;
+
+  :global {
+    .ant-collapse-item {
+      border: none;
+    }
+
+    .ant-collapse-header {
+      padding: 0 26px 0 0 !important;
+      color: @text-color-secondary !important;
+    }
+
+    .ant-collapse-content {
+      border-top: none;
+      background: transparent;
+    }
+
+    .ant-collapse-content-box {
+      padding: 8px 0 0 !important;
+    }
+
+    .ant-collapse-arrow {
+      color: @text-color-secondary !important;
+    }
+  }
+}
+
+.traceHeader {
+  display: flex;
+  align-items: center;
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  font-weight: 500;
+  min-height: 22px;
+}
+
+.traceHeaderLeft {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding-right: 16px;
+}
+
+.traceHeaderTitle {
+  display: inline-block;
+  min-width: 0;
+  word-break: break-word;
+}
+
+.traceBody {
+  margin: 0;
+  font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
+  font-size: 11px;
+  line-height: 18px;
+  color: @text-color-secondary;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.traceInlineText {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: @text-color-secondary;
+  font-size: 12px;
+  line-height: 20px;
+  word-break: break-word;
+}
+
+.traceInlineIcon {
+  flex: 0 0 auto;
+  font-size: 12px;
+}
+
+.thinkingRow {
+  display: inline-block;
+  margin-top: 8px;
+  color: @primary-color;
+  font-size: @rbd-auxiliary-size;
+  font-weight: 600;
+}
+
+.thinkingIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thinkingText {
+  position: relative;
+  display: inline-block;
+  color: @primary-color;
+  letter-spacing: 0.02em;
+
+  &::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    color: transparent;
+    background: linear-gradient(
+      100deg,
+      fade(@primary-color, 0%) 0%,
+      fade(@primary-color, 0%) 32%,
+      fade(#ffffff, 92%) 48%,
+      fade(@primary-color, 0%) 64%,
+      fade(@primary-color, 0%) 100%
+    );
+    background-size: 220% 100%;
+    background-position: 140% 0;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: thinkingShimmer 2s linear infinite;
+    pointer-events: none;
+  }
+}
+
+.reasoningBlock {
+  width: 100%;
+  color: @text-color-secondary;
+}
+
+.reasoningToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: @text-color-secondary;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  line-height: 1;
+
+  &:hover {
+    color: @text-color-secondary;
+    opacity: 0.88;
+  }
+}
+
+.reasoningChevron,
+.reasoningIcon {
+  font-size: 12px;
+}
+
+.reasoningLabel {
+  margin-left: 2px;
+}
+
+.reasoningLabelStreaming {
+  position: relative;
+  display: inline-block;
+
+  &::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    color: transparent;
+    background: linear-gradient(
+      100deg,
+      fade(@text-color-secondary, 0%) 0%,
+      fade(@text-color-secondary, 0%) 32%,
+      fade(#ffffff, 86%) 48%,
+      fade(@text-color-secondary, 0%) 64%,
+      fade(@text-color-secondary, 0%) 100%
+    );
+    background-size: 220% 100%;
+    background-position: 140% 0;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: thinkingShimmer 2s linear infinite;
+    pointer-events: none;
+  }
+}
+
+.reasoningBody {
+  margin: 6px 0 0;
+  padding: 0 0 0 18px;
+  background: transparent;
+  border: 0;
+  border-left: 2px solid fade(@text-color-secondary, 24%);
+  border-radius: 0;
+  max-height: 320px;
+  overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+}
+
+.reasoningMarkdown {
+  color: @text-color-secondary;
+  font-size: 12px;
+  line-height: 1.6;
+
+  :global {
+    h1, h2, h3, h4, h5, h6,
+    strong {
+      color: @text-color-secondary;
+    }
+
+    p, ul, ol, li, blockquote, code, pre {
+      color: @text-color-secondary;
+    }
+  }
+}
+
+@keyframes thinkingShimmer {
+  0% {
+    background-position: 140% 0;
+  }
+
+  100% {
+    background-position: -140% 0;
+  }
+}
+
+.approvalCard {
+  position: relative;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid fade(@warning-color, 28%);
+  border-radius: 6px;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
+}
+
+.approvalCardInfo {
+  border-color: fade(@primary-color, 26%);
+}
+
+.approvalCardWarning {
+  border-color: fade(@warning-color, 30%);
+}
+
+.approvalCardDanger {
+  border-color: fade(@error-color, 30%);
+}
+
+.approvalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  background: fade(@warning-color, 6%);
+  border-bottom: 1px solid fade(@warning-color, 12%);
+}
+
+.approvalCardInfo .approvalHeader {
+  background: fade(@primary-color, 6%);
+  border-bottom-color: fade(@primary-color, 12%);
+}
+
+.approvalCardDanger .approvalHeader {
+  background: fade(@error-color, 6%);
+  border-bottom-color: fade(@error-color, 12%);
+}
+
+.approvalTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: @heading-color;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.approvalContent {
+  padding: 12px 12px;
+  font-size: 14px;
+  color: @heading-color;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.approvalContentLabel {
+  font-weight: 600;
+  color: @heading-color;
+}
+
+.approvalContentText {
+  color: @heading-color;
+}
+
+.approvalAutoNote {
+  padding: 0px 12px 12px;
+  font-size: 12px;
+  color: @text-color-secondary;
+  // 斜体字
+  font-style: italic;
+}
+
+.approvalMeta {
+  font-size: 12px;
+  color: #8c8c8c;
+  margin-top: 4px;
+}
+
+.approvalActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+}
+
+.approvalActionHalf {
+  flex: 1;
+  min-width: 0;
+}
+
+.approvalPrimaryActions {
+  display: flex;
+  width: 100%;
+
+  :global {
+    .ant-btn {
+      width: 100%;
+    }
+  }
+}
+
+.approvalApproveButton {
+  height: 32px;
+  font-size: 14px;
+  width: calc(100% - 32px);
+}
+
+.approvalPolicyButton {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  font-size: 14px;
+}
+
+.approvalRejectButton {
+  width: 100%;
+  height: 32px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.approvalCriticalNote {
+  padding: 0 12px 12px;
+  font-size: 14px;
+  color: @text-color-secondary;
+}
+
+.errorCard {
+  padding: 12px 14px;
+  border-color: fade(@error-color, 30%);
+  background: fade(@error-color, 6%);
+  color: @error-color;
+}
+
+.errorText {
+  flex-shrink: 0;
+  padding: 10px 20px 0;
+  color: @error-color;
+  font-size: @rbd-auxiliary-size;
+}
+
+.footer {
+  flex-shrink: 0;
+  padding: 12px 16px 16px;
+  background: #fff;
+  border-top: 1px solid fade(@border-color-base, 75%);
+}
+
+.footerComposer {
+  padding: 12px;
+  border: 1px solid #e2e2e2;
+  border-radius: 12px;
+  background: #f2f4f7;
+  box-shadow: none;
+  transition: border-color 0.18s ease, background-color 0.18s ease;
+
+  &:focus-within {
+    background: #ffffff;
+    border-color: @primary-color;
+  }
+
+  :global {
+    .ant-input {
+      padding: 0;
+      box-shadow: none;
+      resize: none;
+      color: @heading-color;
+      font-size: 14px;
+      line-height: 24px;
+      background: transparent;
+      outline: none;
+      border: none !important;
+
+      &::placeholder {
+        color: #71829d;
+      }
+
+      &:focus,
+      &:hover {
+        border-color: none;
+        box-shadow: none;
+      }
+    }
+  }
+}
+
+.footerTextarea {
+
+
+}
+
+.footerActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.footerClearButton {
+  border: 0;
+  box-shadow: none;
+  color: #65758f;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 0 10px;
+  background: transparent;
+
+  &:hover,
+  &:focus {
+    color: @heading-color;
+    background: #edf1f7;
+    border-color: transparent;
+  }
+}
+
+.footerClearButton:disabled,
+.footerClearButton:global(.ant-btn[disabled]) {
+  color: fade(#65758f, 55%);
+  background: transparent;
+  border-color: transparent;
+}
+
+.footerSendButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  padding: 0 12px;
+}
+
+.footerSendIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.footerSendIconSvg {
+  width: 14px;
+  height: 14px;
+  display: block;
+}
+
+@media (max-width: 767px) {
+  .agentPanelPush {
+    box-shadow: none;
+  }
+
+  .messagesPanel {
+    padding: 16px;
+  }
+
+  .contextPanel,
+  .footer {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .footerComposer {
+    padding: 14px 14px 12px;
+  }
+
+  .footerActions {
+    gap: 12px;
+    margin-top: 14px;
+  }
+}

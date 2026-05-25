@@ -58,11 +58,12 @@ const UpgradeStatusIcon = ({ className }) => (
   </svg>
 );
 
-@connect(({ loading, global, user }) => ({
+@connect(({ loading, global, user, agent }) => ({
   viewLoading: loading.effects['user/addCollectionView'],
   collapsed: global.collapsed,
   rainbondInfo: global.rainbondInfo,
-  currentUser: user.currentUser
+  currentUser: user.currentUser,
+  agentVisible: !!(agent && agent.visible)
 }))
 export default class GlobalRouter extends PureComponent {
   constructor(props) {
@@ -80,6 +81,7 @@ export default class GlobalRouter extends PureComponent {
     // 初始化展开状态
     this.initExpandedKeys();
     this.fetchPlatformUpdateStatus();
+    this.syncCollapsedWithAgent();
   }
 
   componentDidUpdate(prevProps) {
@@ -94,6 +96,14 @@ export default class GlobalRouter extends PureComponent {
       prevProps.rainbondInfo?.version?.value !== this.props.rainbondInfo?.version?.value
     ) {
       this.fetchPlatformUpdateStatus();
+    }
+
+    if (
+      prevProps.agentVisible !== this.props.agentVisible ||
+      prevProps.collapsed !== this.props.collapsed ||
+      prevProps.showMenu !== this.props.showMenu
+    ) {
+      this.syncCollapsedWithAgent();
     }
   }
 
@@ -220,13 +230,30 @@ export default class GlobalRouter extends PureComponent {
   };
 
   /**
+   * 统一更新菜单折叠状态，并同步本地持久化。
+   */
+  setCollapsedState = nextCollapsed => {
+    const { onCollapse } = this.props;
+    onCollapse && onCollapse(nextCollapsed);
+    window.localStorage.setItem('collapsed', String(nextCollapsed));
+  };
+
+  /**
+   * Agent 展开时强制收起菜单，避免双侧同时挤压内容区。
+   */
+  syncCollapsedWithAgent = () => {
+    const { agentVisible, collapsed, showMenu } = this.props;
+    if (showMenu && agentVisible && !collapsed) {
+      this.setCollapsedState(true);
+    }
+  };
+
+  /**
    * 切换折叠状态
    */
   toggleCollapsed = () => {
-    const { onCollapse, collapsed } = this.props;
-    const newCollapsed = !collapsed;
-    onCollapse && onCollapse(newCollapsed);
-    window.localStorage.setItem('collapsed', newCollapsed);
+    const { collapsed } = this.props;
+    this.setCollapsedState(!collapsed);
   };
 
   /**
@@ -416,9 +443,9 @@ export default class GlobalRouter extends PureComponent {
    * 渲染底部收起按钮
    */
   renderCollapseButton = () => {
-    const { collapsed, isAppOverview } = this.props;
+    const { collapsed, isAppOverview, agentVisible } = this.props;
 
-    if (isAppOverview) return null;
+    if (isAppOverview || agentVisible) return null;
 
     const button = (
       <div className={`${styles.collapseButton} ${collapsed ? styles.collapsed : ''}`} onClick={this.toggleCollapsed}>
@@ -490,7 +517,8 @@ export default class GlobalRouter extends PureComponent {
   };
 
   render() {
-    const { showMenu, collapsed } = this.props;
+    const { showMenu, collapsed, agentVisible } = this.props;
+    const menuFooterClassName = `${styles.menuFooter} ${agentVisible ? styles.menuFooterAgentOpen : ''}`;
 
     return (
       <div
@@ -505,7 +533,7 @@ export default class GlobalRouter extends PureComponent {
         </div>
 
         {/* 底部：升级提示和收起按钮 */}
-        <div className={styles.menuFooter}>
+        <div className={menuFooterClassName}>
           {this.renderUpgradeEntry()}
           {this.renderCollapseButton()}
         </div>

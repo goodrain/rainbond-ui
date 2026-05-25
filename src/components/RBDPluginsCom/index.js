@@ -75,6 +75,10 @@ export default class index extends Component {
               pluginsList: this.props.pluginsList,
               overviewInfo: this.props.overviewInfo,
               appDetail: this.props.appDetail,
+              // 插件所在 region（宿主加载该插件时使用的 region）。插件后端 API 路径
+              // /console/regions/{region_name}/backend/plugins/... 需要它，不能靠插件
+              // 自己从 URL 解析（插件路由 URL 未必含 region 段）。
+              region_name: this.props.regionName || Global.getCurrRegionName(),
             }}
             globalUtile={Global}
             jumpRouter={this.jumpRouter}

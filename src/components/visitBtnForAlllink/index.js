@@ -15,6 +15,38 @@ import { formatMessage } from '@/utils/intl';
 
 // @connect(({ user, appControl, global }) => ({ visitInfo: appControl.visitInfo }))
 export default class Index extends PureComponent {
+  renderTrigger = (type, content, onClick) => {
+    const { children, className, color, style } = this.props;
+    const triggerContent = children || content;
+
+    if (type === 'link') {
+      const linkStyle = children
+        ? { color: color || undefined, ...style }
+        : { fontSize: '14px', color: color || undefined, ...style };
+
+      return (
+        <a
+          className={className}
+          style={linkStyle}
+          onClick={onClick}
+        >
+          {triggerContent}
+        </a>
+      );
+    }
+
+    return (
+      <Button
+        type={type}
+        className={className}
+        style={style}
+        onClick={onClick}
+      >
+        {triggerContent}
+      </Button>
+    );
+  };
+
   renderHttpPort = (visitInfo, type) => {
     /** 筛选出里面有必须url */
     const links = [];
@@ -51,26 +83,13 @@ export default class Index extends PureComponent {
           title={formatMessage({id:'tooltip.visit'})}
           placement="topRight"
         >
-          {type === 'link' ? (
-            <a
-              style={{ fontSize: '14px', color: this.props.color || undefined }}
-              onClick={e => {
-                e.stopPropagation();
-                window.open(singleLink);
-              }}
-            >
-             <FormattedMessage id='componentOverview.header.right.visit'/>
-            </a>
-          ) : (
-            <Button
-              type={type}
-              onClick={e => {
-                e.stopPropagation();
-                window.open(singleLink);
-              }}
-            >
-              <FormattedMessage id='componentOverview.header.right.visit'/>
-            </Button>
+          {this.renderTrigger(
+            type,
+            <FormattedMessage id='componentOverview.header.right.visit' />,
+            e => {
+              e.stopPropagation();
+              window.open(singleLink);
+            }
           )}
         </Tooltip>
       ) : null;
@@ -110,10 +129,9 @@ export default class Index extends PureComponent {
           }
           placement="bottomRight"
         >
-          {type === 'link' ? (
-            <a style={{ fontSize: '14px', color: this.props.color || undefined }}><FormattedMessage id='componentOverview.header.right.visit'/></a>
-          ) : (
-            <Button type={type}><FormattedMessage id='componentOverview.header.right.visit'/></Button>
+          {this.renderTrigger(
+            type,
+            <FormattedMessage id='componentOverview.header.right.visit' />
           )}
         </Dropdown>
       </Tooltip>
