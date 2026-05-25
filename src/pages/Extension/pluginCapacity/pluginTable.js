@@ -189,19 +189,59 @@ class Index extends PureComponent {
                         loading: false
                     })
                 } else {
-                    this.setState({
-                        pluginList: [],
-                        loading: false
-                    })
+                    this.handleInstalledPluginList(eid);
+                }
+            },
+            handleError: () => {
+                this.handleInstalledPluginList(eid);
+            }
+        })
+    }
+
+    normalizeInstalledPlugin = plugin => ({
+        ...plugin,
+        plugin_id: plugin.plugin_id || plugin.name,
+        plugin_name: plugin.plugin_name || plugin.alias || plugin.display_name || plugin.name,
+        description: plugin.description || '',
+        installed: true,
+        installed_version: plugin.installed_version || plugin.version || '',
+        can_upgrade: false,
+        upgradeable: false,
+        latest_version: plugin.latest_version || '',
+        author: plugin.author || 'Rainbond 官方',
+        app_level: plugin.app_level || plugin.appLevel || 'enterprise'
+    })
+
+    handleInstalledPluginList = (eid, callback) => {
+        const { dispatch, regionName } = this.props;
+        dispatch({
+            type: 'teamControl/fetchPluginUrl',
+            payload: {
+                enterprise_id: eid,
+                region_name: regionName,
+            },
+            callback: res => {
+                const plugins = res && res.list && res.list.length > 0
+                    ? res.list.map(item => this.normalizeInstalledPlugin(item))
+                    : [];
+                this.setState({
+                    pluginList: plugins,
+                    loading: false
+                });
+                if (callback) {
+                    callback(plugins);
                 }
             },
             handleError: () => {
                 this.setState({
                     pluginList: [],
                     loading: false
-                })
+                });
+                if (callback) {
+                    callback([]);
+                }
             }
-        })
+        });
     }
 
     onJumpApp = (value, tab = 'upgrade') => {
@@ -454,6 +494,18 @@ class Index extends PureComponent {
         });
     }
 
+    completeInstallIfRunning = (pluginId, plugins) => {
+        const target = plugins.find(p => p.plugin_id === pluginId);
+        const status = target && `${target.status || ''}`.toUpperCase();
+        if (target && status === 'RUNNING') {
+            this.stopInstallPolling();
+            this.setState(prev => ({
+                installingPlugins: { ...prev.installingPlugins, [pluginId]: false },
+                installModalPhase: 'RUNNING',
+            }));
+        }
+    }
+
     startInstallPolling = (pluginId) => {
         this.stopInstallPolling();
         this.installPollTimer = setInterval(() => {
@@ -470,14 +522,11 @@ class Index extends PureComponent {
                 callback: res => {
                     if (res && res.list && res.list.length > 0) {
                         this.setState({ pluginList: res.list });
-                        const target = res.list.find(p => p.plugin_id === pluginId);
-                        if (target && target.status === 'RUNNING') {
-                            this.stopInstallPolling();
-                            this.setState(prev => ({
-                                installingPlugins: { ...prev.installingPlugins, [pluginId]: false },
-                                installModalPhase: 'RUNNING',
-                            }));
-                        }
+                        this.completeInstallIfRunning(pluginId, res.list);
+                    } else {
+                        this.handleInstalledPluginList(eid, plugins => {
+                            this.completeInstallIfRunning(pluginId, plugins);
+                        });
                     }
                 },
             });
