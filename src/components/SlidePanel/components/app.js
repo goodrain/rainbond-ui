@@ -75,6 +75,9 @@ export default class app extends Component {
     };
   }
   componentDidMount() {
+    if (!globalUtil.getAppID()) {
+      return;
+    }
     this.loading();
     this.handleArchCpuInfo();
     this.handleWaitLevel();
@@ -395,6 +398,9 @@ export default class app extends Component {
       return null;
     }
     this[timerName] = setTimeout(() => {
+      if (!globalUtil.getAppID()) {
+        return;
+      }
       callback();
     }, times);
   };
