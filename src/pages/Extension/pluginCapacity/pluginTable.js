@@ -183,7 +183,9 @@ class Index extends PureComponent {
                 region_name: regionName,
             },
             callback: res => {
-                if (res && res.list && res.list.length > 0) {
+                // 接口正常返回数组就信任它，即便是空数组 (市场未匹配到任何插件 / 全被集群 arch 过滤)。
+                // 只有响应结构异常时才退化到"已安装列表"，避免空响应让整个列表闪烁消失。
+                if (res && Array.isArray(res.list)) {
                     this.setState({
                         pluginList: res.list,
                         loading: false
