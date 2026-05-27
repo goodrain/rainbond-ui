@@ -6,6 +6,7 @@ import { importAppPagePlugin } from '@/utils/importPlugins';
 import EnterprisePluginsCom from '../EnterprisePluginsCom'
 import Global from '@/utils/global';
 import PluginUtil from '@/utils/pulginUtils';
+import { resolvePluginRegionName } from '@/utils/pluginRegion';
 import theme from '../../../config/theme';
 // import styles from './index.less';
 
@@ -31,7 +32,11 @@ export default class Backup extends Component {
   loadEnterpriseClusters = () => {
     const urlParams = new URLSearchParams(window.location.search || window.location.hash.split('?')[1]);
     const region_name = urlParams.get('regionName');
-    const regionName = Global.getCurrRegionName() || this.props?.match?.params?.regionID  || region_name 
+    const regionName = resolvePluginRegionName({
+      currRegionName: Global.getCurrRegionName(),
+      queryRegionName: region_name,
+      routeRegionId: this.props?.match?.params?.regionID
+    });
     this.loadPluginList(regionName);
   };
   loadPluginList = (regionName) => {
