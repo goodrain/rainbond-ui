@@ -7,7 +7,6 @@ import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import RbdPluginsCom from '../../components/RBDPluginsCom'
 import Global from '@/utils/global';
 import PluginUtil from '../../utils/pulginUtils';
-import { resolvePluginRegionName } from '../../utils/pluginRegion';
 import { renderPlatformPluginIcon } from '../../utils/platformPluginIcon';
 import { routerRedux } from 'dva/router';
 import { formatMessage } from '@/utils/intl';
@@ -137,11 +136,7 @@ export default class Index extends Component {
   loadEnterpriseClusters = () => {
     const urlParams = new URLSearchParams(window.location.search || window.location.hash.split('?')[1]);
     const region_name = urlParams.get('regionName');
-    const regionName = resolvePluginRegionName({
-      currRegionName: Global.getCurrRegionName(),
-      queryRegionName: region_name,
-      routeRegionId: this.props?.match?.params?.regionID
-    });
+    const regionName = Global.getCurrRegionName() || this.props?.match?.params?.regionID || region_name
     this.setState({ regionName });
     this.loadPluginList(regionName);
   };
