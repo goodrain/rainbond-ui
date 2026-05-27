@@ -22,7 +22,16 @@ function getVisibleComponentPlugins(pluginList = [], appDetail = {}) {
   );
 }
 
+function getComponentPluginTabName(plugin = {}, monitorLabel = '监控') {
+  if (plugin.name === 'rainbond-vm') {
+    return monitorLabel;
+  }
+
+  return plugin.display_name || plugin.alias || plugin.name;
+}
+
 module.exports = {
+  getComponentPluginTabName,
   getVisibleComponentPlugins,
   shouldShowComponentPluginTab
 };

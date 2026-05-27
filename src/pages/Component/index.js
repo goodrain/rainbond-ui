@@ -67,7 +67,7 @@ import PluginUtile from '../../utils/pulginUtils'
 import { ResumeContext } from "./funContext";
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
-import { getVisibleComponentPlugins } from './componentPluginHelpers';
+import { getComponentPluginTabName, getVisibleComponentPlugins } from './componentPluginHelpers';
 import { shouldShowGenericVisitAction } from './visitActionHelpers';
 
 const FormItem = Form.Item;
@@ -1463,7 +1463,10 @@ class Main extends PureComponent {
       CompluginList.forEach(item => {
         tabs.push({
           key: item.name,
-          tab: item.display_name
+          tab: getComponentPluginTabName(
+            item,
+            formatMessage({ id: 'componentOverview.body.tab.bar.monitor' })
+          )
         });
       })
     }

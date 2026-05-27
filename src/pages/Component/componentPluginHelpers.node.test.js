@@ -1,5 +1,6 @@
 const assert = require('assert');
 const {
+  getComponentPluginTabName,
   getVisibleComponentPlugins,
   shouldShowComponentPluginTab
 } = require('./componentPluginHelpers');
@@ -20,6 +21,24 @@ assert.strictEqual(
   ),
   true,
   'should keep the virtual machine plugin tab for vm components'
+);
+
+assert.strictEqual(
+  getComponentPluginTabName({ name: 'rainbond-vm', display_name: '虚拟机' }, '监控'),
+  '监控',
+  'should display the VM component plugin tab as monitoring'
+);
+
+assert.strictEqual(
+  getComponentPluginTabName({ name: 'rainbond-vm', display_name: 'VM' }, 'Monitor'),
+  'Monitor',
+  'should use the host locale label for the VM component plugin tab'
+);
+
+assert.strictEqual(
+  getComponentPluginTabName({ name: 'custom-plugin', display_name: '自定义插件' }),
+  '自定义插件',
+  'should keep normal component plugin tab names unchanged'
 );
 
 assert.deepStrictEqual(
