@@ -169,11 +169,6 @@ class VMProfilePanel extends PureComponent {
     }
   };
 
-  getRuntimeStatus = () => {
-    const { vmProfile = {} } = this.props;
-    return vmProfile.runtime_status || {};
-  };
-
   getInitialFormValues = (runtime = this.getRuntime()) => ({
     gpu_enabled: !!runtime.gpu_enabled,
     gpu_resources: runtime.gpu_resources || [],
@@ -601,7 +596,6 @@ class VMProfilePanel extends PureComponent {
     } = this.state;
     const asset = vmProfile.asset || {};
     const runtime = this.getRuntime();
-    const runtimeStatus = this.getRuntimeStatus();
     const connections = vmProfile.connections || {};
     const { clusterIP } = this.state;
     const overviewColStyle = { display: 'flex' };
@@ -646,11 +640,6 @@ class VMProfilePanel extends PureComponent {
                 {this.renderLine(
                   formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetSource' }),
                   this.getSourceLabel(asset.source_type)
-                )}
-                {this.renderLine(formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetStatus' }), asset.status)}
-                {this.renderLine(
-                  formatMessage({ id: 'componentOverview.body.tab.overview.vmRuntimeStatus' }),
-                  runtimeStatus.status_cn || runtimeStatus.status
                 )}
                 {this.renderLine(
                   formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetArchFormat' }),
