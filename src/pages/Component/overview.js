@@ -816,6 +816,7 @@ export default class Index extends PureComponent {
           socket={socket}
           method={method}
           vmProfile={appDetail?.vm_profile}
+          vmDiskAllocation={appDetail?.service?.disk_cap}
           showStorageUsed={showStorageUsed}
           storageUsed={storageUsed}
         />

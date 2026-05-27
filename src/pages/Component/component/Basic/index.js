@@ -129,6 +129,7 @@ class Index extends PureComponent {
       isThird,
       method,
       vmProfile,
+      vmDiskAllocation,
       showStorageUsed,
       storageUsed
     } = this.props;
@@ -145,9 +146,19 @@ class Index extends PureComponent {
       ) : (
         numeral(memory).format('0,0')
       );
-    const showDiskOccupy = method !== 'vm';
-    const diskDisplay = showStorageUsed ? storageUsed?.value : numeral(disk).format('0,0');
-    const diskUnit = showStorageUsed ? storageUsed?.unit : 'MB';
+    const isVM = method === 'vm';
+    const normalizedVmDiskAllocation =
+      vmDiskAllocation === undefined || vmDiskAllocation === null || vmDiskAllocation === ''
+        ? null
+        : Number(vmDiskAllocation);
+    const diskDisplay = isVM
+      ? normalizedVmDiskAllocation === null || Number.isNaN(normalizedVmDiskAllocation)
+        ? '-'
+        : numeral(normalizedVmDiskAllocation).format('0,0')
+      : showStorageUsed
+      ? storageUsed?.value
+      : numeral(disk).format('0,0');
+    const diskUnit = isVM ? 'Gi' : showStorageUsed ? storageUsed?.unit : 'MB';
 
     // 状态相关
     const hasStatus = status && Object.keys(status).length > 0;
@@ -236,21 +247,19 @@ class Index extends PureComponent {
                     </Fragment>
                   )}
                 </div>
-                {showDiskOccupy && (
-                  <div className={styles.basicInfoItem}>
-                    {Svg.getSvg('zhanyong', 16, 'text-color-secondary')}
-                    <FormattedMessage id="componentOverview.body.tab.overview.occupy" />
-                    {!resourcesLoading && (
-                      <Fragment>
-                        <Tooltip title={diskDisplay}>
-                          <span className={styles.basicInfoValue}>{diskDisplay}</span>
-                        </Tooltip>
-                        {diskUnit}&nbsp;
-                        {formatMessage({ id: 'componentOverview.body.tab.overview.disk' })}
-                      </Fragment>
-                    )}
-                  </div>
-                )}
+                <div className={styles.basicInfoItem}>
+                  {Svg.getSvg('zhanyong', 16, 'text-color-secondary')}
+                  <FormattedMessage id="componentOverview.body.tab.overview.occupy" />
+                  {!resourcesLoading && (
+                    <Fragment>
+                      <Tooltip title={diskDisplay}>
+                        <span className={styles.basicInfoValue}>{diskDisplay}</span>
+                      </Tooltip>
+                      {diskUnit}&nbsp;
+                      {formatMessage({ id: 'componentOverview.body.tab.overview.disk' })}
+                    </Fragment>
+                  )}
+                </div>
                 {/* 版本号 + 查看更多版本 */}
                 <div className={styles.basicInfoItem} style={{ minWidth: 'auto' }}>
                   {method === 'vm'
