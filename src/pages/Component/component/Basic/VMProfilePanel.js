@@ -128,11 +128,6 @@ class VMProfilePanel extends PureComponent {
     return this.state.runtimeDraft || runtime;
   };
 
-  getCurrentPodIP = () => {
-    const { vmProfile = {} } = this.props;
-    return vmProfile.current_pod_ip || '';
-  };
-
   fetchClusterIP = async () => {
     const { serviceAlias } = this.props;
     if (!serviceAlias) {
@@ -608,7 +603,6 @@ class VMProfilePanel extends PureComponent {
     const runtime = this.getRuntime();
     const runtimeStatus = this.getRuntimeStatus();
     const connections = vmProfile.connections || {};
-    const currentPodIP = this.getCurrentPodIP();
     const { clusterIP } = this.state;
     const overviewColStyle = { display: 'flex' };
     const overviewCardStyle = {
@@ -677,18 +671,10 @@ class VMProfilePanel extends PureComponent {
               bodyStyle={overviewCardBodyStyle}
             >
               <div style={overviewCardContentStyle}>
-                {this.renderLine(
-                  formatMessage({ id: 'componentOverview.body.tab.overview.vmCurrentPodIP' }),
-                  currentPodIP
-                )}
                 {clusterIP ? this.renderLine(
                   formatMessage({ id: 'componentOverview.body.tab.overview.vmClusterIP' }),
                   clusterIP
                 ) : null}
-                {this.renderLine(
-                  formatMessage({ id: 'componentOverview.body.tab.overview.vmBootMode' }),
-                  runtime.boot_mode
-                )}
               </div>
             </Card>
           </Col>
