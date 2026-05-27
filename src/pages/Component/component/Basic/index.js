@@ -145,6 +145,7 @@ class Index extends PureComponent {
       ) : (
         numeral(memory).format('0,0')
       );
+    const showDiskOccupy = method !== 'vm';
     const diskDisplay = showStorageUsed ? storageUsed?.value : numeral(disk).format('0,0');
     const diskUnit = showStorageUsed ? storageUsed?.unit : 'MB';
 
@@ -235,20 +236,21 @@ class Index extends PureComponent {
                     </Fragment>
                   )}
                 </div>
-                {/* 资源占用 */}
-                <div className={styles.basicInfoItem}>
-                  {Svg.getSvg('zhanyong', 16, 'text-color-secondary')}
-                  <FormattedMessage id="componentOverview.body.tab.overview.occupy" />
-                  {!resourcesLoading && (
-                    <Fragment>
-                      <Tooltip title={diskDisplay}>
-                        <span className={styles.basicInfoValue}>{diskDisplay}</span>
-                      </Tooltip>
-                      {diskUnit}&nbsp;
-                      {formatMessage({ id: 'componentOverview.body.tab.overview.disk' })}
-                    </Fragment>
-                  )}
-                </div>
+                {showDiskOccupy && (
+                  <div className={styles.basicInfoItem}>
+                    {Svg.getSvg('zhanyong', 16, 'text-color-secondary')}
+                    <FormattedMessage id="componentOverview.body.tab.overview.occupy" />
+                    {!resourcesLoading && (
+                      <Fragment>
+                        <Tooltip title={diskDisplay}>
+                          <span className={styles.basicInfoValue}>{diskDisplay}</span>
+                        </Tooltip>
+                        {diskUnit}&nbsp;
+                        {formatMessage({ id: 'componentOverview.body.tab.overview.disk' })}
+                      </Fragment>
+                    )}
+                  </div>
+                )}
                 {/* 版本号 + 查看更多版本 */}
                 <div className={styles.basicInfoItem} style={{ minWidth: 'auto' }}>
                   {method === 'vm'
