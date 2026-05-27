@@ -24,6 +24,12 @@ const {
   isVMStoppedStatus,
   shouldShowRestartTipsAfterVolumeSubmit
 } = require('./mntNoticeHelpers');
+const {
+  appendContainerDiskDraft,
+  normalizeVMDiskDraft,
+  removeContainerDiskDraft,
+  serializeVMDiskLayout
+} = require('./vmDiskDraftHelpers');
 
 @connect(
   ({ appControl }) => ({
@@ -80,7 +86,21 @@ export default class Index extends PureComponent {
 
   onDeleteMnt = mnt => this.setState({ toDeleteMnt: mnt });
 
-  onDeleteVolume = data => this.setState({ toDeleteVolume: data });
+  onDeleteVolume = data => {
+    if (data.source_kind === 'installer_media') {
+      this.removeInstallerDisk(data.disk_key);
+      return;
+    }
+    if (data.source_kind === 'container_disk') {
+      this.removeContainerDisk(data.disk_key);
+      return;
+    }
+    if (data.disk_key === 'disk' || data.disk_role === 'root') {
+      notification.warning({ message: formatMessage({ id: 'notification.warn.vm_system_disk_cannot_delete' }) });
+      return;
+    }
+    this.setState({ toDeleteVolume: data });
+  };
 
   onEditVolume = data => this.setState({ showAddVar: data, editor: data });
 
@@ -212,6 +232,12 @@ export default class Index extends PureComponent {
       }
       this.remindInfo();
     };
+
+    if (this.props.method === 'vm' && vals.source_kind === 'container_disk') {
+      this.updateVmDiskDraft(current => appendContainerDiskDraft(current, vals));
+      this.handleCancelAddVar();
+      return;
+    }
 
     if (editor) {
       dispatch({
@@ -392,27 +418,20 @@ export default class Index extends PureComponent {
   handleVmDiskSource = sourceKind => {
     const sourceMap = {
       volume: formatMessage({ id: 'componentOverview.body.mnt.vmDiskSource.volume' }),
-      installer_media: formatMessage({ id: 'componentOverview.body.mnt.vmDiskSource.installer' })
+      installer_media: formatMessage({ id: 'componentOverview.body.mnt.vmDiskSource.installer' }),
+      container_disk: formatMessage({ id: 'componentOverview.body.mnt.vmDiskSource.containerDisk' })
     };
     return sourceMap[sourceKind] || '-';
   };
 
   getVmDiskDraft = () => {
     const { vmDiskDraft = [] } = this.state;
-    return vmDiskDraft.map((item, index) => ({
-      ...item,
-      order_index: index,
-      boot: index === 0
-    }));
+    return normalizeVMDiskDraft(vmDiskDraft);
   };
 
   updateVmDiskDraft = updater => {
     const current = this.getVmDiskDraft();
-    const next = updater(current).map((item, index) => ({
-      ...item,
-      order_index: index,
-      boot: index === 0
-    }));
+    const next = normalizeVMDiskDraft(updater(current));
     this.setState({
       vmDiskDraft: next,
       vmDiskChanged: true
@@ -439,17 +458,13 @@ export default class Index extends PureComponent {
     );
   };
 
+  removeContainerDisk = diskKey => {
+    this.updateVmDiskDraft(current => removeContainerDiskDraft(current, diskKey));
+  };
+
   handleSaveVmDiskLayout = () => {
     const { dispatch, appAlias } = this.props;
-    const disks = this.getVmDiskDraft().map(item => ({
-      disk_key: item.disk_key,
-      disk_name: item.disk_name,
-      disk_role: item.disk_role,
-      device_type: item.device_type,
-      source_kind: item.source_kind,
-      order_index: item.order_index,
-      boot: item.boot
-    }));
+    const disks = serializeVMDiskLayout(this.getVmDiskDraft());
     this.setState({ vmDiskSaving: true });
     dispatch({
       type: 'appControl/updateVMDiskLayout',
@@ -531,6 +546,11 @@ export default class Index extends PureComponent {
       render: text => <span>{this.handleVmDiskSource(text)}</span>
     },
     {
+      title: formatMessage({ id: 'componentOverview.body.AddVolumes.image' }),
+      dataIndex: 'image',
+      render: text => <span>{text || '-'}</span>
+    },
+    {
       title: formatMessage({ id: 'componentOverview.body.mnt.vmDiskOrder' }),
       dataIndex: 'order_index',
       render: (_, __, index) => <span>{index + 1}</span>
@@ -538,11 +558,15 @@ export default class Index extends PureComponent {
     {
       title: formatMessage({ id: 'Vm.createVm.capacity' }),
       dataIndex: 'volume_capacity',
-      render: text => (
-        text === 0 || text === undefined || text === null
-          ? <span>{formatMessage({ id: 'appOverview.no_limit' })}</span>
-          : <span>{text}GB</span>
-      )
+      render: (text, record) => {
+        if (record.source_kind === 'container_disk' || record.source_kind === 'installer_media') {
+          return <span>-</span>;
+        }
+        if (text === 0 || text === undefined || text === null) {
+          return <span>{formatMessage({ id: 'appOverview.no_limit' })}</span>;
+        }
+        return <span>{text}GB</span>;
+      }
     },
     {
       title: formatMessage({ id: 'Vm.createVm.handle' }),
@@ -833,7 +857,7 @@ export default class Index extends PureComponent {
                 >
                   {formatMessage({ id: 'button.save' })}
                 </Button>
-                <Button onClick={this.handleAddVar} disabled={vmAddVolumeOpts.length === 0}>
+                <Button onClick={this.handleAddVar}>
                   <Icon type="plus" />
                   {formatMessage({ id: 'componentOverview.body.mnt.add_storage' })}
                 </Button>
