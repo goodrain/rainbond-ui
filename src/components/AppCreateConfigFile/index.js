@@ -37,6 +37,22 @@ const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;
 const { Option } = Select;
 const SOURCE_BUILD_CONFIG_KEY = 'source_build_config';
+const DEFAULT_VM_MEMORY_MB = 1024 * 8;
+const DEFAULT_VM_CPU_MILLICORES = 4000;
+const DEFAULT_VM_DISK_GB = 30;
+
+const normalizeVmServiceResources = service => {
+  const minMemory = Number(service && service.min_memory);
+  const minCpu = Number(service && service.min_cpu);
+  const diskCap = Number(service && service.disk_cap);
+
+  return {
+    minMemory: minMemory > 0 ? minMemory : DEFAULT_VM_MEMORY_MB,
+    minCpu: minCpu > 0 ? minCpu : DEFAULT_VM_CPU_MILLICORES,
+    diskCap: diskCap > 0 ? diskCap : DEFAULT_VM_DISK_GB
+  };
+};
+
 const readSourceBuildConfig = () => {
   if (typeof window === 'undefined' || !window.sessionStorage) {
     return null;
@@ -855,6 +871,7 @@ class BaseInfo extends PureComponent {
 class VirtualMachineBaseInfo extends PureComponent {
   constructor(props) {
     super(props)
+    const vmResources = normalizeVmServiceResources(props.appDetail && props.appDetail.service)
     this.state = {
       memoryList: [
         {
@@ -879,9 +896,9 @@ class VirtualMachineBaseInfo extends PureComponent {
         }
       ],
       is_flag: false,
-      setUnit: (props.appDetail.service.min_memory % 1024 === 0) ? 'G' : 'M',
-      setUnitDisk: (props.appDetail.service.disk_cap % 1024 === 0) ? 'G' : 'M',
-      memoryValue: props.appDetail && props.appDetail.service && props.appDetail.service.min_memory && this.handleMinMemory(props.appDetail.service.min_memory),
+      setUnit: (vmResources.minMemory % 1024 === 0) ? 'G' : 'M',
+      setUnitDisk: 'G',
+      memoryValue: this.handleMinMemory(vmResources.minMemory, vmResources.minCpu),
       volumeOpts: [],
       rootDiskVolumeType: '',
     }
@@ -1013,18 +1030,17 @@ class VirtualMachineBaseInfo extends PureComponent {
       memoryValue: value.target.value
     })
   }
-  handleMinMemory = (val) => {
+  handleMinMemory = (val, cpuValue = normalizeVmServiceResources(this.props.appDetail && this.props.appDetail.service).minCpu) => {
     if (val !== 2048 && val !== 1024 * 4 && val !== 1024 * 8 && val !== 1024 * 16) {
       return "custom"
     } else {
-      const { appDetail } = this.props;
-      if (val === 2048 && appDetail.service.min_cpu === 2000) {
+      if (val === 2048 && cpuValue === 2000) {
         return 2048
-      } else if (val === 1024 * 4 && appDetail.service.min_cpu === 2000) {
+      } else if (val === 1024 * 4 && cpuValue === 2000) {
         return 1024 * 4
-      } else if (val === 1024 * 8 && appDetail.service.min_cpu === 4000) {
+      } else if (val === 1024 * 8 && cpuValue === 4000) {
         return 1024 * 8
-      } else if (val === 1024 * 16 && appDetail.service.min_cpu === 4000) {
+      } else if (val === 1024 * 16 && cpuValue === 4000) {
         return 1024 * 16
       }
     }
@@ -1036,10 +1052,12 @@ class VirtualMachineBaseInfo extends PureComponent {
     const { getFieldDecorator } = form;
     const {
       extend_method: extendMethod,
-      min_memory,
-      min_cpu,
-      disk_cap
     } = appDetail.service;
+    const {
+      minMemory,
+      minCpu,
+      diskCap
+    } = normalizeVmServiceResources(appDetail.service);
     const { setUnit, memoryValue, volumeOpts } = this.state
     const formItemLayout = {
       labelCol: {
@@ -1095,7 +1113,7 @@ class VirtualMachineBaseInfo extends PureComponent {
         {memoryValue == "custom" &&
           <Form.Item {...formItemLayout} label='CPU'>
             {getFieldDecorator('min_cpu', {
-              initialValue: min_cpu || 0,
+              initialValue: minCpu || 0,
               rules: [
                 {
                   required: true,
@@ -1117,7 +1135,7 @@ class VirtualMachineBaseInfo extends PureComponent {
             label={formatMessage({ id: 'Vm.createVm.memory' })}
           >
             {getFieldDecorator('memory_value', {
-              initialValue: (`${min_memory % 1024 === 0 ? min_memory / 1024 : min_memory}` * 1) || 0,
+              initialValue: (`${minMemory % 1024 === 0 ? minMemory / 1024 : minMemory}` * 1) || 0,
               rules: [
                 {
                   required: true,
@@ -1128,7 +1146,7 @@ class VirtualMachineBaseInfo extends PureComponent {
               <Input
                 style={{ width: '160px', margin: '4px 0px 0px 4px' }}
                 addonAfter={
-                  <Select value={setUnit ? setUnit : sourceUtil.getUnit(min_memory)} onChange={this.handleAfterChange}>
+                  <Select value={setUnit ? setUnit : sourceUtil.getUnit(minMemory)} onChange={this.handleAfterChange}>
                     <Option value="M">M</Option>
                     <Option value="G">G</Option>
                   </Select>
@@ -1138,7 +1156,7 @@ class VirtualMachineBaseInfo extends PureComponent {
         }
         <Form.Item {...formItemLayout} label={formatMessage({ id: 'Vm.createVm.disk' })}>
           {getFieldDecorator('disk_cap', {
-            initialValue: (`${disk_cap % 1024 === 0 ? disk_cap / 1024 : disk_cap}` * 1) || 0,
+            initialValue: diskCap || 0,
             rules: [
               {
                 required: true,
