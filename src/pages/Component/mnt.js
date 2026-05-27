@@ -17,7 +17,6 @@ import handleAPIError from '@/utils/error';
 import globalUtil from '../../utils/global';
 import { formatMessage } from '@/utils/intl';
 import { getVolumeTypeShowName } from '../../utils/utils';
-import { filterVMLiveMigrationVolumeOptions } from '../../utils/vmVolumeOptions';
 
 const {
   getVMStorageAlertKey,
@@ -675,8 +674,8 @@ export default class Index extends PureComponent {
       vmDiskChanged, vmDiskSaving
     } = this.state;
     const { volumes, vmDisks, method, appDetail, appAlias } = this.props;
-    const vmAddVolumeOpts = filterVMLiveMigrationVolumeOptions(this.state.volumeOpts);
-    const vmFormVolumeOpts = this.state.editor ? this.state.volumeOpts : vmAddVolumeOpts;
+    const vmAddVolumeOpts = this.state.volumeOpts;
+    const vmFormVolumeOpts = this.state.volumeOpts;
 
     if (!this.canView()) return <NoPermTip />;
     const volumeColumns = [

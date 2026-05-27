@@ -16,7 +16,7 @@ import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
 import {
   findVolumeOptionByType,
-  resolveVMLiveMigrationAccessMode
+  resolveVMStorageAccessMode
 } from '../../utils/vmVolumeOptions';
 
 
@@ -73,7 +73,7 @@ export default class AddVolumes extends PureComponent {
           return;
         }
         const selectedOption = findVolumeOptionByType(volumeOpts, values.volume_type);
-        values.access_mode = resolveVMLiveMigrationAccessMode(selectedOption);
+        values.access_mode = resolveVMStorageAccessMode(selectedOption);
         onSubmit(values);
       }
     });

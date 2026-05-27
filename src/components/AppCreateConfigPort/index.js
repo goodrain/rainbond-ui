@@ -36,7 +36,6 @@ import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
 import cookie from '@/utils/cookie';
 import { getVolumeTypeShowName } from '../../utils/utils';
-import { filterVMLiveMigrationVolumeOptions } from '../../utils/vmVolumeOptions';
 import handleAPIError from '../../utils/error';
 import styles from './setting.less';
 const { Panel } = Collapse;
@@ -867,7 +866,7 @@ class VmMnt extends PureComponent {
       },
       callback: data => {
         if (data) {
-          const volumeOpts = filterVMLiveMigrationVolumeOptions(data.list || []);
+          const volumeOpts = data.list || [];
           this.setState({
             volumeOpts
           });

@@ -26,9 +26,8 @@ import CodeBuildConfig from '../CodeBuildConfig';
 import PriceCard from '../../components/PriceCard';
 import handleAPIError from '../../utils/error';
 import {
-  filterVMLiveMigrationVolumeOptions,
   findVolumeOptionByType,
-  resolveVMLiveMigrationAccessMode
+  resolveVMStorageAccessMode
 } from '../../utils/vmVolumeOptions';
 const { mergeCreateRuntimeInfo } = require('../CodeBuildConfig/buildEnvHelpers');
 import styles from './setting.less';
@@ -922,7 +921,7 @@ class VirtualMachineBaseInfo extends PureComponent {
         app_alias: appDetail.service.service_alias
       },
       callback: data => {
-        const volumeOpts = filterVMLiveMigrationVolumeOptions((data && data.list) || []);
+        const volumeOpts = (data && data.list) || [];
         const defaultVolumeType = this.state.rootDiskVolumeType || (volumeOpts[0] && volumeOpts[0].volume_type) || '';
         this.setState({
           volumeOpts,
@@ -1013,7 +1012,7 @@ class VirtualMachineBaseInfo extends PureComponent {
         }
         fieldsValue.disk_cap = fieldsValue.disk_cap * 1
         const selectedVolumeOption = findVolumeOptionByType(volumeOpts, fieldsValue.disk_volume_type);
-        fieldsValue.disk_access_mode = resolveVMLiveMigrationAccessMode(selectedVolumeOption);
+        fieldsValue.disk_access_mode = resolveVMStorageAccessMode(selectedVolumeOption);
         onSubmit(fieldsValue);
       }
     });

@@ -11,13 +11,7 @@ export function normalizeVolumeAccessModes(option = {}) {
   return [];
 }
 
-export function filterVMLiveMigrationVolumeOptions(volumeOptions = []) {
-  return (volumeOptions || []).filter(option =>
-    normalizeVolumeAccessModes(option).includes('RWX')
-  );
-}
-
-export function resolveVMLiveMigrationAccessMode(option = {}) {
+export function resolveVMStorageAccessMode(option = {}) {
   const accessModes = normalizeVolumeAccessModes(option);
   if (accessModes.includes('RWX')) {
     return 'RWX';
