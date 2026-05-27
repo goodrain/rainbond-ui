@@ -392,6 +392,15 @@ class Index extends PureComponent {
         }
     }
 
+    isVirtualMachinePlugin = (plugin) => {
+        if (!plugin) {
+            return false;
+        }
+        return plugin.plugin_id === 'rainbond-vm'
+            || plugin.name === 'rainbond-vm'
+            || plugin.plugin_key === 'rainbond-vm';
+    }
+
     handleGoManage = () => {
         const { regionName } = this.props;
         const { confirmInstallPlugin, installResultBean } = this.state;
@@ -665,6 +674,21 @@ class Index extends PureComponent {
                                     <div className={styles.installConfirmSubtitle}>
                                         即将安装「{confirmInstallPlugin.plugin_name || confirmInstallPlugin.plugin_id}」
                                     </div>
+                                    {this.isVirtualMachinePlugin(confirmInstallPlugin) && (
+                                        <Alert
+                                            type="warning"
+                                            showIcon
+                                            className={styles.vmInstallNotice}
+                                            message="安装前请确认运行环境"
+                                            description={
+                                                <div className={styles.vmInstallNoticeContent}>
+                                                    <div>单机版或 All-in-One 快速安装环境不建议安装虚拟机插件。</div>
+                                                    <div>请确认服务器 CPU 支持并已开启虚拟化能力，例如 Intel VT-x 或 AMD-V。</div>
+                                                    <div>请确认集群节点、存储和网络满足虚拟机运行要求；确认无误后可继续安装。</div>
+                                                </div>
+                                            }
+                                        />
+                                    )}
                                     <div className={styles.installInfoCard}>
                                         <div className={styles.installInfoRow}>
                                             <span className={styles.installInfoLabel}>版本</span>
