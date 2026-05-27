@@ -5,6 +5,7 @@ const global = {
     'global.fetchStateText.RUNNING':'运行中',
     'global.fetchStateText.running':'运行中',
     'global.fetchStateText.starting':'启动中',
+    'global.fetchStateText.restoring':'恢复中',
     'global.fetchStateText.checking':'检测中',
     'global.fetchStateText.stopping':'关闭中',
     'global.fetchStateText.unusual':'运行异常',

@@ -321,6 +321,7 @@ const global = {
       RUNNING: '#00D777', // 运行中 绿色
       running: '#00D777', // 运行中 绿色
       starting: '#F69D4A', // 启动中
+      restoring: '#F69D4A', // 恢复中
       waiting: '#F69D4A', // 等待中
       WAITING: '#F69D4A', // 等待中
       Starting: '#F69D4A', // 启动中
@@ -2648,6 +2649,8 @@ const global = {
         'linear-gradient(to right, #00D777 0, #00D777 10px, #fff 10px, #fff 100%) no-repeat', // 已完成 绿色
       starting:
         'linear-gradient(to right, #F69D4A 0, #F69D4A 10px, #fff 10px, #fff 100%) no-repeat', // 启动中
+      restoring:
+        'linear-gradient(to right, #F69D4A 0, #F69D4A 10px, #fff 10px, #fff 100%) no-repeat', // 恢复中
       checking:
         'linear-gradient(to right, #F69D4A 0, #F69D4A 10px, #fff 10px, #fff 100%) no-repeat', // 检测中
       stopping:
@@ -2676,6 +2679,7 @@ const global = {
       RUNNING: formatMessage({ id: 'global.fetchStateText.RUNNING' }),
       running: formatMessage({ id: 'global.fetchStateText.running' }),
       starting: formatMessage({ id: 'global.fetchStateText.starting' }),
+      restoring: formatMessage({ id: 'global.fetchStateText.restoring' }),
       checking: formatMessage({ id: 'global.fetchStateText.checking' }),
       stopping: formatMessage({ id: 'global.fetchStateText.stopping' }),
       unusual: formatMessage({ id: 'global.fetchStateText.unusual' }),

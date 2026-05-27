@@ -5,6 +5,7 @@ const global = {
     'global.fetchStateText.RUNNING':'Running',
     'global.fetchStateText.running':'Running',
     'global.fetchStateText.starting':'Starting',
+    'global.fetchStateText.restoring':'Restoring',
     'global.fetchStateText.checking':'Checking',
     'global.fetchStateText.stopping':'Teminating',
     'global.fetchStateText.unusual':'Abnormal',
