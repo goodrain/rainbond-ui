@@ -1,0 +1,282 @@
+@import '~antd/lib/style/themes/default.less';
+
+.portalRoot {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(21, 90, 239, 0.12) 0, rgba(21, 90, 239, 0) 34%),
+    radial-gradient(circle at 82% 10%, rgba(24, 182, 51, 0.06) 0, rgba(24, 182, 51, 0) 26%),
+    linear-gradient(135deg, rgba(9, 14, 24, 0.62), rgba(14, 20, 34, 0.58));
+  backdrop-filter: blur(3px);
+}
+
+.dialogWrap {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+}
+
+.dialog {
+  width: 100%;
+  max-width: 1200px;
+  border-radius: 28px;
+  overflow: hidden;
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(12, 12, 12, 0.4), rgba(18, 18, 18, 0.4)),
+    linear-gradient(160deg, rgba(10, 10, 10, 0.4), rgba(22, 22, 22, 0.4));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+  animation: guideCarouselEnter 240ms ease-out;
+}
+
+.dialog::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0));
+  pointer-events: none;
+}
+
+.dialogHeader {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  z-index: 2;
+}
+
+.closeButton {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.74);
+  cursor: pointer;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.closeButton:hover {
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.contentShell {
+  padding: 20px 32px 30px;
+}
+
+.heroBlock {
+  margin-bottom: 24px;
+}
+
+.title {
+  color: #fff;
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.description {
+  max-width: 720px;
+  color: rgba(235, 242, 255, 0.82);
+  font-size: 13px;
+  line-height: 22px;
+}
+
+.groupsRow {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+}
+
+.groupCard {
+  min-width: 0;
+  min-height: 220px;
+  padding: 20px;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.groupCard:last-child {
+  border-right: none;
+}
+
+.groupIconOnly {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.groupDescription {
+  color: rgba(235, 242, 255, 0.8);
+  font-size: @rbd-content-size;
+  line-height: @rbd-content-line-height;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.groupHint {
+  color: rgba(235, 242, 255, 0.74);
+  font-size: 13px;
+  line-height: 22px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.groupSections {
+  display: flex;
+  gap: 14px;
+}
+
+
+.groupSubTitle {
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+}
+
+.groupTitleIcon,
+.groupSubTitleIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.groupTitleIcon {
+  width: 56px;
+  height: 56px;
+  color: #9ec2ff;
+  font-size: 12px;
+}
+
+.groupSubTitleIcon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.76);
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 11px;
+}
+
+.groupTitleIcon :global(svg),
+.groupSubTitleIcon :global(svg),
+.groupTitleIcon img {
+  width: 30px;
+  height: 30px;
+  display: block;
+}
+
+.groupTitleIcon img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.groupItemList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.groupItemCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.groupItemIndex {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(62, 129, 255, 0.14);
+  color: #9ec2ff;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.groupItemContent {
+  min-width: 0;
+}
+
+.groupItemTitle {
+  color: #fff;
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+.groupItemDescription {
+  margin-top: 2px;
+  color: rgba(235, 242, 255, 0.72);
+  font-size: 12px;
+  line-height: 20px;
+}
+
+@keyframes guideCarouselEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 1024px) {
+  .groupsRow {
+    flex-direction: column;
+  }
+
+  .groupCard {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .dialogWrap {
+    padding: 18px 14px;
+  }
+
+  .contentShell {
+    padding: 54px 18px 20px;
+  }
+
+  .title {
+    font-size: 22px;
+    line-height: 30px;
+  }
+}
