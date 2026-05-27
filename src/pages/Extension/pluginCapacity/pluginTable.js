@@ -8,6 +8,7 @@ import moment from 'moment';
 import global from '../../../utils/global';
 import AppState from '../../../components/ApplicationState';
 import { renderPlatformPluginIcon } from '../../../utils/platformPluginIcon';
+import { getPluginBaseId } from '../../../utils/pluginArchUtils';
 import styles from './index.less'
 import enterpriseStyles from '../../Enterprise/index.less'
 const { TabPane } = Tabs;
@@ -438,7 +439,7 @@ class Index extends PureComponent {
         const { regionName } = this.props;
         const { confirmInstallPlugin, installResultBean } = this.state;
         const pluginId = confirmInstallPlugin && confirmInstallPlugin.plugin_id;
-        if (pluginId === 'rainbond-agent') {
+        if (getPluginBaseId(pluginId) === 'rainbond-agent') {
             const eid = this.getEid();
             this.handleCloseInstallConfirm();
             if (eid) {
@@ -671,7 +672,7 @@ class Index extends PureComponent {
     render() {
         const { pluginList, loading, defaultPluginList, isAuthorizationCode, authCode, confirmInstallPlugin, installModalPhase, isServiceExpired, subscribeUntil } = this.state;
         const eid = this.getEid();
-        const isAgentInstallSuccess = confirmInstallPlugin && confirmInstallPlugin.plugin_id === 'rainbond-agent';
+        const isAgentInstallSuccess = confirmInstallPlugin && getPluginBaseId(confirmInstallPlugin.plugin_id) === 'rainbond-agent';
         return (
             <div>
                 {isServiceExpired && (

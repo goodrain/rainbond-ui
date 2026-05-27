@@ -22,6 +22,7 @@ import styles from './index.less';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
 import { isAgentRouteHidden } from '../../utils/agentContext';
+import { isPluginBaseId } from '../../utils/pluginArchUtils';
 import { isRainbondInfoAgentEnabled } from '../../utils/agentVisibility';
 import { buildPortalSsoUrl } from '../../utils/portal';
 import * as agentLauncherAction from './agentLauncherAction';
@@ -298,12 +299,14 @@ class GlobalHeader extends PureComponent {
     return globalUtil.getCurrRegionName() || currentUser?.teams?.[0]?.region?.[0]?.team_region_name || '';
   };
 
-  isInstalledPlugin = (plugin, pluginId) => {
+  isInstalledPlugin = (plugin, baseId) => {
+    // baseId is the plugin's logical base name (e.g. "rainbond-agent");
+    // physical SKUs may carry an -ARM64 / -AMD64 suffix and we treat both
+    // shapes as the same plugin for installed-status checks.
     if (!plugin) {
       return false;
     }
-    const matched = plugin.name === pluginId || plugin.plugin_id === pluginId;
-    if (!matched) {
+    if (!isPluginBaseId(plugin, baseId)) {
       return false;
     }
     if (Object.prototype.hasOwnProperty.call(plugin, 'installed')) {
