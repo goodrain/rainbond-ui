@@ -250,8 +250,14 @@ export default class Index extends PureComponent {
     }
   }
   isRunningVMHotUpdate = () => {
-    const { method, status } = this.props;
-    return method === 'vm' && !(status && ['closed', 'undeploy'].includes(status.status));
+    const { method, status, extendInfo } = this.props;
+    return !!(
+      method === 'vm' &&
+      !(status && ['closed', 'undeploy'].includes(status.status)) &&
+      extendInfo &&
+      extendInfo.cpu_hot_update_supported &&
+      extendInfo.memory_hot_update_supported
+    );
   }
   componentDidMount() {
     if (!this.canView()) return;
@@ -930,17 +936,12 @@ export default class Index extends PureComponent {
         return;
       }
       const isVMStopped = status && ['closed', 'undeploy'].includes(status.status);
-      if (
+      const vmHotUpdateSupported = !!(
         method === 'vm' &&
         extendInfo &&
-        (!extendInfo.cpu_hot_update_supported || !extendInfo.memory_hot_update_supported) &&
-        !isVMStopped
-      ) {
-        notification.warning({
-          message: extendInfo.hot_update_reason || formatMessage({ id: 'componentOverview.body.tab.overview.vmHotUpdateUnsupported' })
-        });
-        return;
-      }
+        extendInfo.cpu_hot_update_supported &&
+        extendInfo.memory_hot_update_supported
+      );
       const { new_memory, new_cpu } = values;
 
       let memory, cpu;
@@ -972,12 +973,13 @@ export default class Index extends PureComponent {
         cpu = key ? Number(key) : 0;
       }
 
-      if (method === 'vm' && !isVMStopped) {
+      if (vmHotUpdateSupported && !isVMStopped) {
         const currentCpu = Number(extendInfo.current_cpu);
         const currentMemory = Number(extendInfo.current_memory);
         if (getRunningVMLiveUpdateChangedResource({
           method,
           status,
+          hotUpdateSupported: vmHotUpdateSupported,
           currentCpu,
           currentMemory,
           nextCpu: cpu,
@@ -1018,7 +1020,9 @@ export default class Index extends PureComponent {
               method === 'vm'
                 ? (isVMStopped
                   ? formatMessage({ id: 'componentOverview.body.tab.overview.vmHotUpdateStoppedTip' })
-                  : formatMessage({ id: 'componentOverview.body.tab.overview.vmHotUpdateExecuting' }))
+                  : vmHotUpdateSupported
+                    ? formatMessage({ id: 'componentOverview.body.tab.overview.vmHotUpdateExecuting' })
+                    : formatMessage({ id: 'componentOverview.body.tab.overview.vmHotUpdateRestarting' }))
                 : formatMessage({ id: 'notification.success.operationImplement' })
           });
           this.setState({ editBillInfo: false });
@@ -1313,6 +1317,14 @@ export default class Index extends PureComponent {
       vmRuntime: appDetail?.vm_profile?.runtime,
       extendInfo
     });
+    const isVMStopped = status && ['closed', 'undeploy'].includes(status.status);
+    const vmHotUpdateSupported = !!(
+      method === 'vm' &&
+      extendInfo &&
+      extendInfo.cpu_hot_update_supported &&
+      extendInfo.memory_hot_update_supported
+    );
+    const vmWillRestartForScaling = method === 'vm' && !isVMStopped && !vmHotUpdateSupported;
 
     const minNumber = getFieldValue('minNum') || 0;
     const formItemLayout = {
@@ -1360,6 +1372,7 @@ export default class Index extends PureComponent {
     const vmChangedResource = getRunningVMLiveUpdateChangedResource({
       method,
       status,
+      hotUpdateSupported: vmHotUpdateSupported,
       currentCpu: extendInfo.current_cpu,
       currentMemory: extendInfo.current_memory,
       nextCpu: this.getFormValues(cpuValue, 'cpu'),
@@ -1444,11 +1457,11 @@ export default class Index extends PureComponent {
           <Alert
             style={{ marginTop: '16px' }}
             message={
-              status && ['closed', 'undeploy'].includes(status.status)
+              isVMStopped
                 ? formatMessage({ id: 'componentOverview.body.tab.overview.vmHotUpdateStoppedTip' })
-                : extendInfo.hot_update_reason || formatMessage({ id: 'componentOverview.body.tab.overview.vmHotUpdateUnsupported' })
+                : `${formatMessage({ id: 'componentOverview.body.tab.overview.vmHotUpdateRestartFallbackTip' })}${extendInfo.hot_update_reason ? `：${extendInfo.hot_update_reason}` : ''}`
             }
-            type={status && ['closed', 'undeploy'].includes(status.status) ? 'info' : 'warning'}
+            type="info"
           />
         )}
         {/* 手动伸缩   */}
@@ -1470,7 +1483,11 @@ export default class Index extends PureComponent {
                 <div style={{ marginLeft: 10 }}>
                   <Button type='primary' icon='save' style={{ marginRight: 10 }} onClick={this.handleFromData} disabled={isVmGpuScalingLocked}>
                     {method === 'vm'
-                      ? formatMessage({ id: 'componentOverview.body.tab.overview.vmHotUpdateConfirm' })
+                      ? formatMessage({
+                        id: vmWillRestartForScaling
+                          ? 'componentOverview.body.tab.overview.vmHotUpdateRestartConfirm'
+                          : 'componentOverview.body.tab.overview.vmHotUpdateConfirm'
+                      })
                       : formatMessage({ id: 'appPublish.table.btn.confirm' })}
                   </Button>
                   <Button icon='close-circle' onClick={() => {

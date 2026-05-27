@@ -204,6 +204,20 @@ assert.strictEqual(
 
 assert.strictEqual(
   helpers.getRunningVMLiveUpdateChangedResource({
+    method: 'vm',
+    status: { status: 'running' },
+    hotUpdateSupported: false,
+    currentCpu: 8000,
+    currentMemory: 16384,
+    nextCpu: 10000,
+    nextMemory: 24576
+  }),
+  '',
+  'should not lock resource edits when a running vm will use restart fallback instead of hot update'
+);
+
+assert.strictEqual(
+  helpers.getRunningVMLiveUpdateChangedResource({
     method: 'stateless_multiple',
     status: { status: 'running' },
     currentCpu: 8000,

@@ -30,12 +30,13 @@ function isVMStoppedStatus(status) {
 function getRunningVMLiveUpdateChangedResource({
   method,
   status,
+  hotUpdateSupported = true,
   currentCpu,
   currentMemory,
   nextCpu,
   nextMemory
 }) {
-  if (method !== 'vm' || isVMStoppedStatus(status)) {
+  if (method !== 'vm' || isVMStoppedStatus(status) || !hotUpdateSupported) {
     return '';
   }
 
