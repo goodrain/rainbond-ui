@@ -840,7 +840,10 @@ class Index extends PureComponent {
                                             已等待 {installElapsedSec}s
                                         </div>
                                     </div>
-                                    <div className={styles.installConfirmFooter} style={{ marginTop: 16 }}>
+                                    <div style={{ marginTop: 16, fontSize: 12, color: '#9aa5b1', textAlign: 'center', lineHeight: 1.6 }}>
+                                        安装会继续，保持本页打开才能收到完成通知
+                                    </div>
+                                    <div className={styles.installConfirmFooter} style={{ marginTop: 8 }}>
                                         <Button size="large" style={{ flex: 1 }} onClick={this.handleInstallInBackground}>
                                             后台继续
                                         </Button>
