@@ -11,6 +11,8 @@ import AppHeader from '@/components/SlidePanel/components/app'
 import roleUtil from '@/utils/newRole'
 import rainbondUtil from '@/utils/rainbond'
 import { formatMessage } from '@/utils/intl'
+import Yun from '../../../public/images/yun.svg'
+import Running from '../../../public/images/running.svg'
 import styles from './Overview.less'
 
 // 提取组件列表为独立组件
@@ -251,8 +253,8 @@ export default class Overview extends Component {
         <path d="M534.997333 544.853333h282.24V334.72A249.429333 249.429333 0 0 0 567.808 85.333333h-32.853333v92.8q27.008 3.84 47.232 24.106667 25.002667 24.96 25.002666 60.330667v91.904q0 35.328-25.002666 60.330666-20.224 20.224-47.189334 24.064v105.941334z" fill="#597AFF" />
       </svg>
     );
-    const runningIcon = <img src="/images/running.svg" alt="组件" />;
-    const gatewayIcon = <img src="/images/yun.svg" alt="网关" />;
+    const runningIcon = <img src={Running} alt="组件" />;
+    const gatewayIcon = <img src={Yun} alt="网关" />;
 
     return {
       groups: [
