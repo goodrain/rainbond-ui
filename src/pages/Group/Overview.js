@@ -260,6 +260,8 @@ export default class Overview extends Component {
           key: 'details',
           title: formatMessage({ id: 'guideCarousel.appOverview.components.title' }),
           titleIcon: runningIcon,
+          centerIcon: runningIcon,
+          layout: 'line',
           titleHint: (
             <>
               {formatMessage({ id: 'guideCarousel.appOverview.components.titleHint.prefix' })}
@@ -269,35 +271,21 @@ export default class Overview extends Component {
               {formatMessage({ id: 'guideCarousel.appOverview.components.titleHint.suffix' })}
             </>
           ),
-          sections: [
-            {
-              key: 'details-left',
-              subTitle: formatMessage({ id: 'guideCarousel.appOverview.components.leftClick.title' }),
-              subTitleIcon: leftClickIcon,
-              items: [
-                formatMessage({ id: 'guideCarousel.appOverview.components.leftClick.item1' }),
-                formatMessage({ id: 'guideCarousel.appOverview.components.leftClick.item2' }),
-                formatMessage({ id: 'guideCarousel.appOverview.components.leftClick.item3' }),
-                formatMessage({ id: 'guideCarousel.appOverview.components.leftClick.item4' })
-              ]
-            },
-            {
-              key: 'details-right',
-              subTitle: formatMessage({ id: 'guideCarousel.appOverview.components.rightClick.title' }),
-              subTitleIcon: rightClickIcon,
-              items: [
-                formatMessage({ id: 'guideCarousel.appOverview.components.rightClick.item1' }),
-                formatMessage({ id: 'guideCarousel.appOverview.components.rightClick.item2' }),
-                formatMessage({ id: 'guideCarousel.appOverview.components.rightClick.item3' }),
-                formatMessage({ id: 'guideCarousel.appOverview.components.rightClick.item4' })
-              ]
-            }
-          ]
+          leftAction: {
+            subTitle: formatMessage({ id: 'guideCarousel.appOverview.components.leftClick.title' }),
+            subTitleIcon: leftClickIcon
+          },
+          rightAction: {
+            subTitle: formatMessage({ id: 'guideCarousel.appOverview.components.rightClick.title' }),
+            subTitleIcon: rightClickIcon
+          }
         },
         {
           key: 'overview',
           title: formatMessage({ id: 'guideCarousel.appOverview.gateway.title' }),
           titleIcon: gatewayIcon,
+          centerIcon: gatewayIcon,
+          layout: 'line',
           titleHint: (
             <>
               {formatMessage({ id: 'guideCarousel.appOverview.gateway.titleHint.prefix' })}
@@ -307,13 +295,14 @@ export default class Overview extends Component {
               {formatMessage({ id: 'guideCarousel.appOverview.gateway.titleHint.suffix' })}
             </>
           ),
-          subTitle: formatMessage({ id: 'guideCarousel.appOverview.gateway.leftClick.title' }),
-          subTitleIcon: leftClickIcon,
-          items: [
-            formatMessage({ id: 'guideCarousel.appOverview.gateway.leftClick.item1' }),
-            formatMessage({ id: 'guideCarousel.appOverview.gateway.leftClick.item2' }),
-            formatMessage({ id: 'guideCarousel.appOverview.gateway.leftClick.item3' })
-          ]
+          leftAction: {
+            subTitle: formatMessage({ id: 'guideCarousel.appOverview.gateway.leftClick.title' }),
+            subTitleIcon: leftClickIcon
+          },
+          rightAction: {
+            subTitle: formatMessage({ id: 'guideCarousel.appOverview.gateway.rightClick.title' }),
+            subTitleIcon: rightClickIcon
+          }
         }
       ]
     };

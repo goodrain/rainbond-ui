@@ -108,19 +108,17 @@
 }
 
 .groupCard {
-  min-width: 0;
+  min-width: 50%;
   min-height: 220px;
   padding: 20px;
   border-right: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .groupCard:last-child {
   border-right: none;
-}
-
-.groupIconOnly {
-  text-align: center;
-  margin-bottom: 12px;
 }
 
 .groupDescription {
@@ -136,25 +134,12 @@
   font-size: 13px;
   line-height: 22px;
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 28px;
 }
 
 .groupSections {
   display: flex;
   gap: 14px;
-}
-
-
-.groupSubTitle {
-  color: rgba(255, 255, 255, 0.92);
-  font-size: 15px;
-  line-height: 22px;
-  font-weight: 600;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  justify-content: center;
 }
 
 .groupTitleIcon,
@@ -166,10 +151,14 @@
 }
 
 .groupTitleIcon {
-  width: 56px;
-  height: 56px;
+  width: 72px;
+  height: 72px;
   color: #9ec2ff;
   font-size: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.2);
 }
 
 .groupSubTitleIcon {
@@ -190,9 +179,101 @@
 }
 
 .groupTitleIcon img {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   object-fit: contain;
+}
+
+.flowLayout {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  padding: 0 30px;
+}
+
+.flowCenter {
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+}
+
+.flowBranch {
+  position: absolute;
+  width: 50%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  z-index: 1;
+}
+
+.flowBranchLeft {
+  right: 34%;
+  top: 40%;
+  align-items: flex-start;
+}
+
+.flowBranchRight {
+  left: 34%;
+  bottom: 40%;
+  align-items: flex-end;
+}
+
+.flowLineGroup {
+  display: flex;
+}
+
+.flowBranchLeft .flowLineGroup {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.flowBranchRight .flowLineGroup {
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.flowLineHorizontal,
+.flowLineVertical {
+  display: block;
+  border-radius: 999px;
+  background: #fff;
+}
+
+.flowLineHorizontal {
+  width: 130px;
+  height: 1px;
+}
+
+.flowLineVertical {
+  width: 1px;
+  height: 50px;
+}
+
+.flowAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+}
+
+.flowActionLeft {
+  margin-top: 12px;
+  text-align: left;
+  // 基于自身值的一半进行偏移，保持在视觉上的居中
+  transform: translateX(-50%);
+}
+
+.flowActionRight {
+  margin-bottom: 12px;
+  text-align: right;
+  flex-direction: row-reverse;
+  // 基于自身值的一半进行偏移，保持在视觉上的居中
+  transform: translateX(50%);
 }
 
 .groupItemList {
@@ -263,6 +344,18 @@
 
   .groupCard {
     min-height: 0;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 28px;
+  }
+
+  .groupCard:last-child {
+    border-bottom: none;
+    padding-bottom: 20px;
+  }
+
+  .flowLineHorizontal {
+    width: 100%;
   }
 }
 
@@ -278,5 +371,39 @@
   .title {
     font-size: 22px;
     line-height: 30px;
+  }
+
+  .flowLayout {
+    min-height: auto;
+    padding: 0;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .flowBranch,
+  .flowBranchLeft,
+  .flowBranchRight {
+    position: static;
+    width: 100%;
+    max-width: none;
+    align-items: center;
+  }
+
+  .flowLineGroup,
+  .flowBranchLeft .flowLineGroup,
+  .flowBranchRight .flowLineGroup {
+    align-items: center;
+  }
+
+  .flowLineHorizontal {
+    max-width: 180px;
+  }
+
+  .flowActionLeft,
+  .flowActionRight {
+    text-align: center;
+    flex-direction: row;
+    margin-top: 12px;
+    margin-bottom: 0;
   }
 }
