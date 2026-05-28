@@ -8,8 +8,16 @@ const { readSseEvents, subscribeToRunEvents } = agentStream;
 
 const AGENT_SESSION_KEY_PREFIX = 'rainbond_ui_agent_session_v1';
 
-const COPILOT_PLUGIN_NAME = 'rainbond-copilot';
+// copilot 插件 RBDPlugin CR 历史上同时存在过 rainbond-agent 和 rainbond-copilot 两个名字。
+// 新发布统一使用 rainbond-agent，但老用户集群里仍可能只有 rainbond-copilot。
+// 解析顺序：rainbond-agent 优先，没装就回退到 rainbond-copilot。
+// 解析失败（接口异常 / 都没装）走 DEFAULT 兜底。
+const COPILOT_PLUGIN_CANDIDATES = ['rainbond-agent', 'rainbond-copilot'];
+const DEFAULT_COPILOT_PLUGIN_NAME = 'rainbond-agent';
+const COPILOT_PLUGIN_CACHE_KEY = 'rainbond_ui_copilot_plugin_name_v1';
 const COPILOT_API_PATH = '/api/v1/copilot';
+
+let cachedCopilotPluginName = '';
 
 // copilot 后端 API 经 console 的插件后端代理访问，路径形如：
 //   /console/regions/{region}/backend/plugins/{plugin}/api/v1/copilot/...
@@ -19,10 +27,82 @@ function resolveCopilotRegion() {
   return globalUtil.getCurrRegionName() || cookie.get('region_name') || '';
 }
 
-function copilotApiBase() {
+function readCachedCopilotPluginName() {
+  if (cachedCopilotPluginName) {
+    return cachedCopilotPluginName;
+  }
+  if (!canUseSessionStorage()) {
+    return '';
+  }
+  try {
+    const stored = window.sessionStorage.getItem(COPILOT_PLUGIN_CACHE_KEY);
+    if (stored && COPILOT_PLUGIN_CANDIDATES.indexOf(stored) >= 0) {
+      cachedCopilotPluginName = stored;
+      return stored;
+    }
+  } catch (_) {
+    // ignore
+  }
+  return '';
+}
+
+function writeCachedCopilotPluginName(name) {
+  cachedCopilotPluginName = name;
+  if (!canUseSessionStorage()) {
+    return;
+  }
+  try {
+    window.sessionStorage.setItem(COPILOT_PLUGIN_CACHE_KEY, name);
+  } catch (_) {
+    // ignore
+  }
+}
+
+async function resolveCopilotPluginName() {
+  const cached = readCachedCopilotPluginName();
+  if (cached) {
+    return cached;
+  }
+
+  const enterpriseId = globalUtil.getCurrEnterpriseId();
+  const region = resolveCopilotRegion();
+  if (!enterpriseId || !region) {
+    return DEFAULT_COPILOT_PLUGIN_NAME;
+  }
+
+  try {
+    const response = await fetch(
+      `/console/enterprise/${enterpriseId}/regions/${region}/plugins`,
+      {
+        method: 'GET',
+        credentials: 'include',
+        headers: buildRequestHeaders()
+      }
+    );
+    if (response.ok) {
+      const body = await response.json().catch(() => ({}));
+      const list = (body && body.data && body.data.list) || [];
+      const installedNames = new Set(
+        list.map(item => item && item.name).filter(Boolean)
+      );
+      for (const candidate of COPILOT_PLUGIN_CANDIDATES) {
+        if (installedNames.has(candidate)) {
+          writeCachedCopilotPluginName(candidate);
+          return candidate;
+        }
+      }
+    }
+  } catch (_) {
+    // network error — fall through to default
+  }
+  return DEFAULT_COPILOT_PLUGIN_NAME;
+}
+
+async function copilotApiBase() {
   const region = resolveCopilotRegion();
   if (region) {
-    return `/console/regions/${region}/backend/plugins/${COPILOT_PLUGIN_NAME}${COPILOT_API_PATH}`;
+    const pluginName = await resolveCopilotPluginName();
+    return `/console/regions/${region}/backend/plugins/${pluginName}${COPILOT_API_PATH}`;
   }
   // 兜底：拿不到 region 时退回旧网关路径
   return COPILOT_API_PATH;
@@ -193,7 +273,7 @@ async function requestJsonAcceptStatuses(path, options = {}, acceptedStatuses = 
 }
 
 export async function listAgentSessions({ limit = 20, offset = 0 } = {}) {
-  return requestJson(`${copilotApiBase()}/sessions?limit=${limit}&offset=${offset}`, {
+  return requestJson(`${await copilotApiBase()}/sessions?limit=${limit}&offset=${offset}`, {
     method: 'GET',
     headers: buildRequestHeaders(),
   });
@@ -203,7 +283,7 @@ export async function deleteAgentSession(sessionId) {
   if (!sessionId) {
     throw new Error('sessionId is required');
   }
-  return requestJson(`${copilotApiBase()}/sessions/${encodeURIComponent(sessionId)}`, {
+  return requestJson(`${await copilotApiBase()}/sessions/${encodeURIComponent(sessionId)}`, {
     method: 'DELETE',
     headers: buildRequestHeaders(),
   });
@@ -214,7 +294,7 @@ export async function loadAgentSessionMessages(sessionId) {
     throw new Error('sessionId is required');
   }
   return requestJson(
-    `${copilotApiBase()}/sessions/${encodeURIComponent(sessionId)}/messages`,
+    `${await copilotApiBase()}/sessions/${encodeURIComponent(sessionId)}/messages`,
     {
       method: 'GET',
       headers: buildRequestHeaders(),
@@ -227,7 +307,7 @@ export async function abortAgentRun({ sessionId, runId } = {}) {
     throw new Error('sessionId and runId are required');
   }
   const result = await requestJsonAcceptStatuses(
-    `${copilotApiBase()}/sessions/${encodeURIComponent(sessionId)}/runs/${encodeURIComponent(runId)}/abort`,
+    `${await copilotApiBase()}/sessions/${encodeURIComponent(sessionId)}/runs/${encodeURIComponent(runId)}/abort`,
     {
       method: 'POST',
       headers: buildRequestHeaders(),
@@ -242,7 +322,7 @@ export async function clearAgentSessionRemote(sessionId) {
     throw new Error('sessionId is required');
   }
   const result = await requestJsonAcceptStatuses(
-    `${copilotApiBase()}/sessions/${encodeURIComponent(sessionId)}`,
+    `${await copilotApiBase()}/sessions/${encodeURIComponent(sessionId)}`,
     {
       method: 'DELETE',
       headers: buildRequestHeaders(),
@@ -257,7 +337,7 @@ export async function cancelAgentSessionPending(sessionId) {
     throw new Error('sessionId is required');
   }
   return requestJson(
-    `${copilotApiBase()}/sessions/${encodeURIComponent(sessionId)}/cancel-pending`,
+    `${await copilotApiBase()}/sessions/${encodeURIComponent(sessionId)}/cancel-pending`,
     {
       method: 'POST',
       headers: buildRequestHeaders(),
@@ -304,7 +384,7 @@ async function ensureSession({ conversationId, currentUser, context }) {
     return conversationId;
   }
 
-  const payload = await requestJson(`${copilotApiBase()}/sessions`, {
+  const payload = await requestJson(`${await copilotApiBase()}/sessions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
@@ -325,7 +405,7 @@ async function streamRun({
 }) {
   const query = afterSequence > 0 ? `?after_sequence=${afterSequence}` : '';
   const response = await fetch(
-    `${copilotApiBase()}/sessions/${sessionId}/runs/${runId}/events${query}`,
+    `${await copilotApiBase()}/sessions/${sessionId}/runs/${runId}/events${query}`,
     {
       method: 'GET',
       credentials: 'include',
@@ -363,7 +443,7 @@ export async function sendAgentMessage(payload = {}) {
   let runPayload;
   try {
     runPayload = await requestJson(
-      `${copilotApiBase()}/sessions/${sessionId}/messages`,
+      `${await copilotApiBase()}/sessions/${sessionId}/messages`,
       {
         method: 'POST',
         headers: {
@@ -422,7 +502,7 @@ export async function subscribeToActiveRun(options = {}) {
     throw new Error('sessionId and runId are required');
   }
   return subscribeToRunEvents({
-    url: `${copilotApiBase()}/sessions/${encodeURIComponent(sessionId)}/runs/${encodeURIComponent(runId)}/events`,
+    url: `${await copilotApiBase()}/sessions/${encodeURIComponent(sessionId)}/runs/${encodeURIComponent(runId)}/events`,
     headers: buildRequestHeaders(),
     onEvent,
     afterSequence,
@@ -438,7 +518,7 @@ export async function decideAgentApproval(payload = {}) {
   const context = normalizeContext(payload.context);
   const afterSequence = Number(payload.afterSequence || 0);
 
-  await requestJson(`${copilotApiBase()}/approvals/${approvalId}/decisions`, {
+  await requestJson(`${await copilotApiBase()}/approvals/${approvalId}/decisions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
