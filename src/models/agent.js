@@ -1127,11 +1127,21 @@ export default {
           });
         }
       } catch (e) {
+        // Backend abort failed (e.g. 500). The run may still be alive
+        // server-side, but the user's intent is to escape the thinking
+        // state — release UI lock the same way as the success path so
+        // they aren't stuck. lastError surfaces the failure as a toast.
         yield put({
           type: 'saveState',
           payload: {
+            visible: hideAfterAbort ? false : state.visible,
             cancellingRun: false,
-            lastError: getErrorMessage(e) || '停止运行失败',
+            sending: false,
+            interactionLocked: false,
+            activeRunId: '',
+            updatedAt: Date.now(),
+            lastError:
+              getErrorMessage(e) || '停止运行失败，服务端可能仍在执行',
           },
         });
       }
@@ -1195,12 +1205,20 @@ export default {
       try {
         yield call(abortAgentRun, { sessionId, runId });
       } catch (e) {
+        // Foreign-run abort failed (e.g. 500). Tear down the conflict
+        // UI so the user can decide their next move instead of being
+        // stuck on the dialog. Do NOT auto-send their stashed draft —
+        // the foreign run may still be alive server-side.
+        stopAllCrossTabSubscriptions();
         yield put({
           type: 'saveState',
           payload: {
             cancellingRun: false,
             pendingDraftMode: '',
-            lastError: getErrorMessage(e) || '停止其他窗口运行失败',
+            runConflict: null,
+            lastError:
+              getErrorMessage(e) ||
+              '停止其他窗口运行失败，服务端可能仍在执行',
           },
         });
         return;
