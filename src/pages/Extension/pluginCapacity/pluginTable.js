@@ -11,9 +11,10 @@ import { renderPlatformPluginIcon } from '../../../utils/platformPluginIcon';
 import styles from './index.less'
 import enterpriseStyles from '../../Enterprise/index.less'
 const { TabPane } = Tabs;
-@connect(({ global, user }) => ({
+@connect(({ global, user, region }) => ({
     enterprise: global.enterprise,
     currentUser: user.currentUser,
+    cluster_info: region.cluster_info,
 }), null, null, { withRef: true })
 class Index extends PureComponent {
     constructor(props) {
@@ -401,6 +402,33 @@ class Index extends PureComponent {
             || plugin.plugin_key === 'rainbond-vm';
     }
 
+    getCurrentClusterInfo = () => {
+        const { cluster_info, regionName } = this.props;
+        if (!Array.isArray(cluster_info) || !regionName) {
+            return null;
+        }
+        return cluster_info.find(item => item.region_name === regionName) || null;
+    }
+
+    shouldShowVmInstallNotice = (plugin) => {
+        if (!this.isVirtualMachinePlugin(plugin)) {
+            return false;
+        }
+        const clusterInfo = this.getCurrentClusterInfo();
+        if (!clusterInfo) {
+            return true;
+        }
+        const provider = String(clusterInfo.provider || '').toLowerCase();
+        const regionName = String(clusterInfo.region_name || '').toLowerCase();
+        const scope = String(clusterInfo.scope || '').toLowerCase();
+        const isStandaloneCluster = provider === 'dind'
+            || regionName === 'dind-region'
+            || scope === 'true'
+            || scope === '1'
+            || scope === 'standalone';
+        return !isStandaloneCluster;
+    }
+
     handleGoManage = () => {
         const { regionName } = this.props;
         const { confirmInstallPlugin, installResultBean } = this.state;
@@ -674,7 +702,7 @@ class Index extends PureComponent {
                                     <div className={styles.installConfirmSubtitle}>
                                         即将安装「{confirmInstallPlugin.plugin_name || confirmInstallPlugin.plugin_id}」
                                     </div>
-                                    {this.isVirtualMachinePlugin(confirmInstallPlugin) && (
+                                    {this.shouldShowVmInstallNotice(confirmInstallPlugin) && (
                                         <Alert
                                             type="warning"
                                             showIcon
@@ -682,9 +710,7 @@ class Index extends PureComponent {
                                             message="安装前请确认运行环境"
                                             description={
                                                 <div className={styles.vmInstallNoticeContent}>
-                                                    <div>单机版或 All-in-One 快速安装环境不建议安装虚拟机插件。</div>
-                                                    <div>请确认服务器 CPU 支持并已开启虚拟化能力，例如 Intel VT-x 或 AMD-V。</div>
-                                                    <div>请确认集群节点、存储和网络满足虚拟机运行要求；确认无误后可继续安装。</div>
+                                                    <div>请确认当前服务器为裸金属或物理机服务器。</div>
                                                 </div>
                                             }
                                         />
