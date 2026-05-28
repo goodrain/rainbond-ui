@@ -1044,11 +1044,18 @@ export default {
           const body = error.responseBody;
           const currentRun = (body && body.current_run) || {};
           // Roll back the optimistic user echo so the conflict UI controls re-send.
+          //
+          // interactionLocked must drop back to false here: sendMessage set
+          // it true on entry, and the appViewportLock overlay (transparent,
+          // pointer-events: auto) keeps capturing clicks while it's true —
+          // which silently swallows clicks on the conflict-notice buttons
+          // and makes them look completely unresponsive.
           yield put({
             type: 'saveState',
             payload: {
               messages: state.messages,
               sending: false,
+              interactionLocked: false,
               lastError: '',
               runConflict: {
                 currentRun: {
