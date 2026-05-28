@@ -215,14 +215,30 @@ class Index extends PureComponent {
       showModal: false
     });
   };
-  renderVMRestoreProgress = restore => {
+  parseVMRestoreProgress = progress => {
+    if (!progress) {
+      return null;
+    }
+    const parsed = parseFloat(String(progress).replace('%', ''));
+    return Number.isNaN(parsed) ? null : parsed;
+  };
+  getVMRestoreStageText = restore => {
+    const progress = restore && restore.progress;
+    const parsedProgress = this.parseVMRestoreProgress(progress);
+    if (parsedProgress !== null && parsedProgress < 100) {
+      return `${formatMessage({ id: 'global.vmRestoreStage.downloading' })} ${progress}`;
+    }
+    return formatMessage({ id: 'global.vmRestoreStage.restoring' });
+  };
+  renderVMRestoreStatus = restore => {
     if (!restore) {
       return null;
     }
-    const progress = restore.progress || 'N/A';
     const volumes = restore.data_volumes || [];
+    const stageText = this.getVMRestoreStageText(restore);
     const title = (
       <div>
+        <div>{stageText}</div>
         {volumes.map(volume => (
           <div key={volume.name || volume.phase}>
             {volume.name || '-'}: {volume.phase || '-'} {volume.progress || 'N/A'}
@@ -233,7 +249,7 @@ class Index extends PureComponent {
     );
     return (
       <Tooltip title={title}>
-        <span className={styles.restoreProgress}>{progress}</span>
+        <span className={styles.restoreProgress}>{stageText}</span>
       </Tooltip>
     );
   };
@@ -282,6 +298,10 @@ class Index extends PureComponent {
                 }
                 const UserNames = this.showUserName(user_name);
                 const Messages = globalUtil.fetchMessageLange(message, status, opt_type);
+                const showVMRestoreStage =
+                  opt_type === 'vm-disk-restore' &&
+                  final_status === '' &&
+                  status === 'restoring';
                 return (
                   <div
                     key={event_id}
@@ -315,9 +335,9 @@ class Index extends PureComponent {
                           {globalUtil.fetchStateOptTypeText(opt_type)}
                           &nbsp;
                         </span>
-                        {globalUtil.fetchOperation(final_status, status)}
-                        {opt_type === 'vm-disk-restore' &&
-                          this.renderVMRestoreProgress(vm_restore)}
+                        {showVMRestoreStage
+                          ? this.renderVMRestoreStatus(vm_restore)
+                          : globalUtil.fetchOperation(final_status, status)}
                         &nbsp;
 
                         {status === 'failure' && globalUtil.fetchReason(reason)}

@@ -61,6 +61,8 @@ const global = {
     'global.fetchOperation.timeOut':'Timeout',
     'global.fetchOperation.success':'Success',
     'global.fetchOperation.lose':'Fail',
+    'global.vmRestoreStage.downloading':'Downloading',
+    'global.vmRestoreStage.restoring':'Restoring',
 
     // fetchReason
     'global.fetchReason.tenant_lack_of_memory':'Tenant quota exceeded',

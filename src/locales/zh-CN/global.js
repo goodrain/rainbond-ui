@@ -61,6 +61,8 @@ const global = {
     'global.fetchOperation.timeOut':'操作已超时',
     'global.fetchOperation.success':'成功',
     'global.fetchOperation.lose':'失败',
+    'global.vmRestoreStage.downloading':'下载中',
+    'global.vmRestoreStage.restoring':'正在恢复',
 
     // fetchReason
     'global.fetchReason.tenant_lack_of_memory':'超过租户限额',
