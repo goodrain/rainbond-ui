@@ -8,6 +8,7 @@ import moment from 'moment';
 import global from '../../../utils/global';
 import AppState from '../../../components/ApplicationState';
 import { renderPlatformPluginIcon } from '../../../utils/platformPluginIcon';
+import { getPluginBaseId } from '../../../utils/pluginArchUtils';
 import styles from './index.less'
 import enterpriseStyles from '../../Enterprise/index.less'
 const { TabPane } = Tabs;
@@ -28,6 +29,10 @@ class Index extends PureComponent {
             confirmInstallPlugin: null,
             installModalPhase: 'confirm', // confirm | installing | RUNNING
             installResultBean: null,
+            installStartAt: 0,
+            installElapsedSec: 0,
+            // 即便 modal 被"后台继续"关掉, 仍记住正在装的 plugin 用于完成通知
+            installingPluginInfo: null,
             isServiceExpired: false,
             subscribeUntil: null,
             licenseValid: false,
@@ -136,6 +141,7 @@ class Index extends PureComponent {
             clearInterval(this.pollTimer)
         }
         this.stopInstallPolling();
+        this.stopElapsedTimer();
     }
 
     handleGetLicense = () => {
@@ -417,20 +423,68 @@ class Index extends PureComponent {
         });
     }
 
-    handleCloseInstallConfirm = () => {
-        this.stopInstallPolling();
+    handleCloseInstallConfirm = ({ keepPolling = false } = {}) => {
+        // keepPolling=true 用于"后台继续": 关掉 modal 但不停后台轮询和计时
+        if (!keepPolling) {
+            this.stopInstallPolling();
+            this.stopElapsedTimer();
+        }
         this.setState({
             confirmInstallPlugin: null,
             installModalPhase: 'confirm',
             installResultBean: null,
+            ...(keepPolling ? {} : {
+                installingPluginInfo: null,
+                installStartAt: 0,
+                installElapsedSec: 0,
+            }),
         });
+    }
+
+    handleInstallInBackground = () => {
+        // 关闭安装中的 modal, 后台轮询继续, RUNNING 时弹 notification 通知
+        const { installingPluginInfo } = this.state;
+        this.handleCloseInstallConfirm({ keepPolling: true });
+        if (installingPluginInfo) {
+            notification.info({
+                message: '后台安装中',
+                description: `「${installingPluginInfo.plugin_name}」继续在后台安装，完成后通知您`,
+                duration: 4,
+            });
+        }
     }
 
     handleConfirmInstall = () => {
         const { confirmInstallPlugin } = this.state;
         if (confirmInstallPlugin) {
-            this.setState({ installModalPhase: 'installing' });
+            this.setState({
+                installModalPhase: 'installing',
+                installStartAt: Date.now(),
+                installElapsedSec: 0,
+                installingPluginInfo: {
+                    plugin_id: confirmInstallPlugin.plugin_id,
+                    plugin_name: confirmInstallPlugin.plugin_name || confirmInstallPlugin.plugin_id,
+                },
+            });
+            this.startElapsedTimer();
             this.doInstallPlugin(confirmInstallPlugin);
+        }
+    }
+
+    startElapsedTimer = () => {
+        this.stopElapsedTimer();
+        this.elapsedTimer = setInterval(() => {
+            const { installStartAt } = this.state;
+            if (installStartAt) {
+                this.setState({ installElapsedSec: Math.floor((Date.now() - installStartAt) / 1000) });
+            }
+        }, 1000);
+    }
+
+    stopElapsedTimer = () => {
+        if (this.elapsedTimer) {
+            clearInterval(this.elapsedTimer);
+            this.elapsedTimer = null;
         }
     }
 
@@ -438,7 +492,7 @@ class Index extends PureComponent {
         const { regionName } = this.props;
         const { confirmInstallPlugin, installResultBean } = this.state;
         const pluginId = confirmInstallPlugin && confirmInstallPlugin.plugin_id;
-        if (pluginId === 'rainbond-agent') {
+        if (getPluginBaseId(pluginId) === 'rainbond-agent') {
             const eid = this.getEid();
             this.handleCloseInstallConfirm();
             if (eid) {
@@ -501,16 +555,36 @@ class Index extends PureComponent {
         const status = target && `${target.status || ''}`.toUpperCase();
         if (target && status === 'RUNNING') {
             this.stopInstallPolling();
-            this.setState(prev => ({
-                installingPlugins: { ...prev.installingPlugins, [pluginId]: false },
-                installModalPhase: 'RUNNING',
-            }));
+            this.stopElapsedTimer();
+            const { confirmInstallPlugin, installingPluginInfo } = this.state;
+            if (confirmInstallPlugin) {
+                // modal 仍打开, 走原成功态
+                this.setState(prev => ({
+                    installingPlugins: { ...prev.installingPlugins, [pluginId]: false },
+                    installModalPhase: 'RUNNING',
+                }));
+            } else {
+                // modal 已被"后台继续"关掉, 用 notification 告知用户
+                this.setState(prev => ({
+                    installingPlugins: { ...prev.installingPlugins, [pluginId]: false },
+                    installingPluginInfo: null,
+                    installStartAt: 0,
+                    installElapsedSec: 0,
+                }));
+                const pluginName = (installingPluginInfo && installingPluginInfo.plugin_name)
+                    || target.plugin_name || target.name || pluginId;
+                notification.success({
+                    message: '安装成功',
+                    description: `「${pluginName}」已安装完成`,
+                    duration: 6,
+                });
+            }
         }
     }
 
     startInstallPolling = (pluginId) => {
         this.stopInstallPolling();
-        this.installPollTimer = setInterval(() => {
+        const pollOnce = () => {
             const { dispatch, regionName, enterprise, currentUser } = this.props;
             const eid = (enterprise && enterprise.enterprise_id)
                 || (currentUser && currentUser.enterprise_id)
@@ -522,7 +596,7 @@ class Index extends PureComponent {
                     region_name: regionName,
                 },
                 callback: res => {
-                    if (res && res.list && res.list.length > 0) {
+                    if (res && Array.isArray(res.list) && res.list.length > 0) {
                         this.setState({ pluginList: res.list });
                         this.completeInstallIfRunning(pluginId, res.list);
                     } else {
@@ -532,7 +606,10 @@ class Index extends PureComponent {
                     }
                 },
             });
-        }, 3000);
+        };
+        // 立即跑一次, 不必等 3s 后才出现首个状态反馈
+        pollOnce();
+        this.installPollTimer = setInterval(pollOnce, 3000);
     }
 
     stopInstallPolling = () => {
@@ -669,9 +746,9 @@ class Index extends PureComponent {
     }
 
     render() {
-        const { pluginList, loading, defaultPluginList, isAuthorizationCode, authCode, confirmInstallPlugin, installModalPhase, isServiceExpired, subscribeUntil } = this.state;
+        const { pluginList, loading, defaultPluginList, isAuthorizationCode, authCode, confirmInstallPlugin, installModalPhase, isServiceExpired, subscribeUntil, installElapsedSec } = this.state;
         const eid = this.getEid();
-        const isAgentInstallSuccess = confirmInstallPlugin && confirmInstallPlugin.plugin_id === 'rainbond-agent';
+        const isAgentInstallSuccess = confirmInstallPlugin && getPluginBaseId(confirmInstallPlugin.plugin_id) === 'rainbond-agent';
         return (
             <div>
                 {isServiceExpired && (
@@ -704,9 +781,9 @@ class Index extends PureComponent {
                 {confirmInstallPlugin && (
                     <Modal
                         visible
-                        onCancel={installModalPhase === 'installing' ? undefined : this.handleCloseInstallConfirm}
+                        onCancel={installModalPhase === 'installing' ? this.handleInstallInBackground : this.handleCloseInstallConfirm}
                         footer={null}
-                        closable={installModalPhase !== 'installing'}
+                        closable
                         maskClosable={installModalPhase !== 'installing'}
                         width={480}
                         bodyStyle={{ padding: 0 }}
@@ -755,10 +832,21 @@ class Index extends PureComponent {
                                     </div>
                                     <div className={styles.installingText}>正在安装</div>
                                     <div className={styles.installingSubText}>
-                                        「{confirmInstallPlugin.plugin_name || confirmInstallPlugin.plugin_id}」正在安装中，请耐心等待...
+                                        「{confirmInstallPlugin.plugin_name || confirmInstallPlugin.plugin_id}」首次启动需要拉取镜像，通常 1-2 分钟
                                     </div>
                                     <div className={styles.installingSpinner}>
                                         <Spin />
+                                        <div style={{ marginTop: 8, color: '#9aa5b1', fontSize: 13 }}>
+                                            已等待 {installElapsedSec}s
+                                        </div>
+                                    </div>
+                                    <div style={{ marginTop: 16, fontSize: 12, color: '#9aa5b1', textAlign: 'center', lineHeight: 1.6 }}>
+                                        安装会继续，保持本页打开才能收到完成通知
+                                    </div>
+                                    <div className={styles.installConfirmFooter} style={{ marginTop: 8 }}>
+                                        <Button size="large" style={{ flex: 1 }} onClick={this.handleInstallInBackground}>
+                                            后台继续
+                                        </Button>
                                     </div>
                                 </div>
                             )}
