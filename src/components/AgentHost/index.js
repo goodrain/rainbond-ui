@@ -302,10 +302,38 @@ class ApprovalMessageCard extends PureComponent {
     );
   }
 
+  renderResolvedCompact() {
+    const { item } = this.props;
+    const approval = item.approval || {};
+    const isApproved = approval.status === 'approved';
+    const wasAutoApproved = !!approval.autoApproved;
+    const iconType = isApproved ? 'check-circle' : 'close-circle';
+    const statusLabel = isApproved
+      ? (wasAutoApproved ? '已自动批准' : '已批准')
+      : '已拒绝';
+    const iconClassName = isApproved
+      ? styles.approvalResolvedIconApproved
+      : styles.approvalResolvedIconRejected;
+
+    return (
+      <div className={styles.approvalRow}>
+        <span className={styles.approvalResolvedText}>
+          <Icon type={iconType} className={iconClassName} />
+          <span>{statusLabel}：{item.content}</span>
+        </span>
+      </div>
+    );
+  }
+
   render() {
-    const { item, isSending } = this.props;
+    const { item } = this.props;
     const approval = item.approval || {};
     const isPending = approval.status === 'pending';
+
+    if (!isPending) {
+      return this.renderResolvedCompact();
+    }
+
     const wasAutoApproved = !!approval.autoApproved;
     const riskMeta = getApprovalRiskMeta(approval.risk, approval.levelLabel);
     const cardClassName = [
@@ -330,11 +358,9 @@ class ApprovalMessageCard extends PureComponent {
           {wasAutoApproved ? (
             <div className={styles.approvalAutoNote}>已根据会话策略自动批准</div>
           ) : null}
-          {isPending
-            ? approval.risk === 'high'
-              ? this.renderHighRiskActions()
-              : this.renderNormalRiskActions()
-            : null}
+          {approval.risk === 'high'
+            ? this.renderHighRiskActions()
+            : this.renderNormalRiskActions()}
         </div>
       </div>
     );
