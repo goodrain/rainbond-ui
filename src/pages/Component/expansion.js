@@ -1453,17 +1453,6 @@ export default class Index extends PureComponent {
             type="warning"
           />
         )}
-        {method === 'vm' && !isVmGpuScalingLocked && extendInfo && (!extendInfo.cpu_hot_update_supported || !extendInfo.memory_hot_update_supported) && (
-          <Alert
-            style={{ marginTop: '16px' }}
-            message={
-              isVMStopped
-                ? formatMessage({ id: 'componentOverview.body.tab.overview.vmHotUpdateStoppedTip' })
-                : `${formatMessage({ id: 'componentOverview.body.tab.overview.vmHotUpdateRestartFallbackTip' })}${extendInfo.hot_update_reason ? `：${extendInfo.hot_update_reason}` : ''}`
-            }
-            type="info"
-          />
-        )}
         {/* 手动伸缩   */}
         <Card
           className={styles.clerBorder}

@@ -127,7 +127,7 @@ const componentOverview = {
     'componentOverview.body.tab.overview.vmHotUpdateExecuting': '虚拟机热更新已提交，正在执行中',
     'componentOverview.body.tab.overview.vmHotUpdateRestarting': '虚拟机规格已提交，将自动重启生效',
     'componentOverview.body.tab.overview.vmHotUpdateEdit': '修改规格',
-    'componentOverview.body.tab.overview.vmHotUpdateConfirm': '保存规格',
+    'componentOverview.body.tab.overview.vmHotUpdateConfirm': '更新',
     'componentOverview.body.tab.overview.vmHotUpdateRestartConfirm': '调整并重启',
     'componentOverview.body.tab.overview.vmHotUpdateCpuShrinkBlocked': '虚拟机 CPU 热更新仅支持扩容，不支持缩容，请停机后再修改规格。',
     'componentOverview.body.tab.overview.vmHotUpdateMemoryShrinkBlocked': '虚拟机内存热更新仅支持扩容，不支持缩容，请停机后再修改规格。',

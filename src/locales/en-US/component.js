@@ -127,7 +127,7 @@ const componentOverview = {
     'componentOverview.body.tab.overview.vmHotUpdateExecuting': 'VM hot update submitted and running',
     'componentOverview.body.tab.overview.vmHotUpdateRestarting': 'VM resize submitted. It will restart automatically',
     'componentOverview.body.tab.overview.vmHotUpdateEdit': 'Edit compute',
-    'componentOverview.body.tab.overview.vmHotUpdateConfirm': 'Save compute',
+    'componentOverview.body.tab.overview.vmHotUpdateConfirm': 'Update',
     'componentOverview.body.tab.overview.vmHotUpdateRestartConfirm': 'Resize and restart',
     'componentOverview.body.tab.overview.vmHotUpdateCpuShrinkBlocked': 'CPU hot updates only support increasing resources for a running VM. Stop it before reducing CPU.',
     'componentOverview.body.tab.overview.vmHotUpdateMemoryShrinkBlocked': 'Memory hot updates only support increasing resources for a running VM. Stop it before reducing memory.',
