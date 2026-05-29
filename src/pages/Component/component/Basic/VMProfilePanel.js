@@ -1,4 +1,4 @@
-import { Alert, Button, Card, Col, Form, InputNumber, Row, Select, Switch, Tag, notification } from 'antd';
+import { Alert, Button, Card, Col, Form, InputNumber, Row, Select, Switch, Tag, Tooltip, notification } from 'antd';
 import React, { PureComponent } from 'react';
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
@@ -8,6 +8,7 @@ import { getNsResource } from '../../../../services/teamResource';
 import handleAPIError from '../../../../utils/error';
 import globalUtil from '../../../../utils/global';
 import { getEnabledVMServiceNames, getServiceClusterIP } from '../../vmNetworkHelpers';
+import styles from './VMProfilePanel.less';
 
 const { Option } = Select;
 
@@ -103,22 +104,53 @@ class VMProfilePanel extends PureComponent {
     return formatMessage({ id: sourceMap[sourceType] || 'Vm.assetCatalog.sourceUnknown' });
   };
 
+  getDisplayValue = value => {
+    if (value === 0) {
+      return '0';
+    }
+    if (value === undefined || value === null || value === '') {
+      return '-';
+    }
+    return String(value);
+  };
+
+  renderEllipsis = (content, className) => {
+    const displayValue = this.getDisplayValue(content);
+    return (
+      <Tooltip title={displayValue}>
+        <span className={className}>{displayValue}</span>
+      </Tooltip>
+    );
+  };
+
   renderLine = (label, value) => (
-    <div style={{ display: 'flex', marginBottom: 10 }}>
-      <div style={{ width: 110, color: '#8d9bad' }}>{label}</div>
-      <div style={{ flex: 1, wordBreak: 'break-all' }}>{value === 0 ? '0' : value || '-'}</div>
+    <div className={styles.profileLine}>
+      {this.renderEllipsis(label, styles.profileLineLabel)}
+      {this.renderEllipsis(value, styles.profileLineValue)}
     </div>
   );
 
   renderTagValue = (enabled, values = []) => {
     if (!enabled) {
-      return <Tag><FormattedMessage id="componentOverview.body.tab.overview.vmDisabled" /></Tag>;
+      const disabledText = formatMessage({ id: 'componentOverview.body.tab.overview.vmDisabled' });
+      return (
+        <Tooltip title={disabledText}>
+          <Tag className={styles.profileTag}>{disabledText}</Tag>
+        </Tooltip>
+      );
     }
     if (!values || values.length === 0) {
-      return <Tag color="gold"><FormattedMessage id="componentOverview.body.tab.overview.vmEnabled" /></Tag>;
+      const enabledText = formatMessage({ id: 'componentOverview.body.tab.overview.vmEnabled' });
+      return (
+        <Tooltip title={enabledText}>
+          <Tag color="gold" className={styles.profileTag}>{enabledText}</Tag>
+        </Tooltip>
+      );
     }
     return values.map(item => (
-      <Tag key={item} color="blue">{item}</Tag>
+      <Tooltip key={item} title={item}>
+        <Tag color="blue" className={styles.profileTag}>{item}</Tag>
+      </Tooltip>
     ));
   };
 
@@ -597,45 +629,23 @@ class VMProfilePanel extends PureComponent {
     const asset = vmProfile.asset || {};
     const runtime = this.getRuntime();
     const connections = vmProfile.connections || {};
+    const podIp = vmProfile?.current_pod_ip || '';
     const { clusterIP } = this.state;
-    const overviewColStyle = { display: 'flex' };
-    const overviewCardStyle = {
-      width: '100%',
-      height: '100%',
-      borderRadius: 10,
-      display: 'flex',
-      flexDirection: 'column'
-    };
-    const overviewCardBodyStyle = {
-      flex: 1,
-      display: 'flex',
-      flexDirection: 'column'
-    };
-    const overviewCardContentStyle = {
-      flex: 1,
-      display: 'flex',
-      flexDirection: 'column'
-    };
-    const overviewCardActionStyle = {
-      marginTop: 'auto',
-      paddingTop: 12
-    };
 
     return (
       <Card
         title={<FormattedMessage id="componentOverview.body.tab.overview.vmProfile" />}
-        style={{ margin: '12px 0', borderRadius: 12, overflow: 'hidden' }}
-        bodyStyle={{ background: '#F0F2F5' }}
+        className={styles.profilePanel}
       >
-        <Row gutter={16} type="flex">
-          <Col xs={24} lg={12} style={overviewColStyle}>
+        <Row gutter={12} type="flex">
+          <Col xs={24} lg={12} className={styles.profileCol}>
             <Card
               title={<FormattedMessage id="componentOverview.body.tab.overview.vmAssetInfo" />}
               bordered={false}
-              style={overviewCardStyle}
-              bodyStyle={overviewCardBodyStyle}
+              className={styles.profileCard}
+              bodyStyle={{ flex: 1 }}
             >
-              <div style={overviewCardContentStyle}>
+              <div className={styles.profileCardContent}>
                 {this.renderLine(formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetName' }), asset.display_name || asset.name)}
                 {this.renderLine(
                   formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetSource' }),
@@ -652,30 +662,39 @@ class VMProfilePanel extends PureComponent {
               </div>
             </Card>
           </Col>
-          <Col xs={24} lg={12} style={overviewColStyle}>
+          <Col xs={24} lg={12} className={styles.profileCol}>
             <Card
               title={<FormattedMessage id="componentOverview.body.tab.overview.vmNetworkInfo" />}
               bordered={false}
-              style={overviewCardStyle}
-              bodyStyle={overviewCardBodyStyle}
+              className={styles.profileCard}
+              bodyStyle={{ flex: 1 }}
             >
-              <div style={overviewCardContentStyle}>
+              <div className={styles.profileCardContent}>
                 {clusterIP ? this.renderLine(
                   formatMessage({ id: 'componentOverview.body.tab.overview.vmClusterIP' }),
                   clusterIP
                 ) : null}
+                {podIp ? this.renderLine(
+                  formatMessage({ id: 'componentOverview.body.tab.overview.vmPodIP' }),
+                  podIp
+                ) : null}
+                {!clusterIP && (
+                  <div className={styles.profileTip}>
+                    <FormattedMessage id="componentOverview.body.tab.overview.vmNetworkTip" />
+                  </div>
+                )}
               </div>
             </Card>
           </Col>
         </Row>
-        <Row gutter={16} type="flex" style={{ marginTop: 16 }}>
-          <Col xs={24} lg={12} style={overviewColStyle}>
+        <Row gutter={12} type="flex" className={styles.profileRow}>
+          <Col xs={24} lg={12} className={styles.profileCol}>
             <Card
               title={<FormattedMessage id="componentOverview.body.tab.overview.vmAccelerationInfo" />}
               bordered={false}
               loading={loadingEditor}
-              style={overviewCardStyle}
-              bodyStyle={overviewCardBodyStyle}
+              className={styles.profileCard}
+              bodyStyle={{ flex: 1 }}
               extra={
                 editing ? (
                   <div>
@@ -703,49 +722,52 @@ class VMProfilePanel extends PureComponent {
                 )
               }
             >
-              <div style={overviewCardContentStyle}>
+              <div className={styles.profileCardContent}>
                 {editing ? (
                   this.renderEditor(runtime)
                 ) : (
                   <React.Fragment>
-                    <div style={{ marginBottom: 10 }}>
-                      <div style={{ color: '#8d9bad', marginBottom: 8 }}>
+                    <div className={styles.profileSection}>
+                      <div className={styles.profileSectionLabel}>
                         <FormattedMessage id="componentOverview.body.tab.overview.vmGpu" />
                       </div>
-                      <div>{this.renderTagValue(runtime.gpu_enabled, runtime.gpu_resources)}</div>
+                      <div className={styles.profileTagGroup}>{this.renderTagValue(runtime.gpu_enabled, runtime.gpu_resources)}</div>
                     </div>
                     <div>
-                      <div style={{ color: '#8d9bad', marginBottom: 8 }}>
+                      <div className={styles.profileSectionLabel}>
                         <FormattedMessage id="componentOverview.body.tab.overview.vmUsb" />
                       </div>
-                      <div>{this.renderTagValue(runtime.usb_enabled, runtime.usb_resources)}</div>
+                      <div className={styles.profileTagGroup}>{this.renderTagValue(runtime.usb_enabled, runtime.usb_resources)}</div>
                     </div>
                   </React.Fragment>
                 )}
               </div>
             </Card>
           </Col>
-          <Col xs={24} lg={12} style={overviewColStyle}>
+          <Col xs={24} lg={12} className={styles.profileCol}>
             <Card
               title={<FormattedMessage id="componentOverview.body.tab.overview.vmConnectionInfo" />}
               bordered={false}
-              style={overviewCardStyle}
-              bodyStyle={overviewCardBodyStyle}
+              className={styles.profileCard}
+              bodyStyle={{ flex: 1 }}
+              extra={
+                connections.vnc_url ? (
+                  <Button type="primary" size="small" href={connections.vnc_url} target="_blank">
+                    {formatMessage({ id: 'componentOverview.body.tab.overview.vmOpenVnc' })}
+                  </Button>
+                ) : null
+              }
             >
-              <div style={overviewCardContentStyle}>
+              <div className={styles.profileCardContent}>
                 {this.renderLine(
                   formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetReferences' }),
                   asset.reference_count
                 )}
-                <div style={overviewCardActionStyle}>
-                  {connections.vnc_url ? (
-                    <Button type="primary" size="small" href={connections.vnc_url} target="_blank">
-                      {formatMessage({ id: 'componentOverview.body.tab.overview.vmOpenVnc' })}
-                    </Button>
-                  ) : (
+                {!connections.vnc_url ? (
+                  <div className={styles.profileCardAction}>
                     <Tag><FormattedMessage id="componentOverview.body.tab.overview.vmConnectionPending" /></Tag>
-                  )}
-                </div>
+                  </div>
+                ) : null}
               </div>
             </Card>
           </Col>

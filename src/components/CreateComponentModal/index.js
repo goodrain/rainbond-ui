@@ -661,7 +661,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   }
 
   const showDatabaseEntry = showDatabaseForm;
-  const showVmEntry = PluginUtils.isInstallPlugin(pluginsList, 'rainbond-vm');
+  const showVmEntry = true;
   const showExtensionSection = true;
 
   // 动态生成市场子项:应用商店分隔符 + 商店列表 + 本地资源分隔符 + 本地组件库 + 离线导入
@@ -1853,6 +1853,38 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     });
   };
 
+  const handleVmEntryClick = () => {
+    const hasVmPlugin = PluginUtils.isInstallPlugin(pluginsList, 'rainbond-vm');
+    const regionName = globalUtil.getCurrRegionName();
+
+    if (hasVmPlugin) {
+      setCurrentFormType('vm');
+      pushViewHistory('form');
+      return;
+    }
+
+    if (currentUser?.is_enterprise_admin && currentUser?.enterprise_id) {
+      Modal.confirm({
+        title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.vm_install_required' }),
+        content: formatMessage({ id: 'componentOverview.body.CreateComponentModal.vm_install_confirm_desc' }),
+        onOk: () => {
+          dispatch(
+            routerRedux.push(
+              `/enterprise/${currentUser.enterprise_id}/extension?regionName=${regionName}`
+            )
+          );
+          onCancel();
+        }
+      });
+      return;
+    }
+
+    Modal.warning({
+      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.vm_contact_admin_title' }),
+      content: formatMessage({ id: 'componentOverview.body.CreateComponentModal.vm_contact_admin_desc' })
+    });
+  };
+
   const handleItemClick = (item) => {
     if (item.key === 'llm-display') {
       handleOpenLlmSelector();
@@ -1863,6 +1895,10 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     }
     if (item.key === 'llm') {
       handleLlmEntryClick();
+      return;
+    }
+    if (item.key === 'vm') {
+      handleVmEntryClick();
       return;
     }
     if (item.hasSubMenu) {
