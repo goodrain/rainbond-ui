@@ -559,6 +559,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       iconSrc: ContainerIcon,
       title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.from_image' }),
       key: 'image',
+      testid: 'rbd-create-from-image',
       hasSubMenu: true,
       iconColor: '#fa8c16',
     },
@@ -651,6 +652,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       iconSrc: ContainerIcon,
       title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.container' }),
       key: 'custom',
+      testid: 'rbd-create-image-source-container',
       showForm: true,
       formType: 'docker',
       iconColor: '#fa8c16',
@@ -2083,7 +2085,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     if (currentView === 'form') {
       return (
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <Button type="primary" onClick={handleFooterSubmit} loading={false}>
+          <Button data-testid="rbd-comp-create-submit" type="primary" onClick={handleFooterSubmit} loading={false}>
             {formatMessage({ id: 'componentOverview.body.CreateComponentModal.confirm_create' })}
           </Button>
         </div>
@@ -2215,6 +2217,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     return (
       <div
         key={item.key}
+        data-testid={item.testid}
         className={className}
         onClick={() => !isDisplayOnly && handleItemClick(item)}
         onMouseEnter={(e) => {
