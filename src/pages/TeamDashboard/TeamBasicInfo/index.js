@@ -311,6 +311,7 @@ export default class index extends Component {
     return (
       <div style={{ marginLeft: '0px' }}>
         <div
+          data-testid="rbd-app-create-btn"
           className={`${styles.teamHotAppItem} ${styles.addNewAppCard}`}
           onClick={() => {
             this.onJumpToWizard();

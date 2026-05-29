@@ -1774,6 +1774,7 @@ export default class CreateCheck extends React.Component {
             </Button>
           )}
           <Button
+            data-testid="rbd-build-wizard-next"
             type="primary"
             style={{ marginRight: '8px' }}
             onClick={this.handleConfigFile}
@@ -1806,6 +1807,7 @@ export default class CreateCheck extends React.Component {
             </Button>
           )}
           <Button
+            data-testid="rbd-build-wizard-next"
             type="primary"
             style={{ marginRight: '8px' }}
             onClick={this.handleConfigFile}
@@ -1847,6 +1849,7 @@ export default class CreateCheck extends React.Component {
     }
     return (
       <Result
+        data-testid="rbd-check-success"
         type="success"
         title={
           appDetail.service_source === 'third_party'
