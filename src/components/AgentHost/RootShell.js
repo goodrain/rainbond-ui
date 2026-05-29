@@ -27,6 +27,8 @@ const { getAgentViewportCssVars } = agentViewport;
 const { createSessionPersistenceScheduler } = sessionPersistenceScheduler;
 const { shouldViewportLock } = viewportLockState;
 
+const AGENT_PANEL_OPEN_CLASS = 'agent-panel-open';
+
 const VIEWPORT_LOCK_NOTICE_EXIT_MS = 180;
 const VIEWPORT_LOCK_GLOW_EXIT_MS = 220;
 const VIEWPORT_LOCK_TOTAL_EXIT_MS =
@@ -68,9 +70,12 @@ export default class AgentRootShell extends PureComponent {
 
   componentDidMount() {
     this.attachStoreWithRetry();
+    this.syncPanelOpenClass();
   }
 
   componentDidUpdate(prevProps, prevState) {
+    this.syncPanelOpenClass();
+
     const prevLocked = shouldViewportLock(prevState);
     const nextLocked = shouldViewportLock(this.state);
 
@@ -98,10 +103,28 @@ export default class AgentRootShell extends PureComponent {
       clearTimeout(this.viewportLockTimer);
     }
     this.disconnectViewportLockResizeObserver();
+    this.togglePanelOpenClass(false);
     window.removeEventListener('resize', this.handleResize);
     window.removeEventListener('hashchange', this.handleStoreChange);
     window.removeEventListener('popstate', this.handleStoreChange);
   }
+
+  togglePanelOpenClass = isOpen => {
+    if (typeof document === 'undefined' || !document.documentElement) {
+      return;
+    }
+    document.documentElement.classList.toggle(AGENT_PANEL_OPEN_CLASS, isOpen);
+  };
+
+  // 助手以 push 布局打开时，给 <html> 加类预留滚动条 gutter，
+  // 关闭或切到 overlay 模式时移除，常规浏览不受影响。
+  syncPanelOpenClass = () => {
+    const { agent, panelConfig } = this.state;
+    const canShowAgent = this.shouldShowAgent();
+    const isPanelVisible = !!(canShowAgent && agent && agent.visible);
+    const isPushMode = !!(panelConfig && panelConfig.mode === 'push');
+    this.togglePanelOpenClass(isPanelVisible && isPushMode);
+  };
 
   attachStoreWithRetry = () => {
     const dvaApp = getDvaApp();

@@ -52,6 +52,13 @@ body,
   z-index : 2;
 }
 
+// 打开 AI 助手（push 布局）时预留滚动条 gutter，避免纵向滚动条
+// 反复出现/消失改变可用宽度，导致主内容区在临界分辨率下持续闪烁。
+// 仅在助手打开时生效，常规浏览不受影响。
+html.agent-panel-open {
+  scrollbar-gutter: stable;
+}
+
 .ant-layout {
   min-height: 100%;
 }
