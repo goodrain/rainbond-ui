@@ -1641,7 +1641,7 @@ class Main extends PureComponent {
         tab: formatMessage({ id: 'componentOverview.body.tab.bar.environmentConfiguration' }),
         auth: ['isEnv'],
         condition: (appDetail) =>
-          method !== 'vm' && appDetail?.service?.extend_method !== 'kubeblocks_component'
+          appDetail?.service?.extend_method !== 'kubeblocks_component'
       },
       {
         key: 'relation',

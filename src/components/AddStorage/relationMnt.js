@@ -35,6 +35,8 @@ const TABLE_STYLE = {
 };
 
 export default class Index extends PureComponent {
+  isVirtualMachine = () => this.props?.appBaseInfo?.service?.extend_method === 'vm';
+
   constructor(props) {
     super(props);
     this.state = {
@@ -186,6 +188,7 @@ export default class Index extends PureComponent {
   );
 
   render() {
+    const isVirtualMachine = this.isVirtualMachine();
     const rowSelection = {
       onChange: (selectedRowKeys) => {
         this.setState({
@@ -204,12 +207,21 @@ export default class Index extends PureComponent {
 
     return (
       <Modal
-        title={<FormattedMessage id='componentOverview.body.tab.RelationMnt.title' />}
+        title={isVirtualMachine ? '共享配置文件注入' : <FormattedMessage id='componentOverview.body.tab.RelationMnt.title' />}
         width={1150}
         visible
         onOk={this.handleSubmit}
         onCancel={this.handleCancel}
       >
+        {isVirtualMachine ? (
+          <Row style={ROW_STYLE}>
+            <Col span={24}>
+              <span style={{ color: '#8c8c8c' }}>
+                共享配置文件会作为只读配置盘进入虚拟机。这里填写的是目标注入文件标识，不代表 guest 内固定绝对路径。
+              </span>
+            </Col>
+          </Row>
+        ) : null}
         <Row style={ROW_STYLE}>
           <Col span={8}>
             {formatMessage({id:'componentOther.relationMnt.name'})}
@@ -260,7 +272,7 @@ export default class Index extends PureComponent {
           style={TABLE_STYLE}
           columns={[
             {
-              title: formatMessage({ id: 'componentOverview.body.tab.RelationMnt.localpath' }),
+              title: isVirtualMachine ? '目标注入文件标识' : formatMessage({ id: 'componentOverview.body.tab.RelationMnt.localpath' }),
               dataIndex: 'localpath',
               key: '1',
               width: '20%',

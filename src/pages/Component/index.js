@@ -1403,7 +1403,7 @@ class Main extends PureComponent {
       });
     }
 
-    if (isEnv && method != 'vm') {
+    if (isEnv) {
       tabs.push({
         key: 'environmentConfiguration',
         // tab: '环境配置',
