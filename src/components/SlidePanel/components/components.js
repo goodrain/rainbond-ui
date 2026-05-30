@@ -1261,7 +1261,7 @@ class Main extends PureComponent {
       isShowThirdParty,
       isShowKubeBlocksComponent
     });
-    const isShowUpdate = method !== 'vm' && isUpdate && !['undeploy', 'closed', 'stopping', 'succeeded'].includes(status?.status)
+    const isShowUpdate = isUpdate && !['undeploy', 'closed', 'stopping', 'succeeded'].includes(status?.status)
     this.setState({
       isShowUpdate
     })
