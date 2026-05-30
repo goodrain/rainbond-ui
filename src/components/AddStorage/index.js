@@ -1,4 +1,4 @@
-import { Button, Drawer, Form, Input, InputNumber, Radio, Tooltip } from 'antd';
+import { Alert, Button, Drawer, Form, Input, InputNumber, Radio, Tooltip } from 'antd';
 import React, { PureComponent } from 'react';
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
@@ -15,12 +15,19 @@ export default class AddVolumes extends PureComponent {
     e.preventDefault();
     const { form, onSubmit } = this.props;
     const { validateFields } = form;
+    const isVirtualMachine = this.isVirtualMachine();
 
     this.fillVolumeNameFromPath();
 
     validateFields((err, values) => {
       if (!err && onSubmit) {
-        onSubmit(values);
+        const submitValues = isVirtualMachine
+          ? {
+            ...values,
+            mode: values.mode || 777
+          }
+          : values;
+        onSubmit(submitValues);
       }
     });
   };
@@ -45,6 +52,10 @@ export default class AddVolumes extends PureComponent {
       return;
     }
     if (this.isVirtualMachine()) {
+      if (value.includes('/')) {
+        callback('请输入文件名，不要包含路径');
+        return;
+      }
       callback();
       return;
     }
@@ -138,13 +149,13 @@ export default class AddVolumes extends PureComponent {
               />
             )}
           </FormItem>
-          <FormItem {...formItemLayout} label={isVirtualMachine ? '注入文件标识' : <FormattedMessage id="componentOverview.body.tab.AddStorage.path" />}>
+          <FormItem {...formItemLayout} label={isVirtualMachine ? '配置盘文件名' : <FormattedMessage id="componentOverview.body.tab.AddStorage.path" />}>
             {getFieldDecorator('volume_path', {
               initialValue: data.volume_path || '',
               rules: [
                 {
                   required: true,
-                  message: isVirtualMachine ? '请输入注入文件标识' : formatMessage({ id: 'componentOverview.body.tab.AddStorage.full_file_path' })
+                  message: isVirtualMachine ? '请输入配置盘文件名' : formatMessage({ id: 'componentOverview.body.tab.AddStorage.full_file_path' })
                 },
                 {
                   pattern: /^[^\s]*$/,
@@ -160,7 +171,7 @@ export default class AddVolumes extends PureComponent {
               ]
             })(
               <Input
-                placeholder={isVirtualMachine ? '例如 /rainbond/env/app.env 或 config/app.env' : formatMessage({ id: 'componentOverview.body.tab.AddStorage.input_path' })}
+                placeholder={isVirtualMachine ? '例如 app.env 或 rainbond.env' : formatMessage({ id: 'componentOverview.body.tab.AddStorage.input_path' })}
                 onBlur={this.fillVolumeNameFromPath}
               />
             )}
@@ -186,18 +197,20 @@ export default class AddVolumes extends PureComponent {
               )}
             </FormItem>
           </div>
-          <FormItem {...formItemLayout} label={<FormattedMessage id="componentOverview.body.tab.AddStorage.mode" />}>
-            {getFieldDecorator('mode', {
-              initialValue: data.mode || 777,
-              rules: [{ required: true, validator: this.modeCheck }]
-            })(<InputNumber min={0} style={{ width: '100%' }} />)}
-          </FormItem>
+          {isVirtualMachine ? null : (
+            <FormItem {...formItemLayout} label={<FormattedMessage id="componentOverview.body.tab.AddStorage.mode" />}>
+              {getFieldDecorator('mode', {
+                initialValue: data.mode || 777,
+                rules: [{ required: true, validator: this.modeCheck }]
+              })(<InputNumber min={0} style={{ width: '100%' }} />)}
+            </FormItem>
+          )}
           {isVirtualMachine ? (
             <Alert
               type="info"
               showIcon
               style={{ marginBottom: '20px' }}
-              message="虚拟机配置文件会作为只读配置盘注入到 guest。这里的标识用于平台区分注入文件，不代表 guest 内固定绝对路径。"
+              message="虚拟机配置文件会作为只读配置盘注入到 guest。这里填写的是配置盘中的文件名，不表示 guest 内路径。"
             />
           ) : null}
           <CodeMirrorForm
