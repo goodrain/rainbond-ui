@@ -1,5 +1,8 @@
 const assert = require('assert');
-const { shouldShowGenericVisitAction } = require('./visitActionHelpers');
+const {
+  shouldShowGenericVisitAction,
+  shouldShowWebTerminalAction
+} = require('./visitActionHelpers');
 
 assert.strictEqual(
   shouldShowGenericVisitAction({
@@ -32,6 +35,39 @@ assert.strictEqual(
   }),
   true,
   'should preserve the existing third-party access rule'
+);
+
+assert.strictEqual(
+  shouldShowWebTerminalAction({
+    method: 'vm',
+    isVisitWebTerminal: true,
+    isShowThirdParty: false,
+    isShowKubeBlocksComponent: false
+  }),
+  false,
+  'should hide the top-level web terminal action for virtual machine components'
+);
+
+assert.strictEqual(
+  shouldShowWebTerminalAction({
+    method: 'stateless',
+    isVisitWebTerminal: true,
+    isShowThirdParty: false,
+    isShowKubeBlocksComponent: false
+  }),
+  true,
+  'should keep the top-level web terminal action for regular components'
+);
+
+assert.strictEqual(
+  shouldShowWebTerminalAction({
+    method: 'stateless',
+    isVisitWebTerminal: true,
+    isShowThirdParty: false,
+    isShowKubeBlocksComponent: true
+  }),
+  false,
+  'should continue hiding the top-level web terminal action for kubeblocks components'
 );
 
 console.log('visit action helper tests passed');

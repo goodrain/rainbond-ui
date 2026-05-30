@@ -67,7 +67,10 @@ import DatabaseOverview from '../../../pages/Component/databaseOverview';
 import DatabaseExpansion from '../../../pages/Component/databaseExpansion';
 import DatabaseBackup from '../../../pages/Component/databaseBackup';
 import { getComponentPluginTabName, getVisibleComponentPlugins } from '../../../pages/Component/componentPluginHelpers';
-import { shouldShowGenericVisitAction } from '../../../pages/Component/visitActionHelpers';
+import {
+  shouldShowGenericVisitAction,
+  shouldShowWebTerminalAction
+} from '../../../pages/Component/visitActionHelpers';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -1252,6 +1255,12 @@ class Main extends PureComponent {
       isShowThirdParty,
       isAccess
     });
+    const showWebTerminalAction = shouldShowWebTerminalAction({
+      method,
+      isVisitWebTerminal,
+      isShowThirdParty,
+      isShowKubeBlocksComponent
+    });
     const isShowUpdate = method !== 'vm' && isUpdate && !['undeploy', 'closed', 'stopping', 'succeeded'].includes(status?.status)
     this.setState({
       isShowUpdate
@@ -1289,18 +1298,10 @@ class Main extends PureComponent {
       },
       {
         key: 'webTerminal',
-        show: method !== 'vm' && isVisitWebTerminal && !isShowThirdParty && !isShowKubeBlocksComponent,
+        show: showWebTerminalAction,
         type: 'link',
         text: <FormattedMessage id='componentOverview.header.right.web' />,
         path: `${this.fetchPrefixUrl()}components/${globalUtil.getSlidePanelComponentID()}/webconsole?apps=${globalUtil.getAppID()}`,
-        target: '_blank'
-      },
-      {
-        key: 'vmWeb',
-        show: method === 'vm' && appDetail.vm_url,
-        type: 'link',
-        text: <FormattedMessage id='componentOverview.header.right.web' />,
-        path: appDetail.vm_url,
         target: '_blank'
       },
       {

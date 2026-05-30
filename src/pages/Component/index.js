@@ -68,7 +68,7 @@ import { ResumeContext } from "./funContext";
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
 import { getComponentPluginTabName, getVisibleComponentPlugins } from './componentPluginHelpers';
-import { shouldShowGenericVisitAction } from './visitActionHelpers';
+import { shouldShowGenericVisitAction, shouldShowWebTerminalAction } from './visitActionHelpers';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -1275,6 +1275,12 @@ class Main extends PureComponent {
       isShowThirdParty,
       isAccess
     });
+    const showWebTerminalAction = shouldShowWebTerminalAction({
+      method,
+      isVisitWebTerminal,
+      isShowThirdParty,
+      isShowKubeBlocksComponent: false
+    });
     const action = (
       status && status.status &&
       <div>
@@ -1294,24 +1300,17 @@ class Main extends PureComponent {
             <Button onClick={this.handleVm}>{status.status == 'paused' ? "恢复" : '挂起'}</Button>
           )
         }
-        {method != 'vm' ? (
-          isVisitWebTerminal && !isShowThirdParty && (
-            <Button>
-              <Link
-                to={`${this.fetchPrefixUrl()}components/${serviceAlias}/webconsole`}
-                target="_blank"
-              >
-                {/* Web终端 */}
-                <FormattedMessage id='componentOverview.header.right.web' />
-              </Link>
-            </Button>
-          )
-        ) : (
-          appDetail.vm_url &&
+        {showWebTerminalAction &&
           <Button>
-            <a href={appDetail.vm_url} target='_blank'><FormattedMessage id='componentOverview.header.right.web' /></a>
+            <Link
+              to={`${this.fetchPrefixUrl()}components/${serviceAlias}/webconsole`}
+              target="_blank"
+            >
+              {/* Web终端 */}
+              <FormattedMessage id='componentOverview.header.right.web' />
+            </Link>
           </Button>
-        )}
+        }
         {method != 'vm' ? (
           isShowThirdParty ? (
             ''

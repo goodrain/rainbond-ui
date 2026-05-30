@@ -11,6 +11,22 @@ function shouldShowGenericVisitAction({ method, canVisit, isShowThirdParty, isAc
   return !!canVisit;
 }
 
+function shouldShowWebTerminalAction({
+  method,
+  isVisitWebTerminal,
+  isShowThirdParty,
+  isShowKubeBlocksComponent
+}) {
+  if (method === 'vm') {
+    return false;
+  }
+  if (isShowThirdParty || isShowKubeBlocksComponent) {
+    return false;
+  }
+  return !!isVisitWebTerminal;
+}
+
 module.exports = {
-  shouldShowGenericVisitAction
+  shouldShowGenericVisitAction,
+  shouldShowWebTerminalAction
 };
