@@ -9,7 +9,10 @@ const RadioGroup = Radio.Group;
 
 @Form.create()
 export default class AddVolumes extends PureComponent {
-  isVirtualMachine = () => this.props?.appBaseInfo?.service?.extend_method === 'vm';
+  isVirtualMachine = () =>
+    this.props?.appBaseInfo?.service?.extend_method === 'vm' ||
+    this.props?.appDetail?.service?.extend_method === 'vm' ||
+    this.props?.method === 'vm';
 
   handleSubmit = e => {
     e.preventDefault();

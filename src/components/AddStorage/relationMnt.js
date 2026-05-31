@@ -35,7 +35,10 @@ const TABLE_STYLE = {
 };
 
 export default class Index extends PureComponent {
-  isVirtualMachine = () => this.props?.appBaseInfo?.service?.extend_method === 'vm';
+  isVirtualMachine = () =>
+    this.props?.appBaseInfo?.service?.extend_method === 'vm' ||
+    this.props?.appDetail?.service?.extend_method === 'vm' ||
+    this.props?.method === 'vm';
 
   validateVirtualMachineFileName = (value) => {
     const normalized = String(value || '').trim();

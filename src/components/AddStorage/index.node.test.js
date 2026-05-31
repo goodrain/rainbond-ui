@@ -12,6 +12,12 @@ assert.match(
 
 assert.match(
   source,
+  /this\.props\?\.(appBaseInfo|appDetail)\?\.service\?\.extend_method === 'vm'[\s\S]*this\.props\?\.method === 'vm'/,
+  'AddStorage should detect VM mode from appBaseInfo, appDetail, or method props'
+);
+
+assert.match(
+  source,
   /{isVirtualMachine \? null : \(\s*<FormItem[\s\S]*label={<FormattedMessage id="componentOverview\.body\.tab\.AddStorage\.mode" \/>}/,
   'AddStorage should hide the mode input for VM config file injection'
 );
