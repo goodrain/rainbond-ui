@@ -16,10 +16,10 @@ assert.match(
   'AddStorage should hide the mode input for VM config file injection'
 );
 
-assert.match(
+assert.doesNotMatch(
   source,
-  /const submitValues = isVirtualMachine[\s\S]*mode:\s*values\.mode \|\| 777[\s\S]*onSubmit\(submitValues\);/,
-  'AddStorage should keep a default mode when submitting VM config file injection'
+  /mode:\s*values\.mode \|\| 777/,
+  'AddStorage should not keep a fake mode value in the VM config file scenario'
 );
 
 assert.match(

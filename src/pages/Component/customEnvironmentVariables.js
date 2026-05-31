@@ -641,7 +641,7 @@ export default class Index extends React.Component {
                 showIcon
                 type="info"
                 style={{ marginBottom: 16 }}
-                message="虚拟机配置文件会作为只读配置盘注入到 guest，由虚拟机内应用自行读取；当前页面中的字段表示配置盘文件名，不表示 guest 内路径。"
+                message="虚拟机配置文件会作为只读配置盘注入到 guest。这里配置的是配置盘文件名，不是 guest 内路径，也不再支持权限配置。"
               />
             ) : null}
             <ScrollerX sm={650}>
@@ -667,10 +667,10 @@ export default class Index extends React.Component {
                     title: isVirtualMachine ? '配置盘文件名' : formatMessage({ id: 'componentOverview.body.tab.env.setting.volume_path' }),
                     dataIndex: 'volume_path'
                   },
-                  {
+                  ...(!isVirtualMachine ? [{
                     title: formatMessage({ id: 'componentOverview.body.tab.env.setting.mode' }),
                     dataIndex: 'mode'
-                  },
+                  }] : []),
                   {
                     title: formatMessage({ id: 'componentOverview.body.tab.env.setting.action' }),
                     dataIndex: 'action',

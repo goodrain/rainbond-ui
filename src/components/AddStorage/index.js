@@ -23,8 +23,7 @@ export default class AddVolumes extends PureComponent {
       if (!err && onSubmit) {
         const submitValues = isVirtualMachine
           ? {
-            ...values,
-            mode: values.mode || 777
+            ...values
           }
           : values;
         onSubmit(submitValues);
