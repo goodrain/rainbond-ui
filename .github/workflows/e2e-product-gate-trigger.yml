@@ -1,0 +1,45 @@
+name: e2e-product-gate-trigger
+
+# Second-layer E2E gate trigger (ui side).
+#
+# rainbond-ui changes are not a standalone component: they are rebuilt into the console
+# image via dev-build's ui-branch mechanism. So on a PR labeled run-e2e, dispatch the gate
+# with who=console + branch=main (console mainline) + ui_branch=<this PR's branch>, and run
+# the ui render/wiring subset (excluding the heavy flagship-journey).
+#
+# Prerequisites:
+#   - Repo secret CROSS_REPO_PAT: a PAT with actions:write on the gate repository.
+#   - Repo secret E2E_REPO: the gate repository ("owner/name").
+#
+# Notes:
+#   - Fork PRs don't receive secrets and won't trigger; the if below also restricts to
+#     same-repo branches.
+on:
+  pull_request:
+    types: [labeled]
+
+jobs:
+  trigger:
+    name: trigger e2e gate
+    if: >-
+      github.event.label.name == 'run-e2e' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch E2E gate
+        env:
+          GH_TOKEN: ${{ secrets.CROSS_REPO_PAT }}
+          E2E_REPO: ${{ secrets.E2E_REPO }}
+          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
+          PR_SHA: ${{ github.event.pull_request.head.sha }}
+          PRODUCT_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          gh workflow run product-gate.yml -R "$E2E_REPO" \
+            -f product_repo="$PRODUCT_REPO" \
+            -f product_sha="$PR_SHA" \
+            -f branch=main \
+            -f who=console \
+            -f ui_branch="$PR_BRANCH" \
+            -f test_cmd="playwright test tests/ui/login-render.spec.ts tests/ui/create-form-serialization.spec.ts tests/ui/component-ops-wiring.spec.ts tests/ui/key-page-render.spec.ts --workers=1"
+          echo "Dispatched E2E gate (ui) for ${PRODUCT_REPO} @ ${PR_SHA} (ui_branch ${PR_BRANCH})"
