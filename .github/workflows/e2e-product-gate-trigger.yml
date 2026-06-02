@@ -41,5 +41,5 @@ jobs:
             -f branch=main \
             -f who=console \
             -f ui_branch="$PR_BRANCH" \
-            -f test_cmd="playwright test tests/ui/login-render.spec.ts tests/ui/create-form-serialization.spec.ts tests/ui/component-ops-wiring.spec.ts tests/ui/key-page-render.spec.ts --workers=1"
+            -f test_cmd="pnpm test:ui-gate"
           echo "Dispatched E2E gate (ui) for ${PRODUCT_REPO} @ ${PR_SHA} (ui_branch ${PR_BRANCH})"
