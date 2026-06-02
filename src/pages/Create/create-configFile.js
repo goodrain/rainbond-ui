@@ -358,6 +358,7 @@ export default class Index extends PureComponent {
               {formatMessage({id:'button.previous'})}
             </Button>
             <Button
+              data-testid="rbd-build-wizard-confirm"
               loading={buildAppsLoading}
               onClick={this.handleJumpNext}
               type="primary"
