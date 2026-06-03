@@ -39,6 +39,9 @@ import {
   buildCreatedComponentOverviewTarget,
   resolveCreateCheckGroupId
 } from './createCheckHelpers';
+const {
+  getDefaultMirrorEnvByPackageManager
+} = require('../../components/CodeBuildConfig/nodejs-cnb/mirrorConfig');
 
 const { Option } = Select;
 const { OptGroup } = Select;
@@ -78,6 +81,7 @@ const readSourceBuildConfig = () => {
     appDetail: appControl.appDetail,
     rainbondInfo: global.rainbondInfo,
     soundCodeLanguage: teamControl.codeLanguage,
+    packageNpmOrYarn: teamControl.packageNpmOrYarn,
   }),
   null,
   null,
@@ -647,7 +651,7 @@ export default class CreateCheck extends React.Component {
   handleBuild = () => {
     this.loadingBuild = true
     const { appAlias, teamName } = this.getParameter();
-    const { refreshCurrent, dispatch, soundCodeLanguage } = this.props;
+    const { refreshCurrent, dispatch, soundCodeLanguage, packageNpmOrYarn } = this.props;
     const { isDeploy, ServiceGetData, appDetail, codeLanguage, selectedFramework, buildScript, Directory, nodeVersion, configFiles } = this.state;
     const group_id = this.getGroupId();
     const componentOverviewTarget = buildCreatedComponentOverviewTarget({
@@ -680,6 +684,9 @@ export default class CreateCheck extends React.Component {
           buildEnvDict.CNB_OUTPUT_DIR = isPureStatic ? '.' : (isStaticFramework ? Directory : '');
           buildEnvDict.CNB_NODE_VERSION = isPureStatic ? '' : (nodeVersion || '');
           buildEnvDict.CNB_MIRROR_SOURCE = isPureStatic ? '' : mirrorSource;
+          if (!isPureStatic && mirrorSource === 'global') {
+            Object.assign(buildEnvDict, getDefaultMirrorEnvByPackageManager(packageNpmOrYarn, buildEnvDict));
+          }
           buildEnvDict.BUILD_HAS_NPMRC = configFiles.hasNpmrc ? 'true' : '';
           buildEnvDict.BUILD_HAS_YARNRC = configFiles.hasYarnrc ? 'true' : '';
         }
@@ -699,6 +706,8 @@ export default class CreateCheck extends React.Component {
             cnb_node_version: buildEnvDict.CNB_NODE_VERSION,
             // Mirror 配置来源（纯静态项目不需要包管理器镜像）
             cnb_mirror_source: buildEnvDict.CNB_MIRROR_SOURCE,
+            cnb_mirror_npmrc: buildEnvDict.CNB_MIRROR_NPMRC,
+            cnb_mirror_yarnrc: buildEnvDict.CNB_MIRROR_YARNRC,
             // 配置文件检测标志（用于创建后在构建参数页面恢复检测状态）
             has_npmrc: buildEnvDict.BUILD_HAS_NPMRC,
             has_yarnrc: buildEnvDict.BUILD_HAS_YARNRC,
@@ -1776,6 +1785,7 @@ export default class CreateCheck extends React.Component {
             </Button>
           )}
           <Button
+            data-testid="rbd-build-wizard-next"
             type="primary"
             style={{ marginRight: '8px' }}
             onClick={this.handleConfigFile}
@@ -1808,6 +1818,7 @@ export default class CreateCheck extends React.Component {
             </Button>
           )}
           <Button
+            data-testid="rbd-build-wizard-next"
             type="primary"
             style={{ marginRight: '8px' }}
             onClick={this.handleConfigFile}
@@ -1849,6 +1860,7 @@ export default class CreateCheck extends React.Component {
     }
     return (
       <Result
+        data-testid="rbd-check-success"
         type="success"
         title={
           appDetail.service_source === 'third_party'

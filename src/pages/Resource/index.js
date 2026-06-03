@@ -15,10 +15,13 @@ import CodeMirrorForm from '../../components/CodeMirrorForm';
 import { getKubernetesVal, getSingleKubernetesVal, addSingleKubernetesVal, delSingleKubernetesVal, editSingleKubernetesVal } from "../../services/application";
 import ConfirmModal from "../../components/ConfirmModal";
 import pageheaderSvg from '@/utils/pageHeaderSvg';
+import Exception from '../Exception/403';
 import styles from './index.less';
 
-@connect(({ teamControl }) => ({
-  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
+@connect(({ teamControl, global, user }) => ({
+  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
+  rainbondInfo: global.rainbondInfo,
+  currentUser: user.currentUser
 }))
 @Form.create()
 class Index extends PureComponent {
@@ -43,8 +46,17 @@ class Index extends PureComponent {
     };
   }
   componentDidMount() {
+    if (!this.canAccessAppK8sResources()) {
+      return;
+    }
     this.getPageContent()
   }
+
+  canAccessAppK8sResources = () => {
+    const { rainbondInfo, currentUser } = this.props;
+    const isSaas = !!(rainbondInfo && rainbondInfo.is_saas);
+    return !isSaas || !!(currentUser && currentUser.is_enterprise_admin);
+  };
   getPageContent = () => {
     const teamName = globalUtil.getCurrTeamName();
     const app_id = globalUtil.getAppID();
@@ -288,6 +300,10 @@ class Index extends PureComponent {
     })
   }
   render() {
+    if (!this.canAccessAppK8sResources()) {
+      return <Exception />;
+    }
+
     const {
       form: { getFieldDecorator, setFieldsValue },
     } = this.props;

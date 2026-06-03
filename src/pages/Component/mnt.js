@@ -615,7 +615,8 @@ export default class Index extends PureComponent {
         title: formatMessage({ id: 'componentOverview.body.mnt.local_vol_path' }),
         dataIndex: 'local_vol_path',
         key: '1',
-        width: '20%',
+        width: 240,
+        fixed: 'left',
         render: data => (
           <Tooltip title={data}>
             <span style={wordBreakStyle}>{data}</span>
@@ -626,7 +627,7 @@ export default class Index extends PureComponent {
         title: formatMessage({ id: 'componentOverview.body.mnt.dep_vol_name' }),
         dataIndex: 'dep_vol_name',
         key: '2',
-        width: '15%',
+        width: 180,
         render: data => (
           <Tooltip title={data}>
             <span style={wordBreakStyle}>{data}</span>
@@ -637,7 +638,7 @@ export default class Index extends PureComponent {
         title: formatMessage({ id: 'componentOverview.body.mnt.dep_vol_path' }),
         dataIndex: 'dep_vol_path',
         key: '3',
-        width: '15%',
+        width: 220,
         render: data => (
           <Tooltip title={data}>
             <span style={wordBreakStyle}>{data}</span>
@@ -648,14 +649,14 @@ export default class Index extends PureComponent {
         title: formatMessage({ id: 'componentOverview.body.mnt.dep_vol_type' }),
         dataIndex: 'dep_vol_type',
         key: '4',
-        width: '10%',
+        width: 140,
         render: text => <span>{this.getVolumeTypeShowName(text)}</span>
       },
       {
         title: formatMessage({ id: 'componentOverview.body.mnt.dep_app_name' }),
         dataIndex: 'dep_app_name',
         key: '5',
-        width: '10%',
+        width: 180,
         render: (v, data) => (
           <Link
             to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${data.dep_group_id}/overview?type=components&componentID=${data.dep_app_alias}&tab=overview`}
@@ -668,7 +669,6 @@ export default class Index extends PureComponent {
         title: formatMessage({ id: 'componentOverview.body.mnt.dep_app_group' }),
         dataIndex: 'dep_app_group',
         key: '6',
-        width: '15%',
         render: (v, data) => (
           <Link
             to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${data.dep_group_id}/overview`}
@@ -681,7 +681,8 @@ export default class Index extends PureComponent {
         title: formatMessage({ id: 'componentOverview.body.mnt.action' }),
         dataIndex: 'action',
         key: '7',
-        width: '15%',
+        width: 140,
+        fixed: 'right',
         render: (_, data) => (
           <a onClick={() => this.onDeleteMnt(data)} href="javascript:;">
             {formatMessage({ id: 'componentOverview.body.mnt.unmount' })}
@@ -904,14 +905,13 @@ export default class Index extends PureComponent {
               </Tooltip>
             }
           >
-            <ScrollerX sm={850}>
-              <Table
-                pagination={mntPaginationConfig}
-                rowKey={(_, index) => index}
-                columns={this.getMntColumns()}
-                dataSource={mntList}
-              />
-            </ScrollerX>
+            <Table
+              pagination={mntPaginationConfig}
+              rowKey={(_, index) => index}
+              columns={this.getMntColumns()}
+              dataSource={mntList}
+              scroll={{ x: 1320, y: 360 }}
+            />
           </Card>
         )}
         {this.state.showAddVar && (

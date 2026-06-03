@@ -1556,7 +1556,7 @@ export default class EnterpriseShared extends PureComponent {
     };
 
     const operation = (
-      <Col span={9} style={rightStyle} className={styles.btns}>
+      <div style={rightStyle} className={`${styles.btns} ${styles.toolbarRight}`}>
         {isImportApp && (
           <Button style={{ margin: '0 14px 0 10px' }} icon='download' onClick={this.jump}>
             <FormattedMessage id='applicationMarket.localMarket.import' />
@@ -1567,7 +1567,7 @@ export default class EnterpriseShared extends PureComponent {
             <FormattedMessage id='applicationMarket.localMarket.setup' />
           </Button>
         )}
-      </Col>
+      </div>
     );
 
     const marketOperation = (
@@ -1673,10 +1673,10 @@ export default class EnterpriseShared extends PureComponent {
             style={{ marginBottom: 16 }}
           />
         )}
-        <Row style={contentStyle}>
-          <Col span={15} style={contentLeftStyle}>
+        <Row style={contentStyle} className={styles.toolbarRow}>
+          <Col span={15} style={contentLeftStyle} className={styles.toolbarLeft}>
             <Search
-              style={{ width: '250px' }}
+              className={styles.toolbarSearchPrimary}
               placeholder={formatMessage({ id: 'applicationMarket.localMarket.placeholder' })}
               onSearch={this.handleSearchLocal}
             />
@@ -1738,11 +1738,10 @@ export default class EnterpriseShared extends PureComponent {
     const marketContent = (
       <div style={{ padding: '0px' }} className={styles.localsContent}>
         {isMarket && (
-          <Row style={contentStyle}>
-            <Col span={20} style={contentLeftStyle}>
+          <Row style={contentStyle} className={styles.toolbarRow}>
+            <div className={styles.toolbarLeft}>
               <div>
                 <FormattedMessage id='applicationMarket.cloudMarket.msg' />
-                {/* 市场已经正常连接，该平台具有 */}
                 &nbsp;
                 {accessActions &&
                   accessActions.map((item, index) => {
@@ -1759,18 +1758,17 @@ export default class EnterpriseShared extends PureComponent {
                     );
                   })}
                 &nbsp;
-                {/* 应用权限 */}
                 <FormattedMessage id='applicationMarket.cloudMarket.msgs' />
               </div>
               <Search
-                style={{ width: '400px', marginLeft: '100px' }}
+                className={styles.toolbarSearchWide}
                 placeholder={formatMessage({ id: 'applicationMarket.localMarket.placeholder' })}
                 onSearch={this.handleSearchMarket}
               />
-            </Col>
-            <Col span={4} style={rightStyle} className={styles.btns}>
+            </div>
+            <div style={rightStyle} className={`${styles.btns} ${styles.toolbarRight}`}>
               {marketOperation}
-            </Col>
+            </div>
           </Row>
         )}
         {marketLoading ? (
@@ -1810,17 +1808,17 @@ export default class EnterpriseShared extends PureComponent {
     );
     const helmContent = (
       <div style={{ padding: '0px' }} className={styles.localsContent}>
-        <Row style={contentStyle}>
-          <Col span={16} style={contentLeftStyle}>
+        <Row style={contentStyle} className={styles.toolbarRow}>
+          <div style={contentLeftStyle} className={styles.toolbarLeft}>
             <Search
-              style={{ width: '400px' }}
+              className={styles.toolbarSearchWide}
               placeholder={formatMessage({ id: 'applicationMarket.localMarket.placeholder' })}
               onSearch={this.handleSearchHelmMarket}
             />
-          </Col>
-          <Col span={8} style={rightStyle} className={styles.btns}>
+          </div>
+          <div style={rightStyle} className={`${styles.btns} ${styles.toolbarRight}`}>
             {helmOperation}
-          </Col>
+          </div>
         </Row>
 
         {helmLoading ? (
@@ -1859,7 +1857,7 @@ export default class EnterpriseShared extends PureComponent {
       </div>
     );
     return (
-      <ScrollerX sm={1200}>
+      <ScrollerX sm={`calc(1200px - var(--agent-panel-width, 0px))`}>
 
         <PageHeaderLayout
           title={<FormattedMessage id="applicationMarket.pageHeaderLayout.title" />}

@@ -40,8 +40,14 @@ import Context from './MenuContext';
 import Overdue from '../pages/Overdue';
 import styles from './EnterpriseLayout.less'
 import PluginUtil from '../utils/pulginUtils';
-const { buildTeamMenuEnterpriseSettings } = require('./teamMenuEnterprise');
+import * as customerServiceFloatVisibility from './customerServiceFloatVisibility';
+import * as teamMenuEnterprise from './teamMenuEnterprise';
+
+const {
+  shouldShowCustomerServiceFloat,
+} = customerServiceFloatVisibility;
 const { Content } = Layout;
+const { buildTeamMenuEnterpriseSettings } = teamMenuEnterprise;
 Modal.defaultProps.width = 480;
 
 const query = {
@@ -80,6 +86,7 @@ class TeamLayout extends PureComponent {
 
   constructor(props) {
     super(props);
+    this.lastPluginUrlKey = '';
     this.state = {
       isMobile,
       enterpriseList: [],
@@ -105,7 +112,8 @@ class TeamLayout extends PureComponent {
       isTime: false,
       isNeedAuthz: false,
       showFooter: true,
-      showHeader: true
+      showHeader: true,
+      permissionsRefreshing: false
     };
   }
 
@@ -171,9 +179,13 @@ class TeamLayout extends PureComponent {
     const { appID: stateAppID } = this.state;
     if (newAppID && newAppID !== stateAppID) {
       this.setState(
-        { appID: newAppID, currentApp: false },
+        { appID: newAppID, currentApp: false, permissionsRefreshing: true },
         () => {
-          this.fetchGroup();
+          this.fetchGroup(() => {
+            if (globalUtil.getAppID() === newAppID) {
+              this.setState({ permissionsRefreshing: false });
+            }
+          });
           this.fetchAppDetail(newAppID);
         }
       );
@@ -272,7 +284,7 @@ class TeamLayout extends PureComponent {
       });
     }
   };
-  fetchGroup = () => {
+  fetchGroup = callback => {
     const { dispatch } = this.props;
     dispatch({
       type: 'user/fetchCurrent',
@@ -282,21 +294,29 @@ class TeamLayout extends PureComponent {
       callback: res => {
         if (res && res.bean) {
           const team = userUtil.getTeamByTeamName(res.bean, globalUtil.getCurrTeamName());
-          setTimeout(() => {
-            dispatch({
-              type: 'teamControl/fetchCurrentTeamPermissions',
-              payload: team && team.tenant_actions
-            });
-          }, 10)
+          dispatch({
+            type: 'teamControl/fetchCurrentTeamPermissions',
+            payload: team && team.tenant_actions
+          });
           const region = userUtil.hasTeamAndRegion(res.bean, globalUtil.getCurrTeamName(), globalUtil.getCurrRegionName());
           dispatch({ type: 'teamControl/fetchCurrentTeam', payload: team });
           this.setState({
             currentTeam: team,
             currentRegion: region
+          }, () => {
+            if (callback) {
+              callback(team);
+            }
           });
 
         }
       },
+      handleError: () => {
+        this.setState({ permissionsRefreshing: false });
+        if (callback) {
+          callback(null);
+        }
+      }
     });
   };
   // 获取当前团队下的所有应用名称
@@ -325,11 +345,17 @@ class TeamLayout extends PureComponent {
     if (!enterpriseId) {
       return; // 无有效 enterpriseId 时不发起请求，避免 404/undefined
     }
+    const regionName = globalUtil.getCurrRegionName();
+    const pluginUrlKey = `${enterpriseId}:${regionName}`;
+    if (this.lastPluginUrlKey === pluginUrlKey) {
+      return;
+    }
+    this.lastPluginUrlKey = pluginUrlKey;
     dispatch({
       type: 'teamControl/fetchPluginUrl',
       payload: {
         enterprise_id: enterpriseId,
-        region_name: globalUtil.getCurrRegionName()
+        region_name: regionName
       },
       callback: res => {
         if (res && res.list) {
@@ -356,6 +382,9 @@ class TeamLayout extends PureComponent {
             showPipeline: res.list
           })
         }
+      },
+      handleError: () => {
+        this.lastPluginUrlKey = '';
       }
     })
   }
@@ -724,6 +753,52 @@ class TeamLayout extends PureComponent {
     dispatch(routerRedux.replace(link))
   }
 
+  canAccessResourceCenter = () => {
+    const { currentUser, rainbondInfo } = this.props;
+    const isSaas = !!(rainbondInfo && rainbondInfo.is_saas);
+    return !isSaas || !!(currentUser && currentUser.is_enterprise_admin);
+  };
+
+  canAccessAppBackup = () => {
+    const { currentUser, rainbondInfo } = this.props;
+    const isSaas = !!(rainbondInfo && rainbondInfo.is_saas);
+    return !isSaas || !!(currentUser && currentUser.is_enterprise_admin);
+  };
+
+  isResourceCenterRoute = (pathname = '') => {
+    return typeof pathname === 'string' && pathname.indexOf('/k8s-center') > -1;
+  };
+
+  isAppAssetRoute = (pathname = '') => {
+    return typeof pathname === 'string' && /\/apps\/[^/]+\/asset(\/|$)/.test(pathname);
+  };
+
+  isAppBackupRoute = (pathname = '') => {
+    return typeof pathname === 'string' && /\/apps\/[^/]+\/backup(\/|$)/.test(pathname);
+  };
+
+  filterResourceCenterMenus = (menuGroups = [], canAccessResourceCenter) => {
+    if (canAccessResourceCenter) {
+      return menuGroups;
+    }
+
+    const removeResourceCenterItem = item => {
+      const itemPath = item && item.path ? item.path : '';
+      return itemPath.indexOf('/k8s-center') === -1;
+    };
+
+    if ((menuGroups || []).some(group => Array.isArray(group.items))) {
+      return (menuGroups || [])
+        .map(group => ({
+          ...group,
+          items: (group.items || []).filter(removeResourceCenterItem)
+        }))
+        .filter(group => group.items && group.items.length > 0);
+    }
+
+    return (menuGroups || []).filter(removeResourceCenterItem);
+  };
+
   render() {
     const {
       memoryTip,
@@ -765,11 +840,14 @@ class TeamLayout extends PureComponent {
       isNeedAuthz,
       showFooter,
       showHeader,
-      overflow
+      overflow,
+      permissionsRefreshing
     } = this.state;  
     const { teamName, regionName } = this.props.match.params;
     const autoWidth = collapsed ? 'calc(100% - 416px)' : 'calc(100% - 116px)';
     const isSaas = rainbondInfo?.is_saas || false;
+    const canAccessResourceCenter = this.canAccessResourceCenter();
+    const canAccessAppBackup = this.canAccessAppBackup();
     if (!isAuthorizationLoading) {
       // 需要授权但未获取到授权信息
       if (isNeedAuthz && !licenseInfo) {
@@ -807,9 +885,17 @@ class TeamLayout extends PureComponent {
       isAuthorizationLoading ||
       !currentEnterprise ||
       !currentTeam ||
-      !currentTeamPermissionsInfo
+      !currentTeamPermissionsInfo ||
+      permissionsRefreshing
     ) {
       return <PageLoading />;
+    }
+
+    if ((this.isResourceCenterRoute(pathname) || this.isAppAssetRoute(pathname)) && !canAccessResourceCenter) {
+      return <Exception />;
+    }
+    if (this.isAppBackupRoute(pathname) && !canAccessAppBackup) {
+      return <Exception />;
     }
 
     // 避免在 render 中触发副作用；迁移到生命周期里处理
@@ -907,12 +993,20 @@ class TeamLayout extends PureComponent {
         currentTeam.tenant_actions
       );
     }
+    menuData = this.filterResourceCenterMenus(menuData, canAccessResourceCenter);
     const safeEnterprise = buildTeamMenuEnterpriseSettings(enterprise, currentEnterprise);
     const fetchLogo = rainbondUtil.fetchLogo(rainbondInfo, safeEnterprise) || logo;
     const SiteTitle = rainbondUtil.fetchSiteTitle(rainbondInfo);
     const customerServiceQrcode = rainbondInfo && rainbondInfo.customer_service_qrcode && rainbondInfo.customer_service_qrcode.value || '';
     const showEnterprisebase = PluginUtil.isInstallPlugin(showPipeline, 'rainbond-enterprise-base');
     const pluginsLoaded = Array.isArray(showPipeline);
+    const { agentVisible } = this.props;
+    const showCustomerServiceFloat = shouldShowCustomerServiceFloat({
+      pluginsLoaded,
+      showEnterprisebase,
+      isSaas,
+      agentVisible
+    });
     const layout = () => {
       const team = userUtil.getTeamByTeamName(currentUser, teamName);
       const hasRegion = team && team.region && team.region.length && currentRegion;
@@ -1097,10 +1191,8 @@ class TeamLayout extends PureComponent {
               orders={orders}
             />
         )}
-        {pluginsLoaded ? (
-          showEnterprisebase && !isSaas ? null : (
-            <CustomerServiceFloat customerServiceQrcode={customerServiceQrcode} isSaas={isSaas} />
-          )
+        {showCustomerServiceFloat ? (
+          <CustomerServiceFloat customerServiceQrcode={customerServiceQrcode} isSaas={isSaas} />
         ) : null}
       </Fragment>
     );
@@ -1108,8 +1200,9 @@ class TeamLayout extends PureComponent {
 }
 
 export default connect(
-  ({ user, global, index, loading, teamControl, application }) => ({
+  ({ user, global, index, loading, teamControl, application, agent }) => ({
     currentUser: user.currentUser,
+    agentVisible: !!(agent && agent.visible),
     notifyCount: user.notifyCount,
     collapsed: global.collapsed,
     groups: global.groups,

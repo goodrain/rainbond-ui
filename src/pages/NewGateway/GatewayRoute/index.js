@@ -10,9 +10,10 @@ import GatewayRouteLoadBalancer from '../../../components/GatewayRouteLoadBalanc
 import pluginUtils from '../../../utils/pulginUtils';
 import globalUtil from '../../../utils/global';
 const { TabPane } = Tabs;
-@connect(({ rbdPlugin, user }) => ({
+@connect(({ rbdPlugin, user, global }) => ({
     pluginList: rbdPlugin.pluginList,
     currentUser: user.currentUser,
+    rainbondInfo: global.rainbondInfo,
 }))
 
 export default class index extends Component {
@@ -53,41 +54,46 @@ export default class index extends Component {
             showTcp,
             existsAutomaticIssuanceCert
         } = this.state;
-        const { appID, open, operationPermissions, onTabChange, permission, currentUser } = this.props;
+        const { appID, open, operationPermissions, onTabChange, permission, currentUser, rainbondInfo } = this.props;
+        const isEnterpriseAdmin = !!(currentUser && currentUser.is_enterprise_admin);
+        const canAccessLoadBalancer = !(rainbondInfo && rainbondInfo.is_saas) || isEnterpriseAdmin;
+        const activeKey = canAccessLoadBalancer || tableKey !== 'loadbalancer' ? tableKey : 'http';
         return (
             <div>
-                <Tabs onChange={(e) => { this.setState({ tableKey: e }) }} activeKey={tableKey}>
+                <Tabs onChange={(e) => { this.setState({ tableKey: e }) }} activeKey={activeKey}>
                     <TabPane tab="HTTP" key="http">
                         <GatewayRouteHttp
                             operationPermissions={operationPermissions}
                             open={open}
                             onTabChange={onTabChange}
-                            type={tableKey}
+                            type={activeKey}
                             appID={appID}
                             permission={permission}
                             existsAutomaticIssuanceCert={existsAutomaticIssuanceCert}
                         />
                     </TabPane>
-                    {(currentUser.is_enterprise_admin || !showTcp) && (
+                    {(isEnterpriseAdmin || !showTcp) && (
                         <TabPane tab="TCP" key="tcp">
                             <GatewayRouteTcp
                                 operationPermissions={operationPermissions}
                                 open={open}
-                                type={tableKey}
+                                type={activeKey}
                                 appID={appID}
                                 permission={permission}
                             />
                         </TabPane>
                     )}
-                    <TabPane tab="LoadBalancer" key="loadbalancer">
-                        <GatewayRouteLoadBalancer
-                            operationPermissions={operationPermissions}
-                            open={open}
-                            type={tableKey}
-                            appID={appID}
-                            permission={permission}
-                        />
-                    </TabPane>
+                    {canAccessLoadBalancer && (
+                        <TabPane tab="LoadBalancer" key="loadbalancer">
+                            <GatewayRouteLoadBalancer
+                                operationPermissions={operationPermissions}
+                                open={open}
+                                type={activeKey}
+                                appID={appID}
+                                permission={permission}
+                            />
+                        </TabPane>
+                    )}
                 </Tabs>
 
             </div>

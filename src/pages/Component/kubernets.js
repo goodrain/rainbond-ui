@@ -30,6 +30,10 @@ const BOOLEAN_FIELDS = ['privileged', 'shareProcessNamespace', 'hostIPC'];
 const SELECT_FIELDS = {
   dnsPolicy: ['Default', 'ClusterFirst', 'ClusterFirstWithHostNet', 'None']
 };
+const JSON_ATTRIBUTE_NAMES = JSON_FIELDS;
+const YAML_ATTRIBUTE_NAMES = YAML_FIELDS;
+const STRING_ATTRIBUTE_NAMES = STRING_FIELDS;
+const BOOLEAN_ATTRIBUTE_NAMES = BOOLEAN_FIELDS;
 
 const isSelectField = name => Object.prototype.hasOwnProperty.call(SELECT_FIELDS, name);
 const isStringField = (name, attribute = {}) => STRING_FIELDS.includes(name) || (attribute.save_type === 'string' && !BOOLEAN_FIELDS.includes(name) && !isSelectField(name));
@@ -206,6 +210,118 @@ class Index extends PureComponent {
       message: formatMessage({ id: 'componentOverview.body.Kubernetes.null' })
     });
   }
+
+  isJsonAttribute = name => JSON_ATTRIBUTE_NAMES.includes(name);
+
+  isYamlAttribute = name => YAML_ATTRIBUTE_NAMES.includes(name);
+
+  isStringAttribute = name => STRING_ATTRIBUTE_NAMES.includes(name);
+
+  isBooleanAttribute = name => BOOLEAN_ATTRIBUTE_NAMES.includes(name);
+
+  renderAttributeValue = (item, uploadYaml) => {
+    const { name, attribute_value: attributeValue } = item;
+
+    if (!attributeValue || attributeValue.length === 0) {
+      return '-';
+    }
+
+    if (this.isJsonAttribute(name) && Array.isArray(attributeValue)) {
+      return attributeValue.map((ele, index) => (
+        <Tooltip key={`${name}-${index}`} placement="top" title={<div><p>Key: {ele.key}</p><p>Value: {ele.value}</p></div>}>
+          <div className={styles.keyValueInline}>
+            <span className={styles.keyValueTag}>
+              <FormattedMessage id='componentOverview.body.Kubernetes.key_label' />
+            </span>
+            <span className={styles.keyValueText}>{ele.key}</span>
+            <span className={styles.keyValueTag}>
+              <FormattedMessage id='componentOverview.body.Kubernetes.value_label' />
+            </span>
+            <span className={styles.keyValueText}>{ele.value}</span>
+          </div>
+        </Tooltip>
+      ));
+    }
+
+    if (this.isYamlAttribute(name)) {
+      return (
+        <div className={styles.yamlValue_style}>
+          {uploadYaml}
+          &nbsp;&nbsp;&nbsp;&nbsp;
+          <FormattedMessage id='componentOverview.body.Kubernetes.yaml' />
+        </div>
+      );
+    }
+
+    if (this.isStringAttribute(name)) {
+      return (
+        <div style={{ padding: '10px 15px', backgroundColor: '#f0f4f8', borderRadius: '10px' }}>
+          <Tooltip placement="top" title={attributeValue}>
+            {attributeValue}
+          </Tooltip>
+        </div>
+      );
+    }
+
+    if (this.isBooleanAttribute(name)) {
+      return (
+        <span style={{ paddingTop: '6px' }}>
+          <FormattedMessage id='componentOverview.body.Kubernetes.current' />
+          {attributeValue == 'true'
+            ? <FormattedMessage id='componentOverview.body.Kubernetes.Opened' />
+            : <FormattedMessage id='componentOverview.body.Kubernetes.Closed' />}
+        </span>
+      );
+    }
+
+    if (name == 'dnsPolicy') {
+      return (
+        <span style={{ paddingTop: '6px' }}>
+          {formatMessage({ id: 'componentOverview.body.Kubernetes.is' })} {attributeValue}
+        </span>
+      );
+    }
+
+    return attributeValue;
+  };
+
+  getAttributeColumns = uploadYaml => [
+    {
+      title: <FormattedMessage id='componentOverview.body.Kubernetes.name' />,
+      dataIndex: 'name',
+      key: 'name',
+      width: 200,
+      fixed: 'left',
+      render: text => <span style={{ fontWeight: 600, color: '#5d667a' }}>{text}</span>
+    },
+    {
+      title: <FormattedMessage id='componentOverview.body.Kubernetes.attribute' />,
+      dataIndex: 'attribute_value',
+      key: 'attribute_value',
+      render: (_, item) => (
+        <div className={styles.attributeValueCell}>
+          {this.renderAttributeValue(item, uploadYaml)}
+        </div>
+      )
+    },
+    {
+      title: <FormattedMessage id='componentOverview.body.Kubernetes.edit' />,
+      dataIndex: 'action',
+      key: 'action',
+      width: 170,
+      fixed: 'right',
+      render: (_, item, index) => (
+        <div className={styles.attributeActionCell}>
+          <a className={styles.actionLink} onClick={() => this.changeBtn(item, 'change', index)}>
+            <FormattedMessage id='componentOverview.body.Kubernetes.edit' />
+          </a>
+          <a className={styles.actionLink} onClick={() => this.cancalDeletePort(item)}>
+            <FormattedMessage id='componentOverview.body.Kubernetes.deldete' />
+          </a>
+        </div>
+      )
+    }
+  ];
 
   handleSubmit = (e) => {
     e.preventDefault();
@@ -468,7 +584,6 @@ class Index extends PureComponent {
                         <Select
                           placeholder={selectVal == "dnsPolicy" ? formatMessage({ id: 'componentOverview.body.Kubernetes.dnsPolicy' }) : selectVal}
                           style={{ width: 220 }}
-                          onSelect={this.dnsPolicyYamlShow}
                         >
                           {selectOptions.map((item, index) => {
                             return <Option
@@ -565,8 +680,8 @@ class Index extends PureComponent {
                       item.name &&
                       JSON_FIELDS.includes(item.name) &&
                       hasAttributeValue(item.attribute_value) &&
-                      item.attribute_value.map((ele, index) => {
-                        return <Tooltip key={index} placement="top" title={<div><p>Key: {ele.key}</p><p>Value: {ele.value}</p></div>}>
+                      item.attribute_value.map((ele, keyIndex) => {
+                        return <Tooltip key={keyIndex} placement="top" title={<div><p>Key: {ele.key}</p><p>Value: {ele.value}</p></div>}>
                           <div className={styles.tipText_style}>
                             <span>{ele.key}</span>
                             <span>{ele.value}</span>
@@ -577,9 +692,9 @@ class Index extends PureComponent {
                       {item.name &&
                         isRawJsonAttribute(item.name, item) &&
                         hasAttributeValue(item.attribute_value) &&
-                        (Array.isArray(item.attribute_value) ? item.attribute_value.map((ele, index) => {
+                        (Array.isArray(item.attribute_value) ? item.attribute_value.map((ele, keyIndex) => {
                           const displayValue = formatRawJsonAttributeDisplayValue(ele);
-                          return <Tooltip key={index} placement="top" title={displayValue}>
+                          return <Tooltip key={keyIndex} placement="top" title={displayValue}>
                             <div style={{ padding: "10px 15px", backgroundColor: "#f0f4f8", borderRadius: "10px", margin: "0 20px 10px 0px" }}>
                               {displayValue}
                             </div>
@@ -622,7 +737,7 @@ class Index extends PureComponent {
                         <span style={{ paddingTop: "6px" }}><FormattedMessage id='componentOverview.body.Kubernetes.current' />{item.attribute_value == "true" ? <FormattedMessage id='componentOverview.body.Kubernetes.Opened' /> : <FormattedMessage id='componentOverview.body.Kubernetes.Closed' />}</span>
                       }
                       {item.name &&
-                        (item.name == "dnsPolicy") &&
+                        item.name == "dnsPolicy" &&
                         <span style={{ paddingTop: "6px" }}> {formatMessage({ id: 'componentOverview.body.Kubernetes.is' })} {hasAttributeValue(item.attribute_value) ? item.attribute_value : '-'} </span>
                       }
                     </Col>

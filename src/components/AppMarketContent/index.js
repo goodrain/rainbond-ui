@@ -44,6 +44,7 @@ const AppMarketContent = forwardRef(({
   // 其他配置
   showResourceInfo = true,
   showSubmitBtn = true,
+  showScopeTag = false,
   appIcon,
   currentVersionInfo
 }, ref) => {
@@ -69,6 +70,19 @@ const AppMarketContent = forwardRef(({
   useImperativeHandle(ref, () => ({
     handleSubmit
   }));
+
+  const renderScopeTag = app => {
+    if (!showScopeTag) {
+      return null;
+    }
+    if (app.scope === 'enterprise') {
+      return <Tag color="blue">企业</Tag>;
+    }
+    if (app.scope === 'team') {
+      return <Tag color="orange">团队</Tag>;
+    }
+    return null;
+  };
 
   if (currentView === 'list') {
     return (
@@ -105,6 +119,7 @@ const AppMarketContent = forwardRef(({
                       <div className={styles.appInfo}>
                         <div className={styles.appHeader}>
                           <span className={styles.appName}>{app.app_name || app.name}</span>
+                          {renderScopeTag(app)}
                           {app.arch && app.arch.length > 0 && (
                             <span className={styles.archTag}>{app.arch[0]}</span>
                           )}

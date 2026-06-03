@@ -242,7 +242,7 @@ class EditName extends PureComponent {
 
 @Form.create()
 @connect(
-  ({ user, appControl, global, teamControl, enterprise, loading, kubeblocks }) => ({
+  ({ user, appControl, global, teamControl, enterprise, loading, kubeblocks, agent }) => ({
     currUser: user.currentUser,
     appDetail: appControl.appDetail,
     pods: appControl.pods,
@@ -262,7 +262,8 @@ class EditName extends PureComponent {
       loading.effects[('appControl/putDeploy', 'appControl/putUpgrade')],
     buildInformationLoading: loading.effects['appControl/getBuildInformation'],
     pluginList: teamControl.pluginsList,
-    clusterDetail: kubeblocks.clusterDetail
+    clusterDetail: kubeblocks.clusterDetail,
+    pendingMutationRefreshKey: agent.pendingMutationRefreshKey,
   }),
   null,
   null,
@@ -555,11 +556,28 @@ class Main extends PureComponent {
   handleTabChange = key => {    
     const { dispatch } = this.props;
     const { app_alias } = this.fetchParameter();
+    const refresh = globalUtil.getRefresh();
+    const currentSubTab = globalUtil.getSlidePanelSubTab();
+    const nextSubTab =
+      key === 'advancedSettings'
+        ? (currentSubTab || (this.state.isShowKubeBlocksComponent ? 'port' : 'mnt'))
+        : '';
     this.setState({
       activeTab: key
     }, () => {
+      const query = [
+        'type=components',
+        `componentID=${encodeURIComponent(app_alias)}`,
+        `tab=${encodeURIComponent(key)}`
+      ];
+      if (nextSubTab) {
+        query.push(`subTab=${encodeURIComponent(nextSubTab)}`);
+      }
+      if (refresh) {
+        query.push(`refresh=${encodeURIComponent(refresh)}`);
+      }
       dispatch(
-        routerRedux.push(`${this.fetchPrefixUrl()}apps/${globalUtil.getAppID()}/overview?type=components&componentID=${app_alias}&tab=${key}`)
+        routerRedux.push(`${this.fetchPrefixUrl()}apps/${globalUtil.getAppID()}/overview?${query.join('&')}`)
       );
     })
   };
@@ -1761,7 +1779,14 @@ class Main extends PureComponent {
     };
     if (CompluginList && CompluginList.length > 0) {
       CompluginList.forEach(item => {
-        map[item.name] = ComponentPlugin;
+        // rainbond-sourcescan 插件只在 service_source 为 source_code 时注册
+        if (item.name === 'rainbond-sourcescan') {
+          if (appDetail?.service?.service_source === 'source_code') {
+            map[item.name] = ComponentPlugin;
+          }
+        } else {
+          map[item.name] = ComponentPlugin;
+        }
       })
     }
     const visibleTabList = tabsShow ? tabList : overviewTabs;
@@ -1772,6 +1797,14 @@ class Main extends PureComponent {
       ? activeTab
       : defaultTabKey;
     const Com = map[currentActiveTab];
+    const refreshKey = globalUtil.getRefresh() || 'steady';
+    const pendingMutationRefreshKey =
+      this.props.pendingMutationRefreshKey || 'stable';
+    const activeSubTab = globalUtil.getSlidePanelSubTab() || '';
+    const componentRenderKey =
+      currentActiveTab === 'advancedSettings'
+        ? `${currentActiveTab}-${activeSubTab || 'default'}-${refreshKey}-${pendingMutationRefreshKey}`
+        : `${currentActiveTab}-${refreshKey}-${pendingMutationRefreshKey}`;
     const formItemLayout = {
       labelCol: {
         span: 1
@@ -1937,7 +1970,7 @@ class Main extends PureComponent {
           }}
         >
           <CSSTransition
-            key={currentActiveTab}
+            key={componentRenderKey}
             timeout={700}
             classNames="page-zoom"
             unmountOnExit

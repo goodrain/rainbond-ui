@@ -2,7 +2,9 @@ import { Form, Icon, Input, Radio, Switch, Tooltip } from 'antd';
 import React, { PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
 import { resolveCnbPolicyVersion } from '../cnbVersionPolicy';
-const { isBuildEnvTruthy } = require('../buildEnvHelpers');
+import buildEnvHelpers from '../buildEnvHelpers';
+
+const { isBuildEnvTruthy } = buildEnvHelpers;
 
 const RadioGroup = Radio.Group;
 

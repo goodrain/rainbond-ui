@@ -183,7 +183,7 @@ class AppShareAppInfo extends PureComponent {
       return null;
     }
     if (app.extend_method_map) {
-      const steps = getFieldValue(`${ID}||step_node`);
+      const steps = getFieldValue(`extend||step_node||${ID}`);
       return (
         <div className={styles.componentSection}>
           <div className={styles.componentSectionHeader}>
@@ -204,7 +204,7 @@ class AppShareAppInfo extends PureComponent {
                 })}
                 style={pd16}
               >
-                {getFieldDecorator(`${ID}||min_node`, {
+                {getFieldDecorator(`extend||min_node||${ID}`, {
                   initialValue: app.extend_method_map.min_node,
                   rules: [
                     {
@@ -233,7 +233,7 @@ class AppShareAppInfo extends PureComponent {
                 })}
                 style={pd16}
               >
-                {getFieldDecorator(`${ID}||max_node`, {
+                {getFieldDecorator(`extend||max_node||${ID}`, {
                   initialValue: app.extend_method_map.max_node,
                   rules: [
                     {
@@ -262,7 +262,7 @@ class AppShareAppInfo extends PureComponent {
                 })}
                 style={pd16}
               >
-                {getFieldDecorator(`${ID}||step_node`, {
+                {getFieldDecorator(`extend||step_node||${ID}`, {
                   initialValue: app.extend_method_map.step_node,
                   rules: [
                     {
@@ -291,7 +291,7 @@ class AppShareAppInfo extends PureComponent {
                 })}
                 style={pd16}
               >
-                {getFieldDecorator(`${ID}||init_memory`, {
+                {getFieldDecorator(`extend||init_memory||${ID}`, {
                   initialValue: app.extend_method_map.init_memory || 0,
                   rules: [
                     {
@@ -324,7 +324,7 @@ class AppShareAppInfo extends PureComponent {
                 })}
                 style={pd16}
               >
-                {getFieldDecorator(`${ID}||container_cpu`, {
+                {getFieldDecorator(`extend||container_cpu||${ID}`, {
                   initialValue: app.extend_method_map.container_cpu || 0,
                   rules: [
                     {

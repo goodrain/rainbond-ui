@@ -1,6 +1,6 @@
 /* eslint-disable react/no-redundant-should-component-update */
 /* eslint-disable react/no-unused-state */
-import { Alert, Form, Input, Modal, notification, Select, Tabs, Radio, Upload, Button, Icon, Checkbox } from 'antd';
+import { Alert, Form, Input, Modal, notification, Select, Tabs, Radio, Upload, Button, Icon, Checkbox, Tooltip } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import { FormattedMessage } from 'umi';
@@ -666,7 +666,14 @@ export default class ChangeBuildSource extends PureComponent {
 
                 <FormItem
                   {...is_language}
-                  label={<FormattedMessage id='componentOverview.body.ChangeBuildSource.Start' />}
+                  label={
+                    <span>
+                      <FormattedMessage id='componentOverview.body.ChangeBuildSource.Start' />
+                      <Tooltip title={formatMessage({ id: 'componentOverview.body.ChangeBuildSource.StartExtra' })}>
+                        <Icon type="question-circle-o" style={{ marginLeft: 2, color: '#8d9bad' }} />
+                      </Tooltip>
+                    </span>
+                  }
                 >
                   {getFieldDecorator('cmd', {
                     initialValue: (buildSource?.service_source == "docker_image" || buildSource?.service_source == "docker_run") && buildSource?.cmd ? buildSource.cmd : '',

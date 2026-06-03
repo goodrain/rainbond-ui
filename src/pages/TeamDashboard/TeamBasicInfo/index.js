@@ -22,6 +22,15 @@ import moment from 'moment';
 import styles from './index.less';
 const { Search } = Input;
 const { Option } = Select;
+const CARD_COLUMNS = 4;
+const CARD_GAP = 16;
+const COMPACT_CARD_MIN_WIDTH = 320;
+const MINI_CARD_MIN_WIDTH = 240;
+const CARD_LAYOUT_MODE = {
+  DEFAULT: 'default',
+  COMPACT: 'compact',
+  MINI: 'mini',
+};
 
 @connect(({ user, index, loading, global, teamControl, enterprise }) => ({
   currentUser: user.currentUser,
@@ -50,6 +59,7 @@ export default class index extends Component {
       appListLoading: true,
       teamHotAppList: [],
       appListTotal: 0,
+      cardLayoutMode: CARD_LAYOUT_MODE.DEFAULT,
       teamAppCreatePermission: newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'team_app_create'),
       language: cookie.get('language') === 'zh-CN',
       createComponentVisible: false,
@@ -57,10 +67,19 @@ export default class index extends Component {
     };
     // 标记组件是否已挂载
     this._isMounted = false;
+    this.cardListNode = null;
+    this.cardListResizeObserver = null;
   }
   componentDidMount() {
     this._isMounted = true;
     this.loadOverview();
+
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', this.handleCardListWindowResize);
+    }
+    if (this.cardListNode) {
+      this.updateCardLayoutMode(this.cardListNode.getBoundingClientRect().width);
+    }
 
     // 解析 URL 参数（只在首次加载时处理）
     if (!this.hasProcessedUrlParams) {
@@ -81,7 +100,82 @@ export default class index extends Component {
 
   componentWillUnmount() {
     this._isMounted = false;
+    if (typeof ResizeObserver === 'undefined') {
+      window.removeEventListener('resize', this.handleCardListWindowResize);
+    }
+    if (this.cardListResizeObserver) {
+      this.cardListResizeObserver.disconnect();
+      this.cardListResizeObserver = null;
+    }
+    this.cardListNode = null;
   }
+
+  setCardListNode = node => {
+    if (this.cardListNode === node) {
+      return;
+    }
+
+    if (this.cardListResizeObserver && this.cardListNode) {
+      this.cardListResizeObserver.unobserve(this.cardListNode);
+    }
+
+    this.cardListNode = node;
+
+    if (!node) {
+      return;
+    }
+
+    this.updateCardLayoutMode(node.getBoundingClientRect().width);
+
+    if (typeof ResizeObserver !== 'undefined') {
+      if (!this.cardListResizeObserver) {
+        this.cardListResizeObserver = new ResizeObserver(entries => {
+          const entry = entries && entries[0];
+          if (entry) {
+            this.updateCardLayoutMode(entry.contentRect.width);
+          }
+        });
+      }
+
+      this.cardListResizeObserver.observe(node);
+    }
+  };
+
+  handleCardListWindowResize = () => {
+    if (this.cardListNode) {
+      this.updateCardLayoutMode(this.cardListNode.getBoundingClientRect().width);
+    }
+  };
+
+  getCardLayoutMode = width => {
+    if (!width || width <= 0) {
+      return CARD_LAYOUT_MODE.DEFAULT;
+    }
+
+    const totalGap = CARD_GAP * (CARD_COLUMNS - 1);
+    const cardWidth = (width - totalGap) / CARD_COLUMNS;
+    if (cardWidth <= 0) {
+      return CARD_LAYOUT_MODE.DEFAULT;
+    }
+    if (cardWidth < MINI_CARD_MIN_WIDTH) {
+      return CARD_LAYOUT_MODE.MINI;
+    }
+    if (cardWidth < COMPACT_CARD_MIN_WIDTH) {
+      return CARD_LAYOUT_MODE.COMPACT;
+    }
+    return CARD_LAYOUT_MODE.DEFAULT;
+  };
+
+  updateCardLayoutMode = width => {
+    if (!this._isMounted) {
+      return;
+    }
+
+    const nextCardLayoutMode = this.getCardLayoutMode(width);
+    if (this.state.cardLayoutMode !== nextCardLayoutMode) {
+      this.setState({ cardLayoutMode: nextCardLayoutMode });
+    }
+  };
 
   // 获取团队下的基本信息
   loadOverview = () => {
@@ -209,85 +303,117 @@ export default class index extends Component {
   handleCloseCreateComponent = () => {
     this.setState({ createComponentVisible: false });
   }
+
+  renderCreateAppCard = () => {
+    const { cardLayoutMode } = this.state;
+    const isCompactCards = cardLayoutMode !== CARD_LAYOUT_MODE.DEFAULT;
+
+    return (
+      <div style={{ marginLeft: '0px' }}>
+        <div
+          data-testid="rbd-app-create-btn"
+          className={`${styles.teamHotAppItem} ${styles.addNewAppCard}`}
+          onClick={() => {
+            this.onJumpToWizard();
+          }}
+        >
+          <div className={styles.addNewAppContent}>
+            <div className={styles.addNewAppHeader}>
+              <div className={styles.addNewAppIcon}>
+                <Icon type="plus" />
+              </div>
+              <div className={styles.addNewAppTitleWrapper}>
+                <div className={styles.addNewAppTitle}>
+                  {formatMessage({ id: 'versionUpdata_6_1.createApp' })}
+                </div>
+                <div className={styles.addNewAppSubtitle}>
+                  {formatMessage({ id: 'teamOverview.selectMethodTip' })}
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.addNewAppIcons}>
+              <Tooltip title="应用商店">
+                <div className={styles.iconItem} style={{ background: 'rgba(24, 144, 255, 0.1)', color: '#1890ff' }}>
+                  <StoreIcon />
+                </div>
+              </Tooltip>
+              <Tooltip title="镜像构建">
+                <div className={styles.iconItem} style={{ background: 'rgba(250, 140, 22, 0.1)', color: '#fa8c16' }}>
+                  <ContainerIcon />
+                </div>
+              </Tooltip>
+              <Tooltip title="源码构建">
+                <div className={styles.iconItem} style={{ background: 'rgba(82, 196, 26, 0.1)', color: '#52c41a' }}>
+                  <CodeIcon />
+                </div>
+              </Tooltip>
+              <Tooltip title="软件包">
+                <div className={styles.iconItem} style={{ background: 'rgba(235, 47, 150, 0.1)', color: '#eb2f96' }}>
+                  <PackageIcon />
+                </div>
+              </Tooltip>
+              <Tooltip title="Yaml/Helm">
+                <div className={styles.iconItem} style={{ background: 'rgba(114, 46, 209, 0.1)', color: '#722ed1' }}>
+                  <FileTextIcon />
+                </div>
+              </Tooltip>
+            </div>
+
+            <div className={styles.addNewAppFooterWrapper}>
+              <div className={styles.addNewAppFooter}>
+                {formatMessage({ id: 'teamOverview.supportMethods' })}
+              </div>
+              <div className={`${styles.startCreateText} ${isCompactCards ? styles.startCreateTextCompact : ''}`}>
+                {formatMessage({ id: 'teamOverview.startCreate' })}
+                <Icon type="right" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   // 添加卡片视图渲染函数
   renderCardView = () => {
-    const { teamHotAppList, teamAppCreatePermission } = this.state;
+    const { teamHotAppList, teamAppCreatePermission, cardLayoutMode } = this.state;
     const { dispatch } = this.props;
+    const isCompactCards = cardLayoutMode !== CARD_LAYOUT_MODE.DEFAULT;
+    const isMiniCards = cardLayoutMode === CARD_LAYOUT_MODE.MINI;
     const isAppCreate = teamAppCreatePermission?.isAccess;
+    const teamHotAppListClassName = [
+      styles.teamHotAppList,
+      isCompactCards ? styles.teamHotAppListCompact : '',
+      isMiniCards ? styles.teamHotAppListMini : '',
+    ].filter(Boolean).join(' ');
     const visterSvg = (
       <svg t="1735296596548" style={{ marginRight: '2px' }} className="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10566" width="12" height="12"><path d="M864.107583 960.119537H63.880463V159.892417h447.928278V96.011954H0v927.988046h927.988046V527.874486h-63.880463v432.245051z" p-id="10567" fill='currentColor'></path><path d="M592.137467 0v63.880463h322.462458L457.491222 521.371685l45.137093 45.137093L960.119537 109.400075v322.462458h63.880463V0H592.137467z" p-id="10568" fill='currentColor'></path></svg>
     )
 
     if (teamHotAppList.length > 0) {
       return (
-          <div className={styles.teamHotAppList} >
+          <div className={teamHotAppListClassName} ref={this.setCardListNode}>
             {/* 新增应用卡片 */}
             {isAppCreate && (
-              <div style={{ marginLeft: '0px' }}>
-                <div
-                  className={`${styles.teamHotAppItem} ${styles.addNewAppCard}`}
-                  onClick={() => {
-                    this.onJumpToWizard();
-                  }}
-                >
-                  <div className={styles.addNewAppContent}>
-                    {/* 头部：+ 图标 + 标题 */}
-                    <div className={styles.addNewAppHeader}>
-                      <div className={styles.addNewAppIcon}>
-                        <Icon type="plus" />
-                      </div>
-                      <div className={styles.addNewAppTitleWrapper}>
-                        <div className={styles.addNewAppTitle}>
-                          {formatMessage({ id: 'versionUpdata_6_1.createApp' })}
-                        </div>
-                        <div className={styles.addNewAppSubtitle}>
-                          {formatMessage({ id: 'teamOverview.selectMethodTip' })}
-                        </div>
-                      </div>
-                    </div>
-                    {/* 图标列表 */}
-                    <div className={styles.addNewAppIcons}>
-                      <Tooltip title="应用商店">
-                        <div className={styles.iconItem} style={{ background: 'rgba(24, 144, 255, 0.1)', color: '#1890ff' }}>
-                          <StoreIcon />
-                        </div>
-                      </Tooltip>
-                      <Tooltip title="镜像构建">
-                        <div className={styles.iconItem} style={{ background: 'rgba(250, 140, 22, 0.1)', color: '#fa8c16' }}>
-                          <ContainerIcon />
-                        </div>
-                      </Tooltip>
-                      <Tooltip title="源码构建">
-                        <div className={styles.iconItem} style={{ background: 'rgba(82, 196, 26, 0.1)', color: '#52c41a' }}>
-                          <CodeIcon />
-                        </div>
-                      </Tooltip>
-                      <Tooltip title="软件包">
-                        <div className={styles.iconItem} style={{ background: 'rgba(235, 47, 150, 0.1)', color: '#eb2f96' }}>
-                          <PackageIcon />
-                        </div>
-                      </Tooltip>
-                      <Tooltip title="Yaml/Helm">
-                        <div className={styles.iconItem} style={{ background: 'rgba(114, 46, 209, 0.1)', color: '#722ed1' }}>
-                          <FileTextIcon />
-                        </div>
-                      </Tooltip>
-                    </div>
-                    {/* 底部区域 */}
-                    <div className={styles.addNewAppFooterWrapper}>
-                      <div className={styles.addNewAppFooter}>
-                        {formatMessage({ id: 'teamOverview.supportMethods' })}
-                      </div>
-                      <div className={styles.startCreateText}>
-                        {formatMessage({ id: 'teamOverview.startCreate' })}
-                        <Icon type="right" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              this.renderCreateAppCard()
             )}
             {teamHotAppList.map((item) => {
+              const createdTimeText = item.create_time && moment(item.create_time).format(isCompactCards ? 'MM/DD' : 'YYYY/MM/DD');
+              const updatedTimeText = item.update_time && moment(item.update_time).fromNow();
+              const memoryValue = (item.used_mem || 0) >= 1024
+                ? ((item.used_mem || 0) / 1024).toFixed(2)
+                : (item.used_mem || 0);
+              const memoryUnit = (item.used_mem || 0) >= 1024 ? 'GB' : 'MB';
+              const cpuValue = (item.used_cpu || 0) >= 1000
+                ? ((item.used_cpu || 0) / 1000).toFixed(2)
+                : (item.used_cpu || 0);
+              const cpuUnit = (item.used_cpu || 0) >= 1000 ? 'Core' : 'm';
+              const hasVisitAccess =
+                item.status === 'RUNNING' &&
+                item.accesses.length > 0 &&
+                item.accesses.some(a => a.access_info && a.access_info.length > 0 && a.access_info[0].access_urls && a.access_info[0].access_urls.length > 0);
+
               return (
                 <div key={item.group_id}>
                   <div
@@ -322,59 +448,98 @@ export default class index extends Component {
                           </div>
                         </div>
                         <div className={styles.appCardHeaderRight} style={{ color: '#1890ff' }} onClick={(e) => e.stopPropagation()}>
-                          {item.status === 'RUNNING' && item.accesses.length > 0 && item.accesses.some(a => a.access_info && a.access_info.length > 0 && a.access_info[0].access_urls && a.access_info[0].access_urls.length > 0) && (
+                          {hasVisitAccess && (
                             <>
-                              {visterSvg}
-                              <VisterBtn
-                                linkList={item.accesses}
-                                type="link"
-                                color="#1890ff"
-                              />
+                              {isCompactCards ? (
+                                <VisterBtn
+                                  linkList={item.accesses}
+                                  type="link"
+                                  color="#1890ff"
+                                  className={styles.compactVisitTrigger}
+                                >
+                                  <span className={styles.compactVisitTriggerIcon}>{visterSvg}</span>
+                                </VisterBtn>
+                              ) : (
+                                <>
+                                  {visterSvg}
+                                  <VisterBtn
+                                    linkList={item.accesses}
+                                    type="link"
+                                    color="#1890ff"
+                                  />
+                                </>
+                              )}
                             </>
                           )}
                         </div>
                       </div>
                       {/* 第二行：组件数 + 内存 + CPU */}
                       <div className={styles.appCardResources}>
-                        <span className={styles.resourceItem}>
-                          <Icon type="appstore" className={styles.resourceIcon} />
-                          <span className={styles.resourceValue}>{item.services_num}</span>
-                          <span className={styles.resourceLabel}><FormattedMessage id="unit.component" /></span>
-                        </span>
-                        <span className={styles.resourceItem}>
-                          MEM:
-                          <span className={styles.resourceValue} style={{marginLeft:4}}>
-                            {(item.used_mem || 0) >= 1024
-                              ? ((item.used_mem || 0) / 1024).toFixed(2)
-                              : (item.used_mem || 0)}
-                          </span>
-                          <span className={styles.resourceLabel}>
-                            {(item.used_mem || 0) >= 1024 ? 'GB' : 'MB'}
-                          </span>
-                        </span>
-                        <span className={styles.resourceItem}>
-                          CPU:
-                          <span className={styles.resourceValue} style={{marginLeft:4}}>
-                            {(item.used_cpu || 0) >= 1000
-                              ? ((item.used_cpu || 0) / 1000).toFixed(2)
-                              : (item.used_cpu || 0)}
-                          </span>
-                          <span className={styles.resourceLabel}>
-                            {(item.used_cpu || 0) >= 1000 ? 'Core' : 'm'}
-                          </span>
-                        </span>
+                        {isMiniCards ? (
+                          <>
+                            <span className={`${styles.resourceItem} ${styles.resourceItemMini}`}>
+                              <span className={styles.resourceLabel}>组件</span>
+                              <span className={styles.resourceValue}>{item.services_num}个</span>
+                            </span>
+                            <span className={`${styles.resourceItem} ${styles.resourceItemMini}`}>
+                              <span className={styles.resourceLabel}>MEM</span>
+                              <span className={styles.resourceValue}>{memoryValue} {memoryUnit}</span>
+                            </span>
+                            <span className={`${styles.resourceItem} ${styles.resourceItemMini}`}>
+                              <span className={styles.resourceLabel}>CPU</span>
+                              <span className={styles.resourceValue}>{cpuValue} {cpuUnit}</span>
+                            </span>
+                          </>
+                        ) : isCompactCards ? (
+                          <>
+                            <span className={styles.resourceItem}>
+                              <span className={styles.resourceLabel}>组件</span>
+                              <span className={styles.resourceValue}>{item.services_num}个</span>
+                            </span>
+                            <span className={styles.resourceItem}>
+                              <span className={styles.resourceLabel}>MEM</span>
+                              <span className={styles.resourceValue}>{memoryValue} {memoryUnit}</span>
+                            </span>
+                            <span className={styles.resourceItem}>
+                              <span className={styles.resourceLabel}>CPU</span>
+                              <span className={styles.resourceValue}>{cpuValue} {cpuUnit}</span>
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <span className={styles.resourceItem}>
+                              <span className={styles.resourceLabel}>组件：</span>
+                              <span className={styles.resourceValue}>{item.services_num}</span>
+                              <span className={styles.resourceUnit}>个</span>
+                            </span>
+                            <span className={styles.resourceItem}>
+                              <span className={styles.resourceLabel}>内存：</span>
+                              <span className={styles.resourceValue}>{memoryValue}</span>
+                              <span className={styles.resourceUnit}>{memoryUnit}</span>
+                            </span>
+                            <span className={styles.resourceItem}>
+                              <span className={styles.resourceLabel}>CPU：</span>
+                              <span className={styles.resourceValue}>{cpuValue}</span>
+                              <span className={styles.resourceUnit}>{cpuUnit}</span>
+                            </span>
+                          </>
+                        )}
                       </div>
                       {/* 第三行：创建时间 + 更新时间 */}
                       <div className={styles.appCardTimeRow}>
                         <span className={styles.timeItem}>
                           <Icon type="calendar" className={styles.timeIcon} />
-                          <span className={styles.timeLabel}>{formatMessage({ id: 'teamApply.createTime' })}</span>
-                          <span className={styles.timeValue}>{item.create_time && moment(item.create_time).format('YYYY/MM/DD')}</span>
+                          {!isCompactCards && (
+                            <span className={styles.timeLabel}>{formatMessage({ id: 'teamApply.createTime' })}</span>
+                          )}
+                          <span className={styles.timeValue}>{createdTimeText}</span>
                         </span>
                         <span className={styles.timeItem}>
                           <Icon type="clock-circle" className={styles.timeIcon} />
-                          <span className={styles.timeLabel}>{formatMessage({ id: 'versionUpdata_6_1.updateTime' })}</span>
-                          <span className={styles.timeValue}>{item.update_time && moment(item.update_time).fromNow()}</span>
+                          {!isCompactCards && (
+                            <span className={styles.timeLabel}>{formatMessage({ id: 'versionUpdata_6_1.updateTime' })}</span>
+                          )}
+                          <span className={styles.timeValue}>{updatedTimeText}</span>
                         </span>
                       </div>
                     </div>
@@ -405,76 +570,14 @@ export default class index extends Component {
       );
     } else {
       return (
-        <div className={styles.teamHotAppList} >
+        <div className={teamHotAppListClassName} ref={this.setCardListNode}>
           {/* 居中提示文字 */}
           <div className={styles.emptyTip}>
             {formatMessage({ id: 'teamOverview.noAppTip' })}
           </div>
           {/* 新增应用卡片 */}
           {isAppCreate && (
-            <div style={{ marginLeft: '0px' }}>
-              <div
-                className={`${styles.teamHotAppItem} ${styles.addNewAppCard}`}
-                onClick={() => {
-                  this.onJumpToWizard();
-                }}
-              >
-                <div className={styles.addNewAppContent}>
-                  {/* 头部：+ 图标 + 标题 */}
-                  <div className={styles.addNewAppHeader}>
-                    <div className={styles.addNewAppIcon}>
-                      <Icon type="plus" />
-                    </div>
-                    <div className={styles.addNewAppTitleWrapper}>
-                      <div className={styles.addNewAppTitle}>
-                        {formatMessage({ id: 'versionUpdata_6_1.createApp' })}
-                      </div>
-                      <div className={styles.addNewAppSubtitle}>
-                        {formatMessage({ id: 'teamOverview.selectMethodTip' })}
-                      </div>
-                    </div>
-                  </div>
-                  {/* 图标列表 */}
-                  <div className={styles.addNewAppIcons}>
-                    <Tooltip title="应用商店">
-                      <div className={styles.iconItem} style={{ background: 'rgba(24, 144, 255, 0.1)', color: '#1890ff' }}>
-                        <StoreIcon />
-                      </div>
-                    </Tooltip>
-                    <Tooltip title="镜像构建">
-                      <div className={styles.iconItem} style={{ background: 'rgba(250, 140, 22, 0.1)', color: '#fa8c16' }}>
-                        <ContainerIcon />
-                      </div>
-                    </Tooltip>
-                    <Tooltip title="源码构建">
-                      <div className={styles.iconItem} style={{ background: 'rgba(82, 196, 26, 0.1)', color: '#52c41a' }}>
-                        <CodeIcon />
-                      </div>
-                    </Tooltip>
-                    <Tooltip title="软件包">
-                      <div className={styles.iconItem} style={{ background: 'rgba(235, 47, 150, 0.1)', color: '#eb2f96' }}>
-                        <PackageIcon />
-                      </div>
-                    </Tooltip>
-                    <Tooltip title="Yaml/Helm">
-                      <div className={styles.iconItem} style={{ background: 'rgba(114, 46, 209, 0.1)', color: '#722ed1' }}>
-                        <FileTextIcon />
-                      </div>
-                    </Tooltip>
-                  </div>
-                  {/* 底部区域 */}
-                  <div className={styles.addNewAppFooterWrapper}>
-                    <div className={styles.addNewAppFooter}>
-                      {formatMessage({ id: 'teamOverview.supportMethods' })}
-                    </div>
-                    <div className={styles.startCreateText}>
-                      {formatMessage({ id: 'teamOverview.startCreate' })}
-                      <Icon type="right" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            this.renderCreateAppCard()
           )}
           {/* 11个白色占位方块 */}
           {Array.from({ length: 11 }).map((_, index) => {

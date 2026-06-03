@@ -44,11 +44,12 @@ export default class AppDeteleResource extends PureComponent {
                 onSuccess(res);
               }
               if (!skipRedirect) {
-                dispatch(
-                  routerRedux.replace(
-                    `/team/${team_name}/region/${regionName}/index`
-                  )
-                );
+                dispatch({ type: 'application/clearGroupDetail' });
+                dispatch({
+                  type: 'global/fetchGroups',
+                  payload: { team_name }
+                });
+                dispatch(routerRedux.replace(`/team/${team_name}/region/${regionName}/index`));
               }
             }
           }

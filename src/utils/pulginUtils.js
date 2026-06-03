@@ -1,3 +1,4 @@
+import { getPluginBaseId } from './pluginArchUtils';
 
 // 定义插件所在视图，支持平台、团队、应用和组件四个范围。对应取值为Platform、Team、Application、Component
 export default {
@@ -5,26 +6,31 @@ export default {
   segregatePluginsByHierarchy(list, type) {
       // 根据不同视图定义需要屏蔽的插件
       const excludePluginsByView = {
-        'Team': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs'],
-        'Application': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs'],
-        'Platform': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs','rainbond-gpu'],
-        'Component': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs'],
-        'TeamModal': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs']
+        'Team': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs', 'rainbond-agent'],
+        'Application': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs',"rainbond-agent"],
+        'Platform': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs','rainbond-gpu',"rainbond-agent"],
+        'Component': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs','rainbond-agent'],
+        'TeamModal': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs','rainbond-agent'],
       };
 
       // 获取当前视图需要排除的插件列表,如果没有配置则使用默认值
       const excludePlugins = excludePluginsByView[type] || ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs'];
 
-      const arr = (list || []).filter(item =>
-        item?.plugin_views?.includes(type)
-        && !excludePlugins.includes(item.name)
-        && item.enable_status === 'true'
-      ).map(item => item);
+      // 排除列表里写的是基名，但市场返回的 name/plugin_id 可能带 -ARM64/-AMD64 后缀，
+      // 统一退化到基名再比较，确保 ARM/AMD 两个 SKU 都被屏蔽。
+      const arr = (list || []).filter(item => {
+        const baseName = getPluginBaseId(item?.name);
+        const basePid = getPluginBaseId(item?.plugin_id);
+        const excluded = excludePlugins.includes(baseName) || excludePlugins.includes(basePid);
+        return item?.plugin_views?.includes(type)
+          && !excluded
+          && item.enable_status === 'true';
+      }).map(item => item);
       return arr
   },
   // 判断当前企业是否安装企业插件
   isInstallEnterprisePlugin(list) {
-    return (list || []).some(element => element.name === 'rainbond-enterprise-base');
+    return (list || []).some(element => getPluginBaseId(element.name) === 'rainbond-enterprise-base');
   },
 
   getPluginInfo(list, pluginId) {
@@ -32,16 +38,16 @@ export default {
     Object.keys(list || {}).forEach(item => {
       const plugin = list[item]
       plugin.forEach(items => {
-        if (items.name === pluginId) {
+        if (getPluginBaseId(items.name) === pluginId) {
           pluginList[item]=items
         }
       })
     });
     return pluginList
   },
-  // 判断是否安装了某个插件
+  // 判断是否安装了某个插件 (pluginId 接受基名, 自动兼容 -ARM64/-AMD64 后缀变种)
   isInstallPlugin(list, pluginId) {
-    return (list || []).some(element => element.name === pluginId);
+    return (list || []).some(element => getPluginBaseId(element.name) === pluginId);
   },
   // 判断当前路由的视图位置
   getCurrentViewPosition(urlPath) {

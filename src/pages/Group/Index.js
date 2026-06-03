@@ -27,8 +27,6 @@ export default class Index extends PureComponent {
       currApp: {},
       loading: true,
       appID: this.getGroupId(),
-      componentPermissions: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'app_overview',  `app_${this.getGroupId()}` ),
-      appPermissions: roleUtil.queryTeamOrAppPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'app', `app_${this.getGroupId()}`),
     };
   }
   componentWillMount() {
@@ -41,19 +39,30 @@ export default class Index extends PureComponent {
 
 
   render() {
-    const { groupDetail, currentTeamPermissionsInfo } = this.props;    
-    const {appPermissions, appPermissions:{isAppOverview}} =  this.state
+    const { groupDetail, currentTeamPermissionsInfo } = this.props;
+    const { appID } = this.state;
+    const appPermissions = roleUtil.queryTeamOrAppPermissionsInfo(
+      currentTeamPermissionsInfo && currentTeamPermissionsInfo.team,
+      'app',
+      `app_${appID}`
+    );
+    const componentPermissions = roleUtil.queryPermissionsInfo(
+      currentTeamPermissionsInfo && currentTeamPermissionsInfo.team,
+      'app_overview',
+      `app_${appID}`
+    );
+    const { isAppOverview } = appPermissions;
     if(!isAppOverview){
       return roleUtil.noPermission()
     }
     return (
       <ScrollerX sm={1040}>
         {JSON.stringify(groupDetail) === '{}' ? (
-          <Group {...this.props} {...this.state} />
+          <Group {...this.props} {...this.state} appPermissions={appPermissions} componentPermissions={componentPermissions} />
         ) : groupDetail.app_type === 'helm' ? (
-          <Group {...this.props} {...this.state} />
+          <Group {...this.props} {...this.state} appPermissions={appPermissions} componentPermissions={componentPermissions} />
         ) : (
-          <Group {...this.props} {...this.state} />
+          <Group {...this.props} {...this.state} appPermissions={appPermissions} componentPermissions={componentPermissions} />
         )}
       </ScrollerX>
     );

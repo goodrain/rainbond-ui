@@ -796,7 +796,8 @@ export default class Index extends React.Component {
                     title: formatMessage({ id: 'componentOverview.body.tab.env.file.action' }),
                     dataIndex: 'action',
                     key: '6',
-                    width: '15%',
+                    width: isVirtualMachine ? '15%' : 140,
+                    fixed: isVirtualMachine ? undefined : 'right',
                     render: (v, data) => (
                       <a onClick={() => this.onDeleteMnt(data)}>
                         <FormattedMessage id='componentOverview.body.tab.env.file.cancel' />
@@ -805,6 +806,7 @@ export default class Index extends React.Component {
                   }
                 ]}
                 dataSource={mntList}
+                scroll={isVirtualMachine ? undefined : { x: 1240, y: 360 }}
               />
             </ScrollerX>
           </Card>

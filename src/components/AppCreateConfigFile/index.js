@@ -29,8 +29,10 @@ import {
   findVolumeOptionByType,
   resolveVMStorageAccessMode
 } from '../../utils/vmVolumeOptions';
-const { mergeCreateRuntimeInfo } = require('../CodeBuildConfig/buildEnvHelpers');
+import buildEnvHelpers from '../CodeBuildConfig/buildEnvHelpers';
 import styles from './setting.less';
+
+const { mergeCreateRuntimeInfo } = buildEnvHelpers;
 
 const RadioButton = Radio.Button;
 const RadioGroup = Radio.Group;

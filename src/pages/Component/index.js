@@ -363,6 +363,10 @@ class Main extends PureComponent {
     const { componentTimer } = this.state;
     const { team_name, app_alias } = this.fetchParameter();
 
+    if (!app_alias) {
+      return;
+    }
+
     dispatch({
       type: 'appControl/fetchComponentState',
       payload: {
@@ -514,6 +518,11 @@ class Main extends PureComponent {
       serviceAlias
     } = this.fetchParameter();
     const prefixUrl = this.fetchPrefixUrl();
+
+    if (!app_alias) {
+      return;
+    }
+
     dispatch({
       type: 'appControl/fetchDetail',
       payload: {

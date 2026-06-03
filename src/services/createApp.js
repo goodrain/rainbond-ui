@@ -1,7 +1,8 @@
 import apiconfig from '../../config/api.config';
 import request from '../utils/request';
+import sourceBuildPayload from '../utils/sourceBuildPayload';
 
-const { sanitizePackageToolPayload } = require('../utils/sourceBuildPayload');
+const { sanitizePackageToolPayload } = sourceBuildPayload;
 
 /*
    源码创建应用

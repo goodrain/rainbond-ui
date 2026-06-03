@@ -53,6 +53,7 @@ import region from '@/models/region';
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise,
+  rainbondInfo: global.rainbondInfo,
   novices: global.novices,
   pluginsList: teamControl.pluginsList
 }))
@@ -725,6 +726,7 @@ export default class Index extends PureComponent {
       },
       pluginsList
     } = this.props;
+    const canAccessAppK8sResources = !(this.props.rainbondInfo && this.props.rainbondInfo.is_saas) || !!(this.props.currUser && this.props.currUser.is_enterprise_admin);
     const {
       currApp,
       resources,
@@ -986,7 +988,7 @@ export default class Index extends PureComponent {
               <div>{formatMessage({ id: 'appOverview.k8s' })}</div>
               <div
                 onClick={() => {
-                  isAppResources && this.handleJump('asset');
+                  isAppResources && canAccessAppK8sResources && this.handleJump('asset');
                 }}
               >
                 <a>{currApp.resources_num || 0}</a>

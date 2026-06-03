@@ -19,6 +19,10 @@ import PluginUtil from '../utils/pulginUtils';
 function menuData(teamName, regionName, appID, permissionsInfo, pluginList, currentUser, rainbondInfo) {
   const pluginArr = PluginUtil.segregatePluginsByHierarchy(pluginList, 'Application');
   const appPermissions = roleUtil.queryTeamOrAppPermissionsInfo(permissionsInfo.team, 'app', `app_${appID}`);
+  const isEnterpriseAdmin = !!(currentUser && currentUser.is_enterprise_admin);
+  const canAccessSaasAdminFeature = !(rainbondInfo && rainbondInfo.is_saas) || isEnterpriseAdmin;
+  const canAccessAppK8sResources = canAccessSaasAdminFeature;
+  const canAccessAppBackup = canAccessSaasAdminFeature;
   const {
     isAppRelease,
     isAppUpgrade,
@@ -65,7 +69,11 @@ function menuData(teamName, regionName, appID, permissionsInfo, pluginList, curr
     });
   }
 
-  if (PluginUtil.isInstallEnterprisePlugin(pluginList) && (currentUser.is_enterprise_admin || !rainbondInfo?.security_restrictions?.enable)) {
+  if (
+    canAccessAppBackup &&
+    PluginUtil.isInstallEnterprisePlugin(pluginList) &&
+    (isEnterpriseAdmin || !rainbondInfo?.security_restrictions?.enable)
+  ) {
     adminItems.push({
       name: formatMessage({ id: 'menu.app.backup' }),
       icon: getMenuSvg.getSvg('backup'),
@@ -74,7 +82,11 @@ function menuData(teamName, regionName, appID, permissionsInfo, pluginList, curr
     });
   }
 
-  if (isAppResources && (currentUser.is_enterprise_admin || !rainbondInfo?.security_restrictions?.enable)) {
+  if (
+    isAppResources &&
+    (isEnterpriseAdmin || !rainbondInfo?.security_restrictions?.enable) &&
+    canAccessAppK8sResources
+  ) {
     adminItems.push({
       name: formatMessage({ id: 'menu.app.k8s' }),
       icon: getMenuSvg.getSvg('kubenetes'),

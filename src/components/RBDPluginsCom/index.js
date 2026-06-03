@@ -70,6 +70,7 @@ export default class index extends Component {
       overviewInfo: this.props.overviewInfo,
       appDetail: this.props.appDetail,
       namespace: resolvedNamespace,
+      region_name: this.props.regionName || Global.getCurrRegionName(),
     };
 
     console.info('[RBDPluginsCom] namespace resolution', {

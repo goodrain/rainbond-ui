@@ -5,6 +5,7 @@ import { FormattedMessage } from 'umi';
 import logo from '../../public/logo-white.png';
 import globalUtil from '../utils/global';
 import oauthUtil from '../utils/oauth';
+import { buildPortalLoginUrl } from '../utils/portal';
 import rainbondUtil from '../utils/rainbond';
 import { setLocale, getLocale } from 'umi'
 import CustomFooter from './CustomFooter';
@@ -94,7 +95,7 @@ class UserLayout extends React.PureComponent {
           if (isLogin && portalSite && isSaas && isDisableAutoLogin !== 'true' && !hasToken) {
             // 构造重定向URL，登录后门户会携带token重定向回来
             const currentUrl = window.location.origin + window.location.pathname + window.location.hash;
-            const portalLoginUrl = `${portalSite}?redirect=${encodeURIComponent(currentUrl)}`;
+            const portalLoginUrl = buildPortalLoginUrl(portalSite, currentUrl);
             globalUtil.removeCookie();
             window.location.href = portalLoginUrl;
             return;
@@ -248,13 +249,13 @@ class UserLayout extends React.PureComponent {
                       <h1>{loginTitleValue}</h1>
                     ) : (
                       <>
-                        <h1><FormattedMessage id="layout.userLayout.normal.title1" defaultMessage="无需学习 Kubernetes" /></h1>
-                        <h1><FormattedMessage id="layout.userLayout.normal.title2" defaultMessage="的容器平台" /></h1>
+                        <h1><FormattedMessage id="layout.userLayout.normal.title1" defaultMessage="AI 时代的" /></h1>
+                        <h1><FormattedMessage id="layout.userLayout.normal.title2" defaultMessage="开源容器平台" /></h1>
                       </>
                     )}
                   </div>
                   <p className={styles.description}>
-                    {loginSloganValue || <FormattedMessage id="layout.userLayout.normal.description" defaultMessage="在 Kubernetes 上构建、部署、组装和管理应用，无需 K8s 专业知识，全流程图形化管理" />}
+                    {loginSloganValue || <FormattedMessage id="layout.userLayout.normal.description" defaultMessage="Rainbond 基于 Kubernetes，屏蔽底层复杂度，用 AI 增强应用部署、排障和运维流程，帮助团队交付业务应用、AI 应用" />}
                   </p>
                 </div>
                 <div className={styles.companyInfo}>

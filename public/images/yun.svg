@@ -28,7 +28,6 @@
                 <use fill="black" fill-opacity="1" filter="url(#filter-3)" xlink:href="#path-1"></use>
                 <use stroke="#5BB1FA" stroke-width="4" xlink:href="#path-1"></use>
             </g>
-            <circle id="Oval" fill="#000000" cx="50" cy="45" r="8"></circle>
         </g>
     </g>
 </svg>

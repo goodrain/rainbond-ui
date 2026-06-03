@@ -10,7 +10,7 @@ const { Option } = Select;
 
 const formItemLayout = {
   labelCol: {
-    span: 3
+    span: 4
   },
   wrapperCol: {
     span: 16

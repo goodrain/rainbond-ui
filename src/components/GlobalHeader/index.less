@@ -437,6 +437,87 @@ i.trigger {
   margin-left: 12px;
 }
 
+.agentEntry {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  margin-right: 12px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #1B5DFB 0%, #503BF6 100%);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(59, 88, 248, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+
+  &:hover {
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(59, 88, 248, 0.26);
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 6px 16px rgba(59, 88, 248, 0.2);
+  }
+}
+
+.agentEntryRestricted {
+  padding-right: 16px;
+  background: linear-gradient(90deg, #2f63f5 0%, #5a47ee 100%);
+}
+
+.agentEntryBadge {
+  position: absolute;
+  top: -6px;
+  right: -5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #fadb14;
+  color: #5c3b00;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 4px 10px rgba(250, 173, 20, 0.28);
+  pointer-events: none;
+}
+
+.agentEntryIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: #fff;
+  font-size: 12px;
+
+  svg {
+    width: 13px;
+    height: 13px;
+    display: block;
+  }
+}
+
+.agentEntryText {
+  color: #fff;
+  font-size: 13px;
+  line-height: 1;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 .wechat {
   display: flex;
   flex-direction: column;

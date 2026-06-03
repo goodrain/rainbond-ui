@@ -307,6 +307,15 @@ export default class shareCheck extends PureComponent {
     this.getShareEventInfo();
   }
 
+  componentDidUpdate(prevProps) {
+    const prevRefreshKey = this.getRouteRefreshKey(prevProps.location);
+    const nextRefreshKey = this.getRouteRefreshKey(this.props.location);
+
+    if (prevRefreshKey !== nextRefreshKey && nextRefreshKey) {
+      this.handleRouteRefresh();
+    }
+  }
+
   getShareEventInfo = () => {
     this.props.dispatch({
       type: 'application/getShareEventInfo',
@@ -327,6 +336,37 @@ export default class shareCheck extends PureComponent {
     share_id: this.props.match.params.shareId,
     appID: this.props.match.params.appID
   });
+
+  getRouteRefreshKey = location => {
+    const query = (location && location.query) || {};
+    if (query.refresh) {
+      return query.refresh;
+    }
+    const search = (location && location.search) || '';
+    const queryString = search.indexOf('?') === 0 ? search.slice(1) : search;
+    if (!queryString) {
+      return '';
+    }
+    const params = new URLSearchParams(queryString);
+    return params.get('refresh') || '';
+  };
+
+  handleRouteRefresh = () => {
+    this.fails = [];
+    this.setState(
+      {
+        status: 'checking',
+        shareEventList: [],
+        successNum: 0,
+        startShareCallback: [],
+        completeLoading: false,
+        isStart: false
+      },
+      () => {
+        this.getShareEventInfo();
+      }
+    );
+  };
   componentWillUnmount() {
     this.mount = false;
   }
