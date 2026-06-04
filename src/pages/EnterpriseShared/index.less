@@ -438,20 +438,21 @@
       padding: 12px 0;
     }
 
-    .ant-tabs-nav-scroll {
-      overflow: visible !important;
+    .ant-tabs-nav-container {
+      overflow: hidden !important;
+      margin-left: 0 !important;
+      width: 100%;
+      overflow-y: hidden !important;
     }
 
     .ant-tabs-nav-container-scrolling {
-      overflow: visible !important;
+      overflow-x: auto !important;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
 
-    .ant-tabs-nav-container {
-      overflow: visible !important;
-      margin-left: 0 !important;
-      width: 100%;
-      overflow-x: auto !important;
-      overflow-y: hidden !important;
+    .ant-tabs-nav-container-scrolling::-webkit-scrollbar {
+      display: none;
     }
   }
 
