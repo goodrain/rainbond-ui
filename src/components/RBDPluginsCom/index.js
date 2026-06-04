@@ -8,12 +8,13 @@ import { routerRedux } from 'dva/router';
 import Global from '../../utils/global'
 import cookie from "@/utils/cookie";
 import styles from './index.less';
-@connect(({ user, region, global, index, appControl }) => ({
+@connect(({ user, region, global, index, appControl, application, teamControl }) => ({
   currentUser: user.currentUser,
+  currentTeam: teamControl.currentTeam,
   cluster_info: region.cluster_info,
   pluginsList: global.pluginsList,
   overviewInfo: index.overviewInfo,
-  appDetail: appControl.appDetail
+  appDetail: application.groupDetail && Object.keys(application.groupDetail).length ? application.groupDetail : appControl.appDetail
 }))
 
 export default class index extends Component {
@@ -70,6 +71,8 @@ export default class index extends Component {
               colorPrimary: Global.getPublicColor('primary-color'),
               currentLocale: cookie.get('language') === 'zh-CN' ? 'zh' : 'en',
               cluster_info: this.props.cluster_info,
+              currentTeam: this.props.currentTeam,
+              namespace: this.props.currentTeam && this.props.currentTeam.namespace,
               currentUser: this.props.currentUser,
               token: cookie.get('token'),
               pluginsList: this.props.pluginsList,
