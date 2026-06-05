@@ -156,7 +156,10 @@ class AgentConfig extends PureComponent {
 
   render() {
     const { form, loadingConfig, updatingConfig, clearingConfig } = this.props;
+    const { config } = this.state;
     const { getFieldDecorator } = form;
+    // 已配置过密钥时，密钥改为选填（留空即保持当前密钥不变）
+    const apiKeyConfigured = !!config.openai_api_key_set;
     const formItemLayout = {
       labelCol: { span: 8 },
       wrapperCol: { span: 12 }
@@ -177,14 +180,18 @@ class AgentConfig extends PureComponent {
                   {getFieldDecorator('openai_api_key', {
                     rules: [
                       {
-                        required: true,
+                        required: !apiKeyConfigured,
                         message: formatMessage({ id: 'enterpriseSetting.agentConfig.apiKey.required' })
                       }
                     ]
                   })(
                     <Input.Password
                       autoComplete="new-password"
-                      placeholder={formatMessage({ id: 'enterpriseSetting.agentConfig.apiKey.placeholder' })}
+                      placeholder={formatMessage({
+                        id: apiKeyConfigured
+                          ? 'enterpriseSetting.agentConfig.apiKey.placeholderConfigured'
+                          : 'enterpriseSetting.agentConfig.apiKey.placeholder'
+                      })}
                     />
                   )}
                 </FormItem>
