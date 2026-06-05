@@ -382,6 +382,28 @@ function getErrorMessage(error) {
   return error.message || '消息发送失败，请稍后重试。';
 }
 
+// sendMessage 失败时给用户看的提示：用大白话说清发生了什么、能怎么办，按错误类型
+// 给可操作的建议，不把后端英文报错 / 技术术语堆到界面上。完整技术细节（status /
+// message / responseBody）走 console.error，留给开发与支持排查，二者职责分离。
+function getSendErrorMessage(error) {
+  const status = error && error.status;
+  if (status === 401 || status === 403) {
+    return '登录状态可能已失效，请刷新页面后重试。';
+  }
+  if (status === 429) {
+    return '请求过于频繁，请稍候片刻再发送。';
+  }
+  if (status >= 500) {
+    // 502/503/504 等：console→插件后端这一跳异常，附错误码方便用户向支持报障。
+    return `AI 助手服务暂时不可用，请稍后重试（错误码 ${status}）。`;
+  }
+  if (status) {
+    return `消息发送失败，请稍后重试（错误码 ${status}）。`;
+  }
+  // 无 HTTP 状态码：fetch 失败 / SSE 流被中途断开，长任务执行较久时尤其常见。
+  return '网络连接已中断，可能是任务处理时间较长，请稍后重试。';
+}
+
 function buildMutationNavigationPayload(toolName, route) {
   if (!toolName || !route) {
     return null;
@@ -1105,6 +1127,7 @@ export default {
         });
       } catch (error) {
         // Rich 409 conflict: another run is in progress in another tab.
+        // 409 是预期内的跨标签页控制流，不算故障，留给下面分支处理、不打日志。
         if (error && error.status === 409 && error.responseBody) {
           const body = error.responseBody;
           const currentRun = (body && body.current_run) || {};
@@ -1155,12 +1178,16 @@ export default {
           return;
         }
 
+        // 把真实错误打到控制台，否则界面只剩一句通用话术、无从排查。
+        // 包含 HTTP status / message / responseBody，定位服务端报错或流式中断。
+        // eslint-disable-next-line no-console
+        console.error('[RainAgent] sendMessage failed:', error);
         yield put({
           type: 'saveState',
           payload: {
             sending: false,
             interactionLocked: false,
-            lastError: '消息发送失败，请稍后重试。',
+            lastError: getSendErrorMessage(error),
             updatedAt: Date.now(),
           },
         });
