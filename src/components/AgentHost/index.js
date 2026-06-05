@@ -1,5 +1,6 @@
 import React, { PureComponent, useEffect, useRef, useState } from 'react';
 import { Alert, Button, Dropdown, Icon, Input, Menu, Modal, Popover, Tag, message } from 'antd';
+import { routerRedux } from 'dva/router';
 import ReactMarkdown from 'react-markdown';
 import styles from './index.less';
 import * as autoApprovalPolicy from './autoApprovalPolicy';
@@ -515,7 +516,7 @@ function formatRelativeTime(iso) {
 export default class AgentHost extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = { historyPopoverVisible: false };
+    this.state = { historyPopoverVisible: false, updateBannerDismissed: false };
     this.messagesRef = null;
     this.isAutoScrollEnabled = true;
     this.lastRenderedMessagesRef = null;
@@ -658,6 +659,25 @@ export default class AgentHost extends PureComponent {
         this.handleStopRun({ hideAfterAbort: true });
       },
     });
+  };
+
+  // 跳转到 AI 助手插件对应应用的升级页（复用平台既有升级流程），并关闭面板。
+  handleGoUpgrade = () => {
+    const { agent, dispatch } = this.props;
+    const update = (agent && agent.agentUpdate) || null;
+    if (!update || !update.appId || !update.teamName || !update.regionName) {
+      return;
+    }
+    const url = `/team/${update.teamName}/region/${update.regionName}/apps/${update.appId}/upgrade`;
+    if (dispatch) {
+      dispatch(routerRedux.push(url));
+      dispatch({ type: 'agent/hide' });
+    }
+  };
+
+  // 忽略本次更新提示（仅当前会话内生效，刷新后或下次有新版本会重新出现）。
+  handleDismissUpdateBanner = () => {
+    this.setState({ updateBannerDismissed: true });
   };
 
   handleDraftChange = event => {
@@ -1280,6 +1300,17 @@ export default class AgentHost extends PureComponent {
     const mode = (panelConfig && panelConfig.mode) || 'push';
     const isOverlay = mode === 'overlay';
 
+    // 插件更新提示：仅在确实可升级且跳转所需信息齐全、且未被本次会话忽略时展示。
+    const agentUpdate = (agent && agent.agentUpdate) || null;
+    const showUpdateBanner = !!(
+      agentUpdate &&
+      agentUpdate.upgradeable &&
+      agentUpdate.appId &&
+      agentUpdate.teamName &&
+      agentUpdate.regionName &&
+      !this.state.updateBannerDismissed
+    );
+
     return (
       <div className={styles.agentHost}>
         <div
@@ -1331,6 +1362,35 @@ export default class AgentHost extends PureComponent {
                 </button>
               </div>
             </div>
+
+            {showUpdateBanner && (
+              <div className={styles.updateBanner}>
+                <Icon type="arrow-up" className={styles.updateBannerIcon} />
+                <div className={styles.updateBannerText}>
+                  <span className={styles.updateBannerTitle}>AI 助手有新版本</span>
+                  <span className={styles.updateBannerVersion}>
+                    {(agentUpdate.installedVersion || '当前')}
+                    {' → '}
+                    {(agentUpdate.latestVersion || '最新')}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  className={styles.updateBannerButton}
+                  onClick={this.handleGoUpgrade}
+                >
+                  去更新
+                </button>
+                <button
+                  type="button"
+                  className={styles.updateBannerClose}
+                  aria-label="忽略更新提示"
+                  onClick={this.handleDismissUpdateBanner}
+                >
+                  <Icon type="close" />
+                </button>
+              </div>
+            )}
 
             <div className={styles.drawerBody}>
               <div
