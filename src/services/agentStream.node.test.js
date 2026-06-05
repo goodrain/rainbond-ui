@@ -4,6 +4,8 @@ const { TextEncoder } = require('util');
 const {
   readSseEvents,
   subscribeToRunEvents,
+  streamRunWithResume,
+  isResumeTerminalEvent,
   TERMINAL_STATUSES,
 } = require('./agentStream');
 
@@ -81,7 +83,131 @@ async function main() {
   await testReadSseEventsBatchesStreamingDeltas(encoder);
   await testReadSseEventsSkipsMalformedChunk(encoder);
 
+  await testResumeStopsOnTerminalWithoutReconnect();
+  await testResumeReconnectsOnCleanPrematureEnd();
+  await testResumeReconnectsAfterMidStreamThrow();
+  await testResumeDoesNotReconnectWhenNoEventsReceived();
+  await testResumePropagatesErrorAfterSingleReconnect();
+  await testResumeGivesUpGracefullyAfterMaxAttempts();
+
   console.log('agent stream helper tests passed');
+}
+
+// 可脚本化的假 streamRunImpl：每次调用按 scripts[i] 推送事件、记录 afterSequence，
+// 然后返回事件数组或抛错。用来在不依赖 fetch/后端的情况下单测续读编排逻辑。
+function makeStreamRunImpl(scripts) {
+  const calls = [];
+  let index = 0;
+  const impl = async ({ afterSequence, onEvent }) => {
+    const script = scripts[index] || { events: [] };
+    calls.push({ afterSequence });
+    index += 1;
+    (script.events || []).forEach(event => {
+      if (onEvent) onEvent(event);
+    });
+    if (script.throw) {
+      throw new Error(script.throwMessage || 'stream error');
+    }
+    return script.events || [];
+  };
+  impl.calls = calls;
+  return impl;
+}
+
+// 首次连接就到达终止态：不应再续读，只连一次。
+async function testResumeStopsOnTerminalWithoutReconnect() {
+  const impl = makeStreamRunImpl([
+    {
+      events: [
+        { type: 'chat.message', sequence: 1, data: { content: 'hi' } },
+        { type: 'run.status', sequence: 2, data: { status: 'done' } },
+      ],
+    },
+  ]);
+  const seen = [];
+  const events = await streamRunWithResume({
+    streamRunImpl: impl,
+    sessionId: 'cs_1',
+    runId: 'run_1',
+    onEvent: e => seen.push(e.type),
+  });
+  assert.strictEqual(impl.calls.length, 1, 'terminal on first connect must not reconnect');
+  assert.strictEqual(events.length, 2, 'collected events should include all first-attempt events');
+  assert.deepStrictEqual(seen, ['chat.message', 'run.status'], 'onEvent forwards every event once');
+}
+
+// 流干净地提前结束（reader done）但没到终止态：续读一次，且第二次带正确 after_sequence。
+async function testResumeReconnectsOnCleanPrematureEnd() {
+  const impl = makeStreamRunImpl([
+    { events: [{ type: 'chat.message.delta', sequence: 1, data: { delta: 'a' } },
+               { type: 'chat.message.delta', sequence: 2, data: { delta: 'b' } }] },
+    { events: [{ type: 'run.status', sequence: 3, data: { status: 'done' } }] },
+  ]);
+  const events = await streamRunWithResume({
+    streamRunImpl: impl, sessionId: 'cs_1', runId: 'run_1', onEvent() {},
+  });
+  assert.strictEqual(impl.calls.length, 2, 'clean premature end should trigger exactly one reconnect');
+  assert.strictEqual(impl.calls[0].afterSequence, 0, 'first connect starts at sequence 0');
+  assert.strictEqual(impl.calls[1].afterSequence, 2, 'reconnect resumes from last seen sequence');
+  assert.strictEqual(events.length, 3, 'collected events span both attempts without duplication');
+}
+
+// 流中途抛错（TCP reset）但已收到事件：续读一次并恢复到终止态。
+async function testResumeReconnectsAfterMidStreamThrow() {
+  const impl = makeStreamRunImpl([
+    { events: [{ type: 'chat.message.delta', sequence: 5, data: { delta: 'x' } }], throw: true },
+    { events: [{ type: 'run.status', sequence: 6, data: { status: 'done' } }] },
+  ]);
+  const events = await streamRunWithResume({
+    streamRunImpl: impl, sessionId: 'cs_1', runId: 'run_1', onEvent() {},
+  });
+  assert.strictEqual(impl.calls.length, 2, 'mid-stream throw with progress should reconnect once');
+  assert.strictEqual(impl.calls[1].afterSequence, 5, 'reconnect resumes from last seen sequence before the throw');
+  assert.strictEqual(events.some(e => e.type === 'run.status'), true, 'recovered stream reaches terminal');
+}
+
+// 首连一个事件都没收到就抛错（events GET 被拒）：不续读，抛出真实错误。
+async function testResumeDoesNotReconnectWhenNoEventsReceived() {
+  const impl = makeStreamRunImpl([
+    { events: [], throw: true, throwMessage: 'boom-403' },
+  ]);
+  await assert.rejects(
+    () => streamRunWithResume({ streamRunImpl: impl, sessionId: 'cs_1', runId: 'run_1', onEvent() {} }),
+    /boom-403/,
+    'a failure before any event should propagate without reconnecting'
+  );
+  assert.strictEqual(impl.calls.length, 1, 'no reconnect when nothing was received');
+}
+
+// 抛错 → 续读 → 又抛错：单次续读后把真实错误抛出，不无限重试。
+async function testResumePropagatesErrorAfterSingleReconnect() {
+  const impl = makeStreamRunImpl([
+    { events: [{ type: 'chat.message', sequence: 1, data: {} }], throw: true },
+    { events: [], throw: true, throwMessage: 'second-fail' },
+  ]);
+  await assert.rejects(
+    () => streamRunWithResume({ streamRunImpl: impl, sessionId: 'cs_1', runId: 'run_1', onEvent() {} }),
+    /second-fail/,
+    'after one reconnect the real error should surface'
+  );
+  assert.strictEqual(impl.calls.length, 2, 'at most one reconnect (2 attempts total)');
+}
+
+// 两次都干净提前结束、始终未终止：用完额度后优雅返回已收集事件，不抛错。
+async function testResumeGivesUpGracefullyAfterMaxAttempts() {
+  const impl = makeStreamRunImpl([
+    { events: [{ type: 'chat.message.delta', sequence: 1, data: { delta: 'a' } }] },
+    { events: [{ type: 'chat.message.delta', sequence: 2, data: { delta: 'b' } }] },
+  ]);
+  const events = await streamRunWithResume({
+    streamRunImpl: impl, sessionId: 'cs_1', runId: 'run_1', onEvent() {},
+  });
+  assert.strictEqual(impl.calls.length, 2, 'gives up after the max of 2 attempts');
+  assert.strictEqual(events.length, 2, 'returns whatever was collected instead of throwing');
+  assert.strictEqual(isResumeTerminalEvent({ type: 'run.status', data: { status: 'waiting_approval' } }), true,
+    'waiting_approval counts as terminal for resume purposes');
+  assert.strictEqual(isResumeTerminalEvent({ type: 'chat.message', data: {} }), false,
+    'non-status events are not terminal');
 }
 
 // 单条 SSE 数据损坏 / 被代理截断时，整条流不能崩；坏事件跳过、好事件照常处理，
