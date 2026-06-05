@@ -355,14 +355,18 @@ export function getCreateComposeCheckInfo(body = {}) {
   获取compose应用创建检测结果
 */
 export function getCreateComposeCheckResult(body = {}) {
+  const params = {
+    check_uuid: body.check_uuid,
+    compose_id: body.compose_id
+  };
+  if (body.arch) {
+    params.arch = body.arch;
+  }
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/check`,
     {
       method: 'get',
-      params: {
-        check_uuid: body.check_uuid,
-        compose_id: body.compose_id
-      }
+      params
     }
   );
 }

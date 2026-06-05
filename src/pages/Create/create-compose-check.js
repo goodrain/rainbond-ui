@@ -175,6 +175,10 @@ export default class CreateCheck extends PureComponent {
       compose_id: this.props.match.params.composeId
     };
   }
+  getQueryParams() {
+    const { location } = this.props;
+    return location && location.query ? location.query : {};
+  }
   getAppAlias() {
     return this.props.match.params.appAlias;
   }
@@ -218,9 +222,11 @@ export default class CreateCheck extends PureComponent {
     if (!this.mount) return;
     const params = this.getParams();
     const team_name = globalUtil.getCurrTeamName();
+    const queryParams = this.getQueryParams();
     getCreateComposeCheckResult({
       team_name,
       check_uuid: this.state.check_uuid,
+      arch: queryParams.arch,
       ...params
     })
       .then(data => {
@@ -326,14 +332,20 @@ export default class CreateCheck extends PureComponent {
 
   handleSetting = () => {
     const params = this.getParams();
-    const { location } = this.props;
-    const app_name = location && location.query && location.query.app_name;
+    const queryParams = this.getQueryParams();
+    const app_name = queryParams.app_name;
+    const query = [];
 
     let url = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-compose-setting/${params.group_id}/${params.compose_id}`;
 
-    // 携带 app_name 参数
     if (app_name) {
-      url += `?app_name=${encodeURIComponent(app_name)}`;
+      query.push(`app_name=${encodeURIComponent(app_name)}`);
+    }
+    if (queryParams.arch) {
+      query.push(`arch=${encodeURIComponent(queryParams.arch)}`);
+    }
+    if (query.length) {
+      url += `?${query.join('&')}`;
     }
 
     this.props.dispatch(routerRedux.push(url));

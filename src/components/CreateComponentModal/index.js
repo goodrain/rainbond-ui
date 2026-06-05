@@ -1731,9 +1731,17 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         },
         callback: data => {
           const { group_id, compose_id, app_name } = data.bean;
+          const query = [];
+          if (app_name) {
+            query.push(`app_name=${encodeURIComponent(app_name)}`);
+          }
+          if (value.arch) {
+            query.push(`arch=${encodeURIComponent(value.arch)}`);
+          }
+          const queryString = query.length ? `?${query.join('&')}` : '';
           dispatch(
             routerRedux.push(
-              `/team/${teamName}/region/${regionName}/create/create-compose-check/${group_id}/${compose_id}?app_name=${app_name}`
+              `/team/${teamName}/region/${regionName}/create/create-compose-check/${group_id}/${compose_id}${queryString}`
             )
           );
           onCancel();
