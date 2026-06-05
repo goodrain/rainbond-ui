@@ -33,9 +33,36 @@ export default {
   lessLoader: {
     javascriptEnabled: true
   },
+  devServer: {
+    compress: false
+  },
 
   routes: routerConfig,
   proxy: {
+    '/api/v1/ai-engine': {
+      target: 'http://127.0.0.1:9090',
+      changeOrigin: true,
+      onProxyReq: (proxyReq) => {
+        proxyReq.removeHeader('Accept-Encoding');
+      },
+      onProxyRes: (proxyRes) => {
+        if (proxyRes.headers['content-type']?.includes('text/event-stream')) {
+          proxyRes.headers['cache-control'] = 'no-cache';
+          proxyRes.headers['x-accel-buffering'] = 'no';
+        }
+      }
+    },
+    '/v1': {
+      target: 'http://127.0.0.1:9090',
+      changeOrigin: true
+    },
+    '/console/regions/rainbond/static/plugins/rainbond-ai-engine': {
+      target: 'http://127.0.0.1:9999',
+      changeOrigin: true,
+      pathRewrite: {
+        '^/console/regions/rainbond/static/plugins/rainbond-ai-engine': '/main.js'
+      }
+    },
     '/console': {
       target: proxyTarget,
       changeOrigin: true

@@ -219,7 +219,7 @@ const global = {
     return '';
   },
   getAppID(url) {
-    const reg = /apps\/([^\/]+)/;
+    const reg = /apps\/([^\/?#]+)/;
     const hash = url || window.location.hash || window.location.pathname || '';
     const match = hash.match(reg);
     if (match) {
@@ -331,6 +331,7 @@ const global = {
       RUNNING: '#00D777', // 运行中 绿色
       running: '#00D777', // 运行中 绿色
       starting: '#F69D4A', // 启动中
+      restoring: '#F69D4A', // 恢复中
       waiting: '#F69D4A', // 等待中
       WAITING: '#F69D4A', // 等待中
       Starting: '#F69D4A', // 启动中
@@ -2658,6 +2659,8 @@ const global = {
         'linear-gradient(to right, #00D777 0, #00D777 10px, #fff 10px, #fff 100%) no-repeat', // 已完成 绿色
       starting:
         'linear-gradient(to right, #F69D4A 0, #F69D4A 10px, #fff 10px, #fff 100%) no-repeat', // 启动中
+      restoring:
+        'linear-gradient(to right, #F69D4A 0, #F69D4A 10px, #fff 10px, #fff 100%) no-repeat', // 恢复中
       checking:
         'linear-gradient(to right, #F69D4A 0, #F69D4A 10px, #fff 10px, #fff 100%) no-repeat', // 检测中
       stopping:
@@ -2686,6 +2689,7 @@ const global = {
       RUNNING: formatMessage({ id: 'global.fetchStateText.RUNNING' }),
       running: formatMessage({ id: 'global.fetchStateText.running' }),
       starting: formatMessage({ id: 'global.fetchStateText.starting' }),
+      restoring: formatMessage({ id: 'global.fetchStateText.restoring' }),
       checking: formatMessage({ id: 'global.fetchStateText.checking' }),
       stopping: formatMessage({ id: 'global.fetchStateText.stopping' }),
       unusual: formatMessage({ id: 'global.fetchStateText.unusual' }),
@@ -3025,6 +3029,7 @@ const global = {
       'app-restore-deps': formatMessage({ id: 'global.fetchStateOptTypeText.app-restore-deps' }),
       'app-restore-depvols': formatMessage({ id: 'global.fetchStateOptTypeText.app-restore-depvols' }),
       'app-restore-plugins': formatMessage({ id: 'global.fetchStateOptTypeText.app-restore-plugins' }),
+      'vm-disk-restore': formatMessage({ id: 'global.fetchStateOptTypeText.vm-disk-restore' }),
       'create-service-plugin': formatMessage({ id: 'global.fetchStateOptTypeText.create-service-plugin' }),
       'update-service-plugin': formatMessage({ id: 'global.fetchStateOptTypeText.update-service-plugin' }),
       'delete-service-plugin': formatMessage({ id: 'global.fetchStateOptTypeText.delete-service-plugin' }),

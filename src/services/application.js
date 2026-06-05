@@ -661,10 +661,10 @@ export async function getShareEventInfo(
 /*
     执行发布事件
 */
-export async function startShareEvent(body = {}) {
+export async function startShareEvent(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/events/${body.event_id}`,
-    { method: 'post' }
+    { method: 'post', handleError }
   );
 }
 
@@ -676,11 +676,12 @@ export async function startPluginShareEventInShareApp(
     team_name,
     share_id,
     event_id
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/share/${body.share_id}/events/${body.event_id}/plugin`,
-    { method: 'post' }
+    { method: 'post', handleError }
   );
 }
 

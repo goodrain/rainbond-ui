@@ -1,9 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Modal, Icon, Spin, Form, Button } from 'antd';
+import { Modal, Icon, Spin, Form, Button, Empty, Radio, Input, message } from 'antd';
 import { routerRedux } from 'dva/router';
 import { connect } from 'dva';
 import { pinyin } from 'pinyin-pro';
 import { formatMessage } from '@/utils/intl';
+import {
+  createTeamLlmDownload,
+  getTeamLlmCatalog,
+  getTeamLlmModels,
+  uploadTeamLlmArtifact,
+} from '../../services/aiEngine';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/newRole';
 import PluginUtils from '../../utils/pulginUtils';
@@ -51,6 +57,17 @@ import {
   GiteeIcon,
   GiteaIcon
 } from './icons';
+const {
+  buildLlmAssetDownloadPayload,
+  buildLlmCatalogDownloadPayload,
+  buildLlmPluginNavigation,
+  buildLlmRepositoryEntries,
+  extractLlmCatalogModels,
+  getLlmPluginFromList,
+  getLlmModelParameterScale,
+  normalizeLlmModelStatus,
+  resolveCurrentTeamNamespace,
+} = require('./llmEntryHelpers');
 
 const DATABASE_ICON_MAP = {
   mysql: mysql,
@@ -58,6 +75,37 @@ const DATABASE_ICON_MAP = {
   rabbitmq: rabbitmq,
   redis: redis
 };
+
+const LLM_STATUS_META = {
+  ready: {
+    label: '已下载',
+    badgeClassName: 'llmStatusBadgeDownloaded',
+  },
+  not_downloaded: {
+    label: '未下载',
+    badgeClassName: 'llmStatusBadgeNotDownloaded',
+  },
+  downloading: {
+    label: '下载中',
+    badgeClassName: 'llmStatusBadgeDownloading',
+  },
+  failed: {
+    label: '下载失败',
+    badgeClassName: 'llmStatusBadgeFailed',
+  },
+  deleting: {
+    label: '删除中',
+    badgeClassName: 'llmStatusBadgeDeleting',
+  },
+  unknown: {
+    label: '未下载',
+    badgeClassName: 'llmStatusBadgeNotDownloaded',
+  },
+};
+
+function getLlmStatusMeta(status) {
+  return LLM_STATUS_META[normalizeLlmModelStatus(status)] || LLM_STATUS_META.unknown;
+}
 
 // Form wrapper for market install
 const MarketInstallFormWrapper = Form.create()(
@@ -72,13 +120,6 @@ const LocalInstallFormWrapper = Form.create()(
     return React.cloneElement(children, { form, ref: contentRef });
   }
 );
-
-const isLLMPluginInstalled = (list = []) => {
-  return (list || []).some(plugin => {
-    const pluginLabels = [plugin?.name, plugin?.alias, plugin?.display_name];
-    return pluginLabels.some(label => typeof label === 'string' && /(llm|大模型)/i.test(label));
-  });
-};
 
 const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, rainbondInfo, currentUser, groups, pluginsList, currentView: initialView }) => {
   const [currentView, setCurrentView] = useState('main'); // 'main', 'market', 'image', 'code', 'yaml', 'form', 'imageRepo', 'marketStore', 'localMarket', 'marketInstall', 'localMarketInstall'
@@ -118,6 +159,20 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const [pluginError, setPluginError] = useState(false);
   const [pluginErrInfo, setPluginErrInfo] = useState('');
   const [importingPlugin, setImportingPlugin] = useState(null);
+  const [showLlmSelectModal, setShowLlmSelectModal] = useState(false);
+  const [llmModelsLoading, setLlmModelsLoading] = useState(false);
+  const [llmModels, setLlmModels] = useState([]);
+  const [llmModelsError, setLlmModelsError] = useState('');
+  const [llmRepositorySearch, setLlmRepositorySearch] = useState('');
+  const [selectedLlmRepositoryKey, setSelectedLlmRepositoryKey] = useState('');
+  const [llmSourceType, setLlmSourceType] = useState('repository');
+  const [llmSubmitLoading, setLlmSubmitLoading] = useState(false);
+  const [llmUploadFile, setLlmUploadFile] = useState(null);
+  const [llmForm, setLlmForm] = useState({
+    display_name: '',
+    source_uri: '',
+    parameters: '',
+  });
 
   // 应用市场相关状态
   const [marketApps, setMarketApps] = useState([]);
@@ -559,6 +614,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       iconSrc: ContainerIcon,
       title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.from_image' }),
       key: 'image',
+      testid: 'rbd-create-from-image',
       hasSubMenu: true,
       iconColor: '#fa8c16',
     },
@@ -607,10 +663,9 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     });
   }
 
-  const showDatabaseEntry = showDatabaseForm;
-  const showVmEntry = PluginUtils.isInstallPlugin(pluginsList, 'rainbond-vm');
-  const showLlmEntry = isLLMPluginInstalled(pluginsList);
-  const showExtensionSection = showDatabaseEntry || showVmEntry || showLlmEntry;
+  const showDatabaseEntry = false;
+  const showVmEntry = true;
+  const showExtensionSection = true;
 
   // 动态生成市场子项:应用商店分隔符 + 商店列表 + 本地资源分隔符 + 本地组件库 + 离线导入
   const marketSubItems = [
@@ -651,6 +706,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       iconSrc: ContainerIcon,
       title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.container' }),
       key: 'custom',
+      testid: 'rbd-create-image-source-container',
       showForm: true,
       formType: 'docker',
       iconColor: '#fa8c16',
@@ -879,7 +935,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       iconSrc: InstalledDatabaseIcon,
       title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.database' }),
       key: 'database',
-      ...(showDatabaseForm ? { hasSubMenu: true } : { displayOnly: true }),
+      ...(showDatabaseForm ? { hasSubMenu: true } : {}),
       iconColor: '#13c2c2',
     }] : []),
     ...(showVmEntry ? [{
@@ -890,13 +946,12 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       formType: 'vm',
       iconColor: '#fa8c16',
     }] : []),
-    ...(showLlmEntry ? [{
+    {
       iconSrc: InstalledLlmIconOrange,
       title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.llm' }),
-      key: 'llm-display',
-      displayOnly: true,
+      key: 'llm',
       iconColor: '#722ed1',
-    }] : []),
+    },
     ...availablePlugins.map(plugin => ({
       icon: 'api',
       title: plugin.display_name || plugin.alias || plugin.name || formatMessage({ id: 'componentOverview.body.CreateComponentModal.plugin' }),
@@ -1168,6 +1223,362 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     });
   };
 
+  const isAiEngineSuccess = (res) => !!(res && (res.code === 200 || res.status_code === 200));
+
+  const resetLlmSelectorState = () => {
+    setShowLlmSelectModal(false);
+    setLlmModelsLoading(false);
+    setLlmModels([]);
+    setLlmModelsError('');
+    setLlmRepositorySearch('');
+    setSelectedLlmRepositoryKey('');
+    setLlmSourceType('repository');
+    setLlmSubmitLoading(false);
+    setLlmUploadFile(null);
+    setLlmForm({
+      display_name: '',
+      source_uri: '',
+      parameters: '',
+    });
+  };
+
+  const handleCloseLlmSelectModal = () => {
+    resetLlmSelectorState();
+  };
+
+  const fetchTeamLlmModelsList = () => {
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+
+    if (!teamName || !regionName) {
+      setLlmModels([]);
+      return;
+    }
+
+    const namespace = resolveCurrentTeamNamespace(currentUser, teamName);
+
+    setLlmModelsLoading(true);
+    setLlmModelsError('');
+    const teamModelsRequest = getTeamLlmModels({
+      team_name: teamName,
+      region_name: regionName,
+      namespace,
+    }).catch((err) => ({ __error: err }));
+    const catalogRequest = getTeamLlmCatalog({
+      team_name: teamName,
+      region_name: regionName,
+      namespace,
+    }).catch((err) => ({ __error: err }));
+
+    Promise.all([teamModelsRequest, catalogRequest]).then(([teamRes, catalogRes]) => {
+      const hasTeamError = !!(teamRes && teamRes.__error);
+      const hasCatalogError = !!(catalogRes && catalogRes.__error);
+      const teamPayload = isAiEngineSuccess(teamRes) ? (teamRes.data || teamRes) : {};
+      const catalogPayload = isAiEngineSuccess(catalogRes) ? (catalogRes.data || catalogRes) : [];
+      const catalogModels = extractLlmCatalogModels(catalogPayload);
+      const teamModels = teamPayload.models || [];
+
+      setLlmModels(buildLlmRepositoryEntries(catalogModels, teamModels));
+
+      if (hasTeamError && hasCatalogError) {
+        setLlmModelsError(
+          formatMessage({ id: 'componentOverview.body.CreateComponentModal.llm_fetch_failed' })
+        );
+        handleAPIError(teamRes.__error);
+        return;
+      }
+
+      if (!isAiEngineSuccess(teamRes) && !hasTeamError) {
+        setLlmModelsError((teamRes && (teamRes.msg || teamRes.msg_show)) || '');
+      } else if (!isAiEngineSuccess(catalogRes) && !hasCatalogError) {
+        setLlmModelsError((catalogRes && (catalogRes.msg || catalogRes.msg_show)) || '');
+      }
+    }).catch((err) => {
+      setLlmModels([]);
+      setLlmModelsError(
+        formatMessage({ id: 'componentOverview.body.CreateComponentModal.llm_fetch_failed' })
+      );
+      handleAPIError(err);
+    }).finally(() => {
+      setLlmModelsLoading(false);
+    });
+  };
+
+  const buildLlmPluginTarget = (modelKey = '') => {
+    const llmPlugin = getLlmPluginFromList(pluginsList);
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+
+    if (!llmPlugin || !teamName || !regionName) {
+      return null;
+    }
+
+    return buildLlmPluginNavigation({
+      pluginName: llmPlugin.name,
+      teamName,
+      regionName,
+      modelKey,
+    });
+  };
+
+  const jumpToLlmPlugin = (modelKey = '') => {
+    const target = buildLlmPluginTarget(modelKey);
+
+    if (!target) {
+      return;
+    }
+
+    dispatch(routerRedux.push(target));
+    handleClose();
+    resetLlmSelectorState();
+  };
+
+  const handleOpenLlmSelector = () => {
+    setShowLlmSelectModal(true);
+    setLlmSourceType('repository');
+    setLlmSubmitLoading(false);
+    setLlmUploadFile(null);
+    setLlmRepositorySearch('');
+    setSelectedLlmRepositoryKey('');
+    setLlmForm({
+      display_name: '',
+      source_uri: '',
+      parameters: '',
+    });
+    fetchTeamLlmModelsList();
+  };
+
+  const submitLlmDownloadPayload = (payload) => {
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+
+    if (!teamName || !regionName) {
+      return;
+    }
+
+    if (!payload.source_uri) {
+      message.warning('当前模型缺少可用来源，请改用魔搭或上传');
+      return;
+    }
+
+    const namespace = resolveCurrentTeamNamespace(currentUser, teamName);
+
+    setLlmSubmitLoading(true);
+    createTeamLlmDownload({
+      team_name: teamName,
+      region_name: regionName,
+      namespace,
+      data: payload,
+    }).then((res) => {
+      setLlmSubmitLoading(false);
+      if (isAiEngineSuccess(res)) {
+        message.success(`${payload.display_name || payload.model_id} 已开始下载`);
+        jumpToLlmPlugin();
+        return;
+      }
+
+      message.error((res && (res.msg || res.msg_show)) || '下载模型失败');
+    }).catch((err) => {
+      setLlmSubmitLoading(false);
+      handleAPIError(err);
+    });
+  };
+
+  const handleLlmRepositoryAction = (entry) => {
+    const asset = entry && entry.asset;
+    const model = entry && entry.model;
+    const status = normalizeLlmModelStatus(asset && asset.status);
+
+    if (asset && status === 'ready') {
+      jumpToLlmPlugin(asset.model_key);
+      return;
+    }
+
+    if (model) {
+      const payload = buildLlmCatalogDownloadPayload(model);
+      if (!payload.source_uri) {
+        message.warning('当前模型缺少可用来源，请改用手动部署');
+        return;
+      }
+      submitLlmDownloadPayload(payload);
+      return;
+    }
+
+    const payload = buildLlmAssetDownloadPayload(asset);
+    if (!payload.source_uri) {
+      message.warning('当前模型缺少可用来源，请改用魔搭或上传');
+      return;
+    }
+    submitLlmDownloadPayload(payload);
+  };
+
+  const getLlmRepositoryEntryKey = (entry = {}) => {
+    if (entry.key) {
+      return entry.key;
+    }
+    const model = entry.model || {};
+    const asset = entry.asset || {};
+    return asset.model_key || model.model_id || model.model_key || model.display_name || '';
+  };
+
+  const getFilteredLlmRepositoryEntries = () => {
+    const keyword = String(llmRepositorySearch || '').trim().toLowerCase();
+    if (!keyword) {
+      return llmModels;
+    }
+
+    return llmModels.filter((entry) => {
+      const model = entry.model || entry.asset || {};
+      const asset = entry.asset || {};
+      return [
+        model.display_name,
+        model.model_id,
+        model.description,
+        model.model_source,
+        model.source_uri,
+        model.provider,
+        model.registry_provider,
+        model.parameters,
+        asset.model_key,
+        asset.local_path,
+        asset.source_uri,
+        asset.parameters,
+        asset.display_name,
+        asset.model_id,
+        asset.source_type,
+      ].filter(Boolean).join(' ').toLowerCase().includes(keyword);
+    });
+  };
+
+  const getSelectedLlmRepositoryEntry = (entries = getFilteredLlmRepositoryEntries()) => {
+    if (!selectedLlmRepositoryKey) {
+      return null;
+    }
+
+    return entries.find((entry) => getLlmRepositoryEntryKey(entry) === selectedLlmRepositoryKey) || null;
+  };
+
+  const getLlmRepositoryActionMeta = () => {
+    const selectedLlmRepositoryEntry = getSelectedLlmRepositoryEntry();
+    if (!selectedLlmRepositoryEntry) {
+      return { label: '请选择模型', disabled: true };
+    }
+
+    const asset = selectedLlmRepositoryEntry.asset;
+    const status = normalizeLlmModelStatus(asset && asset.status);
+
+    if (asset && status === 'ready') {
+      return { label: '部署', disabled: false };
+    }
+    if (['downloading', 'deleting'].includes(status)) {
+      return {
+        label: status === 'deleting' ? '删除中' : '下载中',
+        disabled: true,
+      };
+    }
+
+    return { label: '下载', disabled: false };
+  };
+
+  const handleLlmRepositoryPrimaryAction = () => {
+    const selectedLlmRepositoryEntry = getSelectedLlmRepositoryEntry();
+    if (!selectedLlmRepositoryEntry) {
+      message.warning('请选择一个模型');
+      return;
+    }
+
+    handleLlmRepositoryAction(selectedLlmRepositoryEntry);
+  };
+
+  const handleLlmFormChange = (field, value) => {
+    setLlmForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleConfirmLlmSelection = () => {
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+
+    if (!teamName || !regionName) {
+      return;
+    }
+
+    const namespace = resolveCurrentTeamNamespace(currentUser, teamName);
+
+    if (llmSourceType === 'repository') {
+      return;
+    }
+
+    setLlmSubmitLoading(true);
+
+    if (llmSourceType === 'upload') {
+      if (!llmUploadFile) {
+        setLlmSubmitLoading(false);
+        message.warning('请选择要部署的模型包文件');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', llmUploadFile);
+      formData.append('display_name', String(llmForm.display_name || '').trim());
+      formData.append('engine_type', 'vLLM');
+      formData.append('parameters', String(llmForm.parameters || '').trim());
+
+      uploadTeamLlmArtifact({
+        team_name: teamName,
+        region_name: regionName,
+        namespace,
+        formData,
+      }).then((res) => {
+        if (isAiEngineSuccess(res)) {
+          message.success('模型已开始部署');
+          jumpToLlmPlugin();
+          return;
+        }
+
+        setLlmSubmitLoading(false);
+        message.error((res && (res.msg || res.msg_show)) || '部署模型失败');
+      }).catch((err) => {
+        setLlmSubmitLoading(false);
+        handleAPIError(err);
+      });
+      return;
+    }
+
+    if (!String(llmForm.source_uri || '').trim()) {
+      setLlmSubmitLoading(false);
+      message.warning('请输入魔搭模型地址');
+      return;
+    }
+
+    createTeamLlmDownload({
+      team_name: teamName,
+      region_name: regionName,
+      namespace,
+      data: {
+        display_name: String(llmForm.display_name || '').trim(),
+        source_type: llmSourceType,
+        source_uri: String(llmForm.source_uri || '').trim(),
+        engine_type: 'vLLM',
+        parameters: String(llmForm.parameters || '').trim(),
+      },
+    }).then((res) => {
+      if (isAiEngineSuccess(res)) {
+        message.success('模型已开始部署');
+        jumpToLlmPlugin();
+        return;
+      }
+
+      setLlmSubmitLoading(false);
+      message.error((res && (res.msg || res.msg_show)) || '部署模型失败');
+    }).catch((err) => {
+      setLlmSubmitLoading(false);
+      handleAPIError(err);
+    });
+  };
+
   // 监听滚动事件进行自动加载 - 商店应用
   useEffect(() => {
     if (currentView !== 'marketStore') {
@@ -1392,6 +1803,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       // 弹窗关闭时，重置所有状态
       resetViewHistory();
       setCurrentView('main');
+      setSelectedPlugin(null);
       setSelectedStore(null);
       setSelectedMarketApp(null);
       setSelectedLocalApp(null);
@@ -1404,11 +1816,129 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       setLocalMarketActiveTab('all');
       setCurrentFormType('');
       setHasInitialized(false); // 重置初始化标志
+      resetLlmSelectorState();
     }
   }, [visible, initialView, hasInitialized]);
 
+  const handleDatabaseEntryClick = () => {
+    const hasDatabasePlugin = PluginUtils.isInstallPlugin(pluginsList, 'rainbond-databases');
+    const regionName = globalUtil.getCurrRegionName();
+
+    if (hasDatabasePlugin) {
+      pushViewHistory('database');
+      fetchDatabaseTypes();
+      return;
+    }
+
+    if (currentUser?.is_enterprise_admin && currentUser?.enterprise_id) {
+      Modal.confirm({
+        title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.database_install_required' }),
+        content: formatMessage({ id: 'componentOverview.body.CreateComponentModal.database_install_confirm_desc' }),
+        onOk: () => {
+          dispatch(
+            routerRedux.push(
+              `/enterprise/${currentUser.enterprise_id}/extension?regionName=${regionName}`
+            )
+          );
+          onCancel();
+        }
+      });
+      return;
+    }
+
+    Modal.warning({
+      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.database_contact_admin_title' }),
+      content: formatMessage({ id: 'componentOverview.body.CreateComponentModal.database_contact_admin_desc' })
+    });
+  };
+
+  const handleLlmEntryClick = () => {
+    const hasLlmPlugin = PluginUtils.isInstallPlugin(pluginsList, 'rainbond-ai-engine');
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+
+    if (hasLlmPlugin) {
+      dispatch(
+        routerRedux.push(
+          `/team/${teamName}/region/${regionName}/plugins/rainbond-ai-engine`
+        )
+      );
+      onCancel();
+      return;
+    }
+
+    if (currentUser?.is_enterprise_admin && currentUser?.enterprise_id) {
+      Modal.confirm({
+        title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.llm_install_required' }),
+        content: formatMessage({ id: 'componentOverview.body.CreateComponentModal.llm_install_confirm_desc' }),
+        onOk: () => {
+          dispatch(
+            routerRedux.push(
+              `/enterprise/${currentUser.enterprise_id}/extension?regionName=${regionName}`
+            )
+          );
+          onCancel();
+        }
+      });
+      return;
+    }
+
+    Modal.warning({
+      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.llm_contact_admin_title' }),
+      content: formatMessage({ id: 'componentOverview.body.CreateComponentModal.llm_contact_admin_desc' })
+    });
+  };
+
+  const handleVmEntryClick = () => {
+    const hasVmPlugin = PluginUtils.isInstallPlugin(pluginsList, 'rainbond-vm');
+    const regionName = globalUtil.getCurrRegionName();
+
+    if (hasVmPlugin) {
+      setCurrentFormType('vm');
+      pushViewHistory('form');
+      return;
+    }
+
+    if (currentUser?.is_enterprise_admin && currentUser?.enterprise_id) {
+      Modal.confirm({
+        title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.vm_install_required' }),
+        content: formatMessage({ id: 'componentOverview.body.CreateComponentModal.vm_install_confirm_desc' }),
+        onOk: () => {
+          dispatch(
+            routerRedux.push(
+              `/enterprise/${currentUser.enterprise_id}/extension?regionName=${regionName}`
+            )
+          );
+          onCancel();
+        }
+      });
+      return;
+    }
+
+    Modal.warning({
+      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.vm_contact_admin_title' }),
+      content: formatMessage({ id: 'componentOverview.body.CreateComponentModal.vm_contact_admin_desc' })
+    });
+  };
+
   const handleItemClick = (item) => {
+    if (item.key === 'llm-display') {
+      handleOpenLlmSelector();
+      return;
+    }
+    if (item.key === 'database') {
+      handleDatabaseEntryClick();
+      return;
+    }
     if (item.displayOnly) {
+      return;
+    }
+    if (item.key === 'llm') {
+      handleLlmEntryClick();
+      return;
+    }
+    if (item.key === 'vm') {
+      handleVmEntryClick();
       return;
     }
     if (item.hasSubMenu) {
@@ -1572,6 +2102,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const handleClose = () => {
     resetViewHistory();
     setCurrentView('main');
+    setSelectedPlugin(null);
     onCancel();
   };
 
@@ -1709,6 +2240,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const handlePluginModalClose = () => {
     setPluginModalVisible(false);
     setSelectedPlugin(null);
+    setPluginBaseInfoExtras(null);
     setPluginApp({});
     setPluginLoading(true);
     setPluginError(false);
@@ -2091,7 +2623,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     if (currentView === 'form') {
       return (
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <Button type="primary" onClick={handleFooterSubmit} loading={false}>
+          <Button data-testid="rbd-comp-create-submit" type="primary" onClick={handleFooterSubmit} loading={false}>
             {formatMessage({ id: 'componentOverview.body.CreateComponentModal.confirm_create' })}
           </Button>
         </div>
@@ -2223,6 +2755,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     return (
       <div
         key={item.key}
+        data-testid={item.testid}
         className={className}
         onClick={() => !isDisplayOnly && handleItemClick(item)}
         onMouseEnter={(e) => {
@@ -2268,6 +2801,9 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   };
 
 
+  const filteredLlmRepositoryEntries = getFilteredLlmRepositoryEntries();
+  const llmRepositoryActionMeta = getLlmRepositoryActionMeta();
+
   return (
     <>
       <Modal
@@ -2288,13 +2824,15 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         onCancel={handleClose}
         footer={getModalFooter()}
         width={
-          (currentView === 'imageRepo' || currentView === 'thirdList') ? 700 : 600
+          (currentView === 'imageRepo' || currentView === 'thirdList')
+            ? 700
+            : 600
         }
         className={styles.createComponentModal}
         bodyStyle={
           (currentView === 'marketStore' || currentView === 'localMarket')
-            ? { padding: 0 }
-            : {}
+              ? { padding: 0 }
+              : {}
         }
         style={{ top: 60 }}
       >
@@ -2568,6 +3106,163 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
             )}
           </>
         )}
+      </Modal>
+
+      <Modal
+        title="部署模型"
+        visible={showLlmSelectModal}
+        onCancel={handleCloseLlmSelectModal}
+        onOk={handleConfirmLlmSelection}
+        okText="开始部署"
+        cancelText="取消"
+        confirmLoading={llmSubmitLoading}
+        footer={llmSourceType === 'repository' ? (
+          <div className={styles.llmRepositoryFooter}>
+            <Button onClick={handleCloseLlmSelectModal}>取消</Button>
+            <Button
+              type="primary"
+              disabled={llmRepositoryActionMeta.disabled || llmSubmitLoading}
+              loading={llmSubmitLoading}
+              onClick={handleLlmRepositoryPrimaryAction}
+            >
+              {llmRepositoryActionMeta.label}
+            </Button>
+          </div>
+        ) : undefined}
+        width={520}
+        destroyOnClose
+      >
+        <div className={styles.llmDeployModalBody}>
+          <div className={styles.llmDeployMode}>
+            <span>来源类型</span>
+            <Radio.Group
+              value={llmSourceType}
+              onChange={(event) => {
+                setLlmSourceType(event.target.value);
+                setSelectedLlmRepositoryKey('');
+              }}
+            >
+              <Radio.Button value="repository">模型仓库</Radio.Button>
+              <Radio.Button value="modelscope">魔搭</Radio.Button>
+              <Radio.Button value="upload">上传</Radio.Button>
+            </Radio.Group>
+          </div>
+
+          {llmSourceType === 'repository' ? (
+            <div className={styles.llmRepositoryPanel}>
+              <Input.Search
+                allowClear
+                size="small"
+                placeholder="搜索模型名称、来源或模型 Key"
+                value={llmRepositorySearch}
+                onChange={(event) => {
+                  setLlmRepositorySearch(event.target.value);
+                  setSelectedLlmRepositoryKey('');
+                }}
+              />
+              {llmModelsLoading ? (
+                <div className={styles.llmRepositoryState}>
+                  <Spin />
+                </div>
+              ) : filteredLlmRepositoryEntries.length > 0 ? (
+                <div className={styles.llmRepositoryList}>
+                  {filteredLlmRepositoryEntries.map((entry) => {
+                    const asset = entry.asset;
+                    const model = entry.model || entry.asset || {};
+                    const statusMeta = asset ? getLlmStatusMeta(asset.status) : LLM_STATUS_META.not_downloaded;
+                    const name = model.display_name || model.model_id || model.model_key || '未命名模型';
+                    const parameterScale = getLlmModelParameterScale(model) || model.parameters;
+                    const engineLabel = model.engine_type || model.default_engine || 'vLLM';
+                    const entryKey = getLlmRepositoryEntryKey(entry);
+                    const selected = selectedLlmRepositoryKey === entryKey;
+
+                    return (
+                      <button
+                        key={entryKey}
+                        type="button"
+                        className={`${styles.llmRepositoryItem} ${selected ? styles.llmRepositoryItemSelected : ''}`}
+                        onClick={() => setSelectedLlmRepositoryKey(entryKey)}
+                      >
+                        <span className={styles.llmSelectContent}>
+                          <span className={styles.llmSelectName} title={name}>
+                            {name}
+                          </span>
+                          <span className={styles.llmSelectMeta}>
+                            <span className={`${styles.llmStatusBadge} ${styles[statusMeta.badgeClassName]}`}>
+                              {statusMeta.label}
+                            </span>
+                            {!!parameterScale && <span>{parameterScale}</span>}
+                            <span>{engineLabel}</span>
+                          </span>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className={styles.llmRepositoryState}>
+                  <Empty
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    description={llmModelsError || '当前模型仓库没有匹配模型。'}
+                  />
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
+              <div className={styles.llmFormField}>
+                <span>模型名称</span>
+                <Input
+                  placeholder="例如：Qwen2.5-7B-Instruct"
+                  value={llmForm.display_name}
+                  onChange={(event) => handleLlmFormChange('display_name', event.target.value)}
+                />
+              </div>
+
+              <div className={styles.llmFormField}>
+                <span>参数量</span>
+                <Input
+                  placeholder="例如：7B"
+                  value={llmForm.parameters}
+                  onChange={(event) => handleLlmFormChange('parameters', event.target.value)}
+                />
+              </div>
+
+              {llmSourceType === 'upload' ? (
+                <div className={styles.llmFormField}>
+                  <span>模型包文件</span>
+                  <input
+                    className={styles.llmFileInput}
+                    type="file"
+                    accept=".zip,.tar,.tar.gz,.tgz,.tar.bz2,.tar.xz,.bin,.safetensors,.pt,.pth,.onnx,.gguf"
+                    onChange={(event) => {
+                      const nextFile = event.target.files && event.target.files[0] ? event.target.files[0] : null;
+                      setLlmUploadFile(nextFile);
+                    }}
+                  />
+                  <span className={styles.llmFieldHint}>
+                    支持压缩包和常见单文件模型格式，复杂多文件模型建议优先上传打包后的 zip / tar.gz。
+                  </span>
+                </div>
+              ) : (
+                <div className={styles.llmFormField}>
+                  <span>魔搭地址</span>
+                  <Input
+                    placeholder="例如：Qwen/Qwen2.5-7B-Instruct"
+                    value={llmForm.source_uri}
+                    onChange={(event) => handleLlmFormChange('source_uri', event.target.value)}
+                  />
+                </div>
+              )}
+            </>
+          )}
+
+          <p className={styles.llmDeployHint}>
+            {llmSourceType === 'repository'
+              ? '模型仓库会展示全部模型，已下载模型可直接部署，未下载模型会先进入团队 PVC。'
+              : '魔搭和上传模型会先进入团队 PVC，再作为实例启动来源。'}
+          </p>
+        </div>
       </Modal>
 
       {showAddImageRegistry && (

@@ -260,6 +260,31 @@
         margin-bottom: 24px;
     }
 
+    .vmInstallNotice {
+        margin-bottom: 20px;
+        text-align: left;
+        border-radius: 8px;
+
+        :global {
+            .ant-alert-message {
+                color: @text-color;
+                font-weight: 500;
+            }
+
+            .ant-alert-description {
+                color: @text-color-secondary;
+                font-size: 13px;
+                line-height: 22px;
+            }
+        }
+    }
+
+    .vmInstallNoticeContent {
+        div + div {
+            margin-top: 4px;
+        }
+    }
+
     .installInfoCard {
         background: #f7f8fa;
         border-radius: 10px;
@@ -384,4 +409,3 @@
         box-shadow: 0 4px 24px rgba(24, 144, 255, 0.35);
     }
 }
-

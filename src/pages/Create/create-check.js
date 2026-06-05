@@ -35,6 +35,10 @@ import { closeTeamRegion } from '@/services/team';
 import {
   FRAMEWORK_ICONS
 } from '@/components/CodeBuildConfig/nodejs-cnb';
+import {
+  buildCreatedComponentOverviewTarget,
+  resolveCreateCheckGroupId
+} from './createCheckHelpers';
 const {
   getDefaultMirrorEnvByPackageManager
 } = require('../../components/CodeBuildConfig/nodejs-cnb/mirrorConfig');
@@ -203,6 +207,14 @@ export default class CreateCheck extends React.Component {
       regionName: globalUtil.getCurrRegionName(),
       dist: Directory || 'dist'
     };
+  };
+  getGroupId = () => {
+    const { location } = this.props;
+    const { appDetail } = this.state;
+    return resolveCreateCheckGroupId({
+      locationQuery: location && location.query,
+      appDetail
+    });
   };
   getDetail = () => {
     this.props.dispatch({
@@ -639,9 +651,14 @@ export default class CreateCheck extends React.Component {
   handleBuild = () => {
     this.loadingBuild = true
     const { appAlias, teamName } = this.getParameter();
-    const { refreshCurrent, dispatch, soundCodeLanguage, location, packageNpmOrYarn } = this.props;
+    const { refreshCurrent, dispatch, soundCodeLanguage, packageNpmOrYarn } = this.props;
     const { isDeploy, ServiceGetData, appDetail, codeLanguage, selectedFramework, buildScript, Directory, nodeVersion, configFiles } = this.state;
-    const group_id = location?.query?.group_id
+    const group_id = this.getGroupId();
+    const componentOverviewTarget = buildCreatedComponentOverviewTarget({
+      groupId: group_id,
+      appAlias,
+      serviceSource: appDetail.service_source
+    });
 
     // 获取当前选择的框架信息
     const isStaticFramework = this.state.framework?.type === 'static'
@@ -724,12 +741,8 @@ export default class CreateCheck extends React.Component {
                     window.sessionStorage.removeItem(SOURCE_BUILD_CONFIG_KEY);
                     if (ServiceGetData && isDeploy) {
                       refreshCurrent();
-                    } else if (appDetail.service_source === 'third_party') {
-                      // this.handleJump(`components/${appAlias}/thirdPartyServices`);
-                      this.handleJump(`apps/${group_id}/overview?type=components&componentID=${appAlias}&tab=thirdPartyServices`);
-                    } else {
-                      // this.handleJump(`components/${appAlias}/overview`);
-                      this.handleJump(`apps/${group_id}/overview?type=components&componentID=${appAlias}&tab=overview`);
+                    } else if (componentOverviewTarget) {
+                      this.handleJump(componentOverviewTarget);
                     }
                   }
                 },
@@ -771,10 +784,8 @@ export default class CreateCheck extends React.Component {
               window.sessionStorage.removeItem(SOURCE_BUILD_CONFIG_KEY);
               if (ServiceGetData && isDeploy) {
                 refreshCurrent();
-              } else if (appDetail.service_source === 'third_party') {
-                this.handleJump(`apps/${group_id}/overview?type=components&componentID=${appAlias}&tab=thirdPartyServices`);
-              } else {
-                this.handleJump(`apps/${group_id}/overview?type=components&componentID=${appAlias}&tab=overview`);
+              } else if (componentOverviewTarget) {
+                this.handleJump(componentOverviewTarget);
               }
             }
           },
@@ -1774,6 +1785,7 @@ export default class CreateCheck extends React.Component {
             </Button>
           )}
           <Button
+            data-testid="rbd-build-wizard-next"
             type="primary"
             style={{ marginRight: '8px' }}
             onClick={this.handleConfigFile}
@@ -1806,6 +1818,7 @@ export default class CreateCheck extends React.Component {
             </Button>
           )}
           <Button
+            data-testid="rbd-build-wizard-next"
             type="primary"
             style={{ marginRight: '8px' }}
             onClick={this.handleConfigFile}
@@ -1847,6 +1860,7 @@ export default class CreateCheck extends React.Component {
     }
     return (
       <Result
+        data-testid="rbd-check-success"
         type="success"
         title={
           appDetail.service_source === 'third_party'

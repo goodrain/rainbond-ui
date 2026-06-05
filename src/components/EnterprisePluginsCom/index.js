@@ -42,6 +42,19 @@ export default class index extends Component {
     this.state = {
     };
   }
+  getPluginNamespace = () => {
+    const currentTeamNamespace = this.props?.teamControl?.currentTeam?.namespace;
+    if (currentTeamNamespace) {
+      return currentTeamNamespace;
+    }
+
+    const currentUser = this.props?.user?.currentUser;
+    const currentTeam = baseInfo?.userUtil?.getTeamByTeamName?.(
+      currentUser,
+      Global.getCurrTeamName()
+    );
+    return currentTeam?.namespace || '';
+  };
   componentDidMount() {
   }
   // 判断是否为多视图插件
@@ -98,6 +111,10 @@ export default class index extends Component {
     } = this.props;
     const key = this.isMultiViewPlugin()
     const AppPagePlugin = app[key] ? app[key] : false
+    const pluginBaseInfo = {
+      ...baseInfo,
+      namespace: this.getPluginNamespace()
+    }
     const reduxInfo = {
       activities: activities,
       appControl: appControl,
@@ -151,7 +168,7 @@ export default class index extends Component {
         <AppPagePlugin
           jumpRouter={this.jumpRouter}
           dispatch={dispatch}
-          baseInfo={baseInfo}
+          baseInfo={pluginBaseInfo}
           reduxInfo={reduxInfo}
           {...this.props}
           formatMessage={formatMessage}

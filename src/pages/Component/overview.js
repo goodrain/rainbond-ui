@@ -20,10 +20,12 @@ import regionUtil from '../../utils/region';
 import teamUtil from '../../utils/team';
 import userUtil from '../../utils/user';
 import Basic from './component/Basic/index';
+import VMProfilePanel from './component/Basic/VMProfilePanel';
 import OperationRecord from './component/Basic/operationRecord';
 import BuildHistory from './component/BuildHistory/index';
 import Instance from './component/Instance/index';
 import styles from './Index.less';
+import { shouldRefreshVMProfileForVNC } from './vmProfileRefreshHelpers';
 
 const ButtonGroup = Button.Group;
 
@@ -398,10 +400,19 @@ export default class Index extends PureComponent {
   };
   componentDidMount() {
     this.mounted = true;
-    this.loadBuildSourceInfo();
+    if (this.props.method !== 'vm') {
+      this.loadBuildSourceInfo();
+      this.getVersionList();
+    }
     this.fetchAppDiskAndMemory();
-    this.getVersionList();
     this.load();
+    this.refreshVMProfileForVNC();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.status !== this.props.status) {
+      this.refreshVMProfileForVNC();
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -694,6 +705,10 @@ export default class Index extends PureComponent {
   handleMore = more => {
     this.setState({
       more
+    }, () => {
+      if (more && this.props.method === 'vm' && this.state.dataList.length === 0) {
+        this.getVersionList();
+      }
     });
   };
 
@@ -715,6 +730,49 @@ export default class Index extends PureComponent {
         handleAPIError(err);
       }
     });
+  };
+
+  refreshVMProfile = () => {
+    const { dispatch, appAlias } = this.props;
+    return new Promise((resolve, reject) => {
+      dispatch({
+        type: 'appControl/fetchDetail',
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          app_alias: appAlias
+        },
+        callback: detail => {
+          resolve(detail);
+        },
+        handleError: err => {
+          reject(err);
+        }
+      });
+    });
+  };
+
+  refreshVMProfileForVNC = () => {
+    if (
+      !shouldRefreshVMProfileForVNC({
+        appDetail: this.props.appDetail,
+        status: this.props.status,
+        refreshing: this.vmProfileRefreshing
+      })
+    ) {
+      return;
+    }
+
+    this.vmProfileRefreshing = true;
+    this.refreshVMProfile()
+      .then(() => {
+        this.vmProfileRefreshing = false;
+      })
+      .catch(err => {
+        this.vmProfileRefreshing = false;
+        if (this.mounted) {
+          this.handleError(err);
+        }
+      });
   };
 
   render() {
@@ -757,9 +815,18 @@ export default class Index extends PureComponent {
           more={more}
           socket={socket}
           method={method}
+          vmProfile={appDetail?.vm_profile}
+          vmDiskAllocation={appDetail?.service?.disk_cap}
           showStorageUsed={showStorageUsed}
           storageUsed={storageUsed}
         />
+        {!more && method === 'vm' && appDetail?.vm_profile && (
+          <VMProfilePanel
+            vmProfile={appDetail.vm_profile}
+            serviceAlias={this.props.appAlias}
+            onRefresh={this.refreshVMProfile}
+          />
+        )}
         
         {more && (
           <BuildHistory

@@ -379,14 +379,14 @@ export default {
         callback(response);
       }
     },
-    *startShareEvent({ payload, callback }, { call }) {
-      const response = yield call(startShareEvent, payload);
+    *startShareEvent({ payload, callback, handleError }, { call }) {
+      const response = yield call(startShareEvent, payload, handleError);
       if (response && callback) {
         callback(response);
       }
     },
-    *startPluginShareEventInShareApp({ payload, callback }, { call }) {
-      const response = yield call(startPluginShareEventInShareApp, payload);
+    *startPluginShareEventInShareApp({ payload, callback, handleError }, { call }) {
+      const response = yield call(startPluginShareEventInShareApp, payload, handleError);
       if (response && callback) {
         callback(response);
       }

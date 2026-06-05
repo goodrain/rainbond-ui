@@ -13,6 +13,7 @@ import {
   Table,
   Tag,
   Timeline,
+  Tooltip,
   notification
 } from 'antd';
 import { connect } from 'dva';
@@ -488,8 +489,42 @@ export default class AppVersion extends PureComponent {
     }, 2000);
   };
 
-  canExportSnapshot = version => {
+  isVMTemplateComponent = component => {
+    if (!component) {
+      return false;
+    }
+    return !!(
+      component.vm ||
+      component.extend_method === 'vm' ||
+      component.service_type === 'vm' ||
+      component.service_source === 'vm_run'
+    );
+  };
+
+  isVMSnapshotDetail = detail => {
+    if (!detail || !detail.version_id) {
+      return false;
+    }
+    const templateApps = detail.template && detail.template.apps;
+    if (Array.isArray(templateApps)) {
+      return templateApps.some(this.isVMTemplateComponent);
+    }
+    return (
+      detail.can_rollback === false &&
+      detail.rollback_disabled_reason &&
+      detail.rollback_disabled_reason.indexOf('虚拟机') > -1
+    );
+  };
+
+  isVMSnapshotItem = item => {
+    return this.isVMSnapshotDetail(item && item.detail);
+  };
+
+  canExportSnapshot = (version, detail) => {
     if (!version) {
+      return false;
+    }
+    if (this.isVMSnapshotDetail(detail)) {
       return false;
     }
     const { overview } = this.state;
@@ -1990,6 +2025,11 @@ export default class AppVersion extends PureComponent {
   };
 
   handleRollbackSnapshot = async item => {
+    const disabledReason = this.getSnapshotRollbackDisabledReason(item);
+    if (!this.canRollbackSnapshot(item)) {
+      notification.warning({ message: disabledReason || '当前快照暂不支持回滚' });
+      return;
+    }
     const versionId = item && item.detail && item.detail.version_id;
     if (!versionId) {
       return;
@@ -2021,6 +2061,11 @@ export default class AppVersion extends PureComponent {
   };
 
   confirmRollbackSnapshot = item => {
+    const disabledReason = this.getSnapshotRollbackDisabledReason(item);
+    if (!this.canRollbackSnapshot(item)) {
+      notification.warning({ message: disabledReason || '当前快照暂不支持回滚' });
+      return;
+    }
     const snapshotVersion = item && item.detail && item.detail.version;
     if (!snapshotVersion) {
       return;
@@ -2205,6 +2250,10 @@ export default class AppVersion extends PureComponent {
   };
 
   showSnapshotExport = detail => {
+    if (this.isVMSnapshotDetail(detail)) {
+      notification.warning({ message: '携带虚拟机的快照需发布后从发布记录导出' });
+      return;
+    }
     const exporterAppData = this.buildSnapshotExportData(detail);
     if (!exporterAppData) {
       notification.warning({ message: '当前快照暂不可导出' });
@@ -2216,9 +2265,23 @@ export default class AppVersion extends PureComponent {
     });
   };
 
-  canRollbackSnapshot = item => {
+  getSnapshotRollbackDisabledReason = item => {
+    const detail = item && item.detail;
+    if (!detail || !detail.version_id) {
+      return '';
+    }
+    if (detail.can_rollback === false) {
+      return detail.rollback_disabled_reason || '当前快照不支持升级或回滚';
+    }
+    return '';
+  };
+
+  isSnapshotRollbackActionCandidate = item => {
     const { overview } = this.state;
     if (!item || !item.detail || !item.detail.version_id) {
+      return false;
+    }
+    if (this.isVMSnapshotItem(item)) {
       return false;
     }
     if (item.timelineState === 'runtime') {
@@ -2230,9 +2293,44 @@ export default class AppVersion extends PureComponent {
     return !!(overview && overview.has_changes);
   };
 
+  canRollbackSnapshot = item => {
+    if (!this.isSnapshotRollbackActionCandidate(item)) {
+      return false;
+    }
+    return !this.getSnapshotRollbackDisabledReason(item);
+  };
+
+  renderSnapshotRollbackAction = item => {
+    if (!this.isSnapshotRollbackActionCandidate(item)) {
+      return null;
+    }
+    const disabledReason = this.getSnapshotRollbackDisabledReason(item);
+    const rollbackable = this.canRollbackSnapshot(item);
+    const button = (
+      <Button
+        size="small"
+        disabled={!rollbackable}
+        onClick={() => this.confirmRollbackSnapshot(item)}
+      >
+        回滚
+      </Button>
+    );
+    if (disabledReason) {
+      return (
+        <Tooltip title={disabledReason}>
+          <span>{button}</span>
+        </Tooltip>
+      );
+    }
+    return button;
+  };
+
   canDeleteSnapshot = item => {
     const { overview } = this.state;
     if (!item || !item.detail || !item.detail.version_id) {
+      return false;
+    }
+    if (this.isVMSnapshotItem(item)) {
       return false;
     }
     if (!['history', 'upgrade'].includes(item.timelineState)) {
@@ -2252,6 +2350,16 @@ export default class AppVersion extends PureComponent {
       return true;
     }
     return !!currentOverview.has_changes;
+  };
+
+  shouldShowSnapshotExportAction = item => {
+    return !!(
+      item &&
+      item.timelineState !== 'runtime' &&
+      item.detail &&
+      item.detail.version &&
+      !this.isVMSnapshotItem(item)
+    );
   };
 
   renderRollbackStatusTag = status => {
@@ -2716,22 +2824,18 @@ export default class AppVersion extends PureComponent {
                           ghost: true
                         })
                       ) : null}
-                      {item.timelineState !== 'runtime' && item.detail && item.detail.version ? (
+                      {this.shouldShowSnapshotExportAction(item) ? (
                         <Button
                           size="small"
                           type="primary"
                           ghost
-                          disabled={!this.canExportSnapshot(item.actionVersion)}
+                          disabled={!this.canExportSnapshot(item.actionVersion, item.detail)}
                           onClick={() => this.showSnapshotExport(item.detail)}
                         >
                           {formatMessage({ id: 'button.export' })}
                         </Button>
                       ) : null}
-                      {this.canRollbackSnapshot(item) ? (
-                        <Button size="small" onClick={() => this.confirmRollbackSnapshot(item)}>
-                          回滚
-                        </Button>
-                      ) : null}
+                      {this.renderSnapshotRollbackAction(item)}
                       {this.canDeleteSnapshot(item) ? (
                         <Button size="small" onClick={() => this.confirmDeleteSnapshot(item)}>
                           删除

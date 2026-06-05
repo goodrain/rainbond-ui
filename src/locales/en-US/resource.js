@@ -88,6 +88,7 @@ const resource = {
   'resourceCenter.status.pending': 'Pending',
   'resourceCenter.status.warning': 'Warning',
   'resourceCenter.status.starting': 'Starting',
+  'resourceCenter.status.restoring': 'Restoring',
   'resourceCenter.status.creating': 'Creating',
   'resourceCenter.status.initializing': 'Initializing',
   'resourceCenter.status.terminating': 'Terminating',

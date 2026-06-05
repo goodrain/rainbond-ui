@@ -13,6 +13,8 @@ import {
   subscribeToActiveRun,
 } from '../services/agent';
 import { getAgentAccess } from '../services/agentAccess';
+import { getEnterprisePluginList } from '../services/api';
+import { isPluginBaseId } from '../utils/pluginArchUtils';
 import * as agentEventAdapter from '../services/agentEventAdapter';
 import {
   formatAgentContextMessage,
@@ -151,6 +153,9 @@ function stopAllCrossTabSubscriptions() {
 const defaultState = {
   hydrated: false,
   visible: false,
+  // AI 助手插件更新信息（来自 platform-plugins 接口的 rainbond-agent 条目）；
+  // null 表示无更新或尚未检测。结构见 fetchAgentUpdate effect。
+  agentUpdate: null,
   conversationId: 'global-default',
   messages: [],
   draft: '',
@@ -773,6 +778,66 @@ export default {
       }
     },
 
+    // 检测 AI 助手插件（rainbond-agent）是否有可升级版本。
+    // 静默调用 platform-plugins 接口（showMessage/showLoading 关闭），失败即视为"无更新"，
+    // 绝不阻塞或干扰顶栏。命中第一个"已安装且可升级"的条目即记录其升级跳转所需信息。
+    *fetchAgentUpdate({ payload }, { call, put }) {
+      const enterpriseId = payload && payload.enterprise_id;
+      const regionNames = Array.isArray(payload && payload.region_names)
+        ? payload.region_names.filter(Boolean)
+        : [];
+
+      if (!enterpriseId || !regionNames.length) {
+        yield put({ type: 'saveAgentUpdate', payload: null });
+        return;
+      }
+
+      let agentEntry = null;
+      for (let i = 0; i < regionNames.length; i += 1) {
+        const regionName = regionNames[i];
+        let response = null;
+        try {
+          response = yield call(
+            getEnterprisePluginList,
+            { enterprise_id: enterpriseId, region_name: regionName },
+            () => {},
+            { showMessage: false, showLoading: false }
+          );
+        } catch (e) {
+          response = null;
+        }
+
+        const list = (response && response.list) || [];
+        const found = list.find(
+          item =>
+            isPluginBaseId(item, 'rainbond-agent') &&
+            item.installed === true &&
+            item.upgradeable === true
+        );
+        if (found) {
+          agentEntry = { ...found, region_name: regionName };
+          break;
+        }
+      }
+
+      if (!agentEntry) {
+        yield put({ type: 'saveAgentUpdate', payload: null });
+        return;
+      }
+
+      yield put({
+        type: 'saveAgentUpdate',
+        payload: {
+          upgradeable: true,
+          installedVersion: agentEntry.installed_version || '',
+          latestVersion: agentEntry.latest_version || '',
+          appId: agentEntry.app_id,
+          teamName: agentEntry.team_name || '',
+          regionName: agentEntry.region_name || ''
+        }
+      });
+    },
+
     *hydrateSession({ payload }, { call, put }) {
       const userId = payload && payload.userId;
       const snapshot = yield call(hydrateAgentSession, userId);
@@ -1044,11 +1109,18 @@ export default {
           const body = error.responseBody;
           const currentRun = (body && body.current_run) || {};
           // Roll back the optimistic user echo so the conflict UI controls re-send.
+          //
+          // interactionLocked must drop back to false here: sendMessage set
+          // it true on entry, and the appViewportLock overlay (transparent,
+          // pointer-events: auto) keeps capturing clicks while it's true —
+          // which silently swallows clicks on the conflict-notice buttons
+          // and makes them look completely unresponsive.
           yield put({
             type: 'saveState',
             payload: {
               messages: state.messages,
               sending: false,
+              interactionLocked: false,
               lastError: '',
               runConflict: {
                 currentRun: {
@@ -1127,11 +1199,21 @@ export default {
           });
         }
       } catch (e) {
+        // Backend abort failed (e.g. 500). The run may still be alive
+        // server-side, but the user's intent is to escape the thinking
+        // state — release UI lock the same way as the success path so
+        // they aren't stuck. lastError surfaces the failure as a toast.
         yield put({
           type: 'saveState',
           payload: {
+            visible: hideAfterAbort ? false : state.visible,
             cancellingRun: false,
-            lastError: getErrorMessage(e) || '停止运行失败',
+            sending: false,
+            interactionLocked: false,
+            activeRunId: '',
+            updatedAt: Date.now(),
+            lastError:
+              getErrorMessage(e) || '停止运行失败，服务端可能仍在执行',
           },
         });
       }
@@ -1195,12 +1277,20 @@ export default {
       try {
         yield call(abortAgentRun, { sessionId, runId });
       } catch (e) {
+        // Foreign-run abort failed (e.g. 500). Tear down the conflict
+        // UI so the user can decide their next move instead of being
+        // stuck on the dialog. Do NOT auto-send their stashed draft —
+        // the foreign run may still be alive server-side.
+        stopAllCrossTabSubscriptions();
         yield put({
           type: 'saveState',
           payload: {
             cancellingRun: false,
             pendingDraftMode: '',
-            lastError: getErrorMessage(e) || '停止其他窗口运行失败',
+            runConflict: null,
+            lastError:
+              getErrorMessage(e) ||
+              '停止其他窗口运行失败，服务端可能仍在执行',
           },
         });
         return;
@@ -1718,6 +1808,14 @@ export default {
         ...state,
         visible: true,
         updatedAt: Date.now(),
+      };
+    },
+
+    // 仅更新 agentUpdate，不动 updatedAt：避免触发 RootShell 基于 updatedAt 的上下文同步副作用。
+    saveAgentUpdate(state, { payload }) {
+      return {
+        ...state,
+        agentUpdate: payload || null,
       };
     },
 

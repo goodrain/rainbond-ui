@@ -299,6 +299,88 @@
   color: #8c8c8c;
 }
 
+// AI 助手插件更新提示条：窄面板内的紧凑非阻断 banner，沿用应用升级页的橙色视觉。
+.updateBanner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  // 上间距收紧、补足下间距，避免"上空下贴"；纯暖色块 + 投影让卡片浮起，
+  // 不让底部白色融进面板背景。
+  margin: 6px 12px 12px;
+  padding: 9px 10px;
+  border: 1px solid #ffd7c8;
+  border-left: 3px solid #ff7a2f;
+  border-radius: 10px;
+  background: #fff6ef;
+  box-shadow: 0 6px 16px rgba(255, 122, 47, 0.1);
+}
+
+.updateBannerIcon {
+  flex-shrink: 0;
+  color: #ff7a2f;
+  font-size: 16px;
+}
+
+.updateBannerText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.35;
+}
+
+.updateBannerTitle {
+  color: @heading-color;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.updateBannerVersion {
+  color: #c96a3a;
+  font-size: 12px;
+}
+
+.updateBannerButton {
+  flex-shrink: 0;
+  height: 26px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 999px;
+  background: #ff7a2f;
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  &:hover,
+  &:focus {
+    outline: none;
+    background: #ff8d4d;
+  }
+}
+
+.updateBannerClose {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #b0772f;
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  &:hover,
+  &:focus {
+    outline: none;
+    background: rgba(255, 122, 47, 0.12);
+  }
+}
+
 .drawerBody {
   display: flex;
   flex-direction: column;
@@ -815,6 +897,28 @@
 .traceInlineIcon {
   flex: 0 0 auto;
   font-size: 12px;
+}
+
+.approvalResolvedText {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: @text-color-secondary;
+  font-size: 12px;
+  line-height: 20px;
+  word-break: break-word;
+}
+
+.approvalResolvedIconApproved {
+  flex: 0 0 auto;
+  font-size: 12px;
+  color: @success-color;
+}
+
+.approvalResolvedIconRejected {
+  flex: 0 0 auto;
+  font-size: 12px;
+  color: @text-color-secondary;
 }
 
 .thinkingRow {

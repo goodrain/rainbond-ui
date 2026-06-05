@@ -167,6 +167,7 @@ const appPublish = {
   'appPublish.btn.record.list.label.frontend_component':'前端组件',
   'appPublish.btn.record.list.label.entry_path':'入口路径',
   'appPublish.btn.record.list.label.inject_position':'注入位置',
+  'appPublish.btn.record.list.option.no_inject':'不注入',
   'appPublish.btn.record.list.label.menu_title':'菜单标题',
   'appPublish.btn.record.list.label.route_path':'路由路径',
   'appPublish.btn.record.list.label.describe':'版本说明',

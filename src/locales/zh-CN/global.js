@@ -5,6 +5,7 @@ const global = {
     'global.fetchStateText.RUNNING':'运行中',
     'global.fetchStateText.running':'运行中',
     'global.fetchStateText.starting':'启动中',
+    'global.fetchStateText.restoring':'恢复中',
     'global.fetchStateText.checking':'检测中',
     'global.fetchStateText.stopping':'关闭中',
     'global.fetchStateText.unusual':'运行异常',
@@ -60,6 +61,8 @@ const global = {
     'global.fetchOperation.timeOut':'操作已超时',
     'global.fetchOperation.success':'成功',
     'global.fetchOperation.lose':'失败',
+    'global.vmRestoreStage.downloading':'下载中',
+    'global.vmRestoreStage.restoring':'正在恢复',
 
     // fetchReason
     'global.fetchReason.tenant_lack_of_memory':'超过租户限额',
@@ -179,6 +182,7 @@ const global = {
     'global.fetchStateOptTypeText.app-restore-deps':'重新加载应用依赖',
     'global.fetchStateOptTypeText.app-restore-depvols':'重新加载应用依赖存储',
     'global.fetchStateOptTypeText.app-restore-plugins':'重新加载应用插件',
+    'global.fetchStateOptTypeText.vm-disk-restore':'恢复虚拟机磁盘',
     'global.fetchStateOptTypeText.create-service-plugin':'创建组件插件',
     'global.fetchStateOptTypeText.update-service-plugin':'更新组件插件',
     'global.fetchStateOptTypeText.delete-service-plugin':'删除组件插件',

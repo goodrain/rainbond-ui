@@ -439,10 +439,13 @@
     }
 
     .ant-tabs-nav-container {
-      overflow: hidden !important;
+      overflow: visible !important;
       margin-left: 0 !important;
       width: 100%;
+      overflow-x: auto !important;
       overflow-y: hidden !important;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
     }
 
     .ant-tabs-nav-container-scrolling {
@@ -451,7 +454,10 @@
       -ms-overflow-style: none;
     }
 
-    .ant-tabs-nav-container-scrolling::-webkit-scrollbar {
+    .ant-tabs-nav-container-scrolling::-webkit-scrollbar,
+    .ant-tabs-nav-container::-webkit-scrollbar {
+      width: 0;
+      height: 0;
       display: none;
     }
   }
