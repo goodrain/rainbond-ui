@@ -136,9 +136,15 @@ export default class Index extends PureComponent {
 
         let url = `/team/${team_name}/region/${region_name}/create/create-compose-check/${params.group_id}/${params.compose_id}`;
 
-        // 如果有 app_name 参数，添加到 URL
+        const query = [];
         if (queryParams.app_name) {
-            url += `?app_name=${encodeURIComponent(queryParams.app_name)}`;
+            query.push(`app_name=${encodeURIComponent(queryParams.app_name)}`);
+        }
+        if (queryParams.arch) {
+            query.push(`arch=${encodeURIComponent(queryParams.arch)}`);
+        }
+        if (query.length) {
+            url += `?${query.join('&')}`;
         }
 
         this.props.dispatch(routerRedux.push(url));

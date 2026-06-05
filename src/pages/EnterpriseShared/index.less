@@ -438,14 +438,6 @@
       padding: 12px 0;
     }
 
-    .ant-tabs-nav-scroll {
-      overflow: visible !important;
-    }
-
-    .ant-tabs-nav-container-scrolling {
-      overflow: visible !important;
-    }
-
     .ant-tabs-nav-container {
       overflow: visible !important;
       margin-left: 0 !important;
@@ -456,6 +448,13 @@
       -ms-overflow-style: none;
     }
 
+    .ant-tabs-nav-container-scrolling {
+      overflow-x: auto !important;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .ant-tabs-nav-container-scrolling::-webkit-scrollbar,
     .ant-tabs-nav-container::-webkit-scrollbar {
       width: 0;
       height: 0;

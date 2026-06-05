@@ -65,9 +65,17 @@ export default class Index extends PureComponent {
       callback: data => {
         const { group_id } = data.bean;
         const { compose_id, app_name } = data.bean;
+        const query = [];
+        if (app_name) {
+          query.push(`app_name=${encodeURIComponent(app_name)}`);
+        }
+        if (value.arch) {
+          query.push(`arch=${encodeURIComponent(value.arch)}`);
+        }
+        const queryString = query.length ? `?${query.join('&')}` : '';
         this.props.dispatch(
           routerRedux.push(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-compose-check/${group_id}/${compose_id}?app_name=${app_name}`
+            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-compose-check/${group_id}/${compose_id}${queryString}`
           )
         );
       },
