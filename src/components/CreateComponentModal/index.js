@@ -663,7 +663,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     });
   }
 
-  const showDatabaseEntry = true;
+  const showDatabaseEntry = false;
   const showVmEntry = true;
   const showExtensionSection = true;
 
