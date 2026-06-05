@@ -163,37 +163,51 @@ async function readSseEvents(response, options = {}) {
           .find(line => line.indexOf('data: ') === 0);
 
         if (dataLine) {
-          const parsed = JSON.parse(dataLine.slice(6));
-          events.push(parsed);
-          eventDispatcher.dispatch(parsed);
-
-          if (parsed && parsed.type === 'approval.resolved') {
-            approvalResolvedSeen = true;
-          }
-
-          if (
-            parsed &&
-            parsed.type === 'run.status' &&
-            parsed.data &&
-            TERMINAL_STATUSES.indexOf(parsed.data.status) > -1
-          ) {
-            if (
-              parsed.data.status === 'waiting_approval' &&
-              skipFirstWaitingApproval &&
-              !waitingApprovalSeen &&
-              !approvalResolvedSeen
-            ) {
-              waitingApprovalSeen = true;
-              // leftover replay from prior approval — keep reading
-            } else {
-              shouldStop = true;
-              break;
+          // 单条 SSE 数据损坏 / 被中途截断时只跳过这一条，不能让 JSON.parse
+          // 抛错冲垮整条流——否则上层会把它当成"消息发送失败"，丢掉已经收到的内容。
+          let parsed = null;
+          try {
+            parsed = JSON.parse(dataLine.slice(6));
+          } catch (parseError) {
+            parsed = null;
+            if (typeof console !== 'undefined' && console.warn) {
+              // 只记错误本身、不打印 dataLine 原文——它可能含会话内容，且对定位无必要。
+              // eslint-disable-next-line no-console
+              console.warn('[RainAgent] 跳过一条无法解析的 SSE 事件:', parseError.message);
             }
           }
 
-          if (parsed && parsed.type === 'run.error') {
-            shouldStop = true;
-            break;
+          if (parsed) {
+            events.push(parsed);
+            eventDispatcher.dispatch(parsed);
+
+            if (parsed.type === 'approval.resolved') {
+              approvalResolvedSeen = true;
+            }
+
+            if (
+              parsed.type === 'run.status' &&
+              parsed.data &&
+              TERMINAL_STATUSES.indexOf(parsed.data.status) > -1
+            ) {
+              if (
+                parsed.data.status === 'waiting_approval' &&
+                skipFirstWaitingApproval &&
+                !waitingApprovalSeen &&
+                !approvalResolvedSeen
+              ) {
+                waitingApprovalSeen = true;
+                // leftover replay from prior approval — keep reading
+              } else {
+                shouldStop = true;
+                break;
+              }
+            }
+
+            if (parsed.type === 'run.error') {
+              shouldStop = true;
+              break;
+            }
           }
         }
 

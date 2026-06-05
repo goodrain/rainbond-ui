@@ -79,8 +79,59 @@ async function main() {
   await testSubscribeToRunEventsResolvesOnTerminal(encoder);
   await testSubscribeToRunEventsRequiresUrl();
   await testReadSseEventsBatchesStreamingDeltas(encoder);
+  await testReadSseEventsSkipsMalformedChunk(encoder);
 
   console.log('agent stream helper tests passed');
+}
+
+// 单条 SSE 数据损坏 / 被代理截断时，整条流不能崩；坏事件跳过、好事件照常处理，
+// 终止状态依然能停止消费。回归保护 readSseEvents 里 JSON.parse 的 try/catch。
+async function testReadSseEventsSkipsMalformedChunk(encoder) {
+  const seen = [];
+  const response = {
+    ok: true,
+    body: {
+      getReader() {
+        return createReader([
+          encoder.encode(
+            'data: {"type":"chat.message","data":{"role":"assistant","content":"ok"}}\n\n'
+          ),
+          // 截断 / 损坏的 JSON —— 历史上这一条会让 JSON.parse 抛错、冲垮整条流。
+          encoder.encode('data: {"type":"chat.message","data":{"role":\n\n'),
+          encoder.encode(
+            'data: {"type":"run.status","data":{"status":"done"}}\n\n'
+          ),
+        ]);
+      },
+    },
+  };
+
+  const originalWarn = console.warn;
+  let warned = false;
+  console.warn = () => {
+    warned = true;
+  };
+  let events;
+  try {
+    events = await readSseEvents(response, {
+      onEvent: e => seen.push(e.type),
+    });
+  } finally {
+    console.warn = originalWarn;
+  }
+
+  assert.strictEqual(
+    events.length,
+    2,
+    'malformed SSE chunk should be skipped while valid events are still aggregated'
+  );
+  assert.deepStrictEqual(
+    seen,
+    ['chat.message', 'run.status'],
+    'a malformed chunk must not stop delivery of subsequent valid events'
+  );
+  assert.strictEqual(events[1].data.status, 'done', 'terminal status after a bad chunk still stops the stream');
+  assert.strictEqual(warned, true, 'a malformed SSE chunk should be logged via console.warn');
 }
 
 function buildResponse(encoder, payloads) {
