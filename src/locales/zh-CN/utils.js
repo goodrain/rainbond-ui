@@ -24,6 +24,8 @@ const utils ={
 // app
 'utils.app.Operation':'运行中',
 'utils.app.Starting':'启动中',
+'utils.app.Building':'构建中',
+'utils.app.Restoring':'恢复中',
 'utils.app.Testing':'检测中',
 'utils.app.Closing':'关闭中',
 'utils.app.Error':'运行异常',

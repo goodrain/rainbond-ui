@@ -746,7 +746,10 @@ export async function getPorts(
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/ports`,
     {
-      method: 'get'
+      method: 'get',
+      showLoading: body.showLoading,
+      showMessage: body.showMessage,
+      handleError: body.handleError
     }
   );
 }
@@ -1570,6 +1573,44 @@ export async function getVolumes(
 }
 
 /*
+  获取 VM 磁盘列表
+*/
+export async function getVMDisks(
+  body = {
+    team_name,
+    app_alias
+  }
+) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/vm-disks`,
+    {
+      method: 'get'
+    }
+  );
+}
+
+/*
+  保存 VM 磁盘布局
+*/
+export async function saveVMDiskLayout(
+  body = {
+    team_name,
+    app_alias,
+    disks
+  }
+) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/vm-disks`,
+    {
+      method: 'put',
+      data: {
+        disks: body.disks || []
+      }
+    }
+  );
+}
+
+/*
   获取组件支持的存储类型
 */
 export async function getVolumeOpts(
@@ -1595,6 +1636,7 @@ export async function addVolume(
     app_alias,
     volume_name,
     volume_type,
+    access_mode,
     volume_path,
     volume_capacity,
     file_content
@@ -1607,6 +1649,7 @@ export async function addVolume(
       data: {
         volume_name: body.volume_name,
         volume_type: body.volume_type,
+        access_mode: body.access_mode,
         volume_path: body.volume_path,
         mode: body.mode,
         volume_capacity: new Number(body.volume_capacity),

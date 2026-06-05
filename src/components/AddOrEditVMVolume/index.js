@@ -1,45 +1,86 @@
 /* eslint-disable camelcase */
 import {
+  Alert,
   Button,
   Drawer,
   Form,
   Input,
   message,
   notification,
-  Radio,
-  Tooltip,
   Select
 } from 'antd';
-import React, { PureComponent } from 'react';
+import React, { Fragment, PureComponent } from 'react';
 import pluginUtil from '../../utils/plugin';
 import cookie from '../../utils/cookie';
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
+import {
+  findVolumeOptionByType,
+  resolveVMStorageAccessMode
+} from '../../utils/vmVolumeOptions';
 
 
 const FormItem = Form.Item;
-const RadioGroup = Radio.Group;
 const { Option } = Select;
 
 @Form.create()
 export default class AddVolumes extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = { volumeCapacityValidation: {}, language: cookie.get('language') === 'zh-CN' };
+    const defaultVolumeType = this.getDefaultVolumeType(props);
+    this.state = {
+      volumeCapacityValidation: {},
+      language: cookie.get('language') === 'zh-CN',
+      volume_type: defaultVolumeType,
+      volume_path: this.getDevicePathValue(props)
+    };
   }
+  componentDidMount() {
+    this.setVolumeCapacityValidation(this.state.volume_type);
+  }
+  getDefaultVolumeType = (props = this.props) => {
+    const { data = {}, volumeOpts = [] } = props;
+    return data.volume_type || (volumeOpts[0] && volumeOpts[0].volume_type) || '';
+  };
+  getDevicePathValue = (data = {}) => {
+    if (data.device_path) {
+      return data.device_path;
+    }
+    if (data.device_type) {
+      return `/${data.device_type}`;
+    }
+    return data.volume_path || '/disk';
+  };
+  isCDROM = () => this.state.volume_path === '/cdrom';
   // eslint-disable-next-line react/sort-comp
   handleSubmit = e => {
     e.preventDefault();
-    const { form, onSubmit } = this.props;
+    const { form, onSubmit, volumeOpts = [] } = this.props;
     form.validateFields((err, values) => {
       if (!err && onSubmit) {
         const ismount = pluginUtil.isMountPath(values.volume_path);
         if (ismount) {
           return notification.warning({ message: <FormattedMessage id='notification.warn.mountPath' /> });
         }
-        values.volume_type = 'vm-file';
+        if (values.volume_path === '/cdrom') {
+          onSubmit({
+            volume_name: values.volume_name,
+            volume_path: values.volume_path,
+            image: values.image,
+            source_kind: 'container_disk',
+            device_type: 'cdrom'
+          });
+          return;
+        }
+        const selectedOption = findVolumeOptionByType(volumeOpts, values.volume_type);
+        values.access_mode = resolveVMStorageAccessMode(selectedOption);
         onSubmit(values);
       }
+    });
+  };
+  handleVolumePathChange = value => {
+    this.setState({
+      volume_path: value
     });
   };
   checkMountPath = (_, value, callback) => {
@@ -67,7 +108,11 @@ export default class AddVolumes extends PureComponent {
     }
   };
   handleChange = e => {
-    this.setVolumeCapacityValidation(e.target.value);
+    const volumeType = e.target ? e.target.value : e;
+    this.setState({
+      volume_type: volumeType
+    });
+    this.setVolumeCapacityValidation(volumeType);
   };
 
   setVolumeCapacityValidation = volume_type => {
@@ -146,7 +191,8 @@ export default class AddVolumes extends PureComponent {
   render() {
     const { getFieldDecorator } = this.props.form;
     const { data = {}, volumeOpts } = this.props;
-    const { volumeCapacityValidation, language } = this.state;
+    const { volumeCapacityValidation, language, volume_type, volume_path } = this.state;
+    const isCDROM = volume_path === '/cdrom';
     let defaultVolumeCapacity = '';
     if (data.volume_capacity) {
       defaultVolumeCapacity = data.volume_capacity;
@@ -196,6 +242,15 @@ export default class AddVolumes extends PureComponent {
         }}
       >
         <Form onSubmit={this.handleSubmit}>
+          {volumeOpts.length === 0 && !isCDROM ? (
+            <Alert
+              type="warning"
+              showIcon
+              style={{ marginBottom: 16 }}
+              message={formatMessage({ id: 'Vm.createVm.noLiveMigrationStorage' })}
+              description={formatMessage({ id: 'Vm.createVm.noLiveMigrationStorageHint' })}
+            />
+          ) : null}
           <FormItem {...layoutConfig} label={<FormattedMessage id='componentOverview.body.AddVolumes.name' />}>
             {getFieldDecorator('volume_name', {
               initialValue: data.volume_name || '',
@@ -222,7 +277,7 @@ export default class AddVolumes extends PureComponent {
           </FormItem>
           <FormItem {...layoutConfig} label={<FormattedMessage id='componentOverview.body.AddVolumes.mount_format' />}>
             {getFieldDecorator('volume_path', {
-              initialValue: data.volume_path || '',
+              initialValue: this.getDevicePathValue(data),
               rules: [
                 {
                   required: true,
@@ -232,38 +287,82 @@ export default class AddVolumes extends PureComponent {
             })(
               <Select
                 getPopupContainer={triggerNode => triggerNode.parentNode}
-                defaultValue={'/disk'}
+                onChange={this.handleVolumePathChange}
               >
-                <Option value="/lun">LUN</Option>
                 <Option value="/disk"><FormattedMessage id='componentOverview.body.AddVolumes.disk' /></Option>
                 <Option value="/cdrom"><FormattedMessage id='componentOverview.body.AddVolumes.cdrom' /></Option>
               </Select>
             )}
           </FormItem>
-          <FormItem {...layoutConfig} label={<FormattedMessage id='componentOverview.body.AddVolumes.volume_capacity' />}>
-            {getFieldDecorator('volume_capacity', {
-              initialValue: initialVolumeCapacity,
-              rules: [
-                {
-                  min: 0,
-                  message: formatMessage({ id: 'componentOverview.body.AddVolumes.min' })
-                },
-                {
-                  validator: this.checkVolumeCapacity
-                }
-              ]
-            })(
-              <Input
-                type="number"
-                placeholder={
-                  !!this.props.editor && data.volume_capacity === 0
-                    ? formatMessage({ id: 'componentOverview.body.AddVolumes.unlimited' })
-                    : formatMessage({ id: 'componentOverview.body.AddVolumes.input' })
-                }
-                min={1}
-              />
-            )}
-          </FormItem>
+          {isCDROM ? (
+            <FormItem {...layoutConfig} label={<FormattedMessage id='componentOverview.body.AddVolumes.image' />}>
+              {getFieldDecorator('image', {
+                initialValue: data.image || '',
+                rules: [
+                  {
+                    required: true,
+                    message: formatMessage({ id: 'componentOverview.body.AddVolumes.image_required' })
+                  }
+                ]
+              })(
+                <Input placeholder={formatMessage({ id: 'componentOverview.body.AddVolumes.image_placeholder' })} />
+              )}
+            </FormItem>
+          ) : (
+            <Fragment>
+              <FormItem {...layoutConfig} label={<FormattedMessage id='componentOverview.body.AddVolumes.volume_capacity' />}>
+                {getFieldDecorator('volume_capacity', {
+                  initialValue: initialVolumeCapacity,
+                  rules: [
+                    {
+                      min: 0,
+                      message: formatMessage({ id: 'componentOverview.body.AddVolumes.min' })
+                    },
+                    {
+                      validator: this.checkVolumeCapacity
+                    }
+                  ]
+                })(
+                  <Input
+                    type="number"
+                    placeholder={
+                      !!this.props.editor && data.volume_capacity === 0
+                        ? formatMessage({ id: 'componentOverview.body.AddVolumes.unlimited' })
+                        : formatMessage({ id: 'componentOverview.body.AddVolumes.input' })
+                    }
+                    min={1}
+                  />
+                )}
+              </FormItem>
+              <FormItem
+                {...layoutConfig}
+                label={formatMessage({ id: 'componentCheck.advanced.setup.storage_setting.label.volume_type' })}
+              >
+                {getFieldDecorator('volume_type', {
+                  initialValue: volume_type,
+                  rules: [
+                    {
+                      required: true,
+                      message: formatMessage({ id: 'Vm.createVm.selectLiveMigrationStorage' })
+                    }
+                  ]
+                })(
+                  <Select
+                    getPopupContainer={triggerNode => triggerNode.parentNode}
+                    placeholder={formatMessage({ id: 'Vm.createVm.selectLiveMigrationStorage' })}
+                    onChange={this.handleChange}
+                    disabled={!!this.props.editor || volumeOpts.length === 0}
+                  >
+                    {volumeOpts.map(item => (
+                      <Option key={item.volume_type} value={item.volume_type}>
+                        {language ? item.name_show : item.volume_type}
+                      </Option>
+                    ))}
+                  </Select>
+                )}
+              </FormItem>
+            </Fragment>
+          )}
         </Form>
         <div
           style={{
@@ -286,7 +385,7 @@ export default class AddVolumes extends PureComponent {
           >
             <FormattedMessage id='componentOverview.body.AddVolumes.cancel' />
           </Button>
-          <Button onClick={this.handleSubmit} type="primary">
+          <Button onClick={this.handleSubmit} type="primary" disabled={!isCDROM && volumeOpts.length === 0}>
             <FormattedMessage id='componentOverview.body.AddVolumes.confirm' />
           </Button>
         </div>

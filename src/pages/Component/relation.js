@@ -112,7 +112,7 @@ export default class Index extends PureComponent {
     this.setState({ showAddRelation: false });
   };
   handleSubmitAddRelation = (ids) => {
-    const { dispatch, appAlias, isShowUpdate, handleOperation } = this.props;
+    const { dispatch, appAlias, isShowUpdate, handleOperation, method } = this.props;
     batchAddRelationedApp({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: appAlias,
@@ -122,7 +122,8 @@ export default class Index extends PureComponent {
         const timestamp = Date.now();
         const url = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${appAlias}&tab=relation&refresh=${timestamp}`;
         if (isShowUpdate) {
-          handleOperation('putUpdateRolling', () => {
+          const operation = method === 'vm' ? 'putReStart' : 'putUpdateRolling';
+          handleOperation(operation, () => {
             dispatch(routerRedux.push(url));
           });
         } else {
@@ -137,7 +138,7 @@ export default class Index extends PureComponent {
   };
 
   handleRemoveRelationed = app => {
-    const { dispatch, appAlias, isShowUpdate, handleOperation } = this.props;
+    const { dispatch, appAlias, isShowUpdate, handleOperation, method } = this.props;
     removeRelationedApp({
       team_name: globalUtil.getCurrTeamName(),
       app_alias: appAlias,
@@ -147,7 +148,8 @@ export default class Index extends PureComponent {
         const timestamp = Date.now();
         const url = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${appAlias}&tab=relation&refresh=${timestamp}`;
         if (isShowUpdate) {
-          handleOperation('putUpdateRolling', () => {
+          const operation = method === 'vm' ? 'putReStart' : 'putUpdateRolling';
+          handleOperation(operation, () => {
             dispatch(routerRedux.push(url));
           });
         } else {

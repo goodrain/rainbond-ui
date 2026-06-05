@@ -38,3 +38,41 @@ export const validateShareVersion = value => {
   }
   return null;
 };
+
+export const PLATFORM_PLUGIN_NO_INJECT = 'NoInject';
+
+const uniquePlatformPluginPositions = positions =>
+  Array.from(
+    new Set((Array.isArray(positions) ? positions : []).filter(Boolean))
+  );
+
+export const normalizePlatformPluginPositionsForDisplay = (
+  positions,
+  fallbackToNoInject = false
+) => {
+  const normalizedPositions = uniquePlatformPluginPositions(positions);
+  if (normalizedPositions.length > 0) {
+    return normalizedPositions;
+  }
+  return fallbackToNoInject ? [PLATFORM_PLUGIN_NO_INJECT] : [];
+};
+
+export const normalizePlatformPluginPositionsForSelection = positions => {
+  const normalizedPositions = uniquePlatformPluginPositions(positions);
+  if (normalizedPositions.includes(PLATFORM_PLUGIN_NO_INJECT)) {
+    return [PLATFORM_PLUGIN_NO_INJECT];
+  }
+  return normalizedPositions;
+};
+
+export const normalizePlatformPluginPositionsForSubmit = positions => {
+  const normalizedPositions =
+    normalizePlatformPluginPositionsForSelection(positions);
+  if (normalizedPositions.includes(PLATFORM_PLUGIN_NO_INJECT)) {
+    return [];
+  }
+  return normalizedPositions;
+};
+
+export const isPlatformPluginPositionConfigured = positions =>
+  normalizePlatformPluginPositionsForSelection(positions).length > 0;

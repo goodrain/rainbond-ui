@@ -88,6 +88,7 @@ const resource = {
   'resourceCenter.status.pending': '等待中',
   'resourceCenter.status.warning': '警告',
   'resourceCenter.status.starting': '启动中',
+  'resourceCenter.status.restoring': '恢复中',
   'resourceCenter.status.creating': '创建中',
   'resourceCenter.status.initializing': '初始化中',
   'resourceCenter.status.terminating': '终止中',

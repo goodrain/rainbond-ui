@@ -61,4 +61,14 @@ assert.ok(
   'tabs header should support horizontal scrolling under constrained width'
 );
 
+assert.ok(
+  /\.setTabs[\s\S]*?\.ant-tabs-nav-container\s*\{[\s\S]*?scrollbar-width:\s*none;[\s\S]*?-ms-overflow-style:\s*none;/m.test(
+    lessSource
+  ) &&
+    /\.setTabs[\s\S]*?\.ant-tabs-nav-container::\-webkit-scrollbar\s*\{[\s\S]*?height:\s*0;[\s\S]*?display:\s*none;/m.test(
+      lessSource
+    ),
+  'tabs header should hide the horizontal scrollbar while preserving scroll'
+);
+
 console.log('enterprise shared agent layout tests passed');

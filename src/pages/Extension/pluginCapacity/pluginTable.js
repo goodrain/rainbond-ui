@@ -12,9 +12,10 @@ import { getPluginBaseId } from '../../../utils/pluginArchUtils';
 import styles from './index.less'
 import enterpriseStyles from '../../Enterprise/index.less'
 const { TabPane } = Tabs;
-@connect(({ global, user }) => ({
+@connect(({ global, user, region }) => ({
     enterprise: global.enterprise,
     currentUser: user.currentUser,
+    cluster_info: region.cluster_info,
 }), null, null, { withRef: true })
 class Index extends PureComponent {
     constructor(props) {
@@ -471,6 +472,42 @@ class Index extends PureComponent {
         }
     }
 
+    isVirtualMachinePlugin = (plugin) => {
+        if (!plugin) {
+            return false;
+        }
+        return plugin.plugin_id === 'rainbond-vm'
+            || plugin.name === 'rainbond-vm'
+            || plugin.plugin_key === 'rainbond-vm';
+    }
+
+    getCurrentClusterInfo = () => {
+        const { cluster_info, regionName } = this.props;
+        if (!Array.isArray(cluster_info) || !regionName) {
+            return null;
+        }
+        return cluster_info.find(item => item.region_name === regionName) || null;
+    }
+
+    shouldShowVmInstallNotice = (plugin) => {
+        if (!this.isVirtualMachinePlugin(plugin)) {
+            return false;
+        }
+        const clusterInfo = this.getCurrentClusterInfo();
+        if (!clusterInfo) {
+            return true;
+        }
+        const provider = String(clusterInfo.provider || '').toLowerCase();
+        const regionName = String(clusterInfo.region_name || '').toLowerCase();
+        const scope = String(clusterInfo.scope || '').toLowerCase();
+        const isStandaloneCluster = provider === 'dind'
+            || regionName === 'dind-region'
+            || scope === 'true'
+            || scope === '1'
+            || scope === 'standalone';
+        return !isStandaloneCluster;
+    }
+
     startElapsedTimer = () => {
         this.stopElapsedTimer();
         this.elapsedTimer = setInterval(() => {
@@ -803,6 +840,19 @@ class Index extends PureComponent {
                                     <div className={styles.installConfirmSubtitle}>
                                         即将安装「{confirmInstallPlugin.plugin_name || confirmInstallPlugin.plugin_id}」
                                     </div>
+                                    {this.shouldShowVmInstallNotice(confirmInstallPlugin) && (
+                                        <Alert
+                                            type="warning"
+                                            showIcon
+                                            className={styles.vmInstallNotice}
+                                            message="安装前请确认运行环境"
+                                            description={
+                                                <div className={styles.vmInstallNoticeContent}>
+                                                    <div>请确认当前服务器为裸金属或物理机服务器。</div>
+                                                </div>
+                                            }
+                                        />
+                                    )}
                                     <div className={styles.installInfoCard}>
                                         <div className={styles.installInfoRow}>
                                             <span className={styles.installInfoLabel}>版本</span>

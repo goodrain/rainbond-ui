@@ -128,6 +128,8 @@ class Index extends PureComponent {
       dataList,
       isThird,
       method,
+      vmProfile,
+      vmDiskAllocation,
       showStorageUsed,
       storageUsed
     } = this.props;
@@ -144,8 +146,19 @@ class Index extends PureComponent {
       ) : (
         numeral(memory).format('0,0')
       );
-    const diskDisplay = showStorageUsed ? storageUsed?.value : numeral(disk).format('0,0');
-    const diskUnit = showStorageUsed ? storageUsed?.unit : 'MB';
+    const isVM = method === 'vm';
+    const normalizedVmDiskAllocation =
+      vmDiskAllocation === undefined || vmDiskAllocation === null || vmDiskAllocation === ''
+        ? null
+        : Number(vmDiskAllocation);
+    const diskDisplay = isVM
+      ? normalizedVmDiskAllocation === null || Number.isNaN(normalizedVmDiskAllocation)
+        ? '-'
+        : numeral(normalizedVmDiskAllocation).format('0,0')
+      : showStorageUsed
+      ? storageUsed?.value
+      : numeral(disk).format('0,0');
+    const diskUnit = isVM ? 'Gi' : showStorageUsed ? storageUsed?.unit : 'MB';
 
     // 状态相关
     const hasStatus = status && Object.keys(status).length > 0;
@@ -161,11 +174,12 @@ class Index extends PureComponent {
     const statusTextColor = globalUtil.fetchStateColor(currentStatus);
 
     // 版本显示
-    const versionValue = method === 'vm' ? beanData?.vm_image : beanData?.build_version;
+    const versionValue = method === 'vm' ? vmProfile?.asset?.name || beanData?.vm_image : beanData?.build_version;
     const versionLabelId =
       method === 'vm'
         ? 'componentOverview.body.tab.overview.vmImage'
         : 'componentOverview.body.tab.overview.version';
+    const showMoreVersionEntry = method === 'vm' ? !more : dataList && dataList.length > 0 && !more;
 
     // 构建详情配置
     const buildDetailConfig = this.getBuildDetailConfig();
@@ -233,7 +247,6 @@ class Index extends PureComponent {
                     </Fragment>
                   )}
                 </div>
-                {/* 资源占用 */}
                 <div className={styles.basicInfoItem}>
                   {Svg.getSvg('zhanyong', 16, 'text-color-secondary')}
                   <FormattedMessage id="componentOverview.body.tab.overview.occupy" />
@@ -258,7 +271,7 @@ class Index extends PureComponent {
                       {versionValue || <FormattedMessage id="componentOverview.body.tab.overview.not" />}
                     </span>
                   </Tooltip>
-                  {dataList && dataList.length > 0 && !more && (
+                  {showMoreVersionEntry && (
                     <a onClick={() => this.handleMore(true)} style={{ marginLeft: 8 }}>
                       <FormattedMessage id="componentOverview.body.tab.overview.moreVersion" />
                     </a>

@@ -961,7 +961,7 @@ export default class Index extends React.Component {
               service_alias={appDetail && appDetail.service && appDetail.service.service_alias}
             />
           )}
-          {(currUser.is_enterprise_admin || showSecurityRestrictions) && (
+          {(currUser.is_enterprise_admin || showSecurityRestrictions) && method != 'vm' && (
             <Kubernetes
               service_alias={appDetail && appDetail.service && appDetail.service.service_alias}
               extend_method={appDetail.service.extend_method}
