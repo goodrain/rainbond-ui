@@ -4,8 +4,10 @@ import roleUtil from '../utils/newRole';
 import { isUrl } from '../utils/utils';
 import getMenuSvg from './getMenuSvg';
 import PluginUtil from '../utils/pulginUtils';
+import { getPluginBaseId } from '../utils/pluginArchUtils';
 
 const newbieGuide = cookie.get('newbie_guide');
+const AI_ENGINE_PLUGIN_NAME = 'rainbond-ai-engine';
 
 function setTeamMenu(pluginMenu, menuName) {
   if (pluginMenu) {
@@ -36,6 +38,12 @@ function menuData(teamName, regionName, permissionsInfo, pluginList, enterpriseS
   }
 
   const pluginArr = PluginUtil.segregatePluginsByHierarchy(pluginList, 'Team');
+  const aiEnginePlugin = (pluginArr || []).find(item =>
+    getPluginBaseId(item && (item.name || item.plugin_id)) === AI_ENGINE_PLUGIN_NAME
+  );
+  const teamPluginArr = (pluginArr || []).filter(item =>
+    getPluginBaseId(item && (item.name || item.plugin_id)) !== AI_ENGINE_PLUGIN_NAME
+  );
 
   // ============ 第一组：工作空间主入口（无标题） ============
   const overviewItems = [
@@ -52,6 +60,15 @@ function menuData(teamName, regionName, permissionsInfo, pluginList, enterpriseS
       name: formatMessage({ id: 'menu.team.resource_center', defaultMessage: 'K8S Native Resources' }),
       icon: getMenuSvg.getSvg('k8s'),
       path: `team/${teamName}/region/${regionName}/k8s-center`,
+      authority: ['admin', 'user']
+    });
+  }
+
+  if (aiEnginePlugin) {
+    overviewItems.push({
+      name: aiEnginePlugin.display_name || aiEnginePlugin.alias || aiEnginePlugin.name,
+      icon: getMenuSvg.getSvg('aiEngine'),
+      path: `team/${teamName}/region/${regionName}/plugins/${aiEnginePlugin.name}`,
       authority: ['admin', 'user']
     });
   }
@@ -102,8 +119,8 @@ function menuData(teamName, regionName, permissionsInfo, pluginList, enterpriseS
     }
 
     // ============ 第三组：插件 ============
-    if (newbieGuide !== 'false' && pluginArr && pluginArr.length > 0) {
-      const pluginItems = pluginArr.map(item => ({
+    if (newbieGuide !== 'false' && teamPluginArr && teamPluginArr.length > 0) {
+      const pluginItems = teamPluginArr.map(item => ({
         name: item.display_name,
         icon: getMenuSvg.getSvg('plugin'),
         path: `team/${teamName}/region/${regionName}/plugins/${item.name}`,
