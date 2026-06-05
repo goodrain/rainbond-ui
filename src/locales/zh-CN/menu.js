@@ -97,6 +97,7 @@ const CustomFooter = {
   'GlobalHeader.agent.access.enterprise': '了解企业版',
   'GlobalHeader.agent.access.cancel': '我知道了',
   'GlobalHeader.agent.access.load_error': 'AI 助手权限检查失败，请稍后重试。',
+  'GlobalHeader.agent.update.dot': 'AI 助手有新版本可更新',
   'GlobalHeader.agent.config.missing.title': 'AI助手配置未完成',
   'GlobalHeader.agent.config.missing.content': '当前企业已安装 AI 助手插件，但尚未配置接口密钥。请先完成 AI 助手配置后再使用。',
   'GlobalHeader.agent.config.missing.contact_admin': '当前企业已安装 AI 助手插件，但尚未配置接口密钥，请联系企业管理员完成配置。',
