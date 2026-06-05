@@ -226,6 +226,99 @@ async function readSseEvents(response, options = {}) {
   return events;
 }
 
+// run 已结束/暂停的事件：见到它就不该再断线续读了。
+const RESUME_TERMINAL_STATUSES = [
+  'done',
+  'error',
+  'cancelled',
+  'completed',
+  'failed',
+  'waiting_approval',
+];
+
+function isResumeTerminalEvent(event) {
+  if (!event) {
+    return false;
+  }
+  if (event.type === 'run.error') {
+    return true;
+  }
+  if (event.type === 'run.status' && event.data) {
+    return RESUME_TERMINAL_STATUSES.indexOf(event.data.status) > -1;
+  }
+  return false;
+}
+
+// 保守的断线续读：首连 + 最多 1 次静默续读（共 2 次尝试）。
+//
+// 触发续读的唯一条件：已经收到过带 sequence 的事件、且还没见到终止态。此时用
+// after_sequence=已见最大 sequence 重新连一次，后端只回放 sequence 更大的事件、
+// 不重复（与刷新页面后 reattach 复用同一套契约）。
+//
+// 不续读的情况：
+//  - 首连一个事件都没收到就抛错（如 events GET 直接被拒/5xx）→ 不是中途掉线，
+//    按原样抛出真实错误、不空转重试；
+//  - 已到终止态（done/error/cancelled/waiting_approval...）→ 正常结束；
+//  - 续读用完额度仍未终止 → 干净结束就返回已收集事件（与现状一致），抛错就抛出。
+//
+// streamRunImpl 注入便于单测；生产传入 services/agent.js 的 streamRun。
+async function streamRunWithResume(options = {}) {
+  const { streamRunImpl, sessionId, runId, onEvent } = options;
+  if (typeof streamRunImpl !== 'function') {
+    throw new Error('streamRunImpl is required');
+  }
+
+  let lastSequence = 0;
+  let sawTerminal = false;
+  const collected = [];
+
+  const trackingOnEvent = event => {
+    if (event && typeof event.sequence === 'number' && event.sequence > lastSequence) {
+      lastSequence = event.sequence;
+    }
+    if (isResumeTerminalEvent(event)) {
+      sawTerminal = true;
+    }
+    if (onEvent) {
+      onEvent(event);
+    }
+  };
+
+  const MAX_ATTEMPTS = 2; // 首连 + 1 次续读
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt += 1) {
+    const afterSequence = attempt === 1 ? 0 : lastSequence;
+    let thrownError = null;
+    try {
+      const events = await streamRunImpl({
+        sessionId,
+        runId,
+        afterSequence,
+        onEvent: trackingOnEvent,
+      });
+      if (Array.isArray(events)) {
+        collected.push(...events);
+      }
+    } catch (error) {
+      thrownError = error;
+    }
+
+    if (sawTerminal) {
+      return collected;
+    }
+
+    const shouldResume = lastSequence > 0 && attempt < MAX_ATTEMPTS;
+    if (!shouldResume) {
+      if (thrownError) {
+        throw thrownError;
+      }
+      return collected;
+    }
+    // shouldResume：下一轮用 lastSequence 作为 after_sequence 续读。
+  }
+
+  return collected;
+}
+
 async function subscribeToRunEvents(options = {}) {
   const {
     url,
@@ -261,4 +354,6 @@ module.exports = {
   TERMINAL_STATUSES,
   readSseEvents,
   subscribeToRunEvents,
+  streamRunWithResume,
+  isResumeTerminalEvent,
 };

@@ -4,7 +4,7 @@ import agentPayload from './agentPayload';
 import * as agentStream from './agentStream';
 
 const { buildAgentSessionPayload } = agentPayload;
-const { readSseEvents, subscribeToRunEvents } = agentStream;
+const { readSseEvents, subscribeToRunEvents, streamRunWithResume } = agentStream;
 
 const AGENT_SESSION_KEY_PREFIX = 'rainbond_ui_agent_session_v1';
 
@@ -477,10 +477,12 @@ export async function sendAgentMessage(payload = {}) {
   if (payload.onRunStarted && runId) {
     payload.onRunStarted({ sessionId, runId });
   }
-  const events = await streamRun({
+  // 保守断线续读：流在非终止态断开（连接被代理掐断 / TCP reset）时，自动用
+  // after_sequence 从断点静默续读一次再放弃，避免单次抖动直接变成"消息发送失败"。
+  const events = await streamRunWithResume({
+    streamRunImpl: streamRun,
     sessionId,
     runId,
-    afterSequence: 0,
     onEvent: payload.onEvent
   });
 
