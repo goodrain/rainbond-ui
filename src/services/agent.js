@@ -317,6 +317,25 @@ export async function abortAgentRun({ sessionId, runId } = {}) {
   return result;
 }
 
+// Synchronously force-clear a wedged/active run so the session unlocks
+// immediately. Unlike abortAgentRun (202 = accepted, run may still be
+// running for a while — or forever if its executor crashed), a 200 here
+// means the run is already terminal, so the next sendMessage will not 409.
+export async function forceCancelAgentRun({ sessionId, runId } = {}) {
+  if (!sessionId || !runId) {
+    throw new Error('sessionId and runId are required');
+  }
+  const result = await requestJsonAcceptStatuses(
+    `${await copilotApiBase()}/sessions/${encodeURIComponent(sessionId)}/runs/${encodeURIComponent(runId)}/force-cancel`,
+    {
+      method: 'POST',
+      headers: buildRequestHeaders(),
+    },
+    [200, 404]
+  );
+  return result;
+}
+
 export async function clearAgentSessionRemote(sessionId) {
   if (!sessionId) {
     throw new Error('sessionId is required');
