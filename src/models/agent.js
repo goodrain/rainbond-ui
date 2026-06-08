@@ -1,6 +1,7 @@
 import { getDvaApp } from 'umi';
 import {
   abortAgentRun,
+  forceCancelAgentRun,
   cancelAgentSessionPending,
   clearAgentSession,
   clearAgentSessionRemote,
@@ -1302,9 +1303,15 @@ export default {
       });
 
       try {
-        yield call(abortAgentRun, { sessionId, runId });
+        // Force-cancel (not abort): synchronous server-side clear that runs
+        // the recovery truncation protocol and commits the terminal status
+        // before returning. Abort was 202-async — it only flipped status once
+        // a live executor reached a checkpoint, so a wedged/zombie run (e.g.
+        // its executor crashed) never went terminal and the sendMessage below
+        // 409'd forever. A 200 here means the foreign run is already terminal.
+        yield call(forceCancelAgentRun, { sessionId, runId });
       } catch (e) {
-        // Foreign-run abort failed (e.g. 500). Tear down the conflict
+        // Foreign-run force-cancel failed (e.g. 500). Tear down the conflict
         // UI so the user can decide their next move instead of being
         // stuck on the dialog. Do NOT auto-send their stashed draft —
         // the foreign run may still be alive server-side.
@@ -1323,9 +1330,9 @@ export default {
         return;
       }
 
-      // Abort returned 202 — the server has accepted the cancellation request.
-      // Stop watching the foreign run and send directly; waiting for an SSE
-      // terminal event is unreliable (stream may have dropped on refresh).
+      // force-cancel returned 200 — the foreign run is now terminal. Stop
+      // watching it and send directly; no need to wait for an SSE terminal
+      // event (stream may have dropped on refresh) and no 409 race remains.
       stopAllCrossTabSubscriptions();
       yield put({
         type: 'saveState',
