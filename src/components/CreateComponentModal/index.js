@@ -652,17 +652,6 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       showPluginModal: true
     }))
   ];
-  if (showDatabaseForm) {
-    menuItems.push({
-      icon: 'database',
-      iconSrc: InstalledDatabaseIcon,
-      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.database' }),
-      key: 'database',
-      hasSubMenu: true,
-      iconColor: '#13c2c2',
-    });
-  }
-
   const showDatabaseEntry = showDatabaseForm;
   const showVmEntry = true;
   const showExtensionSection = true;
@@ -935,7 +924,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       iconSrc: InstalledDatabaseIcon,
       title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.database' }),
       key: 'database',
-      ...(showDatabaseForm ? { hasSubMenu: true } : { displayOnly: true }),
+      ...(showDatabaseForm ? { hasSubMenu: true } : {}),
       iconColor: '#13c2c2',
     }] : []),
     ...(showVmEntry ? [{
@@ -1820,12 +1809,44 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     }
   }, [visible, initialView, hasInitialized]);
 
+  const handleDatabaseEntryClick = () => {
+    const hasDatabasePlugin = PluginUtils.isInstallPlugin(pluginsList, 'rainbond-databases');
+    const regionName = globalUtil.getCurrRegionName();
+
+    if (hasDatabasePlugin) {
+      pushViewHistory('database');
+      fetchDatabaseTypes();
+      return;
+    }
+
+    if (currentUser?.is_enterprise_admin && currentUser?.enterprise_id) {
+      Modal.confirm({
+        title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.database_install_required' }),
+        content: formatMessage({ id: 'componentOverview.body.CreateComponentModal.database_install_confirm_desc' }),
+        onOk: () => {
+          dispatch(
+            routerRedux.push(
+              `/enterprise/${currentUser.enterprise_id}/extension?regionName=${regionName}`
+            )
+          );
+          onCancel();
+        }
+      });
+      return;
+    }
+
+    Modal.warning({
+      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.database_contact_admin_title' }),
+      content: formatMessage({ id: 'componentOverview.body.CreateComponentModal.database_contact_admin_desc' })
+    });
+  };
+
   const handleLlmEntryClick = () => {
     const hasLlmPlugin = PluginUtils.isInstallPlugin(pluginsList, 'rainbond-ai-engine');
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
 
-    if (!hasLlmPlugin) {
+    if (hasLlmPlugin) {
       dispatch(
         routerRedux.push(
           `/team/${teamName}/region/${regionName}/plugins/rainbond-ai-engine`
@@ -1892,6 +1913,10 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const handleItemClick = (item) => {
     if (item.key === 'llm-display') {
       handleOpenLlmSelector();
+      return;
+    }
+    if (item.key === 'database') {
+      handleDatabaseEntryClick();
       return;
     }
     if (item.displayOnly) {
@@ -2227,9 +2252,17 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         },
         callback: data => {
           const { group_id, compose_id, app_name } = data.bean;
+          const query = [];
+          if (app_name) {
+            query.push(`app_name=${encodeURIComponent(app_name)}`);
+          }
+          if (value.arch) {
+            query.push(`arch=${encodeURIComponent(value.arch)}`);
+          }
+          const queryString = query.length ? `?${query.join('&')}` : '';
           dispatch(
             routerRedux.push(
-              `/team/${teamName}/region/${regionName}/create/create-compose-check/${group_id}/${compose_id}?app_name=${app_name}`
+              `/team/${teamName}/region/${regionName}/create/create-compose-check/${group_id}/${compose_id}${queryString}`
             )
           );
           onCancel();

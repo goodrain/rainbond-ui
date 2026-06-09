@@ -392,6 +392,16 @@ class GlobalHeader extends PureComponent {
         return;
       }
 
+      // 复用已解析的区域列表，静默检测 AI 助手插件是否有可升级版本；
+      // 结果存入 agent model 的 agentUpdate，供入口红点与面板 banner 读取。
+      dispatch({
+        type: 'agent/fetchAgentUpdate',
+        payload: {
+          enterprise_id: enterpriseId,
+          region_names: uniqueRegionNames
+        }
+      });
+
       let pending = uniqueRegionNames.length;
       let successCount = 0;
       let pluginList = [];
@@ -1199,7 +1209,8 @@ class GlobalHeader extends PureComponent {
       collapsed,
       logo,
       enterprise,
-      agentVisible
+      agentVisible,
+      agentUpdate
     } = this.props;
     const {
       language,
@@ -1233,6 +1244,12 @@ class GlobalHeader extends PureComponent {
         agentAccess.is_open_source ||
         agentAccess.edition === 'open_source'
       )
+    );
+    // AI 助手有可升级版本时显示红点；与"企"角标互斥（开源受限态下不提示更新）。
+    const showAgentUpdateDot = !!(
+      agentUpdate &&
+      agentUpdate.upgradeable &&
+      !showAgentEnterpriseBadge
     );
 
     return (
@@ -1303,6 +1320,15 @@ class GlobalHeader extends PureComponent {
                   {showAgentEnterpriseBadge && (
                     <span className={styles.agentEntryBadge}>企</span>
                   )}
+                  {showAgentUpdateDot && (
+                    <span
+                      className={styles.agentEntryUpdateDot}
+                      title={formatMessage({
+                        id: 'GlobalHeader.agent.update.dot',
+                        defaultMessage: 'AI 助手有新版本可更新'
+                      })}
+                    />
+                  )}
                   <span className={styles.agentEntryIcon}>
                     <AgentEntryIcon />
                   </span>
@@ -1349,6 +1375,7 @@ export default connect(({ user, global, agent, teamControl }) => ({
   enterprise: global.enterprise,
   collapsed: global.collapsed,
   agentVisible: !!(agent && agent.visible),
+  agentUpdate: (agent && agent.agentUpdate) || null,
   pluginsList: teamControl.pluginsList,
   pluginsLoaded: teamControl.pluginsLoaded
 }))(GlobalHeader);

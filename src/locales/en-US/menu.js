@@ -95,6 +95,7 @@ const CustomFooter = {
   'GlobalHeader.agent.access.enterprise': 'Learn about Enterprise Edition',
   'GlobalHeader.agent.access.cancel': 'Got it',
   'GlobalHeader.agent.access.load_error': 'Failed to check AI assistant access. Please try again later.',
+  'GlobalHeader.agent.update.dot': 'A new version of AI Assistant is available',
   'GlobalHeader.agent.config.missing.title': 'AI assistant configuration is incomplete',
   'GlobalHeader.agent.config.missing.content': 'The AI assistant plugin is installed, but the API key is not configured yet. Complete the AI assistant configuration before using it.',
   'GlobalHeader.agent.config.missing.contact_admin': 'The AI assistant plugin is installed, but the API key is not configured yet. Please contact an enterprise administrator to complete the configuration.',
