@@ -29,7 +29,7 @@ const RadioGroup = Radio.Group;
 /**
  * 数据库备份页面组件
  * 功能：
- * 显示和编辑备份设置
+ * 显示和编辑备份策略
  * 手动备份
  * 管理备份列表
  */
@@ -812,7 +812,7 @@ export default class Index extends PureComponent {
             }}
           />
         )}
-        {/* 备份设置 */}
+        {/* 备份策略 */}
         <Card
           title={formatMessage({ id: 'kubeblocks.database.backup.page.title' })}
           extra={

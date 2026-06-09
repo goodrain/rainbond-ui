@@ -11,7 +11,7 @@ export default class Index extends PureComponent {
     constructor(props) {
         super(props);
         this.state = {
-            // 备份设置
+            // 备份策略
             backupCycle: 'hour', // 小时
             backupStartDay: '5', // 周五
             backupStartHour: '00',
