@@ -1438,7 +1438,6 @@ const componentOverview = {
     'kubeblocks.database.backup.repo.real_name': '资源名称',
     'kubeblocks.database.backup.repo.display_name': '显示名称',
     'kubeblocks.database.backup.repo.status': '状态',
-    'kubeblocks.database.backup.repo.volume_capacity': '容量',
     'kubeblocks.database.backup.repo.path_prefix': '路径前缀',
     'kubeblocks.database.backup.repo.name_required': '请输入仓库名称',
     'kubeblocks.database.backup.repo.name_invalid': '只能包含小写字母、数字和中划线',

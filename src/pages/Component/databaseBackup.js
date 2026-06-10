@@ -32,6 +32,8 @@ const RadioGroup = Radio.Group;
 const READY_BACKUP_REPO_PHASE = 'Ready';
 const BACKUP_REPO_READY_REFRESH_INTERVAL = 3000;
 const BACKUP_REPO_READY_MAX_RETRIES = 10;
+const DEFAULT_BACKUP_REPO_BUCKET = 'kubeblocks-backup';
+const DEFAULT_BACKUP_REPO_VOLUME_CAPACITY = '100Gi';
 
 const getBackupRepoPhase = repo => (repo && (repo.phase || repo.status)) || '';
 const isBackupRepoReady = repo => getBackupRepoPhase(repo) === READY_BACKUP_REPO_PHASE;
@@ -608,10 +610,9 @@ export default class Index extends PureComponent {
       form.setFieldsValue({
         repoName: type === 'edit' ? record.name : '',
         repoDisplayName: type === 'edit' ? (record.displayName || record.display_name || record.name) : '',
-        repoBucket: type === 'edit' ? record.bucket : '',
+        repoBucket: type === 'edit' ? record.bucket : DEFAULT_BACKUP_REPO_BUCKET,
         repoEndpoint: type === 'edit' ? record.endpoint : '',
         repoRegion: type === 'edit' ? record.region : '',
-        repoVolumeCapacity: type === 'edit' ? (record.volumeCapacity || '100Gi') : '100Gi',
         repoPathPrefix: type === 'edit' ? (record.pathPrefix || '') : '',
         repoAccessKeyId: '',
         repoSecretAccessKey: ''
@@ -627,7 +628,6 @@ export default class Index extends PureComponent {
       'repoBucket',
       'repoEndpoint',
       'repoRegion',
-      'repoVolumeCapacity',
       'repoPathPrefix',
       'repoAccessKeyId',
       'repoSecretAccessKey'
@@ -649,7 +649,6 @@ export default class Index extends PureComponent {
       'repoBucket',
       'repoEndpoint',
       'repoRegion',
-      'repoVolumeCapacity',
       'repoPathPrefix',
       'repoAccessKeyId',
       'repoSecretAccessKey'
@@ -663,11 +662,11 @@ export default class Index extends PureComponent {
         bucket: values.repoBucket,
         endpoint: values.repoEndpoint,
         region: values.repoRegion || '',
-        volume_capacity: values.repoVolumeCapacity || '100Gi',
         path_prefix: values.repoPathPrefix || ''
       };
       if (repoModalType === 'create') {
         body.name = values.repoName;
+        body.volume_capacity = DEFAULT_BACKUP_REPO_VOLUME_CAPACITY;
       }
       if (values.repoAccessKeyId || values.repoSecretAccessKey) {
         body.access_key_id = values.repoAccessKeyId;
@@ -1352,7 +1351,7 @@ export default class Index extends PureComponent {
               : 'kubeblocks.database.backup.repo.modal.edit_title'
           })}
           visible={repoModalVisible}
-          width={760}
+          width={560}
           onOk={this.handleRepoSubmit}
           onCancel={this.closeRepoModal}
           confirmLoading={repoSubmitting}
@@ -1377,7 +1376,7 @@ export default class Index extends PureComponent {
               <Form.Item className={styles.repoEditorItem} label="Bucket">
                 {getFieldDecorator('repoBucket', {
                   rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.bucket_required' }) }]
-                })(<Input />)}
+                })(<Input placeholder={DEFAULT_BACKUP_REPO_BUCKET} />)}
               </Form.Item>
               <Form.Item className={styles.repoEditorItem} label="Endpoint">
                 {getFieldDecorator('repoEndpoint', {
@@ -1400,11 +1399,6 @@ export default class Index extends PureComponent {
                     ? [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.secret_key_required' }) }]
                     : []
                 })(<Input.Password placeholder={repoModalType === 'edit' ? formatMessage({ id: 'kubeblocks.database.backup.repo.secret_keep' }) : ''} />)}
-              </Form.Item>
-              <Form.Item className={styles.repoEditorItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.volume_capacity' })}>
-                {getFieldDecorator('repoVolumeCapacity', {
-                  initialValue: '100Gi'
-                })(<Input />)}
               </Form.Item>
               <Form.Item className={styles.repoEditorItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.path_prefix' })}>
                 {getFieldDecorator('repoPathPrefix')(<Input />)}
