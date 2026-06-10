@@ -652,7 +652,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       showPluginModal: true
     }))
   ];
-  const showDatabaseEntry = showDatabaseForm;
+  const showDatabaseEntry = true;
   const showVmEntry = true;
   const showExtensionSection = true;
 
