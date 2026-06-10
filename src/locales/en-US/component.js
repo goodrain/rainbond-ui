@@ -1424,6 +1424,7 @@ const componentOverview = {
     'kubeblocks.database.backup.repo.real_name': 'Resource Name',
     'kubeblocks.database.backup.repo.display_name': 'Display Name',
     'kubeblocks.database.backup.repo.status': 'Status',
+    'kubeblocks.database.backup.repo.advanced': 'Advanced',
     'kubeblocks.database.backup.repo.path_prefix': 'Path Prefix',
     'kubeblocks.database.backup.repo.name_required': 'Please enter repository name',
     'kubeblocks.database.backup.repo.name_invalid': 'Use lowercase letters, numbers, and hyphens only',

@@ -390,6 +390,33 @@
   }
 }
 
+.repoAdvancedCollapse {
+  margin-top: 2px;
+  background: transparent;
+
+  :global {
+    .ant-collapse-item {
+      border-bottom: 0;
+    }
+
+    .ant-collapse-header {
+      padding: 4px 24px 12px 0 !important;
+      color: @primary-color !important;
+      font-size: @rbd-content-size;
+      line-height: @rbd-content-line-height;
+    }
+
+    .ant-collapse-content {
+      border-top: 0;
+      background: transparent;
+    }
+
+    .ant-collapse-content-box {
+      padding: 0;
+    }
+  }
+}
+
 @media (max-width: 768px) {
   .backupPolicyCard {
     max-width: none;

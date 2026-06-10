@@ -3,6 +3,7 @@ import {
   Alert,
   Button,
   Card,
+  Collapse,
   Empty,
   Form,
   Icon,
@@ -29,6 +30,7 @@ import styles from './databaseBackup.less';
 
 const { Option } = Select;
 const RadioGroup = Radio.Group;
+const { Panel } = Collapse;
 const READY_BACKUP_REPO_PHASE = 'Ready';
 const BACKUP_REPO_READY_REFRESH_INTERVAL = 3000;
 const BACKUP_REPO_READY_MAX_RETRIES = 10;
@@ -1370,9 +1372,6 @@ export default class Index extends PureComponent {
                     : []
                 })(<Input disabled={repoModalType === 'edit'} placeholder="prod-s3" />)}
               </Form.Item>
-              <Form.Item className={styles.repoEditorItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.display_name' })}>
-                {getFieldDecorator('repoDisplayName')(<Input />)}
-              </Form.Item>
               <Form.Item className={styles.repoEditorItem} label="Bucket">
                 {getFieldDecorator('repoBucket', {
                   rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.bucket_required' }) }]
@@ -1382,9 +1381,6 @@ export default class Index extends PureComponent {
                 {getFieldDecorator('repoEndpoint', {
                   rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.endpoint_required' }) }]
                 })(<Input placeholder="https://s3.example.com" />)}
-              </Form.Item>
-              <Form.Item className={styles.repoEditorItem} label="Region">
-                {getFieldDecorator('repoRegion')(<Input />)}
               </Form.Item>
               <Form.Item className={styles.repoEditorItem} label="AccessKey">
                 {getFieldDecorator('repoAccessKeyId', {
@@ -1400,9 +1396,27 @@ export default class Index extends PureComponent {
                     : []
                 })(<Input.Password placeholder={repoModalType === 'edit' ? formatMessage({ id: 'kubeblocks.database.backup.repo.secret_keep' }) : ''} />)}
               </Form.Item>
-              <Form.Item className={styles.repoEditorItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.path_prefix' })}>
-                {getFieldDecorator('repoPathPrefix')(<Input />)}
-              </Form.Item>
+              <Collapse
+                bordered={false}
+                className={styles.repoAdvancedCollapse}
+                expandIconPosition="right"
+              >
+                <Panel
+                  forceRender
+                  header={formatMessage({ id: 'kubeblocks.database.backup.repo.advanced' })}
+                  key="advanced"
+                >
+                  <Form.Item className={styles.repoEditorItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.display_name' })}>
+                    {getFieldDecorator('repoDisplayName')(<Input />)}
+                  </Form.Item>
+                  <Form.Item className={styles.repoEditorItem} label="Region">
+                    {getFieldDecorator('repoRegion')(<Input />)}
+                  </Form.Item>
+                  <Form.Item className={styles.repoEditorItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.path_prefix' })}>
+                    {getFieldDecorator('repoPathPrefix')(<Input />)}
+                  </Form.Item>
+                </Panel>
+              </Collapse>
             </div>
           </Form>
         </Modal>

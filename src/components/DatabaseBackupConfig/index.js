@@ -1,11 +1,12 @@
 import React, { PureComponent } from 'react';
-import { Form, Card, Radio, InputNumber, Select, Button, Input, Modal } from 'antd';
+import { Form, Card, Radio, InputNumber, Select, Button, Input, Modal, Collapse } from 'antd';
 import { formatMessage } from '@/utils/intl';
 import styles from './index.less';
 
 const { Option } = Select;
 const RadioGroup = Radio.Group;
 const { Group: InputGroup } = Input;
+const { Panel } = Collapse;
 const READY_BACKUP_REPO_PHASE = 'Ready';
 const BACKUP_REPO_FIELD = 'backupRepo';
 const DEFAULT_BACKUP_REPO_BUCKET = 'kubeblocks-backup';
@@ -363,9 +364,6 @@ export default class Index extends PureComponent {
                                     ]
                                 })(<Input placeholder="prod-s3" />)}
                             </Form.Item>
-                            <Form.Item className={styles.createRepoFormItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.display_name' })}>
-                                {getFieldDecorator('quickRepoDisplayName')(<Input />)}
-                            </Form.Item>
                             <Form.Item className={styles.createRepoFormItem} label="Bucket">
                                 {getFieldDecorator('quickRepoBucket', {
                                     initialValue: DEFAULT_BACKUP_REPO_BUCKET,
@@ -377,9 +375,6 @@ export default class Index extends PureComponent {
                                     rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.endpoint_required' }) }]
                                 })(<Input placeholder="https://s3.example.com" />)}
                             </Form.Item>
-                            <Form.Item className={styles.createRepoFormItem} label="Region">
-                                {getFieldDecorator('quickRepoRegion')(<Input />)}
-                            </Form.Item>
                             <Form.Item className={styles.createRepoFormItem} label="AccessKey">
                                 {getFieldDecorator('quickRepoAccessKeyId', {
                                     rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.access_key_required' }) }]
@@ -390,9 +385,27 @@ export default class Index extends PureComponent {
                                     rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.secret_key_required' }) }]
                                 })(<Input.Password />)}
                             </Form.Item>
-                            <Form.Item className={styles.createRepoFormItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.path_prefix' })}>
-                                {getFieldDecorator('quickRepoPathPrefix')(<Input />)}
-                            </Form.Item>
+                            <Collapse
+                                bordered={false}
+                                className={styles.createRepoAdvancedCollapse}
+                                expandIconPosition="right"
+                            >
+                                <Panel
+                                    forceRender
+                                    header={formatMessage({ id: 'kubeblocks.database.backup.repo.advanced' })}
+                                    key="advanced"
+                                >
+                                    <Form.Item className={styles.createRepoFormItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.display_name' })}>
+                                        {getFieldDecorator('quickRepoDisplayName')(<Input />)}
+                                    </Form.Item>
+                                    <Form.Item className={styles.createRepoFormItem} label="Region">
+                                        {getFieldDecorator('quickRepoRegion')(<Input />)}
+                                    </Form.Item>
+                                    <Form.Item className={styles.createRepoFormItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.path_prefix' })}>
+                                        {getFieldDecorator('quickRepoPathPrefix')(<Input />)}
+                                    </Form.Item>
+                                </Panel>
+                            </Collapse>
                         </div>
                     </Form>
                 </Modal>
