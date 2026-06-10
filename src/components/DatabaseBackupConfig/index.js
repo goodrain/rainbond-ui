@@ -245,7 +245,7 @@ export default class Index extends PureComponent {
                                     initialValue: backupRepo,
                                     rules: [{ required: false }]
                                 })(
-                                    <Select className={styles.backupRepoSelect} placeholder={formatMessage({ id: 'kubeblocks.database.backup.repo_placeholder' })} onChange={this.handleBackupRepoChange} allowClear>
+                                    <Select className={styles.backupRepoSelect} style={{ width: 220 }} placeholder={formatMessage({ id: 'kubeblocks.database.backup.repo_placeholder' })} onChange={this.handleBackupRepoChange} allowClear>
                                         <Option value=''>{formatMessage({ id: 'kubeblocks.database.backup.repo_none' })}</Option>
                                         {repoOptions.map(repo => {
                                             const phase = getBackupRepoPhase(repo);
