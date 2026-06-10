@@ -6,6 +6,10 @@ import styles from './index.less';
 const { Option } = Select;
 const RadioGroup = Radio.Group;
 const { Group: InputGroup } = Input;
+const READY_BACKUP_REPO_PHASE = 'Ready';
+
+const getBackupRepoPhase = repo => (repo && (repo.phase || repo.status)) || '';
+const isBackupRepoReady = repo => getBackupRepoPhase(repo) === READY_BACKUP_REPO_PHASE;
 
 export default class Index extends PureComponent {
     constructor(props) {
@@ -195,7 +199,9 @@ export default class Index extends PureComponent {
             createRepoSubmitting
         } = this.state;
 
-        const repoOptions = backupRepos;
+        const repoOptions = backupRepos.filter(repo => {
+            return isBackupRepoReady(repo) || repo.name === backupRepo;
+        });
 
         const formItemLayout = {
             labelCol: {
@@ -221,11 +227,15 @@ export default class Index extends PureComponent {
                                 })(
                                     <Select style={{ width: '180px' }} placeholder={formatMessage({ id: 'kubeblocks.database.backup.repo_placeholder' })} onChange={this.handleBackupRepoChange} allowClear>
                                         <Option value=''>{formatMessage({ id: 'kubeblocks.database.backup.repo_none' })}</Option>
-                                        {repoOptions.map(repo => (
-                                            <Option key={repo.name} value={repo.name}>
-                                                {repo.displayName || repo.name}
-                                            </Option>
-                                        ))}
+                                        {repoOptions.map(repo => {
+                                            const phase = getBackupRepoPhase(repo);
+                                            const disabled = !isBackupRepoReady(repo);
+                                            return (
+                                                <Option key={repo.name} value={repo.name} disabled={disabled}>
+                                                    {repo.displayName || repo.name}{disabled && phase ? ` (${phase})` : ''}
+                                                </Option>
+                                            );
+                                        })}
                                     </Select>
                                 )}
                                 <Button icon="plus" onClick={this.handleOpenCreateRepo}>

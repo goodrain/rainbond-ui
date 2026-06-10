@@ -14,7 +14,8 @@ import {
   Select,
   Spin,
   Table,
-  Tag
+  Tag,
+  Tooltip
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -27,6 +28,24 @@ import styles from './databaseBackup.less';
 
 const { Option } = Select;
 const RadioGroup = Radio.Group;
+const READY_BACKUP_REPO_PHASE = 'Ready';
+
+const getBackupRepoPhase = repo => (repo && (repo.phase || repo.status)) || '';
+const isBackupRepoReady = repo => getBackupRepoPhase(repo) === READY_BACKUP_REPO_PHASE;
+
+const getBackupRepoPhaseColor = phase => {
+  if (phase === READY_BACKUP_REPO_PHASE) return 'green';
+  if (phase === 'Failed' || phase === 'Missing') return 'red';
+  if (phase === 'PreChecking' || phase === 'Deleting') return 'orange';
+  return 'blue';
+};
+
+const getBackupRepoConditionMessage = repo => {
+  const conditions = (repo && repo.conditions) || [];
+  const failed = conditions.find(item => item.status === 'False' && item.message);
+  const latest = failed || conditions.find(item => item.message);
+  return latest ? latest.message : '';
+};
 
 /**
  * 数据库备份页面组件
@@ -888,6 +907,9 @@ export default class Index extends PureComponent {
     // 备份功能是否已启用（基于实际保存的配置，而不是编辑中的 state）
     const isBackupDisabled = !clusterDetail?.backup?.backupRepo ||
                              clusterDetail.backup.backupRepo.trim() === '';
+    const backupRepoOptions = backupRepos.filter(repo => {
+      return isBackupRepoReady(repo) || repo.name === backupRepo;
+    });
 
     const formItemLayout = {
       labelCol: {
@@ -997,11 +1019,15 @@ export default class Index extends PureComponent {
         dataIndex: 'phase',
         key: 'phase',
         width: 100,
-        render: phase => (
-          <Tag color={phase === 'Ready' ? 'green' : phase === 'Missing' ? 'red' : 'blue'}>
-            {phase || '-'}
-          </Tag>
-        )
+        render: (phase, record) => {
+          const tag = (
+            <Tag color={getBackupRepoPhaseColor(phase)}>
+              {phase || '-'}
+            </Tag>
+          );
+          const message = getBackupRepoConditionMessage(record);
+          return message ? <Tooltip title={message}>{tag}</Tooltip> : tag;
+        }
       },
       {
         title: formatMessage({ id: 'button.operation' }),
@@ -1097,11 +1123,15 @@ export default class Index extends PureComponent {
                   disabled={!editBackupInfo || isBackupUnSupported}
                 >
                   <Option value="">{formatMessage({ id: 'kubeblocks.database.backup.repo_none' })}</Option>
-                  {backupRepos.map(repo => (
-                    <Option key={repo.name} value={repo.name}>
-                      {repo.displayName || repo.name}
-                    </Option>
-                  ))}
+                  {backupRepoOptions.map(repo => {
+                    const phase = getBackupRepoPhase(repo);
+                    const disabled = !isBackupRepoReady(repo);
+                    return (
+                      <Option key={repo.name} value={repo.name} disabled={disabled}>
+                        {repo.displayName || repo.name}{disabled && phase ? ` (${phase})` : ''}
+                      </Option>
+                    );
+                  })}
                 </Select>
               )}
             </Form.Item>
