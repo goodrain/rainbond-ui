@@ -99,13 +99,14 @@ export async function deleteBackupRepo(params, handleError) {
  * @param {String} params.config.k8s_app - 数据库英文名称
  * @returns {Promise<Object>} 返回格式与标准组件部署完成后一致，包含 service_alias, group_id 等信息
  */
-export async function createDatabaseCluster(params) {
+export async function createDatabaseCluster(params, handleError) {
     const { team_name, config } = params;
     return request(
         `${apiconfig.baseUrl}/console/teams/${team_name}/apps/kubeblocks`,
         {
             method: 'POST',
-            data: config
+            data: config,
+            handleError
         }
     );
 }

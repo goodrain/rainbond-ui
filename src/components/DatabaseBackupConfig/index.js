@@ -7,6 +7,14 @@ const { Option } = Select;
 const RadioGroup = Radio.Group;
 const { Group: InputGroup } = Input;
 const READY_BACKUP_REPO_PHASE = 'Ready';
+const BACKUP_REPO_FIELD = 'backupRepo';
+const BACKUP_CONFIG_FIELDS = [
+    BACKUP_REPO_FIELD,
+    'backupCycle',
+    'backupStartTime',
+    'backupRetention',
+    'termination_policy'
+];
 
 const getBackupRepoPhase = repo => (repo && (repo.phase || repo.status)) || '';
 const isBackupRepoReady = repo => getBackupRepoPhase(repo) === READY_BACKUP_REPO_PHASE;
@@ -127,59 +135,71 @@ export default class Index extends PureComponent {
         };
     };
 
+    getFieldNames = () => {
+        const { form } = this.props;
+        return form.getFieldValue(BACKUP_REPO_FIELD) ? BACKUP_CONFIG_FIELDS : [BACKUP_REPO_FIELD];
+    };
+
+    normalizeSubmitValues = (fieldsValue = {}) => {
+        if (!fieldsValue.backupRepo) {
+            return {
+                backupRepo: ''
+            };
+        }
+
+        // 根据备份周期，构建完整的时间设置对象
+        const { backupCycle } = fieldsValue;
+        const { backupStartDay, backupStartHour, backupStartMinute, backupRetentionTime } = this.state;
+
+        // 构建时间设置对象，包含用户实际设置的值
+        let backupStartTime = {};
+
+        switch (backupCycle) {
+            case 'hour':
+                // 每小时备份，只需要分钟
+                backupStartTime = {
+                    minute: backupStartMinute
+                };
+                break;
+
+            case 'day':
+                // 每天备份，需要小时和分钟
+                backupStartTime = {
+                    hour: backupStartHour,
+                    minute: backupStartMinute
+                };
+                break;
+
+            case 'week':
+                // 每周备份，需要星期、小时和分钟
+                backupStartTime = {
+                    day: backupStartDay,
+                    hour: backupStartHour,
+                    minute: backupStartMinute
+                };
+                break;
+
+            default:
+                // 默认配置
+                backupStartTime = {
+                    hour: '02',
+                    minute: '00'
+                };
+        }
+
+        return {
+            ...fieldsValue,
+            backupStartTime,
+            backupRetention: backupRetentionTime
+        };
+    };
+
     handleSubmit = () => {
         const { form, onSubmit } = this.props;
 
-        form.validateFields((err, fieldsValue) => {
+        form.validateFields(this.getFieldNames(), (err, fieldsValue) => {
             if (!err && onSubmit && fieldsValue) {
-                // 根据备份周期，构建完整的时间设置对象
-                const { backupCycle } = fieldsValue;
-                const { backupStartDay, backupStartHour, backupStartMinute, backupRetentionTime } = this.state;
-
-                // 构建时间设置对象，包含用户实际设置的值
-                let backupStartTime = {};
-
-                switch (backupCycle) {
-                    case 'hour':
-                        // 每小时备份，只需要分钟
-                        backupStartTime = {
-                            minute: backupStartMinute
-                        };
-                        break;
-
-                    case 'day':
-                        // 每天备份，需要小时和分钟
-                        backupStartTime = {
-                            hour: backupStartHour,
-                            minute: backupStartMinute
-                        };
-                        break;
-
-                    case 'week':
-                        // 每周备份，需要星期、小时和分钟
-                        backupStartTime = {
-                            day: backupStartDay,
-                            hour: backupStartHour,
-                            minute: backupStartMinute
-                        };
-                        break;
-
-                    default:
-                        // 默认配置
-                        backupStartTime = {
-                            hour: '02',
-                            minute: '00'
-                        };
-                }
-
-                // 更新字段值，确保传递正确的时间设置
-                fieldsValue.backupStartTime = backupStartTime;
-
-                // 处理备份保留时间，直接使用数字值（天数）
-                fieldsValue.backupRetention = backupRetentionTime;
-
-
-                onSubmit(fieldsValue);
+                onSubmit(this.normalizeSubmitValues(fieldsValue));
             }
         });
     };

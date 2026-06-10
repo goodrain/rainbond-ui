@@ -6,6 +6,14 @@ import styles from './index.less';
 const { Option } = Select;
 const RadioGroup = Radio.Group;
 const { Group: InputGroup } = Input;
+const BASIC_INFO_FIELDS = [
+    'min_memory',
+    'min_cpu',
+    'dbVersion',
+    'replicas',
+    'storageClass',
+    'disk_cap'
+];
 
 export default class Index extends PureComponent {
     constructor(props) {
@@ -147,22 +155,31 @@ export default class Index extends PureComponent {
         return num;
     }
 
-    handleSubmit = () => {
+    getFieldNames = () => BASIC_INFO_FIELDS;
+
+    normalizeSubmitValues = (fieldsValue = {}) => {
         const { memoryMarksObj, cpuMarksObj } = this.state;
+        const normalized = { ...fieldsValue };
+
+        Object.keys(memoryMarksObj).forEach(item => {
+            if (memoryMarksObj[item] == normalized.min_memory) {
+                normalized.min_memory = item;
+            }
+        });
+        Object.keys(cpuMarksObj).forEach(item => {
+            if (cpuMarksObj[item] == normalized.min_cpu) {
+                normalized.min_cpu = item;
+            }
+        });
+
+        return normalized;
+    };
+
+    handleSubmit = () => {
         const { form, onSubmit } = this.props;
-        form.validateFields((err, fieldsValue) => {
+        form.validateFields(this.getFieldNames(), (err, fieldsValue) => {
             if (!err && onSubmit && fieldsValue) {
-                Object.keys(memoryMarksObj).forEach(item => {
-                    if (memoryMarksObj[item] == fieldsValue.min_memory) {
-                        fieldsValue.min_memory = item;
-                    }
-                });
-                Object.keys(cpuMarksObj).forEach(item => {
-                    if (cpuMarksObj[item] == fieldsValue.min_cpu) {
-                        fieldsValue.min_cpu = item;
-                    }
-                });
-                onSubmit(fieldsValue);
+                onSubmit(this.normalizeSubmitValues(fieldsValue));
             }
         });
     };
@@ -338,4 +355,4 @@ export default class Index extends PureComponent {
             </div>
         );
     }
-} 
+}
