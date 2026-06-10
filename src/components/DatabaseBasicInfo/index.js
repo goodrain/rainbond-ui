@@ -67,16 +67,25 @@ export default class Index extends PureComponent {
     }
 
     componentDidMount() {
-        // 支持无限制选项
         this.setState({
-            memoryMarks: { 0: formatMessage({ id: 'appOverview.no_limit' }), ...this.state.memoryMarks, 9: '32G' },
-            cpuMarks: { 0: formatMessage({ id: 'appOverview.no_limit' }), ...this.state.cpuMarks, 8: '16Core' },
-            memoryMarksObj: { 0: 0, ...this.state.memoryMarksObj, 32768: 9 },
-            cpuMarksObj: { 0: 0, ...this.state.cpuMarksObj, 18000: 8 },
+            memoryMarks: {
+                ...this.state.memoryMarks,
+                9: '32G'
+            },
+            memoryMarksObj: {
+                ...this.state.memoryMarksObj,
+                32768: 9
+            },
+            cpuMarks: {
+                ...this.state.cpuMarks,
+                8: '16Core'
+            },
+            cpuMarksObj: {
+                ...this.state.cpuMarksObj,
+                16000: 8
+            },
             memorySliderMax: 9,
-            memorySliderMin: 0,
-            cpuSliderMax: 8,
-            cpuSliderMin: 0
+            cpuSliderMax: 8
         });
 
         if (this.props.onRef) {
@@ -86,7 +95,6 @@ export default class Index extends PureComponent {
 
     handleMemoryChange = (value) => {
         const memoryToCpuMap = {
-            0: 0,
             1: 1,
             2: 1,
             3: 2,

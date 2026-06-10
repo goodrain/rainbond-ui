@@ -13,6 +13,12 @@ import DatabaseConfigForm from '../../components/DatabaseConfigForm';
 import { pinyin } from 'pinyin-pro';
 import styles from './Index.less';
 import handleAPIError from '../../utils/error';
+const {
+  formatKubeBlocksCpuValue,
+  formatKubeBlocksMemoryValue,
+  parseKubeBlocksCpuValue,
+  parseKubeBlocksMemoryValue
+} = require('./kubeblocksResource');
 
 const READY_BACKUP_REPO_PHASE = 'Ready';
 const BACKUP_REPO_READY_REFRESH_INTERVAL = 3000;
@@ -422,15 +428,15 @@ export default class Index extends PureComponent {
       ? basicInfo.min_memory
       : 1024;
 
-    const normalizedCpuMillicores = this.parseCpuValue(rawCpu);
-    const normalizedMemoryMB = this.parseMemoryValue(rawMemory);
+    const normalizedCpuMillicores = parseKubeBlocksCpuValue(rawCpu);
+    const normalizedMemoryMB = parseKubeBlocksMemoryValue(rawMemory);
 
     const requestData = {
       cluster_name: service_cname,                              // 数据库集群名称（必填，**重要：将作为 Rainbond 组件的中文显示名称**）
       database_type: database_type,                             // 数据库类型（必填）
       version: basicInfo.dbVersion || 'latest',                 // 数据库版本（必填）
-      cpu: this.convertCpuValue(normalizedCpuMillicores),       // CPU 配置（必填，传 millicores）
-      memory: this.convertMemoryValue(normalizedMemoryMB),      // 内存配置（必填，传 MB）
+      cpu: formatKubeBlocksCpuValue(normalizedCpuMillicores),   // CPU 配置（必填）
+      memory: formatKubeBlocksMemoryValue(normalizedMemoryMB),  // 内存配置（必填）
       storage_size: `${basicInfo.disk_cap || 50}Gi`,           // 存储大小（必填）
 
       replicas: parseInt(basicInfo.replicas) || 1,             // 副本数量（必填）
@@ -443,65 +449,6 @@ export default class Index extends PureComponent {
     };
 
     return requestData;
-  };
-
-  /**
-* 解析CPU值：将滑块序号或millicores值统一转换为millicores数字
-*/
-  parseCpuValue = (value) => {
-    const sliderIndexToMillicoresMap = {
-      0: 0,     // 无限制
-      1: 100,
-      2: 250,
-      3: 500,
-      4: 1000,
-      5: 2000,
-      6: 4000,
-      7: 8000,
-      8: 16000
-    };
-
-    const numeric = parseInt(value, 10);
-    if (Number.isNaN(numeric)) return 1000;
-
-    if (numeric >= 0 && numeric <= 8) {
-      if (Object.prototype.hasOwnProperty.call(sliderIndexToMillicoresMap, numeric)) {
-        return sliderIndexToMillicoresMap[numeric];
-      }
-      return 1000;
-    }
-
-    return numeric;
-  };
-
-  /**
-   * 解析内存值：将滑块序号或MB值统一转换为 MB 数字
-   */
-  parseMemoryValue = (value) => {
-    const sliderIndexToMBMap = {
-      0: 0,        // 无限制
-      1: 128,
-      2: 256,
-      3: 512,
-      4: 1024,
-      5: 2048,
-      6: 4096,
-      7: 8192,
-      8: 16384,
-      9: 32768
-    };
-
-    const numeric = parseInt(value, 10);
-    if (Number.isNaN(numeric)) return 1024;
-
-    if (numeric >= 0 && numeric <= 9) {
-      if (Object.prototype.hasOwnProperty.call(sliderIndexToMBMap, numeric)) {
-        return sliderIndexToMBMap[numeric];
-      }
-      return 1024;
-    }
-
-    return numeric;
   };
 
   formatBackupConfig = (backupConfig) => {
@@ -554,37 +501,6 @@ export default class Index extends PureComponent {
 
   convertTerminationPolicy = (termination_policy) => {
     return termination_policy === 'WipeOut' ? 'WipeOut' : 'Delete';
-  };
-
-  convertCpuValue = (cpuSliderValue) => {
-    const cpuMap = {
-      0: '0m',       // 无限制
-      100: '100m',
-      250: '250m',
-      500: '500m',
-      1000: '1',
-      2000: '2',
-      4000: '4',
-      8000: '8',
-      16000: '16'
-    };
-    return cpuMap[cpuSliderValue] || '1';
-  };
-
-  convertMemoryValue = (memorySliderValue) => {
-    const memoryMap = {
-      0: '0Mi',      // 无限制
-      128: '128Mi',
-      256: '256Mi',
-      512: '512Mi',
-      1024: '1Gi',
-      2048: '2Gi',
-      4096: '4Gi',
-      8192: '8Gi',
-      16384: '16Gi',
-      32768: '32Gi'
-    };
-    return memoryMap[memorySliderValue] || '1Gi';
   };
 
   render() {
