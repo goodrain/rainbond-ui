@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Form, Card, Radio, InputNumber, Select, Button, Input } from 'antd';
+import { Form, Card, Radio, InputNumber, Select, Button, Input, Modal } from 'antd';
 import { formatMessage } from '@/utils/intl';
 import styles from './index.less';
 
@@ -19,7 +19,9 @@ export default class Index extends PureComponent {
             backupRetentionTime: 7,
             backupRetentionUnit: 'day',
             termination_policy: 'Delete', // 保留备份
-            backupRepo: ''
+            backupRepo: '',
+            createRepoVisible: false,
+            createRepoSubmitting: false
         };
     }
 
@@ -34,6 +36,70 @@ export default class Index extends PureComponent {
         this.setState({ backupRepo: value });
         const { form } = this.props;
         form.setFieldsValue({ backupRepo: value });
+    };
+
+    handleOpenCreateRepo = () => {
+        this.setState({ createRepoVisible: true });
+    };
+
+    handleCancelCreateRepo = () => {
+        const { form } = this.props;
+        form.resetFields([
+            'quickRepoName',
+            'quickRepoDisplayName',
+            'quickRepoBucket',
+            'quickRepoEndpoint',
+            'quickRepoRegion',
+            'quickRepoAccessKeyId',
+            'quickRepoSecretAccessKey',
+            'quickRepoVolumeCapacity',
+            'quickRepoPathPrefix'
+        ]);
+        this.setState({ createRepoVisible: false, createRepoSubmitting: false });
+    };
+
+    handleCreateRepo = () => {
+        const { form, onCreateBackupRepo } = this.props;
+        const fields = [
+            'quickRepoName',
+            'quickRepoDisplayName',
+            'quickRepoBucket',
+            'quickRepoEndpoint',
+            'quickRepoRegion',
+            'quickRepoAccessKeyId',
+            'quickRepoSecretAccessKey',
+            'quickRepoVolumeCapacity',
+            'quickRepoPathPrefix'
+        ];
+
+        form.validateFields(fields, (err, values) => {
+            if (err || !onCreateBackupRepo) return;
+
+            this.setState({ createRepoSubmitting: true });
+            onCreateBackupRepo(
+                {
+                    name: values.quickRepoName,
+                    display_name: values.quickRepoDisplayName || values.quickRepoName,
+                    bucket: values.quickRepoBucket,
+                    endpoint: values.quickRepoEndpoint,
+                    region: values.quickRepoRegion || '',
+                    access_key_id: values.quickRepoAccessKeyId,
+                    secret_access_key: values.quickRepoSecretAccessKey,
+                    volume_capacity: values.quickRepoVolumeCapacity || '100Gi',
+                    path_prefix: values.quickRepoPathPrefix || ''
+                },
+                repo => {
+                    this.setState({ createRepoSubmitting: false });
+                    if (repo && repo.name) {
+                        this.handleBackupRepoChange(repo.name);
+                        this.handleCancelCreateRepo();
+                    }
+                },
+                () => {
+                    this.setState({ createRepoSubmitting: false });
+                }
+            );
+        });
     };
 
     handleBackupCycleChange = (e) => {
@@ -124,7 +190,9 @@ export default class Index extends PureComponent {
             backupStartMinute,
             backupRetentionTime,
             termination_policy,
-            backupRepo
+            backupRepo,
+            createRepoVisible,
+            createRepoSubmitting
         } = this.state;
 
         const repoOptions = backupRepos;
@@ -146,19 +214,24 @@ export default class Index extends PureComponent {
                     <Form layout="horizontal" hideRequiredMark>
                         {/* BackupRepo */}
                         <Form.Item {...formItemLayout} label={formatMessage({ id: 'kubeblocks.database.backup.repo_label' })}>
-                            {getFieldDecorator('backupRepo', {
-                                initialValue: backupRepo,
-                                rules: [{ required: false }]
-                            })(
-                                <Select style={{ width: '180px' }} placeholder={formatMessage({ id: 'kubeblocks.database.backup.repo_placeholder' })} onChange={this.handleBackupRepoChange} allowClear>
-                                    <Option value=''>{formatMessage({ id: 'kubeblocks.database.backup.repo_none' })}</Option>
-                                    {repoOptions.map(repo => (
-                                        <Option key={repo.name} value={repo.name}>
-                                            {repo.displayName || repo.name}
-                                        </Option>
-                                    ))}
-                                </Select>
-                            )}
+                            <div className={styles.backupRepoSelector}>
+                                {getFieldDecorator('backupRepo', {
+                                    initialValue: backupRepo,
+                                    rules: [{ required: false }]
+                                })(
+                                    <Select style={{ width: '180px' }} placeholder={formatMessage({ id: 'kubeblocks.database.backup.repo_placeholder' })} onChange={this.handleBackupRepoChange} allowClear>
+                                        <Option value=''>{formatMessage({ id: 'kubeblocks.database.backup.repo_none' })}</Option>
+                                        {repoOptions.map(repo => (
+                                            <Option key={repo.name} value={repo.name}>
+                                                {repo.displayName || repo.name}
+                                            </Option>
+                                        ))}
+                                    </Select>
+                                )}
+                                <Button icon="plus" onClick={this.handleOpenCreateRepo}>
+                                    {formatMessage({ id: 'kubeblocks.database.backup.repo.create_s3' })}
+                                </Button>
+                            </div>
                         </Form.Item>
                         {form.getFieldValue('backupRepo') ? <>
                             <Form.Item {...formItemLayout} label={formatMessage({ id: 'kubeblocks.database.backup.cycle_label' })}>
@@ -240,6 +313,59 @@ export default class Index extends PureComponent {
                         </> : null}
                     </Form>
                 </Card>
+                <Modal
+                    title={formatMessage({ id: 'kubeblocks.database.backup.repo.modal.create_title' })}
+                    visible={createRepoVisible}
+                    onOk={this.handleCreateRepo}
+                    onCancel={this.handleCancelCreateRepo}
+                    confirmLoading={createRepoSubmitting}
+                    destroyOnClose
+                >
+                    <Form layout="vertical">
+                        <Form.Item label={formatMessage({ id: 'kubeblocks.database.backup.repo.name' })}>
+                            {getFieldDecorator('quickRepoName', {
+                                rules: [
+                                    { required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.name_required' }) },
+                                    { pattern: /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/, message: formatMessage({ id: 'kubeblocks.database.backup.repo.name_invalid' }) }
+                                ]
+                            })(<Input placeholder="prod-s3" />)}
+                        </Form.Item>
+                        <Form.Item label={formatMessage({ id: 'kubeblocks.database.backup.repo.display_name' })}>
+                            {getFieldDecorator('quickRepoDisplayName')(<Input />)}
+                        </Form.Item>
+                        <Form.Item label="Bucket">
+                            {getFieldDecorator('quickRepoBucket', {
+                                rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.bucket_required' }) }]
+                            })(<Input />)}
+                        </Form.Item>
+                        <Form.Item label="Endpoint">
+                            {getFieldDecorator('quickRepoEndpoint', {
+                                rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.endpoint_required' }) }]
+                            })(<Input placeholder="https://s3.example.com" />)}
+                        </Form.Item>
+                        <Form.Item label="Region">
+                            {getFieldDecorator('quickRepoRegion')(<Input />)}
+                        </Form.Item>
+                        <Form.Item label="AccessKey">
+                            {getFieldDecorator('quickRepoAccessKeyId', {
+                                rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.access_key_required' }) }]
+                            })(<Input />)}
+                        </Form.Item>
+                        <Form.Item label="SecretKey">
+                            {getFieldDecorator('quickRepoSecretAccessKey', {
+                                rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.secret_key_required' }) }]
+                            })(<Input.Password />)}
+                        </Form.Item>
+                        <Form.Item label={formatMessage({ id: 'kubeblocks.database.backup.repo.volume_capacity' })}>
+                            {getFieldDecorator('quickRepoVolumeCapacity', {
+                                initialValue: '100Gi'
+                            })(<Input />)}
+                        </Form.Item>
+                        <Form.Item label={formatMessage({ id: 'kubeblocks.database.backup.repo.path_prefix' })}>
+                            {getFieldDecorator('quickRepoPathPrefix')(<Input />)}
+                        </Form.Item>
+                    </Form>
+                </Modal>
             </div>
         );
     }

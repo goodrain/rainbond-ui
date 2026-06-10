@@ -5,6 +5,7 @@ import {
   Card,
   Form,
   Icon,
+  Input,
   InputNumber,
   Modal,
   notification,
@@ -63,6 +64,11 @@ export default class Index extends PureComponent {
       restoreVisible: false, // 恢复确认弹窗显示状态
       selectedBackupName: '', // 选中要恢复的备份名称
       restoring: false, // 恢复操作进行中
+      repoManageVisible: false,
+      repoModalVisible: false,
+      repoModalType: 'create',
+      editingRepo: null,
+      repoSubmitting: false,
       // 分页状态
       backupPagination: {
         page: 1,
@@ -527,6 +533,157 @@ export default class Index extends PureComponent {
     this.fetchBackupList();
   };
 
+  openRepoManage = () => {
+    this.fetchBackupRepos();
+    this.setState({ repoManageVisible: true });
+  };
+
+  closeRepoManage = () => {
+    this.setState({ repoManageVisible: false });
+  };
+
+  openRepoModal = (type, record = null) => {
+    const { form } = this.props;
+    this.setState({
+      repoModalVisible: true,
+      repoModalType: type,
+      editingRepo: record
+    }, () => {
+      form.setFieldsValue({
+        repoName: type === 'edit' ? record.name : '',
+        repoDisplayName: type === 'edit' ? (record.displayName || record.display_name || record.name) : '',
+        repoBucket: type === 'edit' ? record.bucket : '',
+        repoEndpoint: type === 'edit' ? record.endpoint : '',
+        repoRegion: type === 'edit' ? record.region : '',
+        repoVolumeCapacity: type === 'edit' ? (record.volumeCapacity || '100Gi') : '100Gi',
+        repoPathPrefix: type === 'edit' ? (record.pathPrefix || '') : '',
+        repoAccessKeyId: '',
+        repoSecretAccessKey: ''
+      });
+    });
+  };
+
+  closeRepoModal = () => {
+    const { form } = this.props;
+    form.resetFields([
+      'repoName',
+      'repoDisplayName',
+      'repoBucket',
+      'repoEndpoint',
+      'repoRegion',
+      'repoVolumeCapacity',
+      'repoPathPrefix',
+      'repoAccessKeyId',
+      'repoSecretAccessKey'
+    ]);
+    this.setState({
+      repoModalVisible: false,
+      repoModalType: 'create',
+      editingRepo: null,
+      repoSubmitting: false
+    });
+  };
+
+  handleRepoSubmit = () => {
+    const { dispatch, form } = this.props;
+    const { repoModalType, editingRepo } = this.state;
+    const fields = [
+      'repoName',
+      'repoDisplayName',
+      'repoBucket',
+      'repoEndpoint',
+      'repoRegion',
+      'repoVolumeCapacity',
+      'repoPathPrefix',
+      'repoAccessKeyId',
+      'repoSecretAccessKey'
+    ];
+
+    form.validateFields(fields, (err, values) => {
+      if (err) return;
+
+      const body = {
+        display_name: values.repoDisplayName || values.repoName,
+        bucket: values.repoBucket,
+        endpoint: values.repoEndpoint,
+        region: values.repoRegion || '',
+        volume_capacity: values.repoVolumeCapacity || '100Gi',
+        path_prefix: values.repoPathPrefix || ''
+      };
+      if (repoModalType === 'create') {
+        body.name = values.repoName;
+      }
+      if (values.repoAccessKeyId || values.repoSecretAccessKey) {
+        body.access_key_id = values.repoAccessKeyId;
+        body.secret_access_key = values.repoSecretAccessKey;
+      }
+
+      this.setState({ repoSubmitting: true });
+      dispatch({
+        type: repoModalType === 'create' ? 'kubeblocks/createBackupRepo' : 'kubeblocks/updateBackupRepo',
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          region_name: globalUtil.getCurrRegionName(),
+          repo_name: editingRepo && editingRepo.name,
+          body
+        },
+        callback: res => {
+          this.setState({ repoSubmitting: false });
+          if (res && res.status_code === 200) {
+            notification.success({
+              message: formatMessage({
+                id: repoModalType === 'create'
+                  ? 'kubeblocks.database.backup.repo.create_success'
+                  : 'kubeblocks.database.backup.repo.update_success'
+              })
+            });
+            this.closeRepoModal();
+            this.fetchBackupRepos();
+          } else {
+            notification.error({
+              message: res?.msg_show || formatMessage({
+                id: repoModalType === 'create'
+                  ? 'kubeblocks.database.backup.repo.create_failed'
+                  : 'kubeblocks.database.backup.repo.update_failed'
+              })
+            });
+          }
+        },
+        handleError: err => {
+          this.setState({ repoSubmitting: false });
+          handleAPIError(err);
+        }
+      });
+    });
+  };
+
+  handleDeleteRepo = (record) => {
+    const { dispatch, form } = this.props;
+    dispatch({
+      type: 'kubeblocks/deleteBackupRepo',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        region_name: globalUtil.getCurrRegionName(),
+        repo_name: record.name
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          notification.success({ message: formatMessage({ id: 'kubeblocks.database.backup.repo.delete_success' }) });
+          if (this.state.backupRepo === record.name) {
+            this.setState({ backupRepo: '' });
+            form.setFieldsValue({ backupRepo: '' });
+          }
+          this.fetchBackupRepos();
+        } else {
+          notification.error({ message: res?.msg_show || formatMessage({ id: 'kubeblocks.database.backup.repo.delete_failed' }) });
+        }
+      },
+      handleError: err => {
+        handleAPIError(err);
+      }
+    });
+  };
+
 
   /**
    * 手动备份
@@ -718,6 +875,10 @@ export default class Index extends PureComponent {
       restoreVisible,
       selectedBackupName,
       restoring,
+      repoManageVisible,
+      repoModalVisible,
+      repoModalType,
+      repoSubmitting,
       backupPagination
     } = this.state;
 
@@ -791,6 +952,68 @@ export default class Index extends PureComponent {
       }
     ];
 
+    const repoColumns = [
+      {
+        title: formatMessage({ id: 'kubeblocks.database.backup.repo.display_name' }),
+        dataIndex: 'displayName',
+        key: 'displayName',
+        render: (text, record) => text || record.display_name || record.name
+      },
+      {
+        title: formatMessage({ id: 'kubeblocks.database.backup.repo.real_name' }),
+        dataIndex: 'name',
+        key: 'name'
+      },
+      {
+        title: 'Bucket',
+        dataIndex: 'bucket',
+        key: 'bucket'
+      },
+      {
+        title: 'Endpoint',
+        dataIndex: 'endpoint',
+        key: 'endpoint',
+        render: text => text || '-'
+      },
+      {
+        title: 'Region',
+        dataIndex: 'region',
+        key: 'region',
+        render: text => text || '-'
+      },
+      {
+        title: formatMessage({ id: 'kubeblocks.database.backup.repo.status' }),
+        dataIndex: 'phase',
+        key: 'phase',
+        render: phase => (
+          <Tag color={phase === 'Ready' ? 'green' : phase === 'Missing' ? 'red' : 'blue'}>
+            {phase || '-'}
+          </Tag>
+        )
+      },
+      {
+        title: formatMessage({ id: 'button.operation' }),
+        key: 'action',
+        render: (_, record) => (
+          <span>
+            <Button type="link" size="small" onClick={() => this.openRepoModal('edit', record)}>
+              {formatMessage({ id: 'componentOverview.body.tab.env.table.column.edit' })}
+            </Button>
+            <Popconfirm
+              title={formatMessage({ id: 'kubeblocks.database.backup.repo.delete_confirm' })}
+              onConfirm={() => this.handleDeleteRepo(record)}
+              okText={formatMessage({ id: 'button.confirm' })}
+              cancelText={formatMessage({ id: 'button.cancel' })}
+            >
+              <Button type="link" size="small" style={{ color: '#f5222d' }}>
+                {formatMessage({ id: 'button.delete' })}
+              </Button>
+            </Popconfirm>
+          </span>
+        )
+      }
+    ];
+
     if (!clusterDetail) {
       return (
         <div style={{ textAlign: 'center', padding: '50px' }}>
@@ -817,6 +1040,14 @@ export default class Index extends PureComponent {
           title={formatMessage({ id: 'kubeblocks.database.backup.page.title' })}
           extra={
             <div style={{ display: 'flex', alignItems: 'center' }}>
+              <Button
+                icon="database"
+                style={{ marginRight: 8 }}
+                disabled={isBackupUnSupported}
+                onClick={this.openRepoManage}
+              >
+                {formatMessage({ id: 'kubeblocks.database.backup.repo.manage' })}
+              </Button>
               {editBackupInfo ? (
                 <div style={{ marginLeft: 10 }}>
                   <Button type="primary" style={{ marginRight: 10 }} onClick={this.handleSaveBackupConfig}>
@@ -962,6 +1193,94 @@ export default class Index extends PureComponent {
             )}
           </Form>
         </Card>
+
+        <Modal
+          title={formatMessage({ id: 'kubeblocks.database.backup.repo.manage' })}
+          visible={repoManageVisible}
+          onCancel={this.closeRepoManage}
+          footer={null}
+          width={980}
+          destroyOnClose
+        >
+          <div style={{ textAlign: 'right', marginBottom: 12 }}>
+            <Button icon="reload" style={{ marginRight: 8 }} onClick={this.fetchBackupRepos}>
+              {formatMessage({ id: 'kubeblocks.parameter.refresh' })}
+            </Button>
+            <Button type="primary" icon="plus" onClick={() => this.openRepoModal('create')}>
+              {formatMessage({ id: 'kubeblocks.database.backup.repo.create_s3' })}
+            </Button>
+          </div>
+          <Table
+            rowKey="name"
+            columns={repoColumns}
+            dataSource={backupRepos}
+            pagination={false}
+          />
+        </Modal>
+
+        <Modal
+          title={formatMessage({
+            id: repoModalType === 'create'
+              ? 'kubeblocks.database.backup.repo.modal.create_title'
+              : 'kubeblocks.database.backup.repo.modal.edit_title'
+          })}
+          visible={repoModalVisible}
+          onOk={this.handleRepoSubmit}
+          onCancel={this.closeRepoModal}
+          confirmLoading={repoSubmitting}
+          destroyOnClose
+        >
+          <Form layout="vertical">
+            <Form.Item label={formatMessage({ id: 'kubeblocks.database.backup.repo.name' })}>
+              {getFieldDecorator('repoName', {
+                rules: repoModalType === 'create'
+                  ? [
+                    { required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.name_required' }) },
+                    { pattern: /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/, message: formatMessage({ id: 'kubeblocks.database.backup.repo.name_invalid' }) }
+                  ]
+                  : []
+              })(<Input disabled={repoModalType === 'edit'} placeholder="prod-s3" />)}
+            </Form.Item>
+            <Form.Item label={formatMessage({ id: 'kubeblocks.database.backup.repo.display_name' })}>
+              {getFieldDecorator('repoDisplayName')(<Input />)}
+            </Form.Item>
+            <Form.Item label="Bucket">
+              {getFieldDecorator('repoBucket', {
+                rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.bucket_required' }) }]
+              })(<Input />)}
+            </Form.Item>
+            <Form.Item label="Endpoint">
+              {getFieldDecorator('repoEndpoint', {
+                rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.endpoint_required' }) }]
+              })(<Input />)}
+            </Form.Item>
+            <Form.Item label="Region">
+              {getFieldDecorator('repoRegion')(<Input />)}
+            </Form.Item>
+            <Form.Item label={formatMessage({ id: 'kubeblocks.database.backup.repo.volume_capacity' })}>
+              {getFieldDecorator('repoVolumeCapacity', {
+                initialValue: '100Gi'
+              })(<Input />)}
+            </Form.Item>
+            <Form.Item label={formatMessage({ id: 'kubeblocks.database.backup.repo.path_prefix' })}>
+              {getFieldDecorator('repoPathPrefix')(<Input />)}
+            </Form.Item>
+            <Form.Item label="AccessKey">
+              {getFieldDecorator('repoAccessKeyId', {
+                rules: repoModalType === 'create'
+                  ? [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.access_key_required' }) }]
+                  : []
+              })(<Input placeholder={repoModalType === 'edit' ? formatMessage({ id: 'kubeblocks.database.backup.repo.secret_keep' }) : ''} />)}
+            </Form.Item>
+            <Form.Item label="SecretKey">
+              {getFieldDecorator('repoSecretAccessKey', {
+                rules: repoModalType === 'create'
+                  ? [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.secret_key_required' }) }]
+                  : []
+              })(<Input.Password placeholder={repoModalType === 'edit' ? formatMessage({ id: 'kubeblocks.database.backup.repo.secret_keep' }) : ''} />)}
+            </Form.Item>
+          </Form>
+        </Modal>
 
         {/* 备份列表 */}
         <Card

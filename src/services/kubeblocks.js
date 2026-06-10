@@ -52,6 +52,41 @@ export async function fetchBackupRepos(params, handleError) {
     );
 }
 
+export async function createBackupRepo(params, handleError) {
+    const { team_name, region_name, body } = params;
+    return request(
+        `${apiconfig.baseUrl}/console/teams/${team_name}/regions/${region_name}/kubeblocks/backup_repos`,
+        {
+            method: 'post',
+            data: body,
+            handleError
+        }
+    );
+}
+
+export async function updateBackupRepo(params, handleError) {
+    const { team_name, region_name, repo_name, body } = params;
+    return request(
+        `${apiconfig.baseUrl}/console/teams/${team_name}/regions/${region_name}/kubeblocks/backup_repos/${repo_name}`,
+        {
+            method: 'put',
+            data: body,
+            handleError
+        }
+    );
+}
+
+export async function deleteBackupRepo(params, handleError) {
+    const { team_name, region_name, repo_name } = params;
+    return request(
+        `${apiconfig.baseUrl}/console/teams/${team_name}/regions/${region_name}/kubeblocks/backup_repos/${repo_name}`,
+        {
+            method: 'delete',
+            handleError
+        }
+    );
+}
+
 /**
  * 创建 KubeBlocks 数据库组件, 一次性完成
  * @param {Object} params - { team_name, region_name, config }

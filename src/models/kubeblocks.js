@@ -3,6 +3,9 @@ import {
     createDatabaseCluster,
     fetchStorageClasses,
     fetchBackupRepos,
+    createBackupRepo,
+    updateBackupRepo,
+    deleteBackupRepo,
     getClusterDetail,
     scaleCluster as scaleClusterApi,
     updateBackupConfig as updateBackupConfigApi,
@@ -87,6 +90,21 @@ export default {
             if (callback) {
                 callback(response);
             }
+        },
+
+        *createBackupRepo({ payload, callback, handleError }, { call }) {
+            const response = yield call(createBackupRepo, payload, handleError);
+            if (callback) callback(response);
+        },
+
+        *updateBackupRepo({ payload, callback, handleError }, { call }) {
+            const response = yield call(updateBackupRepo, payload, handleError);
+            if (callback) callback(response);
+        },
+
+        *deleteBackupRepo({ payload, callback, handleError }, { call }) {
+            const response = yield call(deleteBackupRepo, payload, handleError);
+            if (callback) callback(response);
         },
 
         *getClusterDetail({ payload, callback, handleError }, { call, put }) {

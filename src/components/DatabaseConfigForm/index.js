@@ -86,7 +86,7 @@ class Index extends PureComponent {
     };
 
     render() {
-        const { form, dbVersions = [], storageClasses = [], backupRepos = [], databaseType } = this.props;
+        const { form, dbVersions = [], storageClasses = [], backupRepos = [], databaseType, onCreateBackupRepo } = this.props;
         const supportsBackup = this.checkDatabaseBackupSupport();
 
         return (
@@ -106,6 +106,7 @@ class Index extends PureComponent {
                     <BackupConfig
                         form={form}
                         backupRepos={backupRepos}
+                        onCreateBackupRepo={onCreateBackupRepo}
                         onRef={this.onRefBackupConfig}
                         onSubmit={this.handleBackupConfigSubmit}
                     />
@@ -115,4 +116,4 @@ class Index extends PureComponent {
     }
 }
 
-export default Index; 
+export default Index;

@@ -102,6 +102,37 @@ export default class Index extends PureComponent {
     });
   };
 
+  handleCreateBackupRepo = (body, onSuccess, onError) => {
+    const { dispatch } = this.props;
+    const team_name = globalUtil.getCurrTeamName();
+    const region_name = globalUtil.getCurrRegionName();
+
+    dispatch({
+      type: 'kubeblocks/createBackupRepo',
+      payload: {
+        team_name,
+        region_name,
+        body
+      },
+      callback: response => {
+        if (response && response.status_code === 200) {
+          message.success(formatMessage({ id: 'kubeblocks.database.backup.repo.create_success' }));
+          this.fetchBackupRepos();
+          if (onSuccess) {
+            onSuccess(response.bean || {});
+          }
+        } else {
+          message.error(response?.msg_show || formatMessage({ id: 'kubeblocks.database.backup.repo.create_failed' }));
+          if (onError) onError(response);
+        }
+      },
+      handleError: err => {
+        handleAPIError(err);
+        if (onError) onError(err);
+      }
+    });
+  };
+
   // 英文名生成
   generateEnglishName = (name) => {
     if (name !== undefined && name !== '') {
@@ -580,6 +611,7 @@ export default class Index extends PureComponent {
             databaseType={database_type}
             onRef={this.onRefConfigForm}
             onSubmit={this.handleInstallApp}
+            onCreateBackupRepo={this.handleCreateBackupRepo}
           />
 
           <div style={{ textAlign: 'center', marginTop: 24 }}>
