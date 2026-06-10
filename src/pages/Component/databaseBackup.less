@@ -1,0 +1,278 @@
+.databaseBackupPage {
+  :global {
+    .ant-card-head {
+      min-height: 52px;
+      padding: 0 20px;
+    }
+
+    .ant-card-head-title {
+      padding: 14px 0;
+      color: @rbd-title-big-color;
+      font-size: @rbd-sub-title-size;
+      line-height: @rbd-sub-title-line-height;
+      font-weight: 600;
+    }
+
+    .ant-card-extra {
+      padding: 10px 0;
+    }
+  }
+}
+
+.backupPolicyActions,
+.backupEditActions,
+.repoManageActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.backupPolicyForm {
+  :global {
+    .ant-form-item {
+      margin-bottom: 16px;
+    }
+
+    .ant-form-item-label > label {
+      color: @rbd-content-color;
+      font-weight: 500;
+    }
+  }
+}
+
+.backupRepoSelect {
+  width: 240px;
+}
+
+.backupTimeSelector {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+
+  span {
+    color: @rbd-content-color-secondary;
+  }
+}
+
+.backupTimeSelect {
+  width: 82px;
+}
+
+.backupRetentionControl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  :global {
+    .ant-input-number {
+      width: 86px;
+    }
+  }
+
+  span {
+    color: @rbd-content-color-secondary;
+  }
+}
+
+.repoManageModal,
+.repoEditorModal {
+  :global {
+    .ant-modal {
+      max-width: calc(100vw - 32px);
+    }
+
+    .ant-modal-header {
+      padding: 16px 24px;
+      border-bottom-color: @border-color-base;
+    }
+
+    .ant-modal-title {
+      color: @rbd-title-big-color;
+      font-size: @rbd-sub-title-size;
+      line-height: @rbd-sub-title-line-height;
+      font-weight: 600;
+    }
+
+    .ant-modal-body {
+      max-height: calc(100vh - 180px);
+      overflow-y: auto;
+      padding: 18px 24px 20px;
+    }
+  }
+}
+
+.repoEditorModal {
+  :global {
+    .ant-modal-body {
+      padding-bottom: 4px;
+    }
+
+    .ant-modal-footer {
+      padding: 12px 24px 16px;
+      border-top-color: @border-color-base;
+    }
+  }
+}
+
+.repoManageToolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.repoManageMeta {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid fade(@primary-color, 16%);
+  border-radius: 6px;
+  background: fade(@primary-color, 6%);
+  color: @primary-color;
+  font-size: @rbd-content-size;
+  line-height: @rbd-content-line-height;
+
+  span {
+    margin-right: 8px;
+    font-weight: 600;
+  }
+
+  strong {
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 11px;
+    background: @primary-color;
+    color: #fff;
+    font-size: @rbd-auxiliary-size;
+    line-height: 22px;
+    text-align: center;
+  }
+}
+
+.repoManageTable {
+  :global {
+    .ant-table {
+      border: 1px solid @border-color-base;
+      border-radius: 6px;
+    }
+
+    .ant-table-thead > tr > th {
+      padding: 10px 12px;
+      background: @rbd-background-color;
+      color: @rbd-content-color;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .ant-table-tbody > tr > td {
+      padding: 10px 12px;
+      vertical-align: middle;
+    }
+
+    .ant-table-placeholder {
+      border-bottom: 0;
+    }
+  }
+}
+
+.repoPrimaryText,
+.repoMutedText,
+.repoEndpointText {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
+  white-space: nowrap;
+}
+
+.repoPrimaryText {
+  color: @rbd-content-color;
+  font-weight: 600;
+}
+
+.repoMutedText,
+.repoEndpointText {
+  color: @rbd-content-color-secondary;
+}
+
+.repoActionGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.repoDeleteButton {
+  color: @error-color !important;
+}
+
+.repoEditorForm {
+  margin: 0;
+}
+
+.repoEditorGrid {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -8px;
+}
+
+.repoEditorItem {
+  width: 50%;
+  margin-bottom: 14px !important;
+  padding: 0 8px;
+
+  :global {
+    .ant-form-item-label {
+      padding-bottom: 4px;
+      line-height: 20px;
+    }
+
+    .ant-form-item-label > label {
+      color: @rbd-sub-title-color;
+      font-size: @rbd-content-size;
+      font-weight: 600;
+    }
+
+    .ant-form-item-control {
+      line-height: 32px;
+    }
+
+    .ant-form-explain {
+      min-height: 18px;
+      margin-top: 4px;
+      font-size: @rbd-auxiliary-size;
+      line-height: 18px;
+    }
+
+    .ant-input,
+    .ant-input-affix-wrapper .ant-input {
+      height: 34px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .backupPolicyActions,
+  .repoManageToolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .repoManageActions {
+    width: 100%;
+  }
+
+  .backupRepoSelect,
+  .repoManageActions :global(.ant-btn) {
+    width: 100%;
+  }
+
+  .repoEditorItem {
+    width: 100%;
+  }
+}
