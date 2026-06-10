@@ -316,54 +316,58 @@ export default class Index extends PureComponent {
                 <Modal
                     title={formatMessage({ id: 'kubeblocks.database.backup.repo.modal.create_title' })}
                     visible={createRepoVisible}
+                    width={760}
                     onOk={this.handleCreateRepo}
                     onCancel={this.handleCancelCreateRepo}
                     confirmLoading={createRepoSubmitting}
                     destroyOnClose
+                    className={styles.createRepoModal}
                 >
-                    <Form layout="vertical">
-                        <Form.Item label={formatMessage({ id: 'kubeblocks.database.backup.repo.name' })}>
-                            {getFieldDecorator('quickRepoName', {
-                                rules: [
-                                    { required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.name_required' }) },
-                                    { pattern: /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/, message: formatMessage({ id: 'kubeblocks.database.backup.repo.name_invalid' }) }
-                                ]
-                            })(<Input placeholder="prod-s3" />)}
-                        </Form.Item>
-                        <Form.Item label={formatMessage({ id: 'kubeblocks.database.backup.repo.display_name' })}>
-                            {getFieldDecorator('quickRepoDisplayName')(<Input />)}
-                        </Form.Item>
-                        <Form.Item label="Bucket">
-                            {getFieldDecorator('quickRepoBucket', {
-                                rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.bucket_required' }) }]
-                            })(<Input />)}
-                        </Form.Item>
-                        <Form.Item label="Endpoint">
-                            {getFieldDecorator('quickRepoEndpoint', {
-                                rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.endpoint_required' }) }]
-                            })(<Input placeholder="https://s3.example.com" />)}
-                        </Form.Item>
-                        <Form.Item label="Region">
-                            {getFieldDecorator('quickRepoRegion')(<Input />)}
-                        </Form.Item>
-                        <Form.Item label="AccessKey">
-                            {getFieldDecorator('quickRepoAccessKeyId', {
-                                rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.access_key_required' }) }]
-                            })(<Input />)}
-                        </Form.Item>
-                        <Form.Item label="SecretKey">
-                            {getFieldDecorator('quickRepoSecretAccessKey', {
-                                rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.secret_key_required' }) }]
-                            })(<Input.Password />)}
-                        </Form.Item>
-                        <Form.Item label={formatMessage({ id: 'kubeblocks.database.backup.repo.volume_capacity' })}>
-                            {getFieldDecorator('quickRepoVolumeCapacity', {
-                                initialValue: '100Gi'
-                            })(<Input />)}
-                        </Form.Item>
-                        <Form.Item label={formatMessage({ id: 'kubeblocks.database.backup.repo.path_prefix' })}>
-                            {getFieldDecorator('quickRepoPathPrefix')(<Input />)}
-                        </Form.Item>
+                    <Form layout="vertical" className={styles.createRepoForm}>
+                        <div className={styles.createRepoFormGrid}>
+                            <Form.Item className={styles.createRepoFormItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.name' })}>
+                                {getFieldDecorator('quickRepoName', {
+                                    rules: [
+                                        { required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.name_required' }) },
+                                        { pattern: /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/, message: formatMessage({ id: 'kubeblocks.database.backup.repo.name_invalid' }) }
+                                    ]
+                                })(<Input placeholder="prod-s3" />)}
+                            </Form.Item>
+                            <Form.Item className={styles.createRepoFormItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.display_name' })}>
+                                {getFieldDecorator('quickRepoDisplayName')(<Input />)}
+                            </Form.Item>
+                            <Form.Item className={styles.createRepoFormItem} label="Bucket">
+                                {getFieldDecorator('quickRepoBucket', {
+                                    rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.bucket_required' }) }]
+                                })(<Input />)}
+                            </Form.Item>
+                            <Form.Item className={styles.createRepoFormItem} label="Endpoint">
+                                {getFieldDecorator('quickRepoEndpoint', {
+                                    rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.endpoint_required' }) }]
+                                })(<Input placeholder="https://s3.example.com" />)}
+                            </Form.Item>
+                            <Form.Item className={styles.createRepoFormItem} label="Region">
+                                {getFieldDecorator('quickRepoRegion')(<Input />)}
+                            </Form.Item>
+                            <Form.Item className={styles.createRepoFormItem} label="AccessKey">
+                                {getFieldDecorator('quickRepoAccessKeyId', {
+                                    rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.access_key_required' }) }]
+                                })(<Input />)}
+                            </Form.Item>
+                            <Form.Item className={styles.createRepoFormItem} label="SecretKey">
+                                {getFieldDecorator('quickRepoSecretAccessKey', {
+                                    rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.secret_key_required' }) }]
+                                })(<Input.Password />)}
+                            </Form.Item>
+                            <Form.Item className={styles.createRepoFormItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.volume_capacity' })}>
+                                {getFieldDecorator('quickRepoVolumeCapacity', {
+                                    initialValue: '100Gi'
+                                })(<Input />)}
+                            </Form.Item>
+                            <Form.Item className={styles.createRepoFormItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.path_prefix' })}>
+                                {getFieldDecorator('quickRepoPathPrefix')(<Input />)}
+                            </Form.Item>
+                        </div>
                     </Form>
                 </Modal>
             </div>
