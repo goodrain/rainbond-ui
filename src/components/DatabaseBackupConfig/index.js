@@ -245,7 +245,7 @@ export default class Index extends PureComponent {
                                     initialValue: backupRepo,
                                     rules: [{ required: false }]
                                 })(
-                                    <Select style={{ width: '180px' }} placeholder={formatMessage({ id: 'kubeblocks.database.backup.repo_placeholder' })} onChange={this.handleBackupRepoChange} allowClear>
+                                    <Select className={styles.backupRepoSelect} placeholder={formatMessage({ id: 'kubeblocks.database.backup.repo_placeholder' })} onChange={this.handleBackupRepoChange} allowClear>
                                         <Option value=''>{formatMessage({ id: 'kubeblocks.database.backup.repo_none' })}</Option>
                                         {repoOptions.map(repo => {
                                             const phase = getBackupRepoPhase(repo);
@@ -258,7 +258,7 @@ export default class Index extends PureComponent {
                                         })}
                                     </Select>
                                 )}
-                                <Button icon="plus" onClick={this.handleOpenCreateRepo}>
+                                <Button className={styles.backupRepoCreateButton} icon="plus" onClick={this.handleOpenCreateRepo}>
                                     {formatMessage({ id: 'kubeblocks.database.backup.repo.create_s3' })}
                                 </Button>
                             </div>
