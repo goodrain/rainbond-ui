@@ -252,7 +252,7 @@ export default class Index extends PureComponent {
                                             const disabled = !isBackupRepoReady(repo);
                                             return (
                                                 <Option key={repo.name} value={repo.name} disabled={disabled}>
-                                                    {repo.displayName || repo.name}{disabled && phase ? ` (${phase})` : ''}
+                                                    {repo.displayName || repo.display_name || repo.name}{disabled && phase ? ` (${phase})` : ''}
                                                 </Option>
                                             );
                                         })}

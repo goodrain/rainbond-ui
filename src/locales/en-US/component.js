@@ -1417,6 +1417,7 @@ const componentOverview = {
     'kubeblocks.database.backup.repo_none': 'None',
     'kubeblocks.database.backup.repo.create_s3': 'New S3',
     'kubeblocks.database.backup.repo.manage': 'Manage S3 Repos',
+    'kubeblocks.database.backup.repo.empty': 'No S3 repositories',
     'kubeblocks.database.backup.repo.modal.create_title': 'New S3 Backup Repository',
     'kubeblocks.database.backup.repo.modal.edit_title': 'Edit S3 Backup Repository',
     'kubeblocks.database.backup.repo.name': 'Repository Name',

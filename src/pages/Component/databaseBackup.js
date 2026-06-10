@@ -3,6 +3,7 @@ import {
   Alert,
   Button,
   Card,
+  Empty,
   Form,
   Icon,
   Input,
@@ -29,6 +30,8 @@ import styles from './databaseBackup.less';
 const { Option } = Select;
 const RadioGroup = Radio.Group;
 const READY_BACKUP_REPO_PHASE = 'Ready';
+const BACKUP_REPO_READY_REFRESH_INTERVAL = 3000;
+const BACKUP_REPO_READY_MAX_RETRIES = 10;
 
 const getBackupRepoPhase = repo => (repo && (repo.phase || repo.status)) || '';
 const isBackupRepoReady = repo => getBackupRepoPhase(repo) === READY_BACKUP_REPO_PHASE;
@@ -148,6 +151,7 @@ export default class Index extends PureComponent {
 
   componentWillUnmount() {
     this.stopAutoRefresh();
+    this.clearBackupRepoReadyTimer();
   }
 
 
@@ -176,7 +180,7 @@ export default class Index extends PureComponent {
     }
   };
 
-  fetchBackupRepos = () => {
+  fetchBackupRepos = (callback) => {
     const { dispatch } = this.props;
 
     dispatch({
@@ -185,9 +189,41 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         region_name: globalUtil.getCurrRegionName()
       },
+      callback,
       handleError: (err) => {
         handleAPIError(err);
       }
+    });
+  };
+
+  clearBackupRepoReadyTimer = () => {
+    if (this.backupRepoReadyTimer) {
+      clearTimeout(this.backupRepoReadyTimer);
+      this.backupRepoReadyTimer = null;
+    }
+  };
+
+  getBackupRepoFromResponse = (response, repoName) => {
+    const repos = response && Array.isArray(response.list) ? response.list : [];
+    return repos.find(repo => {
+      const normalized = typeof repo === 'string' ? { name: repo } : repo;
+      return normalized && normalized.name === repoName;
+    });
+  };
+
+  refreshBackupReposUntilReady = (repoName, retryCount = 0) => {
+    this.clearBackupRepoReadyTimer();
+
+    this.fetchBackupRepos(response => {
+      const repo = this.getBackupRepoFromResponse(response, repoName);
+      if (!repoName || isBackupRepoReady(repo) || retryCount >= BACKUP_REPO_READY_MAX_RETRIES) {
+        return;
+      }
+
+      this.backupRepoReadyTimer = setTimeout(() => {
+        this.backupRepoReadyTimer = null;
+        this.refreshBackupReposUntilReady(repoName, retryCount + 1);
+      }, BACKUP_REPO_READY_REFRESH_INTERVAL);
     });
   };
 
@@ -658,7 +694,11 @@ export default class Index extends PureComponent {
               })
             });
             this.closeRepoModal();
-            this.fetchBackupRepos();
+            if (repoModalType === 'create') {
+              this.refreshBackupReposUntilReady(res.bean?.name || body.name);
+            } else {
+              this.fetchBackupRepos();
+            }
           } else {
             notification.error({
               message: res?.msg_show || formatMessage({
@@ -978,41 +1018,51 @@ export default class Index extends PureComponent {
     const repoColumns = [
       {
         title: formatMessage({ id: 'kubeblocks.database.backup.repo.display_name' }),
-        dataIndex: 'displayName',
-        key: 'displayName',
-        width: 160,
-        render: (text, record) => {
-          const displayName = text || record.display_name || record.name;
-          return <span className={styles.repoPrimaryText} title={displayName}>{displayName}</span>;
+        key: 'repoInfo',
+        width: 210,
+        render: (_, record) => {
+          const displayName = record.displayName || record.display_name || record.name || '-';
+          const resourceName = record.name || '-';
+          return (
+            <div className={styles.repoNameCell}>
+              <Tooltip title={displayName}>
+                <span className={styles.repoPrimaryText}>{displayName}</span>
+              </Tooltip>
+              <Tooltip title={resourceName}>
+                <span className={styles.repoResourceName}>{resourceName}</span>
+              </Tooltip>
+            </div>
+          );
         }
-      },
-      {
-        title: formatMessage({ id: 'kubeblocks.database.backup.repo.real_name' }),
-        dataIndex: 'name',
-        key: 'name',
-        width: 160,
-        render: text => <span className={styles.repoMutedText} title={text}>{text}</span>
       },
       {
         title: 'Bucket',
         dataIndex: 'bucket',
         key: 'bucket',
-        width: 150,
-        render: text => <span className={styles.repoMutedText} title={text}>{text}</span>
+        width: 160,
+        render: text => (
+          <Tooltip title={text || '-'}>
+            <span className={styles.repoMutedText}>{text || '-'}</span>
+          </Tooltip>
+        )
       },
       {
         title: 'Endpoint',
         dataIndex: 'endpoint',
         key: 'endpoint',
-        width: 230,
-        render: text => <span className={styles.repoEndpointText} title={text || '-'}>{text || '-'}</span>
+        width: 300,
+        render: text => (
+          <Tooltip title={text || '-'}>
+            <span className={styles.repoEndpointText}>{text || '-'}</span>
+          </Tooltip>
+        )
       },
       {
         title: 'Region',
         dataIndex: 'region',
         key: 'region',
-        width: 120,
-        render: text => <span className={styles.repoMutedText} title={text || '-'}>{text || '-'}</span>
+        width: 90,
+        render: text => <span className={styles.repoMutedText}>{text || '-'}</span>
       },
       {
         title: formatMessage({ id: 'kubeblocks.database.backup.repo.status' }),
@@ -1032,7 +1082,7 @@ export default class Index extends PureComponent {
       {
         title: formatMessage({ id: 'button.operation' }),
         key: 'action',
-        width: 130,
+        width: 120,
         render: (_, record) => (
           <span className={styles.repoActionGroup}>
             <Button type="link" size="small" onClick={() => this.openRepoModal('edit', record)}>
@@ -1076,6 +1126,7 @@ export default class Index extends PureComponent {
         )}
         {/* 备份策略 */}
         <Card
+          className={styles.backupPolicyCard}
           title={formatMessage({ id: 'kubeblocks.database.backup.page.title' })}
           extra={
             <div className={styles.backupPolicyActions}>
@@ -1128,7 +1179,7 @@ export default class Index extends PureComponent {
                     const disabled = !isBackupRepoReady(repo);
                     return (
                       <Option key={repo.name} value={repo.name} disabled={disabled}>
-                        {repo.displayName || repo.name}{disabled && phase ? ` (${phase})` : ''}
+                        {repo.displayName || repo.display_name || repo.name}{disabled && phase ? ` (${phase})` : ''}
                       </Option>
                     );
                   })}
@@ -1238,11 +1289,18 @@ export default class Index extends PureComponent {
         </Card>
 
         <Modal
-          title={formatMessage({ id: 'kubeblocks.database.backup.repo.manage' })}
+          title={
+            <span className={styles.repoManageTitle}>
+              <span className={styles.repoManageTitleIcon}>
+                <Icon type="database" />
+              </span>
+              <span>{formatMessage({ id: 'kubeblocks.database.backup.repo.manage' })}</span>
+            </span>
+          }
           visible={repoManageVisible}
           onCancel={this.closeRepoManage}
           footer={null}
-          width={980}
+          width={1080}
           destroyOnClose
           className={styles.repoManageModal}
         >
@@ -1260,15 +1318,31 @@ export default class Index extends PureComponent {
               </Button>
             </div>
           </div>
-          <Table
-            className={styles.repoManageTable}
-            rowKey="name"
-            columns={repoColumns}
-            dataSource={backupRepos}
-            pagination={false}
-            size="middle"
-            scroll={{ x: 1050 }}
-          />
+          <div className={styles.repoManageTableShell}>
+            <Table
+              className={styles.repoManageTable}
+              rowKey="name"
+              columns={repoColumns}
+              dataSource={backupRepos}
+              pagination={false}
+              size="middle"
+              tableLayout="fixed"
+              rowClassName={record => record.name === backupRepo ? styles.repoCurrentRow : ''}
+              scroll={{ x: 980 }}
+              locale={{
+                emptyText: (
+                  <Empty
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    description={formatMessage({ id: 'kubeblocks.database.backup.repo.empty' })}
+                  >
+                    <Button type="primary" icon="plus" onClick={() => this.openRepoModal('create')}>
+                      {formatMessage({ id: 'kubeblocks.database.backup.repo.create_s3' })}
+                    </Button>
+                  </Empty>
+                )
+              }}
+            />
+          </div>
         </Modal>
 
         <Modal

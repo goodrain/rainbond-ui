@@ -1431,6 +1431,7 @@ const componentOverview = {
     'kubeblocks.database.backup.repo_none': '无',
     'kubeblocks.database.backup.repo.create_s3': '新建 S3',
     'kubeblocks.database.backup.repo.manage': '管理 S3 仓库',
+    'kubeblocks.database.backup.repo.empty': '暂无 S3 仓库',
     'kubeblocks.database.backup.repo.modal.create_title': '新建 S3 备份仓库',
     'kubeblocks.database.backup.repo.modal.edit_title': '编辑 S3 备份仓库',
     'kubeblocks.database.backup.repo.name': '仓库名称',

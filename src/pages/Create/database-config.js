@@ -14,6 +14,13 @@ import { pinyin } from 'pinyin-pro';
 import styles from './Index.less';
 import handleAPIError from '../../utils/error';
 
+const READY_BACKUP_REPO_PHASE = 'Ready';
+const BACKUP_REPO_READY_REFRESH_INTERVAL = 3000;
+const BACKUP_REPO_READY_MAX_RETRIES = 10;
+
+const getBackupRepoPhase = repo => (repo && (repo.phase || repo.status)) || '';
+const isBackupRepoReady = repo => getBackupRepoPhase(repo) === READY_BACKUP_REPO_PHASE;
+
 @connect(
   ({ teamControl, global, enterprise, user, kubeblocks }) => ({
     rainbondInfo: global.rainbondInfo,
@@ -45,6 +52,10 @@ export default class Index extends PureComponent {
     this.fetchInitialData();
   }
 
+  componentWillUnmount() {
+    this.clearBackupRepoReadyTimer();
+  }
+
   fetchInitialData = () => {
     this.fetchStorageClasses();
     this.fetchBackupRepos();
@@ -68,7 +79,7 @@ export default class Index extends PureComponent {
     });
   };
 
-  fetchBackupRepos = () => {
+  fetchBackupRepos = (callback) => {
     const { dispatch } = this.props;
     const team_name = globalUtil.getCurrTeamName();
     const region_name = globalUtil.getCurrRegionName();
@@ -79,9 +90,41 @@ export default class Index extends PureComponent {
         team_name,
         region_name
       },
+      callback,
       handleError: (err) => {
         handleAPIError(err);
       }
+    });
+  };
+
+  clearBackupRepoReadyTimer = () => {
+    if (this.backupRepoReadyTimer) {
+      clearTimeout(this.backupRepoReadyTimer);
+      this.backupRepoReadyTimer = null;
+    }
+  };
+
+  getBackupRepoFromResponse = (response, repoName) => {
+    const repos = response && Array.isArray(response.list) ? response.list : [];
+    return repos.find(repo => {
+      const normalized = typeof repo === 'string' ? { name: repo } : repo;
+      return normalized && normalized.name === repoName;
+    });
+  };
+
+  refreshBackupReposUntilReady = (repoName, retryCount = 0) => {
+    this.clearBackupRepoReadyTimer();
+
+    this.fetchBackupRepos(response => {
+      const repo = this.getBackupRepoFromResponse(response, repoName);
+      if (!repoName || isBackupRepoReady(repo) || retryCount >= BACKUP_REPO_READY_MAX_RETRIES) {
+        return;
+      }
+
+      this.backupRepoReadyTimer = setTimeout(() => {
+        this.backupRepoReadyTimer = null;
+        this.refreshBackupReposUntilReady(repoName, retryCount + 1);
+      }, BACKUP_REPO_READY_REFRESH_INTERVAL);
     });
   };
 
@@ -116,10 +159,13 @@ export default class Index extends PureComponent {
       },
       callback: response => {
         if (response && response.status_code === 200) {
+          const createdRepo = response.bean || {};
+          const repoName = createdRepo.name || body.name;
+
           message.success(formatMessage({ id: 'kubeblocks.database.backup.repo.create_success' }));
-          this.fetchBackupRepos();
+          this.refreshBackupReposUntilReady(repoName);
           if (onSuccess) {
-            onSuccess(response.bean || {});
+            onSuccess({ ...body, ...createdRepo, name: repoName });
           }
         } else {
           message.error(response?.msg_show || formatMessage({ id: 'kubeblocks.database.backup.repo.create_failed' }));
