@@ -1,13 +1,16 @@
 import React, { PureComponent } from 'react';
-import { Form, Card, Radio, InputNumber, Select, Button, Input, Modal } from 'antd';
+import { Form, Card, Radio, InputNumber, Select, Button, Input, Modal, Collapse } from 'antd';
 import { formatMessage } from '@/utils/intl';
 import styles from './index.less';
 
 const { Option } = Select;
 const RadioGroup = Radio.Group;
 const { Group: InputGroup } = Input;
+const { Panel } = Collapse;
 const READY_BACKUP_REPO_PHASE = 'Ready';
 const BACKUP_REPO_FIELD = 'backupRepo';
+const DEFAULT_BACKUP_REPO_BUCKET = 'kubeblocks-backup';
+const DEFAULT_BACKUP_REPO_VOLUME_CAPACITY = '100Gi';
 const BACKUP_CONFIG_FIELDS = [
     BACKUP_REPO_FIELD,
     'backupCycle',
@@ -18,6 +21,12 @@ const BACKUP_CONFIG_FIELDS = [
 
 const getBackupRepoPhase = repo => (repo && (repo.phase || repo.status)) || '';
 const isBackupRepoReady = repo => getBackupRepoPhase(repo) === READY_BACKUP_REPO_PHASE;
+const getBackupRepoPhaseText = phase => {
+    if (phase === 'Missing') {
+        return formatMessage({ id: 'kubeblocks.database.backup.repo.phase.unavailable' });
+    }
+    return phase;
+};
 
 export default class Index extends PureComponent {
     constructor(props) {
@@ -64,7 +73,6 @@ export default class Index extends PureComponent {
             'quickRepoRegion',
             'quickRepoAccessKeyId',
             'quickRepoSecretAccessKey',
-            'quickRepoVolumeCapacity',
             'quickRepoPathPrefix'
         ]);
         this.setState({ createRepoVisible: false, createRepoSubmitting: false });
@@ -80,7 +88,6 @@ export default class Index extends PureComponent {
             'quickRepoRegion',
             'quickRepoAccessKeyId',
             'quickRepoSecretAccessKey',
-            'quickRepoVolumeCapacity',
             'quickRepoPathPrefix'
         ];
 
@@ -97,7 +104,7 @@ export default class Index extends PureComponent {
                     region: values.quickRepoRegion || '',
                     access_key_id: values.quickRepoAccessKeyId,
                     secret_access_key: values.quickRepoSecretAccessKey,
-                    volume_capacity: values.quickRepoVolumeCapacity || '100Gi',
+                    volume_capacity: DEFAULT_BACKUP_REPO_VOLUME_CAPACITY,
                     path_prefix: values.quickRepoPathPrefix || ''
                 },
                 repo => {
@@ -245,14 +252,15 @@ export default class Index extends PureComponent {
                                     initialValue: backupRepo,
                                     rules: [{ required: false }]
                                 })(
-                                    <Select className={styles.backupRepoSelect} placeholder={formatMessage({ id: 'kubeblocks.database.backup.repo_placeholder' })} onChange={this.handleBackupRepoChange} allowClear>
+                                    <Select className={styles.backupRepoSelect} style={{ width: 220 }} placeholder={formatMessage({ id: 'kubeblocks.database.backup.repo_placeholder' })} onChange={this.handleBackupRepoChange} allowClear>
                                         <Option value=''>{formatMessage({ id: 'kubeblocks.database.backup.repo_none' })}</Option>
                                         {repoOptions.map(repo => {
                                             const phase = getBackupRepoPhase(repo);
+                                            const phaseText = getBackupRepoPhaseText(phase);
                                             const disabled = !isBackupRepoReady(repo);
                                             return (
                                                 <Option key={repo.name} value={repo.name} disabled={disabled}>
-                                                    {repo.displayName || repo.display_name || repo.name}{disabled && phase ? ` (${phase})` : ''}
+                                                    {repo.displayName || repo.display_name || repo.name}{disabled && phaseText ? ` (${phaseText})` : ''}
                                                 </Option>
                                             );
                                         })}
@@ -346,7 +354,7 @@ export default class Index extends PureComponent {
                 <Modal
                     title={formatMessage({ id: 'kubeblocks.database.backup.repo.modal.create_title' })}
                     visible={createRepoVisible}
-                    width={760}
+                    width={560}
                     onOk={this.handleCreateRepo}
                     onCancel={this.handleCancelCreateRepo}
                     confirmLoading={createRepoSubmitting}
@@ -363,21 +371,16 @@ export default class Index extends PureComponent {
                                     ]
                                 })(<Input placeholder="prod-s3" />)}
                             </Form.Item>
-                            <Form.Item className={styles.createRepoFormItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.display_name' })}>
-                                {getFieldDecorator('quickRepoDisplayName')(<Input />)}
-                            </Form.Item>
                             <Form.Item className={styles.createRepoFormItem} label="Bucket">
                                 {getFieldDecorator('quickRepoBucket', {
+                                    initialValue: DEFAULT_BACKUP_REPO_BUCKET,
                                     rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.bucket_required' }) }]
-                                })(<Input />)}
+                                })(<Input placeholder={DEFAULT_BACKUP_REPO_BUCKET} />)}
                             </Form.Item>
                             <Form.Item className={styles.createRepoFormItem} label="Endpoint">
                                 {getFieldDecorator('quickRepoEndpoint', {
                                     rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.endpoint_required' }) }]
                                 })(<Input placeholder="https://s3.example.com" />)}
-                            </Form.Item>
-                            <Form.Item className={styles.createRepoFormItem} label="Region">
-                                {getFieldDecorator('quickRepoRegion')(<Input />)}
                             </Form.Item>
                             <Form.Item className={styles.createRepoFormItem} label="AccessKey">
                                 {getFieldDecorator('quickRepoAccessKeyId', {
@@ -389,14 +392,27 @@ export default class Index extends PureComponent {
                                     rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.secret_key_required' }) }]
                                 })(<Input.Password />)}
                             </Form.Item>
-                            <Form.Item className={styles.createRepoFormItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.volume_capacity' })}>
-                                {getFieldDecorator('quickRepoVolumeCapacity', {
-                                    initialValue: '100Gi'
-                                })(<Input />)}
-                            </Form.Item>
-                            <Form.Item className={styles.createRepoFormItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.path_prefix' })}>
-                                {getFieldDecorator('quickRepoPathPrefix')(<Input />)}
-                            </Form.Item>
+                            <Collapse
+                                bordered={false}
+                                className={styles.createRepoAdvancedCollapse}
+                                expandIconPosition="right"
+                            >
+                                <Panel
+                                    forceRender
+                                    header={formatMessage({ id: 'kubeblocks.database.backup.repo.advanced' })}
+                                    key="advanced"
+                                >
+                                    <Form.Item className={styles.createRepoFormItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.display_name' })}>
+                                        {getFieldDecorator('quickRepoDisplayName')(<Input />)}
+                                    </Form.Item>
+                                    <Form.Item className={styles.createRepoFormItem} label="Region">
+                                        {getFieldDecorator('quickRepoRegion')(<Input />)}
+                                    </Form.Item>
+                                    <Form.Item className={styles.createRepoFormItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.path_prefix' })}>
+                                        {getFieldDecorator('quickRepoPathPrefix')(<Input />)}
+                                    </Form.Item>
+                                </Panel>
+                            </Collapse>
                         </div>
                     </Form>
                 </Modal>

@@ -353,15 +353,12 @@
 }
 
 .repoEditorGrid {
-  display: flex;
-  flex-wrap: wrap;
-  margin: 0 -8px;
+  display: block;
 }
 
 .repoEditorItem {
-  width: 50%;
+  width: 100%;
   margin-bottom: 14px !important;
-  padding: 0 8px;
 
   :global {
     .ant-form-item-label {
@@ -389,6 +386,33 @@
     .ant-input,
     .ant-input-affix-wrapper .ant-input {
       height: 34px;
+    }
+  }
+}
+
+.repoAdvancedCollapse {
+  margin-top: 2px;
+  background: transparent;
+
+  :global {
+    .ant-collapse-item {
+      border-bottom: 0;
+    }
+
+    .ant-collapse-header {
+      padding: 4px 24px 12px 0 !important;
+      color: @primary-color !important;
+      font-size: @rbd-content-size;
+      line-height: @rbd-content-line-height;
+    }
+
+    .ant-collapse-content {
+      border-top: 0;
+      background: transparent;
+    }
+
+    .ant-collapse-content-box {
+      padding: 0;
     }
   }
 }

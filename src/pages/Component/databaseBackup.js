@@ -3,6 +3,7 @@ import {
   Alert,
   Button,
   Card,
+  Collapse,
   Empty,
   Form,
   Icon,
@@ -29,12 +30,21 @@ import styles from './databaseBackup.less';
 
 const { Option } = Select;
 const RadioGroup = Radio.Group;
+const { Panel } = Collapse;
 const READY_BACKUP_REPO_PHASE = 'Ready';
 const BACKUP_REPO_READY_REFRESH_INTERVAL = 3000;
 const BACKUP_REPO_READY_MAX_RETRIES = 10;
+const DEFAULT_BACKUP_REPO_BUCKET = 'kubeblocks-backup';
+const DEFAULT_BACKUP_REPO_VOLUME_CAPACITY = '100Gi';
 
 const getBackupRepoPhase = repo => (repo && (repo.phase || repo.status)) || '';
 const isBackupRepoReady = repo => getBackupRepoPhase(repo) === READY_BACKUP_REPO_PHASE;
+const getBackupRepoPhaseText = phase => {
+  if (phase === 'Missing') {
+    return formatMessage({ id: 'kubeblocks.database.backup.repo.phase.unavailable' });
+  }
+  return phase;
+};
 
 const getBackupRepoPhaseColor = phase => {
   if (phase === READY_BACKUP_REPO_PHASE) return 'green';
@@ -608,10 +618,9 @@ export default class Index extends PureComponent {
       form.setFieldsValue({
         repoName: type === 'edit' ? record.name : '',
         repoDisplayName: type === 'edit' ? (record.displayName || record.display_name || record.name) : '',
-        repoBucket: type === 'edit' ? record.bucket : '',
+        repoBucket: type === 'edit' ? record.bucket : DEFAULT_BACKUP_REPO_BUCKET,
         repoEndpoint: type === 'edit' ? record.endpoint : '',
         repoRegion: type === 'edit' ? record.region : '',
-        repoVolumeCapacity: type === 'edit' ? (record.volumeCapacity || '100Gi') : '100Gi',
         repoPathPrefix: type === 'edit' ? (record.pathPrefix || '') : '',
         repoAccessKeyId: '',
         repoSecretAccessKey: ''
@@ -627,7 +636,6 @@ export default class Index extends PureComponent {
       'repoBucket',
       'repoEndpoint',
       'repoRegion',
-      'repoVolumeCapacity',
       'repoPathPrefix',
       'repoAccessKeyId',
       'repoSecretAccessKey'
@@ -649,7 +657,6 @@ export default class Index extends PureComponent {
       'repoBucket',
       'repoEndpoint',
       'repoRegion',
-      'repoVolumeCapacity',
       'repoPathPrefix',
       'repoAccessKeyId',
       'repoSecretAccessKey'
@@ -663,11 +670,11 @@ export default class Index extends PureComponent {
         bucket: values.repoBucket,
         endpoint: values.repoEndpoint,
         region: values.repoRegion || '',
-        volume_capacity: values.repoVolumeCapacity || '100Gi',
         path_prefix: values.repoPathPrefix || ''
       };
       if (repoModalType === 'create') {
         body.name = values.repoName;
+        body.volume_capacity = DEFAULT_BACKUP_REPO_VOLUME_CAPACITY;
       }
       if (values.repoAccessKeyId || values.repoSecretAccessKey) {
         body.access_key_id = values.repoAccessKeyId;
@@ -1072,7 +1079,7 @@ export default class Index extends PureComponent {
         render: (phase, record) => {
           const tag = (
             <Tag color={getBackupRepoPhaseColor(phase)}>
-              {phase || '-'}
+              {getBackupRepoPhaseText(phase) || '-'}
             </Tag>
           );
           const message = getBackupRepoConditionMessage(record);
@@ -1176,10 +1183,11 @@ export default class Index extends PureComponent {
                   <Option value="">{formatMessage({ id: 'kubeblocks.database.backup.repo_none' })}</Option>
                   {backupRepoOptions.map(repo => {
                     const phase = getBackupRepoPhase(repo);
+                    const phaseText = getBackupRepoPhaseText(phase);
                     const disabled = !isBackupRepoReady(repo);
                     return (
                       <Option key={repo.name} value={repo.name} disabled={disabled}>
-                        {repo.displayName || repo.display_name || repo.name}{disabled && phase ? ` (${phase})` : ''}
+                        {repo.displayName || repo.display_name || repo.name}{disabled && phaseText ? ` (${phaseText})` : ''}
                       </Option>
                     );
                   })}
@@ -1352,13 +1360,21 @@ export default class Index extends PureComponent {
               : 'kubeblocks.database.backup.repo.modal.edit_title'
           })}
           visible={repoModalVisible}
-          width={760}
+          width={560}
           onOk={this.handleRepoSubmit}
           onCancel={this.closeRepoModal}
           confirmLoading={repoSubmitting}
           destroyOnClose
           className={styles.repoEditorModal}
         >
+          {repoModalType === 'edit' && (
+            <Alert
+              showIcon
+              type="info"
+              message={formatMessage({ id: 'kubeblocks.database.backup.repo.credential_edit_hint' })}
+              style={{ marginBottom: 16 }}
+            />
+          )}
           <Form layout="vertical" className={styles.repoEditorForm}>
             <div className={styles.repoEditorGrid}>
               <Form.Item className={styles.repoEditorItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.name' })}>
@@ -1371,21 +1387,15 @@ export default class Index extends PureComponent {
                     : []
                 })(<Input disabled={repoModalType === 'edit'} placeholder="prod-s3" />)}
               </Form.Item>
-              <Form.Item className={styles.repoEditorItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.display_name' })}>
-                {getFieldDecorator('repoDisplayName')(<Input />)}
-              </Form.Item>
               <Form.Item className={styles.repoEditorItem} label="Bucket">
                 {getFieldDecorator('repoBucket', {
                   rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.bucket_required' }) }]
-                })(<Input />)}
+                })(<Input placeholder={DEFAULT_BACKUP_REPO_BUCKET} />)}
               </Form.Item>
               <Form.Item className={styles.repoEditorItem} label="Endpoint">
                 {getFieldDecorator('repoEndpoint', {
                   rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.endpoint_required' }) }]
                 })(<Input placeholder="https://s3.example.com" />)}
-              </Form.Item>
-              <Form.Item className={styles.repoEditorItem} label="Region">
-                {getFieldDecorator('repoRegion')(<Input />)}
               </Form.Item>
               <Form.Item className={styles.repoEditorItem} label="AccessKey">
                 {getFieldDecorator('repoAccessKeyId', {
@@ -1401,14 +1411,27 @@ export default class Index extends PureComponent {
                     : []
                 })(<Input.Password placeholder={repoModalType === 'edit' ? formatMessage({ id: 'kubeblocks.database.backup.repo.secret_keep' }) : ''} />)}
               </Form.Item>
-              <Form.Item className={styles.repoEditorItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.volume_capacity' })}>
-                {getFieldDecorator('repoVolumeCapacity', {
-                  initialValue: '100Gi'
-                })(<Input />)}
-              </Form.Item>
-              <Form.Item className={styles.repoEditorItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.path_prefix' })}>
-                {getFieldDecorator('repoPathPrefix')(<Input />)}
-              </Form.Item>
+              <Collapse
+                bordered={false}
+                className={styles.repoAdvancedCollapse}
+                expandIconPosition="right"
+              >
+                <Panel
+                  forceRender
+                  header={formatMessage({ id: 'kubeblocks.database.backup.repo.advanced' })}
+                  key="advanced"
+                >
+                  <Form.Item className={styles.repoEditorItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.display_name' })}>
+                    {getFieldDecorator('repoDisplayName')(<Input />)}
+                  </Form.Item>
+                  <Form.Item className={styles.repoEditorItem} label="Region">
+                    {getFieldDecorator('repoRegion')(<Input />)}
+                  </Form.Item>
+                  <Form.Item className={styles.repoEditorItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.path_prefix' })}>
+                    {getFieldDecorator('repoPathPrefix')(<Input />)}
+                  </Form.Item>
+                </Panel>
+              </Collapse>
             </div>
           </Form>
         </Modal>
