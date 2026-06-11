@@ -35,6 +35,16 @@ const TABLE_STYLE = {
 };
 
 export default class Index extends PureComponent {
+  isVirtualMachine = () =>
+    this.props?.appBaseInfo?.service?.extend_method === 'vm' ||
+    this.props?.appDetail?.service?.extend_method === 'vm' ||
+    this.props?.method === 'vm';
+
+  validateVirtualMachineFileName = (value) => {
+    const normalized = String(value || '').trim();
+    return !!normalized && !normalized.includes('/') && !/\s/.test(normalized);
+  };
+
   constructor(props) {
     super(props);
     this.state = {
@@ -70,6 +80,14 @@ export default class Index extends PureComponent {
       };
     });
     res = res.filter(item => !!item.path);
+
+    if (this.isVirtualMachine()) {
+      const invalidItem = res.find(item => !this.validateVirtualMachineFileName(item.path));
+      if (invalidItem) {
+        notification.warning({ message: '请输入配置盘文件名，不要包含路径或空格' });
+        return;
+      }
+    }
 
     if (!res.length) {
       notification.warning({ message: formatMessage({ id: 'notification.warn.inspect.fillIn' }) });
@@ -186,6 +204,7 @@ export default class Index extends PureComponent {
   );
 
   render() {
+    const isVirtualMachine = this.isVirtualMachine();
     const rowSelection = {
       onChange: (selectedRowKeys) => {
         this.setState({
@@ -204,12 +223,21 @@ export default class Index extends PureComponent {
 
     return (
       <Modal
-        title={<FormattedMessage id='componentOverview.body.tab.RelationMnt.title' />}
+        title={isVirtualMachine ? '共享配置文件注入' : <FormattedMessage id='componentOverview.body.tab.RelationMnt.title' />}
         width={1150}
         visible
         onOk={this.handleSubmit}
         onCancel={this.handleCancel}
       >
+        {isVirtualMachine ? (
+          <Row style={ROW_STYLE}>
+            <Col span={24}>
+              <span style={{ color: '#8c8c8c' }}>
+                共享配置文件会作为只读配置盘进入虚拟机。这里填写的是目标配置盘文件名，不表示 guest 内路径。
+              </span>
+            </Col>
+          </Row>
+        ) : null}
         <Row style={ROW_STYLE}>
           <Col span={8}>
             {formatMessage({id:'componentOther.relationMnt.name'})}
@@ -260,7 +288,7 @@ export default class Index extends PureComponent {
           style={TABLE_STYLE}
           columns={[
             {
-              title: formatMessage({ id: 'componentOverview.body.tab.RelationMnt.localpath' }),
+              title: isVirtualMachine ? '目标配置盘文件名' : formatMessage({ id: 'componentOverview.body.tab.RelationMnt.localpath' }),
               dataIndex: 'localpath',
               key: '1',
               width: '20%',

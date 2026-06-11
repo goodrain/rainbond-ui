@@ -1512,12 +1512,15 @@ export async function deleteShellPod(params) {
   );
 }
 // 获取插件
-export async function getEnterprisePluginList(body, handleError) {
+// options 透传给 request（如 showMessage / showLoading），默认为空以保持既有调用方行为不变；
+// AI 助手更新检测以静默模式调用该接口（showMessage: false, showLoading: false）。
+export async function getEnterprisePluginList(body, handleError, options = {}) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_name}/platform-plugins`,
     {
       method: 'get',
-      handleError
+      handleError,
+      ...options
     }
   );
 }

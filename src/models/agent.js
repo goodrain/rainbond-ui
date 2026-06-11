@@ -1,6 +1,7 @@
 import { getDvaApp } from 'umi';
 import {
   abortAgentRun,
+  forceCancelAgentRun,
   cancelAgentSessionPending,
   clearAgentSession,
   clearAgentSessionRemote,
@@ -13,6 +14,8 @@ import {
   subscribeToActiveRun,
 } from '../services/agent';
 import { getAgentAccess } from '../services/agentAccess';
+import { getEnterprisePluginList } from '../services/api';
+import { isPluginBaseId } from '../utils/pluginArchUtils';
 import * as agentEventAdapter from '../services/agentEventAdapter';
 import {
   formatAgentContextMessage,
@@ -151,6 +154,9 @@ function stopAllCrossTabSubscriptions() {
 const defaultState = {
   hydrated: false,
   visible: false,
+  // AI 助手插件更新信息（来自 platform-plugins 接口的 rainbond-agent 条目）；
+  // null 表示无更新或尚未检测。结构见 fetchAgentUpdate effect。
+  agentUpdate: null,
   conversationId: 'global-default',
   messages: [],
   draft: '',
@@ -375,6 +381,28 @@ function getErrorMessage(error) {
   }
 
   return error.message || '消息发送失败，请稍后重试。';
+}
+
+// sendMessage 失败时给用户看的提示：用大白话说清发生了什么、能怎么办，按错误类型
+// 给可操作的建议，不把后端英文报错 / 技术术语堆到界面上。完整技术细节（status /
+// message / responseBody）走 console.error，留给开发与支持排查，二者职责分离。
+function getSendErrorMessage(error) {
+  const status = error && error.status;
+  if (status === 401 || status === 403) {
+    return '登录状态可能已失效，请刷新页面后重试。';
+  }
+  if (status === 429) {
+    return '请求过于频繁，请稍候片刻再发送。';
+  }
+  if (status >= 500) {
+    // 502/503/504 等：console→插件后端这一跳异常，附错误码方便用户向支持报障。
+    return `AI 助手服务暂时不可用，请稍后重试（错误码 ${status}）。`;
+  }
+  if (status) {
+    return `消息发送失败，请稍后重试（错误码 ${status}）。`;
+  }
+  // 无 HTTP 状态码：fetch 失败 / SSE 流被中途断开，长任务执行较久时尤其常见。
+  return '网络连接已中断，可能是任务处理时间较长，请稍后重试。';
 }
 
 function buildMutationNavigationPayload(toolName, route) {
@@ -773,6 +801,66 @@ export default {
       }
     },
 
+    // 检测 AI 助手插件（rainbond-agent）是否有可升级版本。
+    // 静默调用 platform-plugins 接口（showMessage/showLoading 关闭），失败即视为"无更新"，
+    // 绝不阻塞或干扰顶栏。命中第一个"已安装且可升级"的条目即记录其升级跳转所需信息。
+    *fetchAgentUpdate({ payload }, { call, put }) {
+      const enterpriseId = payload && payload.enterprise_id;
+      const regionNames = Array.isArray(payload && payload.region_names)
+        ? payload.region_names.filter(Boolean)
+        : [];
+
+      if (!enterpriseId || !regionNames.length) {
+        yield put({ type: 'saveAgentUpdate', payload: null });
+        return;
+      }
+
+      let agentEntry = null;
+      for (let i = 0; i < regionNames.length; i += 1) {
+        const regionName = regionNames[i];
+        let response = null;
+        try {
+          response = yield call(
+            getEnterprisePluginList,
+            { enterprise_id: enterpriseId, region_name: regionName },
+            () => {},
+            { showMessage: false, showLoading: false }
+          );
+        } catch (e) {
+          response = null;
+        }
+
+        const list = (response && response.list) || [];
+        const found = list.find(
+          item =>
+            isPluginBaseId(item, 'rainbond-agent') &&
+            item.installed === true &&
+            item.upgradeable === true
+        );
+        if (found) {
+          agentEntry = { ...found, region_name: regionName };
+          break;
+        }
+      }
+
+      if (!agentEntry) {
+        yield put({ type: 'saveAgentUpdate', payload: null });
+        return;
+      }
+
+      yield put({
+        type: 'saveAgentUpdate',
+        payload: {
+          upgradeable: true,
+          installedVersion: agentEntry.installed_version || '',
+          latestVersion: agentEntry.latest_version || '',
+          appId: agentEntry.app_id,
+          teamName: agentEntry.team_name || '',
+          regionName: agentEntry.region_name || ''
+        }
+      });
+    },
+
     *hydrateSession({ payload }, { call, put }) {
       const userId = payload && payload.userId;
       const snapshot = yield call(hydrateAgentSession, userId);
@@ -1040,6 +1128,7 @@ export default {
         });
       } catch (error) {
         // Rich 409 conflict: another run is in progress in another tab.
+        // 409 是预期内的跨标签页控制流，不算故障，留给下面分支处理、不打日志。
         if (error && error.status === 409 && error.responseBody) {
           const body = error.responseBody;
           const currentRun = (body && body.current_run) || {};
@@ -1090,12 +1179,16 @@ export default {
           return;
         }
 
+        // 把真实错误打到控制台，否则界面只剩一句通用话术、无从排查。
+        // 包含 HTTP status / message / responseBody，定位服务端报错或流式中断。
+        // eslint-disable-next-line no-console
+        console.error('[RainAgent] sendMessage failed:', error);
         yield put({
           type: 'saveState',
           payload: {
             sending: false,
             interactionLocked: false,
-            lastError: '消息发送失败，请稍后重试。',
+            lastError: getSendErrorMessage(error),
             updatedAt: Date.now(),
           },
         });
@@ -1210,9 +1303,15 @@ export default {
       });
 
       try {
-        yield call(abortAgentRun, { sessionId, runId });
+        // Force-cancel (not abort): synchronous server-side clear that runs
+        // the recovery truncation protocol and commits the terminal status
+        // before returning. Abort was 202-async — it only flipped status once
+        // a live executor reached a checkpoint, so a wedged/zombie run (e.g.
+        // its executor crashed) never went terminal and the sendMessage below
+        // 409'd forever. A 200 here means the foreign run is already terminal.
+        yield call(forceCancelAgentRun, { sessionId, runId });
       } catch (e) {
-        // Foreign-run abort failed (e.g. 500). Tear down the conflict
+        // Foreign-run force-cancel failed (e.g. 500). Tear down the conflict
         // UI so the user can decide their next move instead of being
         // stuck on the dialog. Do NOT auto-send their stashed draft —
         // the foreign run may still be alive server-side.
@@ -1231,9 +1330,9 @@ export default {
         return;
       }
 
-      // Abort returned 202 — the server has accepted the cancellation request.
-      // Stop watching the foreign run and send directly; waiting for an SSE
-      // terminal event is unreliable (stream may have dropped on refresh).
+      // force-cancel returned 200 — the foreign run is now terminal. Stop
+      // watching it and send directly; no need to wait for an SSE terminal
+      // event (stream may have dropped on refresh) and no 409 race remains.
       stopAllCrossTabSubscriptions();
       yield put({
         type: 'saveState',
@@ -1743,6 +1842,14 @@ export default {
         ...state,
         visible: true,
         updatedAt: Date.now(),
+      };
+    },
+
+    // 仅更新 agentUpdate，不动 updatedAt：避免触发 RootShell 基于 updatedAt 的上下文同步副作用。
+    saveAgentUpdate(state, { payload }) {
+      return {
+        ...state,
+        agentUpdate: payload || null,
       };
     },
 

@@ -494,6 +494,33 @@ i.trigger {
   pointer-events: none;
 }
 
+// AI 助手有新版本时的红点提示，复用 badge 的定位，缩小为纯圆点并带呼吸光晕。
+.agentEntryUpdateDot {
+  position: absolute;
+  top: -3px;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: @error-color;
+  box-shadow: 0 0 0 0 rgba(252, 72, 27, 0.5);
+  pointer-events: none;
+  animation: agentEntryUpdatePulse 2s ease-out infinite;
+}
+
+@keyframes agentEntryUpdatePulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(252, 72, 27, 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(252, 72, 27, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(252, 72, 27, 0);
+  }
+}
+
 .agentEntryIcon {
   display: inline-flex;
   align-items: center;

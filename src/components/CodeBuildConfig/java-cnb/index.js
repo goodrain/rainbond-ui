@@ -62,6 +62,8 @@ const firstNonEmptyEnv = (envs = {}, keys = []) => {
   return '';
 };
 
+const hasValue = value => typeof value === 'string' ? value.trim() !== '' : !!value;
+
 @connect(
   ({ enterprise }) => ({
     currentEnterprise: enterprise.currentEnterprise
@@ -158,6 +160,60 @@ class JavaCNBConfig extends PureComponent {
     setFieldsValue({ JAVA_START_MODE: mode });
   };
 
+  handleArtifactLocatorChange = () => {
+    this.forceUpdate();
+  };
+
+  getCurrentFieldValue = (fieldName, initialValue = '') => {
+    const value = this.props.form.getFieldValue(fieldName);
+    return typeof value === 'undefined' ? initialValue : value;
+  };
+
+  getArtifactLocatorState = (moduleField, artifactField, moduleInitial, artifactInitial) => {
+    const moduleValue = this.getCurrentFieldValue(moduleField, moduleInitial);
+    const artifactValue = this.getCurrentFieldValue(artifactField, artifactInitial);
+    const moduleFilled = hasValue(moduleValue);
+    const artifactFilled = hasValue(artifactValue);
+    const hasConflict = moduleFilled && artifactFilled;
+
+    return {
+      moduleDisabled: artifactFilled && !hasConflict,
+      artifactDisabled: moduleFilled && !hasConflict,
+      hasConflict
+    };
+  };
+
+  renderArtifactInput = ({
+    fieldName,
+    initialValue,
+    disabled,
+    disabledTipId,
+    disabledPlaceholderId,
+    placeholder
+  }) => {
+    const input = this.props.form.getFieldDecorator(fieldName, {
+      initialValue
+    })(
+      <Input
+        disabled={disabled}
+        onChange={this.handleArtifactLocatorChange}
+        placeholder={disabled
+          ? formatMessage({ id: disabledPlaceholderId })
+          : placeholder}
+      />
+    );
+
+    if (!disabled) {
+      return input;
+    }
+
+    return (
+      <Tooltip title={formatMessage({ id: disabledTipId })}>
+        <span style={{ display: 'block' }}>{input}</span>
+      </Tooltip>
+    );
+  };
+
   isMavenLanguage = languageType => normalizeLanguage(languageType) === 'java-maven';
 
   isWarLanguage = languageType => normalizeLanguage(languageType) === 'java-war';
@@ -213,6 +269,22 @@ class JavaCNBConfig extends PureComponent {
     const procfileValue = getFieldValue('BUILD_PROCFILE');
     const currentProcfile = typeof procfileValue === 'string' ? procfileValue : (envs.BUILD_PROCFILE || '');
     const startSourceText = this.getStartCommandSourceText(envs, currentProcfile);
+    const mavenModuleInitial = firstNonEmptyEnv(envs, ['BP_MAVEN_BUILT_MODULE', 'BUILD_MAVEN_BUILT_MODULE']);
+    const mavenArtifactInitial = firstNonEmptyEnv(envs, ['BP_MAVEN_BUILT_ARTIFACT', 'BUILD_MAVEN_BUILT_ARTIFACT']);
+    const gradleModuleInitial = firstNonEmptyEnv(envs, ['BP_GRADLE_BUILT_MODULE', 'BUILD_GRADLE_BUILT_MODULE']);
+    const gradleArtifactInitial = firstNonEmptyEnv(envs, ['BP_GRADLE_BUILT_ARTIFACT', 'BUILD_GRADLE_BUILT_ARTIFACT']);
+    const mavenArtifactState = this.getArtifactLocatorState(
+      'BP_MAVEN_BUILT_MODULE',
+      'BP_MAVEN_BUILT_ARTIFACT',
+      mavenModuleInitial,
+      mavenArtifactInitial
+    );
+    const gradleArtifactState = this.getArtifactLocatorState(
+      'BP_GRADLE_BUILT_MODULE',
+      'BP_GRADLE_BUILT_ARTIFACT',
+      gradleModuleInitial,
+      gradleArtifactInitial
+    );
 
     return (
       <div>
@@ -366,9 +438,14 @@ class JavaCNBConfig extends PureComponent {
               formatMessage({ id: 'componentOverview.body.JavaCNBConfig.maven_module_tip' })
             )}
           >
-            {getFieldDecorator('BP_MAVEN_BUILT_MODULE', {
-              initialValue: firstNonEmptyEnv(envs, ['BP_MAVEN_BUILT_MODULE', 'BUILD_MAVEN_BUILT_MODULE'])
-            })(<Input placeholder="service-a" />)}
+            {this.renderArtifactInput({
+              fieldName: 'BP_MAVEN_BUILT_MODULE',
+              initialValue: mavenModuleInitial,
+              disabled: mavenArtifactState.moduleDisabled,
+              disabledTipId: 'componentOverview.body.JavaCNBConfig.module_disabled_tip',
+              disabledPlaceholderId: 'componentOverview.body.JavaCNBConfig.module_disabled_placeholder',
+              placeholder: 'service-a'
+            })}
           </Form.Item>
         )}
         {isMaven && (
@@ -378,10 +455,18 @@ class JavaCNBConfig extends PureComponent {
               formatMessage({ id: 'componentOverview.body.JavaCNBConfig.mvn_artifact' }),
               formatMessage({ id: 'componentOverview.body.JavaCNBConfig.maven_artifact_tip' })
             )}
+            extra={mavenArtifactState.hasConflict
+              ? formatMessage({ id: 'componentOverview.body.JavaCNBConfig.artifact_conflict_tip' })
+              : ''}
           >
-            {getFieldDecorator('BP_MAVEN_BUILT_ARTIFACT', {
-              initialValue: firstNonEmptyEnv(envs, ['BP_MAVEN_BUILT_ARTIFACT', 'BUILD_MAVEN_BUILT_ARTIFACT'])
-            })(<Input placeholder="service-a/target/app.jar" />)}
+            {this.renderArtifactInput({
+              fieldName: 'BP_MAVEN_BUILT_ARTIFACT',
+              initialValue: mavenArtifactInitial,
+              disabled: mavenArtifactState.artifactDisabled,
+              disabledTipId: 'componentOverview.body.JavaCNBConfig.artifact_disabled_tip',
+              disabledPlaceholderId: 'componentOverview.body.JavaCNBConfig.artifact_disabled_placeholder',
+              placeholder: 'service-a/target/app.jar'
+            })}
           </Form.Item>
         )}
         {isGradle && (
@@ -418,9 +503,14 @@ class JavaCNBConfig extends PureComponent {
               formatMessage({ id: 'componentOverview.body.JavaCNBConfig.gradle_module_tip' })
             )}
           >
-            {getFieldDecorator('BP_GRADLE_BUILT_MODULE', {
-              initialValue: firstNonEmptyEnv(envs, ['BP_GRADLE_BUILT_MODULE', 'BUILD_GRADLE_BUILT_MODULE'])
-            })(<Input placeholder="service-a" />)}
+            {this.renderArtifactInput({
+              fieldName: 'BP_GRADLE_BUILT_MODULE',
+              initialValue: gradleModuleInitial,
+              disabled: gradleArtifactState.moduleDisabled,
+              disabledTipId: 'componentOverview.body.JavaCNBConfig.module_disabled_tip',
+              disabledPlaceholderId: 'componentOverview.body.JavaCNBConfig.module_disabled_placeholder',
+              placeholder: 'service-a'
+            })}
           </Form.Item>
         )}
         {isGradle && (
@@ -430,10 +520,18 @@ class JavaCNBConfig extends PureComponent {
               formatMessage({ id: 'componentOverview.body.JavaCNBConfig.gradle_artifact' }),
               formatMessage({ id: 'componentOverview.body.JavaCNBConfig.gradle_artifact_tip' })
             )}
+            extra={gradleArtifactState.hasConflict
+              ? formatMessage({ id: 'componentOverview.body.JavaCNBConfig.artifact_conflict_tip' })
+              : ''}
           >
-            {getFieldDecorator('BP_GRADLE_BUILT_ARTIFACT', {
-              initialValue: firstNonEmptyEnv(envs, ['BP_GRADLE_BUILT_ARTIFACT', 'BUILD_GRADLE_BUILT_ARTIFACT'])
-            })(<Input placeholder="service-a/build/libs/app.jar" />)}
+            {this.renderArtifactInput({
+              fieldName: 'BP_GRADLE_BUILT_ARTIFACT',
+              initialValue: gradleArtifactInitial,
+              disabled: gradleArtifactState.artifactDisabled,
+              disabledTipId: 'componentOverview.body.JavaCNBConfig.artifact_disabled_tip',
+              disabledPlaceholderId: 'componentOverview.body.JavaCNBConfig.artifact_disabled_placeholder',
+              placeholder: 'service-a/build/libs/app.jar'
+            })}
           </Form.Item>
         )}
         {isJar && (

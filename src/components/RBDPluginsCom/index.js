@@ -41,6 +41,18 @@ export default class index extends Component {
     );
   };
 
+  getPluginNamespace = () => {
+    const currentTeamNamespace = this.props?.currentTeam?.namespace;
+    if (currentTeamNamespace) {
+      return currentTeamNamespace;
+    }
+
+    const currentTeamName = Global.getCurrTeamName();
+    const teams = this.props?.currentUser?.teams || [];
+    const currentTeam = teams.find((item) => item.team_name === currentTeamName);
+    return currentTeam?.namespace || '';
+  };
+
   // 渲染插件
   rbdPluginsRender = () => {
     const { pluginLoading, error, errInfo, dispatch } = this.props;

@@ -1,4 +1,5 @@
 import {
+  Alert,
   Button,
   Col,
   Form,
@@ -824,27 +825,30 @@ class VmMnt extends PureComponent {
       toDeleteMnt: null,
       toDeleteVolume: null,
       volumes: [],
-      volumeOpts: []
+      volumeOpts: [],
+      vmDiskDraft: [],
+      vmDiskChanged: false,
+      vmDiskSaving: false
     };
   }
 
   componentDidMount() {
     this.fetchVolumeOpts();
     this.loadMntList();
-    this.fetchVolumes();
+    this.fetchVMDiskLayout();
   }
-  fetchVolumes = () => {
+  fetchVMDiskLayout = () => {
     this.props.dispatch({
-      type: 'appControl/fetchVolumes',
+      type: 'appControl/fetchVMDiskLayout',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: this.props.appDetail.service.service_alias,
-        is_config: false
+        app_alias: this.props.appDetail.service.service_alias
       },
       callback: data => {
         if (data) {
           this.setState({
-            volumes: data.list || []
+            vmDiskDraft: data.list || [],
+            vmDiskChanged: false
           });
         }
       },
@@ -862,8 +866,9 @@ class VmMnt extends PureComponent {
       },
       callback: data => {
         if (data) {
+          const volumeOpts = data.list || [];
           this.setState({
-            volumeOpts: data.list || []
+            volumeOpts
           });
         }
       },
@@ -897,6 +902,23 @@ class VmMnt extends PureComponent {
     this.setState({ showAddVar: null });
   };
   handleSubmitAddVar = vals => {
+    if (vals.source_kind === 'container_disk') {
+      const image = `${vals.image || ''}`.trim();
+      const volumeName = `${vals.volume_name || ''}`.trim();
+      this.updateVmDiskDraft(current => current.concat([{
+        disk_key: volumeName,
+        disk_name: volumeName,
+        disk_role: 'data',
+        device_type: 'cdrom',
+        device_path: '/cdrom',
+        source_kind: 'container_disk',
+        image,
+        deletable: true,
+        status: 'ready'
+      }]));
+      this.handleCancelAddVar();
+      return;
+    }
     this.props.dispatch({
       type: 'appControl/addVolume',
       payload: {
@@ -905,7 +927,7 @@ class VmMnt extends PureComponent {
         ...vals
       },
       callback: () => {
-        this.fetchVolumes();
+        this.fetchVMDiskLayout();
         this.handleCancelAddVar();
       },
       handleError: err => {
@@ -935,7 +957,11 @@ class VmMnt extends PureComponent {
     this.setState({ toDeleteMnt: mnt });
   };
   onDeleteVolume = data => {
-    if (data.first) {
+    if (data.source_kind === 'installer_media') {
+      this.removeInstallerDisk(data.disk_key);
+    } else if (data.source_kind === 'container_disk') {
+      this.removeContainerDisk(data.disk_key);
+    } else if (data.disk_key === 'disk' || data.disk_role === 'root') {
       notification.warning({ message: formatMessage({ id: 'notification.warn.vm_system_disk_cannot_delete' }) });
     } else {
       this.setState({ toDeleteVolume: data });
@@ -954,7 +980,7 @@ class VmMnt extends PureComponent {
       },
       callback: () => {
         this.onCancelDeleteVolume();
-        this.fetchVolumes();
+        this.fetchVMDiskLayout();
       },
       handleError: err => {
         handleAPIError(err);
@@ -994,55 +1020,188 @@ class VmMnt extends PureComponent {
     }
     return obj[key] || '-'
   }
+  getVmDiskDevicePath = record => {
+    if (record && record.device_path) {
+      return record.device_path;
+    }
+    if (record && record.device_type) {
+      return `/${record.device_type}`;
+    }
+    return record && record.volume_path;
+  }
+  handleVmDiskSource = sourceKind => {
+    const sourceMap = {
+      volume: formatMessage({ id: 'componentOverview.body.mnt.vmDiskSource.volume' }),
+      installer_media: formatMessage({ id: 'componentOverview.body.mnt.vmDiskSource.installer' }),
+      container_disk: formatMessage({ id: 'componentOverview.body.mnt.vmDiskSource.containerDisk' })
+    };
+    return sourceMap[sourceKind] || '-';
+  };
+  getVmDiskDraft = () => {
+    const { vmDiskDraft = [] } = this.state;
+    return vmDiskDraft.map((item, index) => ({
+      ...item,
+      order_index: index,
+      boot: index === 0
+    }));
+  };
+  updateVmDiskDraft = updater => {
+    const current = this.getVmDiskDraft();
+    const next = updater(current).map((item, index) => ({
+      ...item,
+      order_index: index,
+      boot: index === 0
+    }));
+    this.setState({
+      vmDiskDraft: next,
+      vmDiskChanged: true
+    });
+  };
+  moveVmDisk = (index, offset) => {
+    this.updateVmDiskDraft(current => {
+      const targetIndex = index + offset;
+      if (targetIndex < 0 || targetIndex >= current.length) {
+        return current;
+      }
+      const next = [...current];
+      const currentItem = next[index];
+      next[index] = next[targetIndex];
+      next[targetIndex] = currentItem;
+      return next;
+    });
+  };
+  removeInstallerDisk = diskKey => {
+    this.updateVmDiskDraft(current =>
+      current.filter(item => !(item.disk_key === diskKey && item.source_kind === 'installer_media'))
+    );
+  };
+  removeContainerDisk = diskKey => {
+    this.updateVmDiskDraft(current =>
+      current.filter(item => !(item.disk_key === diskKey && item.source_kind === 'container_disk'))
+    );
+  };
+  handleSaveVmDiskLayout = () => {
+    const disks = this.getVmDiskDraft().map(item => ({
+      disk_key: item.disk_key,
+      disk_name: item.disk_name,
+      disk_role: item.disk_role,
+      device_type: item.device_type,
+      source_kind: item.source_kind,
+      image: item.image,
+      order_index: item.order_index,
+      boot: item.boot
+    }));
+    this.setState({ vmDiskSaving: true });
+    this.props.dispatch({
+      type: 'appControl/updateVMDiskLayout',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appDetail.service.service_alias,
+        disks
+      },
+      callback: () => {
+        notification.success({
+          message: formatMessage({ id: 'componentOverview.body.tab.overview.vmRuntimeSaveSuccess' })
+        });
+        this.setState({
+          vmDiskSaving: false,
+          vmDiskChanged: false
+        });
+        this.fetchVMDiskLayout();
+      },
+      handleError: err => {
+        this.setState({ vmDiskSaving: false });
+        handleAPIError(err);
+      }
+    });
+  };
   render() {
-    const { mntList } = this.state;
-    const { volumes } = this.state;
+    const { vmDiskChanged, vmDiskSaving } = this.state;
 
     const columns = [
       {
         title: formatMessage({ id: 'Vm.createVm.Storagename' }),
-        dataIndex: 'volume_name'
+        dataIndex: 'disk_name',
+        render: (text, record) => (
+          <span>
+            {text}
+            {record.boot ? (
+              <span style={{ color: globalUtil.getPublicColor(), marginLeft: 8 }}>
+                ({formatMessage({ id: 'componentOverview.body.mnt.vmDiskBoot' })})
+              </span>
+            ) : null}
+          </span>
+        )
       },
       {
         title: formatMessage({ id: 'Vm.createVm.Storagetype' }),
         dataIndex: 'volume_path',
-        render: (text, record) => {
-          return <span>{this.handleMountFormat(text)}</span>;
-        }
+        render: (_, record) => <span>{this.handleMountFormat(this.getVmDiskDevicePath(record))}</span>
+      },
+      {
+        title: formatMessage({ id: 'componentOverview.body.mnt.vmDiskSource' }),
+        dataIndex: 'source_kind',
+        render: text => <span>{this.handleVmDiskSource(text)}</span>
+      },
+      {
+        title: formatMessage({ id: 'componentOverview.body.AddVolumes.image' }),
+        dataIndex: 'image',
+        render: text => <span>{text || '-'}</span>
+      },
+      {
+        title: formatMessage({ id: 'componentOverview.body.mnt.vmDiskOrder' }),
+        dataIndex: 'order_index',
+        render: (_, __, index) => <span>{index + 1}</span>
       },
       {
         title: formatMessage({ id: 'Vm.createVm.capacity' }),
         dataIndex: 'volume_capacity',
         render: (text, record) => {
-          if (text == 0) {
+          if (record.source_kind === 'container_disk' || record.source_kind === 'installer_media') {
+            return <span>-</span>;
+          }
+          if (text == 0 || text === undefined || text === null) {
             return <span>{formatMessage({ id: 'appOverview.no_limit' })}</span>;
           }
           return <span>{text}GB</span>;
         }
       },
-      // {
-      //   title: '状态',
-      //   dataIndex: 'status',
-      //   render: (text, record) => {
-      //     if (text == 'not_bound') {
-      //       return <span style={{ color: 'red' }}>{formatMessage({ id: 'status.not_mount' })}</span>;
-      //     }
-      //     return <span style={{ color: 'green' }}>{formatMessage({ id: 'status.mounted' })}</span>;
-      //   }
-      // },
+      {
+        title: formatMessage({ id: 'componentCheck.advanced.setup.storage_setting.label.volume_type' }),
+        dataIndex: 'volume_type',
+        render: (text, record) => (
+          <span>{record.source_kind === 'container_disk' || record.source_kind === 'installer_media' ? '-' : this.getVolumeTypeShowName(text)}</span>
+        )
+      },
       {
         title: formatMessage({ id: 'Vm.createVm.handle' }),
         dataIndex: 'action',
-        render: (val, data) => {
+        render: (val, data, index) => {
           return (
-            <a
-              onClick={() => {
-                this.onDeleteVolume(data);
-              }}
-              href="javascript:;"
-            >
-              {formatMessage({ id: 'button.delete' })}
-            </a>
+            <span>
+              <a
+                onClick={() => this.moveVmDisk(index, -1)}
+                href="javascript:;"
+                style={{ marginRight: 8, color: index === 0 ? '#999' : '' }}
+              >
+                ↑
+              </a>
+              <a
+                onClick={() => this.moveVmDisk(index, 1)}
+                href="javascript:;"
+                style={{ marginRight: 8, color: index === this.getVmDiskDraft().length - 1 ? '#999' : '' }}
+              >
+                ↓
+              </a>
+              <a
+                onClick={() => {
+                  this.onDeleteVolume(data);
+                }}
+                href="javascript:;"
+              >
+                {formatMessage({ id: 'button.delete' })}
+              </a>
+            </span>
           );
         }
       }
@@ -1055,15 +1214,39 @@ class VmMnt extends PureComponent {
             marginBottom: 12
           }}
         >
+          <Button
+            type="primary"
+            onClick={this.handleSaveVmDiskLayout}
+            loading={vmDiskSaving}
+            disabled={!vmDiskChanged}
+            style={{ marginRight: 8 }}
+          >
+            {formatMessage({ id: 'button.save' })}
+          </Button>
           <Button onClick={this.handleAddVar}>
             <Icon type="plus" />
             {formatMessage({ id: 'componentCheck.advanced.setup.storage_setting.btn.add' })}
           </Button>
         </div>
+        {this.state.volumeOpts.length === 0 ? (
+          <Alert
+            showIcon
+            message={formatMessage({ id: 'Vm.createVm.noLiveMigrationStorage' })}
+            description={formatMessage({ id: 'Vm.createVm.noLiveMigrationStorageHint' })}
+            type="warning"
+            style={{ marginBottom: 16 }}
+          />
+        ) : null}
+        <Alert
+          showIcon
+          message={formatMessage({ id: 'componentOverview.body.tab.overview.vmRuntimeSaveTip' })}
+          type="info"
+          style={{ marginBottom: 16 }}
+        />
         <Table
           pagination={false}
           rowKey={(record, index) => index}
-          dataSource={volumes}
+          dataSource={this.getVmDiskDraft()}
           columns={columns}
         />
 
@@ -1213,24 +1396,31 @@ export default class Index extends PureComponent {
     });
   };
   handleLoadMntList = (isFlag) => {
-    this.props.dispatch({
-      type: 'appControl/fetchVolumes',
-      payload: {
+    const method = this.props.appDetail && this.props.appDetail.service && this.props.appDetail.service.extend_method;
+    const dispatchType = method == 'vm' ? 'appControl/fetchVMDiskLayout' : 'appControl/fetchVolumes';
+    const payload = method == 'vm'
+      ? {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: this.props.appDetail.service.service_alias
+      }
+      : {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: this.props.appDetail.service.service_alias,
         is_config: false
-      },
+      };
+    this.props.dispatch({
+      type: dispatchType,
+      payload,
       callback: data => {
-        if (data) {
+        const list = (data && data.list) || [];
+        this.setState({
+          mntDataList: list,
+          isMntFlag: true
+        });
+        if (!isFlag) {
           this.setState({
-            mntDataList: data.list || [],
-            isMntFlag: true
+            iconMnt: list.length > 0
           });
-          if (!isFlag) {
-            this.setState({
-              iconMnt: data && data.list.length > 0
-            });
-          }
         }
       },
       handleError: err => {
@@ -1519,7 +1709,7 @@ export default class Index extends PureComponent {
                           {formatMessage({ id: 'componentCheck.advanced.setup.storage_config.name' })}&nbsp;&nbsp;
                           {mntDataList.map((item => {
                             return <span>
-                              <Tag color={globalUtil.getPublicColor()}>{item.volume_name}</Tag>
+                              <Tag color={globalUtil.getPublicColor()}>{item.volume_name || item.disk_name || item.disk_key}</Tag>
                             </span>
                           }))}
                         </span>}

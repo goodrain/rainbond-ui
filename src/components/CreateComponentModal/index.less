@@ -531,3 +531,317 @@
     }
   }
 }
+
+.llmSelectIntro {
+  margin-bottom: 16px;
+  color: @text-color-secondary;
+  line-height: 22px;
+}
+
+.llmDeployModalBody {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.llmDeployMode {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  > span {
+    color: #334155;
+    font-size: 13px;
+    font-weight: 600;
+  }
+}
+
+.llmFormField {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  > span {
+    color: #334155;
+    font-size: 13px;
+    font-weight: 600;
+  }
+}
+
+.llmFieldHint {
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.llmSelectHint {
+  margin-top: 4px;
+  color: @rbd-label-color;
+  font-size: 12px;
+}
+
+.llmSelectLoading {
+  min-height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.llmSelectGroup {
+  width: 100%;
+}
+
+.llmLocalModelList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.llmRepositoryPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.llmRepositoryList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.llmRepositoryState {
+  display: flex;
+  min-height: 180px;
+  align-items: center;
+  justify-content: center;
+}
+
+.llmRepositoryItem {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+
+  .llmSelectContent {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    overflow: hidden;
+  }
+
+  .llmSelectName {
+    color: #0f172a;
+    overflow: hidden;
+    min-width: 0;
+    flex: 1 1 auto;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 18px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .llmSelectMeta {
+    display: flex;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 18px;
+    min-width: 0;
+    flex: 0 1 auto;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 8px;
+    overflow: hidden;
+
+    > span {
+      flex-shrink: 0;
+    }
+
+    > span:last-child {
+      min-width: 0;
+      flex-shrink: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  .llmStatusBadge {
+    padding: 1px 7px;
+    font-size: 11px;
+  }
+
+  &:hover {
+    border-color: #93c5fd;
+    background: #f8fbff;
+  }
+}
+
+.llmRepositoryItemSelected {
+  border-color: #2563eb;
+  background: #f8fbff;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08);
+}
+
+.llmStatusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.llmStatusBadgeDownloaded {
+  background: rgba(34, 197, 94, 0.08);
+  border-color: rgba(34, 197, 94, 0.22);
+  color: #15803d;
+}
+
+.llmStatusBadgeNotDownloaded {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.22);
+  color: #b45309;
+}
+
+.llmStatusBadgeDownloading {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.22);
+  color: #b45309;
+}
+
+.llmStatusBadgeFailed {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.2);
+  color: #b91c1c;
+}
+
+.llmStatusBadgeDeleting {
+  background: rgba(148, 163, 184, 0.1);
+  border-color: rgba(148, 163, 184, 0.24);
+  color: #475569;
+}
+
+.llmRepositoryFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.llmSelectItem {
+  display: flex;
+  align-items: flex-start;
+  padding: 16px;
+  border: 1px solid #e8ecf3;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  & + .llmSelectItem {
+    margin-top: 12px;
+  }
+
+  &:hover {
+    border-color: @primary-color;
+    box-shadow: @rbd-min-card-shadow;
+  }
+
+  :global {
+    .ant-radio-wrapper {
+      margin-top: 2px;
+    }
+
+    .ant-radio {
+      top: 0;
+    }
+  }
+}
+
+.llmLocalModelButton {
+  width: 100%;
+  text-align: left;
+  background: #fff;
+  outline: none;
+}
+
+.llmSelectItemActive {
+  border-color: @primary-color;
+  background: fade(@primary-color, 6%);
+  box-shadow: @rbd-min-card-shadow;
+}
+
+.llmSelectContent {
+  flex: 1;
+  min-width: 0;
+  margin-left: 12px;
+}
+
+.llmSelectHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  gap: 12px;
+}
+
+.llmSelectName {
+  color: @heading-color;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.llmSelectMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 6px;
+  color: @text-color-secondary;
+  font-size: 12px;
+
+  > span {
+    line-height: 20px;
+  }
+}
+
+.llmSelectPath {
+  color: @rbd-label-color;
+  font-size: 12px;
+  line-height: 20px;
+  word-break: break-all;
+}
+
+.llmSelectEmpty {
+  padding: 32px 0 16px;
+}
+
+.llmFileInput {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  background: #f8fafc;
+  color: #475569;
+}
+
+.llmDeployHint {
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.7;
+}

@@ -9,6 +9,10 @@ const appStatusMap = {
     iconUrl: "/static/www/img/appOutline/appOutline7.png",
     className: "",
   },
+  restoring: {
+    iconUrl: "/static/www/img/appOutline/appOutline7.png",
+    className: "",
+  },
   unKnow: {
     iconUrl: "/static/www/img/appOutline/appOutline1.png",
     className: "",

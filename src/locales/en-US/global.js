@@ -5,6 +5,7 @@ const global = {
     'global.fetchStateText.RUNNING':'Running',
     'global.fetchStateText.running':'Running',
     'global.fetchStateText.starting':'Starting',
+    'global.fetchStateText.restoring':'Restoring',
     'global.fetchStateText.checking':'Checking',
     'global.fetchStateText.stopping':'Teminating',
     'global.fetchStateText.unusual':'Abnormal',
@@ -60,6 +61,8 @@ const global = {
     'global.fetchOperation.timeOut':'Timeout',
     'global.fetchOperation.success':'Success',
     'global.fetchOperation.lose':'Fail',
+    'global.vmRestoreStage.downloading':'Downloading',
+    'global.vmRestoreStage.restoring':'Restoring',
 
     // fetchReason
     'global.fetchReason.tenant_lack_of_memory':'Tenant quota exceeded',
@@ -179,6 +182,7 @@ const global = {
     'global.fetchStateOptTypeText.app-restore-deps':'Reload application dependencies',
     'global.fetchStateOptTypeText.app-restore-depvols':'Reload application dependent storage',
     'global.fetchStateOptTypeText.app-restore-plugins':'Reload application plugin',
+    'global.fetchStateOptTypeText.vm-disk-restore':'Restore VM disks',
     'global.fetchStateOptTypeText.create-service-plugin':'Create component plugin',
     'global.fetchStateOptTypeText.update-service-plugin':'Update component plugin',
     'global.fetchStateOptTypeText.delete-service-plugin':'Delete component plugin',

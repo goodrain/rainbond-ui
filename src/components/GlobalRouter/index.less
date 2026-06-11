@@ -61,23 +61,13 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 
-  // 自定义滚动条
   &::-webkit-scrollbar {
-    width: 4px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: #e0e0e0;
-    border-radius: 2px;
-
-    &:hover {
-      background: #ccc;
-    }
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
+    width: 0;
+    height: 0;
+    display: none;
   }
 }
 
@@ -620,6 +610,10 @@
       height: 1px;
       background: #d9d9d9;
     }
+  }
+
+  .upgradeCard {
+    display: none;
   }
 }
 

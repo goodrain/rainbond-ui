@@ -582,7 +582,12 @@ export default class Index extends React.Component {
   render() {
     if (!this.canView()) return <NoPermTip />;
     const { mntList, page, page_size } = this.state;
-    const { baseInfo, volumes } = this.props;
+    const { baseInfo, volumes, appDetail } = this.props;
+    const isVirtualMachine = appDetail?.service?.extend_method === 'vm';
+    const volumeTitle = isVirtualMachine ? '注入文件设置' : formatMessage({ id: 'componentOverview.body.tab.env.setting.title' });
+    const volumeAddText = isVirtualMachine ? '添加注入文件' : formatMessage({ id: 'componentOverview.body.tab.env.setting.add' });
+    const shareTitle = isVirtualMachine ? '依赖文件共享' : formatMessage({ id: 'componentOverview.body.tab.env.file.share' });
+    const shareAddText = isVirtualMachine ? '添加共享文件' : formatMessage({ id: 'componentOverview.body.tab.env.file.mount' });
 
     if (typeof baseInfo.build_upgrade !== 'boolean') {
       return null;
@@ -608,180 +613,204 @@ export default class Index extends React.Component {
           <Col span={16}>
             <Alert
               showIcon
-              message={<FormattedMessage id='componentOverview.body.tab.env.setting.message' />}
+              message={
+                isVirtualMachine ? (
+                  '虚拟机场景下，环境变量与依赖变量会导出为注入文件进入虚拟机；配置文件会作为虚拟机可见的只读配置盘注入，需由虚拟机内应用自行读取。'
+                ) : (
+                  <FormattedMessage id='componentOverview.body.tab.env.setting.message' />
+                )
+              }
               type="info"
               style={ALERT_STYLE_WITH_TOP}
             />
           </Col>
         </Row>
-        <Card
-          style={CARD_STYLE}
-          title={<span> <FormattedMessage id='componentOverview.body.tab.env.setting.title' /> </span>}
-          extra={
-            <Button onClick={this.handleAddVars}>
-              <Icon type="plus" />
-              <FormattedMessage id='componentOverview.body.tab.env.setting.add' />
-            </Button>
-          }
-        >
-          <ScrollerX sm={650}>
-            <Table
-              pagination={{
-                current: page,
-                pageSize: page_size,
-                total: Number(volumes.length),
-                onChange: this.onPageChange,
-                onShowSizeChange: this.onPageChange,
-                showQuickJumper: true,
-                showSizeChanger: true,
-                showTotal: (total) => `共 ${total} 条`,
-                pageSizeOptions: PAGE_SIZE_OPTIONS,
-                hideOnSinglePage: Number(volumes.length) <= DEFAULT_PAGE_SIZE
-              }}
-              columns={[
-                {
-                  title: formatMessage({ id: 'componentOverview.body.tab.env.setting.volume_name' }),
-                  dataIndex: 'volume_name'
-                },
-                {
-                  title: formatMessage({ id: 'componentOverview.body.tab.env.setting.volume_path' }),
-                  dataIndex: 'volume_path'
-                },
-                {
-                  title: formatMessage({ id: 'componentOverview.body.tab.env.setting.mode' }),
-                  dataIndex: 'mode'
-                },
-                {
-                  title: formatMessage({ id: 'componentOverview.body.tab.env.setting.action' }),
-                  dataIndex: 'action',
-                  render: (v, data) => (
-                    <div>
-                      <a
-                        onClick={() => this.onDeleteVolume(data)}
-                        style={{ marginRight: 8 }}
+        <Fragment>
+          <Card
+            style={CARD_STYLE}
+            title={<span>{volumeTitle}</span>}
+            extra={
+              <Button onClick={this.handleAddVars}>
+                <Icon type="plus" />
+                {volumeAddText}
+              </Button>
+            }
+          >
+            {isVirtualMachine ? (
+              <Alert
+                showIcon
+                type="info"
+                style={{ marginBottom: 16 }}
+                message="虚拟机配置文件会作为只读配置盘注入到 guest。这里配置的是配置盘文件名，不是 guest 内路径，也不再支持权限配置。"
+              />
+            ) : null}
+            <ScrollerX sm={650}>
+              <Table
+                pagination={{
+                  current: page,
+                  pageSize: page_size,
+                  total: Number(volumes.length),
+                  onChange: this.onPageChange,
+                  onShowSizeChange: this.onPageChange,
+                  showQuickJumper: true,
+                  showSizeChanger: true,
+                  showTotal: (total) => `共 ${total} 条`,
+                  pageSizeOptions: PAGE_SIZE_OPTIONS,
+                  hideOnSinglePage: Number(volumes.length) <= DEFAULT_PAGE_SIZE
+                }}
+                columns={[
+                  {
+                    title: formatMessage({ id: 'componentOverview.body.tab.env.setting.volume_name' }),
+                    dataIndex: 'volume_name'
+                  },
+                  {
+                    title: isVirtualMachine ? '配置盘文件名' : formatMessage({ id: 'componentOverview.body.tab.env.setting.volume_path' }),
+                    dataIndex: 'volume_path'
+                  },
+                  ...(!isVirtualMachine ? [{
+                    title: formatMessage({ id: 'componentOverview.body.tab.env.setting.mode' }),
+                    dataIndex: 'mode'
+                  }] : []),
+                  {
+                    title: formatMessage({ id: 'componentOverview.body.tab.env.setting.action' }),
+                    dataIndex: 'action',
+                    render: (v, data) => (
+                      <div>
+                        <a
+                          onClick={() => this.onDeleteVolume(data)}
+                          style={{ marginRight: 8 }}
+                        >
+                          <FormattedMessage id='componentOverview.body.tab.env.setting.delete' />
+                        </a>
+                        <a
+                          onClick={() => this.onEditVolume(data)}
+                        >
+                          <FormattedMessage id='componentOverview.body.tab.env.setting.edit' />
+                        </a>
+                      </div>
+                    )
+                  }
+                ]}
+                dataSource={volumes}
+                rowKey={record => record.volume_name}
+              />
+            </ScrollerX>
+          </Card>
+          <Card
+            title={<span>{shareTitle}</span>}
+            extra={
+              <Button onClick={this.showAddRelation}>
+                <Icon type="plus" />
+                {shareAddText}
+              </Button>
+            }
+            style={LAST_CARD_STYLE}
+          >
+            {isVirtualMachine ? (
+              <Alert
+                showIcon
+                type="info"
+                style={{ marginBottom: 16 }}
+                message="共享配置文件同样会作为只读配置盘进入虚拟机。依赖变量会自动导出为环境变量文件，供虚拟机内应用自行加载。"
+              />
+            ) : null}
+            <ScrollerX sm={850}>
+              <Table
+                pagination={{
+                  current: this.state.mntPage,
+                  pageSize: this.state.mntpageSize,
+                  total: Number(mntList.length),
+                  onChange: this.onMntPageChange,
+                  onShowSizeChange: this.onMntPageChange,
+                  showQuickJumper: true,
+                  showSizeChanger: true,
+                  showTotal: (total) => `共 ${total} 条`,
+                  pageSizeOptions: PAGE_SIZE_OPTIONS,
+                  hideOnSinglePage: Number(mntList.length) <= DEFAULT_PAGE_SIZE
+                }}
+                rowKey={(record,index) => index}
+                columns={[
+                  {
+                    title: formatMessage({ id: 'componentOverview.body.tab.env.file.localMount' }),
+                    dataIndex: 'local_vol_path',
+                    key: '1',
+                    width: '20%',
+                    render: data => (
+                      <Tooltip title={data}>
+                        <span style={WORD_WRAP_STYLE}>{data}</span>
+                      </Tooltip>
+                    )
+                  },
+                  {
+                    title: formatMessage({ id: 'componentOverview.body.tab.env.file.name' }),
+                    dataIndex: 'dep_vol_name',
+                    key: '2',
+                    width: '15%',
+                    render: data => (
+                      <Tooltip title={data}>
+                        <span style={WORD_WRAP_STYLE}>{data}</span>
+                      </Tooltip>
+                    )
+                  },
+                  {
+                    title: formatMessage({ id: 'componentOverview.body.tab.env.file.path' }),
+                    dataIndex: 'dep_vol_path',
+                    key: '3',
+                    width: '20%',
+                    render: data => (
+                      <Tooltip title={data}>
+                        <span style={WORD_WRAP_STYLE}>{data}</span>
+                      </Tooltip>
+                    )
+                  },
+                  {
+                    title: formatMessage({ id: 'componentOverview.body.tab.env.file.Component' }),
+                    dataIndex: 'dep_app_name',
+                    key: '4',
+                    width: '15%',
+                    render: (v, data) => (
+                      <Link
+                        to={
+                        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${data.dep_app_alias}&tab=environmentConfiguration`
+                        }
                       >
-                        <FormattedMessage id='componentOverview.body.tab.env.setting.delete' />
-                      </a>
-                      <a
-                        onClick={() => this.onEditVolume(data)}
+                        {v}
+                      </Link>
+                    )
+                  },
+                  {
+                    title: formatMessage({ id: 'componentOverview.body.tab.env.file.Components' }),
+                    dataIndex: 'dep_app_group',
+                    key: '5',
+                    width: '15%',
+                    render: (v, data) => (
+                      <Link
+                        to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${data.dep_group_id
+                          }/overview`}
                       >
-                        <FormattedMessage id='componentOverview.body.tab.env.setting.edit' />
+                        {v}
+                      </Link>
+                    )
+                  },
+                  {
+                    title: formatMessage({ id: 'componentOverview.body.tab.env.file.action' }),
+                    dataIndex: 'action',
+                    key: '6',
+                    width: isVirtualMachine ? '15%' : 140,
+                    fixed: isVirtualMachine ? undefined : 'right',
+                    render: (v, data) => (
+                      <a onClick={() => this.onDeleteMnt(data)}>
+                        <FormattedMessage id='componentOverview.body.tab.env.file.cancel' />
                       </a>
-                    </div>
-                  )
-                }
-              ]}
-              dataSource={volumes}
-              rowKey={record => record.volume_name}
-            />
-          </ScrollerX>
-        </Card>
-        <Card
-          title={<span> <FormattedMessage id='componentOverview.body.tab.env.file.share' /> </span>}
-          extra={
-            <Button onClick={this.showAddRelation}>
-              <Icon type="plus" />
-              <FormattedMessage id='componentOverview.body.tab.env.file.mount' />
-            </Button>
-          }
-          style={LAST_CARD_STYLE}
-        >
-          <Table
-            pagination={{
-              current: this.state.mntPage,
-              pageSize: this.state.mntpageSize,
-              total: Number(mntList.length),
-              onChange: this.onMntPageChange,
-              onShowSizeChange: this.onMntPageChange,
-              showQuickJumper: true,
-              showSizeChanger: true,
-              showTotal: (total) => `共 ${total} 条`,
-              pageSizeOptions: PAGE_SIZE_OPTIONS,
-              hideOnSinglePage: Number(mntList.length) <= DEFAULT_PAGE_SIZE
-            }}
-            rowKey={(record,index) => index}
-            columns={[
-              {
-                title: formatMessage({ id: 'componentOverview.body.tab.env.file.localMount' }),
-                dataIndex: 'local_vol_path',
-                key: '1',
-                width: 240,
-                fixed: 'left',
-                render: data => (
-                  <Tooltip title={data}>
-                    <span style={WORD_WRAP_STYLE}>{data}</span>
-                  </Tooltip>
-                )
-              },
-              {
-                title: formatMessage({ id: 'componentOverview.body.tab.env.file.name' }),
-                dataIndex: 'dep_vol_name',
-                key: '2',
-                width: 180,
-                render: data => (
-                  <Tooltip title={data}>
-                    <span style={WORD_WRAP_STYLE}>{data}</span>
-                  </Tooltip>
-                )
-              },
-              {
-                title: formatMessage({ id: 'componentOverview.body.tab.env.file.path' }),
-                dataIndex: 'dep_vol_path',
-                key: '3',
-                width: 220,
-                render: data => (
-                  <Tooltip title={data}>
-                    <span style={WORD_WRAP_STYLE}>{data}</span>
-                  </Tooltip>
-                )
-              },
-              {
-                title: formatMessage({ id: 'componentOverview.body.tab.env.file.Component' }),
-                dataIndex: 'dep_app_name',
-                key: '4',
-                width: 180,
-                render: (v, data) => (
-                  <Link
-                    to={
-                      // `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/components/${data.dep_app_alias
-                      // }/environmentConfiguration`
-                    `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${data.dep_app_alias}&tab=environmentConfiguration`
-                    }
-                  >
-                    {v}
-                  </Link>
-                )
-              },
-              {
-                title: formatMessage({ id: 'componentOverview.body.tab.env.file.Components' }),
-                dataIndex: 'dep_app_group',
-                key: '5',
-                render: (v, data) => (
-                  <Link
-                    to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${data.dep_group_id
-                      }/overview`}
-                  >
-                    {v}
-                  </Link>
-                )
-              },
-              {
-                title: formatMessage({ id: 'componentOverview.body.tab.env.file.action' }),
-                dataIndex: 'action',
-                key: '6',
-                width: 140,
-                fixed: 'right',
-                render: (v, data) => (
-                  <a onClick={() => this.onDeleteMnt(data)}>
-                    <FormattedMessage id='componentOverview.body.tab.env.file.cancel' />
-                  </a>
-                )
-              }
-            ]}
-            dataSource={mntList}
-            scroll={{ x: 1240, y: 360 }}
-          />
-        </Card>
+                    )
+                  }
+                ]}
+                dataSource={mntList}
+                scroll={isVirtualMachine ? undefined : { x: 1240, y: 360 }}
+              />
+            </ScrollerX>
+          </Card>
+        </Fragment>
         {this.state.showAddVars && (
           <AddStorage
             appBaseInfo={this.props.appBaseInfo}
@@ -794,6 +823,7 @@ export default class Index extends React.Component {
         )}
         {this.state.showAddRelation && (
           <RelationMnt
+            appBaseInfo={this.props.appBaseInfo}
             appAlias={this.props.appAlias}
             onCancel={this.handleCancelAddRelation}
             onSubmit={this.handleSubmitAddMnt}

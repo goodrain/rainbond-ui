@@ -22,7 +22,15 @@ import cloud from '../../../utils/cloud';
 import { openInNewTab } from '../../../utils/utils';
 import globalUtil from '../../../utils/global';
 import CreateAppModels from '../../../components/CreateAppModels';
-import { appShareStateSelector, validateShareVersion } from './appShareHelpers';
+import {
+  appShareStateSelector,
+  isPlatformPluginPositionConfigured,
+  normalizePlatformPluginPositionsForDisplay,
+  normalizePlatformPluginPositionsForSelection,
+  normalizePlatformPluginPositionsForSubmit,
+  PLATFORM_PLUGIN_NO_INJECT,
+  validateShareVersion
+} from './appShareHelpers';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import styles from '../publish.less';
@@ -407,6 +415,14 @@ class AppPublishSetting extends PureComponent {
     });
   };
 
+  handleInjectPositionChange = positions => {
+    const nextPositions =
+      normalizePlatformPluginPositionsForSelection(positions);
+    this.props.form.setFieldsValue({
+      inject_position: nextPositions
+    });
+  };
+
   handleModeSubmit = values => {
     const { dispatch } = this.props;
     const { record } = this.state;
@@ -429,7 +445,8 @@ class AppPublishSetting extends PureComponent {
       appVersionInfo.plugin_type = values.plugin_type || '';
       appVersionInfo.frontend_component = values.frontend_component || '';
       appVersionInfo.entry_path = values.entry_path || '';
-      appVersionInfo.inject_position = values.inject_position || [];
+      appVersionInfo.inject_position =
+        normalizePlatformPluginPositionsForSubmit(values.inject_position);
       appVersionInfo.menu_title = values.menu_title || '';
       appVersionInfo.route_path = values.route_path
         ? `/plugins/${values.route_path}`
@@ -758,7 +775,7 @@ class AppPublishSetting extends PureComponent {
             })}
           </div>
           <div className={styles.cardDesc}>
-            平台插件需要补全注入位置和入口配置，确保发布后能被宿主正常加载。
+            平台插件需要补全注入位置和入口配置；如果不需要页面入口，可以选择不注入。
           </div>
         </div>
         <div className={styles.publishCardBody}>
@@ -885,17 +902,43 @@ class AppPublishSetting extends PureComponent {
                 })}
               >
                 {getFieldDecorator('inject_position', {
-                  initialValue: (versionInfo && versionInfo.inject_position) || []
+                  initialValue: normalizePlatformPluginPositionsForDisplay(
+                    versionInfo && versionInfo.inject_position,
+                    !!(versionInfo && versionInfo.is_platform_plugin)
+                  ),
+                  rules: [
+                    {
+                      validator: (_, value, callback) => {
+                        if (
+                          isPlatformPluginPositionConfigured(value)
+                        ) {
+                          callback();
+                          return;
+                        }
+                        callback(
+                          formatMessage({
+                            id: 'appPublish.btn.record.list.label.inject_position'
+                          })
+                        );
+                      }
+                    }
+                  ]
                 })(
                   <Select
                     style={{ width: '100%' }}
                     mode="multiple"
                     placeholder="请选择注入位置"
+                    onChange={this.handleInjectPositionChange}
                   >
                     <Option value="Platform">平台</Option>
                     <Option value="Team">团队</Option>
                     <Option value="Application">应用</Option>
                     <Option value="Component">组件</Option>
+                    <Option value={PLATFORM_PLUGIN_NO_INJECT}>
+                      {formatMessage({
+                        id: 'appPublish.btn.record.list.option.no_inject'
+                      })}
+                    </Option>
                   </Select>
                 )}
               </Form.Item>
