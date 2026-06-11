@@ -21,6 +21,12 @@ const BACKUP_CONFIG_FIELDS = [
 
 const getBackupRepoPhase = repo => (repo && (repo.phase || repo.status)) || '';
 const isBackupRepoReady = repo => getBackupRepoPhase(repo) === READY_BACKUP_REPO_PHASE;
+const getBackupRepoPhaseText = phase => {
+    if (phase === 'Missing') {
+        return formatMessage({ id: 'kubeblocks.database.backup.repo.phase.unavailable' });
+    }
+    return phase;
+};
 
 export default class Index extends PureComponent {
     constructor(props) {
@@ -250,10 +256,11 @@ export default class Index extends PureComponent {
                                         <Option value=''>{formatMessage({ id: 'kubeblocks.database.backup.repo_none' })}</Option>
                                         {repoOptions.map(repo => {
                                             const phase = getBackupRepoPhase(repo);
+                                            const phaseText = getBackupRepoPhaseText(phase);
                                             const disabled = !isBackupRepoReady(repo);
                                             return (
                                                 <Option key={repo.name} value={repo.name} disabled={disabled}>
-                                                    {repo.displayName || repo.display_name || repo.name}{disabled && phase ? ` (${phase})` : ''}
+                                                    {repo.displayName || repo.display_name || repo.name}{disabled && phaseText ? ` (${phaseText})` : ''}
                                                 </Option>
                                             );
                                         })}

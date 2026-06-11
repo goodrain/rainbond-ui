@@ -39,6 +39,12 @@ const DEFAULT_BACKUP_REPO_VOLUME_CAPACITY = '100Gi';
 
 const getBackupRepoPhase = repo => (repo && (repo.phase || repo.status)) || '';
 const isBackupRepoReady = repo => getBackupRepoPhase(repo) === READY_BACKUP_REPO_PHASE;
+const getBackupRepoPhaseText = phase => {
+  if (phase === 'Missing') {
+    return formatMessage({ id: 'kubeblocks.database.backup.repo.phase.unavailable' });
+  }
+  return phase;
+};
 
 const getBackupRepoPhaseColor = phase => {
   if (phase === READY_BACKUP_REPO_PHASE) return 'green';
@@ -1073,7 +1079,7 @@ export default class Index extends PureComponent {
         render: (phase, record) => {
           const tag = (
             <Tag color={getBackupRepoPhaseColor(phase)}>
-              {phase || '-'}
+              {getBackupRepoPhaseText(phase) || '-'}
             </Tag>
           );
           const message = getBackupRepoConditionMessage(record);
@@ -1177,10 +1183,11 @@ export default class Index extends PureComponent {
                   <Option value="">{formatMessage({ id: 'kubeblocks.database.backup.repo_none' })}</Option>
                   {backupRepoOptions.map(repo => {
                     const phase = getBackupRepoPhase(repo);
+                    const phaseText = getBackupRepoPhaseText(phase);
                     const disabled = !isBackupRepoReady(repo);
                     return (
                       <Option key={repo.name} value={repo.name} disabled={disabled}>
-                        {repo.displayName || repo.display_name || repo.name}{disabled && phase ? ` (${phase})` : ''}
+                        {repo.displayName || repo.display_name || repo.name}{disabled && phaseText ? ` (${phaseText})` : ''}
                       </Option>
                     );
                   })}
@@ -1360,6 +1367,14 @@ export default class Index extends PureComponent {
           destroyOnClose
           className={styles.repoEditorModal}
         >
+          {repoModalType === 'edit' && (
+            <Alert
+              showIcon
+              type="info"
+              message={formatMessage({ id: 'kubeblocks.database.backup.repo.credential_edit_hint' })}
+              style={{ marginBottom: 16 }}
+            />
+          )}
           <Form layout="vertical" className={styles.repoEditorForm}>
             <div className={styles.repoEditorGrid}>
               <Form.Item className={styles.repoEditorItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.name' })}>
