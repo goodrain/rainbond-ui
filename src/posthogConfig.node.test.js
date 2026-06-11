@@ -7,6 +7,10 @@ const {
   buildPostHogUserProperties
 } = require('./posthogConfig');
 
+const DEFAULT_POSTHOG_PROJECT_TOKEN = 'phc_oCoPwcxutKCU9AZtUT63dMTNhWezUxCXCLtSZE6a4wvE';
+const DEFAULT_POSTHOG_API_HOST = '/console/posthog';
+const DEFAULT_POSTHOG_UI_HOST = 'https://posthog.goodrain.com';
+
 function test(name, fn) {
   try {
     fn();
@@ -17,18 +21,31 @@ function test(name, fn) {
   }
 }
 
-test('posthog config stays disabled without a project token', function() {
+test('posthog config defaults to enabled without an env project token', function() {
   const original = process.env;
   process.env = {};
 
   try {
-    assert.strictEqual(getPostHogConfig().enabled, false);
+    assert.deepStrictEqual(getPostHogConfig(), {
+      enabled: true,
+      projectToken: DEFAULT_POSTHOG_PROJECT_TOKEN,
+      apiHost: DEFAULT_POSTHOG_API_HOST,
+      uiHost: DEFAULT_POSTHOG_UI_HOST,
+      defaults: '2026-05-30',
+      personProfiles: 'identified_only',
+      autocapture: true,
+      sessionRecording: false,
+      maskAllText: false,
+      maskAllElementAttributes: true,
+      capturePageleave: false,
+      debug: false
+    });
   } finally {
     process.env = original;
   }
 });
 
-test('posthog config defaults to enabled when project token exists', function() {
+test('posthog config ignores env project token and keeps built-in token', function() {
   const original = process.env;
   process.env = {
     RAINBOND_POSTHOG_PROJECT_TOKEN: 'project-token'
@@ -37,9 +54,9 @@ test('posthog config defaults to enabled when project token exists', function() 
   try {
     assert.deepStrictEqual(getPostHogConfig(), {
       enabled: true,
-      projectToken: 'project-token',
-      apiHost: 'https://posthog.goodrain.com',
-      uiHost: '',
+      projectToken: DEFAULT_POSTHOG_PROJECT_TOKEN,
+      apiHost: DEFAULT_POSTHOG_API_HOST,
+      uiHost: DEFAULT_POSTHOG_UI_HOST,
       defaults: '2026-05-30',
       personProfiles: 'identified_only',
       autocapture: true,

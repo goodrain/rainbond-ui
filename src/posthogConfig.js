@@ -1,7 +1,9 @@
 const SENSITIVE_KEY_RE = /(token|password|secret|authorization|cookie|key|dsn|email|phone)/i;
 const SENSITIVE_VALUE_RE = /\b((?:token|password|secret|authorization|cookie|dsn|api[_-]?key|access[_-]?key|secret[_-]?key|email|phone)\s*[:=]\s*)(?:bearer\s+)?[^&\s"'<>]+/gi;
 const BEARER_VALUE_RE = /\b(bearer\s+)[a-z0-9._~+/=-]+/gi;
-const DEFAULT_API_HOST = 'https://posthog.goodrain.com';
+const DEFAULT_PROJECT_TOKEN = 'phc_oCoPwcxutKCU9AZtUT63dMTNhWezUxCXCLtSZE6a4wvE';
+const DEFAULT_API_HOST = '/console/posthog';
+const DEFAULT_UI_HOST = 'https://posthog.goodrain.com';
 const DEFAULT_CONFIG_DATE = '2026-05-30';
 const DEFAULT_PERSON_PROFILES = 'identified_only';
 const DENYLISTED_PROPERTIES = [
@@ -104,22 +106,13 @@ function resolveEnabled(runtime, env, projectToken) {
 function getPostHogConfig() {
   const runtime = readRuntimeConfig();
   const env = readProcessEnv();
-  const projectToken = firstValue(
-    runtime.projectToken,
-    runtime.token,
-    env.RAINBOND_POSTHOG_PROJECT_TOKEN,
-    env.RAINBOND_POSTHOG_TOKEN,
-    env.POSTHOG_PROJECT_TOKEN,
-    env.POSTHOG_TOKEN,
-    env.UMI_APP_POSTHOG_PROJECT_TOKEN,
-    env.UMI_APP_POSTHOG_TOKEN
-  );
+  const projectToken = DEFAULT_PROJECT_TOKEN;
 
   return {
     enabled: resolveEnabled(runtime, env, projectToken),
     projectToken,
     apiHost: firstValue(runtime.apiHost, runtime.api_host, env.RAINBOND_POSTHOG_API_HOST, env.POSTHOG_API_HOST, env.UMI_APP_POSTHOG_API_HOST, DEFAULT_API_HOST),
-    uiHost: firstValue(runtime.uiHost, runtime.ui_host, env.RAINBOND_POSTHOG_UI_HOST, env.POSTHOG_UI_HOST, env.UMI_APP_POSTHOG_UI_HOST),
+    uiHost: firstValue(runtime.uiHost, runtime.ui_host, env.RAINBOND_POSTHOG_UI_HOST, env.POSTHOG_UI_HOST, env.UMI_APP_POSTHOG_UI_HOST, DEFAULT_UI_HOST),
     defaults: firstValue(runtime.defaults, env.RAINBOND_POSTHOG_DEFAULTS, env.POSTHOG_DEFAULTS, DEFAULT_CONFIG_DATE),
     personProfiles: firstValue(runtime.personProfiles, runtime.person_profiles, env.RAINBOND_POSTHOG_PERSON_PROFILES, env.POSTHOG_PERSON_PROFILES, DEFAULT_PERSON_PROFILES),
     autocapture: resolveBool(firstValue(runtime.autocapture, env.RAINBOND_POSTHOG_AUTOCAPTURE, env.POSTHOG_AUTOCAPTURE), true),
