@@ -24,10 +24,14 @@ export default class index extends Component {
     };
   }
   // 判断是否为多视图插件
-  isMultiViewPlugin = () => {
-    const { plugins } = this.props;
-    const str = PluginsUtiles.isCurrentPluginMultiView(window.location.href, plugins.plugin_views)
-    return str
+  getPluginRenderComponent = () => {
+    const { app, plugins, viewPosition } = this.props;
+    return PluginsUtiles.getPluginRenderComponent(
+      app,
+      window.location.href,
+      plugins && plugins.plugin_views,
+      viewPosition
+    );
   }
   jumpRouter = (url) => {
     this.props.dispatch(
@@ -39,9 +43,26 @@ export default class index extends Component {
 
   // 渲染插件
   rbdPluginsRender = () => {
-    const { app, plugins, pluginLoading, error, errInfo, dispatch, reduxInfo } = this.props;
-    const key = this.isMultiViewPlugin()
-    const AppPagePlugin = app[key] ? app[key] : false    
+    const { pluginLoading, error, errInfo, dispatch } = this.props;
+    const AppPagePlugin = this.getPluginRenderComponent()
+    const service = this.props.appDetail && this.props.appDetail.service || {};
+    const componentID = service.service_id ||
+      this.props.componentID ||
+      this.props.componentId ||
+      this.props.component_id ||
+      this.props.service_id ||
+      this.props.serviceAlias ||
+      this.props.service_alias ||
+      (typeof Global.getSlidePanelComponentID === 'function' ? Global.getSlidePanelComponentID() : '') ||
+      Global.getComponentID();
+    const serviceAlias = service.service_alias ||
+      this.props.serviceAlias ||
+      this.props.service_alias ||
+      (typeof Global.getSlidePanelComponentID === 'function' ? Global.getSlidePanelComponentID() : '') ||
+      componentID;
+    const appID = this.props.appID || this.props.appId || this.props.app_id || this.props.group_id || Global.getAppID();
+    const teamName = this.props.teamName || this.props.team_name || Global.getCurrTeamName();
+    const regionName = this.props.regionName || this.props.region_name || Global.getCurrRegionName();
     return pluginLoading ? (
       <div style={{ width: '100%', height: 500, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <Spin size="large" />
@@ -78,10 +99,17 @@ export default class index extends Component {
               pluginsList: this.props.pluginsList,
               overviewInfo: this.props.overviewInfo,
               appDetail: this.props.appDetail,
+              componentID,
+              component_id: componentID,
+              service_id: componentID,
+              service_alias: serviceAlias,
+              appID,
+              app_id: appID,
+              team_name: teamName,
               // 插件所在 region（宿主加载该插件时使用的 region）。插件后端 API 路径
               // /console/regions/{region_name}/backend/plugins/... 需要它，不能靠插件
               // 自己从 URL 解析（插件路由 URL 未必含 region 段）。
-              region_name: this.props.regionName || Global.getCurrRegionName(),
+              region_name: regionName,
             }}
             globalUtile={Global}
             jumpRouter={this.jumpRouter}

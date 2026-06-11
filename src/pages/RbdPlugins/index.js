@@ -129,7 +129,7 @@ export default class Index extends Component {
       return;
     }
     this.isLoading = true;
-    const type = PluginUtil.getCurrentViewPosition(window.location.href);
+    const type = PluginUtil.getCurrentViewPosition(window.location.href, this.props.viewPosition);
     type === 'Platform' ? this.loadEnterpriseClusters() : this.loadPluginList();
   };
 
@@ -187,12 +187,12 @@ export default class Index extends Component {
   }
   render() {
     const { plugins, loading, regionName } = this.state;
-    const { isCom = false } = this.props
+    const { isCom = false, viewPosition } = this.props
     return (
       <>
         {!loading ? (
           isCom ?
-            <RbdPluginsCom {...this.state} />
+            <RbdPluginsCom {...this.props} {...this.state} viewPosition={viewPosition} />
             :
             <PageHeaderLayout
               title={plugins?.display_name}
@@ -227,7 +227,7 @@ export default class Index extends Component {
                   </>
               }
             >
-              <RbdPluginsCom {...this.state} key={regionName} />
+              <RbdPluginsCom {...this.props} {...this.state} key={regionName} viewPosition={viewPosition} />
             </PageHeaderLayout>
         ) : (
           <div style={{ width: '100%', height: 500, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
