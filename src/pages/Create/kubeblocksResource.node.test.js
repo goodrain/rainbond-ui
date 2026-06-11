@@ -8,38 +8,38 @@ const {
 
 assert.strictEqual(
   formatKubeBlocksCpuValue(parseKubeBlocksCpuValue(0)),
-  '100m',
-  'slider value 0 should map to a valid positive KubeBlocks CPU request'
+  '500m',
+  'slider value 0 should map to the minimum database CPU request'
 );
 
 assert.strictEqual(
   formatKubeBlocksMemoryValue(parseKubeBlocksMemoryValue(0)),
-  '128Mi',
-  'slider value 0 should map to a valid positive KubeBlocks memory request'
+  '512Mi',
+  'slider value 0 should map to the minimum database memory request'
 );
 
 assert.strictEqual(
   formatKubeBlocksCpuValue(parseKubeBlocksCpuValue('0')),
-  '100m',
-  'string zero CPU should not be submitted as 0m'
+  '500m',
+  'string zero CPU should not be submitted below the database minimum'
 );
 
 assert.strictEqual(
   formatKubeBlocksMemoryValue(parseKubeBlocksMemoryValue('0')),
-  '128Mi',
-  'string zero memory should not be submitted as 0Mi'
+  '512Mi',
+  'string zero memory should not be submitted below the database minimum'
 );
 
 assert.strictEqual(
-  formatKubeBlocksCpuValue(parseKubeBlocksCpuValue(4)),
-  '1',
-  'existing default CPU slider value should remain 1 core'
+  formatKubeBlocksCpuValue(parseKubeBlocksCpuValue(3)),
+  '500m',
+  'database default CPU slider value should be 500m'
 );
 
 assert.strictEqual(
-  formatKubeBlocksMemoryValue(parseKubeBlocksMemoryValue(4)),
-  '1Gi',
-  'existing default memory slider value should remain 1Gi'
+  formatKubeBlocksMemoryValue(parseKubeBlocksMemoryValue(3)),
+  '512Mi',
+  'database default memory slider value should be 512Mi'
 );
 
 assert.strictEqual(

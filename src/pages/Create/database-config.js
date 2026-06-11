@@ -423,10 +423,10 @@ export default class Index extends PureComponent {
 
     const rawCpu = (basicInfo.min_cpu !== undefined && basicInfo.min_cpu !== null)
       ? basicInfo.min_cpu
-      : 1000;
+      : 500;
     const rawMemory = (basicInfo.min_memory !== undefined && basicInfo.min_memory !== null)
       ? basicInfo.min_memory
-      : 1024;
+      : 512;
 
     const normalizedCpuMillicores = parseKubeBlocksCpuValue(rawCpu);
     const normalizedMemoryMB = parseKubeBlocksMemoryValue(rawMemory);

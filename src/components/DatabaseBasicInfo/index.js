@@ -57,12 +57,12 @@ export default class Index extends PureComponent {
                 4000: 6,
                 8000: 7,
             },
-            memorySliderMin: 1,
+            memorySliderMin: 3,
             memorySliderMax: 8,
-            cpuSliderMin: 1,
+            cpuSliderMin: 3,
             cpuSliderMax: 7,
-            cpuValue: 4,
-            memoryValue: 4
+            cpuValue: 3,
+            memoryValue: 3
         };
     }
 
@@ -95,9 +95,9 @@ export default class Index extends PureComponent {
 
     handleMemoryChange = (value) => {
         const memoryToCpuMap = {
-            1: 1,
-            2: 1,
-            3: 2,
+            1: 3,
+            2: 3,
+            3: 3,
             4: 3,
             5: 4,
             6: 5,

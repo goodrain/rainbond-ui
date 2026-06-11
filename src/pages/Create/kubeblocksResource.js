@@ -1,7 +1,12 @@
+const MIN_CPU_SLIDER_VALUE = 3;
+const MIN_MEMORY_SLIDER_VALUE = 3;
+const DEFAULT_CPU_MILLICORES = 500;
+const DEFAULT_MEMORY_MB = 512;
+
 const CPU_SLIDER_TO_MILLICORES = {
-  0: 100,
-  1: 100,
-  2: 250,
+  0: 500,
+  1: 500,
+  2: 500,
   3: 500,
   4: 1000,
   5: 2000,
@@ -11,9 +16,9 @@ const CPU_SLIDER_TO_MILLICORES = {
 };
 
 const MEMORY_SLIDER_TO_MB = {
-  0: 128,
-  1: 128,
-  2: 256,
+  0: 512,
+  1: 512,
+  2: 512,
   3: 512,
   4: 1024,
   5: 2048,
@@ -34,27 +39,27 @@ function parsePositiveInteger(value, fallback) {
 function parseKubeBlocksCpuValue(value) {
   const numeric = parseInt(value, 10);
   if (Number.isNaN(numeric)) {
-    return 1000;
+    return DEFAULT_CPU_MILLICORES;
   }
 
   if (numeric >= 0 && numeric <= 8) {
-    return CPU_SLIDER_TO_MILLICORES[numeric] || 1000;
+    return CPU_SLIDER_TO_MILLICORES[Math.max(numeric, MIN_CPU_SLIDER_VALUE)] || DEFAULT_CPU_MILLICORES;
   }
 
-  return parsePositiveInteger(numeric, 1000);
+  return Math.max(parsePositiveInteger(numeric, DEFAULT_CPU_MILLICORES), DEFAULT_CPU_MILLICORES);
 }
 
 function parseKubeBlocksMemoryValue(value) {
   const numeric = parseInt(value, 10);
   if (Number.isNaN(numeric)) {
-    return 1024;
+    return DEFAULT_MEMORY_MB;
   }
 
   if (numeric >= 0 && numeric <= 9) {
-    return MEMORY_SLIDER_TO_MB[numeric] || 1024;
+    return MEMORY_SLIDER_TO_MB[Math.max(numeric, MIN_MEMORY_SLIDER_VALUE)] || DEFAULT_MEMORY_MB;
   }
 
-  return parsePositiveInteger(numeric, 1024);
+  return Math.max(parsePositiveInteger(numeric, DEFAULT_MEMORY_MB), DEFAULT_MEMORY_MB);
 }
 
 function formatKubeBlocksCpuValue(cpuMillicores) {
@@ -69,7 +74,7 @@ function formatKubeBlocksCpuValue(cpuMillicores) {
     16000: '16'
   };
 
-  return cpuMap[parsePositiveInteger(cpuMillicores, 1000)] || '1';
+  return cpuMap[Math.max(parsePositiveInteger(cpuMillicores, DEFAULT_CPU_MILLICORES), DEFAULT_CPU_MILLICORES)] || '500m';
 }
 
 function formatKubeBlocksMemoryValue(memoryMB) {
@@ -85,7 +90,7 @@ function formatKubeBlocksMemoryValue(memoryMB) {
     32768: '32Gi'
   };
 
-  return memoryMap[parsePositiveInteger(memoryMB, 1024)] || '1Gi';
+  return memoryMap[Math.max(parsePositiveInteger(memoryMB, DEFAULT_MEMORY_MB), DEFAULT_MEMORY_MB)] || '512Mi';
 }
 
 module.exports = {
