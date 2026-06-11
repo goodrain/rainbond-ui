@@ -40,6 +40,7 @@ import { setAuthority } from '../utils/authority';
 import cookie from '../utils/cookie';
 import userUtil from '../utils/global';
 import globalUtil from '../utils/global';
+import { identifyPostHogUser, resetPostHogUser } from '../posthog';
 
 export default {
   namespace: 'user',
@@ -299,6 +300,7 @@ export default {
           // changes to admin or user The refresh will automatically redirect to the login
           // page
           yield put({ type: 'tologout' });
+          yield call(resetPostHogUser);
 
           yield put({ type: 'saveCurrentUser', payload: null });
 
@@ -391,6 +393,7 @@ export default {
           type: 'saveCurrentUser',
           payload: response && response.bean
         });
+        yield call(identifyPostHogUser, response && response.bean);
       }
       callback && callback(response);
     },

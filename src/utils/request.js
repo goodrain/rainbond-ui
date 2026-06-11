@@ -11,6 +11,7 @@ import handleAPIError from './error';
 import { updateRenewedTokenFromResponse } from './token';
 import { formatMessage } from '@/utils/intl';
 import { history, getDvaApp } from 'umi';
+import { captureRequestError } from '../sentry';
 
 
 const codeMessage = {
@@ -270,6 +271,7 @@ export default function request(url, options) {
       return handleData(response);
     })
     .catch(error => {
+      captureRequestError(error, newOptions);
       if (showLoading) {
         handleStoreDispatch('global/hiddenLoading');
       }
