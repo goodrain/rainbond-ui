@@ -67,7 +67,7 @@ import PluginUtile from '../../utils/pulginUtils'
 import { ResumeContext } from "./funContext";
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
-import { getComponentPluginTabName, getVisibleComponentPlugins } from './componentPluginHelpers';
+import { getComponentPluginTabName, getVisibleComponentPlugins, shouldClearComponentPorts } from './componentPluginHelpers';
 import { shouldShowGenericVisitAction, shouldShowWebTerminalAction } from './visitActionHelpers';
 
 const FormItem = Form.Item;
@@ -297,6 +297,7 @@ class Main extends PureComponent {
     };
     this.socket = null;
     this.destroy = false;
+    this.portsAppAlias = null;
   }
 
   getChildContext() {
@@ -518,7 +519,10 @@ class Main extends PureComponent {
       return;
     }
 
-    dispatch({ type: 'appControl/clearPorts' });
+    if (shouldClearComponentPorts(this.portsAppAlias, appAlias)) {
+      dispatch({ type: 'appControl/clearPorts' });
+    }
+    this.portsAppAlias = appAlias;
     dispatch({
       type: 'appControl/fetchPorts',
       payload: {
