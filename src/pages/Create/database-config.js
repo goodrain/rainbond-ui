@@ -21,11 +21,19 @@ const {
 } = require('./kubeblocksResource');
 
 const READY_BACKUP_REPO_PHASE = 'Ready';
+const FAILED_BACKUP_REPO_PHASES = ['Failed', 'Missing'];
 const BACKUP_REPO_READY_REFRESH_INTERVAL = 3000;
 const BACKUP_REPO_READY_MAX_RETRIES = 10;
 
 const getBackupRepoPhase = repo => (repo && (repo.phase || repo.status)) || '';
 const isBackupRepoReady = repo => getBackupRepoPhase(repo) === READY_BACKUP_REPO_PHASE;
+const isBackupRepoFailed = repo => FAILED_BACKUP_REPO_PHASES.includes(getBackupRepoPhase(repo));
+const getBackupRepoConditionMessage = repo => {
+  const conditions = (repo && repo.conditions) || [];
+  const failed = conditions.find(item => item.status === 'False' && item.message);
+  const latest = failed || conditions.find(item => item.message);
+  return latest ? latest.message : '';
+};
 
 @connect(
   ({ teamControl, global, enterprise, user, kubeblocks }) => ({
@@ -123,7 +131,20 @@ export default class Index extends PureComponent {
 
     this.fetchBackupRepos(response => {
       const repo = this.getBackupRepoFromResponse(response, repoName);
-      if (!repoName || isBackupRepoReady(repo) || retryCount >= BACKUP_REPO_READY_MAX_RETRIES) {
+      if (!repoName) {
+        return;
+      }
+      if (isBackupRepoReady(repo)) {
+        message.success(formatMessage({ id: 'kubeblocks.database.backup.repo.check_success' }));
+        return;
+      }
+      if (isBackupRepoFailed(repo)) {
+        const checkMessage = getBackupRepoConditionMessage(repo);
+        message.error(checkMessage || formatMessage({ id: 'kubeblocks.database.backup.repo.check_failed' }));
+        return;
+      }
+      if (retryCount >= BACKUP_REPO_READY_MAX_RETRIES) {
+        message.warning(formatMessage({ id: 'kubeblocks.database.backup.repo.check_timeout' }));
         return;
       }
 
@@ -168,7 +189,7 @@ export default class Index extends PureComponent {
           const createdRepo = response.bean || {};
           const repoName = createdRepo.name || body.name;
 
-          message.success(formatMessage({ id: 'kubeblocks.database.backup.repo.create_success' }));
+          message.info(formatMessage({ id: 'kubeblocks.database.backup.repo.checking' }));
           this.refreshBackupReposUntilReady(repoName);
           if (onSuccess) {
             onSuccess({ ...body, ...createdRepo, name: repoName });

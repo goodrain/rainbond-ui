@@ -32,13 +32,22 @@ const { Option } = Select;
 const RadioGroup = Radio.Group;
 const { Panel } = Collapse;
 const READY_BACKUP_REPO_PHASE = 'Ready';
+const FAILED_BACKUP_REPO_PHASES = ['Failed', 'Missing'];
 const BACKUP_REPO_READY_REFRESH_INTERVAL = 3000;
 const BACKUP_REPO_READY_MAX_RETRIES = 10;
 const DEFAULT_BACKUP_REPO_BUCKET = 'kubeblocks-backup';
 const DEFAULT_BACKUP_REPO_VOLUME_CAPACITY = '100Gi';
+const DEFAULT_BACKUP_REPO_FORCE_PATH_STYLE = 'true';
 
 const getBackupRepoPhase = repo => (repo && (repo.phase || repo.status)) || '';
 const isBackupRepoReady = repo => getBackupRepoPhase(repo) === READY_BACKUP_REPO_PHASE;
+const isBackupRepoFailed = repo => FAILED_BACKUP_REPO_PHASES.includes(getBackupRepoPhase(repo));
+const isForcePathStyleValue = value => !(value === false || value === 'false');
+const getBackupRepoForcePathStyleValue = repo => {
+  if (!repo) return DEFAULT_BACKUP_REPO_FORCE_PATH_STYLE;
+  const value = repo.forcePathStyle !== undefined ? repo.forcePathStyle : repo.force_path_style;
+  return isForcePathStyleValue(value) ? 'true' : 'false';
+};
 const getBackupRepoPhaseText = phase => {
   if (phase === 'Missing') {
     return formatMessage({ id: 'kubeblocks.database.backup.repo.phase.unavailable' });
@@ -226,7 +235,23 @@ export default class Index extends PureComponent {
 
     this.fetchBackupRepos(response => {
       const repo = this.getBackupRepoFromResponse(response, repoName);
-      if (!repoName || isBackupRepoReady(repo) || retryCount >= BACKUP_REPO_READY_MAX_RETRIES) {
+      if (!repoName) {
+        return;
+      }
+      if (isBackupRepoReady(repo)) {
+        notification.success({ message: formatMessage({ id: 'kubeblocks.database.backup.repo.check_success' }) });
+        return;
+      }
+      if (isBackupRepoFailed(repo)) {
+        const description = getBackupRepoConditionMessage(repo);
+        notification.error({
+          message: formatMessage({ id: 'kubeblocks.database.backup.repo.check_failed' }),
+          description
+        });
+        return;
+      }
+      if (retryCount >= BACKUP_REPO_READY_MAX_RETRIES) {
+        notification.warning({ message: formatMessage({ id: 'kubeblocks.database.backup.repo.check_timeout' }) });
         return;
       }
 
@@ -621,6 +646,7 @@ export default class Index extends PureComponent {
         repoBucket: type === 'edit' ? record.bucket : DEFAULT_BACKUP_REPO_BUCKET,
         repoEndpoint: type === 'edit' ? record.endpoint : '',
         repoRegion: type === 'edit' ? record.region : '',
+        repoForcePathStyle: type === 'edit' ? getBackupRepoForcePathStyleValue(record) : DEFAULT_BACKUP_REPO_FORCE_PATH_STYLE,
         repoPathPrefix: type === 'edit' ? (record.pathPrefix || '') : '',
         repoAccessKeyId: '',
         repoSecretAccessKey: ''
@@ -636,6 +662,7 @@ export default class Index extends PureComponent {
       'repoBucket',
       'repoEndpoint',
       'repoRegion',
+      'repoForcePathStyle',
       'repoPathPrefix',
       'repoAccessKeyId',
       'repoSecretAccessKey'
@@ -657,6 +684,7 @@ export default class Index extends PureComponent {
       'repoBucket',
       'repoEndpoint',
       'repoRegion',
+      'repoForcePathStyle',
       'repoPathPrefix',
       'repoAccessKeyId',
       'repoSecretAccessKey'
@@ -670,6 +698,7 @@ export default class Index extends PureComponent {
         bucket: values.repoBucket,
         endpoint: values.repoEndpoint,
         region: values.repoRegion || '',
+        force_path_style: values.repoForcePathStyle !== 'false',
         path_prefix: values.repoPathPrefix || ''
       };
       if (repoModalType === 'create') {
@@ -693,19 +722,9 @@ export default class Index extends PureComponent {
         callback: res => {
           this.setState({ repoSubmitting: false });
           if (res && res.status_code === 200) {
-            notification.success({
-              message: formatMessage({
-                id: repoModalType === 'create'
-                  ? 'kubeblocks.database.backup.repo.create_success'
-                  : 'kubeblocks.database.backup.repo.update_success'
-              })
-            });
+            notification.info({ message: formatMessage({ id: 'kubeblocks.database.backup.repo.checking' }) });
             this.closeRepoModal();
-            if (repoModalType === 'create') {
-              this.refreshBackupReposUntilReady(res.bean?.name || body.name);
-            } else {
-              this.fetchBackupRepos();
-            }
+            this.refreshBackupReposUntilReady(res.bean?.name || (editingRepo && editingRepo.name) || body.name);
           } else {
             notification.error({
               message: res?.msg_show || formatMessage({
@@ -1072,6 +1091,23 @@ export default class Index extends PureComponent {
         render: text => <span className={styles.repoMutedText}>{text || '-'}</span>
       },
       {
+        title: formatMessage({ id: 'kubeblocks.database.backup.repo.access_style' }),
+        key: 'accessStyle',
+        width: 140,
+        render: (_, record) => {
+          const forcePathStyle = getBackupRepoForcePathStyleValue(record) !== 'false';
+          return (
+            <span className={styles.repoMutedText}>
+              {formatMessage({
+                id: forcePathStyle
+                  ? 'kubeblocks.database.backup.repo.access_style_path_short'
+                  : 'kubeblocks.database.backup.repo.access_style_virtual_short'
+              })}
+            </span>
+          );
+        }
+      },
+      {
         title: formatMessage({ id: 'kubeblocks.database.backup.repo.status' }),
         dataIndex: 'phase',
         key: 'phase',
@@ -1336,7 +1372,7 @@ export default class Index extends PureComponent {
               size="middle"
               tableLayout="fixed"
               rowClassName={record => record.name === backupRepo ? styles.repoCurrentRow : ''}
-              scroll={{ x: 980 }}
+              scroll={{ x: 1120 }}
               locale={{
                 emptyText: (
                   <Empty
@@ -1396,6 +1432,19 @@ export default class Index extends PureComponent {
                 {getFieldDecorator('repoEndpoint', {
                   rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.endpoint_required' }) }]
                 })(<Input placeholder="https://s3.example.com" />)}
+              </Form.Item>
+              <Form.Item className={styles.repoEditorItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.access_style' })}>
+                {getFieldDecorator('repoForcePathStyle', {
+                  initialValue: DEFAULT_BACKUP_REPO_FORCE_PATH_STYLE
+                })(
+                  <RadioGroup>
+                    <Radio value="true">{formatMessage({ id: 'kubeblocks.database.backup.repo.access_style_path' })}</Radio>
+                    <Radio value="false">{formatMessage({ id: 'kubeblocks.database.backup.repo.access_style_virtual' })}</Radio>
+                  </RadioGroup>
+                )}
+                <div className={styles.repoAccessStyleHint}>
+                  {formatMessage({ id: 'kubeblocks.database.backup.repo.access_style_hint' })}
+                </div>
               </Form.Item>
               <Form.Item className={styles.repoEditorItem} label="AccessKey">
                 {getFieldDecorator('repoAccessKeyId', {
