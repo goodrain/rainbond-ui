@@ -23,6 +23,11 @@ import pluginUtil from '../../utils/pulginUtils';
 import { formatMessage } from '@/utils/intl';
 import styles from './Index.less';
 
+const DATABASE_MIN_CPU_MILLI = 250;
+const DATABASE_MIN_MEMORY_MI = 512;
+const DATABASE_MIN_CPU_SLIDER_VALUE = 2;
+const DATABASE_MIN_MEMORY_SLIDER_VALUE = 3;
+
 @connect(
   ({ appControl, teamControl, rbdPlugin, kubeblocks }) => ({
     instances: appControl.pods,
@@ -56,13 +61,11 @@ export default class Index extends PureComponent {
       language: cookie.get('language') === 'zh-CN' ? true : false,
       dataSource: [],
       showBill: pluginUtil.isInstallPlugin(this.props.pluginList, 'rainbond-bill'),
-      memorySliderMin: 1,
+      memorySliderMin: DATABASE_MIN_MEMORY_SLIDER_VALUE,
       memorySliderMax: 8,
-      cpuSliderMin: 1,
+      cpuSliderMin: DATABASE_MIN_CPU_SLIDER_VALUE,
       cpuSliderMax: 7,
       memoryMarks: {
-        1: '128M',
-        2: '256M',
         3: '512M',
         4: '1G',
         5: '2G',
@@ -71,8 +74,6 @@ export default class Index extends PureComponent {
         8: '16G'
       },
       memoryMarksObj: {
-        128: 1,
-        256: 2,
         512: 3,
         1024: 4,
         2048: 5,
@@ -81,7 +82,6 @@ export default class Index extends PureComponent {
         16384: 8
       },
       cpuMarks: {
-        1: '100m',
         2: '250m',
         3: '500m',
         4: '1Core',
@@ -90,7 +90,6 @@ export default class Index extends PureComponent {
         7: '8Core',
       },
       cpuMarksObj: {
-        100: 1,
         250: 2,
         500: 3,
         1000: 4,
@@ -124,6 +123,22 @@ export default class Index extends PureComponent {
     }
   }
 
+  normalizeCpuMilli = (cpuMilli) => {
+    const parsedCpu = parseInt(cpuMilli, 10);
+    if (Number.isNaN(parsedCpu) || parsedCpu <= 0) {
+      return DATABASE_MIN_CPU_MILLI;
+    }
+    return Math.max(parsedCpu, DATABASE_MIN_CPU_MILLI);
+  }
+
+  normalizeMemoryMi = (memoryMi) => {
+    const parsedMemory = parseInt(memoryMi, 10);
+    if (Number.isNaN(parsedMemory) || parsedMemory <= 0) {
+      return DATABASE_MIN_MEMORY_MI;
+    }
+    return Math.max(parsedMemory, DATABASE_MIN_MEMORY_MI);
+  }
+
   initFromClusterDetail = (force = false) => {
     const { clusterDetail } = this.props;
     const { memoryMarksObj, cpuMarksObj, replicasValue } = this.state;
@@ -133,8 +148,8 @@ export default class Index extends PureComponent {
     }
 
     if (!clusterDetail || !clusterDetail.resource) return;
-    const cpuMilli = clusterDetail.resource.cpu; // 毫核 m
-    const memoryMi = clusterDetail.resource.memory; // Mi
+    const cpuMilli = this.normalizeCpuMilli(clusterDetail.resource.cpu); // 毫核 m
+    const memoryMi = this.normalizeMemoryMi(clusterDetail.resource.memory); // Mi
     const replicas = clusterDetail.resource.replicas;
     const storageGi = clusterDetail.resource.storage; // Gi
 
@@ -166,26 +181,26 @@ export default class Index extends PureComponent {
   // 根据滑块索引获取毫核值
   getCpuMilliFromSliderIndex = (index) => {
     const { cpuMarksObj } = this.state;
-    let result = 1000; // 默认 1Core
+    let result = DATABASE_MIN_CPU_MILLI;
     if (!cpuMarksObj) return result;
     Object.keys(cpuMarksObj).forEach((key) => {
       if (cpuMarksObj[key] === index) {
         result = parseInt(key, 10);
       }
     });
-    return result;
+    return this.normalizeCpuMilli(result);
   }
 
   getMemoryMiFromSliderIndex = (index) => {
     const { memoryMarksObj } = this.state;
-    let result = 1024; // 默认 1Gi
+    let result = DATABASE_MIN_MEMORY_MI;
     if (!memoryMarksObj) return result;
     Object.keys(memoryMarksObj).forEach((key) => {
       if (memoryMarksObj[key] === index) {
         result = parseInt(key, 10);
       }
     });
-    return result;
+    return this.normalizeMemoryMi(result);
   }
 
   buildScaleResourceBody = (formValues) => {
@@ -211,14 +226,14 @@ export default class Index extends PureComponent {
 
     if (!showBill) {
       this.setState({
-        memoryMarks: { 0: formatMessage({ id: 'appOverview.no_limit' }), ...memoryMarks, 9: '32G' },
-        cpuMarks: { 0: formatMessage({ id: 'appOverview.no_limit' }), ...cpuMarks, 8: '16Core' },
-        memoryMarksObj: { 0: 0, ...memoryMarksObj, 32768: 9 },
-        cpuMarksObj: { 0: 0, ...cpuMarksObj, 16000: 8 },
+        memoryMarks: { ...memoryMarks, 9: '32G' },
+        cpuMarks: { ...cpuMarks, 8: '16Core' },
+        memoryMarksObj: { ...memoryMarksObj, 32768: 9 },
+        cpuMarksObj: { ...cpuMarksObj, 16000: 8 },
         memorySliderMax: 9,
-        memorySliderMin: 0,
+        memorySliderMin: DATABASE_MIN_MEMORY_SLIDER_VALUE,
         cpuSliderMax: 8,
-        cpuSliderMin: 0
+        cpuSliderMin: DATABASE_MIN_CPU_SLIDER_VALUE
       });
     }
 
@@ -562,9 +577,9 @@ export default class Index extends PureComponent {
   handleMemoryChange = (value) => {
     const { form } = this.props;
     const memoryToCpuMap = {
-      0: 0,
-      1: 1,
-      2: 1,
+      0: DATABASE_MIN_CPU_SLIDER_VALUE,
+      1: DATABASE_MIN_CPU_SLIDER_VALUE,
+      2: DATABASE_MIN_CPU_SLIDER_VALUE,
       3: 2,
       4: 3,
       5: 4,
@@ -748,8 +763,8 @@ export default class Index extends PureComponent {
                     this.initFromClusterDetail(true);
 
                     if (clusterDetail && clusterDetail.resource) {
-                      const cpuMilli = clusterDetail.resource.cpu;
-                      const memoryMi = clusterDetail.resource.memory;
+                      const cpuMilli = this.normalizeCpuMilli(clusterDetail.resource.cpu);
+                      const memoryMi = this.normalizeMemoryMi(clusterDetail.resource.memory);
                       const replicas = clusterDetail.resource.replicas;
                       const storageGi = clusterDetail.resource.storage;
 

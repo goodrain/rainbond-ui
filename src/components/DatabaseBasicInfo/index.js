@@ -20,8 +20,6 @@ export default class Index extends PureComponent {
         super(props);
         this.state = {
             memoryMarks: {
-                1: '128M',
-                2: '256M',
                 3: '512M',
                 4: '1G',
                 5: '2G',
@@ -30,8 +28,6 @@ export default class Index extends PureComponent {
                 8: '16G'
             },
             memoryMarksObj: {
-                128: 1,
-                256: 2,
                 512: 3,
                 1024: 4,
                 2048: 5,
@@ -40,7 +36,6 @@ export default class Index extends PureComponent {
                 16384: 8
             },
             cpuMarks: {
-                1: '100m',
                 2: '250m',
                 3: '500m',
                 4: '1Core',
@@ -49,7 +44,6 @@ export default class Index extends PureComponent {
                 7: '8Core',
             },
             cpuMarksObj: {
-                100: 1,
                 250: 2,
                 500: 3,
                 1000: 4,
@@ -59,9 +53,9 @@ export default class Index extends PureComponent {
             },
             memorySliderMin: 3,
             memorySliderMax: 8,
-            cpuSliderMin: 3,
+            cpuSliderMin: 2,
             cpuSliderMax: 7,
-            cpuValue: 3,
+            cpuValue: 2,
             memoryValue: 3
         };
     }
@@ -95,9 +89,9 @@ export default class Index extends PureComponent {
 
     handleMemoryChange = (value) => {
         const memoryToCpuMap = {
-            1: 3,
-            2: 3,
-            3: 3,
+            1: 2,
+            2: 2,
+            3: 2,
             4: 3,
             5: 4,
             6: 5,

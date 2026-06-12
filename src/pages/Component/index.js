@@ -48,6 +48,7 @@ import roleUtil from '../../utils/newRole';
 import teamUtil from '../../utils/team';
 import userUtil from '../../utils/user';
 import ConnectionInformation from './connectionInformation';
+import DatabaseExpansion from './databaseExpansion';
 import EnvironmentConfiguration from './environmentConfiguration';
 import Expansion from './expansion';
 import styles from './Index.less';
@@ -1556,7 +1557,7 @@ class Main extends PureComponent {
       overview: isShowThirdParty ? ThirdPartyServices : Overview,
       monitor: Monitor,
       log: Log,
-      expansion: Expansion,
+      expansion: method === 'kubeblocks_component' ? DatabaseExpansion : Expansion,
       environmentConfiguration: EnvironmentConfiguration,
       relation: Relation,
       mnt: Mnt,
