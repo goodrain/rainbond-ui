@@ -8,11 +8,13 @@ import RbdPluginsCom from '../../components/RBDPluginsCom'
 import Global from '@/utils/global';
 import PluginUtil from '../../utils/pulginUtils';
 import { renderPlatformPluginIcon } from '../../utils/platformPluginIcon';
+import { getPluginBaseId } from '../../utils/pluginArchUtils';
 import { routerRedux } from 'dva/router';
 import { formatMessage } from '@/utils/intl';
 import styles from './index.less';
 
 const { Option } = Select;
+const GATEWAY_MONITORING_PLUGIN_ID = 'rainbond-gateway-monitoring';
 @connect(({ user, region }) => ({
   user: user.currentUser,
   cluster_info: region.cluster_info,
@@ -129,7 +131,7 @@ export default class Index extends Component {
       return;
     }
     this.isLoading = true;
-    const type = PluginUtil.getCurrentViewPosition(window.location.href);
+    const type = PluginUtil.getCurrentViewPosition(window.location.href, this.props.viewPosition);
     type === 'Platform' ? this.loadEnterpriseClusters() : this.loadPluginList();
   };
 
@@ -185,17 +187,23 @@ export default class Index extends Component {
     const pluginId = match.params.pluginId
     dispatch(routerRedux.push(`/enterprise/${Global.getCurrEnterpriseId()}/plugins/${pluginId}?regionName=${value}&showSelect=true`));
   }
+  getPluginTitle = (plugin = {}) => {
+    if (getPluginBaseId(plugin.name || plugin.plugin_id) === GATEWAY_MONITORING_PLUGIN_ID) {
+      return formatMessage({ id: 'menu.enterprise.monitoring', defaultMessage: '监控中心' });
+    }
+    return plugin?.display_name;
+  }
   render() {
     const { plugins, loading, regionName } = this.state;
-    const { isCom = false } = this.props
+    const { isCom = false, viewPosition } = this.props
     return (
       <>
         {!loading ? (
           isCom ?
-            <RbdPluginsCom {...this.state} />
+            <RbdPluginsCom {...this.props} {...this.state} viewPosition={viewPosition} />
             :
             <PageHeaderLayout
-              title={plugins?.display_name}
+              title={this.getPluginTitle(plugins)}
               content={plugins?.description}
               pluginSVg={renderPlatformPluginIcon(plugins, { size: 20 })}
               extraContent={
@@ -227,7 +235,7 @@ export default class Index extends Component {
                   </>
               }
             >
-              <RbdPluginsCom {...this.state} key={regionName} />
+              <RbdPluginsCom {...this.props} {...this.state} key={regionName} viewPosition={viewPosition} />
             </PageHeaderLayout>
         ) : (
           <div style={{ width: '100%', height: 500, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>

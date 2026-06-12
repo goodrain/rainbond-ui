@@ -167,7 +167,8 @@ export default class ChartTitle extends PureComponent {
       baseInfo,
       serviceId = '',
       RangeData = [],
-      appAlias = ''
+      appAlias = '',
+      title
     } = this.props;
     const { start, end, isLoading, isRender } = this.state;
     const parameter = {
@@ -216,28 +217,38 @@ export default class ChartTitle extends PureComponent {
         ))}
       </div>
     ));
+    const queryControls = (
+      <Fragment>
+        <RangePicker
+          separator={<FormattedMessage id='componentOverview.body.tab.monitor.to' />}
+          style={RANGE_PICKER_STYLE}
+          disabledDate={this.disabledDate}
+          onChange={this.handleChangeTimes}
+          defaultValue={[
+            moment(new Date(new Date().getTime() - ONE_HOUR_MS), 'HH:mm:ss'),
+            moment(new Date(), 'HH:mm:ss')
+          ]}
+          showTime={{
+            hideDisabledOptions: true
+          }}
+          format="YYYY-MM-DD HH:mm:ss"
+        />
+        <Button style={BUTTON_STYLE} onClick={this.queryAll}>
+          <FormattedMessage id='componentOverview.body.tab.monitor.query' />
+        </Button>
+        {operation}
+      </Fragment>
+    );
     return (
       <Fragment>
         <Row>
           <Col span={24} className={styless.customBox}>
-            <RangePicker
-              separator={<FormattedMessage id='componentOverview.body.tab.monitor.to' />}
-              style={RANGE_PICKER_STYLE}
-              disabledDate={this.disabledDate}
-              onChange={this.handleChangeTimes}
-              defaultValue={[
-                moment(new Date(new Date().getTime() - ONE_HOUR_MS), 'HH:mm:ss'),
-                moment(new Date(), 'HH:mm:ss')
-              ]}
-              showTime={{
-                hideDisabledOptions: true
-              }}
-              format="YYYY-MM-DD HH:mm:ss"
-            />
-            <Button style={BUTTON_STYLE} onClick={this.queryAll}>
-              <FormattedMessage id='componentOverview.body.tab.monitor.query' />
-            </Button>
-            {operation}
+            {title && <div className={styless.chartTitle}>{title}</div>}
+            {title ? (
+              <div className={styless.queryActions}>{queryControls}</div>
+            ) : (
+              queryControls
+            )}
           </Col>
         </Row>
 

@@ -1,5 +1,7 @@
 import { getPluginBaseId } from './pluginArchUtils';
 
+const SUPPORTED_PLUGIN_VIEWS = ['Platform', 'Team', 'Application', 'Component'];
+
 // 定义插件所在视图，支持平台、团队、应用和组件四个范围。对应取值为Platform、Team、Application、Component
 export default {
   // 对企业级、团队级、应用级的插件列表进行筛选归类
@@ -49,10 +51,32 @@ export default {
   isInstallPlugin(list, pluginId) {
     return (list || []).some(element => getPluginBaseId(element.name) === pluginId);
   },
+  normalizeViewPosition(viewPosition) {
+    return SUPPORTED_PLUGIN_VIEWS.includes(viewPosition) ? viewPosition : '';
+  },
+  getPathFromUrl(urlPath) {
+    const rawUrl = `${urlPath || ''}`;
+    const base = typeof window !== 'undefined' && window.location && window.location.origin
+      ? window.location.origin
+      : 'http://localhost';
+
+    try {
+      const url = new URL(rawUrl, base);
+      const hashPath = url.hash ? url.hash.substring(1) : '';
+      return (hashPath || url.pathname || '').split('?')[0];
+    } catch (e) {
+      const hashIndex = rawUrl.indexOf('#');
+      const path = hashIndex >= 0 ? rawUrl.substring(hashIndex + 1) : rawUrl;
+      return path.split('?')[0];
+    }
+  },
   // 判断当前路由的视图位置
-  getCurrentViewPosition(urlPath) {
-    const url = new URL(urlPath);
-    const path = url.hash.substring(1);
+  getCurrentViewPosition(urlPath, viewPosition) {
+    const normalizedViewPosition = this.normalizeViewPosition(viewPosition);
+    if (normalizedViewPosition) {
+      return normalizedViewPosition;
+    }
+    const path = this.getPathFromUrl(urlPath);
     const enterpriseRegex = /^\/enterprise\/[\w-]+/;
     const teamRegionRegex = /^\/team\/[\w-]+\/region\/[\w-]+/;
     const teamAppRegex = /^\/team\/[\w-]+\/region\/[\w-]+\/apps/;
@@ -67,8 +91,8 @@ export default {
     }
   },
   // 判断输出位置
-  isCurrentPluginMultiView(urlPath, viewArr) {
-    const ViewPosition = this.getCurrentViewPosition(urlPath);
+  isCurrentPluginMultiView(urlPath, viewArr = [], viewPosition) {
+    const ViewPosition = this.getCurrentViewPosition(urlPath, viewPosition);
 
     // 当viewArr长度为1时，直接输出'root'
     if (viewArr.length === 1) {
@@ -97,6 +121,22 @@ export default {
 
     // 默认输出'OtherPages'，处理其他情况
     return 'OtherPages';
+  },
+  // 获取 JSInject 插件实际渲染组件
+  getPluginRenderComponent(plugin, urlPath, pluginViews = [], viewPosition) {
+    const currentViewPosition = this.getCurrentViewPosition(urlPath, viewPosition);
+    const normalizedPluginViews = pluginViews || [];
+
+    if (normalizedPluginViews.length && !normalizedPluginViews.includes(currentViewPosition)) {
+      return null;
+    }
+
+    if (plugin && plugin.viewPages && plugin.viewPages[currentViewPosition]) {
+      return plugin.viewPages[currentViewPosition];
+    }
+
+    const legacyKey = this.isCurrentPluginMultiView(urlPath, normalizedPluginViews, currentViewPosition);
+    return plugin && plugin[legacyKey];
   },
 
   // 判断渲染的key
@@ -140,4 +180,3 @@ getIframeParams (key)  {
   }
 }
 }
-

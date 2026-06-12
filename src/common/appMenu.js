@@ -4,6 +4,19 @@ import roleUtil from '../utils/newRole';
 import { isUrl } from '../utils/utils';
 import getMenuSvg from './getMenuSvg';
 import PluginUtil from '../utils/pulginUtils';
+import { isPluginBaseId } from '../utils/pluginArchUtils';
+
+const GATEWAY_MONITORING_PLUGIN_ID = 'rainbond-gateway-monitoring';
+
+function getApplicationPluginMenuName(plugin) {
+  if (isPluginBaseId(plugin, GATEWAY_MONITORING_PLUGIN_ID)) {
+    return formatMessage({
+      id: 'menu.app.gatewayMonitoring.applicationTraffic',
+      defaultMessage: '应用流量'
+    });
+  }
+  return plugin.display_name;
+}
 
 /**
  * 生成分组菜单数据
@@ -115,7 +128,7 @@ function menuData(teamName, regionName, appID, permissionsInfo, pluginList, curr
   // ============ 第三组：插件 ============
   if (pluginArr && pluginArr.length > 0) {
     const pluginItems = pluginArr.map(item => ({
-      name: item.display_name,
+      name: getApplicationPluginMenuName(item),
       icon: getMenuSvg.getSvg('plugin'),
       path: `team/${teamName}/region/${regionName}/apps/${appID}/plugins/${item.name}`,
       authority: ['admin', 'user']
