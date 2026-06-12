@@ -1,13 +1,20 @@
 import React, { PureComponent } from 'react';
 import { Form, Card, Radio, InputNumber, Select, Button, Input, Modal, Collapse } from 'antd';
 import { formatMessage } from '@/utils/intl';
+import {
+    getBackupRepoOptions,
+    getBackupRepoPhase,
+    getBackupRepoPhaseTextId,
+    isBackupRepoSelectable,
+    shouldAutoSelectCreatedBackupRepo,
+    validateBackupRepoSelection
+} from '@/utils/backupRepoReadiness';
 import styles from './index.less';
 
 const { Option } = Select;
 const RadioGroup = Radio.Group;
 const { Group: InputGroup } = Input;
 const { Panel } = Collapse;
-const READY_BACKUP_REPO_PHASE = 'Ready';
 const BACKUP_REPO_FIELD = 'backupRepo';
 const DEFAULT_BACKUP_REPO_BUCKET = 'kubeblocks-backup';
 const DEFAULT_BACKUP_REPO_VOLUME_CAPACITY = '100Gi';
@@ -20,11 +27,10 @@ const BACKUP_CONFIG_FIELDS = [
     'termination_policy'
 ];
 
-const getBackupRepoPhase = repo => (repo && (repo.phase || repo.status)) || '';
-const isBackupRepoReady = repo => getBackupRepoPhase(repo) === READY_BACKUP_REPO_PHASE;
 const getBackupRepoPhaseText = phase => {
-    if (phase === 'Missing') {
-        return formatMessage({ id: 'kubeblocks.database.backup.repo.phase.unavailable' });
+    const messageId = getBackupRepoPhaseTextId(phase);
+    if (messageId) {
+        return formatMessage({ id: messageId });
     }
     return phase;
 };
@@ -55,9 +61,22 @@ export default class Index extends PureComponent {
     }
 
     handleBackupRepoChange = (value) => {
+        const { backupRepos = [] } = this.props;
+        if (value && !validateBackupRepoSelection(value, backupRepos)) {
+            return;
+        }
         this.setState({ backupRepo: value });
         const { form } = this.props;
         form.setFieldsValue({ backupRepo: value });
+    };
+
+    validateBackupRepo = (rule, value, callback) => {
+        const { backupRepos = [] } = this.props;
+        if (validateBackupRepoSelection(value, backupRepos)) {
+            callback();
+            return;
+        }
+        callback(formatMessage({ id: 'kubeblocks.database.backup.repo_not_ready' }));
     };
 
     handleOpenCreateRepo = () => {
@@ -114,7 +133,9 @@ export default class Index extends PureComponent {
                 repo => {
                     this.setState({ createRepoSubmitting: false });
                     if (repo && repo.name) {
-                        this.handleBackupRepoChange(repo.name);
+                        if (shouldAutoSelectCreatedBackupRepo(repo)) {
+                            this.handleBackupRepoChange(repo.name);
+                        }
                         this.handleCancelCreateRepo();
                     }
                 },
@@ -230,9 +251,7 @@ export default class Index extends PureComponent {
             createRepoSubmitting
         } = this.state;
 
-        const repoOptions = backupRepos.filter(repo => {
-            return isBackupRepoReady(repo) || repo.name === backupRepo;
-        });
+        const repoOptions = getBackupRepoOptions(backupRepos);
 
         const formItemLayout = {
             labelCol: {
@@ -254,14 +273,14 @@ export default class Index extends PureComponent {
                             <div className={styles.backupRepoSelector}>
                                 {getFieldDecorator('backupRepo', {
                                     initialValue: backupRepo,
-                                    rules: [{ required: false }]
+                                    rules: [{ required: false }, { validator: this.validateBackupRepo }]
                                 })(
                                     <Select className={styles.backupRepoSelect} style={{ width: 220 }} placeholder={formatMessage({ id: 'kubeblocks.database.backup.repo_placeholder' })} onChange={this.handleBackupRepoChange} allowClear>
                                         <Option value=''>{formatMessage({ id: 'kubeblocks.database.backup.repo_none' })}</Option>
                                         {repoOptions.map(repo => {
                                             const phase = getBackupRepoPhase(repo);
                                             const phaseText = getBackupRepoPhaseText(phase);
-                                            const disabled = !isBackupRepoReady(repo);
+                                            const disabled = !isBackupRepoSelectable(repo);
                                             return (
                                                 <Option key={repo.name} value={repo.name} disabled={disabled}>
                                                     {repo.displayName || repo.display_name || repo.name}{disabled && phaseText ? ` (${phaseText})` : ''}
