@@ -6,13 +6,15 @@ const DEFAULT_API_HOST = '/console/posthog';
 const DEFAULT_UI_HOST = 'https://posthog.goodrain.com';
 const DEFAULT_CONFIG_DATE = '2026-05-30';
 const DEFAULT_PERSON_PROFILES = 'identified_only';
+const POSTHOG_RESERVED_PROPERTIES = {
+  token: true
+};
 const DENYLISTED_PROPERTIES = [
   '$raw_user_agent',
   '$title',
   '$viewport_height',
   '$viewport_width',
   'password',
-  'token',
   'authorization',
   'cookie'
 ];
@@ -123,6 +125,7 @@ function getPostHogConfig() {
       true
     ),
     capturePageleave: resolveBool(firstValue(runtime.capturePageleave, runtime.capture_pageleave, env.RAINBOND_POSTHOG_CAPTURE_PAGELEAVE, env.POSTHOG_CAPTURE_PAGELEAVE), false),
+    disableFlags: resolveBool(firstValue(runtime.disableFlags, runtime.disable_flags, runtime.advanced_disable_flags, env.RAINBOND_POSTHOG_DISABLE_FLAGS, env.POSTHOG_DISABLE_FLAGS), true),
     debug: resolveBool(firstValue(runtime.debug, env.RAINBOND_POSTHOG_DEBUG, env.POSTHOG_DEBUG), false)
   };
 }
@@ -160,9 +163,15 @@ function sanitizePostHogEvent(captureResult) {
   if (!captureResult || !captureResult.properties) {
     return captureResult;
   }
+  const sanitizedProperties = sanitizeObject(captureResult.properties);
+  Object.keys(POSTHOG_RESERVED_PROPERTIES).forEach(key => {
+    if (Object.prototype.hasOwnProperty.call(captureResult.properties, key)) {
+      sanitizedProperties[key] = captureResult.properties[key];
+    }
+  });
   const sanitized = {
     ...captureResult,
-    properties: sanitizeObject(captureResult.properties)
+    properties: sanitizedProperties
   };
   if (sanitized.$set) {
     sanitized.$set = sanitizeObject(sanitized.$set);
