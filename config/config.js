@@ -27,7 +27,7 @@ export default {
   dynamicImport: {
     loading: '@/components/PageLoading/index'
   },
-  mfsu: {},
+  // mfsu: {},
   ignoreMomentLocale: true,
   theme,
   lessLoader: {

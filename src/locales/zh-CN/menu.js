@@ -57,6 +57,7 @@ const appMenu = {
   'menu.app.publish': '应用模板',
   'menu.app.backup': '应用备份',
   'menu.app.gateway': '应用网关',
+  'menu.app.gatewayMonitoring.applicationTraffic': '应用流量',
   'menu.app.configgroups': '应用配置',
   'menu.app.upgrade': '应用升级',
   'menu.app.dynamic': '应用动态',

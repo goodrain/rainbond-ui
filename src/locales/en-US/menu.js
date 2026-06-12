@@ -56,6 +56,7 @@ const appMenu = {
   'menu.app.publish': 'Publish',
   'menu.app.backup': 'Backups',
   'menu.app.gateway': 'Gateway',
+  'menu.app.gatewayMonitoring.applicationTraffic': 'App Traffic',
   'menu.app.configgroups': 'Config Group',
   'menu.app.k8s': 'K8S Resources',
   'menu.app.upgrade': 'Upgrade'
