@@ -26,6 +26,8 @@ class Index extends React.Component {
       dynamic: false
     };
     this.state.dockerprogress = new Map();
+    // 记录已渲染的无 id 日志行，避免 websocket 重放历史时重复追加
+    this.seenMessages = new Set();
   }
   componentDidMount() {
     this.loadEventLog();
@@ -63,9 +65,7 @@ class Index extends React.Component {
       callback: res => {
         if (res) {
           this.setState(
-            {
-              logs: res.list
-            },
+            this.mergeHistoryLogs(res.list),
             () => {
               if (showSocket) {
                 this.showSocket();
@@ -78,30 +78,59 @@ class Index extends React.Component {
       }
     });
   }
+  // 历史日志去重：HTTP 拉取的历史先登记到 dockerprogress / seenMessages，
+  // 后续 websocket 建连时服务端会把同一批历史重放一遍，靠这两份登记吸收掉
+  mergeHistoryLogs = list => {
+    const { dockerprogress } = this.state;
+    const logs = [];
+    (list || []).forEach(item => {
+      const progress = this.parseProgressMessage(item.message);
+      if (progress) {
+        if (dockerprogress.get(progress.id) === undefined) {
+          logs.push(item);
+        }
+        dockerprogress.set(progress.id, progress);
+        return;
+      }
+      if (!this.seenMessages.has(item.message)) {
+        this.seenMessages.add(item.message);
+        logs.push(item);
+      }
+    });
+    return { logs, dockerprogress };
+  };
+  parseProgressMessage = message => {
+    if (!message || message.indexOf('id') === -1) {
+      return null;
+    }
+    try {
+      const m = JSON.parse(message);
+      if (m && m.id !== undefined) {
+        return m;
+      }
+    } catch (err) {
+      // 非 JSON 进度消息，按普通日志处理
+    }
+    return null;
+  };
   handleMessage = data => {
     const logs = this.state.logs || [];
-    if (data.message.indexOf('id') !== -1) {
-      try {
-        const m = JSON.parse(data.message);
-        if (m && m.id !== undefined) {
-          const { dockerprogress } = this.state;
-          if (dockerprogress.get(m.id) !== undefined) {
-            dockerprogress.set(m.id, m);
-          } else {
-            dockerprogress.set(m.id, m);
-            logs.push(data);
-          }
-          this.setState({
-            dockerprogress,
-            logs,
-            dynamic: true
-          });
-          return;
-        }
-      } catch (err) {
+    const progress = this.parseProgressMessage(data.message);
+    if (progress) {
+      const { dockerprogress } = this.state;
+      if (dockerprogress.get(progress.id) === undefined) {
         logs.push(data);
       }
-    } else {
+      dockerprogress.set(progress.id, progress);
+      this.setState({
+        dockerprogress,
+        logs,
+        dynamic: true
+      });
+      return;
+    }
+    if (!this.seenMessages.has(data.message)) {
+      this.seenMessages.add(data.message);
       logs.push(data);
     }
     if (this.refs.box) {
