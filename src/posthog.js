@@ -183,6 +183,7 @@ export function initPostHog() {
     autocapture: config.autocapture,
     capture_pageview: false,
     capture_pageleave: config.capturePageleave,
+    advanced_disable_flags: config.disableFlags,
     disable_session_recording: !config.sessionRecording,
     mask_all_text: config.maskAllText,
     mask_all_element_attributes: config.maskAllElementAttributes,

@@ -123,6 +123,7 @@ function getPostHogConfig() {
       true
     ),
     capturePageleave: resolveBool(firstValue(runtime.capturePageleave, runtime.capture_pageleave, env.RAINBOND_POSTHOG_CAPTURE_PAGELEAVE, env.POSTHOG_CAPTURE_PAGELEAVE), false),
+    disableFlags: resolveBool(firstValue(runtime.disableFlags, runtime.disable_flags, runtime.advanced_disable_flags, env.RAINBOND_POSTHOG_DISABLE_FLAGS, env.POSTHOG_DISABLE_FLAGS), true),
     debug: resolveBool(firstValue(runtime.debug, env.RAINBOND_POSTHOG_DEBUG, env.POSTHOG_DEBUG), false)
   };
 }

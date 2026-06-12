@@ -38,6 +38,7 @@ test('posthog config defaults to enabled without an env project token', function
       maskAllText: false,
       maskAllElementAttributes: true,
       capturePageleave: false,
+      disableFlags: true,
       debug: false
     });
   } finally {
@@ -64,6 +65,7 @@ test('posthog config ignores env project token and keeps built-in token', functi
       maskAllText: false,
       maskAllElementAttributes: true,
       capturePageleave: false,
+      disableFlags: true,
       debug: false
     });
   } finally {
