@@ -228,6 +228,8 @@
       link.href = window.localStorage.faviconurl;
       document.getElementsByTagName('head')[0].appendChild(link);
     </script>
+    <script id="rainbond-sentry-config" type="application/json">{{ sentry_config_json|default:"{}"|safe }}</script>
+    <script id="rainbond-posthog-config" type="application/json">{{ posthog_config_json|default:"{}"|safe }}</script>
   </head>
 
   <body>

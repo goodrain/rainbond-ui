@@ -51,26 +51,27 @@ class Index extends PureComponent {
         const { form, onSubmit } = this.props;
         const { basicInfoRef, backupConfigRef } = this.state;
         const supportsBackup = this.checkDatabaseBackupSupport();
+        const basicFields = basicInfoRef ? basicInfoRef.getFieldNames() : [];
+        const backupFields = supportsBackup && backupConfigRef ? backupConfigRef.getFieldNames() : [];
+        const submitFields = [...basicFields, ...backupFields];
 
-        // 验证基础信息
-        if (basicInfoRef) {
-            basicInfoRef.handleSubmit();
-        }
-
-        // 只在支持备份时才验证备份配置
-        if (supportsBackup && backupConfigRef) {
-            backupConfigRef.handleSubmit();
-        }
-
-        // 验证整个表单
-        form.validateFields((err, values) => {
+        form.validateFields(submitFields, (err, values) => {
             if (!err && onSubmit) {
-                // 合并所有配置数据
+                const pickValues = fields => fields.reduce((result, field) => {
+                    result[field] = values[field];
+                    return result;
+                }, {});
+                const basicInfo = basicInfoRef
+                    ? basicInfoRef.normalizeSubmitValues(pickValues(basicFields))
+                    : pickValues(basicFields);
+                const backupConfig = supportsBackup && backupConfigRef
+                    ? backupConfigRef.normalizeSubmitValues(pickValues(backupFields))
+                    : undefined;
+
                 const configData = {
                     ...values,
-                    basicInfo: this.state.basicInfoData,
-                    // 只在支持备份时才包含备份配置
-                    ...(supportsBackup && { backupConfig: this.state.backupConfigData })
+                    basicInfo,
+                    ...(supportsBackup && { backupConfig })
                 };
                 onSubmit(configData);
             }
@@ -86,7 +87,7 @@ class Index extends PureComponent {
     };
 
     render() {
-        const { form, dbVersions = [], storageClasses = [], backupRepos = [], databaseType } = this.props;
+        const { form, dbVersions = [], storageClasses = [], backupRepos = [], databaseType, onCreateBackupRepo } = this.props;
         const supportsBackup = this.checkDatabaseBackupSupport();
 
         return (
@@ -106,6 +107,7 @@ class Index extends PureComponent {
                     <BackupConfig
                         form={form}
                         backupRepos={backupRepos}
+                        onCreateBackupRepo={onCreateBackupRepo}
                         onRef={this.onRefBackupConfig}
                         onSubmit={this.handleBackupConfigSubmit}
                     />
@@ -115,4 +117,4 @@ class Index extends PureComponent {
     }
 }
 
-export default Index; 
+export default Index;

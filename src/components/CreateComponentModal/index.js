@@ -652,18 +652,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       showPluginModal: true
     }))
   ];
-  if (showDatabaseForm) {
-    menuItems.push({
-      icon: 'database',
-      iconSrc: InstalledDatabaseIcon,
-      title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.database' }),
-      key: 'database',
-      hasSubMenu: true,
-      iconColor: '#13c2c2',
-    });
-  }
-
-  const showDatabaseEntry = false;
+  const showDatabaseEntry = true;
   const showVmEntry = true;
   const showExtensionSection = true;
 

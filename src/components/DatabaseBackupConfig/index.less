@@ -28,10 +28,18 @@
     .backup-repo-selector {
         display: flex;
         align-items: center;
+        flex-wrap: wrap;
+        gap: 8px 12px;
 
-        .ant-select {
-            margin-right: 8px;
+        .backup-repo-select {
+            width: 220px;
         }
+    }
+
+    .backup-repo-create-button {
+        height: 32px;
+        padding: 0 14px;
+        line-height: 30px;
     }
 
     .ant-radio-group {
@@ -39,5 +47,118 @@
             margin-right: 16px;
             margin-bottom: 8px;
         }
+    }
+}
+
+.createRepoModal {
+    :global {
+        .ant-modal {
+            max-width: calc(100vw - 32px);
+        }
+
+        .ant-modal-header {
+            padding: 16px 24px;
+            border-bottom-color: @border-color-base;
+        }
+
+        .ant-modal-title {
+            color: @rbd-title-big-color;
+            font-size: @rbd-sub-title-size;
+            line-height: @rbd-sub-title-line-height;
+            font-weight: 600;
+        }
+
+        .ant-modal-body {
+            max-height: calc(100vh - 180px);
+            overflow-y: auto;
+            padding: 18px 24px 4px;
+        }
+
+        .ant-modal-footer {
+            padding: 12px 24px 16px;
+            border-top-color: @border-color-base;
+        }
+    }
+}
+
+.createRepoForm {
+    margin: 0;
+}
+
+.createRepoFormGrid {
+    display: block;
+}
+
+.createRepoFormItem {
+    width: 100%;
+    margin-bottom: 14px !important;
+
+    :global {
+        .ant-form-item-label {
+            padding-bottom: 4px;
+            line-height: 20px;
+        }
+
+        .ant-form-item-label > label {
+            color: @rbd-sub-title-color;
+            font-size: @rbd-content-size;
+            font-weight: 600;
+        }
+
+        .ant-form-item-control {
+            line-height: 32px;
+        }
+
+        .ant-form-explain {
+            min-height: 18px;
+            margin-top: 4px;
+            font-size: @rbd-auxiliary-size;
+            line-height: 18px;
+        }
+
+        .ant-input,
+        .ant-input-affix-wrapper .ant-input {
+            height: 34px;
+        }
+    }
+}
+
+.repoAccessStyleHint {
+    margin-top: 4px;
+    color: @rbd-label-color;
+    font-size: @rbd-auxiliary-size;
+    line-height: @rbd-auxiliary-line-height;
+}
+
+.createRepoAdvancedCollapse {
+    margin-top: 2px;
+    background: transparent;
+
+    :global {
+        .ant-collapse-item {
+            border-bottom: 0;
+        }
+
+        .ant-collapse-header {
+            padding: 4px 24px 12px 0 !important;
+            color: @primary-color !important;
+            font-size: @rbd-content-size;
+            line-height: @rbd-content-line-height;
+        }
+
+        .ant-collapse-content {
+            border-top: 0;
+            background: transparent;
+        }
+
+        .ant-collapse-content-box {
+            padding: 0;
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .createRepoFormItem {
+        width: 100%;
     }
 }
