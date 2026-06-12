@@ -8,7 +8,7 @@ const {
 
 assert.strictEqual(
   formatKubeBlocksCpuValue(parseKubeBlocksCpuValue(0)),
-  '500m',
+  '250m',
   'slider value 0 should map to the minimum database CPU request'
 );
 
@@ -20,7 +20,7 @@ assert.strictEqual(
 
 assert.strictEqual(
   formatKubeBlocksCpuValue(parseKubeBlocksCpuValue('0')),
-  '500m',
+  '250m',
   'string zero CPU should not be submitted below the database minimum'
 );
 
@@ -31,9 +31,21 @@ assert.strictEqual(
 );
 
 assert.strictEqual(
+  formatKubeBlocksCpuValue(parseKubeBlocksCpuValue(100)),
+  '250m',
+  'direct 100m CPU should not be submitted below the database minimum'
+);
+
+assert.strictEqual(
+  formatKubeBlocksCpuValue(parseKubeBlocksCpuValue(2)),
+  '250m',
+  'database default CPU slider value should be 250m'
+);
+
+assert.strictEqual(
   formatKubeBlocksCpuValue(parseKubeBlocksCpuValue(3)),
   '500m',
-  'database default CPU slider value should be 500m'
+  'next CPU slider value should remain 500m'
 );
 
 assert.strictEqual(

@@ -444,7 +444,7 @@ export default class Index extends PureComponent {
 
     const rawCpu = (basicInfo.min_cpu !== undefined && basicInfo.min_cpu !== null)
       ? basicInfo.min_cpu
-      : 500;
+      : 250;
     const rawMemory = (basicInfo.min_memory !== undefined && basicInfo.min_memory !== null)
       ? basicInfo.min_memory
       : 512;

@@ -1,12 +1,12 @@
-const MIN_CPU_SLIDER_VALUE = 3;
+const MIN_CPU_SLIDER_VALUE = 2;
 const MIN_MEMORY_SLIDER_VALUE = 3;
-const DEFAULT_CPU_MILLICORES = 500;
+const DEFAULT_CPU_MILLICORES = 250;
 const DEFAULT_MEMORY_MB = 512;
 
 const CPU_SLIDER_TO_MILLICORES = {
-  0: 500,
-  1: 500,
-  2: 500,
+  0: 250,
+  1: 250,
+  2: 250,
   3: 500,
   4: 1000,
   5: 2000,
@@ -74,7 +74,7 @@ function formatKubeBlocksCpuValue(cpuMillicores) {
     16000: '16'
   };
 
-  return cpuMap[Math.max(parsePositiveInteger(cpuMillicores, DEFAULT_CPU_MILLICORES), DEFAULT_CPU_MILLICORES)] || '500m';
+  return cpuMap[Math.max(parsePositiveInteger(cpuMillicores, DEFAULT_CPU_MILLICORES), DEFAULT_CPU_MILLICORES)] || '250m';
 }
 
 function formatKubeBlocksMemoryValue(memoryMB) {
