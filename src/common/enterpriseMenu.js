@@ -143,19 +143,20 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList, rainbon
 
   // ============ 第五组：可观测性（监控中心、告警中心、日志中心） ============
   const observabilityItems = [];
-  const observabilityPlugin = PluginUtil.getPluginInfo(pluginList, 'rainbond-observability');
   const alarmPlugin = PluginUtil.getPluginInfo(pluginList, 'rainbond-enterprise-alarm');
   const lokiPlugin = PluginUtil.getPluginInfo(pluginList, 'rainbond-enterprise-logs');
+  const gatewayMonitoringPlugin = PluginUtil.getPluginInfo(pluginList, 'rainbond-gateway-monitoring');
 
-  // 监控中心
-  if (observabilityPlugin && Object.keys(observabilityPlugin).length !== 0) {
-    const firstEntry = Object.entries(observabilityPlugin)[0];
+  // 监控中心：使用网关监测插件承载，原 rainbond-observability 不再渲染到企业侧边栏
+  if (gatewayMonitoringPlugin && Object.keys(gatewayMonitoringPlugin).length !== 0) {
+    const firstEntry = Object.entries(gatewayMonitoringPlugin)[0];
     if (firstEntry) {
       const [regionName, plugin] = firstEntry;
+      const showSelect = Object.keys(gatewayMonitoringPlugin).length > 1;
       observabilityItems.push({
-        name: plugin?.display_name || formatMessage({ id: 'menu.enterprise.monitoring', defaultMessage: '监控中心' }),
+        name: formatMessage({ id: 'menu.enterprise.monitoring', defaultMessage: '监控中心' }),
         icon: getMenuSvg.getSvg('monitoringSvg'),
-        path: `/enterprise/${eid}/plugins/${plugin?.name || 'rainbond-observability'}?regionName=${regionName}`,
+        path: `/enterprise/${eid}/plugins/${plugin?.name || 'rainbond-gateway-monitoring'}?regionName=${regionName}${showSelect ? '&showSelect=true' : ''}`,
         authority: ['admin', 'user']
       });
     }
@@ -200,7 +201,7 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList, rainbon
   }
 
   // ============ 第六组：插件（排除可观测性相关插件） ============
-  const excludePlugins = ['rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs', 'rainbond-bill'];
+  const excludePlugins = ['rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs', 'rainbond-gateway-monitoring', 'rainbond-bill'];
   // 多集群情况下，排除 rainbond-recovery 插件（从集群管理页面进入）
   if (clusterList && clusterList.length > 1) {
     excludePlugins.push('rainbond-recovery');

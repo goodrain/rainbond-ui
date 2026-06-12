@@ -245,6 +245,7 @@ class EditName extends PureComponent {
   ({ user, appControl, global, teamControl, enterprise, loading, kubeblocks, agent }) => ({
     currUser: user.currentUser,
     appDetail: appControl.appDetail,
+    ports: appControl.ports,
     pods: appControl.pods,
     groups: global.groups,
     build_upgrade: appControl.build_upgrade,
@@ -623,6 +624,25 @@ class Main extends PureComponent {
     const { team_name, region_name } = this.fetchParameter();
     return `/team/${team_name}/region/${region_name}/`;
   };
+  fetchPortsForCurrentComponent = appAlias => {
+    const { dispatch } = this.props;
+    const { team_name } = this.fetchParameter();
+
+    if (!appAlias) {
+      return;
+    }
+
+    dispatch({ type: 'appControl/clearPorts' });
+    dispatch({
+      type: 'appControl/fetchPorts',
+      payload: {
+        team_name,
+        app_alias: appAlias,
+        showLoading: false,
+        showMessage: false
+      }
+    });
+  };
   loadDetail = (val) => {    
     const { dispatch } = this.props;
     const {
@@ -645,6 +665,7 @@ class Main extends PureComponent {
       },
       callback: appDetail => {
         this.fetchAppDetail();
+        this.fetchPortsForCurrentComponent(app_alias);
         const haveTabKey = globalUtil.getSlidePanelTab();
         const isShowThirdParty = appDetail.is_third ? appDetail.is_third : false;
         const initialTab = this.normalizeActiveTab(
@@ -1519,6 +1540,7 @@ class Main extends PureComponent {
       deployLoading,
       buildInformationLoading,
       pluginList,
+      ports,
       permissions,
       permissions: {
         isAccess,
@@ -1556,7 +1578,8 @@ class Main extends PureComponent {
     const method = appDetail && appDetail.service && appDetail.service.extend_method
     const CompluginList = getVisibleComponentPlugins(
       PluginUtile.segregatePluginsByHierarchy(pluginList, 'Component'),
-      appDetail
+      appDetail,
+      ports
     );
     const upDataText = isShowThirdParty ? <FormattedMessage id='componentOverview.header.right.update' /> : <FormattedMessage id='componentOverview.header.right.update.roll' />;
     const codeObj = {
@@ -1731,7 +1754,8 @@ class Main extends PureComponent {
             key: item.name,
             tab: getComponentPluginTabName(
               item,
-              formatMessage({ id: 'componentOverview.body.tab.bar.monitor' })
+              formatMessage({ id: 'componentOverview.body.tab.bar.monitor' }),
+              formatMessage({ id: 'componentOverview.body.tab.bar.gatewayTraffic' })
             )
           });
         });

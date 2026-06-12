@@ -25,6 +25,7 @@ const componentOverview = {
     // tabs栏
     'componentOverview.body.tab.bar.overview': 'Overview',
     'componentOverview.body.tab.bar.monitor': 'Monitor',
+    'componentOverview.body.tab.bar.gatewayTraffic': 'Component Traffic',
     'componentOverview.body.tab.bar.log': 'Log',
     'componentOverview.body.tab.bar.expansion': 'Scaling',
     'componentOverview.body.tab.bar.environmentConfiguration': 'Environment',
