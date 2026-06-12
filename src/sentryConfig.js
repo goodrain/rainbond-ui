@@ -99,6 +99,30 @@ function firstValue() {
   return '';
 }
 
+function buildSentryTunnelUrl(tunnel, envelopePath, queryString) {
+  if (!tunnel) {
+    return '';
+  }
+  const requestPath = String(envelopePath || '').replace(/^\/+/, '');
+  const requestQuery = queryString || '';
+  const tunnelBase = String(tunnel).replace(/\/+$/, '');
+
+  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(tunnelBase)) {
+    try {
+      const parsed = new URL(tunnelBase);
+      const basePath = parsed.pathname.replace(/\/+$/, '');
+      parsed.pathname = `${basePath}/${requestPath}`.replace(/\/{2,}/g, '/');
+      parsed.search = requestQuery;
+      parsed.hash = '';
+      return parsed.toString();
+    } catch (error) {
+      return '';
+    }
+  }
+
+  return `${tunnelBase}/${requestPath}${requestQuery}`;
+}
+
 function isTelemetryDisabled(runtime, env) {
   return (
     isEnabled(runtime.disabled) ||
@@ -143,6 +167,14 @@ function getSentryConfig() {
     dsn,
     environment: runtime.environment || env.RAINBOND_ERROR_REPORTING_ENVIRONMENT || env.SENTRY_ENVIRONMENT || env.UMI_APP_SENTRY_ENVIRONMENT || 'production',
     release: runtime.release || env.RAINBOND_ERROR_REPORTING_RELEASE || env.SENTRY_RELEASE || env.UMI_APP_SENTRY_RELEASE || '',
+    tunnel: firstValue(
+      runtime.tunnel,
+      runtime.tunnelUrl,
+      env.RAINBOND_ERROR_REPORTING_FRONTEND_TUNNEL,
+      env.SENTRY_FRONTEND_TUNNEL,
+      env.SENTRY_TUNNEL,
+      env.UMI_APP_SENTRY_TUNNEL
+    ),
     tracesSampleRate: parseSampleRate(
       runtime.tracesSampleRate || env.SENTRY_TRACES_SAMPLE_RATE || env.UMI_APP_SENTRY_TRACES_SAMPLE_RATE
     )
@@ -254,6 +286,7 @@ function sanitizeStack(stack) {
 }
 
 module.exports = {
+  buildSentryTunnelUrl,
   getPathPattern,
   getSentryConfig,
   sanitizeObject,
