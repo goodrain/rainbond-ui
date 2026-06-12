@@ -93,9 +93,38 @@ function formatKubeBlocksMemoryValue(memoryMB) {
   return memoryMap[Math.max(parsePositiveInteger(memoryMB, DEFAULT_MEMORY_MB), DEFAULT_MEMORY_MB)] || '512Mi';
 }
 
+function parseVersionParts(version) {
+  const matches = String(version || '').match(/\d+/g);
+  return matches ? matches.map(item => parseInt(item, 10)) : [];
+}
+
+function compareKubeBlocksVersionsDesc(leftVersion, rightVersion) {
+  const leftParts = parseVersionParts(leftVersion);
+  const rightParts = parseVersionParts(rightVersion);
+  const maxLength = Math.max(leftParts.length, rightParts.length);
+
+  for (let index = 0; index < maxLength; index += 1) {
+    const left = leftParts[index] || 0;
+    const right = rightParts[index] || 0;
+    if (left !== right) {
+      return right - left;
+    }
+  }
+
+  return String(rightVersion || '').localeCompare(String(leftVersion || ''));
+}
+
+function sortKubeBlocksVersionsLatestFirst(versions = []) {
+  if (!Array.isArray(versions)) {
+    return [];
+  }
+  return versions.slice().sort(compareKubeBlocksVersionsDesc);
+}
+
 module.exports = {
   formatKubeBlocksCpuValue,
   formatKubeBlocksMemoryValue,
   parseKubeBlocksCpuValue,
-  parseKubeBlocksMemoryValue
+  parseKubeBlocksMemoryValue,
+  sortKubeBlocksVersionsLatestFirst
 };

@@ -17,7 +17,8 @@ const {
   formatKubeBlocksCpuValue,
   formatKubeBlocksMemoryValue,
   parseKubeBlocksCpuValue,
-  parseKubeBlocksMemoryValue
+  parseKubeBlocksMemoryValue,
+  sortKubeBlocksVersionsLatestFirst
 } = require('./kubeblocksResource');
 
 const READY_BACKUP_REPO_PHASE = 'Ready';
@@ -544,7 +545,7 @@ export default class Index extends PureComponent {
     if (database_type && Array.isArray(databaseTypes)) {
       const found = databaseTypes.find(item => String(item.type) === String(database_type));
       if (found && Array.isArray(found.version)) {
-        dbVersions = found.version;
+        dbVersions = sortKubeBlocksVersionsLatestFirst(found.version);
       }
     }
 
