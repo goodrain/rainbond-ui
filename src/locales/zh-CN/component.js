@@ -25,10 +25,10 @@ const componentOverview = {
     // tabs栏
     'componentOverview.body.tab.bar.overview': '总览',
     'componentOverview.body.tab.bar.monitor': '监控',
-    'componentOverview.body.tab.bar.gatewayTraffic': '组件流量',
+    'componentOverview.body.tab.bar.gatewayTraffic': '流量分析',
     'componentOverview.body.tab.bar.log': '日志',
     'componentOverview.body.tab.bar.expansion': '伸缩',
-    'componentOverview.body.tab.bar.environmentConfiguration': '环境配置',
+    'componentOverview.body.tab.bar.environmentConfiguration': '配置',
     'componentOverview.body.tab.bar.relation': '依赖',
     'componentOverview.body.tab.bar.mnt': '存储',
     'componentOverview.body.tab.bar.port': '端口',
