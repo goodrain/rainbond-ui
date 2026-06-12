@@ -11,6 +11,7 @@ const READY_BACKUP_REPO_PHASE = 'Ready';
 const BACKUP_REPO_FIELD = 'backupRepo';
 const DEFAULT_BACKUP_REPO_BUCKET = 'kubeblocks-backup';
 const DEFAULT_BACKUP_REPO_VOLUME_CAPACITY = '100Gi';
+const DEFAULT_BACKUP_REPO_FORCE_PATH_STYLE = 'true';
 const BACKUP_CONFIG_FIELDS = [
     BACKUP_REPO_FIELD,
     'backupCycle',
@@ -71,6 +72,7 @@ export default class Index extends PureComponent {
             'quickRepoBucket',
             'quickRepoEndpoint',
             'quickRepoRegion',
+            'quickRepoForcePathStyle',
             'quickRepoAccessKeyId',
             'quickRepoSecretAccessKey',
             'quickRepoPathPrefix'
@@ -86,6 +88,7 @@ export default class Index extends PureComponent {
             'quickRepoBucket',
             'quickRepoEndpoint',
             'quickRepoRegion',
+            'quickRepoForcePathStyle',
             'quickRepoAccessKeyId',
             'quickRepoSecretAccessKey',
             'quickRepoPathPrefix'
@@ -102,6 +105,7 @@ export default class Index extends PureComponent {
                     bucket: values.quickRepoBucket,
                     endpoint: values.quickRepoEndpoint,
                     region: values.quickRepoRegion || '',
+                    force_path_style: values.quickRepoForcePathStyle !== 'false',
                     access_key_id: values.quickRepoAccessKeyId,
                     secret_access_key: values.quickRepoSecretAccessKey,
                     volume_capacity: DEFAULT_BACKUP_REPO_VOLUME_CAPACITY,
@@ -381,6 +385,19 @@ export default class Index extends PureComponent {
                                 {getFieldDecorator('quickRepoEndpoint', {
                                     rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.endpoint_required' }) }]
                                 })(<Input placeholder="https://s3.example.com" />)}
+                            </Form.Item>
+                            <Form.Item className={styles.createRepoFormItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.access_style' })}>
+                                {getFieldDecorator('quickRepoForcePathStyle', {
+                                    initialValue: DEFAULT_BACKUP_REPO_FORCE_PATH_STYLE
+                                })(
+                                    <RadioGroup>
+                                        <Radio value="true">{formatMessage({ id: 'kubeblocks.database.backup.repo.access_style_path' })}</Radio>
+                                        <Radio value="false">{formatMessage({ id: 'kubeblocks.database.backup.repo.access_style_virtual' })}</Radio>
+                                    </RadioGroup>
+                                )}
+                                <div className={styles.repoAccessStyleHint}>
+                                    {formatMessage({ id: 'kubeblocks.database.backup.repo.access_style_hint' })}
+                                </div>
                             </Form.Item>
                             <Form.Item className={styles.createRepoFormItem} label="AccessKey">
                                 {getFieldDecorator('quickRepoAccessKeyId', {
