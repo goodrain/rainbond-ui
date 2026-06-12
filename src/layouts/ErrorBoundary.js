@@ -2,6 +2,7 @@ import { connect } from 'dva';
 import { Button } from 'antd';
 import { PureComponent } from 'react';
 import  Result  from '../components/Result/index';
+import { captureException } from '../sentry';
 
 @connect(({ user }) => ({
   currentUser: user.currentUser,
@@ -27,6 +28,12 @@ export default class ErrorBoundary extends PureComponent {
     ) {
       return null;
     }
+    captureException(error, {
+      tags: {
+        component: 'rainbond-ui'
+      },
+      extra: errorInfo
+    });
     return this.saveLog(error);
   }
   saveLog = error => {

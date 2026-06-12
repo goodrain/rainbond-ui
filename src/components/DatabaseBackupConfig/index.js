@@ -1,17 +1,39 @@
 import React, { PureComponent } from 'react';
-import { Form, Card, Radio, InputNumber, Select, Button, Input } from 'antd';
+import { Form, Card, Radio, InputNumber, Select, Button, Input, Modal, Collapse } from 'antd';
 import { formatMessage } from '@/utils/intl';
 import styles from './index.less';
 
 const { Option } = Select;
 const RadioGroup = Radio.Group;
 const { Group: InputGroup } = Input;
+const { Panel } = Collapse;
+const READY_BACKUP_REPO_PHASE = 'Ready';
+const BACKUP_REPO_FIELD = 'backupRepo';
+const DEFAULT_BACKUP_REPO_BUCKET = 'kubeblocks-backup';
+const DEFAULT_BACKUP_REPO_VOLUME_CAPACITY = '100Gi';
+const DEFAULT_BACKUP_REPO_FORCE_PATH_STYLE = 'true';
+const BACKUP_CONFIG_FIELDS = [
+    BACKUP_REPO_FIELD,
+    'backupCycle',
+    'backupStartTime',
+    'backupRetention',
+    'termination_policy'
+];
+
+const getBackupRepoPhase = repo => (repo && (repo.phase || repo.status)) || '';
+const isBackupRepoReady = repo => getBackupRepoPhase(repo) === READY_BACKUP_REPO_PHASE;
+const getBackupRepoPhaseText = phase => {
+    if (phase === 'Missing') {
+        return formatMessage({ id: 'kubeblocks.database.backup.repo.phase.unavailable' });
+    }
+    return phase;
+};
 
 export default class Index extends PureComponent {
     constructor(props) {
         super(props);
         this.state = {
-            // 备份设置
+            // 备份策略
             backupCycle: 'hour', // 小时
             backupStartDay: '5', // 周五
             backupStartHour: '00',
@@ -19,7 +41,9 @@ export default class Index extends PureComponent {
             backupRetentionTime: 7,
             backupRetentionUnit: 'day',
             termination_policy: 'Delete', // 保留备份
-            backupRepo: ''
+            backupRepo: '',
+            createRepoVisible: false,
+            createRepoSubmitting: false
         };
     }
 
@@ -34,6 +58,71 @@ export default class Index extends PureComponent {
         this.setState({ backupRepo: value });
         const { form } = this.props;
         form.setFieldsValue({ backupRepo: value });
+    };
+
+    handleOpenCreateRepo = () => {
+        this.setState({ createRepoVisible: true });
+    };
+
+    handleCancelCreateRepo = () => {
+        const { form } = this.props;
+        form.resetFields([
+            'quickRepoName',
+            'quickRepoDisplayName',
+            'quickRepoBucket',
+            'quickRepoEndpoint',
+            'quickRepoRegion',
+            'quickRepoForcePathStyle',
+            'quickRepoAccessKeyId',
+            'quickRepoSecretAccessKey',
+            'quickRepoPathPrefix'
+        ]);
+        this.setState({ createRepoVisible: false, createRepoSubmitting: false });
+    };
+
+    handleCreateRepo = () => {
+        const { form, onCreateBackupRepo } = this.props;
+        const fields = [
+            'quickRepoName',
+            'quickRepoDisplayName',
+            'quickRepoBucket',
+            'quickRepoEndpoint',
+            'quickRepoRegion',
+            'quickRepoForcePathStyle',
+            'quickRepoAccessKeyId',
+            'quickRepoSecretAccessKey',
+            'quickRepoPathPrefix'
+        ];
+
+        form.validateFields(fields, (err, values) => {
+            if (err || !onCreateBackupRepo) return;
+
+            this.setState({ createRepoSubmitting: true });
+            onCreateBackupRepo(
+                {
+                    name: values.quickRepoName,
+                    display_name: values.quickRepoDisplayName || values.quickRepoName,
+                    bucket: values.quickRepoBucket,
+                    endpoint: values.quickRepoEndpoint,
+                    region: values.quickRepoRegion || '',
+                    force_path_style: values.quickRepoForcePathStyle !== 'false',
+                    access_key_id: values.quickRepoAccessKeyId,
+                    secret_access_key: values.quickRepoSecretAccessKey,
+                    volume_capacity: DEFAULT_BACKUP_REPO_VOLUME_CAPACITY,
+                    path_prefix: values.quickRepoPathPrefix || ''
+                },
+                repo => {
+                    this.setState({ createRepoSubmitting: false });
+                    if (repo && repo.name) {
+                        this.handleBackupRepoChange(repo.name);
+                        this.handleCancelCreateRepo();
+                    }
+                },
+                () => {
+                    this.setState({ createRepoSubmitting: false });
+                }
+            );
+        });
     };
 
     handleBackupCycleChange = (e) => {
@@ -57,59 +146,71 @@ export default class Index extends PureComponent {
         };
     };
 
+    getFieldNames = () => {
+        const { form } = this.props;
+        return form.getFieldValue(BACKUP_REPO_FIELD) ? BACKUP_CONFIG_FIELDS : [BACKUP_REPO_FIELD];
+    };
+
+    normalizeSubmitValues = (fieldsValue = {}) => {
+        if (!fieldsValue.backupRepo) {
+            return {
+                backupRepo: ''
+            };
+        }
+
+        // 根据备份周期，构建完整的时间设置对象
+        const { backupCycle } = fieldsValue;
+        const { backupStartDay, backupStartHour, backupStartMinute, backupRetentionTime } = this.state;
+
+        // 构建时间设置对象，包含用户实际设置的值
+        let backupStartTime = {};
+
+        switch (backupCycle) {
+            case 'hour':
+                // 每小时备份，只需要分钟
+                backupStartTime = {
+                    minute: backupStartMinute
+                };
+                break;
+
+            case 'day':
+                // 每天备份，需要小时和分钟
+                backupStartTime = {
+                    hour: backupStartHour,
+                    minute: backupStartMinute
+                };
+                break;
+
+            case 'week':
+                // 每周备份，需要星期、小时和分钟
+                backupStartTime = {
+                    day: backupStartDay,
+                    hour: backupStartHour,
+                    minute: backupStartMinute
+                };
+                break;
+
+            default:
+                // 默认配置
+                backupStartTime = {
+                    hour: '02',
+                    minute: '00'
+                };
+        }
+
+        return {
+            ...fieldsValue,
+            backupStartTime,
+            backupRetention: backupRetentionTime
+        };
+    };
+
     handleSubmit = () => {
         const { form, onSubmit } = this.props;
 
-        form.validateFields((err, fieldsValue) => {
+        form.validateFields(this.getFieldNames(), (err, fieldsValue) => {
             if (!err && onSubmit && fieldsValue) {
-                // 根据备份周期，构建完整的时间设置对象
-                const { backupCycle } = fieldsValue;
-                const { backupStartDay, backupStartHour, backupStartMinute, backupRetentionTime } = this.state;
-
-                // 构建时间设置对象，包含用户实际设置的值
-                let backupStartTime = {};
-
-                switch (backupCycle) {
-                    case 'hour':
-                        // 每小时备份，只需要分钟
-                        backupStartTime = {
-                            minute: backupStartMinute
-                        };
-                        break;
-
-                    case 'day':
-                        // 每天备份，需要小时和分钟
-                        backupStartTime = {
-                            hour: backupStartHour,
-                            minute: backupStartMinute
-                        };
-                        break;
-
-                    case 'week':
-                        // 每周备份，需要星期、小时和分钟
-                        backupStartTime = {
-                            day: backupStartDay,
-                            hour: backupStartHour,
-                            minute: backupStartMinute
-                        };
-                        break;
-
-                    default:
-                        // 默认配置
-                        backupStartTime = {
-                            hour: '02',
-                            minute: '00'
-                        };
-                }
-
-                // 更新字段值，确保传递正确的时间设置
-                fieldsValue.backupStartTime = backupStartTime;
-
-                // 处理备份保留时间，直接使用数字值（天数）
-                fieldsValue.backupRetention = backupRetentionTime;
-
-
-                onSubmit(fieldsValue);
+                onSubmit(this.normalizeSubmitValues(fieldsValue));
             }
         });
     };
@@ -124,10 +225,14 @@ export default class Index extends PureComponent {
             backupStartMinute,
             backupRetentionTime,
             termination_policy,
-            backupRepo
+            backupRepo,
+            createRepoVisible,
+            createRepoSubmitting
         } = this.state;
 
-        const repoOptions = backupRepos;
+        const repoOptions = backupRepos.filter(repo => {
+            return isBackupRepoReady(repo) || repo.name === backupRepo;
+        });
 
         const formItemLayout = {
             labelCol: {
@@ -146,19 +251,29 @@ export default class Index extends PureComponent {
                     <Form layout="horizontal" hideRequiredMark>
                         {/* BackupRepo */}
                         <Form.Item {...formItemLayout} label={formatMessage({ id: 'kubeblocks.database.backup.repo_label' })}>
-                            {getFieldDecorator('backupRepo', {
-                                initialValue: backupRepo,
-                                rules: [{ required: false }]
-                            })(
-                                <Select style={{ width: '180px' }} placeholder={formatMessage({ id: 'kubeblocks.database.backup.repo_placeholder' })} onChange={this.handleBackupRepoChange} allowClear>
-                                    <Option value=''>{formatMessage({ id: 'kubeblocks.database.backup.repo_none' })}</Option>
-                                    {repoOptions.map(repo => (
-                                        <Option key={repo.name} value={repo.name}>
-                                            {repo.displayName || repo.name}
-                                        </Option>
-                                    ))}
-                                </Select>
-                            )}
+                            <div className={styles.backupRepoSelector}>
+                                {getFieldDecorator('backupRepo', {
+                                    initialValue: backupRepo,
+                                    rules: [{ required: false }]
+                                })(
+                                    <Select className={styles.backupRepoSelect} style={{ width: 220 }} placeholder={formatMessage({ id: 'kubeblocks.database.backup.repo_placeholder' })} onChange={this.handleBackupRepoChange} allowClear>
+                                        <Option value=''>{formatMessage({ id: 'kubeblocks.database.backup.repo_none' })}</Option>
+                                        {repoOptions.map(repo => {
+                                            const phase = getBackupRepoPhase(repo);
+                                            const phaseText = getBackupRepoPhaseText(phase);
+                                            const disabled = !isBackupRepoReady(repo);
+                                            return (
+                                                <Option key={repo.name} value={repo.name} disabled={disabled}>
+                                                    {repo.displayName || repo.display_name || repo.name}{disabled && phaseText ? ` (${phaseText})` : ''}
+                                                </Option>
+                                            );
+                                        })}
+                                    </Select>
+                                )}
+                                <Button className={styles.backupRepoCreateButton} icon="plus" onClick={this.handleOpenCreateRepo}>
+                                    {formatMessage({ id: 'kubeblocks.database.backup.repo.create_s3' })}
+                                </Button>
+                            </div>
                         </Form.Item>
                         {form.getFieldValue('backupRepo') ? <>
                             <Form.Item {...formItemLayout} label={formatMessage({ id: 'kubeblocks.database.backup.cycle_label' })}>
@@ -240,6 +355,84 @@ export default class Index extends PureComponent {
                         </> : null}
                     </Form>
                 </Card>
+                <Modal
+                    title={formatMessage({ id: 'kubeblocks.database.backup.repo.modal.create_title' })}
+                    visible={createRepoVisible}
+                    width={560}
+                    onOk={this.handleCreateRepo}
+                    onCancel={this.handleCancelCreateRepo}
+                    confirmLoading={createRepoSubmitting}
+                    destroyOnClose
+                    className={styles.createRepoModal}
+                >
+                    <Form layout="vertical" className={styles.createRepoForm}>
+                        <div className={styles.createRepoFormGrid}>
+                            <Form.Item className={styles.createRepoFormItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.name' })}>
+                                {getFieldDecorator('quickRepoName', {
+                                    rules: [
+                                        { required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.name_required' }) },
+                                        { pattern: /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/, message: formatMessage({ id: 'kubeblocks.database.backup.repo.name_invalid' }) }
+                                    ]
+                                })(<Input placeholder="prod-s3" />)}
+                            </Form.Item>
+                            <Form.Item className={styles.createRepoFormItem} label="Bucket">
+                                {getFieldDecorator('quickRepoBucket', {
+                                    initialValue: DEFAULT_BACKUP_REPO_BUCKET,
+                                    rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.bucket_required' }) }]
+                                })(<Input placeholder={DEFAULT_BACKUP_REPO_BUCKET} />)}
+                            </Form.Item>
+                            <Form.Item className={styles.createRepoFormItem} label="Endpoint">
+                                {getFieldDecorator('quickRepoEndpoint', {
+                                    rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.endpoint_required' }) }]
+                                })(<Input placeholder="https://s3.example.com" />)}
+                            </Form.Item>
+                            <Form.Item className={styles.createRepoFormItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.access_style' })}>
+                                {getFieldDecorator('quickRepoForcePathStyle', {
+                                    initialValue: DEFAULT_BACKUP_REPO_FORCE_PATH_STYLE
+                                })(
+                                    <RadioGroup>
+                                        <Radio value="true">{formatMessage({ id: 'kubeblocks.database.backup.repo.access_style_path' })}</Radio>
+                                        <Radio value="false">{formatMessage({ id: 'kubeblocks.database.backup.repo.access_style_virtual' })}</Radio>
+                                    </RadioGroup>
+                                )}
+                                <div className={styles.repoAccessStyleHint}>
+                                    {formatMessage({ id: 'kubeblocks.database.backup.repo.access_style_hint' })}
+                                </div>
+                            </Form.Item>
+                            <Form.Item className={styles.createRepoFormItem} label="AccessKey">
+                                {getFieldDecorator('quickRepoAccessKeyId', {
+                                    rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.access_key_required' }) }]
+                                })(<Input />)}
+                            </Form.Item>
+                            <Form.Item className={styles.createRepoFormItem} label="SecretKey">
+                                {getFieldDecorator('quickRepoSecretAccessKey', {
+                                    rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.secret_key_required' }) }]
+                                })(<Input.Password />)}
+                            </Form.Item>
+                            <Collapse
+                                bordered={false}
+                                className={styles.createRepoAdvancedCollapse}
+                                expandIconPosition="right"
+                            >
+                                <Panel
+                                    forceRender
+                                    header={formatMessage({ id: 'kubeblocks.database.backup.repo.advanced' })}
+                                    key="advanced"
+                                >
+                                    <Form.Item className={styles.createRepoFormItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.display_name' })}>
+                                        {getFieldDecorator('quickRepoDisplayName')(<Input />)}
+                                    </Form.Item>
+                                    <Form.Item className={styles.createRepoFormItem} label="Region">
+                                        {getFieldDecorator('quickRepoRegion')(<Input />)}
+                                    </Form.Item>
+                                    <Form.Item className={styles.createRepoFormItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.path_prefix' })}>
+                                        {getFieldDecorator('quickRepoPathPrefix')(<Input />)}
+                                    </Form.Item>
+                                </Panel>
+                            </Collapse>
+                        </div>
+                    </Form>
+                </Modal>
             </div>
         );
     }

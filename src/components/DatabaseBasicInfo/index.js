@@ -6,6 +6,14 @@ import styles from './index.less';
 const { Option } = Select;
 const RadioGroup = Radio.Group;
 const { Group: InputGroup } = Input;
+const BASIC_INFO_FIELDS = [
+    'min_memory',
+    'min_cpu',
+    'dbVersion',
+    'replicas',
+    'storageClass',
+    'disk_cap'
+];
 
 export default class Index extends PureComponent {
     constructor(props) {
@@ -49,26 +57,35 @@ export default class Index extends PureComponent {
                 4000: 6,
                 8000: 7,
             },
-            memorySliderMin: 1,
+            memorySliderMin: 3,
             memorySliderMax: 8,
-            cpuSliderMin: 1,
+            cpuSliderMin: 3,
             cpuSliderMax: 7,
-            cpuValue: 4,
-            memoryValue: 4
+            cpuValue: 3,
+            memoryValue: 3
         };
     }
 
     componentDidMount() {
-        // 支持无限制选项
         this.setState({
-            memoryMarks: { 0: formatMessage({ id: 'appOverview.no_limit' }), ...this.state.memoryMarks, 9: '32G' },
-            cpuMarks: { 0: formatMessage({ id: 'appOverview.no_limit' }), ...this.state.cpuMarks, 8: '16Core' },
-            memoryMarksObj: { 0: 0, ...this.state.memoryMarksObj, 32768: 9 },
-            cpuMarksObj: { 0: 0, ...this.state.cpuMarksObj, 18000: 8 },
+            memoryMarks: {
+                ...this.state.memoryMarks,
+                9: '32G'
+            },
+            memoryMarksObj: {
+                ...this.state.memoryMarksObj,
+                32768: 9
+            },
+            cpuMarks: {
+                ...this.state.cpuMarks,
+                8: '16Core'
+            },
+            cpuMarksObj: {
+                ...this.state.cpuMarksObj,
+                16000: 8
+            },
             memorySliderMax: 9,
-            memorySliderMin: 0,
-            cpuSliderMax: 8,
-            cpuSliderMin: 0
+            cpuSliderMax: 8
         });
 
         if (this.props.onRef) {
@@ -78,10 +95,9 @@ export default class Index extends PureComponent {
 
     handleMemoryChange = (value) => {
         const memoryToCpuMap = {
-            0: 0,
-            1: 1,
-            2: 1,
-            3: 2,
+            1: 3,
+            2: 3,
+            3: 3,
             4: 3,
             5: 4,
             6: 5,
@@ -147,22 +163,31 @@ export default class Index extends PureComponent {
         return num;
     }
 
-    handleSubmit = () => {
+    getFieldNames = () => BASIC_INFO_FIELDS;
+
+    normalizeSubmitValues = (fieldsValue = {}) => {
         const { memoryMarksObj, cpuMarksObj } = this.state;
+        const normalized = { ...fieldsValue };
+
+        Object.keys(memoryMarksObj).forEach(item => {
+            if (memoryMarksObj[item] == normalized.min_memory) {
+                normalized.min_memory = item;
+            }
+        });
+        Object.keys(cpuMarksObj).forEach(item => {
+            if (cpuMarksObj[item] == normalized.min_cpu) {
+                normalized.min_cpu = item;
+            }
+        });
+
+        return normalized;
+    };
+
+    handleSubmit = () => {
         const { form, onSubmit } = this.props;
-        form.validateFields((err, fieldsValue) => {
+        form.validateFields(this.getFieldNames(), (err, fieldsValue) => {
             if (!err && onSubmit && fieldsValue) {
-                Object.keys(memoryMarksObj).forEach(item => {
-                    if (memoryMarksObj[item] == fieldsValue.min_memory) {
-                        fieldsValue.min_memory = item;
-                    }
-                });
-                Object.keys(cpuMarksObj).forEach(item => {
-                    if (cpuMarksObj[item] == fieldsValue.min_cpu) {
-                        fieldsValue.min_cpu = item;
-                    }
-                });
-                onSubmit(fieldsValue);
+                onSubmit(this.normalizeSubmitValues(fieldsValue));
             }
         });
     };
@@ -338,4 +363,4 @@ export default class Index extends PureComponent {
             </div>
         );
     }
-} 
+}

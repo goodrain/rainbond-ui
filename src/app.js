@@ -5,6 +5,11 @@ import enUS from 'antd/lib/locale-provider/en_US';
 import moment from 'moment';
 import 'moment/locale/zh-cn';
 import AgentRootShell from '@/components/AgentHost/RootShell';
+import { initSentry } from './sentry';
+import { initPostHog } from './posthog';
+
+initSentry();
+initPostHog();
 
 // antd 语言包映射
 const antdLocales = {

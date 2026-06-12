@@ -52,6 +52,41 @@ export async function fetchBackupRepos(params, handleError) {
     );
 }
 
+export async function createBackupRepo(params, handleError) {
+    const { team_name, region_name, body } = params;
+    return request(
+        `${apiconfig.baseUrl}/console/teams/${team_name}/regions/${region_name}/kubeblocks/backup_repos`,
+        {
+            method: 'post',
+            data: body,
+            handleError
+        }
+    );
+}
+
+export async function updateBackupRepo(params, handleError) {
+    const { team_name, region_name, repo_name, body } = params;
+    return request(
+        `${apiconfig.baseUrl}/console/teams/${team_name}/regions/${region_name}/kubeblocks/backup_repos/${repo_name}`,
+        {
+            method: 'put',
+            data: body,
+            handleError
+        }
+    );
+}
+
+export async function deleteBackupRepo(params, handleError) {
+    const { team_name, region_name, repo_name } = params;
+    return request(
+        `${apiconfig.baseUrl}/console/teams/${team_name}/regions/${region_name}/kubeblocks/backup_repos/${repo_name}`,
+        {
+            method: 'delete',
+            handleError
+        }
+    );
+}
+
 /**
  * 创建 KubeBlocks 数据库组件, 一次性完成
  * @param {Object} params - { team_name, region_name, config }
@@ -64,13 +99,14 @@ export async function fetchBackupRepos(params, handleError) {
  * @param {String} params.config.k8s_app - 数据库英文名称
  * @returns {Promise<Object>} 返回格式与标准组件部署完成后一致，包含 service_alias, group_id 等信息
  */
-export async function createDatabaseCluster(params) {
+export async function createDatabaseCluster(params, handleError) {
     const { team_name, config } = params;
     return request(
         `${apiconfig.baseUrl}/console/teams/${team_name}/apps/kubeblocks`,
         {
             method: 'POST',
-            data: config
+            data: config,
+            handleError
         }
     );
 }

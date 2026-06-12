@@ -1,0 +1,121 @@
+const assert = require('assert');
+
+const {
+  getPathPattern,
+  getSentryConfig,
+  sanitizeObject,
+  sanitizeStack,
+  sanitizeUrl,
+  shouldReportRequestError
+} = require('./sentryConfig');
+
+function test(name, fn) {
+  try {
+    fn();
+    console.log('ok - ' + name);
+  } catch (error) {
+    console.error('not ok - ' + name);
+    throw error;
+  }
+}
+
+test('sentry config stays disabled without a dsn', function() {
+  const original = process.env;
+  process.env = {};
+
+  try {
+    assert.strictEqual(getSentryConfig().enabled, false);
+  } finally {
+    process.env = original;
+  }
+});
+
+test('sentry config reads environment values and clamps trace rate', function() {
+  const original = process.env;
+  process.env = {
+    RAINBOND_ERROR_REPORTING_FRONTEND_DSN: 'https://example.invalid/1',
+    RAINBOND_ERROR_REPORTING_ENVIRONMENT: 'production',
+    RAINBOND_ERROR_REPORTING_RELEASE: 'v6.9.1-dev',
+    SENTRY_TRACES_SAMPLE_RATE: '2'
+  };
+
+  try {
+    assert.deepStrictEqual(getSentryConfig(), {
+      enabled: true,
+      dsn: 'https://example.invalid/1',
+      environment: 'production',
+      release: 'v6.9.1-dev',
+      tracesSampleRate: 1
+    });
+  } finally {
+    process.env = original;
+  }
+});
+
+test('sentry config can be disabled by telemetry switch', function() {
+  const original = process.env;
+  process.env = {
+    RAINBOND_TELEMETRY_DISABLED: 'true',
+    RAINBOND_ERROR_REPORTING_FRONTEND_DSN: 'https://example.invalid/1'
+  };
+
+  try {
+    assert.strictEqual(getSentryConfig().enabled, false);
+  } finally {
+    process.env = original;
+  }
+});
+
+test('sanitizeObject filters sensitive fields recursively', function() {
+  assert.deepStrictEqual(
+    sanitizeObject({
+      token: 'abc',
+      nested: {
+        password: 'pw',
+        keep: 'value',
+        message: 'authorization=Bearer abc123'
+      }
+    }),
+    {
+      token: '[Filtered]',
+      nested: {
+        password: '[Filtered]',
+        keep: 'value',
+        message: 'authorization=[Filtered]'
+      }
+    }
+  );
+});
+
+test('sanitizeUrl removes query strings', function() {
+  assert.strictEqual(sanitizeUrl('/console/apps?token=abc&page=1'), '/console/apps?[Filtered]');
+  assert.strictEqual(sanitizeUrl('/console/apps'), '/console/apps');
+});
+
+test('getPathPattern removes ids from paths', function() {
+  assert.strictEqual(
+    getPathPattern('/console/teams/team-a/apps/123456/overview?token=abc'),
+    '/console/teams/:id/apps/:id/overview?[Filtered]'
+  );
+  assert.strictEqual(
+    getPathPattern('/console/apps/6f4bd4d4c97b4f249e3ce80148c77b16/events'),
+    '/console/apps/:id/events'
+  );
+  assert.strictEqual(
+    getPathPattern('https://example.com/console/teams/acme/apps/app-alias/overview#token=abc'),
+    '/console/teams/:id/apps/:id/overview?[Filtered]'
+  );
+});
+
+test('sanitizeStack removes absolute tenant urls and credentials', function() {
+  assert.strictEqual(
+    sanitizeStack('at https://example.com/console/teams/acme/apps/app-alias/overview?token=abc\nError: password=abc'),
+    'at /console/teams/:id/apps/:id/overview?[Filtered]\nError: password=[Filtered]'
+  );
+});
+
+test('shouldReportRequestError reports network errors and server errors only', function() {
+  assert.strictEqual(shouldReportRequestError(new Error('network')), true);
+  assert.strictEqual(shouldReportRequestError({ response: { status: 500 } }), true);
+  assert.strictEqual(shouldReportRequestError({ response: { status: 404 } }), false);
+});

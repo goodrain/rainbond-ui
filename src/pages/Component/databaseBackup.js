@@ -3,8 +3,11 @@ import {
   Alert,
   Button,
   Card,
+  Collapse,
+  Empty,
   Form,
   Icon,
+  Input,
   InputNumber,
   Modal,
   notification,
@@ -13,7 +16,8 @@ import {
   Select,
   Spin,
   Table,
-  Tag
+  Tag,
+  Tooltip
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -22,14 +26,53 @@ import dateUtil from '../../utils/date-util';
 import handleAPIError from '../../utils/error';
 import globalUtil from '../../utils/global';
 import { formatMessage } from '@/utils/intl';
+import styles from './databaseBackup.less';
 
 const { Option } = Select;
 const RadioGroup = Radio.Group;
+const { Panel } = Collapse;
+const READY_BACKUP_REPO_PHASE = 'Ready';
+const FAILED_BACKUP_REPO_PHASES = ['Failed', 'Missing'];
+const BACKUP_REPO_READY_REFRESH_INTERVAL = 3000;
+const BACKUP_REPO_READY_MAX_RETRIES = 10;
+const DEFAULT_BACKUP_REPO_BUCKET = 'kubeblocks-backup';
+const DEFAULT_BACKUP_REPO_VOLUME_CAPACITY = '100Gi';
+const DEFAULT_BACKUP_REPO_FORCE_PATH_STYLE = 'true';
+
+const getBackupRepoPhase = repo => (repo && (repo.phase || repo.status)) || '';
+const isBackupRepoReady = repo => getBackupRepoPhase(repo) === READY_BACKUP_REPO_PHASE;
+const isBackupRepoFailed = repo => FAILED_BACKUP_REPO_PHASES.includes(getBackupRepoPhase(repo));
+const isForcePathStyleValue = value => !(value === false || value === 'false');
+const getBackupRepoForcePathStyleValue = repo => {
+  if (!repo) return DEFAULT_BACKUP_REPO_FORCE_PATH_STYLE;
+  const value = repo.forcePathStyle !== undefined ? repo.forcePathStyle : repo.force_path_style;
+  return isForcePathStyleValue(value) ? 'true' : 'false';
+};
+const getBackupRepoPhaseText = phase => {
+  if (phase === 'Missing') {
+    return formatMessage({ id: 'kubeblocks.database.backup.repo.phase.unavailable' });
+  }
+  return phase;
+};
+
+const getBackupRepoPhaseColor = phase => {
+  if (phase === READY_BACKUP_REPO_PHASE) return 'green';
+  if (phase === 'Failed' || phase === 'Missing') return 'red';
+  if (phase === 'PreChecking' || phase === 'Deleting') return 'orange';
+  return 'blue';
+};
+
+const getBackupRepoConditionMessage = repo => {
+  const conditions = (repo && repo.conditions) || [];
+  const failed = conditions.find(item => item.status === 'False' && item.message);
+  const latest = failed || conditions.find(item => item.message);
+  return latest ? latest.message : '';
+};
 
 /**
  * 数据库备份页面组件
  * 功能：
- * 显示和编辑备份设置
+ * 显示和编辑备份策略
  * 手动备份
  * 管理备份列表
  */
@@ -63,6 +106,11 @@ export default class Index extends PureComponent {
       restoreVisible: false, // 恢复确认弹窗显示状态
       selectedBackupName: '', // 选中要恢复的备份名称
       restoring: false, // 恢复操作进行中
+      repoManageVisible: false,
+      repoModalVisible: false,
+      repoModalType: 'create',
+      editingRepo: null,
+      repoSubmitting: false,
       // 分页状态
       backupPagination: {
         page: 1,
@@ -122,6 +170,7 @@ export default class Index extends PureComponent {
 
   componentWillUnmount() {
     this.stopAutoRefresh();
+    this.clearBackupRepoReadyTimer();
   }
 
 
@@ -150,7 +199,7 @@ export default class Index extends PureComponent {
     }
   };
 
-  fetchBackupRepos = () => {
+  fetchBackupRepos = (callback) => {
     const { dispatch } = this.props;
 
     dispatch({
@@ -159,9 +208,57 @@ export default class Index extends PureComponent {
         team_name: globalUtil.getCurrTeamName(),
         region_name: globalUtil.getCurrRegionName()
       },
+      callback,
       handleError: (err) => {
         handleAPIError(err);
       }
+    });
+  };
+
+  clearBackupRepoReadyTimer = () => {
+    if (this.backupRepoReadyTimer) {
+      clearTimeout(this.backupRepoReadyTimer);
+      this.backupRepoReadyTimer = null;
+    }
+  };
+
+  getBackupRepoFromResponse = (response, repoName) => {
+    const repos = response && Array.isArray(response.list) ? response.list : [];
+    return repos.find(repo => {
+      const normalized = typeof repo === 'string' ? { name: repo } : repo;
+      return normalized && normalized.name === repoName;
+    });
+  };
+
+  refreshBackupReposUntilReady = (repoName, retryCount = 0) => {
+    this.clearBackupRepoReadyTimer();
+
+    this.fetchBackupRepos(response => {
+      const repo = this.getBackupRepoFromResponse(response, repoName);
+      if (!repoName) {
+        return;
+      }
+      if (isBackupRepoReady(repo)) {
+        notification.success({ message: formatMessage({ id: 'kubeblocks.database.backup.repo.check_success' }) });
+        return;
+      }
+      if (isBackupRepoFailed(repo)) {
+        const description = getBackupRepoConditionMessage(repo);
+        notification.error({
+          message: formatMessage({ id: 'kubeblocks.database.backup.repo.check_failed' }),
+          description
+        });
+        return;
+      }
+      if (retryCount >= BACKUP_REPO_READY_MAX_RETRIES) {
+        notification.warning({ message: formatMessage({ id: 'kubeblocks.database.backup.repo.check_timeout' }) });
+        return;
+      }
+
+      this.backupRepoReadyTimer = setTimeout(() => {
+        this.backupRepoReadyTimer = null;
+        this.refreshBackupReposUntilReady(repoName, retryCount + 1);
+      }, BACKUP_REPO_READY_REFRESH_INTERVAL);
     });
   };
 
@@ -527,6 +624,152 @@ export default class Index extends PureComponent {
     this.fetchBackupList();
   };
 
+  openRepoManage = () => {
+    this.fetchBackupRepos();
+    this.setState({ repoManageVisible: true });
+  };
+
+  closeRepoManage = () => {
+    this.setState({ repoManageVisible: false });
+  };
+
+  openRepoModal = (type, record = null) => {
+    const { form } = this.props;
+    this.setState({
+      repoModalVisible: true,
+      repoModalType: type,
+      editingRepo: record
+    }, () => {
+      form.setFieldsValue({
+        repoName: type === 'edit' ? record.name : '',
+        repoDisplayName: type === 'edit' ? (record.displayName || record.display_name || record.name) : '',
+        repoBucket: type === 'edit' ? record.bucket : DEFAULT_BACKUP_REPO_BUCKET,
+        repoEndpoint: type === 'edit' ? record.endpoint : '',
+        repoRegion: type === 'edit' ? record.region : '',
+        repoForcePathStyle: type === 'edit' ? getBackupRepoForcePathStyleValue(record) : DEFAULT_BACKUP_REPO_FORCE_PATH_STYLE,
+        repoPathPrefix: type === 'edit' ? (record.pathPrefix || '') : '',
+        repoAccessKeyId: '',
+        repoSecretAccessKey: ''
+      });
+    });
+  };
+
+  closeRepoModal = () => {
+    const { form } = this.props;
+    form.resetFields([
+      'repoName',
+      'repoDisplayName',
+      'repoBucket',
+      'repoEndpoint',
+      'repoRegion',
+      'repoForcePathStyle',
+      'repoPathPrefix',
+      'repoAccessKeyId',
+      'repoSecretAccessKey'
+    ]);
+    this.setState({
+      repoModalVisible: false,
+      repoModalType: 'create',
+      editingRepo: null,
+      repoSubmitting: false
+    });
+  };
+
+  handleRepoSubmit = () => {
+    const { dispatch, form } = this.props;
+    const { repoModalType, editingRepo } = this.state;
+    const fields = [
+      'repoName',
+      'repoDisplayName',
+      'repoBucket',
+      'repoEndpoint',
+      'repoRegion',
+      'repoForcePathStyle',
+      'repoPathPrefix',
+      'repoAccessKeyId',
+      'repoSecretAccessKey'
+    ];
+
+    form.validateFields(fields, (err, values) => {
+      if (err) return;
+
+      const body = {
+        display_name: values.repoDisplayName || values.repoName,
+        bucket: values.repoBucket,
+        endpoint: values.repoEndpoint,
+        region: values.repoRegion || '',
+        force_path_style: values.repoForcePathStyle !== 'false',
+        path_prefix: values.repoPathPrefix || ''
+      };
+      if (repoModalType === 'create') {
+        body.name = values.repoName;
+        body.volume_capacity = DEFAULT_BACKUP_REPO_VOLUME_CAPACITY;
+      }
+      if (values.repoAccessKeyId || values.repoSecretAccessKey) {
+        body.access_key_id = values.repoAccessKeyId;
+        body.secret_access_key = values.repoSecretAccessKey;
+      }
+
+      this.setState({ repoSubmitting: true });
+      dispatch({
+        type: repoModalType === 'create' ? 'kubeblocks/createBackupRepo' : 'kubeblocks/updateBackupRepo',
+        payload: {
+          team_name: globalUtil.getCurrTeamName(),
+          region_name: globalUtil.getCurrRegionName(),
+          repo_name: editingRepo && editingRepo.name,
+          body
+        },
+        callback: res => {
+          this.setState({ repoSubmitting: false });
+          if (res && res.status_code === 200) {
+            notification.info({ message: formatMessage({ id: 'kubeblocks.database.backup.repo.checking' }) });
+            this.closeRepoModal();
+            this.refreshBackupReposUntilReady(res.bean?.name || (editingRepo && editingRepo.name) || body.name);
+          } else {
+            notification.error({
+              message: res?.msg_show || formatMessage({
+                id: repoModalType === 'create'
+                  ? 'kubeblocks.database.backup.repo.create_failed'
+                  : 'kubeblocks.database.backup.repo.update_failed'
+              })
+            });
+          }
+        },
+        handleError: err => {
+          this.setState({ repoSubmitting: false });
+          handleAPIError(err);
+        }
+      });
+    });
+  };
+
+  handleDeleteRepo = (record) => {
+    const { dispatch, form } = this.props;
+    dispatch({
+      type: 'kubeblocks/deleteBackupRepo',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        region_name: globalUtil.getCurrRegionName(),
+        repo_name: record.name
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          notification.success({ message: formatMessage({ id: 'kubeblocks.database.backup.repo.delete_success' }) });
+          if (this.state.backupRepo === record.name) {
+            this.setState({ backupRepo: '' });
+            form.setFieldsValue({ backupRepo: '' });
+          }
+          this.fetchBackupRepos();
+        } else {
+          notification.error({ message: res?.msg_show || formatMessage({ id: 'kubeblocks.database.backup.repo.delete_failed' }) });
+        }
+      },
+      handleError: err => {
+        handleAPIError(err);
+      }
+    });
+  };
+
 
   /**
    * 手动备份
@@ -718,6 +961,10 @@ export default class Index extends PureComponent {
       restoreVisible,
       selectedBackupName,
       restoring,
+      repoManageVisible,
+      repoModalVisible,
+      repoModalType,
+      repoSubmitting,
       backupPagination
     } = this.state;
 
@@ -726,6 +973,9 @@ export default class Index extends PureComponent {
     // 备份功能是否已启用（基于实际保存的配置，而不是编辑中的 state）
     const isBackupDisabled = !clusterDetail?.backup?.backupRepo ||
                              clusterDetail.backup.backupRepo.trim() === '';
+    const backupRepoOptions = backupRepos.filter(repo => {
+      return isBackupRepoReady(repo) || repo.name === backupRepo;
+    });
 
     const formItemLayout = {
       labelCol: {
@@ -791,6 +1041,111 @@ export default class Index extends PureComponent {
       }
     ];
 
+    const repoColumns = [
+      {
+        title: formatMessage({ id: 'kubeblocks.database.backup.repo.display_name' }),
+        key: 'repoInfo',
+        width: 210,
+        render: (_, record) => {
+          const displayName = record.displayName || record.display_name || record.name || '-';
+          const resourceName = record.name || '-';
+          return (
+            <div className={styles.repoNameCell}>
+              <Tooltip title={displayName}>
+                <span className={styles.repoPrimaryText}>{displayName}</span>
+              </Tooltip>
+              <Tooltip title={resourceName}>
+                <span className={styles.repoResourceName}>{resourceName}</span>
+              </Tooltip>
+            </div>
+          );
+        }
+      },
+      {
+        title: 'Bucket',
+        dataIndex: 'bucket',
+        key: 'bucket',
+        width: 160,
+        render: text => (
+          <Tooltip title={text || '-'}>
+            <span className={styles.repoMutedText}>{text || '-'}</span>
+          </Tooltip>
+        )
+      },
+      {
+        title: 'Endpoint',
+        dataIndex: 'endpoint',
+        key: 'endpoint',
+        width: 300,
+        render: text => (
+          <Tooltip title={text || '-'}>
+            <span className={styles.repoEndpointText}>{text || '-'}</span>
+          </Tooltip>
+        )
+      },
+      {
+        title: 'Region',
+        dataIndex: 'region',
+        key: 'region',
+        width: 90,
+        render: text => <span className={styles.repoMutedText}>{text || '-'}</span>
+      },
+      {
+        title: formatMessage({ id: 'kubeblocks.database.backup.repo.access_style' }),
+        key: 'accessStyle',
+        width: 140,
+        render: (_, record) => {
+          const forcePathStyle = getBackupRepoForcePathStyleValue(record) !== 'false';
+          return (
+            <span className={styles.repoMutedText}>
+              {formatMessage({
+                id: forcePathStyle
+                  ? 'kubeblocks.database.backup.repo.access_style_path_short'
+                  : 'kubeblocks.database.backup.repo.access_style_virtual_short'
+              })}
+            </span>
+          );
+        }
+      },
+      {
+        title: formatMessage({ id: 'kubeblocks.database.backup.repo.status' }),
+        dataIndex: 'phase',
+        key: 'phase',
+        width: 100,
+        render: (phase, record) => {
+          const tag = (
+            <Tag color={getBackupRepoPhaseColor(phase)}>
+              {getBackupRepoPhaseText(phase) || '-'}
+            </Tag>
+          );
+          const message = getBackupRepoConditionMessage(record);
+          return message ? <Tooltip title={message}>{tag}</Tooltip> : tag;
+        }
+      },
+      {
+        title: formatMessage({ id: 'button.operation' }),
+        key: 'action',
+        width: 120,
+        render: (_, record) => (
+          <span className={styles.repoActionGroup}>
+            <Button type="link" size="small" onClick={() => this.openRepoModal('edit', record)}>
+              {formatMessage({ id: 'componentOverview.body.tab.env.table.column.edit' })}
+            </Button>
+            <Popconfirm
+              title={formatMessage({ id: 'kubeblocks.database.backup.repo.delete_confirm' })}
+              onConfirm={() => this.handleDeleteRepo(record)}
+              okText={formatMessage({ id: 'button.confirm' })}
+              cancelText={formatMessage({ id: 'button.cancel' })}
+            >
+              <Button type="link" size="small" className={styles.repoDeleteButton}>
+                {formatMessage({ id: 'button.delete' })}
+              </Button>
+            </Popconfirm>
+          </span>
+        )
+      }
+    ];
+
     if (!clusterDetail) {
       return (
         <div style={{ textAlign: 'center', padding: '50px' }}>
@@ -800,7 +1155,7 @@ export default class Index extends PureComponent {
     }
 
     return (
-      <div>
+      <div className={styles.databaseBackupPage}>
         {/* 不支持备份的数据库展示提醒 */}
         {isBackupUnSupported && (
           <Alert
@@ -812,14 +1167,22 @@ export default class Index extends PureComponent {
             }}
           />
         )}
-        {/* 备份设置 */}
+        {/* 备份策略 */}
         <Card
+          className={styles.backupPolicyCard}
           title={formatMessage({ id: 'kubeblocks.database.backup.page.title' })}
           extra={
-            <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div className={styles.backupPolicyActions}>
+              <Button
+                icon="database"
+                disabled={isBackupUnSupported}
+                onClick={this.openRepoManage}
+              >
+                {formatMessage({ id: 'kubeblocks.database.backup.repo.manage' })}
+              </Button>
               {editBackupInfo ? (
-                <div style={{ marginLeft: 10 }}>
-                  <Button type="primary" style={{ marginRight: 10 }} onClick={this.handleSaveBackupConfig}>
+                <div className={styles.backupEditActions}>
+                  <Button type="primary" onClick={this.handleSaveBackupConfig}>
                     {formatMessage({ id: 'appPublish.table.btn.confirm' })}
                   </Button>
                   <Button onClick={this.handleCancelEdit}>
@@ -839,7 +1202,7 @@ export default class Index extends PureComponent {
           }
           style={{ marginBottom: 16 }}
         >
-          <Form layout="horizontal" hideRequiredMark>
+          <Form layout="horizontal" hideRequiredMark className={styles.backupPolicyForm}>
             {/* 备份仓库 */}
             <Form.Item {...formItemLayout} label={formatMessage({ id: 'kubeblocks.database.backup.repo_label' })}>
               {getFieldDecorator('backupRepo', {
@@ -847,18 +1210,23 @@ export default class Index extends PureComponent {
                 rules: [{ required: false }]
               })(
                 <Select
-                  style={{ width: '200px' }}
+                  className={styles.backupRepoSelect}
                   placeholder={formatMessage({ id: 'kubeblocks.database.backup.repo_placeholder' })}
                   onChange={this.handleBackupRepoChange}
                   allowClear
                   disabled={!editBackupInfo || isBackupUnSupported}
                 >
                   <Option value="">{formatMessage({ id: 'kubeblocks.database.backup.repo_none' })}</Option>
-                  {backupRepos.map(repo => (
-                    <Option key={repo.name} value={repo.name}>
-                      {repo.displayName || repo.name}
-                    </Option>
-                  ))}
+                  {backupRepoOptions.map(repo => {
+                    const phase = getBackupRepoPhase(repo);
+                    const phaseText = getBackupRepoPhaseText(phase);
+                    const disabled = !isBackupRepoReady(repo);
+                    return (
+                      <Option key={repo.name} value={repo.name} disabled={disabled}>
+                        {repo.displayName || repo.display_name || repo.name}{disabled && phaseText ? ` (${phaseText})` : ''}
+                      </Option>
+                    );
+                  })}
                 </Select>
               )}
             </Form.Item>
@@ -889,12 +1257,12 @@ export default class Index extends PureComponent {
                     },
                     rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.startTime_required' }) }]
                   })(
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <div className={styles.backupTimeSelector}>
                       {backupSchedule === 'week' && (
                         <Select
                           value={backupStartDay || ''}
                           onChange={v => this.setState({ backupStartDay: v })}
-                          style={{ width: 80, marginRight: 8 }}
+                          className={styles.backupTimeSelect}
                           disabled={!editBackupInfo || isBackupUnSupported}
                         >
                           <Option value="1">{formatMessage({ id: 'kubeblocks.database.backup.startTime_mon' })}</Option>
@@ -911,7 +1279,7 @@ export default class Index extends PureComponent {
                           <Select
                             value={backupStartHour || ''}
                             onChange={v => this.setState({ backupStartHour: v })}
-                            style={{ width: 80, marginRight: 4 }}
+                            className={styles.backupTimeSelect}
                             disabled={!editBackupInfo || isBackupUnSupported}
                           >
                             {Array.from({ length: 24 }, (_, i) => (
@@ -920,13 +1288,13 @@ export default class Index extends PureComponent {
                               </Option>
                             ))}
                           </Select>
-                          <span style={{ marginRight: 8 }}>{formatMessage({ id: 'kubeblocks.database.backup.startTime_hour' })}</span>
+                          <span>{formatMessage({ id: 'kubeblocks.database.backup.startTime_hour' })}</span>
                         </>
                       )}
                       <Select
                         value={backupStartMinute || ''}
                         onChange={v => this.setState({ backupStartMinute: v })}
-                        style={{ width: 80, marginRight: 4 }}
+                        className={styles.backupTimeSelect}
                         disabled={!editBackupInfo || isBackupUnSupported}
                       >
                         {Array.from({ length: 60 }, (_, i) => (
@@ -942,26 +1310,180 @@ export default class Index extends PureComponent {
 
                 {/* 备份数据保留时间 */}
                 <Form.Item {...formItemLayout} label={formatMessage({ id: 'kubeblocks.database.backup.retention_label' })}>
-                  {getFieldDecorator('backupRetention', {
-                    initialValue: backupRetentionTime || '',
-                    rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.retention_required' }) }]
-                  })(
-                    <InputNumber
-                      style={{ width: '80px' }}
-                      min={1}
-                      max={365}
-                      value={backupRetentionTime || ''}
-                      onChange={v => this.setState({ backupRetentionTime: v })}
-                      placeholder={formatMessage({ id: 'kubeblocks.database.backup.retention_placeholder' })}
-                      disabled={!editBackupInfo || isBackupUnSupported}
-                    />
-                  )}
-                  <span style={{ marginLeft: 8, color: '#666' }}>{formatMessage({ id: 'kubeblocks.database.backup.retention_unit' })}</span>
+                  <div className={styles.backupRetentionControl}>
+                    {getFieldDecorator('backupRetention', {
+                      initialValue: backupRetentionTime || '',
+                      rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.retention_required' }) }]
+                    })(
+                      <InputNumber
+                        min={1}
+                        max={365}
+                        value={backupRetentionTime || ''}
+                        onChange={v => this.setState({ backupRetentionTime: v })}
+                        placeholder={formatMessage({ id: 'kubeblocks.database.backup.retention_placeholder' })}
+                        disabled={!editBackupInfo || isBackupUnSupported}
+                      />
+                    )}
+                    <span>{formatMessage({ id: 'kubeblocks.database.backup.retention_unit' })}</span>
+                  </div>
                 </Form.Item>
               </>
             )}
           </Form>
         </Card>
+
+        <Modal
+          title={
+            <span className={styles.repoManageTitle}>
+              <span className={styles.repoManageTitleIcon}>
+                <Icon type="database" />
+              </span>
+              <span>{formatMessage({ id: 'kubeblocks.database.backup.repo.manage' })}</span>
+            </span>
+          }
+          visible={repoManageVisible}
+          onCancel={this.closeRepoManage}
+          footer={null}
+          width={1080}
+          destroyOnClose
+          className={styles.repoManageModal}
+        >
+          <div className={styles.repoManageToolbar}>
+            <div className={styles.repoManageMeta}>
+              <span>S3</span>
+              <strong>{backupRepos.length}</strong>
+            </div>
+            <div className={styles.repoManageActions}>
+              <Button icon="reload" onClick={this.fetchBackupRepos}>
+                {formatMessage({ id: 'kubeblocks.parameter.refresh' })}
+              </Button>
+              <Button type="primary" icon="plus" onClick={() => this.openRepoModal('create')}>
+                {formatMessage({ id: 'kubeblocks.database.backup.repo.create_s3' })}
+              </Button>
+            </div>
+          </div>
+          <div className={styles.repoManageTableShell}>
+            <Table
+              className={styles.repoManageTable}
+              rowKey="name"
+              columns={repoColumns}
+              dataSource={backupRepos}
+              pagination={false}
+              size="middle"
+              tableLayout="fixed"
+              rowClassName={record => record.name === backupRepo ? styles.repoCurrentRow : ''}
+              scroll={{ x: 1120 }}
+              locale={{
+                emptyText: (
+                  <Empty
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    description={formatMessage({ id: 'kubeblocks.database.backup.repo.empty' })}
+                  >
+                    <Button type="primary" icon="plus" onClick={() => this.openRepoModal('create')}>
+                      {formatMessage({ id: 'kubeblocks.database.backup.repo.create_s3' })}
+                    </Button>
+                  </Empty>
+                )
+              }}
+            />
+          </div>
+        </Modal>
+
+        <Modal
+          title={formatMessage({
+            id: repoModalType === 'create'
+              ? 'kubeblocks.database.backup.repo.modal.create_title'
+              : 'kubeblocks.database.backup.repo.modal.edit_title'
+          })}
+          visible={repoModalVisible}
+          width={560}
+          onOk={this.handleRepoSubmit}
+          onCancel={this.closeRepoModal}
+          confirmLoading={repoSubmitting}
+          destroyOnClose
+          className={styles.repoEditorModal}
+        >
+          {repoModalType === 'edit' && (
+            <Alert
+              showIcon
+              type="info"
+              message={formatMessage({ id: 'kubeblocks.database.backup.repo.credential_edit_hint' })}
+              style={{ marginBottom: 16 }}
+            />
+          )}
+          <Form layout="vertical" className={styles.repoEditorForm}>
+            <div className={styles.repoEditorGrid}>
+              <Form.Item className={styles.repoEditorItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.name' })}>
+                {getFieldDecorator('repoName', {
+                  rules: repoModalType === 'create'
+                    ? [
+                      { required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.name_required' }) },
+                      { pattern: /^[a-z0-9]([-a-z0-9]*[a-z0-9])?$/, message: formatMessage({ id: 'kubeblocks.database.backup.repo.name_invalid' }) }
+                    ]
+                    : []
+                })(<Input disabled={repoModalType === 'edit'} placeholder="prod-s3" />)}
+              </Form.Item>
+              <Form.Item className={styles.repoEditorItem} label="Bucket">
+                {getFieldDecorator('repoBucket', {
+                  rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.bucket_required' }) }]
+                })(<Input placeholder={DEFAULT_BACKUP_REPO_BUCKET} />)}
+              </Form.Item>
+              <Form.Item className={styles.repoEditorItem} label="Endpoint">
+                {getFieldDecorator('repoEndpoint', {
+                  rules: [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.endpoint_required' }) }]
+                })(<Input placeholder="https://s3.example.com" />)}
+              </Form.Item>
+              <Form.Item className={styles.repoEditorItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.access_style' })}>
+                {getFieldDecorator('repoForcePathStyle', {
+                  initialValue: DEFAULT_BACKUP_REPO_FORCE_PATH_STYLE
+                })(
+                  <RadioGroup>
+                    <Radio value="true">{formatMessage({ id: 'kubeblocks.database.backup.repo.access_style_path' })}</Radio>
+                    <Radio value="false">{formatMessage({ id: 'kubeblocks.database.backup.repo.access_style_virtual' })}</Radio>
+                  </RadioGroup>
+                )}
+                <div className={styles.repoAccessStyleHint}>
+                  {formatMessage({ id: 'kubeblocks.database.backup.repo.access_style_hint' })}
+                </div>
+              </Form.Item>
+              <Form.Item className={styles.repoEditorItem} label="AccessKey">
+                {getFieldDecorator('repoAccessKeyId', {
+                  rules: repoModalType === 'create'
+                    ? [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.access_key_required' }) }]
+                    : []
+                })(<Input placeholder={repoModalType === 'edit' ? formatMessage({ id: 'kubeblocks.database.backup.repo.secret_keep' }) : ''} />)}
+              </Form.Item>
+              <Form.Item className={styles.repoEditorItem} label="SecretKey">
+                {getFieldDecorator('repoSecretAccessKey', {
+                  rules: repoModalType === 'create'
+                    ? [{ required: true, message: formatMessage({ id: 'kubeblocks.database.backup.repo.secret_key_required' }) }]
+                    : []
+                })(<Input.Password placeholder={repoModalType === 'edit' ? formatMessage({ id: 'kubeblocks.database.backup.repo.secret_keep' }) : ''} />)}
+              </Form.Item>
+              <Collapse
+                bordered={false}
+                className={styles.repoAdvancedCollapse}
+                expandIconPosition="right"
+              >
+                <Panel
+                  forceRender
+                  header={formatMessage({ id: 'kubeblocks.database.backup.repo.advanced' })}
+                  key="advanced"
+                >
+                  <Form.Item className={styles.repoEditorItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.display_name' })}>
+                    {getFieldDecorator('repoDisplayName')(<Input />)}
+                  </Form.Item>
+                  <Form.Item className={styles.repoEditorItem} label="Region">
+                    {getFieldDecorator('repoRegion')(<Input />)}
+                  </Form.Item>
+                  <Form.Item className={styles.repoEditorItem} label={formatMessage({ id: 'kubeblocks.database.backup.repo.path_prefix' })}>
+                    {getFieldDecorator('repoPathPrefix')(<Input />)}
+                  </Form.Item>
+                </Panel>
+              </Collapse>
+            </div>
+          </Form>
+        </Modal>
 
         {/* 备份列表 */}
         <Card
