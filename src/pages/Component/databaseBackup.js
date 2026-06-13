@@ -42,6 +42,7 @@ const READY_BACKUP_REPO_PHASE = 'Ready';
 const FAILED_BACKUP_REPO_PHASES = ['Failed', 'Missing'];
 const BACKUP_REPO_READY_REFRESH_INTERVAL = 3000;
 const BACKUP_REPO_READY_MAX_RETRIES = 10;
+const BACKUP_LIST_REFRESH_INTERVAL = 5000;
 const DEFAULT_BACKUP_REPO_BUCKET = 'kubeblocks-backup';
 const DEFAULT_BACKUP_REPO_VOLUME_CAPACITY = '100Gi';
 const DEFAULT_BACKUP_REPO_FORCE_PATH_STYLE = 'true';
@@ -182,7 +183,7 @@ export default class Index extends PureComponent {
 
 
 
-  // 仅在第一页时启用60秒自动刷新
+  // 仅在第一页时启用备份列表自动刷新
   startAutoRefresh = () => {
     this.stopAutoRefresh(); // 先清除现有定时器
 
@@ -190,9 +191,9 @@ export default class Index extends PureComponent {
       this.backupListTimer = setInterval(() => {
         // 再次检查是否还在第一页
         if (this.state.backupPagination.page === 1) {
-          this.fetchBackupList();
+          this.fetchBackupList(null, { showLoading: false });
         }
-      }, 60000);
+      }, BACKUP_LIST_REFRESH_INTERVAL);
     }
   };
 
@@ -272,18 +273,26 @@ export default class Index extends PureComponent {
   /**
    * 分页获取备份列表
    */
-  fetchBackupList = (page = null) => {
+  fetchBackupList = (page = null, options = {}) => {
     const { dispatch, appDetail } = this.props;
     const { backupPagination } = this.state;
+    const { showLoading = true } = options;
 
     const serviceAlias = appDetail?.service?.service_alias;
     if (!serviceAlias) {
       return;
     }
 
+    if (this.backupListRequestPending) {
+      return;
+    }
+    this.backupListRequestPending = true;
+
     const currentPage = page !== null ? page : backupPagination.page;
 
-    this.setState({ loading: true });
+    if (showLoading) {
+      this.setState({ loading: true });
+    }
 
     dispatch({
       type: 'kubeblocks/fetchBackupList',
@@ -294,19 +303,25 @@ export default class Index extends PureComponent {
         page_size: backupPagination.page_size
       },
       callback: (response) => {
-        this.setState({ loading: false });
+        this.backupListRequestPending = false;
+        if (showLoading) {
+          this.setState({ loading: false });
+        }
         if (response && response.status_code === 200) {
-          this.setState({
+          this.setState(prevState => ({
             backupPagination: {
-              ...backupPagination,
+              ...prevState.backupPagination,
               page: response.page || currentPage,
               total: response.total || 0
             }
-          });
+          }));
         }
       },
       handleError: (err) => {
-        this.setState({ loading: false });
+        this.backupListRequestPending = false;
+        if (showLoading) {
+          this.setState({ loading: false });
+        }
         handleAPIError(err);
       }
     });
