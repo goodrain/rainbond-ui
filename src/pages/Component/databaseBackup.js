@@ -26,6 +26,13 @@ import dateUtil from '../../utils/date-util';
 import handleAPIError from '../../utils/error';
 import globalUtil from '../../utils/global';
 import { formatMessage } from '@/utils/intl';
+import {
+  getBackupRepoOptions,
+  getBackupRepoPhase,
+  getBackupRepoPhaseTextId,
+  isBackupRepoSelectable,
+  validateBackupRepoSelection
+} from '@/utils/backupRepoReadiness';
 import styles from './databaseBackup.less';
 
 const { Option } = Select;
@@ -39,7 +46,6 @@ const DEFAULT_BACKUP_REPO_BUCKET = 'kubeblocks-backup';
 const DEFAULT_BACKUP_REPO_VOLUME_CAPACITY = '100Gi';
 const DEFAULT_BACKUP_REPO_FORCE_PATH_STYLE = 'true';
 
-const getBackupRepoPhase = repo => (repo && (repo.phase || repo.status)) || '';
 const isBackupRepoReady = repo => getBackupRepoPhase(repo) === READY_BACKUP_REPO_PHASE;
 const isBackupRepoFailed = repo => FAILED_BACKUP_REPO_PHASES.includes(getBackupRepoPhase(repo));
 const isForcePathStyleValue = value => !(value === false || value === 'false');
@@ -49,8 +55,9 @@ const getBackupRepoForcePathStyleValue = repo => {
   return isForcePathStyleValue(value) ? 'true' : 'false';
 };
 const getBackupRepoPhaseText = phase => {
-  if (phase === 'Missing') {
-    return formatMessage({ id: 'kubeblocks.database.backup.repo.phase.unavailable' });
+  const messageId = getBackupRepoPhaseTextId(phase);
+  if (messageId) {
+    return formatMessage({ id: messageId });
   }
   return phase;
 };
@@ -385,7 +392,12 @@ export default class Index extends PureComponent {
    * 处理备份仓库变更
    */
   handleBackupRepoChange = (value) => {
+    const { backupRepos = [] } = this.props;
     const { backupRetentionTime } = this.state;
+
+    if (value?.trim() && !validateBackupRepoSelection(value, backupRepos)) {
+      return;
+    }
 
     if (value?.trim()) {
       const defaultSchedule = 'hour';
@@ -410,6 +422,15 @@ export default class Index extends PureComponent {
         { backupRepo: value }
       );
     }
+  };
+
+  validateBackupRepo = (rule, value, callback) => {
+    const { backupRepos = [] } = this.props;
+    if (validateBackupRepoSelection(value, backupRepos)) {
+      callback();
+      return;
+    }
+    callback(formatMessage({ id: 'kubeblocks.database.backup.repo_not_ready' }));
   };
 
   /**
@@ -973,9 +994,7 @@ export default class Index extends PureComponent {
     // 备份功能是否已启用（基于实际保存的配置，而不是编辑中的 state）
     const isBackupDisabled = !clusterDetail?.backup?.backupRepo ||
                              clusterDetail.backup.backupRepo.trim() === '';
-    const backupRepoOptions = backupRepos.filter(repo => {
-      return isBackupRepoReady(repo) || repo.name === backupRepo;
-    });
+    const backupRepoOptions = getBackupRepoOptions(backupRepos);
 
     const formItemLayout = {
       labelCol: {
@@ -1207,7 +1226,7 @@ export default class Index extends PureComponent {
             <Form.Item {...formItemLayout} label={formatMessage({ id: 'kubeblocks.database.backup.repo_label' })}>
               {getFieldDecorator('backupRepo', {
                 initialValue: backupRepo || '',
-                rules: [{ required: false }]
+                rules: [{ required: false }, { validator: this.validateBackupRepo }]
               })(
                 <Select
                   className={styles.backupRepoSelect}
@@ -1220,7 +1239,7 @@ export default class Index extends PureComponent {
                   {backupRepoOptions.map(repo => {
                     const phase = getBackupRepoPhase(repo);
                     const phaseText = getBackupRepoPhaseText(phase);
-                    const disabled = !isBackupRepoReady(repo);
+                    const disabled = !isBackupRepoSelectable(repo);
                     return (
                       <Option key={repo.name} value={repo.name} disabled={disabled}>
                         {repo.displayName || repo.display_name || repo.name}{disabled && phaseText ? ` (${phaseText})` : ''}
