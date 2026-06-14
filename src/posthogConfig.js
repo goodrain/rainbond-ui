@@ -18,6 +18,13 @@ const DENYLISTED_PROPERTIES = [
   'authorization',
   'cookie'
 ];
+let md5 = null;
+
+try {
+  md5 = require('js-md5');
+} catch (error) {
+  md5 = null;
+}
 
 function readRuntimeConfig() {
   if (typeof window === 'undefined') {
@@ -77,6 +84,13 @@ function firstValue() {
   return '';
 }
 
+function safeObject(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return {};
+  }
+  return value;
+}
+
 function resolveBool(value, defaultValue) {
   if (isEnabled(value)) {
     return true;
@@ -126,7 +140,9 @@ function getPostHogConfig() {
     ),
     capturePageleave: resolveBool(firstValue(runtime.capturePageleave, runtime.capture_pageleave, env.RAINBOND_POSTHOG_CAPTURE_PAGELEAVE, env.POSTHOG_CAPTURE_PAGELEAVE), false),
     disableFlags: resolveBool(firstValue(runtime.disableFlags, runtime.disable_flags, runtime.advanced_disable_flags, env.RAINBOND_POSTHOG_DISABLE_FLAGS, env.POSTHOG_DISABLE_FLAGS), true),
-    debug: resolveBool(firstValue(runtime.debug, env.RAINBOND_POSTHOG_DEBUG, env.POSTHOG_DEBUG), false)
+    debug: resolveBool(firstValue(runtime.debug, env.RAINBOND_POSTHOG_DEBUG, env.POSTHOG_DEBUG), false),
+    instanceId: firstValue(runtime.instanceId, runtime.instance_id),
+    instanceProperties: safeObject(firstValue(runtime.instanceProperties, runtime.instance_properties))
   };
 }
 
@@ -182,8 +198,32 @@ function sanitizePostHogEvent(captureResult) {
   return sanitized;
 }
 
-function buildPostHogUserProperties(user = {}) {
+function hashString(value) {
+  const normalized = String(value || '');
+  if (md5) {
+    return md5(normalized);
+  }
+  let hash = 0;
+  for (let index = 0; index < normalized.length; index += 1) {
+    hash = (hash << 5) - hash + normalized.charCodeAt(index);
+    hash |= 0;
+  }
+  return String(Math.abs(hash));
+}
+
+function buildPostHogDistinctId(user = {}, instanceId = '') {
+  if (!user || !user.user_id) {
+    return '';
+  }
+  if (!instanceId) {
+    return String(user.user_id);
+  }
+  return hashString(`${instanceId}:${user.user_id}`);
+}
+
+function buildPostHogUserProperties(user = {}, instanceProperties = {}) {
   return {
+    ...safeObject(instanceProperties),
     enterprise_id: user.enterprise_id || '',
     is_enterprise_admin: !!user.is_enterprise_admin,
     team_count: Array.isArray(user.teams) ? user.teams.length : 0
@@ -195,5 +235,6 @@ module.exports = {
   getPostHogConfig,
   sanitizeObject,
   sanitizePostHogEvent,
+  buildPostHogDistinctId,
   buildPostHogUserProperties
 };

@@ -3,6 +3,7 @@ import { history } from 'umi';
 import { getPathPattern } from './sentryConfig';
 import {
   DENYLISTED_PROPERTIES,
+  buildPostHogDistinctId,
   buildPostHogUserProperties,
   getPostHogConfig,
   sanitizePostHogEvent
@@ -11,6 +12,7 @@ import {
 let initialized = false;
 let historyUnlisten = null;
 let clickTrackingInstalled = false;
+let activeConfig = null;
 
 const CLICKABLE_SELECTOR = [
   'button',
@@ -35,15 +37,56 @@ function getLocationPath(location) {
   return '';
 }
 
+function getCommonProperties() {
+  if (!activeConfig || !activeConfig.instanceProperties) {
+    return {};
+  }
+  return activeConfig.instanceProperties;
+}
+
+function inferModule(route) {
+  const value = route || '';
+  if (value.indexOf('appstore') >= 0 || value.indexOf('market') >= 0) {
+    return 'app_store';
+  }
+  if (value.indexOf('plugin') >= 0) {
+    return 'plugin';
+  }
+  if (value.indexOf('gateway') >= 0 || value.indexOf('domain') >= 0) {
+    return 'gateway';
+  }
+  if (value.indexOf('team') >= 0 || value.indexOf('member') >= 0) {
+    return 'team';
+  }
+  if (value.indexOf('monitor') >= 0) {
+    return 'monitor';
+  }
+  if (value.indexOf('create') >= 0 || value.indexOf('source') >= 0 || value.indexOf('image') >= 0) {
+    return 'component_create';
+  }
+  return 'unknown';
+}
+
+function buildRouteProperties(route, extra = {}) {
+  return {
+    ...getCommonProperties(),
+    route,
+    module: inferModule(route),
+    ...extra
+  };
+}
+
 export function capturePostHogPageview(location) {
   if (!initialized) {
     return;
   }
   const route = getPathPattern(getLocationPath(location));
-  posthog.capture('$pageview', {
-    route,
+  posthog.capture('$pageview', buildRouteProperties(route, {
     $current_url: route
-  });
+  }));
+  posthog.capture('rainbond_module_entered', buildRouteProperties(route, {
+    entry: 'page'
+  }));
 }
 
 function installHistoryTracking() {
@@ -124,15 +167,15 @@ function getElementHref(element) {
 
 function buildClickProperties(element) {
   const route = getPathPattern(getLocationPath(history && history.location));
-  return {
-    route,
+  return buildRouteProperties(route, {
     action: 'click',
+    entry: firstNonEmpty(element.getAttribute('data-posthog-entry'), element.getAttribute('data-posthog-action'), element.getAttribute('data-tracking-id')),
     element_tag: String(element.tagName || '').toLowerCase(),
     element_type: normalizeText(element.getAttribute('type')),
     element_role: normalizeText(element.getAttribute('role')),
     element_text: getElementLabel(element),
     element_href: getElementHref(element)
-  };
+  });
 }
 
 function installClickTracking() {
@@ -175,6 +218,7 @@ export function initPostHog() {
     return false;
   }
   initialized = true;
+  activeConfig = config;
   posthog.init(config.projectToken, {
     api_host: config.apiHost,
     ui_host: config.uiHost || null,
@@ -192,6 +236,9 @@ export function initPostHog() {
     debug: config.debug,
     before_send: sanitizeRouteProperties,
     loaded: () => {
+      if (config.instanceId && typeof posthog.group === 'function') {
+        posthog.group('instance', config.instanceId, config.instanceProperties || {});
+      }
       capturePostHogPageview(history && history.location);
     }
   });
@@ -204,7 +251,8 @@ export function identifyPostHogUser(user = {}) {
   if (!initialized || !user || !user.user_id) {
     return;
   }
-  posthog.identify(String(user.user_id), buildPostHogUserProperties(user));
+  const distinctId = buildPostHogDistinctId(user, activeConfig && activeConfig.instanceId);
+  posthog.identify(distinctId, buildPostHogUserProperties(user, activeConfig && activeConfig.instanceProperties));
 }
 
 export function resetPostHogUser() {
@@ -218,5 +266,8 @@ export function capturePostHogEvent(eventName, properties = {}) {
   if (!initialized || !eventName) {
     return;
   }
-  posthog.capture(eventName, properties);
+  posthog.capture(eventName, {
+    ...getCommonProperties(),
+    ...properties
+  });
 }
