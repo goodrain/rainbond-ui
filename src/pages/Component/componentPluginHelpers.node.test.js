@@ -3,6 +3,7 @@ const {
   getComponentPluginTabName,
   getVisibleComponentPlugins,
   hasHTTPPort,
+  shouldClearComponentPorts,
   shouldShowComponentPluginTab
 } = require('./componentPluginHelpers');
 
@@ -128,6 +129,24 @@ assert.strictEqual(
   ),
   true,
   'should show gateway monitoring component tab when the component has an http port'
+);
+
+assert.strictEqual(
+  shouldClearComponentPorts(null, 'gr1ea4bc'),
+  true,
+  'should clear stale ports before loading the first component ports'
+);
+
+assert.strictEqual(
+  shouldClearComponentPorts('gr1ea4bc', 'gr1ea4bc'),
+  false,
+  'should keep current ports while refreshing the same component to avoid plugin tab flicker'
+);
+
+assert.strictEqual(
+  shouldClearComponentPorts('gr1ea4bc', 'gr707edd'),
+  true,
+  'should clear ports when switching to another component'
 );
 
 console.log('component plugin helper tests passed');

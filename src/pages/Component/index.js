@@ -48,6 +48,7 @@ import roleUtil from '../../utils/newRole';
 import teamUtil from '../../utils/team';
 import userUtil from '../../utils/user';
 import ConnectionInformation from './connectionInformation';
+import DatabaseExpansion from './databaseExpansion';
 import EnvironmentConfiguration from './environmentConfiguration';
 import Expansion from './expansion';
 import styles from './Index.less';
@@ -67,7 +68,7 @@ import PluginUtile from '../../utils/pulginUtils'
 import { ResumeContext } from "./funContext";
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
-import { getComponentPluginTabName, getVisibleComponentPlugins } from './componentPluginHelpers';
+import { getComponentPluginTabName, getVisibleComponentPlugins, shouldClearComponentPorts } from './componentPluginHelpers';
 import { shouldShowGenericVisitAction, shouldShowWebTerminalAction } from './visitActionHelpers';
 
 const FormItem = Form.Item;
@@ -297,6 +298,7 @@ class Main extends PureComponent {
     };
     this.socket = null;
     this.destroy = false;
+    this.portsAppAlias = null;
   }
 
   getChildContext() {
@@ -518,7 +520,10 @@ class Main extends PureComponent {
       return;
     }
 
-    dispatch({ type: 'appControl/clearPorts' });
+    if (shouldClearComponentPorts(this.portsAppAlias, appAlias)) {
+      dispatch({ type: 'appControl/clearPorts' });
+    }
+    this.portsAppAlias = appAlias;
     dispatch({
       type: 'appControl/fetchPorts',
       payload: {
@@ -1556,7 +1561,7 @@ class Main extends PureComponent {
       overview: isShowThirdParty ? ThirdPartyServices : Overview,
       monitor: Monitor,
       log: Log,
-      expansion: Expansion,
+      expansion: method === 'kubeblocks_component' ? DatabaseExpansion : Expansion,
       environmentConfiguration: EnvironmentConfiguration,
       relation: Relation,
       mnt: Mnt,
