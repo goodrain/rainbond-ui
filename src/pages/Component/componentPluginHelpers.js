@@ -38,6 +38,10 @@ function getVisibleComponentPlugins(pluginList = [], appDetail = {}, ports = [])
   );
 }
 
+function shouldClearComponentPorts(previousAppAlias, nextAppAlias) {
+  return Boolean(nextAppAlias) && previousAppAlias !== nextAppAlias;
+}
+
 function getComponentPluginTabName(plugin = {}, monitorLabel = '监控', gatewayTrafficLabel = '组件流量') {
   if (isPluginBaseId(plugin, GATEWAY_MONITORING_PLUGIN_ID)) {
     return gatewayTrafficLabel;
@@ -54,5 +58,6 @@ module.exports = {
   getComponentPluginTabName,
   getVisibleComponentPlugins,
   hasHTTPPort,
+  shouldClearComponentPorts,
   shouldShowComponentPluginTab
 };

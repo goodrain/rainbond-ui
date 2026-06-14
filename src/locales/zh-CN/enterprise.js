@@ -1575,7 +1575,7 @@ const containerLog = {
 }
 
 const monitarEnterprise = {
-    'monitarEnterprise.title': '观测中心',
+    'monitarEnterprise.title': '监控中心',
     'monitarEnterprise.service': '服务监控',
     'monitarEnterprise.cluster': '集群监控',
     'monitarEnterprise.node': '节点监控',
