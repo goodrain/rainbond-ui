@@ -8,6 +8,7 @@ import {
   parseStackFrames,
   sanitizeObject,
   sanitizeStack,
+  shouldPreferFetchTransport,
   shouldReportRequestError
 } from './sentryConfig';
 
@@ -78,7 +79,8 @@ function sendEvent(event) {
     }),
     JSON.stringify(sanitizedEvent)
   ].join('\n');
-  if (navigator && navigator.sendBeacon && navigator.sendBeacon(sentryClient.envelopeUrl, payload)) {
+  const preferFetch = shouldPreferFetchTransport(sanitizedEvent);
+  if (!preferFetch && navigator && navigator.sendBeacon && navigator.sendBeacon(sentryClient.envelopeUrl, payload)) {
     return;
   }
   if (typeof fetch !== 'function') {

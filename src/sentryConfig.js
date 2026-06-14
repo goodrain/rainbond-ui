@@ -253,6 +253,10 @@ function shouldReportRequestError(error) {
   return error.response.status >= 500;
 }
 
+function shouldPreferFetchTransport(event) {
+  return getErrorSource(event || {}) === 'api';
+}
+
 function isDynamicSegment(segment) {
   return (
     /^[0-9]+$/.test(segment) ||
@@ -476,5 +480,6 @@ module.exports = {
   sanitizeObject,
   sanitizeStack,
   sanitizeUrl,
+  shouldPreferFetchTransport,
   shouldReportRequestError
 };

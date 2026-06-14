@@ -10,6 +10,7 @@ const {
   sanitizeObject,
   sanitizeStack,
   sanitizeUrl,
+  shouldPreferFetchTransport,
   shouldReportRequestError
 } = require('./sentryConfig');
 
@@ -203,4 +204,10 @@ test('shouldReportRequestError reports network errors and server errors only', f
   assert.strictEqual(shouldReportRequestError(new Error('network')), true);
   assert.strictEqual(shouldReportRequestError({ response: { status: 500 } }), true);
   assert.strictEqual(shouldReportRequestError({ response: { status: 404 } }), false);
+});
+
+test('shouldPreferFetchTransport sends api errors through visible fetch requests', function() {
+  assert.strictEqual(shouldPreferFetchTransport({ tags: { error_source: 'api' } }), true);
+  assert.strictEqual(shouldPreferFetchTransport({ errorSource: 'api' }), true);
+  assert.strictEqual(shouldPreferFetchTransport({ tags: { error_source: 'window_error' } }), false);
 });
