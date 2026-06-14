@@ -9,6 +9,8 @@ if (process.env.SEPARATION === 'true') {
 const isHistory = process.env.ROUTE_MODE === 'history';
 const proxyTarget = process.env.CONSOLE_PROXY_TARGET || 'http://127.0.0.1:7070/';
 const agentProxyTarget = process.env.AGENT_PROXY_TARGET || 'http://127.0.0.1:8787/';
+const enableSentrySourceMap = /^(true|1|yes|on)$/i.test(process.env.RAINBOND_SENTRY_SOURCEMAP || '');
+const sentrySourceMapDevtool = process.env.RAINBOND_SENTRY_SOURCEMAP_DEVTOOL || 'hidden-source-map';
 
 export default {
   history: { type: isHistory ? 'browser' : 'hash' },
@@ -32,6 +34,11 @@ export default {
   theme,
   lessLoader: {
     javascriptEnabled: true
+  },
+  chainWebpack(config) {
+    if (enableSentrySourceMap) {
+      config.devtool(sentrySourceMapDevtool);
+    }
   },
   devServer: {
     compress: false

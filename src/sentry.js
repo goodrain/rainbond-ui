@@ -1,3 +1,4 @@
+import { getDvaApp } from 'umi';
 import {
   buildIssueFingerprint,
   buildReadableErrorMessage,
@@ -85,6 +86,9 @@ function sendEvent(event) {
   }
   fetch(sentryClient.envelopeUrl, {
     method: 'POST',
+    headers: {
+      'Content-Type': 'text/plain;charset=UTF-8'
+    },
     body: payload,
     keepalive: true
   }).catch(() => {});
@@ -97,6 +101,41 @@ function getCurrentRoute() {
   return getPathPattern(window.location.href);
 }
 
+function getCurrentLocation() {
+  if (typeof window === 'undefined' || !window.location) {
+    return '';
+  }
+  return window.location.href || '';
+}
+
+function matchLocationValue(pattern, value = getCurrentLocation()) {
+  const match = String(value || '').match(pattern);
+  return match && match[1] ? decodeURIComponent(match[1]) : '';
+}
+
+function compactObject(value) {
+  return Object.keys(value || {}).reduce((result, key) => {
+    if (value[key] !== undefined && value[key] !== null && value[key] !== '') {
+      result[key] = value[key];
+    }
+    return result;
+  }, {});
+}
+
+function buildRouteContext(context = {}) {
+  const rawLocation = context.url || getCurrentLocation();
+  const route = context.route || getPathPattern(rawLocation);
+  return compactObject({
+    route,
+    raw_path: getPathPattern(rawLocation),
+    enterprise_id: context.enterpriseId || matchLocationValue(/enterprise\/([^/?#]+)/, rawLocation),
+    team_name: context.teamName || matchLocationValue(/team\/([^/?#]+)/, rawLocation),
+    region_name: context.regionName || matchLocationValue(/region\/([^/?#]+)/, rawLocation),
+    app_id: context.appId || matchLocationValue(/apps\/([^/?#]+)/, rawLocation),
+    component_id: context.componentId || matchLocationValue(/components\/([^/?#]+)/, rawLocation)
+  });
+}
+
 function normalizeTagValue(value) {
   if (value === undefined || value === null || value === '') {
     return undefined;
@@ -106,11 +145,17 @@ function normalizeTagValue(value) {
 
 function buildTags(context = {}) {
   const contextTags = context.tags || {};
-  const route = context.route || contextTags.route || getCurrentRoute();
+  const routeContext = buildRouteContext(context);
+  const route = routeContext.route || context.route || contextTags.route || getCurrentRoute();
   const tags = {
     component: 'rainbond-ui',
     error_source: context.errorSource || context.source || contextTags.error_source || contextTags.source || 'javascript',
     route,
+    enterprise_id: routeContext.enterprise_id,
+    team_name: routeContext.team_name,
+    region_name: routeContext.region_name,
+    app_id: routeContext.app_id,
+    component_id: routeContext.component_id,
     ...contextTags
   };
 
@@ -118,6 +163,55 @@ function buildTags(context = {}) {
     const value = normalizeTagValue(tags[key]);
     if (value !== undefined) {
       result[key] = value;
+    }
+    return result;
+  }, {});
+}
+
+function buildUser(user = {}) {
+  const id = user.user_id || user.id || user.userName || user.user_name;
+  const username = user.user_name || user.username || user.nick_name;
+  return compactObject({
+    id: id ? String(id) : undefined,
+    username: username ? String(username) : undefined,
+    enterprise_id: user.enterprise_id ? String(user.enterprise_id) : undefined,
+    is_enterprise_admin: user.is_enterprise_admin === undefined ? undefined : !!user.is_enterprise_admin
+  });
+}
+
+function getStoreUser() {
+  try {
+    const app = getDvaApp();
+    const state = app && app._store && app._store.getState && app._store.getState();
+    return (state && state.user && state.user.currentUser) || {};
+  } catch (error) {
+    return {};
+  }
+}
+
+function buildContexts(context = {}, routeContext = {}) {
+  const contexts = {
+    rainbond: routeContext
+  };
+
+  if (context.request) {
+    contexts.request = sanitizeObject(context.request);
+  }
+  if (context.api) {
+    contexts.api = sanitizeObject(context.api);
+  }
+  if (context.react) {
+    contexts.react = sanitizeObject(context.react);
+  }
+  if (context.contexts) {
+    Object.keys(context.contexts).forEach(key => {
+      contexts[key] = sanitizeObject(context.contexts[key]);
+    });
+  }
+
+  return Object.keys(contexts).reduce((result, key) => {
+    if (contexts[key] && Object.keys(contexts[key]).length) {
+      result[key] = contexts[key];
     }
     return result;
   }, {});
@@ -140,8 +234,9 @@ function buildFallbackFrame(context = {}) {
 }
 
 function buildEvent(error, context = {}) {
+  const routeContext = buildRouteContext(context);
   const tags = buildTags(context);
-  const route = context.route || tags.route || getCurrentRoute();
+  const route = routeContext.route || context.route || tags.route || getCurrentRoute();
   const enrichedContext = {
     ...context,
     route,
@@ -149,12 +244,15 @@ function buildEvent(error, context = {}) {
   };
   const frames = parseStackFrames(error && error.stack);
   const stackFrames = frames.length ? frames : buildFallbackFrame(context);
+  const culpritFrame = stackFrames.length ? stackFrames[stackFrames.length - 1] : {};
   const readableMessage = buildReadableErrorMessage(error, enrichedContext);
   const originalMessage = (error && error.message) || String(error);
   const exceptionType = context.exceptionType || (error && error.name) || 'Error';
+  const sentryUser = buildUser(context.user || getStoreUser());
   const extra = {
     error_message: originalMessage,
     error_name: exceptionType,
+    page: routeContext,
     ...(context.extra || {})
   };
 
@@ -168,8 +266,25 @@ function buildEvent(error, context = {}) {
     release: sentryClient.release || undefined,
     tags,
     transaction: route,
+    culprit: culpritFrame.function
+      ? `${culpritFrame.function} (${culpritFrame.filename || route || 'unknown'})`
+      : route,
+    user: Object.keys(sentryUser).length ? sentryUser : undefined,
+    contexts: buildContexts(context, routeContext),
+    request: context.request
+      ? {
+        method: context.request.method,
+        url: context.request.url || route,
+        query_string: context.request.query_string
+      }
+      : {
+        url: route
+      },
     fingerprint: buildIssueFingerprint(error, enrichedContext, stackFrames),
     message: readableMessage,
+    logentry: {
+      message: readableMessage
+    },
     exception: {
       values: [
         {
@@ -240,6 +355,19 @@ export function captureRequestError(error, options = {}) {
   const method = String(config.method || 'GET').toUpperCase();
   const route = getPathPattern(config.url);
   const responseData = (response && response.data) || {};
+  const requestContext = {
+    method,
+    url: getPathPattern(config.url),
+    query_string: config.params ? JSON.stringify(sanitizeObject(config.params)) : undefined
+  };
+  const apiContext = {
+    route,
+    method,
+    status: status || 'network',
+    status_text: response && response.statusText,
+    business_code: responseData && responseData.code,
+    response_message: responseData && (responseData.msg || responseData.msg_show)
+  };
   captureException(error, {
     errorSource: 'api',
     exceptionType: status ? `API ${status}` : 'API Network Error',
@@ -255,6 +383,8 @@ export function captureRequestError(error, options = {}) {
       request_method: method,
       route
     },
+    request: requestContext,
+    api: apiContext,
     extra: {
       route,
       method,

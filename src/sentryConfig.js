@@ -4,12 +4,16 @@ const BEARER_VALUE_RE = /\b(bearer\s+)[a-z0-9._~+/=-]+/gi;
 const DEFAULT_TRACE_SAMPLE_RATE = 0;
 const DYNAMIC_SEGMENT_MARKERS = {
   teams: true,
+  team: true,
   tenants: true,
   apps: true,
+  app: true,
   services: true,
+  service: true,
   components: true,
   groups: true,
   regions: true,
+  region: true,
   clusters: true,
   nodes: true,
   namespaces: true,
@@ -228,6 +232,9 @@ function normalizePath(url) {
   try {
     if (/^[a-z][a-z0-9+.-]*:\/\//i.test(url)) {
       const parsed = new URL(url);
+      if (parsed.hash && parsed.hash.indexOf('#/') === 0) {
+        return sanitizeUrl(parsed.hash.slice(1));
+      }
       return parsed.pathname + (parsed.search || parsed.hash ? '?[Filtered]' : '');
     }
   } catch (error) {
