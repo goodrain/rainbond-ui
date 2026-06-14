@@ -285,10 +285,187 @@ function sanitizeStack(stack) {
     .join('\n');
 }
 
+function parseFrameLocation(rawLocation) {
+  const location = rawLocation || '';
+  const match = location.match(/^(.*):(\d+):(\d+)$/);
+  if (!match) {
+    return {
+      filename: sanitizeString(location),
+      lineno: undefined,
+      colno: undefined
+    };
+  }
+  return {
+    filename: getPathPattern(match[1]),
+    lineno: Number(match[2]),
+    colno: Number(match[3])
+  };
+}
+
+function isAppFrame(filename) {
+  if (!filename) {
+    return false;
+  }
+  return !/(node_modules|webpack:|webpack-internal:|\/umi\.[^/]+\.js|\/vendors?\.)/i.test(filename);
+}
+
+function parseStackFrame(line) {
+  const text = String(line || '').trim();
+  if (!text) {
+    return null;
+  }
+
+  let match = text.match(/^at\s+(.*?)\s+\((.*:\d+:\d+)\)$/);
+  if (match) {
+    const location = parseFrameLocation(match[2]);
+    return {
+      filename: location.filename,
+      function: sanitizeString(match[1] || '<anonymous>'),
+      lineno: location.lineno,
+      colno: location.colno,
+      in_app: isAppFrame(location.filename)
+    };
+  }
+
+  match = text.match(/^at\s+(.*:\d+:\d+)$/);
+  if (match) {
+    const location = parseFrameLocation(match[1]);
+    return {
+      filename: location.filename,
+      function: '<anonymous>',
+      lineno: location.lineno,
+      colno: location.colno,
+      in_app: isAppFrame(location.filename)
+    };
+  }
+
+  match = text.match(/^(.*?)@(.*:\d+:\d+)$/);
+  if (match) {
+    const location = parseFrameLocation(match[2]);
+    return {
+      filename: location.filename,
+      function: sanitizeString(match[1] || '<anonymous>'),
+      lineno: location.lineno,
+      colno: location.colno,
+      in_app: isAppFrame(location.filename)
+    };
+  }
+
+  return null;
+}
+
+function parseStackFrames(stack) {
+  if (!stack || typeof stack !== 'string') {
+    return [];
+  }
+  const frames = stack
+    .split('\n')
+    .slice(0, 80)
+    .map(parseStackFrame)
+    .filter(Boolean);
+
+  return frames.reverse();
+}
+
+function getErrorMessage(error) {
+  if (!error) {
+    return 'Unknown error';
+  }
+  if (typeof error === 'string') {
+    return error;
+  }
+  if (error.message) {
+    return error.message;
+  }
+  return String(error);
+}
+
+function normalizeMethod(method) {
+  return String(method || 'UNKNOWN').toUpperCase();
+}
+
+function getErrorSource(context) {
+  return (
+    context.errorSource ||
+    context.source ||
+    (context.tags && (context.tags.error_source || context.tags.source)) ||
+    'javascript'
+  );
+}
+
+function buildReadableErrorMessage(error, context) {
+  const safeContext = context || {};
+  if (safeContext.title) {
+    return sanitizeString(String(safeContext.title));
+  }
+
+  const source = getErrorSource(safeContext);
+  const originalMessage = sanitizeString(getErrorMessage(error));
+
+  if (source === 'api') {
+    const status = safeContext.status || (safeContext.tags && safeContext.tags.request_status) || 'Network';
+    const method = normalizeMethod(safeContext.method || (safeContext.tags && safeContext.tags.request_method));
+    const route = safeContext.route || (safeContext.tags && safeContext.tags.route) || 'unknown endpoint';
+    return `API ${status} ${method} ${route}`;
+  }
+
+  if (source === 'react_error_boundary') {
+    return `React render error: ${originalMessage}`;
+  }
+
+  if (source === 'unhandledrejection') {
+    return `Unhandled promise rejection: ${originalMessage}`;
+  }
+
+  return `JavaScript error: ${originalMessage}`;
+}
+
+function getCulpritFrame(frames) {
+  if (!frames || !frames.length) {
+    return {};
+  }
+  for (let index = frames.length - 1; index >= 0; index -= 1) {
+    if (frames[index].in_app) {
+      return frames[index];
+    }
+  }
+  return frames[frames.length - 1];
+}
+
+function buildIssueFingerprint(error, context, frames) {
+  const safeContext = context || {};
+  if (safeContext.fingerprint) {
+    return safeContext.fingerprint;
+  }
+
+  const source = getErrorSource(safeContext);
+  if (source === 'api') {
+    return [
+      'rainbond-ui-api',
+      String(safeContext.status || (safeContext.tags && safeContext.tags.request_status) || 'network'),
+      normalizeMethod(safeContext.method || (safeContext.tags && safeContext.tags.request_method)),
+      safeContext.route || (safeContext.tags && safeContext.tags.route) || 'unknown endpoint'
+    ];
+  }
+
+  const culprit = getCulpritFrame(frames);
+  return [
+    'rainbond-ui-js',
+    source,
+    (error && error.name) || 'Error',
+    safeContext.route || (safeContext.tags && safeContext.tags.route) || '',
+    culprit.filename || '',
+    culprit.function || ''
+  ];
+}
+
 module.exports = {
+  buildIssueFingerprint,
+  buildReadableErrorMessage,
   buildSentryTunnelUrl,
   getPathPattern,
   getSentryConfig,
+  parseStackFrames,
   sanitizeObject,
   sanitizeStack,
   sanitizeUrl,
