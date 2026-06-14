@@ -5,6 +5,7 @@ const {
   getPostHogConfig,
   sanitizeObject,
   sanitizePostHogEvent,
+  buildPostHogDistinctId,
   buildPostHogUserProperties
 } = require('./posthogConfig');
 
@@ -40,7 +41,9 @@ test('posthog config defaults to enabled without an env project token', function
       maskAllElementAttributes: true,
       capturePageleave: false,
       disableFlags: true,
-      debug: false
+      debug: false,
+      instanceId: '',
+      instanceProperties: {}
     });
   } finally {
     process.env = original;
@@ -67,7 +70,9 @@ test('posthog config ignores env project token and keeps built-in token', functi
       maskAllElementAttributes: true,
       capturePageleave: false,
       disableFlags: true,
-      debug: false
+      debug: false,
+      instanceId: '',
+      instanceProperties: {}
     });
   } finally {
     process.env = original;
@@ -143,18 +148,56 @@ test('sanitizePostHogEvent preserves PostHog token while filtering event propert
 
 test('buildPostHogUserProperties keeps identifiers minimal', function() {
   assert.deepStrictEqual(
-    buildPostHogUserProperties({
-      user_id: 1,
-      email: 'user@example.com',
-      nick_name: 'alice',
-      enterprise_id: 'eid',
-      is_enterprise_admin: true,
-      teams: [{ team_name: 'team-a' }]
-    }),
+    buildPostHogUserProperties(
+      {
+        user_id: 1,
+        email: 'user@example.com',
+        nick_name: 'alice',
+        enterprise_id: 'eid',
+        is_enterprise_admin: true,
+        teams: [{ team_name: 'team-a' }]
+      },
+      {
+        instance_id: 'instance-a',
+        rainbond_version: 'v6.0.0'
+      }
+    ),
     {
       enterprise_id: 'eid',
       is_enterprise_admin: true,
-      team_count: 1
+      team_count: 1,
+      instance_id: 'instance-a',
+      rainbond_version: 'v6.0.0'
     }
   );
+});
+
+test('posthog config reads runtime instance metadata', function() {
+  const originalWindow = global.window;
+  global.window = {
+    RAINBOND_POSTHOG: {
+      enabled: true,
+      instanceId: 'instance-a',
+      instanceProperties: {
+        instance_id: 'instance-a',
+        rainbond_version: 'v6.0.0'
+      }
+    }
+  };
+
+  try {
+    const config = getPostHogConfig();
+    assert.strictEqual(config.instanceId, 'instance-a');
+    assert.deepStrictEqual(config.instanceProperties, {
+      instance_id: 'instance-a',
+      rainbond_version: 'v6.0.0'
+    });
+  } finally {
+    global.window = originalWindow;
+  }
+});
+
+test('posthog distinct id is scoped by instance', function() {
+  assert.notStrictEqual(buildPostHogDistinctId({ user_id: 1 }, 'instance-a'), buildPostHogDistinctId({ user_id: 1 }, 'instance-b'));
+  assert.strictEqual(buildPostHogDistinctId({ user_id: 1 }, 'instance-a'), buildPostHogDistinctId({ user_id: '1' }, 'instance-a'));
 });
