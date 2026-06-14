@@ -30,11 +30,17 @@ export default class ErrorBoundary extends PureComponent {
     }
     captureException(error, {
       errorSource: 'react_error_boundary',
+      user: currentUser,
       tags: {
         component: 'rainbond-ui',
         error_source: 'react_error_boundary'
       },
-      extra: errorInfo
+      react: {
+        component_stack: errorInfo && errorInfo.componentStack
+      },
+      extra: {
+        component_stack: errorInfo && errorInfo.componentStack
+      }
     });
     return this.saveLog(error);
   }
@@ -56,7 +62,7 @@ export default class ErrorBoundary extends PureComponent {
     const { children } = this.props;
 
     if (hasError) {
-      <Result
+      return <Result
         status="warning"
         title="UI遇到障碍，我们已经记录信息，请重试"
         extra={[
@@ -66,7 +72,7 @@ export default class ErrorBoundary extends PureComponent {
             刷新重试
           </Button>
         ]}
-      />
+      />;
     }
     return children;
   }

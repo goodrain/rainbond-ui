@@ -145,6 +145,10 @@ test('getPathPattern removes ids from paths', function() {
     getPathPattern('https://example.com/console/teams/acme/apps/app-alias/overview#token=abc'),
     '/console/teams/:id/apps/:id/overview?[Filtered]'
   );
+  assert.strictEqual(
+    getPathPattern('https://example.com/console/#/team/team-a/region/bj/apps/app-1/overview?token=abc'),
+    '/team/:id/region/:id/apps/:id/overview?[Filtered]'
+  );
 });
 
 test('sanitizeStack removes absolute tenant urls and credentials', function() {
