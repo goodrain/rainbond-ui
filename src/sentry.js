@@ -1,7 +1,10 @@
 import {
+  buildIssueFingerprint,
+  buildReadableErrorMessage,
   buildSentryTunnelUrl,
   getPathPattern,
   getSentryConfig,
+  parseStackFrames,
   sanitizeObject,
   sanitizeStack,
   shouldReportRequestError
@@ -87,11 +90,74 @@ function sendEvent(event) {
   }).catch(() => {});
 }
 
-function buildEvent(error, context = {}) {
+function getCurrentRoute() {
+  if (typeof window === 'undefined' || !window.location) {
+    return '';
+  }
+  return getPathPattern(window.location.href);
+}
+
+function normalizeTagValue(value) {
+  if (value === undefined || value === null || value === '') {
+    return undefined;
+  }
+  return String(sanitizeObject(value)).slice(0, 200);
+}
+
+function buildTags(context = {}) {
+  const contextTags = context.tags || {};
+  const route = context.route || contextTags.route || getCurrentRoute();
   const tags = {
     component: 'rainbond-ui',
-    ...(context.tags || {})
+    error_source: context.errorSource || context.source || contextTags.error_source || contextTags.source || 'javascript',
+    route,
+    ...contextTags
   };
+
+  return Object.keys(tags).reduce((result, key) => {
+    const value = normalizeTagValue(tags[key]);
+    if (value !== undefined) {
+      result[key] = value;
+    }
+    return result;
+  }, {});
+}
+
+function buildFallbackFrame(context = {}) {
+  const extra = context.extra || {};
+  if (!extra.filename) {
+    return [];
+  }
+  return [
+    {
+      filename: getPathPattern(extra.filename),
+      function: '<anonymous>',
+      lineno: extra.lineno,
+      colno: extra.colno,
+      in_app: true
+    }
+  ];
+}
+
+function buildEvent(error, context = {}) {
+  const tags = buildTags(context);
+  const route = context.route || tags.route || getCurrentRoute();
+  const enrichedContext = {
+    ...context,
+    route,
+    tags
+  };
+  const frames = parseStackFrames(error && error.stack);
+  const stackFrames = frames.length ? frames : buildFallbackFrame(context);
+  const readableMessage = buildReadableErrorMessage(error, enrichedContext);
+  const originalMessage = (error && error.message) || String(error);
+  const exceptionType = context.exceptionType || (error && error.name) || 'Error';
+  const extra = {
+    error_message: originalMessage,
+    error_name: exceptionType,
+    ...(context.extra || {})
+  };
+
   return {
     event_id: eventId(),
     timestamp: new Date().toISOString(),
@@ -101,22 +167,30 @@ function buildEvent(error, context = {}) {
     environment: sentryClient.environment,
     release: sentryClient.release || undefined,
     tags,
+    transaction: route,
+    fingerprint: buildIssueFingerprint(error, enrichedContext, stackFrames),
+    message: readableMessage,
     exception: {
       values: [
         {
-          type: (error && error.name) || 'Error',
-          value: sanitizeObject((error && error.message) || String(error)),
-          stacktrace: error && error.stack ? { frames: [{ filename: 'stack', context_line: sanitizeStack(error.stack) }] } : undefined
+          type: sanitizeObject(exceptionType),
+          value: readableMessage,
+          stacktrace: stackFrames.length
+            ? { frames: stackFrames }
+            : error && error.stack
+              ? { frames: [{ filename: 'stack', context_line: sanitizeStack(error.stack) }] }
+              : undefined
         }
       ]
     },
-    extra: context.extra ? sanitizeObject(context.extra) : undefined
+    extra: sanitizeObject(extra)
   };
 }
 
 function installGlobalHandlers() {
   window.addEventListener('error', event => {
     captureException(event.error || new Error(event.message), {
+      errorSource: 'window_error',
       extra: {
         filename: getPathPattern(event.filename),
         lineno: event.lineno,
@@ -127,6 +201,7 @@ function installGlobalHandlers() {
   window.addEventListener('unhandledrejection', event => {
     const reason = event.reason instanceof Error ? event.reason : new Error(String(event.reason));
     captureException(reason, {
+      errorSource: 'unhandledrejection',
       tags: {
         source: 'unhandledrejection'
       }
@@ -161,14 +236,32 @@ export function captureRequestError(error, options = {}) {
   }
   const response = error && error.response;
   const config = (error && error.config) || options || {};
+  const status = response && response.status;
+  const method = String(config.method || 'GET').toUpperCase();
+  const route = getPathPattern(config.url);
+  const responseData = (response && response.data) || {};
   captureException(error, {
+    errorSource: 'api',
+    exceptionType: status ? `API ${status}` : 'API Network Error',
+    title: `API ${status || 'Network'} ${method} ${route || 'unknown endpoint'}`,
+    route,
+    status: status || 'network',
+    method,
+    fingerprint: ['rainbond-ui-api', String(status || 'network'), method, route || 'unknown endpoint'],
     tags: {
       component: 'rainbond-ui',
-      request_status: response && response.status
+      error_source: 'api',
+      request_status: status || 'network',
+      request_method: method,
+      route
     },
     extra: {
-      route: getPathPattern(config.url),
-      method: config.method
+      route,
+      method,
+      status,
+      status_text: response && response.statusText,
+      business_code: responseData && responseData.code,
+      response_message: responseData && (responseData.msg || responseData.msg_show)
     }
   });
 }

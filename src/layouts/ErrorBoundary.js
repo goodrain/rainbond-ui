@@ -29,8 +29,10 @@ export default class ErrorBoundary extends PureComponent {
       return null;
     }
     captureException(error, {
+      errorSource: 'react_error_boundary',
       tags: {
-        component: 'rainbond-ui'
+        component: 'rainbond-ui',
+        error_source: 'react_error_boundary'
       },
       extra: errorInfo
     });

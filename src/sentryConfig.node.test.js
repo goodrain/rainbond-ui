@@ -1,9 +1,12 @@
 const assert = require('assert');
 
 const {
+  buildIssueFingerprint,
+  buildReadableErrorMessage,
   getPathPattern,
   getSentryConfig,
   buildSentryTunnelUrl,
+  parseStackFrames,
   sanitizeObject,
   sanitizeStack,
   sanitizeUrl,
@@ -148,6 +151,47 @@ test('sanitizeStack removes absolute tenant urls and credentials', function() {
   assert.strictEqual(
     sanitizeStack('at https://example.com/console/teams/acme/apps/app-alias/overview?token=abc\nError: password=abc'),
     'at /console/teams/:id/apps/:id/overview?[Filtered]\nError: password=[Filtered]'
+  );
+});
+
+test('parseStackFrames returns structured sanitized browser frames', function() {
+  const frames = parseStackFrames(
+    'Error: boom\n' +
+    '    at renderApp (https://example.com/console/teams/team-a/apps/app-1/overview?token=abc:10:20)\n' +
+    '    at https://example.com/umi.123.js:1:2'
+  );
+
+  assert.strictEqual(frames.length, 2);
+  assert.deepStrictEqual(frames[1], {
+    filename: '/console/teams/:id/apps/:id/overview?[Filtered]',
+    function: 'renderApp',
+    lineno: 10,
+    colno: 20,
+    in_app: true
+  });
+});
+
+test('buildReadableErrorMessage summarizes api failures for issue lists', function() {
+  assert.strictEqual(
+    buildReadableErrorMessage(new Error('Request failed'), {
+      errorSource: 'api',
+      status: 500,
+      method: 'post',
+      route: '/console/teams/:id/apps/:id/overview'
+    }),
+    'API 500 POST /console/teams/:id/apps/:id/overview'
+  );
+});
+
+test('buildIssueFingerprint groups api errors by status method and route', function() {
+  assert.deepStrictEqual(
+    buildIssueFingerprint(new Error('Request failed'), {
+      errorSource: 'api',
+      status: 502,
+      method: 'get',
+      route: '/console/teams/:id/apps/:id/events'
+    }, []),
+    ['rainbond-ui-api', '502', 'GET', '/console/teams/:id/apps/:id/events']
   );
 });
 
