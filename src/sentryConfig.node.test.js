@@ -82,6 +82,13 @@ test('buildSentryTunnelUrl supports absolute tunnel with a base path', function(
   );
 });
 
+test('buildSentryTunnelUrl supports central sentry ingest tunnel', function() {
+  assert.strictEqual(
+    buildSentryTunnelUrl('https://sentry.goodrain.com', '/api/2/envelope/', '?sentry_version=7&sentry_key=public'),
+    'https://sentry.goodrain.com/api/2/envelope/?sentry_version=7&sentry_key=public'
+  );
+});
+
 test('sentry config can be disabled by telemetry switch', function() {
   const original = process.env;
   process.env = {
