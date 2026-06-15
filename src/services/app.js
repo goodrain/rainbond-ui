@@ -1610,6 +1610,26 @@ export async function saveVMDiskLayout(
   );
 }
 
+export async function setVMFixedPodIP(
+  body = {
+    team_name,
+    app_alias,
+    enabled
+  },
+  handleError
+) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/vm-network/fixed-ip`,
+    {
+      method: 'put',
+      data: {
+        enabled: !!body.enabled
+      },
+      handleError
+    }
+  );
+}
+
 /*
   获取组件支持的存储类型
 */
