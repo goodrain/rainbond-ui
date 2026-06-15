@@ -1,4 +1,5 @@
 import {
+  buildSentryTunnelUrl,
   getPathPattern,
   getSentryConfig,
   sanitizeObject,
@@ -40,7 +41,7 @@ function buildClient(config) {
 
   return {
     dsn: publicDsn.toString(),
-    envelopeUrl: parsed.toString(),
+    envelopeUrl: buildSentryTunnelUrl(config.tunnel, parsed.pathname, parsed.search) || parsed.toString(),
     environment: config.environment,
     release: config.release
   };

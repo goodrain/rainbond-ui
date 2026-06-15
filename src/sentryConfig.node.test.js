@@ -3,6 +3,7 @@ const assert = require('assert');
 const {
   getPathPattern,
   getSentryConfig,
+  buildSentryTunnelUrl,
   sanitizeObject,
   sanitizeStack,
   sanitizeUrl,
@@ -45,11 +46,40 @@ test('sentry config reads environment values and clamps trace rate', function() 
       dsn: 'https://example.invalid/1',
       environment: 'production',
       release: 'v6.9.1-dev',
+      tunnel: '',
       tracesSampleRate: 1
     });
   } finally {
     process.env = original;
   }
+});
+
+test('sentry config reads tunnel override', function() {
+  const original = process.env;
+  process.env = {
+    RAINBOND_ERROR_REPORTING_FRONTEND_DSN: 'https://example.invalid/1',
+    RAINBOND_ERROR_REPORTING_FRONTEND_TUNNEL: '/console/sentry'
+  };
+
+  try {
+    assert.strictEqual(getSentryConfig().tunnel, '/console/sentry');
+  } finally {
+    process.env = original;
+  }
+});
+
+test('buildSentryTunnelUrl appends envelope path and query to same-origin tunnel', function() {
+  assert.strictEqual(
+    buildSentryTunnelUrl('/console/sentry', '/api/2/envelope/', '?sentry_version=7&sentry_key=public'),
+    '/console/sentry/api/2/envelope/?sentry_version=7&sentry_key=public'
+  );
+});
+
+test('buildSentryTunnelUrl supports absolute tunnel with a base path', function() {
+  assert.strictEqual(
+    buildSentryTunnelUrl('https://rainbond.example.com/console/sentry/', '/prefix/api/2/envelope/', '?sentry_key=public'),
+    'https://rainbond.example.com/console/sentry/prefix/api/2/envelope/?sentry_key=public'
+  );
 });
 
 test('sentry config can be disabled by telemetry switch', function() {

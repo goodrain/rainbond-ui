@@ -1,6 +1,7 @@
 const assert = require('assert');
 
 const {
+  DENYLISTED_PROPERTIES,
   getPostHogConfig,
   sanitizeObject,
   sanitizePostHogEvent,
@@ -113,16 +114,28 @@ test('sanitizeObject filters sensitive fields recursively', function() {
   );
 });
 
-test('sanitizePostHogEvent filters event properties', function() {
+test('posthog denylist keeps sdk token property for ingestion', function() {
+  assert.strictEqual(DENYLISTED_PROPERTIES.includes('token'), false);
+});
+
+test('sanitizePostHogEvent preserves PostHog token while filtering event properties', function() {
   assert.deepStrictEqual(
     sanitizePostHogEvent({
       event: 'demo',
-      properties: { token: 'abc', route: '/console' },
+      properties: {
+        token: 'public-project-token',
+        route: '/console',
+        nested: { token: 'user-token' }
+      },
       $set: { email: 'user@example.com' }
     }),
     {
       event: 'demo',
-      properties: { token: '[Filtered]', route: '/console' },
+      properties: {
+        token: 'public-project-token',
+        route: '/console',
+        nested: { token: '[Filtered]' }
+      },
       $set: { email: '[Filtered]' }
     }
   );

@@ -1,5 +1,6 @@
 import CustomChart from '@/components/CustomChart';
 import React, { Fragment, PureComponent } from 'react';
+import { FormattedMessage } from 'umi';
 
 export default class ResourceShow extends PureComponent {
   render() {
@@ -13,6 +14,7 @@ export default class ResourceShow extends PureComponent {
             'containerNetT'
           ]}
           moduleName="ResourceMonitoring"
+          title={<FormattedMessage id='componentOverview.body.tab.monitor.monitoring' />}
         />
       </Fragment>
     );

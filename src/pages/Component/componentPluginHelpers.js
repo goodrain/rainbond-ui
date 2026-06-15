@@ -1,8 +1,24 @@
-function shouldShowComponentPluginTab(plugin = {}, appDetail = {}) {
+const { isPluginBaseId } = require('../../utils/pluginArchUtils');
+
+const GATEWAY_MONITORING_PLUGIN_ID = 'rainbond-gateway-monitoring';
+const HTTP_PORT_PROTOCOLS = ['http', 'https', 'httptohttps', 'http2', 'grpc'];
+
+function hasHTTPPort(ports = []) {
+  return (ports || []).some(port => {
+    const protocol = String((port && port.protocol) || '').toLowerCase();
+    return HTTP_PORT_PROTOCOLS.includes(protocol);
+  });
+}
+
+function shouldShowComponentPluginTab(plugin = {}, appDetail = {}, ports = []) {
   const service = (appDetail && appDetail.service) || {};
 
   if (!plugin || !plugin.name) {
     return false;
+  }
+
+  if (isPluginBaseId(plugin, GATEWAY_MONITORING_PLUGIN_ID)) {
+    return hasHTTPPort(ports);
   }
 
   if (plugin.name === 'rainbond-vm') {
@@ -16,13 +32,17 @@ function shouldShowComponentPluginTab(plugin = {}, appDetail = {}) {
   return true;
 }
 
-function getVisibleComponentPlugins(pluginList = [], appDetail = {}) {
+function getVisibleComponentPlugins(pluginList = [], appDetail = {}, ports = []) {
   return (pluginList || []).filter(plugin =>
-    shouldShowComponentPluginTab(plugin, appDetail)
+    shouldShowComponentPluginTab(plugin, appDetail, ports)
   );
 }
 
-function getComponentPluginTabName(plugin = {}, monitorLabel = '监控') {
+function getComponentPluginTabName(plugin = {}, monitorLabel = '监控', gatewayTrafficLabel = '组件流量') {
+  if (isPluginBaseId(plugin, GATEWAY_MONITORING_PLUGIN_ID)) {
+    return gatewayTrafficLabel;
+  }
+
   if (plugin.name === 'rainbond-vm') {
     return monitorLabel;
   }
@@ -33,5 +53,6 @@ function getComponentPluginTabName(plugin = {}, monitorLabel = '监控') {
 module.exports = {
   getComponentPluginTabName,
   getVisibleComponentPlugins,
+  hasHTTPPort,
   shouldShowComponentPluginTab
 };
