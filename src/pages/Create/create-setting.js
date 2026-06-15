@@ -113,7 +113,7 @@ export default class Index extends PureComponent {
                 window.sessionStorage.removeItem('packageNpmOrYarn');
                 window.sessionStorage.removeItem('advanced_setup');
                 window.sessionStorage.removeItem(SOURCE_BUILD_CONFIG_KEY);
-                this.handleJump(`apps/${appDetail?.service?.group_id}/overview?type=components&componentID=${app_alias}&tab=overview`);
+                this.handleJump(`apps/${appDetail?.service?.group_id}/overview`);
               }
             },
             handleError: err => {

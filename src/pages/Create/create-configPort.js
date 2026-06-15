@@ -237,7 +237,7 @@ export default class Index extends PureComponent {
                     window.sessionStorage.removeItem(SOURCE_BUILD_CONFIG_KEY);
                     window.sessionStorage.removeItem('cnb_params');  // 清理 CNB 参数
                     // this.handleJump(`components/${app_alias}/overview`);
-                    this.handleJump(`apps/${appDetail?.service?.group_id}/overview?type=components&componentID=${app_alias}&tab=overview`);
+                    this.handleJump(`apps/${appDetail?.service?.group_id}/overview`);
                   }
                 },
                 handleError: err => {
@@ -272,7 +272,7 @@ export default class Index extends PureComponent {
               window.sessionStorage.removeItem('advanced_setup');
               window.sessionStorage.removeItem(SOURCE_BUILD_CONFIG_KEY);
               // this.handleJump(`components/${app_alias}/overview`);
-              this.handleJump(`apps/${appDetail?.service?.group_id}/overview?type=components&componentID=${app_alias}&tab=overview`);
+              this.handleJump(`apps/${appDetail?.service?.group_id}/overview`);
             }
           },
           handleError: err => {

@@ -2047,6 +2047,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   };
 
   const handleBack = () => {
+    console.log('进来了')
     if (currentView === 'form') {
       setCurrentFormType('');
       popViewHistory();
@@ -2423,6 +2424,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         },
         callback: (data) => {
           const appAlias = data && data.bean.service_alias;
+          console.log('创建')
           dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/create-check/${appAlias}`));
           onCancel();
         },
@@ -2531,6 +2533,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   };
 
   const getTitle = () => {
+    console.log('又进来了')
     switch (currentView) {
       case 'market':
         return formatMessage({ id: 'componentOverview.body.CreateComponentModal.from_market' });

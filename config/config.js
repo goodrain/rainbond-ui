@@ -7,8 +7,8 @@ if (process.env.SEPARATION === 'true') {
   publcPath = `/`;
 }
 const isHistory = process.env.ROUTE_MODE === 'history';
-const proxyTarget = process.env.CONSOLE_PROXY_TARGET || 'http://127.0.0.1:7070/';
-const agentProxyTarget = process.env.AGENT_PROXY_TARGET || 'http://127.0.0.1:8787/';
+const proxyTarget = process.env.CONSOLE_PROXY_TARGET || 'http://14.103.236.217:7070/';
+const agentProxyTarget = process.env.AGENT_PROXY_TARGET || 'http://14.103.236.217:8787/';
 
 export default {
   history: { type: isHistory ? 'browser' : 'hash' },
@@ -27,7 +27,7 @@ export default {
   dynamicImport: {
     loading: '@/components/PageLoading/index'
   },
-  mfsu: {},
+  // mfsu: {},
   ignoreMomentLocale: true,
   theme,
   lessLoader: {
