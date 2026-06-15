@@ -1,8 +1,15 @@
-import { Alert, Button, Card, Col, Form, InputNumber, Row, Select, Switch, Tag, Tooltip, notification } from 'antd';
+import { Alert, Button, Card, Col, Form, InputNumber, Modal, Row, Select, Switch, Tag, Tooltip, notification } from 'antd';
 import React, { PureComponent } from 'react';
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
-import { addKubernetes, deleteKubernetes, editKubernetes, getKubernetes, getPorts } from '../../../../services/app';
+import {
+  addKubernetes,
+  deleteKubernetes,
+  editKubernetes,
+  getKubernetes,
+  getPorts,
+  setVMFixedPodIP
+} from '../../../../services/app';
 import { getVMCapabilities } from '../../../../services/createApp';
 import { getNsResource } from '../../../../services/teamResource';
 import handleAPIError from '../../../../utils/error';
@@ -66,7 +73,8 @@ class VMProfilePanel extends PureComponent {
     vmCapabilities: EMPTY_CAPABILITIES,
     currentAttributes: {},
     runtimeDraft: null,
-    clusterIP: ''
+    clusterIP: '',
+    fixedIPUpdating: false
   };
 
   componentDidMount() {
@@ -243,6 +251,65 @@ class VMProfilePanel extends PureComponent {
     const error = new Error('vm runtime attribute mutation failed');
     error.data = response?.response_data || response || {};
     throw error;
+  };
+
+  handleFixedIPChange = checked => {
+    const { vmProfile = {} } = this.props;
+    const network = vmProfile.network || {};
+    const podIP = network.current_pod_ip || vmProfile.current_pod_ip || '';
+    if (checked && !podIP) {
+      notification.warning({
+        message: formatMessage({ id: 'componentOverview.body.tab.overview.vmFixedIPNoPodIP' })
+      });
+      return;
+    }
+    Modal.confirm({
+      title: formatMessage({
+        id: checked
+          ? 'componentOverview.body.tab.overview.vmFixedIPEnableTitle'
+          : 'componentOverview.body.tab.overview.vmFixedIPDisableTitle'
+      }),
+      content: formatMessage({
+        id: checked
+          ? 'componentOverview.body.tab.overview.vmFixedIPEnableContent'
+          : 'componentOverview.body.tab.overview.vmFixedIPDisableContent'
+      }, { ip: podIP || network.fixed_ip || '-' }),
+      okText: formatMessage({
+        id: checked
+          ? 'componentOverview.body.tab.overview.vmFixedIPEnableConfirm'
+          : 'componentOverview.body.tab.overview.vmFixedIPDisableConfirm'
+      }),
+      cancelText: formatMessage({ id: 'componentOverview.body.tab.overview.vmCancelEdit' }),
+      onOk: () => this.submitFixedIPChange(checked)
+    });
+  };
+
+  submitFixedIPChange = async enabled => {
+    const { serviceAlias, onRefresh } = this.props;
+    this.setState({ fixedIPUpdating: true });
+    try {
+      await setVMFixedPodIP({
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: serviceAlias,
+        enabled
+      }, handleAPIError);
+      notification.success({
+        message: formatMessage({
+          id: enabled
+            ? 'componentOverview.body.tab.overview.vmFixedIPEnableSuccess'
+            : 'componentOverview.body.tab.overview.vmFixedIPDisableSuccess'
+        })
+      });
+      if (onRefresh) {
+        await onRefresh();
+      }
+    } catch (err) {
+      handleAPIError(err);
+    } finally {
+      if (this.mounted) {
+        this.setState({ fixedIPUpdating: false });
+      }
+    }
   };
 
   refreshProfile = async () => {
@@ -629,7 +696,10 @@ class VMProfilePanel extends PureComponent {
     const asset = vmProfile.asset || {};
     const runtime = this.getRuntime();
     const connections = vmProfile.connections || {};
-    const podIp = vmProfile?.current_pod_ip || '';
+    const network = vmProfile.network || {};
+    const podIp = network.current_pod_ip || vmProfile?.current_pod_ip || '';
+    const fixedIPEnabled = !!network.fixed_ip_enabled;
+    const fixedIP = fixedIPEnabled ? network.fixed_ip || podIp : '';
     const { clusterIP } = this.state;
 
     return (
@@ -678,9 +748,30 @@ class VMProfilePanel extends PureComponent {
                   formatMessage({ id: 'componentOverview.body.tab.overview.vmPodIP' }),
                   podIp
                 ) : null}
+                {fixedIPEnabled ? this.renderLine(
+                  formatMessage({ id: 'componentOverview.body.tab.overview.vmFixedIP' }),
+                  fixedIP
+                ) : null}
+                <div className={styles.networkAction}>
+                  <span className={styles.networkActionLabel}>
+                    <FormattedMessage id="componentOverview.body.tab.overview.vmFixedIPSwitch" />
+                  </span>
+                  <Switch
+                    checked={fixedIPEnabled}
+                    loading={this.state.fixedIPUpdating}
+                    disabled={!podIp && !fixedIPEnabled}
+                    onChange={this.handleFixedIPChange}
+                  />
+                </div>
                 {!clusterIP && (
                   <div className={styles.profileTip}>
-                    <FormattedMessage id="componentOverview.body.tab.overview.vmNetworkTip" />
+                    <FormattedMessage
+                      id={
+                        fixedIPEnabled
+                          ? 'componentOverview.body.tab.overview.vmFixedIPNetworkTip'
+                          : 'componentOverview.body.tab.overview.vmNetworkTip'
+                      }
+                    />
                   </div>
                 )}
               </div>

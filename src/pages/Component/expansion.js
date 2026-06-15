@@ -250,10 +250,12 @@ export default class Index extends PureComponent {
     }
   }
   isRunningVMHotUpdate = () => {
-    const { method, status, extendInfo } = this.props;
+    const { method, status, extendInfo, appDetail } = this.props;
+    const vmNetwork = appDetail?.vm_profile?.network || {};
     return !!(
       method === 'vm' &&
       !(status && ['closed', 'undeploy'].includes(status.status)) &&
+      !vmNetwork.fixed_ip_enabled &&
       extendInfo &&
       extendInfo.cpu_hot_update_supported &&
       extendInfo.memory_hot_update_supported
@@ -929,6 +931,8 @@ export default class Index extends PureComponent {
         vmRuntime: appDetail?.vm_profile?.runtime,
         extendInfo
       });
+      const vmNetwork = appDetail?.vm_profile?.network || {};
+      const vmFixedIPEnabled = !!vmNetwork.fixed_ip_enabled;
       if (isVmGpuScalingLocked) {
         notification.warning({
           message: formatMessage({ id: vmScalingLockMessageId })
@@ -938,6 +942,7 @@ export default class Index extends PureComponent {
       const isVMStopped = status && ['closed', 'undeploy'].includes(status.status);
       const vmHotUpdateSupported = !!(
         method === 'vm' &&
+        !vmFixedIPEnabled &&
         extendInfo &&
         extendInfo.cpu_hot_update_supported &&
         extendInfo.memory_hot_update_supported
@@ -1317,9 +1322,12 @@ export default class Index extends PureComponent {
       vmRuntime: appDetail?.vm_profile?.runtime,
       extendInfo
     });
+    const vmNetwork = appDetail?.vm_profile?.network || {};
+    const vmFixedIPEnabled = !!vmNetwork.fixed_ip_enabled;
     const isVMStopped = status && ['closed', 'undeploy'].includes(status.status);
     const vmHotUpdateSupported = !!(
       method === 'vm' &&
+      !vmFixedIPEnabled &&
       extendInfo &&
       extendInfo.cpu_hot_update_supported &&
       extendInfo.memory_hot_update_supported
@@ -1506,6 +1514,13 @@ export default class Index extends PureComponent {
             </div>
           }
         >
+          {vmFixedIPEnabled && (
+            <Alert
+              style={{ marginBottom: '16px' }}
+              message={formatMessage({ id: 'componentOverview.body.tab.overview.vmFixedIPScalingTip' })}
+              type="warning"
+            />
+          )}
           {this.state.editBillInfo && vmLiveUpdateEditLockMessageId && (
             <Alert
               style={{ marginBottom: '16px' }}
