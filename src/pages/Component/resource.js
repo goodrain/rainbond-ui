@@ -1082,6 +1082,17 @@ export default class Index extends PureComponent {
                     <FormattedMessage id='componentOverview.body.Resource.Retest' />
                   </Button>
                 </FormItem>
+                {languageType && languageType.indexOf('dockerfile') > -1 && buildSource.dockerfile && (
+                  <FormItem
+                    style={{
+                      marginBottom: 0
+                    }}
+                    {...formItemLayout}
+                    label={formatMessage({ id: 'componentOverview.body.Resource.dockerfile_path' })}
+                  >
+                    {buildSource.dockerfile}
+                  </FormItem>
+                )}
               </Fragment>
             ) : (
               ''

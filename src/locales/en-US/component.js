@@ -830,6 +830,7 @@ const componentOverview = {
     'componentOverview.body.Resource.git_add': 'Repo Address',
     'componentOverview.body.Resource.code_edition': 'Code Branch',
     'componentOverview.body.Resource.language': 'Code Language',
+    'componentOverview.body.Resource.dockerfile_path': 'Dockerfile',
     'componentOverview.body.Resource.Retest': 'Re-detection',
     'componentOverview.body.Resource.file_name': 'File name',
     'componentOverview.body.Resource.Re_upload_file': 'Re upload file',

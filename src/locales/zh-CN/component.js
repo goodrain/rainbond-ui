@@ -843,6 +843,7 @@ const componentOverview = {
     'componentOverview.body.Resource.git_add': '仓库地址',
     'componentOverview.body.Resource.code_edition': '代码版本',
     'componentOverview.body.Resource.language': '语言',
+    'componentOverview.body.Resource.dockerfile_path': 'Dockerfile文件',
     'componentOverview.body.Resource.Retest': '重新检测',
     'componentOverview.body.Resource.file_name': '文件名称',
     'componentOverview.body.Resource.Re_upload_file': '重新上传文件',
