@@ -242,6 +242,22 @@
     }
 }
 
+.teamItemCurrent {
+    .teamItemContent {
+        background-color: fade(@primary-color, 8%);
+        border-color: @primary-color;
+    }
+
+    .teamItemIcon {
+        background: @primary-color;
+        color: #ffffff;
+    }
+
+    .teamItemName {
+        color: @primary-color;
+    }
+}
+
 .teamItemContent {
     display: flex;
     align-items: center;
@@ -306,6 +322,12 @@
 .clusterIcon {
     font-size: 10px;
     opacity: 0.8;
+    flex-shrink: 0;
+}
+
+.currentIcon {
+    color: @primary-color;
+    font-size: 14px;
     flex-shrink: 0;
 }
 
