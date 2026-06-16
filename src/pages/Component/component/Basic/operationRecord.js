@@ -10,6 +10,11 @@ import styles from './operation.less';
 // eslint-disable-next-line import/first
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
+import {
+  getOperationLogTooltipTitle,
+  getOperationLogTooltipVisible,
+  getOperationRecordMessage
+} from './operationRecordHelpers';
 
 @connect()
 @Form.create()
@@ -297,7 +302,13 @@ class Index extends PureComponent {
                   showLogEvent = event_id;
                 }
                 const UserNames = this.showUserName(user_name);
+                const displayMessage = getOperationRecordMessage(message);
                 const Messages = globalUtil.fetchMessageLange(message, status, opt_type);
+                const logTooltipTitle = getOperationLogTooltipTitle({
+                  defaultTitle: formatMessage({ id: 'componentOverview.body.tab.overview.handle.lookLog' }),
+                  detail: status === 'failure' ? displayMessage : ''
+                });
+                const logTooltipVisible = getOperationLogTooltipVisible(final_status);
                 const showVMRestoreStage =
                   opt_type === 'vm-disk-restore' &&
                   final_status === '' &&
@@ -345,10 +356,10 @@ class Index extends PureComponent {
 
                         {status === 'failure' &&
                           <Tooltip
-                            title={message}
+                            title={displayMessage}
                           >
                             <span style={{ color: '#A8A8A8' }}>
-                              ({message})
+                              ({displayMessage})
                             </span>
                           </Tooltip>
                         }
@@ -381,13 +392,11 @@ class Index extends PureComponent {
                       {opt_type !== 'Unschedulable' && opt_type !== 'INITIATING' &&
                         syn_type === 0 && (
                           <Tooltip
-                            visible={final_status === ''}
+                            visible={logTooltipVisible}
                             placement="top"
                             arrowPointAtCenter
                             autoAdjustOverflow={false}
-                            title={
-                              <FormattedMessage id="componentOverview.body.tab.overview.handle.lookLog" />
-                            }
+                            title={logTooltipTitle}
                             getPopupContainer={() =>
                               document.querySelector('.table-wrap')
                             }
