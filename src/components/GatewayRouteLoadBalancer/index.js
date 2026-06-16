@@ -390,7 +390,7 @@ export default class GatewayRouteLoadBalancer extends Component {
 
     // 验证对外端口
     validateExternalPort = (port, index) => {
-        const restrictedPorts = [80, 443, 8443, 7070, 8889, 6060, 7080, 10250, 9180];
+        const restrictedPorts = [80, 443, 8443, 7070, 8889, 7080, 10250, 9180];
         const { portConfigs } = this.state;
         const newConfigs = [...portConfigs];
         
@@ -425,7 +425,7 @@ export default class GatewayRouteLoadBalancer extends Component {
 
     // 生成可用的对外端口
     generateAvailableExternalPort = (targetPort) => {
-        const restrictedPorts = [80, 443, 8443, 7070, 8889, 6060, 7080, 10250, 9180];
+        const restrictedPorts = [80, 443, 8443, 7070, 8889, 7080, 10250, 9180];
         const { portConfigs } = this.state;
         
         // 获取已使用的端口列表

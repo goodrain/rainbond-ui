@@ -8,6 +8,12 @@ import XTerm from '../../../pages/Component/WebConsole/xTerm';
 
 const { TreeNode } = Tree;
 const { TabPane } = Tabs;
+
+function getConsoleWebSocketBase(regionName) {
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  return `${protocol}//${window.location.host}/console/regions/${regionName}/websocket`;
+}
+
 @connect(
   ({ user, appControl, global, teamControl, enterprise }) => ({
     currUser: user.currentUser,
@@ -130,8 +136,9 @@ export default class WebConsole extends PureComponent {
     });
   };
 
-  clusterInfo = (val, url) => {
+  clusterInfo = (val) => {
     const { dispatch } = this.props;
+    const tcpUrl = getConsoleWebSocketBase(val);
     dispatch({
       type: 'global/createShellPod',
       payload: {
@@ -146,12 +153,12 @@ export default class WebConsole extends PureComponent {
         arr.push({ containers: containers[0].name,
           name: name,
           namespace: namespace,
-          tcpUrl: url})
+          tcpUrl: tcpUrl})
           this.setState({
             containers: containers[0].name,
             name: name,
             namespace: namespace,
-            tcpUrl: url
+            tcpUrl: tcpUrl
           })
         this.openConsole(name, containers[0].name)
       }
@@ -195,7 +202,7 @@ export default class WebConsole extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          this.clusterInfo(region_name, res.bean.wsurl)
+          this.clusterInfo(region_name)
         }
       }
     });
@@ -258,7 +265,11 @@ export default class WebConsole extends PureComponent {
             <div>
               {ClustersList.map((item) => {
                 const { region_alias, region_name, region_id } = item
-                return <p onClick={() => this.onSelect(region_name, region_id)} className={styles.region_alias}>{region_alias}</p>
+                return (
+                  <p onClick={() => this.onSelect(region_name, region_id)} className={styles.region_alias}>
+                    {region_alias}
+                  </p>
+                )
               })}
             </div>
           )
