@@ -216,7 +216,6 @@ export default class SelectTeam extends PureComponent {
                                 {item.regionAlias}
                               </div>
                             </div>
-                            {item.isCurrent && <Icon type="check" className={style.currentIcon} />}
                           </div>
                         </Link>
                       </li>
