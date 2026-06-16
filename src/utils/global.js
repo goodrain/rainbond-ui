@@ -3080,8 +3080,8 @@ const global = {
     );
     return href;
   },
-  getSupportComponentTyps() {
-    return [
+  getSupportComponentTyps(includeDaemonSet = true) {
+    const componentTypes = [
       {
         type: 'stateless_multiple',
         name: this.getComponentType('stateless_multiple'),
@@ -3103,6 +3103,14 @@ const global = {
         desc: formatMessage({ id: 'global.getSupportComponentTyps.cronjob' })
       }
     ];
+    if (includeDaemonSet) {
+      componentTypes.push({
+        type: 'daemonset',
+        name: this.getComponentType('daemonset'),
+        desc: formatMessage({ id: 'global.getSupportComponentTyps.daemonset' })
+      });
+    }
+    return componentTypes;
   },
   getComponentType(componentType) {
     switch (componentType) {
@@ -3118,6 +3126,8 @@ const global = {
         return `${formatMessage({ id: 'global.getComponentType.job' })}`;
       case 'cronjob':
         return `${formatMessage({ id: 'global.getComponentType.cronjob' })}`;
+      case 'daemonset':
+        return `${formatMessage({ id: 'global.getComponentType.daemonset' })}`;
       default:
         return '';
     }

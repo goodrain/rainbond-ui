@@ -1117,7 +1117,7 @@ export default class Index extends React.Component {
                 ]
               })(
                 <RadioGroup onChange={this.onChange1}>
-                  {globalUtil.getSupportComponentTyps().map(item => {
+                  {globalUtil.getSupportComponentTyps(false).map(item => {
                     return (
                       <div key={item.type}>
                         <Radio style={radioStyle} value={item.type}>

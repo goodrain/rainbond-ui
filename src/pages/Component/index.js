@@ -1425,7 +1425,12 @@ class Main extends PureComponent {
       }
     ];
 
-    if (isTelescopic && appDetail && appDetail.service && appDetail.service.extend_method !== 'job' && appDetail.service.extend_method !== 'cronjob') {
+    if (isTelescopic &&
+      appDetail &&
+      appDetail.service &&
+      appDetail.service.extend_method !== 'job' &&
+      appDetail.service.extend_method !== 'cronjob' &&
+      appDetail.service.extend_method !== 'daemonset') {
       tabs.push({
         key: 'expansion',
         // tab: '伸缩',

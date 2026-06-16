@@ -547,6 +547,10 @@ class Main extends PureComponent {
       return 'overview';
     }
 
+    if (method === 'daemonset' && tab === 'expansion') {
+      return 'overview';
+    }
+
     if (method === 'kubeblocks_component' && tab === 'overview') {
       return 'databaseOverview';
     }
@@ -1654,6 +1658,7 @@ class Main extends PureComponent {
         condition: (appDetail) =>
           appDetail?.service?.extend_method !== 'job' &&
           appDetail?.service?.extend_method !== 'cronjob' &&
+          appDetail?.service?.extend_method !== 'daemonset' &&
           appDetail?.service?.extend_method !== 'kubeblocks_component'
       },
       {
