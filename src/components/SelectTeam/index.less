@@ -219,18 +219,18 @@
     &:hover {
         .teamItemContent {
             background-color: @rbd-background-color;
-            border-color: @primary-color;
-            box-shadow: 0 2px 8px fade(@primary-color, 8%);
+            border-color: transparent;
+            box-shadow: none;
             transform: translateX(2px);
         }
 
         .teamItemIcon {
-            background: @primary-color;
-            color: #ffffff;
+            background: #e9eef7;
+            color: @text-color-secondary;
         }
 
         .teamItemName {
-            color: @primary-color;
+            color: #262626;
         }
     }
 
@@ -246,6 +246,7 @@
     .teamItemContent {
         background-color: fade(@primary-color, 8%);
         border-color: @primary-color;
+        box-shadow: 0 2px 8px fade(@primary-color, 8%);
     }
 
     .teamItemIcon {
@@ -255,6 +256,23 @@
 
     .teamItemName {
         color: @primary-color;
+    }
+
+    &:hover {
+        .teamItemContent {
+            background-color: fade(@primary-color, 10%);
+            border-color: @primary-color;
+            box-shadow: 0 2px 8px fade(@primary-color, 10%);
+        }
+
+        .teamItemIcon {
+            background: @primary-color;
+            color: #ffffff;
+        }
+
+        .teamItemName {
+            color: @primary-color;
+        }
     }
 }
 
