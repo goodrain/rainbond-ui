@@ -16,7 +16,7 @@ const global = {
     'global.fetchStateText.ABNORMAL':'运行异常',
     'global.fetchStateText.TEMINATING':'关闭中',
     'global.fetchStateText.INITIATING':'等待启动',
-    'global.fetchStateText.SCHEDULING':'调度中',
+    'global.fetchStateText.SCHEDULING':'创建中',
     'global.fetchStateText.TheInternet':'等待启动',
     'global.fetchStateText.upgrade':'升级中',
     'global.fetchStateText.creating':'部署中',

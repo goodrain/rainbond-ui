@@ -16,7 +16,7 @@ const global = {
     'global.fetchStateText.ABNORMAL':'Abnormal',
     'global.fetchStateText.TEMINATING':'Teminating',
     'global.fetchStateText.INITIATING':'Initiating',
-    'global.fetchStateText.SCHEDULING':'Scheduling',
+    'global.fetchStateText.SCHEDULING':'Creating',
     'global.fetchStateText.TheInternet':'Unknown',
     'global.fetchStateText.upgrade':'Upgrading',
     'global.fetchStateText.creating':'Creating',
