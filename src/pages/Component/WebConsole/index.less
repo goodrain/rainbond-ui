@@ -36,6 +36,51 @@
 
 }
 
+.containerTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-width: 0;
+}
+
+.containerName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.debugIcon {
+  flex: 0 0 20px;
+  width: 20px !important;
+  margin-left: 6px;
+  color: #d6cbcb !important;
+  text-align: center;
+  cursor: pointer;
+
+  &:hover {
+    color: @primary-color !important;
+  }
+}
+
+.menus {
+  .containerTitle {
+    display: flex;
+  }
+
+  .containerName {
+    display: block;
+    width: auto;
+  }
+
+  .debugIcon {
+    display: inline-block;
+    width: 20px !important;
+  }
+}
+
 .col {
   height: 100%;
 }
