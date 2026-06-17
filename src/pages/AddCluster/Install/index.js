@@ -169,7 +169,10 @@ export default class ClusterLink extends PureComponent {
                 cloudserver
               },
               callback: result => {
-                const resArr = result.response_data.command.split(' & ');
+                const cmd = typeof result.response_data === 'object' && result.response_data.command
+                  ? result.response_data.command
+                  : '';
+                const resArr = typeof cmd === 'string' ? cmd.split(' & ') : [];
                 const resArrCopy = cloneDeep(resArr);
                 const resArrCopys = resArrCopy.join('\n ');
                 this.setState({
