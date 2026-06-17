@@ -81,11 +81,16 @@ export default class Index extends PureComponent {
   };
   onGroupChange = checkedList => {
     const { checkAllList } = this.state;
+    const nextCheckedList = checkedList.filter(
+      item => checkAllList.indexOf(item) > -1
+    );
     this.setState({
-      checkedList,
+      checkedList: nextCheckedList,
       indeterminate:
-        !!checkedList.length && checkedList.length < checkAllList.length,
-      checkAll: checkedList.length === checkAllList.length
+        !!nextCheckedList.length &&
+        nextCheckedList.length < checkAllList.length,
+      checkAll:
+        !!checkAllList.length && nextCheckedList.length === checkAllList.length
     });
   };
 
@@ -94,7 +99,7 @@ export default class Index extends PureComponent {
     this.setState({
       checkedList: e.target.checked ? checkAllList : [],
       indeterminate: false,
-      checkAll: e.target.checked
+      checkAll: e.target.checked && !!checkAllList.length
     });
   };
 
@@ -154,7 +159,9 @@ export default class Index extends PureComponent {
           const arr = [];
           if (list && list.length > 0) {
             list.map((item, index) => {
-              arr.push(index);
+              if (!this.getDisabledCopyReason(item)) {
+                arr.push(index);
+              }
             });
           }
 
@@ -162,6 +169,7 @@ export default class Index extends PureComponent {
             checkAllList: arr,
             checkedList: arr,
             dataSource: res.list,
+            checkAll: !!arr.length,
             loading: false,
             Loading: false
           });
@@ -315,6 +323,16 @@ export default class Index extends PureComponent {
     return <div>{content}</div>;
   };
 
+  getDisabledCopyReason = item => {
+    const buildSource = item && item.build_source;
+    if (appUtil.isUploadFilesAppSource(buildSource)) {
+      return formatMessage({
+        id: 'confirmModal.app.copy.disabled.package_build'
+      });
+    }
+    return '';
+  };
+
   checkTeams = (rules, value, callback) => {
     if ((value && value.length === 0) || !value) {
       callback(`请选择团队/集群`);
@@ -346,7 +364,8 @@ export default class Index extends PureComponent {
       Loading,
       addGroup,
       indeterminate,
-      checkAll
+      checkAll,
+      checkAllList
     } = this.state;
     const userTeams = userTeamList && userTeamList.length > 0 && userTeamList;
     let defaultTeamRegion = '';
@@ -485,6 +504,7 @@ export default class Index extends PureComponent {
                   indeterminate={indeterminate}
                   onChange={this.onCheckAllChange}
                   checked={checkAll}
+                  disabled={!checkAllList.length}
                 >
                   {formatMessage({id:'popover.newComponent.componentName'})}
                 </Checkbox>
@@ -524,6 +544,7 @@ export default class Index extends PureComponent {
                 const isUploadFilesApp = appUtil.isUploadFilesAppSource(buildSource);
                 const versions = isCodeApp ? codeVersion : version;
                 const isThirdParty = serviceSource === 'third_party';
+                const disabledCopyReason = this.getDisabledCopyReason(item);
 
                 const tit = isImageApp
                   ? image
@@ -550,7 +571,17 @@ export default class Index extends PureComponent {
                       </Option>}
                   </Select>
                 );
-                if (isImageApp || isCodeApp) {
+                if (disabledCopyReason) {
+                  versionConetent = (
+                    <Tooltip title={disabledCopyReason}>
+                      <span className={styles.disabledReason}>
+                        {formatMessage({
+                          id: 'confirmModal.app.label.copy_not_supported'
+                        })}
+                      </span>
+                    </Tooltip>
+                  );
+                } else if (isImageApp || isCodeApp) {
                   versionConetent = (
                     <FormItem>
                       {getFieldDecorator(serviceId, {
@@ -583,9 +614,14 @@ export default class Index extends PureComponent {
 
                 return (
                   <div className={styles.tabTr} key={serviceId}>
-                    <Tooltip title={serviceCname}>
+                    <Tooltip title={disabledCopyReason || serviceCname}>
                       <div className={`${styles.w300} ${styles.over}`}>
-                        <Checkbox value={index}>{serviceCname}</Checkbox>
+                        <Checkbox
+                          disabled={!!disabledCopyReason}
+                          value={index}
+                        >
+                          {serviceCname}
+                        </Checkbox>
                       </div>
                     </Tooltip>
 

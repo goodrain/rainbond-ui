@@ -346,6 +346,8 @@
         'confirmModal.app.label.sound_code':'源码:',
         'confirmModal.app.label.component_library':'组件库:',
         'confirmModal.app.label.local':'本地文件:',
+        'confirmModal.app.label.copy_not_supported':'不支持快速复制',
+        'confirmModal.app.copy.disabled.package_build':'上传软件包创建的组件不支持快速复制',
         'confirmModal.app.label.editVersions':'版本修改',
 
         //应用治理模式切换

@@ -344,6 +344,8 @@
         'confirmModal.app.label.sound_code':'Source code:',
         'confirmModal.app.label.component_library':'Market:',
         'confirmModal.app.label.local':'Local file:',
+        'confirmModal.app.label.copy_not_supported':'Quick copy is not supported',
+        'confirmModal.app.copy.disabled.package_build':'Package upload components do not support quick copy',
         'confirmModal.app.label.editVersions':'Version modification',
 
         //应用治理模式切换
