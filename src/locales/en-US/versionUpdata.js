@@ -70,6 +70,8 @@ const versionUpdata = {
   'versionUpdata_6_1.hub_type': 'Repository Type',
   'versionUpdata_6_1.hub_type.volcano': 'Volcano Cloud',
   'versionUpdata_6_1.hub_type.aliyun': 'Alibaba Cloud',
+  'versionUpdata_6_1.hub_type.huawei': 'Huawei Cloud',
+  'versionUpdata_6_1.hub_type.tencent': 'Tencent Cloud',
   'mirror.name.space': 'Image name cannot contain spaces',
   'mirror.length.limit': 'Maximum input length is 255 characters',
   'mirror.input.rule': 'Chinese characters and spaces are not allowed',

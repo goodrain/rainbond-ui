@@ -1251,6 +1251,8 @@ const enterpriseSetting = {
     'enterpriseSetting.basicsSetting.serve.content': '支持Github、Gitlab、码云等多种第三方OAuth服务，用户互联后可获取仓库项目。支持钉钉、Aliyun等服务进行第三方登录认证。',
     'enterpriseSetting.basicsSetting.mirroring.title': '内部组件库镜像仓库',
     'enterpriseSetting.basicsSetting.mirroring.content': '用于存储发布到组件库的应用模型镜像，其需要能被所有集群访问。',
+    'enterpriseSetting.basicsSetting.globalImageRegistry.content': '由平台管理员维护，企业内用户创建镜像组件时可直接使用。',
+    'enterpriseSetting.basicsSetting.globalImageRegistry.title': '全局容器镜像仓库',
     'enterpriseSetting.basicsSetting.storage.title': '对象存储',
     'enterpriseSetting.basicsSetting.storage.content': '对象存储用于云端备份功能，存储应用的备份文件。',
     'enterpriseSetting.basicsSetting.monitoring.title': '监控',

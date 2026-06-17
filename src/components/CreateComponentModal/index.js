@@ -710,7 +710,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       ...imageHubList.map(hub => ({
         icon: 'block',
         iconSrc: BoxesIcon,
-        title: `${hub.hub_type} (${hub.secret_id})`,
+        title: `${hub.scope === 'enterprise' ? formatMessage({ id: 'teamManage.tabs.image.scope.enterprise' }) : formatMessage({ id: 'teamManage.tabs.image.scope.user' })} · ${hub.hub_type} (${hub.secret_id})`,
         key: `image-hub-${hub.secret_id}`,
         showImgRepostory: true,
         secretId: hub.secret_id,

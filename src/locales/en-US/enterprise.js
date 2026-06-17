@@ -1245,6 +1245,8 @@ const enterpriseSetting = {
     'enterpriseSetting.basicsSetting.serve.content': 'Support GitHub, gitlab, code cloud and other third-party OAuth services. Users can obtain warehouse projects after interconnection. Support the third-party login authentication of Dingding, aliyun and other services.',
     'enterpriseSetting.basicsSetting.mirroring.title': 'Local market registry',
     'enterpriseSetting.basicsSetting.mirroring.content': 'It is used to market the application model image published to the market, which needs to be accessible by all clusters.',
+    'enterpriseSetting.basicsSetting.globalImageRegistry.content': 'Maintained by platform admins and available to users when creating image components.',
+    'enterpriseSetting.basicsSetting.globalImageRegistry.title': 'Global image registries',
     'enterpriseSetting.basicsSetting.storage.title': 'Object storage',
     'enterpriseSetting.basicsSetting.storage.content': 'Object storage is used for cloud backup functions and stores backup files of applications.',
     'enterpriseSetting.basicsSetting.monitoring.title': 'Monitor',

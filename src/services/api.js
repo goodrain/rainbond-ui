@@ -1680,6 +1680,63 @@ export async function deletePlatformImageHub(body, handleError) {
   );
 }
 
+// 获取企业全局镜像仓库数据
+export async function fetchEnterpriseImageHub(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/hub/registry`,
+    {
+      method: 'get',
+      handleError
+    }
+  );
+}
+
+// 添加企业全局镜像仓库数据
+export async function addEnterpriseImageHub(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/hub/registry`,
+    {
+      method: 'post',
+      data: {
+        secret_id: body.secret_id,
+        domain: body.domain,
+        username: body.username,
+        password: body.password,
+        hub_type: body.hub_type
+      },
+      handleError
+    }
+  );
+}
+
+// 修改企业全局镜像仓库数据
+export async function updateEnterpriseImageHub(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/hub/registry/${body.secret_id}`,
+    {
+      method: 'put',
+      data: {
+        domain: body.domain,
+        username: body.username,
+        password: body.password,
+        hub_type: body.hub_type
+      },
+      handleError
+    }
+  );
+}
+
+// 删除企业全局镜像仓库数据
+export async function deleteEnterpriseImageHub(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/hub/registry/${body.secret_id}`,
+    {
+      method: 'delete',
+      handleError
+    }
+  );
+}
+
 // 检查仓库链接状态
 export async function checkHubLink(body, handleError) {
   return request(

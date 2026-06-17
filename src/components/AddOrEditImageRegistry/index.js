@@ -118,6 +118,10 @@ class ConfirmModal extends PureComponent {
                 <Select placeholder={formatMessage({ id: 'placeholder.warehouse_name' })} disabled={!!data}>
                   <Option value="Docker">Docker Registry</Option>
                   <Option value="Harbor">Harbor</Option>
+                  <Option value="Aliyun">{formatMessage({ id: 'versionUpdata_6_1.hub_type.aliyun' })}</Option>
+                  <Option value="Tencent">{formatMessage({ id: 'versionUpdata_6_1.hub_type.tencent' })}</Option>
+                  <Option value="Huawei">{formatMessage({ id: 'versionUpdata_6_1.hub_type.huawei' })}</Option>
+                  <Option value="Volcano">{formatMessage({ id: 'versionUpdata_6_1.hub_type.volcano' })}</Option>
                 </Select>
               )}
             </FormItem>
