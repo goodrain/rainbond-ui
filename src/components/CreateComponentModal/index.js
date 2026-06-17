@@ -31,6 +31,7 @@ import ImgRepostory from '../ImgRepostory';
 import ThirdList from '../ThirdList';
 import oauthUtil from '../../utils/oauth';
 import handleAPIError from '../../utils/error';
+import { getImageRegistryTypeLabel } from '../../utils/imageRegistry';
 import styles from './index.less';
 import mysql from '../../../public/images/mysql.svg';
 import postgresql from '../../../public/images/postgresql.svg';
@@ -710,7 +711,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       ...imageHubList.map(hub => ({
         icon: 'block',
         iconSrc: BoxesIcon,
-        title: `${hub.scope === 'enterprise' ? formatMessage({ id: 'teamManage.tabs.image.scope.enterprise' }) : formatMessage({ id: 'teamManage.tabs.image.scope.user' })} · ${hub.hub_type} (${hub.secret_id})`,
+        title: `${hub.scope === 'enterprise' ? formatMessage({ id: 'teamManage.tabs.image.scope.enterprise' }) : formatMessage({ id: 'teamManage.tabs.image.scope.user' })} · ${getImageRegistryTypeLabel(hub.hub_type)} (${hub.secret_id})`,
         key: `image-hub-${hub.secret_id}`,
         showImgRepostory: true,
         secretId: hub.secret_id,
@@ -2545,7 +2546,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       case 'image':
         return formatMessage({ id: 'componentOverview.body.CreateComponentModal.from_image' });
       case 'imageRepo':
-        return selectedImageHub ? `${selectedImageHub.hub_type} (${selectedImageHub.secret_id})` : formatMessage({ id: 'componentOverview.body.CreateComponentModal.private_image_repo' });
+        return selectedImageHub ? `${getImageRegistryTypeLabel(selectedImageHub.hub_type)} (${selectedImageHub.secret_id})` : formatMessage({ id: 'componentOverview.body.CreateComponentModal.private_image_repo' });
       case 'code':
         return formatMessage({ id: 'componentOverview.body.CreateComponentModal.from_source' });
       case 'yaml':

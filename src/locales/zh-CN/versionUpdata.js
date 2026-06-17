@@ -72,6 +72,10 @@ const versionUpdata = {
   'versionUpdata_6_1.hub_type.aliyun': '阿里云',
   'versionUpdata_6_1.hub_type.huawei': '华为云',
   'versionUpdata_6_1.hub_type.tencent': '腾讯云',
+  'versionUpdata_6_1.hub_type.aliyun_acr': '阿里云 ACR',
+  'versionUpdata_6_1.hub_type.tencent_tcr': '腾讯云 TCR',
+  'versionUpdata_6_1.hub_type.huawei_swr': '华为云 SWR',
+  'versionUpdata_6_1.hub_type.volcano_tos': '火山云 TOS',
   'versionUpdata_6_1.editUserInfo': '修改个人信息',
   'mirror.name.space': '镜像名称不能包含空格',
   'mirror.length.limit': '最大输入长度为255个字符',
@@ -143,4 +147,3 @@ const versionUpdata = {
   'versionUpdata_6_4.overview.upgrade': '升级',
 }
 export default versionUpdata;
-

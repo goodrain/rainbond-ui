@@ -499,6 +499,8 @@
         'confirmModal.common.image.lable.domain':'Registry Domain',
         'confirmModal.common.image.lable.username':'Username',
         'confirmModal.common.image.lable.password':'Password',
+        'confirmModal.common.image.lable.access_key':'Access Key ID',
+        'confirmModal.common.image.lable.access_secret':'Access Key Secret',
 
         
     }
@@ -696,6 +698,8 @@
         'placeholder.notGit_url':'the git repo address is invalid',
         'placeholder.subdirectories':'enter subdirectory path',
         'placeholder.password_1':'Please enter the password',
+        'placeholder.access_key':'Please enter Access Key ID',
+        'placeholder.access_secret':'Please enter Access Key Secret',
         'placeholder.username_1':'Please enter the username',
         'placeholder.select':'Please select',
         'placeholder.selectPort':'Please select port',

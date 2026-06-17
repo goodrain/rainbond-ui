@@ -25,6 +25,7 @@ import Yaml from '../Create/upload-yaml'
 import Market from '../Create/market';
 import MarketDrawer from '../Create/market-drawer'
 import ImgRepostory from '../../components/ImgRepostory';
+import { getImageRegistryTypeLabel } from '../../utils/imageRegistry';
 import styles from './Index.less';
 
 @connect(({ user, application, global, enterprise }) => ({
@@ -125,7 +126,7 @@ export default class AddServiceComponent extends PureComponent {
   };
 
   getImageWarehouse = (item) => {
-    const tabName = `${item.hub_type} (${item.secret_id})`
+    const tabName = `${getImageRegistryTypeLabel(item.hub_type)} (${item.secret_id})`
     return tabName;
   }
 

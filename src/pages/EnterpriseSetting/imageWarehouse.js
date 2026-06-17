@@ -4,6 +4,7 @@ import React, { PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
 import AddOrEditImageRegistry from '../../components/AddOrEditImageRegistry';
 import ConfirmModal from '../../components/ConfirmModal';
+import { getImageRegistryTypeLabel, isCloudImageRegistryType } from '../../utils/imageRegistry';
 
 @connect(({ teamControl, loading, user }) => ({
     regions: teamControl.regions,
@@ -39,6 +40,13 @@ export default class ImageWarehouse extends PureComponent {
         const prefix = this.isEnterpriseMode() ? 'Enterprise' : 'Platform';
         return `global/${action}${prefix}ImageHub`;
     };
+    getRegistryPayload = values => ({
+        username: values.username,
+        password: values.password,
+        access_key: values.access_key,
+        access_secret: values.access_secret,
+        hub_type: values.hub_type
+    });
     // 获取数据
     getImageHub = () => {
         const { dispatch } = this.props
@@ -65,9 +73,7 @@ export default class ImageWarehouse extends PureComponent {
                 enterprise_id: this.getEnterpriseId(),
                 secret_id: values.secret_id,
                 domain: values.domain,
-                username: values.username,
-                password: values.password,
-                hub_type: values.hub_type
+                ...this.getRegistryPayload(values)
             },
             callback: res => {
                 if (res && res.response_data && res.response_data.code == 200) {
@@ -93,9 +99,7 @@ export default class ImageWarehouse extends PureComponent {
                 enterprise_id: this.getEnterpriseId(),
                 secret_id: editData.secret_id,
                 domain: editData.domain,
-                username: data.username,
-                password: data.password,
-                hub_type: data.hub_type
+                ...this.getRegistryPayload(data)
             },
             callback: res => {
                 if (res && res.response_data && res.response_data.code == 200) {
@@ -221,7 +225,17 @@ export default class ImageWarehouse extends PureComponent {
                 title: formatMessage({ id: 'teamManage.tabs.image.table.user' }),
                 dataIndex: 'username',
                 key: "username",
-                align: 'center'
+                align: 'center',
+                render: (text, data) => (
+                    <span>{isCloudImageRegistryType(data.hub_type) ? (data.access_key || text) : text}</span>
+                )
+            },
+            {
+                title: formatMessage({ id: 'teamManage.tabs.image.table.hubType' }),
+                dataIndex: 'hub_type',
+                key: "hub_type",
+                align: 'center',
+                render: text => <span>{getImageRegistryTypeLabel(text)}</span>
             },
             ...(!enterpriseMode ? [{
                 title: formatMessage({ id: 'teamManage.tabs.image.table.scope' }),

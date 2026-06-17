@@ -502,6 +502,8 @@
         'confirmModal.common.image.lable.domain':'镜像仓库地址',
         'confirmModal.common.image.lable.username':'用户名',
         'confirmModal.common.image.lable.password':'密码',
+        'confirmModal.common.image.lable.access_key':'Access Key ID',
+        'confirmModal.common.image.lable.access_secret':'Access Key Secret',
     }
     const notification = {
         // 成功
@@ -702,6 +704,8 @@
         'placeholder.notGit_url':'仓库地址不合法',
         'placeholder.subdirectories':'请输入子目录路径',
         'placeholder.password_1':'请输入仓库密码',
+        'placeholder.access_key':'请输入 Access Key ID',
+        'placeholder.access_secret':'请输入 Access Key Secret',
         'placeholder.username_1':'请输入仓库用户名',
         'placeholder.select':'请选择',
         'placeholder.selectPort':'请选择端口号',

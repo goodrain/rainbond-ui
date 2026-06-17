@@ -579,8 +579,9 @@ const teamManage = {
   //镜像仓库授权信息 image
   'teamManage.tabs.image':'ImageRepoAuthInfo',
   'teamManage.tabs.image.table.imageAddress':'Image repository',
-  'teamManage.tabs.image.table.user':'Username',
-  'teamManage.tabs.image.table.password':'Password',
+  'teamManage.tabs.image.table.user':'Account / Access Key',
+  'teamManage.tabs.image.table.password':'Password / Access Secret',
+  'teamManage.tabs.image.table.hubType':'Repository Type',
   'teamManage.tabs.image.scope.enterprise':'Global',
   'teamManage.tabs.image.scope.user':'Personal',
   'teamManage.tabs.image.table.scope':'Scope',

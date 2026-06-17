@@ -12,6 +12,11 @@ import {
   getUsernameRules,
   getPasswordRules
 } from './validations';
+import {
+  getImageRegistryTypeLabel,
+  isCloudImageRegistryType,
+  normalizeImageRegistryType
+} from '../../utils/imageRegistry';
 
 const { Option } = Select;
 const FormItem = Form.Item;
@@ -66,6 +71,11 @@ class ConfirmModal extends PureComponent {
         if (values.domain && values.domain.endsWith('/')) {
           values.domain = values.domain.slice(0, -1);
         }
+        values.hub_type = normalizeImageRegistryType(values.hub_type);
+        if (isCloudImageRegistryType(values.hub_type)) {
+          values.access_key = values.username;
+          values.access_secret = values.password;
+        }
         onOk(values);
       }
     });
@@ -74,6 +84,20 @@ class ConfirmModal extends PureComponent {
     const { onCancel, data, form, loading } = this.props;
     const { getFieldDecorator } = form;
     const { language, checkLoading } = this.state;
+    const hubType = normalizeImageRegistryType(form.getFieldValue('hub_type') || (data && data.hub_type) || 'Docker');
+    const isCloudHubType = isCloudImageRegistryType(hubType);
+    const usernameLabel = isCloudHubType
+      ? formatMessage({ id: 'confirmModal.common.image.lable.access_key' })
+      : formatMessage({ id: 'confirmModal.common.image.lable.username' });
+    const passwordLabel = isCloudHubType
+      ? formatMessage({ id: 'confirmModal.common.image.lable.access_secret' })
+      : formatMessage({ id: 'confirmModal.common.image.lable.password' });
+    const usernamePlaceholder = isCloudHubType
+      ? formatMessage({ id: 'placeholder.access_key' })
+      : formatMessage({ id: 'placeholder.userName' });
+    const passwordPlaceholder = isCloudHubType
+      ? formatMessage({ id: 'placeholder.access_secret' })
+      : formatMessage({ id: 'placeholder.password_1' });
 
     const formItemLayout = {
       labelCol: { span: 24 },
@@ -112,16 +136,16 @@ class ConfirmModal extends PureComponent {
           <Spin spinning={checkLoading} tip={formatMessage({ id: 'status.checking' })}>
             <FormItem {...is_language} label={formatMessage({ id: 'versionUpdata_6_1.hub_type' })}>
               {getFieldDecorator('hub_type', {
-                initialValue: (data && data.hub_type) || 'Docker',
+                initialValue: normalizeImageRegistryType(data && data.hub_type),
                 rules: getHubTypeRules()
               })(
                 <Select placeholder={formatMessage({ id: 'placeholder.warehouse_name' })} disabled={!!data}>
-                  <Option value="Docker">Docker Registry</Option>
-                  <Option value="Harbor">Harbor</Option>
-                  <Option value="Aliyun">{formatMessage({ id: 'versionUpdata_6_1.hub_type.aliyun' })}</Option>
-                  <Option value="Tencent">{formatMessage({ id: 'versionUpdata_6_1.hub_type.tencent' })}</Option>
-                  <Option value="Huawei">{formatMessage({ id: 'versionUpdata_6_1.hub_type.huawei' })}</Option>
-                  <Option value="Volcano">{formatMessage({ id: 'versionUpdata_6_1.hub_type.volcano' })}</Option>
+                  <Option value="Docker">{getImageRegistryTypeLabel('Docker')}</Option>
+                  <Option value="Harbor">{getImageRegistryTypeLabel('Harbor')}</Option>
+                  <Option value="AliyunACR">{getImageRegistryTypeLabel('AliyunACR')}</Option>
+                  <Option value="TencentTCR">{getImageRegistryTypeLabel('TencentTCR')}</Option>
+                  <Option value="HuaweiSWR">{getImageRegistryTypeLabel('HuaweiSWR')}</Option>
+                  <Option value="VolcanoTOS">{getImageRegistryTypeLabel('VolcanoTOS')}</Option>
                 </Select>
               )}
             </FormItem>
@@ -147,20 +171,20 @@ class ConfirmModal extends PureComponent {
                 )}
               </FormItem>
             )}
-            <FormItem {...is_language} label={formatMessage({ id: 'confirmModal.common.image.lable.username' })}>
+            <FormItem {...is_language} label={usernameLabel}>
               {getFieldDecorator('username', {
-                initialValue: (data && data.username) || '',
-                rules: getUsernameRules()
+                initialValue: (data && (data.access_key || data.username)) || '',
+                rules: getUsernameRules(isCloudHubType)
               })(
-                <Input placeholder={formatMessage({ id: 'placeholder.userName' })} />
+                <Input placeholder={usernamePlaceholder} />
               )}
             </FormItem>
-            <FormItem {...is_language} label={formatMessage({ id: 'confirmModal.common.image.lable.password' })}>
+            <FormItem {...is_language} label={passwordLabel}>
               {getFieldDecorator('password', {
-                initialValue: (data && data.password) || '',
-                rules: getPasswordRules()
+                initialValue: (data && (data.access_secret || data.password)) || '',
+                rules: getPasswordRules(isCloudHubType)
               })(
-                <Input placeholder={formatMessage({ id: 'placeholder.password_1' })} type="password" />
+                <Input placeholder={passwordPlaceholder} type="password" />
               )}
             </FormItem>
           </Spin>
