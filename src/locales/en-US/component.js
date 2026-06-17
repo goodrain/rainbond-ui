@@ -23,7 +23,7 @@ const componentOverview = {
     'componentOverview.header.Plug_container': 'Plugin container',
     'componentOverview.header.mesh': 'Default Mesh container',
     'componentOverview.header.debug.tooltip': 'Debug this container with toolbox',
-    'componentOverview.header.debug.tab': 'Debug / {name}',
+    'componentOverview.header.debug.tab': '{name}-debug container',
     'componentOverview.header.debug.title': 'Debug with toolbox',
     'componentOverview.header.debug.content': 'Open a debug terminal with common troubleshooting commands for checking network connectivity, DNS resolution, process status, and mounted directories.',
     'componentOverview.header.debug.ok': 'Start debug',

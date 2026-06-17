@@ -82,7 +82,9 @@ class App extends PureComponent {
       const xterm = new XTermCustom(term);
       xterm.removeMessage = this.clearMessage;
       xterm.setWindowTitle = title => {
-        updateTitle && updateTitle(title);
+        if (mode !== 'debug') {
+          updateTitle && updateTitle(title);
+        }
       };
       const wt = new WebTTY(xterm, factory, args, gottyAuthToken);
       const closer = wt.open();

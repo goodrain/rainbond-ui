@@ -9,7 +9,6 @@ import XTerm from './xTerm';
 const { TreeNode } = Tree;
 const { TabPane } = Tabs;
 const DEBUG_MODE = 'debug';
-const DEBUG_CONFIRM_STORAGE_KEY = 'rainbond-webconsole-debug-confirmed';
 @connect(
   ({ user, appControl, global, teamControl, enterprise }) => ({
     currUser: user.currentUser,
@@ -90,18 +89,12 @@ export default class WebConsole extends PureComponent {
       });
     };
 
-    if (window.localStorage.getItem(DEBUG_CONFIRM_STORAGE_KEY) === 'true') {
-      open();
-      return;
-    }
-
     Modal.confirm({
       title: formatMessage({ id: 'componentOverview.header.debug.title' }),
       content: formatMessage({ id: 'componentOverview.header.debug.content' }),
       okText: formatMessage({ id: 'componentOverview.header.debug.ok' }),
       cancelText: formatMessage({ id: 'componentOverview.promptModal.cancel' }),
       onOk: () => {
-        window.localStorage.setItem(DEBUG_CONFIRM_STORAGE_KEY, 'true');
         open();
       }
     });
