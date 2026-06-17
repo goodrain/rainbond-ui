@@ -63,7 +63,10 @@ class App extends PureComponent {
         '/event_log',
         '/docker_console'
       );
-      const factory = new ConnectionFactory(consoleWebsocketURL, protocols);
+      const connectionProtocols = consoleWebsocketURL.indexOf('/console/regions/') > -1
+        ? []
+        : protocols;
+      const factory = new ConnectionFactory(consoleWebsocketURL, connectionProtocols);
       const gottyAuthToken = '';
       const hash = md5(`${tenantID}_${serviceID}_${podName}`);
       const args = {
