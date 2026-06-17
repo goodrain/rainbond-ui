@@ -51,6 +51,7 @@ import ConnectionInformation from './connectionInformation';
 import DatabaseExpansion from './databaseExpansion';
 import EnvironmentConfiguration from './environmentConfiguration';
 import Expansion from './expansion';
+import { canShowExpansionTab } from './expansionHelpers';
 import styles from './Index.less';
 import Log from './log';
 import Members from './members';
@@ -1428,9 +1429,7 @@ class Main extends PureComponent {
     if (isTelescopic &&
       appDetail &&
       appDetail.service &&
-      appDetail.service.extend_method !== 'job' &&
-      appDetail.service.extend_method !== 'cronjob' &&
-      appDetail.service.extend_method !== 'daemonset') {
+      canShowExpansionTab(appDetail.service.extend_method)) {
       tabs.push({
         key: 'expansion',
         // tab: '伸缩',
