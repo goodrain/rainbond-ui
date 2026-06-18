@@ -9,3 +9,28 @@
     display: flex;
     align-items: center;
 }
+
+.pluginFieldLabel {
+    display: inline-flex;
+    max-width: 100%;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    line-height: 18px;
+    vertical-align: middle;
+}
+
+.pluginFieldLabelName {
+    white-space: nowrap;
+}
+
+.pluginFieldLabelIcon {
+    flex: 0 0 auto;
+    margin-left: 2px;
+}
+
+@media (max-width: 575px) {
+    .pluginFieldLabel {
+        justify-content: flex-start;
+    }
+}
