@@ -15,6 +15,7 @@ import {
   getPasswordRules
 } from './validations';
 import {
+  getImageRegistryDomainPlaceholder,
   getImageRegistryTypeLabel,
   isCloudImageRegistryType,
   normalizeImageRegistryType
@@ -178,7 +179,7 @@ class ConfirmModal extends PureComponent {
                   rules: getDomainRules(),
                   getValueFromEvent: event => event.target.value.replace(/(^\s*)|(\s*$)/g, '')
                 })(
-                  <Input placeholder={formatMessage({ id: 'placeholder.git_url_domain' })} />
+                  <Input placeholder={getImageRegistryDomainPlaceholder(hubType)} />
                 )}
               </FormItem>
             )}
