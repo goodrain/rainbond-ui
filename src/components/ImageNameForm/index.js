@@ -241,8 +241,8 @@ export default class Index extends PureComponent {
             delete fieldsValue.user_name;
             delete fieldsValue.password;
           } else if (secretObj) {
-            fieldsValue.user_name = secretObj.access_key || secretObj.username;
-            fieldsValue.password = secretObj.access_secret || secretObj.password;
+            fieldsValue.user_name = secretObj.username;
+            fieldsValue.password = secretObj.password;
           }
         }
 

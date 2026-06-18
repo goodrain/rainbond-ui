@@ -4,7 +4,7 @@ import React, { PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
 import AddOrEditImageRegistry from '../../components/AddOrEditImageRegistry';
 import ConfirmModal from '../../components/ConfirmModal';
-import { getImageRegistryTypeLabel, isCloudImageRegistryType } from '../../utils/imageRegistry';
+import { getImageRegistryTypeLabel } from '../../utils/imageRegistry';
 
 @connect(({ teamControl, loading, user }) => ({
     regions: teamControl.regions,
@@ -43,8 +43,6 @@ export default class ImageWarehouse extends PureComponent {
     getRegistryPayload = values => ({
         username: values.username,
         password: values.password,
-        access_key: values.access_key,
-        access_secret: values.access_secret,
         hub_type: values.hub_type
     });
     // 获取数据
@@ -225,10 +223,7 @@ export default class ImageWarehouse extends PureComponent {
                 title: formatMessage({ id: 'teamManage.tabs.image.table.user' }),
                 dataIndex: 'username',
                 key: "username",
-                align: 'center',
-                render: (text, data) => (
-                    <span>{isCloudImageRegistryType(data.hub_type) ? (data.access_key || text) : text}</span>
-                )
+                align: 'center'
             },
             {
                 title: formatMessage({ id: 'teamManage.tabs.image.table.hubType' }),

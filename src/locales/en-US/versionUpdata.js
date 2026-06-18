@@ -75,7 +75,7 @@ const versionUpdata = {
   'versionUpdata_6_1.hub_type.aliyun_acr': 'Alibaba Cloud ACR',
   'versionUpdata_6_1.hub_type.tencent_tcr': 'Tencent Cloud TCR',
   'versionUpdata_6_1.hub_type.huawei_swr': 'Huawei Cloud SWR',
-  'versionUpdata_6_1.hub_type.volcano_tos': 'Volcano Cloud TOS',
+  'versionUpdata_6_1.hub_type.volcano_cr': 'Volcano Cloud CR',
   'mirror.name.space': 'Image name cannot contain spaces',
   'mirror.length.limit': 'Maximum input length is 255 characters',
   'mirror.input.rule': 'Chinese characters and spaces are not allowed',

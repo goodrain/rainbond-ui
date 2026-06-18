@@ -130,8 +130,6 @@ export default class Main extends PureComponent {
         domain: values.domain,
         username: values.username,
         password: values.password,
-        access_key: values.access_key,
-        access_secret: values.access_secret,
         hub_type: values.hub_type
       },
       callback: res => {

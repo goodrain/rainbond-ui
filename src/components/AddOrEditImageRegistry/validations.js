@@ -89,10 +89,10 @@ export const getDomainRules = () => [
 /**
  * 用户名校验规则
  */
-export const getUsernameRules = (useAccessKey = false) => [
+export const getUsernameRules = () => [
   {
     required: true,
-    message: formatMessage({ id: useAccessKey ? 'placeholder.access_key' : 'placeholder.userName' })
+    message: formatMessage({ id: 'placeholder.userName' })
   },
   {
     max: 255,
@@ -103,10 +103,10 @@ export const getUsernameRules = (useAccessKey = false) => [
 /**
  * 密码校验规则
  */
-export const getPasswordRules = (useAccessSecret = false) => [
+export const getPasswordRules = () => [
   {
     required: true,
-    message: formatMessage({ id: useAccessSecret ? 'placeholder.access_secret' : 'placeholder.password_1' })
+    message: formatMessage({ id: 'placeholder.password_1' })
   },
   {
     max: 255,

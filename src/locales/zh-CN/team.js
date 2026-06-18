@@ -587,8 +587,8 @@ const teamManage = {
   //镜像仓库授权信息 image
   'teamManage.tabs.image':'镜像仓库授权信息',
   'teamManage.tabs.image.table.imageAddress':'镜像仓库地址',
-  'teamManage.tabs.image.table.user':'账号 / Access Key',
-  'teamManage.tabs.image.table.password':'密码 / Access Secret',
+  'teamManage.tabs.image.table.user':'用户名',
+  'teamManage.tabs.image.table.password':'密码',
   'teamManage.tabs.image.table.hubType':'仓库类型',
   'teamManage.tabs.image.scope.enterprise':'全局',
   'teamManage.tabs.image.scope.user':'个人',

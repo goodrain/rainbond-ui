@@ -1642,8 +1642,6 @@ export async function addPlatformImageHub(body, handleError) {
         domain: body.domain,
         username: body.username,
         password: body.password,
-        access_key: body.access_key,
-        access_secret: body.access_secret,
         hub_type: body.hub_type
       },
       handleError
@@ -1661,8 +1659,6 @@ export async function updatePlatformImageHub(body, handleError) {
         domain: body.domain,
         username: body.username,
         password: body.password,
-        access_key: body.access_key,
-        access_secret: body.access_secret,
         hub_type: body.hub_type
       },
       handleError
@@ -1706,8 +1702,6 @@ export async function addEnterpriseImageHub(body = {}, handleError) {
         domain: body.domain,
         username: body.username,
         password: body.password,
-        access_key: body.access_key,
-        access_secret: body.access_secret,
         hub_type: body.hub_type
       },
       handleError
@@ -1725,8 +1719,6 @@ export async function updateEnterpriseImageHub(body = {}, handleError) {
         domain: body.domain,
         username: body.username,
         password: body.password,
-        access_key: body.access_key,
-        access_secret: body.access_secret,
         hub_type: body.hub_type
       },
       handleError
