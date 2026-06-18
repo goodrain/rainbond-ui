@@ -41,6 +41,8 @@ export default class ImageWarehouse extends PureComponent {
         return `global/${action}${prefix}ImageHub`;
     };
     getRegistryPayload = values => ({
+        access_key: values.access_key,
+        access_secret: values.access_secret,
         username: values.username,
         password: values.password,
         hub_type: values.hub_type

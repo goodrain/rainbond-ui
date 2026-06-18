@@ -128,6 +128,8 @@ export default class Main extends PureComponent {
       payload: {
         secret_id: values.secret_id,
         domain: values.domain,
+        access_key: values.access_key,
+        access_secret: values.access_secret,
         username: values.username,
         password: values.password,
         hub_type: values.hub_type
