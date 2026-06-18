@@ -160,6 +160,7 @@ const global = {
     'global.fetchStateOptTypeText.delete-service-port':'Delete component port',
     'global.fetchStateOptTypeText.handle-service-outerport':'Modify component external port',
     'global.fetchStateOptTypeText.handle-service-innerport':'Modify the internal port of the component',
+    'global.fetchStateOptTypeText.delete-gateway-http-route':'Delete component gateway route',
     'global.fetchStateOptTypeText.change-service-lbport':'Modify component LB port',
     'global.fetchStateOptTypeText.rollback-service':'Rollback',
     'global.fetchStateOptTypeText.add-service-volume':'Add component persistent storage',

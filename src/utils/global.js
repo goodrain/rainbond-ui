@@ -3005,6 +3005,7 @@ const global = {
       'delete-service-port': formatMessage({ id: 'global.fetchStateOptTypeText.delete-service-port' }),
       'handle-service-outerport': formatMessage({ id: 'global.fetchStateOptTypeText.handle-service-outerport' }),
       'handle-service-innerport': formatMessage({ id: 'global.fetchStateOptTypeText.handle-service-innerport' }),
+      'delete-gateway-http-route': formatMessage({ id: 'global.fetchStateOptTypeText.delete-gateway-http-route' }),
       'change-service-lbport': formatMessage({ id: 'global.fetchStateOptTypeText.change-service-lbport' }),
       'rollback-service': formatMessage({ id: 'global.fetchStateOptTypeText.rollback-service' }),
       'add-service-volume': formatMessage({ id: 'global.fetchStateOptTypeText.add-service-volume' }),

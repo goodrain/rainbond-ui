@@ -160,6 +160,7 @@ const global = {
     'global.fetchStateOptTypeText.delete-service-port':'删除组件端口',
     'global.fetchStateOptTypeText.handle-service-outerport':'修改组件对外端口',
     'global.fetchStateOptTypeText.handle-service-innerport':'修改组件对内端口',
+    'global.fetchStateOptTypeText.delete-gateway-http-route':'删除组件网关路由',
     'global.fetchStateOptTypeText.change-service-lbport':'修改组件LB端口',
     'global.fetchStateOptTypeText.rollback-service':'回滚',
     'global.fetchStateOptTypeText.add-service-volume':'添加组件持久化存储',
