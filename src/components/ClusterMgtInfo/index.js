@@ -1,11 +1,7 @@
 import React, { Component } from 'react';
 import {
-  Row,
-  Col,
   Button,
   Badge,
-  Card,
-  Descriptions,
   Tooltip,
   Icon,
   Form,
@@ -29,7 +25,9 @@ import { getKubeConfig } from '../../services/cloud';
 import ConfirmModal from '../../components/ConfirmModal';
 import EditClusterInfo from '../../components/Cluster/EditClusterInfo';
 import Rke from '../../../public/images/rke.svg'
+import K3s from '../../../public/images/k3s.png'
 import globalUtil from '@/utils/global';
+import SVG from '../../utils/pageHeaderSvg';
 import styles from "./index.less";
 
 const { confirm } = Modal;
@@ -205,7 +203,7 @@ class Index extends Component {
         return (
           <span style={{ marginRight: '8px' }} key={provider}>
             <div className={styles.icons}>
-              <img style={{ height: '120px' }} src={K3s} alt=""></img>
+              <img src={K3s} alt=""></img>
             </div>
           </span>
         );
@@ -549,8 +547,6 @@ class Index extends Component {
       form,
       showInfo = false,
       nodeType,
-      titleIcon,
-      titleText,
       showGpuBtn
     } = this.props;
     const {
@@ -643,28 +639,27 @@ class Index extends Component {
     };
     return (
       <>
-        <Card
-        >
+        <div className={styles.clusterInfoCard}>
           {!showInfo && <Skeleton active />}
           {showInfo &&
             <>
-              <Row className={styles.InfoStyle}>
-                {/* logo */}
-                <Col span={3}>
-                  {this.clusterIcon(provider, region_type && region_type.length > 0 && region_type[0])}
-                </Col>
-                {/* 名称 */}
-                <Col span={3}>
-                  <p>{region_alias}</p>
-                  <p>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterName' })}</p>
-                </Col>
-                {/* 状态 */}
-                <Col span={3}>
-                  <p>{this.clusterStatus(status, health_status)}</p>
-                  <p>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterStatus' })}</p>
-                </Col>
-                {/* 按钮 */}
-                <Col span={15}>
+              <div className={styles.clusterCardTitle}>
+                <span className={styles.clusterCardTitleIcon}>{SVG.getSvg("infoSvg", 20)}</span>
+                <span>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterInfo' })}</span>
+              </div>
+              <div className={styles.clusterCardHeader}>
+                <div className={styles.clusterHeaderMain}>
+                  <div className={styles.clusterIconBox}>
+                    {this.clusterIcon(provider, region_type && region_type.length > 0 && region_type[0])}
+                  </div>
+                  <div className={styles.clusterHeaderText}>
+                    <div className={styles.clusterNameRow}>
+                      <span className={styles.clusterName}>{region_alias}</span>
+                      <span className={styles.clusterStatus}>{this.clusterStatus(status, health_status)}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className={styles.clusterActions}>
                   <Button
                     onClick={this.handleEdit}
                     icon="edit"
@@ -702,15 +697,25 @@ class Index extends Component {
                       <FormattedMessage id='enterpriseColony.table.handle.delete' />
                     </Button>
                   )}
-                </Col>
-              </Row>
+                </div>
+              </div>
               {/* 基本信息 */}
               {health_status !== 'failure' &&
-                <Row className={styles.ClusterInfo}>
-                  <Descriptions >
-                    <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterVs' })} span={2}>{rbd_version || "-"}</Descriptions.Item>
-                    <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterNum' })}>
-                      <span className={styles.nodeType}>
+                <div className={styles.clusterInfoGrid}>
+                  <div className={styles.clusterInfoItem}>
+                    <span className={styles.clusterInfoLabel}>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterVs' })}</span>
+                    <Tooltip title={rbd_version || "-"}>
+                      <span className={styles.clusterInfoValue}>{rbd_version || "-"}</span>
+                    </Tooltip>
+                  </div>
+                  <div className={styles.clusterInfoItem}>
+                    <span className={styles.clusterInfoLabel}>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterNum' })}</span>
+                    <Tooltip title={
+                      nodeType && Object.keys(nodeType).length > 0
+                        ? Object.keys(nodeType).map(item => `${nodeType[item]} ${item}`).join(' + ')
+                        : "-"
+                    }>
+                      <span className={styles.clusterInfoValue}>
                         {
                           nodeType &&
                             Object.keys(nodeType).length > 0 ?
@@ -721,21 +726,37 @@ class Index extends Component {
                             "-"
                         }
                       </span>
-                    </Descriptions.Item>
-                    <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.installType' })}>{(this.clusterInstallType(provider)) || "-"}</Descriptions.Item>
-                    <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.kubernetesVs' })} span={2}>{k8s_version == {} ? "-" : k8s_version || "-"}</Descriptions.Item>
-                    <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}>
-                      {arch.length > 0 && arch.map((item) => {
+                    </Tooltip>
+                  </div>
+                  <div className={styles.clusterInfoItem}>
+                    <span className={styles.clusterInfoLabel}>{formatMessage({ id: 'enterpriseColony.mgt.cluster.installType' })}</span>
+                    <span className={styles.clusterInfoValue}>{(this.clusterInstallType(provider)) || "-"}</span>
+                  </div>
+                  <div className={styles.clusterInfoItem}>
+                    <span className={styles.clusterInfoLabel}>{formatMessage({ id: 'enterpriseColony.mgt.cluster.kubernetesVs' })}</span>
+                    <Tooltip title={k8s_version == {} ? "-" : k8s_version || "-"}>
+                      <span className={styles.clusterInfoValue}>{k8s_version == {} ? "-" : k8s_version || "-"}</span>
+                    </Tooltip>
+                  </div>
+                  <div className={styles.clusterInfoItem}>
+                    <span className={styles.clusterInfoLabel}>{formatMessage({ id: 'enterpriseColony.mgt.node.framework' })}</span>
+                    <span className={styles.clusterInfoValue}>
+                      {Array.isArray(arch) && arch.length > 0 ? arch.map((item) => {
                         return <Tag color={globalUtil.getPublicColor()}>{item}</Tag>
-                      })}
-                    </Descriptions.Item>
-                    <Descriptions.Item label={formatMessage({ id: 'enterpriseColony.mgt.cluster.time' })}>{create_time && create_time.substr(0, 10) || "-"}</Descriptions.Item>
-                  </Descriptions>
-                </Row>
+                      }) : '-'}
+                    </span>
+                  </div>
+                  <div className={styles.clusterInfoItem}>
+                    <span className={styles.clusterInfoLabel}>{formatMessage({ id: 'enterpriseColony.mgt.cluster.time' })}</span>
+                    <Tooltip title={create_time && create_time.substr(0, 10) || "-"}>
+                      <span className={styles.clusterInfoValue}>{create_time && create_time.substr(0, 10) || "-"}</span>
+                    </Tooltip>
+                  </div>
+                </div>
               }
             </>
           }
-        </Card>
+        </div>
         {/* 删除弹框 */}
         {delVisible && (
           <ConfirmModal

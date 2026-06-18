@@ -88,6 +88,240 @@
     }
 }
 
+.platformInfoCard {
+    min-height: 260px;
+    border: 1px solid fade(@primary-color, 12%);
+    border-radius: 22px;
+    background-color: #fff;
+    background-image: radial-gradient(circle at top right,
+            fade(@primary-color, 8%) 0%,
+            fade(@primary-color, 4%) 42%,
+            transparent 78%);
+    box-shadow: 0 14px 32px fade(@heading-color, 9%);
+
+    &:hover {
+        box-shadow: 0 16px 36px fade(@heading-color, 12%);
+    }
+}
+
+.platformInfoInner {
+    min-height: 260px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px;
+}
+
+.platformInfoMain {
+    flex: 1;
+    min-width: 0;
+    padding-right: 24px;
+}
+
+.overviewCardHeader {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+
+    h2 {
+        margin: 0;
+        color: @heading-color;
+        font-size: @rbd-sub-title-size;
+        line-height: @rbd-sub-title-line-height;
+        font-weight: 600;
+    }
+}
+
+.overviewCardHeaderIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 4px;
+    color: @primary-color;
+    font-size: @rbd-sub-title-size;
+
+    svg {
+        width: @rbd-sub-title-size;
+        height: @rbd-sub-title-size;
+    }
+}
+
+.platformInfoContent {
+    max-width: 860px;
+}
+
+.platformCompanyBlock {
+    margin-bottom: 12px;
+}
+
+.platformLabel {
+    margin-bottom: 8px;
+    color: @rbd-content-color-secondary;
+    font-size: @rbd-auxiliary-size;
+    line-height: @rbd-content-line-height;
+    font-weight: 600;
+}
+
+.platformCompanyName {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+    color: @rbd-content-color;
+    font-size: @rbd-title-size;
+    line-height: @rbd-content-line-height;
+    font-weight: 600;
+
+    span {
+        min-width: 0;
+        word-break: break-word;
+    }
+
+    a {
+        color: @primary-color;
+        font-size: @rbd-content-size;
+        line-height: @rbd-content-line-height;
+        font-weight: 500;
+    }
+}
+
+.platformDivider {
+    height: 1px;
+    margin-bottom: 12px;
+    background: @border-color-base;
+}
+
+.platformMetaList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.platformMetaItem {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    color: @rbd-content-color;
+    font-size: @rbd-auxiliary-size;
+    line-height: @rbd-content-line-height;
+}
+
+.platformMetaLabel {
+    flex: 0 0 92px;
+    color: @rbd-content-color-secondary;
+    font-weight: 600;
+}
+
+.platformMetaValue {
+    display: inline-block;
+    min-width: 0;
+    max-width: 100%;
+    color: @rbd-content-color;
+    font-family: Consolas, 'Liberation Mono', Menlo, monospace;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.platformInfoIllustration {
+    flex: 0 0 132px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: @primary-color;
+
+    svg {
+        width: 132px;
+        height: 120px;
+    }
+
+    &>div {
+        cursor: pointer;
+    }
+
+    .jumpText {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: @rbd-content-size;
+        color: @text-color;
+    }
+}
+
+.dataOverviewCard {
+    min-height: 260px;
+    border: 1px solid fade(@primary-color, 12%);
+    border-radius: 22px;
+    background-color: #fff;
+    background-image: radial-gradient(circle at top right,
+            fade(@primary-color, 8%) 0%,
+            fade(@primary-color, 4%) 42%,
+            transparent 78%);
+    box-shadow: 0 14px 32px fade(@heading-color, 9%);
+
+    &:hover {
+        box-shadow: 0 16px 36px fade(@heading-color, 12%);
+    }
+}
+
+.dataOverviewInner {
+    padding: 24px;
+}
+
+@media (max-width: 1200px) {
+    .platformInfoInner {
+        padding: 32px;
+    }
+
+    .platformInfoMain {
+        padding-right: 20px;
+    }
+
+    .platformInfoIllustration {
+        flex-basis: 108px;
+
+        svg {
+            width: 108px;
+            height: 98px;
+        }
+    }
+}
+
+@media (max-width: 900px) {
+    .platformInfoInner {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 32px;
+    }
+
+    .platformInfoMain {
+        width: 100%;
+        padding-right: 0;
+    }
+
+    .platformInfoIllustration {
+        align-self: flex-end;
+        flex-basis: auto;
+        margin-top: 24px;
+    }
+
+    .platformMetaItem {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .platformMetaLabel {
+        flex-basis: auto;
+        margin-bottom: 4px;
+    }
+
+    .platformMetaValue {
+        width: 100%;
+    }
+}
+
 // 旧的外部标题样式（保留兼容）
 .title {
     width: 100%;
@@ -113,15 +347,15 @@
             line-height: @rbd-sub-title-line-height;
         }
     }
-  }
-  
-  :global {
+}
+
+:global {
     .ant-card {
         border-radius: 5px;
     }
-  }
-  
-  // 企业信息内容区域（新布局）
+}
+
+// 企业信息内容区域（新布局）
 .enterpriseInfoContent {
     display: flex;
     justify-content: space-between;
@@ -135,7 +369,7 @@
             width: 100%;
             font-size: @rbd-content-size;
             font-weight: 500;
-            color: @text-color-secondary;  // 标签使用次文本色
+            color: @text-color-secondary; // 标签使用次文本色
             line-height: @rbd-content-line-height;
             letter-spacing: 0;
             margin-bottom: 12px;
@@ -158,13 +392,13 @@
                 display: inline-block;
                 min-width: 70px;
                 font-weight: 500;
-                color: @text-color-secondary;  // 标签使用次文本色
+                color: @text-color-secondary; // 标签使用次文本色
                 margin-right: 12px;
             }
 
             .infoValue {
                 font-weight: 500;
-                color: @text-color;  // 值使用主文本色
+                color: @text-color; // 值使用主文本色
             }
         }
     }
@@ -172,10 +406,12 @@
     .enterpriseInfo_right {
         width: 160px;
         height: 114px;
-        &>div{
+
+        &>div {
             cursor: pointer;
         }
-        .jumpText{
+
+        .jumpText {
             display: flex;
             align-items: center;
             justify-content: center;
@@ -189,40 +425,73 @@
 // 数据总览内容区域（新布局）
 .enterpriseDataContent {
     display: flex;
-    justify-content: space-around;
-    gap: 24px;
+    justify-content: space-between;
+    gap: 12px;
 
     .piece {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: center;
         flex-direction: column;
         box-sizing: border-box;
-        width: 25%;
-        height: 126px;
+        flex: 1;
+        min-width: 0;
+        height: 160px;
         cursor: pointer;
         font-family: PingFangSC-Medium;
-        padding-top: 40px;
-        border: 2px solid #fff;
-        border-radius: 12px;
+        padding: 24px 18px;
+        border-radius: 22px;
+        background: #fff;
         transition: all .2s ease-in-out;
-        // background: @rbd-background-color;
 
-
-        p:last-child {
-            color: @primary-color;
-            width: 100%;
-            text-align: center;
-            font-size: @rbd-display-size;
-            line-height: @rbd-display-line-height;
-            font-weight: bolder;
-            cursor: pointer;
+        &:hover {
+            border-color: fade(@primary-color, 18%);
+            box-shadow: 0 16px 36px fade(@heading-color, 12%);
         }
 
-        p:first-child {
-            font-size: @rbd-sub-title-size;
+        p {
+            margin-bottom: 0;
+        }
+
+        .dataOverviewTitle {
             color: @text-color-secondary;
-            line-height: @rbd-sub-title-line-height;
+            font-size: @rbd-auxiliary-size;
+            line-height: @rbd-content-line-height;
+            font-weight: 600;
+        }
+
+        .dataOverviewValue {
+            display: flex;
+            align-items: baseline;
+            margin-top: 12px;
+            color: @primary-color;
+            font-size: @rbd-display-size;
+            line-height: @rbd-display-line-height;
+            font-weight: 700;
+
+            a {
+                color: @primary-color;
+
+                &:hover {
+                    color: @primary-color;
+                }
+            }
+
+            span {
+                margin-left: 8px;
+                color: @text-color-secondary;
+                font-size: @rbd-auxiliary-size;
+                line-height: @rbd-content-line-height;
+                font-weight: 600;
+            }
+        }
+
+        .dataOverviewDesc {
+            margin-top: 12px;
+            color: @text-color-secondary;
+            font-size: @rbd-content-size;
+            line-height: @rbd-content-line-height;
+            font-weight: 600;
         }
     }
 }
@@ -242,6 +511,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+
         .enterpriseInfo_left {
             width: calc(100% - 170px);
 
@@ -256,6 +526,7 @@
 
                 p {
                     width: 100%;
+
                     span:last-child {
                         width: 200px;
                         overflow: hidden;
@@ -277,10 +548,12 @@
             width: 160px;
             height: 114px;
             margin-top: -20px;
-            &>div{
+
+            &>div {
                 cursor: pointer;
             }
-            .jumpText{
+
+            .jumpText {
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -336,323 +609,358 @@
             }
         }
     }
-  }
-  
-  .clusterInfo {
-    width: 100%;
-    height: 246px;
-    border-radius: 8px;
-    justify-content: space-around;
-    margin-bottom: 16px;
-    overflow: hidden;
-    background-color: @rbd-background-color;
+}
 
+.clusterOverviewCard {
+    margin-bottom: 20px;
+    border: 1px solid fade(@primary-color, 12%);
+    border-radius: 22px;
+    background-color: #fff;
+    background-image: radial-gradient(circle at top right,
+            fade(@primary-color, 8%) 0%,
+            fade(@primary-color, 4%) 42%,
+            transparent 78%);
+    box-shadow: 0 14px 32px fade(@heading-color, 9%);
+
+    &:hover {
+        box-shadow: 0 16px 36px fade(@heading-color, 12%);
+    }
+}
+
+.clusterOverviewInner {
+    padding: 20px 24px 24px;
+}
+
+.clusterOverviewBody {
+    width: 100%;
+}
+
+.clusterInfo {
+    width: 100%;
+    padding: 18px 24px 20px;
+    margin-bottom: 16px;
+    border: 1px solid fade(@border-color-base, 90%);
+    border-radius: 22px;
+    background-color: #fff;
+    box-shadow: 0 12px 28px fade(@heading-color, 7%);
 
     &:last-child {
         margin-bottom: 0;
     }
-  
-    .clusterInfo_title {
-        width: 100%;
-        height: 50px;
-        padding-left: 30px;
-        border-top-left-radius: 7px;
-        border-top-right-radius: 7px;
+}
+
+.clusterSummary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.clusterSummaryMain {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.clusterIconBox {
+    flex: 0 0 64px;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 18px;
+    border: 1px solid fade(@primary-color, 24%);
+    border-radius: 16px;
+    background: fade(@primary-color, 8%);
+}
+
+.clusterIconSymbol {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: @primary-color;
+
+    svg {
+        width: 36px;
+        height: 36px;
+    }
+
+    img {
+        max-width: 40px;
+        max-height: 40px;
+    }
+}
+
+.clusterSummaryContent {
+    min-width: 0;
+}
+
+.clusterNameRow {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    margin-bottom: 8px;
+}
+
+.clusterName {
+    max-width: 260px;
+    margin-right: 12px;
+    color: @rbd-content-color;
+    font-size: @rbd-title-size;
+    line-height: @rbd-title-line-height;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.clusterStatus {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 0 10px;
+    border-radius: 16px;
+    background: fade(@rbd-success-status, 12%);
+    color: @rbd-success-status;
+    font-size: @rbd-auxiliary-size;
+    line-height: @rbd-content-line-height;
+    font-weight: 600;
+
+    >div,
+    >span {
+        display: inline-flex;
+        align-items: center;
+        color: inherit !important;
+    }
+
+    :global {
+        .ant-badge {
+            line-height: 1;
+        }
+
+        .ant-badge-status-dot {
+            width: 8px;
+            height: 8px;
+        }
+    }
+}
+
+.clusterStatusError {
+    background: fade(@rbd-error-status, 10%);
+    color: @rbd-error-status;
+}
+
+.clusterMetaList {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+}
+
+.clusterMetaItem {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    color: @rbd-content-color;
+    font-size: @rbd-auxiliary-size;
+    line-height: @rbd-content-line-height;
+}
+
+.clusterMetaLabel {
+    flex-shrink: 0;
+    margin-right: 8px;
+    color: @rbd-content-color-secondary;
+    font-weight: 600;
+}
+
+.clusterMetaValue {
+    display: inline-block;
+    max-width: 220px;
+    color: @rbd-content-color;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.clusterSetting {
+    flex: 0 0 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    margin-left: 24px;
+    color: @primary-color;
+
+    svg {
+        width: 20px;
+        height: 20px;
+        vertical-align: middle;
+    }
+}
+
+.clusterDivider {
+    height: 1px;
+    margin: 16px 0;
+    background: @border-color-base;
+}
+
+.clusterMetrics {
+    display: grid;
+    grid-template-columns: 1.3fr 1.3fr 0.9fr 0.9fr;
+}
+
+.clusterMetricItem {
+    position: relative;
+    min-width: 0;
+    padding: 0 28px;
+    border-left: 1px solid @border-color-base;
+
+    &:first-child {
+        padding-left: 0;
+        border-left: none;
+    }
+
+    >.clusterMetricTitle {
+        margin-bottom: 28px;
+    }
+}
+
+.clusterMetricTitleRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 28px;
+}
+
+.clusterMetricTitle {
+    color: @rbd-content-color-secondary;
+    font-size: @rbd-content-size;
+    line-height: @rbd-content-line-height;
+    font-weight: 600;
+}
+
+.clusterMetricSwitch {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: @primary-color;
+    cursor: pointer;
+    outline: none;
+
+    svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    &:hover {
+        background: fade(@primary-color, 8%);
+    }
+}
+
+.clusterMetricValue {
+    display: flex;
+    align-items: baseline;
+    margin-bottom: 28px;
+    color: @rbd-content-color;
+
+    span {
+        color: @primary-color;
+        font-size: @rbd-display-size;
+        line-height: @rbd-display-line-height;
+        font-weight: 700;
+    }
+
+    em {
+        margin-left: 4px;
+        color: @rbd-content-color-secondary;
+        font-size: @rbd-title-size;
+        line-height: @rbd-title-line-height;
+        font-style: normal;
+        font-weight: 600;
+    }
+
+    small {
+        margin-left: 4px;
+        color: @rbd-content-color-secondary;
+        font-size: @rbd-title-size;
+        line-height: @rbd-title-line-height;
+        font-weight: 600;
+    }
+}
+
+.clusterMetricDesc {
+    color: @rbd-content-color;
+    font-size: @rbd-content-size;
+    line-height: @rbd-content-line-height;
+    font-weight: 600;
+
+    span {
+        margin: 0 6px;
+        color: @rbd-content-color;
+        font-weight: 600;
+    }
+}
+
+.clusterMetricItem:nth-child(-n + 2) {
+    padding-right: 156px;
+}
+
+.clusterGaugeFloat {
+    position: absolute;
+    right: 16px;
+    bottom: -18px;
+    width: 140px;
+    height: 140px;
+    pointer-events: none;
+}
+
+.clusterFailureContent {
+    display: flex;
+
+    .error_troubleshoot_left {
+        width: 20%;
+        min-height: 166px;
         display: flex;
         align-items: center;
-        justify-content: space-between;
-  
-        .setting {
-            margin-right: 3%;
-  
-            svg {
-                vertical-align: bottom;
+        justify-content: center;
+        border-right: 1px solid @border-color-base;
+
+        :global {
+            .ant-empty-description {
+                margin-top: 16px;
             }
         }
-  
-        .clusterName {
-            margin-right: 20px;
-            font-size: @rbd-sub-title-size;
-            line-height: @rbd-sub-title-line-height;
-            font-weight: 700;
-            display: flex;
-  
-            .status {
-                margin-left: 20px;
-  
-                .circle {
-                    width: 8px;
-                    height: 8px;
-                    border-radius: 50%;
-                    background: @rbd-success-status;
-                    display: inline-block;
-                    margin: 0px 6px;
-  
-                }
-  
-                span {
-                    font-family: PingFangSC-Medium;
-                }
-            }
-        }
-  
     }
-  
-    .clusterInfo_content {
-        width: 100%;
-        padding: 12px;
-        padding-left: 30px;
-        border-bottom-left-radius: 5px;
-        border-bottom-right-radius: 5px;
+
+    .error_troubleshoot_right {
+        width: 80%;
         display: flex;
-  
-        .content_left {
-            width: 32%;
-            height: 166px;
-            display: flex;
-            align-items: center;
-            border-right: 1px solid #e3e3e3;
-  
-            .clusterIcon {
-                width: 84px;
-                height: 120px;
-  
-                p {
-                    width: 100%;
-                    text-align: center;
-                }
-  
-                .icons {
-                    width: 84px;
-                    height: 84px;
-  
-                    img {
-                        width: 100%;
-                        height: 100%;
-                    }
-                }
-  
-            }
-  
-            .clusterVersion {
-                width: 68%;
-                display: flex;
-                flex-flow: column;
-                padding: 12px;
 
-                p {
-                    width: 100%;
-                    margin-bottom: 8px;
-                    font-size: @rbd-content-size;
-                    line-height: @rbd-content-line-height;
-                    display: flex;
-                    align-items: center;
-                }
+        ul {
+            width: 48%;
+            padding: 0% 2%;
 
-                .infoLabel {
-                    display: inline-block;
-                    min-width: 90px;
-                    font-weight: 500;
-                    color: @text-color-secondary;
-                    margin-right: 12px;
-                }
-
-                .infoValue {
-                    font-weight: 500;
-                    color: @text-color;
-                    overflow: hidden;
-                    white-space: nowrap;
-                    text-overflow: ellipsis;
-                }
-
-                // 保留旧样式兼容
-                .k8sName {
-                    width: 50%;
-                }
-
-                .k8sVersion {
-                    width: 50%;
-                    overflow: hidden;
-                    white-space: nowrap;
-                    text-overflow: ellipsis;
-                    display: inline-block;
-                    margin-left: 6px;
-                }
-
-                .versionName {
-                    width: 30%;
-                }
-
-                .version {
-                    width: 70%;
-                    overflow: hidden;
-                    white-space: nowrap;
-                    text-overflow: ellipsis;
-                    display: inline-block;
-                    margin-left: 6px;
-                }
-
-                .k8sName_en {
-                    width: 65%;
-                }
-
-                .k8sVersion_en {
-                    width: 35%;
-                    overflow: hidden;
-                    white-space: nowrap;
-                    text-overflow: ellipsis;
-                    display: inline-block;
-                    margin-left: 6px;
-                }
-
-                .versionName_en {
-                    width: 50%;
-                }
-
-                .version_en {
-                    width: 50%;
-                    overflow: hidden;
-                    white-space: nowrap;
-                    text-overflow: ellipsis;
-                    display: inline-block;
-                    margin-left: 6px;
-                }
-
-                .createTime_en {
-                    width: 45%;
-                }
-
-                .createTimeVersion_en {
-                    width: 55%;
-                    overflow: hidden;
-                    white-space: nowrap;
-                    text-overflow: ellipsis;
-                    display: inline-block;
-                    margin-left: 6px;
-                }
-            }
-        }
-  
-            .content_right {
-                width: 65%;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 0px 12px;
-                gap: 12px;
-                flex-wrap: nowrap;
-  
-            .content_data {
-                flex: 1 1 0;
-                min-width: 0;
-                max-width: 23%;
-                p {
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    text-align: center;
-                    color: @text-color-secondary;
-                    font-weight: 500;
-                    font-size: @rbd-sub-title-size;
-                    > div {
-                        width: 20px;
-                        height: 20px;
-                        margin-left: 6px;
-                        cursor: pointer;
-                    }
-                    > div:hover {
-                        background: #fafbfc;
-                        border-radius: 5px;
-                    }
-                    span {
-                        font-size: @rbd-title-size;
-                        color: @primary-color;
-                        line-height: @rbd-title-line-height;
-                        font-weight: bolder;
-                        margin-right: 4px;
-                    }
-                }
-            }
-  
-            .node {
-                flex: 0 0 18%;
-                min-width: 0;
-                p {
-                    text-align: center;
-                    color: @text-color-secondary;
-                    font-size: 16px;
-                    font-weight: 500;
-                    white-space: nowrap;
-  
-                    span {
-                        color: @primary-color;
-                        font-size: @rbd-title-size;
-                        font-weight: bolder;
-                        margin-right: 4px;
-                    }
-                }
-  
-                .nodeData {
-                    width: 100%;
-                    min-width: 0;
-                    text-align: center;
-                    height: 120px;
-                    line-height: 130px;
-                    font-weight: bolder;
-  
-                    .running {
-                        color: @rbd-success-status;
-                        font-size: @rbd-display-size;
-                        line-height: @rbd-display-line-height;
-                        margin-right: 6px;
-                    }
-  
-                    .sum {
-                        color: @rbd-content-color-secondary;
-                        ;
-                        font-size: @rbd-title-size;
-                    }
-                }
-            }
-  
-  
-        }
-  
-        .error_troubleshoot_left {
-            width: 20%;
-            height: 166px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-right: 1px solid #e3e3e3;
-  
-            :global {
-                .ant-empty-description {
-                    margin-top: 16px;
-                }
-            }
-        }
-  
-        .error_troubleshoot_right {
-            width: 80%;
-            display: flex;
-  
-            ul {
-                width: 48%;
-                padding: 0% 2%;
-  
-                div {
-                    font-size: @rbd-title-size;
-                    line-height: @rbd-title-line-height;
-                    font-weight: 700;
-                    margin-bottom: 6px;
-                }
+            div {
+                margin-bottom: 6px;
+                color: @rbd-content-color;
+                font-size: @rbd-title-size;
+                line-height: @rbd-title-line-height;
+                font-weight: 700;
             }
         }
     }
-  }
-  
-  .clusterInfo_Empty {
+}
+
+.clusterInfo_Empty {
     width: 100%;
     font-family: PingFangSC-Medium;
     height: 200px;
@@ -661,9 +969,230 @@
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-  
-  // 授权内容区域（新布局）
+}
+
+.licenseCard {
+    min-height: 260px;
+    border: 1px solid fade(@primary-color, 12%);
+    border-radius: 22px;
+    background-color: #fff;
+    background-image: radial-gradient(circle at top right,
+            fade(@primary-color, 8%) 0%,
+            fade(@primary-color, 4%) 42%,
+            transparent 78%);
+    box-shadow: 0 14px 32px fade(@heading-color, 9%);
+}
+
+.licenseContent {
+    padding: 24px;
+}
+
+.licenseSummary {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.licenseMain {
+    flex: 1;
+    min-width: 0;
+}
+
+.licenseCompanyBlock {
+    margin-top: 12px;
+}
+
+.licenseCompanyLabel {
+    display: block;
+    margin-bottom: 8px;
+    color: @rbd-content-color-secondary;
+    font-size: @rbd-auxiliary-size;
+    line-height: @rbd-content-line-height;
+    font-weight: 600;
+}
+
+.licenseCompanyRow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.licenseCompany {
+    color: @rbd-content-color;
+    font-size: @rbd-title-size;
+    line-height: @rbd-title-line-height;
+    font-weight: 600;
+}
+
+.licenseLimitPanel {
+    flex: 0 0 520px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.licenseLimitItem {
+    flex: 1;
+    min-width: 0;
+    background-color: #fff;
+    padding: 12px;
+    border-radius: 18px;
+
+    &:last-child {
+        border-right: 0;
+    }
+
+    span {
+        display: block;
+        color: @rbd-content-color-secondary;
+        font-size: @rbd-auxiliary-size;
+        line-height: @rbd-content-line-height;
+        font-weight: 600;
+    }
+
+    strong {
+        display: block;
+        margin-top: 4px;
+        color: @rbd-content-color;
+        font-size: @rbd-content-size;
+        line-height: @rbd-content-line-height;
+        font-weight: 600;
+        word-break: break-word;
+    }
+}
+
+.licenseServiceExpired {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+    color: @error-color;
+    font-size: @rbd-auxiliary-size;
+    line-height: @rbd-content-line-height;
+    font-weight: 600;
+}
+
+.licenseDivider {
+    height: 1px;
+    margin: 24px 0 12px;
+    background: @border-color-base;
+}
+
+.licenseCodeBlock {
+    color: @rbd-content-color;
+}
+
+.licenseCodeHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    color: @rbd-content-color-secondary;
+    font-size: @rbd-content-size;
+    line-height: @rbd-content-line-height;
+    font-weight: 600;
+}
+
+.licenseCodeActions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        border: 0;
+        border-radius: 4px;
+        background: transparent;
+        color: @primary-color;
+        font-size: @rbd-content-size;
+        line-height: @rbd-content-line-height;
+        font-weight: 600;
+        cursor: pointer;
+        outline: none;
+        transition: background 0.2s;
+
+        i {
+            font-size: @rbd-content-size;
+        }
+
+        &:hover {
+            background: fade(@primary-color, 8%);
+        }
+    }
+}
+
+.licenseCodeContent {
+    max-width: 100%;
+    overflow: hidden;
+    color: @rbd-content-color;
+    font-family: Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: @rbd-content-size;
+    line-height: @rbd-title-line-height;
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.licenseCodeExpanded {
+    overflow: visible;
+    text-overflow: initial;
+    white-space: normal;
+    word-break: break-all;
+}
+
+@media (max-width: 1200px) {
+    .licenseSummary {
+        flex-direction: column;
+    }
+
+    .licenseLimitPanel {
+        flex-basis: auto;
+        width: 100%;
+    }
+}
+
+.authorization_plugins {
+    margin-top: 12px;
+    padding: 12px 0 0;
+    border-top: 1px solid #e9eaec;
+
+    .authorization_plugins_list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        margin-top: 8px;
+    }
+
+    .authorization_plugin_tag {
+        display: inline-flex;
+        align-items: center;
+        min-height: 24px;
+        margin-right: 0;
+        padding: 0 10px;
+        background: fade(@primary-color, 8%);
+        border: 1px solid fade(@primary-color, 18%);
+        border-radius: 12px;
+        font-size: @rbd-auxiliary-size;
+        line-height: @rbd-auxiliary-line-height;
+        color: @rbd-content-color;
+        font-weight: 600;
+    }
+
+    .authorization_plugins_empty {
+        font-size: 13px;
+        color: @rbd-content-color-secondary;
+    }
+}
+
+// 授权内容区域（新布局）
 .authorizationContent {
     font-family: PingFangSC-Medium;
     font-weight: 500;
@@ -682,7 +1211,7 @@
         .authorization_title {
             font-size: 14px;
             font-weight: 500;
-            color: @text-color; 
+            color: @text-color;
         }
 
         .authorization_actions {
@@ -723,32 +1252,38 @@
             }
         }
     }
+
     .authorization_info {
         display: flex;
         justify-content: space-between;
         padding-top: 12px;
-        > div{
+
+        >div {
             width: 33%;
+
             // height: 100px;
-            .authorization_info_content{
+            .authorization_info_content {
                 display: flex;
                 align-items: center;
                 margin-bottom: 8px;
-                .authorization_info_title{
+
+                .authorization_info_title {
                     font-weight: 500;
-                    color: @text-color-secondary;  // 标签使用次文本色
-                    margin-right: 12px;  // key和value间距12px
+                    color: @text-color-secondary; // 标签使用次文本色
+                    margin-right: 12px; // key和value间距12px
                     white-space: nowrap;
                 }
-                .authorization_info_desc{
+
+                .authorization_info_desc {
                     flex: 1;
                     font-weight: 500;
-                    color: @text-color;  // 值使用主文本色
+                    color: @text-color; // 值使用主文本色
                     display: flex;
                     align-items: center;
                     flex-wrap: wrap;
                     gap: 8px;
                 }
+
                 .expiredText {
                     color: #ff4d4f;
                     cursor: pointer;
@@ -756,6 +1291,7 @@
                     align-items: center;
                     gap: 6px;
                 }
+
                 .expiredTag {
                     display: inline-block;
                     font-size: 12px;
@@ -767,6 +1303,7 @@
                     color: #ff4d4f;
                     font-weight: 500;
                 }
+
                 .renewBtn {
                     border-radius: 4px;
                     font-size: 12px;
@@ -774,44 +1311,7 @@
             }
         }
     }
-    .authorization_plugins {
-        display: flex;
-        align-items: center;
-        padding: 12px 0 0;
-        border-top: 1px solid #e9eaec;
-        margin-top: 12px;
 
-        .authorization_plugins_label {
-            font-size: 14px;
-            font-weight: 500;
-            color: @text-color-secondary;
-            white-space: nowrap;
-            margin-right: 12px;
-        }
-
-        .authorization_plugins_list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .authorization_plugin_tag {
-            display: inline-block;
-            padding: 2px 12px;
-            background: #f0f5ff;
-            border: 1px solid #d6e4ff;
-            border-radius: 4px;
-            font-size: 13px;
-            color: @primary-color;
-            font-weight: 500;
-        }
-
-        .authorization_plugins_empty {
-            font-size: 13px;
-            color: @text-color-secondary;
-        }
-    }
     .authorization_error {
         padding: 12px 0px;
 
@@ -822,6 +1322,7 @@
             color: @rbd-error-status;
             font-size: 30px;
             margin-top: 12px;
+
             .authorization_svg {
                 display: flex;
                 align-items: center;
@@ -879,28 +1380,34 @@
             margin-left: 12px;
         }
     }
+
     .authorization_info {
         display: flex;
         justify-content: space-between;
         padding-top: 12px;
-        > div{
+
+        >div {
             width: 33%;
             height: 100px;
-            .authorization_info_content{
+
+            .authorization_info_content {
                 display: flex;
                 align-items: center;
                 height: 50px;
-                .authorization_info_title{
+
+                .authorization_info_title {
                     width: 30%;
                     color: @rbd-content-color-secondary;
                 }
-                .authorization_info_desc{
+
+                .authorization_info_desc {
                     width: 70%;
                     color: @rbd-content-color;
                 }
             }
         }
     }
+
     .authorization_error {
         padding: 12px 0px;
 
@@ -911,6 +1418,7 @@
             color: @rbd-error-status;
             font-size: 30px;
             margin-top: 12px;
+
             .authorization_svg {
                 display: flex;
                 align-items: center;
@@ -931,37 +1439,121 @@
             color: @rbd-error-status;
         }
     }
-  }
-  
-  // 应用报警内容区域（新布局）
+}
+
+// 应用报警内容区域（新布局）
+.appAlertCard {
+    margin-bottom: 20px;
+    border: 1px solid fade(@primary-color, 12%);
+    border-radius: 22px;
+    overflow: hidden;
+    background-color: #fff;
+    background-image: radial-gradient(circle at top right,
+            fade(@primary-color, 8%) 0%,
+            fade(@primary-color, 4%) 42%,
+            transparent 78%);
+    box-shadow: 0 14px 32px fade(@heading-color, 9%);
+
+    &:hover {
+        box-shadow: 0 16px 36px fade(@heading-color, 12%);
+    }
+}
+
 .appAlertContent {
     font-family: PingFangSC-Medium;
+}
 
-    .contentAlert {
-        display: flex;
-        width: 100%;
-        height: 40px;
-        border-bottom: 1px solid #e3e3e3;
-        align-items: center;
-        justify-content: space-between;
+.appAlertList {
+    max-height: 220px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
 
-        div {
-            padding: 0px 12px;
-            height: 40px;
-            display: flex;
-            align-items: center;
+.appAlertItem {
+    display: flex;
+    align-items: center;
+    min-height: 84px;
+    padding: 18px 24px;
+    margin-bottom: 12px;
+    border: 1px solid fade(@border-color-base, 90%);
+    border-radius: 22px;
+    background: #fff;
+    box-shadow: 0 12px 28px fade(@heading-color, 7%);
 
-            span {
-                margin-left: 2px;
-            }
-
-            .spanStyle {
-                text-decoration: underline;
-                color: #4077c3;
-                cursor: pointer;
-            }
-        }
+    &:last-child {
+        margin-bottom: 0;
     }
+}
+
+.appAlertIcon {
+    flex: 0 0 48px;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+    border-radius: 50%;
+    background: fade(@rbd-error-status, 8%);
+    color: @rbd-error-status;
+    font-size: @rbd-title-size;
+}
+
+.appAlertInfo {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 180px 180px 220px 120px;
+    gap: 12px;
+    min-width: 0;
+}
+
+.appAlertColumn {
+    min-width: 0;
+}
+
+.appAlertLabel {
+    display: block;
+    margin-bottom: 6px;
+    color: @rbd-content-color-secondary;
+    font-size: @rbd-auxiliary-size;
+    line-height: @rbd-auxiliary-line-height;
+    font-weight: 600;
+}
+
+.appAlertValueLink {
+    display: block;
+    max-width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: @primary-color;
+    font-size: @rbd-content-size;
+    line-height: @rbd-content-line-height;
+    font-weight: 600;
+    overflow: hidden;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+    outline: none;
+}
+
+.appAlertStatus {
+    color: @rbd-content-color;
+    font-size: @rbd-content-size;
+    line-height: @rbd-content-line-height;
+    font-weight: 600;
+}
+
+.appAlertDate {
+    flex: 0 0 140px;
+    margin-left: 24px;
+    color: @rbd-content-color-secondary;
+    font-family: Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: @rbd-content-size;
+    line-height: @rbd-content-line-height;
+    font-weight: 500;
+    text-align: right;
 }
 
 // 旧应用报警样式（保留兼容）
@@ -1001,65 +1593,68 @@
             }
         }
     }
-  }
-  
-  .appAlert::-webkit-scrollbar {
+}
+
+.appAlert::-webkit-scrollbar {
     display: none;
-  }
-  
-  .ulStyle {
+}
+
+.ulStyle {
     list-style: none;
-  
+
     ul {
         margin-bottom: 1em;
-  
+
         li {
             margin-bottom: 5px;
         }
     }
-  }
-  
-  
-  .jump {
-  display: inline-block;
-  animation: jump 2s ease forwards;
-  }
-  
-  @keyframes jump {
-  0% {
-    transform: translateY(0);
-    color: #fff;
-  }
-  50% {
-    transform: translateY(-10px);
-    color:@rbd-success-status;
-  }
-  0%, 100% {
-    transform: translateY(0);
-    color: #444;
-  }
-  }
-  
-  /* 延迟每个字符的动画开始时间 */
-  .char1 {
-  animation-delay: 0s;
-  }
-  
-  .char2 {
-  animation-delay: 0.1s;
-  }
-  
-  .char3 {
-  animation-delay: 0.2s;
-  }
-  
-  .char4 {
-  animation-delay: 0.3s;
-  }
-  
-  .char5 {
-  animation-delay: 0.4s;
-  }
+}
+
+
+.jump {
+    display: inline-block;
+    animation: jump 2s ease forwards;
+}
+
+@keyframes jump {
+    0% {
+        transform: translateY(0);
+        color: #fff;
+    }
+
+    50% {
+        transform: translateY(-10px);
+        color: @rbd-success-status;
+    }
+
+    0%,
+    100% {
+        transform: translateY(0);
+        color: #444;
+    }
+}
+
+/* 延迟每个字符的动画开始时间 */
+.char1 {
+    animation-delay: 0s;
+}
+
+.char2 {
+    animation-delay: 0.1s;
+}
+
+.char3 {
+    animation-delay: 0.2s;
+}
+
+.char4 {
+    animation-delay: 0.3s;
+}
+
+.char5 {
+    animation-delay: 0.4s;
+}
 
 // 平台健康检测内容区域
 .platformHealthContent {
@@ -1131,11 +1726,13 @@
         height: 100%;
         opacity: 1;
     }
+
     50% {
         width: 180%;
         height: 180%;
         opacity: 0;
     }
+
     100% {
         width: 180%;
         height: 180%;

@@ -105,24 +105,28 @@ class Index extends Component {
                     </div>
                     <div className={styles.cardBody}>
                         {showTaints ?
-                            <Form onSubmit={this.handleSubmit}>
-                                {(taintsList.length > 0 || !editState) ?
-                                    (<Form.Item >
-                                        {getFieldDecorator(`taints`, {
-                                            initialValue: taintsList.length > 0 ? taintsList : [],
-                                            rules: [{ required: false, message: formatMessage({ id: 'enterpriseColony.mgt.node.key' }), }]
-                                        })(
-                                            <DApvcinputSelect
-                                                editState={editState}
-                                                removeShow={bool}
-                                                setspan={8}
-                                                removeValue={this.removeValue}
-                                            />)}
-                                    </Form.Item>) : (
-                                        <Empty />
-                                    )
-                                }
-                            </Form>
+                            <div className={styles.taintsPanel}>
+                                <div className={styles.taintsScroll}>
+                                    <Form className={styles.taintsForm} onSubmit={this.handleSubmit}>
+                                        {(taintsList.length > 0 || !editState) ?
+                                            (<Form.Item >
+                                                {getFieldDecorator(`taints`, {
+                                                    initialValue: taintsList.length > 0 ? taintsList : [],
+                                                    rules: [{ required: false, message: formatMessage({ id: 'enterpriseColony.mgt.node.key' }), }]
+                                                })(
+                                                    <DApvcinputSelect
+                                                        editState={editState}
+                                                        removeShow={bool}
+                                                        setspan={8}
+                                                        removeValue={this.removeValue}
+                                                    />)}
+                                            </Form.Item>) : (
+                                                <Empty />
+                                            )
+                                        }
+                                    </Form>
+                                </div>
+                            </div>
                             :
                             <Skeleton active />
                         }

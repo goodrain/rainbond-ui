@@ -326,10 +326,6 @@ class Index extends Component {
         content={formatMessage({ id: 'enterpriseColony.mgt.cluster.info' })}
       >
         <ScrollerX sm={900}>
-          <Row className={styles.titleStyle} style={{ margin: '0 0 10px' }}>
-            <span>{SVG.getSvg("infoSvg", 20)}</span>
-            <span>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterInfo' })}</span>
-          </Row>
           <Row>
             <DetectionInfo
               rowClusterInfo={rowCluster}
@@ -339,12 +335,10 @@ class Index extends Component {
               showGpuBtn={showGpuBtn}
             />
           </Row>
-          <Row className={styles.titleStyle}>
-            <span>{SVG.getSvg("listSvg", 20)}</span>
-            <span>{formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterList' })}</span>
-          </Row>
           <Row>
             <ClusterList
+              titleIcon={SVG.getSvg("listSvg", 20)}
+              titleText={formatMessage({ id: 'enterpriseColony.mgt.cluster.clusterList' })}
               eventId={eventId}
               rowClusterInfo={rowCluster}
               nodeList={nodeList}
@@ -354,22 +348,18 @@ class Index extends Component {
               handleLoadClusters={() => { this.loadClusters() }}
             />
           </Row>
-          <Row className={styles.titleStyle}>
-            <span>{SVG.getSvg("userSvg", 20)}</span>
-            <span>{formatMessage({ id: 'enterpriseColony.mgt.cluster.user' })}</span>
-          </Row>
           <Row>
             <DetectionResources
+              titleIcon={SVG.getSvg("userSvg", 20)}
+              titleText={formatMessage({ id: 'enterpriseColony.mgt.cluster.user' })}
               showInfo={showInfo}
               rowClusterInfo={rowCluster}
             />
           </Row>
-          <Row className={styles.titleStyle}>
-            <span>{SVG.getSvg("examineSvg", 20)}</span>
-            <span>{formatMessage({ id: 'enterpriseColony.mgt.cluster.rainbondList' })}</span>
-          </Row>
           <Row>
             <ClusterDetection
+              titleIcon={SVG.getSvg("examineSvg", 20)}
+              titleText={formatMessage({ id: 'enterpriseColony.mgt.cluster.rainbondList' })}
               dashboardList={dashboardList}
               dashboardShow={dashboardShow}
               region={rowCluster.region_name}

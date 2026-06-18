@@ -1,14 +1,17 @@
 .cardContainer {
-    background: #fff;
-    margin: 2px;
+    border: 1px solid fade(@primary-color, 12%);
+    border-radius: 22px;
+    overflow: hidden;
+    background-color: #fff;
+    background-image: radial-gradient(circle at top right,
+            fade(@primary-color, 8%) 0%,
+            fade(@primary-color, 4%) 42%,
+            transparent 78%);
     margin-bottom: 16px;
-    border-radius: 12px;
-    box-shadow: @rbd-min-card-shadow;
-    border: 1px solid rgba(16, 24, 40, 0.08);
 }
 
 .cardHeader {
-    padding: 16px 24px;
+    padding: 24px 24px 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -17,6 +20,33 @@
 .cardBody {
     padding: 0 24px 24px;
 
+    :global {
+        .ant-form-item {
+            margin-bottom: 0;
+        }
+
+        .ant-empty {
+            padding: 24px 0;
+            background: #fff;
+        }
+    }
+}
+
+.taintsPanel {
+    border: 1px solid fade(@border-color-base, 90%);
+    border-radius: 16px;
+    background: #fff;
+    overflow: hidden;
+}
+
+.taintsScroll {
+    max-height: 360px;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+.taintsForm {
+    min-width: 760px;
 }
 
 .titleStyle {
@@ -24,9 +54,15 @@
     align-items: center;
 
     span:nth-of-type(1) {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         margin-right: 6px;
+        color: @primary-color;
 
         svg {
+            width: @rbd-sub-title-size;
+            height: @rbd-sub-title-size;
             vertical-align: bottom;
         }
     }
@@ -34,7 +70,7 @@
     span:nth-of-type(2) {
         font-weight: bolder;
         font-size: @rbd-sub-title-size;
-        color: @rbd-sub-title-color;
+        color: @heading-color;
         line-height: @rbd-sub-title-line-height;
     }
 }

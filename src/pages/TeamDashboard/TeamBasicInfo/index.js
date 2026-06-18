@@ -1,11 +1,12 @@
 import React, { Component } from 'react'
-import { Button, Input, Spin, Pagination, Tooltip, Icon, Select } from 'antd';
+import { Button, Dropdown, Input, Spin, Pagination, Tooltip, Icon, Menu, Select, Modal, notification } from 'antd';
 import { connect } from 'dva';
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
 import Result from '../../../components/Result';
 import VisterBtn from '../../../components/visitBtnForAlllink';
 import CreateComponentModal from '../../../components/CreateComponentModal';
+import AppDeteleResource from '../../../components/AppDeteleResource';
 import {
   CodeIcon,
   StoreIcon,
@@ -64,6 +65,12 @@ export default class index extends Component {
       language: cookie.get('language') === 'zh-CN',
       createComponentVisible: false,
       currentView: null,
+      promptModal: false,
+      operateApp: null,
+      operateCode: '',
+      toDelete: false,
+      toDeleteResource: false,
+      deleteResourceList: {},
     };
     // 标记组件是否已挂载
     this._isMounted = false;
@@ -304,6 +311,170 @@ export default class index extends Component {
     this.setState({ createComponentVisible: false });
   }
 
+  jumpToAppOverview = (groupId, e) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    const { dispatch } = this.props;
+    dispatch(routerRedux.push(
+      `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${groupId}/overview`
+    ));
+  };
+
+  stopAppActionEvent = e => {
+    const event = e && (e.domEvent || e);
+    if (event && event.stopPropagation) {
+      event.stopPropagation();
+    }
+  };
+
+  handleAppRuntimeButtonClick = (item, e) => {
+    this.stopAppActionEvent(e);
+
+    this.setState({
+      promptModal: true,
+      operateApp: item,
+      operateCode: item.status === 'RUNNING' ? 'stop' : 'start',
+    });
+  };
+
+  handlePromptModalClose = () => {
+    this.setState({
+      promptModal: false,
+      operateApp: null,
+      operateCode: '',
+    });
+  };
+
+  handlePromptModalOpen = () => {
+    const { dispatch } = this.props;
+    const { operateApp, operateCode } = this.state;
+
+    if (!operateApp || !operateCode) {
+      return;
+    }
+
+    dispatch({
+      type: 'global/buildShape',
+      payload: {
+        tenantName: globalUtil.getCurrTeamName(),
+        group_id: operateApp.group_id,
+        action: operateCode,
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          notification.success({
+            message: res.msg_show || formatMessage({ id: 'notification.success.build_success' }),
+            duration: 3,
+          });
+          this.handlePromptModalClose();
+          this.loadHotApp();
+        }
+      },
+      handleError: err => {
+        notification.error({
+          message: err && err.data && err.data.msg_show,
+        });
+        this.handlePromptModalClose();
+      },
+    });
+  };
+
+  handleDeleteAppClick = (item, e) => {
+    this.stopAppActionEvent(e);
+
+    this.props.dispatch({
+      type: 'application/fetchGroupAllResource',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        group_id: item.group_id,
+      },
+      callback: res => {
+        if (res && res.status_code === 200) {
+          this.setState({
+            operateApp: item,
+            deleteResourceList: res.bean || {},
+            toDelete: true,
+            toDeleteResource: false,
+          });
+        }
+      },
+      handleError: handleAPIError,
+    });
+  };
+
+  handleDelete = () => {
+    this.setState({ toDeleteResource: true });
+  };
+
+  cancelDelete = () => {
+    this.setState({
+      toDelete: false,
+      toDeleteResource: false,
+      operateApp: null,
+      deleteResourceList: {},
+    });
+  };
+
+  cancelDeleteResource = () => {
+    this.setState({ toDeleteResource: false });
+  };
+
+  handleDeleteSuccess = () => {
+    this.cancelDelete();
+    this.loadHotApp();
+  };
+
+  renderAppVisitButton = item => {
+    return (
+      <VisterBtn
+        linkList={item.accesses}
+        type="primary"
+        color="inherit"
+        className={styles.appVisitAction}
+      >
+        <Icon type="export" />
+        <span>访问</span>
+      </VisterBtn>
+    );
+  };
+
+  renderAppRuntimeButton = item => {
+    const isRunning = item.status === 'RUNNING';
+
+    return (
+      <Button className={styles.appActionButton} onClick={(e) => this.handleAppRuntimeButtonClick(item, e)}>
+        <Icon type={isRunning ? 'pause-circle' : 'play-circle'} />
+        <span>{isRunning ? '关闭' : '启动'}</span>
+      </Button>
+    );
+  };
+
+  renderAppMoreMenu = (item, hideRuntimeAction = false) => {
+    const isRunning = item.status === 'RUNNING';
+
+    return (
+      <Menu>
+        {!hideRuntimeAction && (
+          <Menu.Item key={isRunning ? 'stop' : 'start'} onClick={(e) => this.handleAppRuntimeButtonClick(item, e)}>
+            <Icon type={isRunning ? 'pause-circle' : 'play-circle'} />
+            <span>{isRunning ? '关闭' : '启动'}</span>
+          </Menu.Item>
+        )}
+        <Menu.Item key="delete" onClick={(e) => this.handleDeleteAppClick(item, e)}>
+          <Icon type="delete" />
+          <span>删除</span>
+        </Menu.Item>
+      </Menu>
+    );
+  };
+
+  getAppNameInitial = name => {
+    const appName = `${name || ''}`.trim();
+    const [initial = '-'] = Array.from(appName);
+    return initial.toUpperCase();
+  };
+
   renderCreateAppCard = () => {
     const { cardLayoutMode } = this.state;
     const isCompactCards = cardLayoutMode !== CARD_LAYOUT_MODE.DEFAULT;
@@ -378,7 +549,6 @@ export default class index extends Component {
   // 添加卡片视图渲染函数
   renderCardView = () => {
     const { teamHotAppList, teamAppCreatePermission, cardLayoutMode } = this.state;
-    const { dispatch } = this.props;
     const isCompactCards = cardLayoutMode !== CARD_LAYOUT_MODE.DEFAULT;
     const isMiniCards = cardLayoutMode === CARD_LAYOUT_MODE.MINI;
     const isAppCreate = teamAppCreatePermission?.isAccess;
@@ -387,9 +557,6 @@ export default class index extends Component {
       isCompactCards ? styles.teamHotAppListCompact : '',
       isMiniCards ? styles.teamHotAppListMini : '',
     ].filter(Boolean).join(' ');
-    const visterSvg = (
-      <svg t="1735296596548" style={{ marginRight: '2px' }} className="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10566" width="12" height="12"><path d="M864.107583 960.119537H63.880463V159.892417h447.928278V96.011954H0v927.988046h927.988046V527.874486h-63.880463v432.245051z" p-id="10567" fill='currentColor'></path><path d="M592.137467 0v63.880463h322.462458L457.491222 521.371685l45.137093 45.137093L960.119537 109.400075v322.462458h63.880463V0H592.137467z" p-id="10568" fill='currentColor'></path></svg>
-    )
 
     if (teamHotAppList.length > 0) {
       return (
@@ -399,7 +566,6 @@ export default class index extends Component {
               this.renderCreateAppCard()
             )}
             {teamHotAppList.map((item) => {
-              const createdTimeText = item.create_time && moment(item.create_time).format(isCompactCards ? 'MM/DD' : 'YYYY/MM/DD');
               const updatedTimeText = item.update_time && moment(item.update_time).fromNow();
               const memoryValue = (item.used_mem || 0) >= 1024
                 ? ((item.used_mem || 0) / 1024).toFixed(2)
@@ -418,129 +584,66 @@ export default class index extends Component {
                 <div key={item.group_id}>
                   <div
                     className={styles.teamHotAppItem}
-                    onClick={() => {
-                      dispatch(routerRedux.push(
-                        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${item.group_id}/overview`
-                      ));
-                    }}
+                    onClick={() => this.jumpToAppOverview(item.group_id)}
                   >
                     <div className={styles.appStatusBar} style={{ background: globalUtil.appStatusColor(item.status) }}></div>
                     <div className={styles.appCardContent}>
-                      {/* 第一行：图标 + 应用名/状态 + 访问按钮 */}
+                      {/* 第一行：图标 + 应用名 + 运行状态 */}
                       <div className={styles.appCardHeader}>
                         <div className={styles.appCardHeaderLeft}>
                           <span
                             className={styles.appIcon}
-                            style={{ background: globalUtil.appStatusColor(item.status, 0.1) }}
+                            style={{
+                              background: globalUtil.appStatusColor(item.status, 0.1),
+                              color: globalUtil.appStatusColor(item.status),
+                            }}
                           >
-                            {globalUtil.fetchSvg('appIconSvg', globalUtil.appStatusColor(item.status), 28)}
+                            <span className={styles.appIconText}>
+                              {this.getAppNameInitial(item.group_name)}
+                            </span>
                           </span>
                           <div className={styles.appNameWrapper}>
                             <Tooltip placement="topLeft" title={item.group_name}>
                               <span className={styles.appName}>{item.group_name}</span>
                             </Tooltip>
-                            <div className={styles.appCardStatus}>
-                              <span className={styles.statusDot} style={{ background: globalUtil.appStatusColor(item.status) }}></span>
-                              <span className={styles.statusText} style={{ color: globalUtil.appStatusColor(item.status) }}>
-                                {globalUtil.appStatusText(item.status)}
-                              </span>
-                            </div>
+                            <span className={styles.appComponentSummary}>{item.services_num} 个组件</span>
                           </div>
                         </div>
-                        <div className={styles.appCardHeaderRight} style={{ color: '#1890ff' }} onClick={(e) => e.stopPropagation()}>
-                          {hasVisitAccess && (
-                            <>
-                              {isCompactCards ? (
-                                <VisterBtn
-                                  linkList={item.accesses}
-                                  type="link"
-                                  color="#1890ff"
-                                  className={styles.compactVisitTrigger}
-                                >
-                                  <span className={styles.compactVisitTriggerIcon}>{visterSvg}</span>
-                                </VisterBtn>
-                              ) : (
-                                <>
-                                  {visterSvg}
-                                  <VisterBtn
-                                    linkList={item.accesses}
-                                    type="link"
-                                    color="#1890ff"
-                                  />
-                                </>
-                              )}
-                            </>
-                          )}
+                        <div className={styles.appCardHeaderRight}>
+                          <div
+                            className={styles.appCardStatus}
+                            style={{
+                              background: globalUtil.appStatusColor(item.status, 0.12),
+                            }}
+                          >
+                            <span className={styles.statusDot} style={{ background: globalUtil.appStatusColor(item.status) }}></span>
+                            <span className={styles.statusText} style={{ color: globalUtil.appStatusColor(item.status) }}>
+                              {globalUtil.appStatusText(item.status)}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                      {/* 第二行：组件数 + 内存 + CPU */}
-                      <div className={styles.appCardResources}>
-                        {isMiniCards ? (
-                          <>
-                            <span className={`${styles.resourceItem} ${styles.resourceItemMini}`}>
-                              <span className={styles.resourceLabel}>组件</span>
-                              <span className={styles.resourceValue}>{item.services_num}个</span>
-                            </span>
-                            <span className={`${styles.resourceItem} ${styles.resourceItemMini}`}>
-                              <span className={styles.resourceLabel}>MEM</span>
-                              <span className={styles.resourceValue}>{memoryValue} {memoryUnit}</span>
-                            </span>
-                            <span className={`${styles.resourceItem} ${styles.resourceItemMini}`}>
-                              <span className={styles.resourceLabel}>CPU</span>
-                              <span className={styles.resourceValue}>{cpuValue} {cpuUnit}</span>
-                            </span>
-                          </>
-                        ) : isCompactCards ? (
-                          <>
-                            <span className={styles.resourceItem}>
-                              <span className={styles.resourceLabel}>组件</span>
-                              <span className={styles.resourceValue}>{item.services_num}个</span>
-                            </span>
-                            <span className={styles.resourceItem}>
-                              <span className={styles.resourceLabel}>MEM</span>
-                              <span className={styles.resourceValue}>{memoryValue} {memoryUnit}</span>
-                            </span>
-                            <span className={styles.resourceItem}>
-                              <span className={styles.resourceLabel}>CPU</span>
-                              <span className={styles.resourceValue}>{cpuValue} {cpuUnit}</span>
-                            </span>
-                          </>
-                        ) : (
-                          <>
-                            <span className={styles.resourceItem}>
-                              <span className={styles.resourceLabel}>组件：</span>
-                              <span className={styles.resourceValue}>{item.services_num}</span>
-                              <span className={styles.resourceUnit}>个</span>
-                            </span>
-                            <span className={styles.resourceItem}>
-                              <span className={styles.resourceLabel}>内存：</span>
-                              <span className={styles.resourceValue}>{memoryValue}</span>
-                              <span className={styles.resourceUnit}>{memoryUnit}</span>
-                            </span>
-                            <span className={styles.resourceItem}>
-                              <span className={styles.resourceLabel}>CPU：</span>
-                              <span className={styles.resourceValue}>{cpuValue}</span>
-                              <span className={styles.resourceUnit}>{cpuUnit}</span>
-                            </span>
-                          </>
-                        )}
+                      <div className={styles.appMetaRow}>
+                        <span className={styles.appMetaItem}>内存 {memoryValue} {memoryUnit}</span>
+                        <span className={styles.appMetaDivider}>·</span>
+                        <span className={styles.appMetaItem}>CPU {cpuValue} {cpuUnit}</span>
+                        <span className={styles.appMetaDivider}>·</span>
+                        <span className={styles.appMetaItem}>更新 {updatedTimeText}</span>
                       </div>
-                      {/* 第三行：创建时间 + 更新时间 */}
-                      <div className={styles.appCardTimeRow}>
-                        <span className={styles.timeItem}>
-                          <Icon type="calendar" className={styles.timeIcon} />
-                          {!isCompactCards && (
-                            <span className={styles.timeLabel}>{formatMessage({ id: 'teamApply.createTime' })}</span>
-                          )}
-                          <span className={styles.timeValue}>{createdTimeText}</span>
-                        </span>
-                        <span className={styles.timeItem}>
-                          <Icon type="clock-circle" className={styles.timeIcon} />
-                          {!isCompactCards && (
-                            <span className={styles.timeLabel}>{formatMessage({ id: 'versionUpdata_6_1.updateTime' })}</span>
-                          )}
-                          <span className={styles.timeValue}>{updatedTimeText}</span>
-                        </span>
+                      <div className={styles.appCardActions} onClick={(e) => e.stopPropagation()}>
+                        {hasVisitAccess ? this.renderAppVisitButton(item) : this.renderAppRuntimeButton(item)}
+                        <Button
+                          className={styles.appActionButton}
+                          onClick={(e) => this.jumpToAppOverview(item.group_id, e)}
+                        >
+                          <Icon type="appstore" />
+                          <span>管理</span>
+                        </Button>
+                        <Dropdown overlay={this.renderAppMoreMenu(item, !hasVisitAccess)} trigger={['click']} placement="bottomRight">
+                          <Button className={`${styles.appActionButton} ${styles.moreActionButton}`}>
+                            <Icon type="ellipsis" className={styles.moreActionIcon} />
+                          </Button>
+                        </Dropdown>
                       </div>
                     </div>
                   </div>
@@ -615,7 +718,25 @@ export default class index extends Component {
       },
       sortValue
     } = this.state;
-    const { index } = this.props;
+    const {
+      index,
+      loading,
+    } = this.props;
+    const {
+      promptModal,
+      operateApp,
+      operateCode,
+      toDelete,
+      toDeleteResource,
+      deleteResourceList,
+    } = this.state;
+    const loadingEffects = (loading && loading.effects) || {};
+    const codeObj = {
+      start: formatMessage({ id: 'appOverview.btn.start' }),
+      stop: formatMessage({ id: 'appOverview.btn.stop' }),
+    };
+    const buildShapeLoading = loadingEffects['global/buildShape'];
+    const deleteLoading = loadingEffects['application/deleteGroupAllResource'];
     // 应用列表权限
     const isAppList = newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'team_overview')?.isAppList;
 
@@ -696,6 +817,34 @@ export default class index extends Component {
           currentUser={this.props.currentUser}
           currentView={this.state.currentView}
         />
+        {promptModal && (
+          <Modal
+            title={formatMessage({ id: 'confirmModal.friendly_reminder.title' })}
+            confirmLoading={buildShapeLoading}
+            visible={promptModal}
+            onOk={this.handlePromptModalOpen}
+            onCancel={this.handlePromptModalClose}
+          >
+            <p>{formatMessage({ id: 'confirmModal.friendly_reminder.pages.desc' }, { codeObj: codeObj[operateCode] })}</p>
+          </Modal>
+        )}
+        {toDelete && operateApp && (
+          <AppDeteleResource
+            onDelete={this.handleDelete}
+            onCancel={this.cancelDelete}
+            goBack={this.cancelDeleteResource}
+            infoList={deleteResourceList}
+            team_name={globalUtil.getCurrTeamName()}
+            group_id={operateApp.group_id}
+            regionName={globalUtil.getCurrRegionName()}
+            loading={deleteLoading}
+            isflag={toDeleteResource}
+            desc={formatMessage({ id: 'confirmModal.app.delete.desc' })}
+            subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
+            onSuccess={this.handleDeleteSuccess}
+            skipRedirect
+          />
+        )}
       </>
     );
   }

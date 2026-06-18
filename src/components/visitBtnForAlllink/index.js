@@ -41,6 +41,7 @@ export default class Index extends PureComponent {
         className={className}
         style={style}
         onClick={onClick}
+        ghost
       >
         {triggerContent}
       </Button>

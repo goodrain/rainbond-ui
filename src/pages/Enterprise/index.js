@@ -16,7 +16,8 @@ import {
   Modal,
   Button,
   Form,
-  Input
+  Input,
+  Tag
 } from 'antd';
 import { connect } from 'dva';
 import { Link, routerRedux } from 'dva/router';
@@ -74,6 +75,7 @@ export default class Enterprise extends PureComponent {
       isAuthorizationLoading: true,
       isNeedAuthz: false,
       authorizationCode: '',
+      authorizationCodeExpanded: false,
       hasNewVs: true,
       typeStatusCpu: false,
       typeStatusMemory: false,
@@ -526,71 +528,42 @@ export default class Enterprise extends PureComponent {
   }
   // 集群展示图标
   clusterIcon = (provider, region_type) => {
-    const styleK8s = {
-      marginRight: '8px',
-      display: 'inline-block',
-      marginTop: '20px'
-    }
-    const stylesCustom = (region_type == 'custom') ? styleK8s : ''
     switch (provider) {
       case 'ack':
         return (
-          <span style={{ marginRight: '8px' }} key={provider}>
-            <div className={enterpriseStyles.icons}>
-              {globalUtil.fetchSvg('Ack')}
-            </div>
-            <p>Aliyun   ACK</p>
+          <span className={enterpriseStyles.clusterIconSymbol} key={provider}>
+            {globalUtil.fetchSvg('Ack')}
           </span>
         );
       case 'tke':
         return (
-          <span style={{ marginRight: '8px' }} key={provider}>
-            <div className={enterpriseStyles.icons}>
-              {globalUtil.fetchSvg('Tke')}
-            </div>
-            <p>Tencent   TKE</p>
+          <span className={enterpriseStyles.clusterIconSymbol} key={provider}>
+            {globalUtil.fetchSvg('Tke')}
           </span>
         );
       case 'K3s':
         return (
-          <span style={{ marginRight: '8px' }} key={provider}>
-            <div className={enterpriseStyles.icons}>
-              <img style={{ height: '120px' }} src={K3s} alt=""></img>
-            </div>
+          <span className={enterpriseStyles.clusterIconSymbol} key={provider}>
+            <img src={K3s} alt="" />
           </span>
         );
       case 'helm':
         return (
-          <span style={stylesCustom} key={provider}>
-            <div className={enterpriseStyles.icons}>
-              {globalUtil.fetchSvg(
-                region_type == 'aliyun'
-                  ? globalUtil.fetchSvg('Ack')
-                  : region_type == 'huawei'
-                    ? globalUtil.fetchSvg('Tke')
-                    : region_type == 'tencent'
-                      ? globalUtil.fetchSvg('Cce')
-                      : globalUtil.fetchSvg('K8s')
-              )}
-            </div>
-            <p>
-              {globalUtil.fetchSvg(
-                region_type == 'aliyun'
-                  ? 'Aliyun   ACK'
-                  : region_type == 'huawei'
-                    ? 'Huawei   CCE'
-                    : region_type == 'tencent'
-                      ? 'Tencent   TKE'
-                      : ''
-              )}
-            </p>
-
+          <span className={enterpriseStyles.clusterIconSymbol} key={provider}>
+            {globalUtil.fetchSvg(
+              region_type == 'aliyun'
+                ? 'Ack'
+                : region_type == 'huawei'
+                  ? 'Cce'
+                  : region_type == 'tencent'
+                    ? 'Tke'
+                    : 'K8s'
+            )}
           </span>
         );
       default:
         return (
-          <span style={{ marginRight: '8px', display: 'inline-block', marginTop: '20px' }} key={provider}>
-            {/* 直接对接 */}
+          <span className={enterpriseStyles.clusterIconSymbol} key={provider}>
             {globalUtil.fetchSvg('K8s')}
           </span>
         );
@@ -639,6 +612,11 @@ export default class Enterprise extends PureComponent {
       notification.success({ message: formatMessage({ id: 'platformUpgrade.index.authModal.copySuccess' }) });
     }
   }
+  handleToggleAuthCode = () => {
+    this.setState(({ authorizationCodeExpanded }) => ({
+      authorizationCodeExpanded: !authorizationCodeExpanded
+    }));
+  }
   handleSubmit = () => {
     const { form } = this.props;
     const { validateFields } = form;
@@ -680,18 +658,16 @@ export default class Enterprise extends PureComponent {
     dispatch(routerRedux.push(`/enterprise/${eid}/setting?type=updateVersion`));
   }
 
-
-  handleClickStatus = (type) => {
-    if(type === 'cpu'){
-      this.setState({
-        typeStatusCpu: !this.state.typeStatusCpu
-      })
+  handleClickStatus = type => {
+    if (type === 'cpu') {
+      this.setState(({ typeStatusCpu }) => ({
+        typeStatusCpu: !typeStatusCpu
+      }));
     } else {
-      this.setState({
-        typeStatusMemory: !this.state.typeStatusMemory
-      })
+      this.setState(({ typeStatusMemory }) => ({
+        typeStatusMemory: !typeStatusMemory
+      }));
     }
-    
   }
 
   renderContent = () => {
@@ -716,6 +692,7 @@ export default class Enterprise extends PureComponent {
       isAuthorizationLoading,
       isNeedAuthz,
       authorizationCode,
+      authorizationCodeExpanded,
       hasNewVs,
       typeStatusCpu,
       typeStatusMemory,
@@ -736,18 +713,28 @@ export default class Enterprise extends PureComponent {
         ? rainbondInfo.version.value
         : '';
     const enterpriseEdition = rainbondUtil.isEnterpriseEdition(rainbondInfo);
-    const isSaas = rainbondInfo && rainbondInfo.is_saas || false;
     const cloudSvg = globalUtil.fetchSvg('cloudSvg');
     const updataSvg = globalUtil.fetchSvg('updataSvg');
     const errorSvg = globalUtil.fetchSvg('errorSvg');
-    const enterpriseInfoSvg = globalUtil.fetchSvg('enterpriseInfoSvg');
     const enterpriseDataSvg = globalUtil.fetchSvg('enterpriseDataSvg');
     const clustersInfoSvg = globalUtil.fetchSvg('clustersInfoSvg');
     const appErrorSvg = globalUtil.fetchSvg('appErrorSvg');
-    const authorizationSvg = globalUtil.fetchSvg('authorizationSvg');
-    const editCodeSvg = globalUtil.fetchSvg('editCodeSvg');
     const switchSvg = globalUtil.fetchSvg('switchSvg');
     // const healthSvg = globalUtil.fetchSvg('healthSvg');
+    const formatMetricValue = (value, precision = 2) => {
+      const number = Number(value);
+      if (!Number.isFinite(number) || number <= 0) {
+        return 0;
+      }
+      return parseFloat(number.toFixed(precision));
+    };
+    const formatMetricPercent = value => {
+      const number = Number(value);
+      if (!Number.isFinite(number) || number <= 0) {
+        return 0;
+      }
+      return number > 100 ? 100 : parseFloat(number.toFixed(2));
+    };
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -797,109 +784,119 @@ export default class Enterprise extends PureComponent {
         <Spin spinning={enterpriseInfoLoading}>
           <div className={enterpriseStyles.dualCardContainer}>
             {/* 企业信息卡片 */}
-            <div className={enterpriseStyles.cardContainer}>
-              <div className={enterpriseStyles.cardHeader}>
-                <span>{enterpriseInfoSvg}</span>
-                <h2>{formatMessage({ id: 'enterpriseOverview.information.message' })}</h2>
-              </div>
-              <div className={enterpriseStyles.cardBody}>
-                <div className={enterpriseStyles.enterpriseInfoContent}>
-                  <div className={enterpriseStyles.enterpriseInfo_left}>
-                    {enterpriseInfo && (
-                      <div className={enterpriseStyles.enterpriseId}>
-                        <p>
-                          <span className={enterpriseStyles.infoLabel}><FormattedMessage id="enterpriseOverview.information.name" />:</span>
-                          <span className={enterpriseStyles.infoValue}>{enterpriseInfo.enterprise_alias}</span>
+            <div className={`${enterpriseStyles.cardContainer} ${enterpriseStyles.platformInfoCard}`}>
+              <div className={enterpriseStyles.platformInfoInner}>
+                <div className={enterpriseStyles.platformInfoMain}>
+                  <div className={enterpriseStyles.overviewCardHeader}>
+                    <span className={enterpriseStyles.overviewCardHeaderIcon}>
+                      <Icon type="home" />
+                    </span>
+                    <h2>{formatMessage({ id: 'enterpriseOverview.information.message' })}</h2>
+                  </div>
+                  {enterpriseInfo && (
+                    <div className={enterpriseStyles.platformInfoContent}>
+                      <div className={enterpriseStyles.platformCompanyBlock}>
+                        <div className={enterpriseStyles.platformLabel}>
+                          <FormattedMessage id="enterpriseOverview.information.name" />
+                        </div>
+                        <div className={enterpriseStyles.platformCompanyName}>
+                          <span>{enterpriseInfo.enterprise_alias}</span>
                           {!enterpriseEdition && enterpriseVersion !== 'cloud' && (
                             <a
-                              style={{ marginLeft: 24 }}
                               href="https://p5yh4rek1e.feishu.cn/share/base/shrcnDhEE6HkYddzjY4XRKuXikb"
                               target="_blank"
                             >
                               {formatMessage({id:'platformUpgrade.index.consulting'})}
                             </a>
                           )}
-                        </p>
-                        <p>
+                        </div>
+                      </div>
+                      <div className={enterpriseStyles.platformDivider} />
+                      <div className={enterpriseStyles.platformMetaList}>
+                        <div className={enterpriseStyles.platformMetaItem}>
+                          <span className={enterpriseStyles.platformMetaLabel}><FormattedMessage id="enterpriseOverview.information.unite" /></span>
                           <Tooltip title={enterpriseInfo.enterprise_id}>
-                            <span className={enterpriseStyles.infoLabel}><FormattedMessage id="enterpriseOverview.information.unite" />:</span>
-                            <span className={enterpriseStyles.infoValue}>{enterpriseInfo.enterprise_id}</span>
+                            <span className={enterpriseStyles.platformMetaValue}>{enterpriseInfo.enterprise_id}</span>
                           </Tooltip>
-                        </p>
-                        <p>
+                        </div>
+                        <div className={enterpriseStyles.platformMetaItem}>
+                          <span className={enterpriseStyles.platformMetaLabel}><FormattedMessage id="enterpriseOverview.information.versions" /></span>
                           <Tooltip title={enterpriseVersion}>
-                            <span className={enterpriseStyles.infoLabel}><FormattedMessage id="enterpriseOverview.information.versions" />:</span>
-                            <span className={enterpriseStyles.infoValue}>{enterpriseVersion || '-'}</span>
+                            <span className={enterpriseStyles.platformMetaValue}>{enterpriseVersion || '-'}</span>
                           </Tooltip>
-                        </p>
-                        <p>
+                        </div>
+                        <div className={enterpriseStyles.platformMetaItem}>
+                          <span className={enterpriseStyles.platformMetaLabel}><FormattedMessage id="enterpriseOverview.information.time" /></span>
                           <Tooltip title={enterpriseInfo.create_time}>
-                            <span className={enterpriseStyles.infoLabel}><FormattedMessage id="enterpriseOverview.information.time" />:</span>
-                            <span className={enterpriseStyles.infoValue}>{enterpriseInfo.create_time}</span>
+                            <span className={enterpriseStyles.platformMetaValue}>{enterpriseInfo.create_time}</span>
                           </Tooltip>
-                        </p>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                  <div className={enterpriseStyles.enterpriseInfo_right}>
-                    {!hasNewVs ? (
-                      <div onClick={this.handleRouteupdate}>
-                        <Tooltip placement="top" title={formatMessage({id:'platformUpgrade.index.clicktoupload'})}>
-                          {updataSvg}
-                          <div className={enterpriseStyles.jumpText}>
-                            <span className={`${enterpriseStyles.jump} ${enterpriseStyles.char1}`}>{formatMessage({id:'platformUpgrade.index.have'})}&nbsp;</span>
-                            <span className={`${enterpriseStyles.jump} ${enterpriseStyles.char2}`}>{formatMessage({id:'platformUpgrade.index.new'})}&nbsp;</span>
-                            <span className={`${enterpriseStyles.jump} ${enterpriseStyles.char3}`}>{formatMessage({id:'platformUpgrade.index.ban'})}&nbsp;</span>
-                            <span className={`${enterpriseStyles.jump} ${enterpriseStyles.char4}`}>{formatMessage({id:'platformUpgrade.index.ben'})}&nbsp;</span>
-                          </div>
-                        </Tooltip>
-                      </div>
-                    ) : (
-                      cloudSvg
-                    )}
-                  </div>
+                    </div>
+                  )}
+                </div>
+                <div className={enterpriseStyles.platformInfoIllustration}>
+                  {!hasNewVs ? (
+                    <div onClick={this.handleRouteupdate}>
+                      <Tooltip placement="top" title={formatMessage({id:'platformUpgrade.index.clicktoupload'})}>
+                        {updataSvg}
+                        <div className={enterpriseStyles.jumpText}>
+                          <span className={`${enterpriseStyles.jump} ${enterpriseStyles.char1}`}>{formatMessage({id:'platformUpgrade.index.have'})}&nbsp;</span>
+                          <span className={`${enterpriseStyles.jump} ${enterpriseStyles.char2}`}>{formatMessage({id:'platformUpgrade.index.new'})}&nbsp;</span>
+                          <span className={`${enterpriseStyles.jump} ${enterpriseStyles.char3}`}>{formatMessage({id:'platformUpgrade.index.ban'})}&nbsp;</span>
+                          <span className={`${enterpriseStyles.jump} ${enterpriseStyles.char4}`}>{formatMessage({id:'platformUpgrade.index.ben'})}&nbsp;</span>
+                        </div>
+                      </Tooltip>
+                    </div>
+                  ) : (
+                    cloudSvg
+                  )}
                 </div>
               </div>
             </div>
             {/* 数据总览卡片 */}
-            <div className={enterpriseStyles.cardContainer}>
-              <div className={enterpriseStyles.cardHeader}>
-                <span>{enterpriseDataSvg}</span>
-                <h2>{formatMessage({ id: 'enterpriseOverview.information.dataScreen' })}</h2>
-              </div>
-              <div className={enterpriseStyles.cardBody}>
+            <div className={`${enterpriseStyles.cardContainer} ${enterpriseStyles.dataOverviewCard}`}>
+              <div className={enterpriseStyles.dataOverviewInner}>
+                <div className={enterpriseStyles.overviewCardHeader}>
+                  <span className={enterpriseStyles.overviewCardHeaderIcon}>{enterpriseDataSvg}</span>
+                  <h2>{formatMessage({ id: 'enterpriseOverview.information.dataScreen' })}</h2>
+                </div>
                 <div className={enterpriseStyles.enterpriseDataContent}>
                   <div className={enterpriseStyles.piece}>
-                    <p>{formatMessage({ id: 'enterpriseOverview.overview.colony' })}</p>
-                    <p>
+                    <p className={enterpriseStyles.dataOverviewTitle}>{formatMessage({ id: 'enterpriseOverview.overview.colonyAction' })}</p>
+                    <p className={enterpriseStyles.dataOverviewValue}>
                       <Link to={`/enterprise/${eid}/clusters`}>
                         {overviewMonitorInfo && overviewMonitorInfo.total_regions || 0}
                       </Link>
                     </p>
+                    <p className={enterpriseStyles.dataOverviewDesc}>{formatMessage({ id: 'enterpriseOverview.overview.colonyDesc' })}</p>
                   </div>
                   <div className={enterpriseStyles.piece}>
-                    <p>{formatMessage({ id: 'enterpriseOverview.overview.team' })}</p>
-                    <p>
+                    <p className={enterpriseStyles.dataOverviewTitle}>{formatMessage({ id: 'enterpriseOverview.overview.teamAction' })}</p>
+                    <p className={enterpriseStyles.dataOverviewValue}>
                       <Link to={`/enterprise/${eid}/teams`}>
                         {overviewInfo && overviewInfo.total_teams}
                       </Link>
                     </p>
+                    <p className={enterpriseStyles.dataOverviewDesc}>{formatMessage({ id: 'enterpriseOverview.overview.teamDesc' })}</p>
                   </div>
                   <div className={enterpriseStyles.piece}>
-                    <p>{formatMessage({ id: 'enterpriseOverview.overview.user' })}</p>
-                    <p>
+                    <p className={enterpriseStyles.dataOverviewTitle}>{formatMessage({ id: 'enterpriseOverview.overview.userAction' })}</p>
+                    <p className={enterpriseStyles.dataOverviewValue}>
                       <Link to={`/enterprise/${eid}/users`}>
                         {overviewInfo && overviewInfo.total_users}
                       </Link>
                     </p>
+                    <p className={enterpriseStyles.dataOverviewDesc}>{formatMessage({ id: 'enterpriseOverview.overview.userDesc' })}</p>
                   </div>
                   <div className={enterpriseStyles.piece}>
-                    <p>{formatMessage({ id: 'enterpriseOverview.overview.template' })}</p>
-                    <p>
+                    <p className={enterpriseStyles.dataOverviewTitle}>{formatMessage({ id: 'enterpriseOverview.overview.templateAction' })}</p>
+                    <p className={enterpriseStyles.dataOverviewValue}>
                       <Link to={`/enterprise/${eid}/shared/local`}>
                         {overviewInfo && overviewInfo.shared_apps}
                       </Link>
                     </p>
+                    <p className={enterpriseStyles.dataOverviewDesc}>{formatMessage({ id: 'enterpriseOverview.overview.templateDesc' })}</p>
                   </div>
                 </div>
               </div>
@@ -908,115 +905,119 @@ export default class Enterprise extends PureComponent {
         </Spin>
         {/* 企业授权信息 */}
         {authorizationCode &&!isAuthorizationLoading && (
-          <div className={enterpriseStyles.cardContainer}>
-            <div className={enterpriseStyles.cardHeader}>
-              <span>{authorizationSvg}</span>
-              <h2>{formatMessage({id:'platformUpgrade.index.info'})}</h2>
-            </div>
-            <div className={enterpriseStyles.cardBody}>
-              <div className={enterpriseStyles.authorizationContent}>
-                <div className={enterpriseStyles.authorization_code}>
-                  <div className={enterpriseStyles.authorization_code_header}>
-                    <div className={enterpriseStyles.authorization_title}>{formatMessage({id:'platformUpgrade.index.AuthorizationCode'})}</div>
-                    <div className={enterpriseStyles.authorization_actions}>
-                      <Tooltip title={formatMessage({id:'platformUpgrade.index.authModal.copy'})}>
-                        <div onClick={this.handleCopyAuthCode} className={enterpriseStyles.authorization_svg}>
-                          <Icon type="copy" />
+          <div className={`${enterpriseStyles.cardContainer} ${enterpriseStyles.licenseCard}`}>
+            <div className={enterpriseStyles.licenseContent}>
+              {enterpriseAuthorization ? (
+                <Fragment>
+                  <div className={enterpriseStyles.licenseSummary}>
+                    <div className={enterpriseStyles.licenseMain}>
+                      <div className={enterpriseStyles.overviewCardHeader}>
+                        <span className={enterpriseStyles.overviewCardHeaderIcon}>
+                          <Icon type="safety" />
+                        </span>
+                        <h2>{formatMessage({id:'platformUpgrade.index.info'})}</h2>
+                      </div>
+                      <div className={enterpriseStyles.licenseCompanyBlock}>
+                        <span className={enterpriseStyles.licenseCompanyLabel}>
+                          {formatMessage({id:'platformUpgrade.index.Authorizationenterprise'})}
+                        </span>
+                        <div className={enterpriseStyles.licenseCompanyRow}>
+                          <span className={enterpriseStyles.licenseCompany}>
+                            {enterpriseAuthorization.company || '-'}
+                          </span>
                         </div>
-                      </Tooltip>
-                      <div onClick={() => { this.handleAuthorization() }} className={enterpriseStyles.authorization_svg}>
-                        {editCodeSvg}
+                        {end && end < current ? (
+                          <Button size="small" type="primary" className={enterpriseStyles.renewBtn} onClick={this.handleAuthorization}>
+                            {formatMessage({id:'platformUpgrade.index.updataAuthorization'})}
+                          </Button>
+                        ) : null}
                       </div>
                     </div>
-                  </div>
-                  <div className={enterpriseStyles.authorization_code_content}>
-                    {authorizationCode || '-'}
-                  </div>
-                </div>
-                {enterpriseAuthorization ? (
-                  <Fragment>
-                  <div className={enterpriseStyles.authorization_info}>
-                    <div>
-                      <div className={enterpriseStyles.authorization_info_content}>
-                        <div className={enterpriseStyles.authorization_info_title}>{formatMessage({id:'platformUpgrade.index.Authorizationenterprise'})}</div>
-                        <div className={enterpriseStyles.authorization_info_desc}>
-                          {enterpriseAuthorization.company}
-                        </div>
+                    <div className={enterpriseStyles.licenseLimitPanel}>
+                      <div className={enterpriseStyles.licenseLimitItem}>
+                        <span>{formatMessage({id:'platformUpgrade.index.expireAt'})}</span>
+                        <strong>
+                          {enterpriseAuthorization.expire_at
+                            ? moment.unix(enterpriseAuthorization.expire_at).format('YYYY-MM-DD')
+                            : formatMessage({id:'platformUpgrade.index.nilimit'})}
+                        </strong>
                       </div>
-                      <div className={enterpriseStyles.authorization_info_content}>
-                        <div className={enterpriseStyles.authorization_info_title}>{formatMessage({id:'platformUpgrade.index.clusterAuthorization'})}</div>
-                        <div className={enterpriseStyles.authorization_info_desc}>
+                      <div className={enterpriseStyles.licenseLimitItem}>
+                        <span>{formatMessage({id:'platformUpgrade.index.clusterAuthorization'})}</span>
+                        <strong>
                           {enterpriseAuthorization.cluster_limit == '-1' ? formatMessage({id:'platformUpgrade.index.nilimit'}) : `${enterpriseAuthorization.cluster_limit} 个`}
-                        </div>
+                        </strong>
                       </div>
-                    </div>
-                    <div>
-                      <div className={enterpriseStyles.authorization_info_content}>
-                        <div className={enterpriseStyles.authorization_info_title}>{formatMessage({id:'platformUpgrade.index.Authorizationtime'})}</div>
-                        <div className={enterpriseStyles.authorization_info_desc}>
-                          {enterpriseAuthorization.expire_at ? (
-                            end && end < current ? (
-                              <Tooltip title="授权已过期，请更新授权码">
-                                <span className={enterpriseStyles.expiredText}>
-                                  {moment.unix(enterpriseAuthorization.expire_at).format('YYYY-MM-DD')}
-                                  <span className={enterpriseStyles.expiredTag}>已过期</span>
-                                </span>
-                              </Tooltip>
-                            ) : moment.unix(enterpriseAuthorization.expire_at).format('YYYY-MM-DD')
-                          ) : formatMessage({id:'platformUpgrade.index.nilimit'})}
-                          {end && end < current && (
-                            <Button size="small" type="primary" className={enterpriseStyles.renewBtn} onClick={this.handleAuthorization}>
-                              更新授权
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                      <div className={enterpriseStyles.authorization_info_content}>
-                        <div className={enterpriseStyles.authorization_info_title}>{formatMessage({id:'platformUpgrade.index.Authorizationnode'})}</div>
-                        <div className={enterpriseStyles.authorization_info_desc}>
+                      <div className={enterpriseStyles.licenseLimitItem}>
+                        <span>{formatMessage({id:'platformUpgrade.index.Authorizationnode'})}</span>
+                        <strong>
                           {enterpriseAuthorization.node_limit == '-1' ? formatMessage({id:'platformUpgrade.index.nilimit'}) : `${enterpriseAuthorization.node_limit} 个`}
-                        </div>
+                        </strong>
+                      </div>
+                      <div className={enterpriseStyles.licenseLimitItem}>
+                        <span>{formatMessage({id:'platformUpgrade.index.Authorizationmemory'})}</span>
+                        <strong>
+                          {enterpriseAuthorization.memory_limit == '-1' ? formatMessage({id:'platformUpgrade.index.nilimit'}) : `${enterpriseAuthorization.memory_limit} GB`}
+                        </strong>
                       </div>
                     </div>
-                    <div>
-                      <div className={enterpriseStyles.authorization_info_content}>
-                        <div className={enterpriseStyles.authorization_info_title}>{formatMessage({id:'platformUpgrade.index.tel'})}</div>
-                        <div className={enterpriseStyles.authorization_info_desc}>
-                          {enterpriseAuthorization.subscribe_until ? (
-                            isServiceExpired ? (
-                              <Tooltip title="服务已过期，无法安装和更新插件，已安装插件不受影响">
-                                <span className={enterpriseStyles.expiredText}>
-                                  {moment.unix(enterpriseAuthorization.subscribe_until).format('YYYY-MM-DD')}
-                                  <span className={enterpriseStyles.expiredTag}>已过期</span>
-                                </span>
-                              </Tooltip>
-                            ) : moment.unix(enterpriseAuthorization.subscribe_until).format('YYYY-MM-DD')
-                          ) : '-'}
-                          {isServiceExpired && (
-                            <Button size="small" type="primary" className={enterpriseStyles.renewBtn} onClick={this.handleAuthorization}>
-                              更新授权
-                            </Button>
-                          )}
-                        </div>
+                  </div>
+                  {isServiceExpired && (
+                    <div className={enterpriseStyles.licenseServiceExpired}>
+                      <Tooltip title="服务已过期，无法安装和更新插件，已安装插件不受影响">
+                        <span>
+                          {formatMessage({id:'platformUpgrade.index.tel'})}
+                          {enterpriseAuthorization.subscribe_until ? moment.unix(enterpriseAuthorization.subscribe_until).format('YYYY-MM-DD') : '-'}
+                        </span>
+                      </Tooltip>
+                      <Button size="small" type="primary" className={enterpriseStyles.renewBtn} onClick={this.handleAuthorization}>
+                        {formatMessage({id:'platformUpgrade.index.updataAuthorization'})}
+                      </Button>
+                    </div>
+                  )}
+                  <div className={enterpriseStyles.licenseDivider} />
+                  <div className={enterpriseStyles.licenseCodeBlock}>
+                    <div className={enterpriseStyles.licenseCodeHeader}>
+                      <span>{formatMessage({id:'platformUpgrade.index.AuthorizationCode'})}</span>
+                      <div className={enterpriseStyles.licenseCodeActions}>
+                        <Tooltip title={formatMessage({id:'platformUpgrade.index.authModal.copy'})}>
+                          <button type="button" onClick={this.handleCopyAuthCode}>
+                            <Icon type="copy" />
+                          </button>
+                        </Tooltip>
+                        <Tooltip title={authorizationCodeExpanded
+                          ? formatMessage({id:'platformUpgrade.index.collapse'})
+                          : formatMessage({id:'platformUpgrade.index.view'})}
+                        >
+                          <button type="button" onClick={this.handleToggleAuthCode}>
+                            <Icon type={authorizationCodeExpanded ? 'eye-invisible' : 'eye'} />
+                          </button>
+                        </Tooltip>
+                        <Tooltip title={formatMessage({id:'platformUpgrade.index.updataAuthorization'})}>
+                          <button type="button" onClick={this.handleAuthorization}>
+                            <Icon type="edit" />
+                          </button>
+                        </Tooltip>
                       </div>
-                      <div className={enterpriseStyles.authorization_info_content}>
-                        <div className={enterpriseStyles.authorization_info_title}>{formatMessage({id:'platformUpgrade.index.Authorizationmemory'})}</div>
-                        <div className={enterpriseStyles.authorization_info_desc}>
-                          {enterpriseAuthorization.memory_limit == '-1' ? formatMessage({id:'platformUpgrade.index.nilimit'}) : `${enterpriseAuthorization.memory_limit} GB`}
-                        </div>
-                      </div>
+                    </div>
+                    <div
+                      className={`${enterpriseStyles.licenseCodeContent} ${
+                        authorizationCodeExpanded ? enterpriseStyles.licenseCodeExpanded : ''
+                      }`}
+                    >
+                      {authorizationCode || '-'}
                     </div>
                   </div>
                   <div className={enterpriseStyles.authorization_plugins}>
-                    <span className={enterpriseStyles.authorization_plugins_label}>
-                      {formatMessage({id:'platformUpgrade.index.availablePlugins'})}
-                    </span>
+                    <div className={enterpriseStyles.licenseCodeHeader}>
+                      <span>{formatMessage({id:'platformUpgrade.index.availablePlugins'})}</span>
+                    </div>
                     <div className={enterpriseStyles.authorization_plugins_list}>
                       {enterpriseAuthorization.plugins && enterpriseAuthorization.plugins.length > 0 ? (
                         enterpriseAuthorization.plugins.map(plugin => (
-                          <span key={plugin.plugin_id} className={enterpriseStyles.authorization_plugin_tag}>
+                          <Tag key={plugin.plugin_id} className={enterpriseStyles.authorization_plugin_tag}>
                             {plugin.name}
-                          </span>
+                          </Tag>
                         ))
                       ) : (
                         <span className={enterpriseStyles.authorization_plugins_empty}>
@@ -1025,32 +1026,32 @@ export default class Enterprise extends PureComponent {
                       )}
                     </div>
                   </div>
-                  </Fragment>
-                ) : (
-                  <div className={enterpriseStyles.authorization_error}>
-                    <div className={enterpriseStyles.authorization_invalid}>
-                      <div className={enterpriseStyles.authorization_svg}>
-                        {errorSvg}
-                      </div>
-                      <div>{formatMessage({id:'platformUpgrade.index.noAuthorization'})}</div>
+                </Fragment>
+              ) : (
+                <div className={enterpriseStyles.authorization_error}>
+                  <div className={enterpriseStyles.authorization_invalid}>
+                    <div className={enterpriseStyles.authorization_svg}>
+                      {errorSvg}
                     </div>
-                    <p>{formatMessage({id:'platformUpgrade.index.connection'})}</p>
+                    <div>{formatMessage({id:'platformUpgrade.index.noAuthorization'})}</div>
                   </div>
-                )}
-              </div>
+                  <p>{formatMessage({id:'platformUpgrade.index.connection'})}</p>
+                </div>
+              )}
             </div>
           </div>
         )}
         {/* 集群信息 */}
-        <div className={enterpriseStyles.cardContainer}>
-          <div className={enterpriseStyles.cardHeader}>
-            <span>{clustersInfoSvg}</span>
-            <h2>{formatMessage({ id: 'enterpriseOverview.information.colonyInfo' })}</h2>
-          </div>
+        <div className={enterpriseStyles.clusterOverviewCard}>
+          <div className={enterpriseStyles.clusterOverviewInner}>
+            <div className={enterpriseStyles.overviewCardHeader}>
+              <span className={enterpriseStyles.overviewCardHeaderIcon}>{clustersInfoSvg}</span>
+              <h2>{formatMessage({ id: 'enterpriseOverview.information.colonyInfo' })}</h2>
+            </div>
           <Spin spinning={overviewAppInfoLoading}>
-            <div className={enterpriseStyles.cardBody}>
+            <div className={enterpriseStyles.clusterOverviewBody}>
               {clusters.length > 0 ?
-                (clusters.map((item, index) => {
+                (clusters.map(item => {
                 const {
                   region_alias,
                   rbd_version,
@@ -1065,108 +1066,165 @@ export default class Enterprise extends PureComponent {
                   k8s_version,
                   create_time,
                   all_nodes,
-                  services_status,
                   node_ready,
                   region_id,
                   run_pod_number,
                   memory_used,
                   cpu_used
                 } = item
-                // CPU使用率
-                const cpuUsed = ((used_cpu / total_cpu) * 100).toFixed(2) || 0;
-
-                // CPU实际使用百分比
-                const percentCpu = ((cpu_used / total_cpu) * 100).toFixed(2);
-                // 内存实际使用百分比
-                const percentMemory = ((memory_used / (total_memory / 1024)) * 100).toFixed(2);
-                // 内存使用率
-                const memoryUsed = ((used_memory / total_memory) * 100).toFixed(2);
-                // CPU总量
-                const cpuTotal = (total_cpu && parseInt(total_cpu)) || 0;
-                // 内存总量
-                const memoryTotal = (total_memory && this.handlUnit(total_memory)) || 0;
-                //内存单位
-                const memoryTotalUnit = (total_memory && this.handlUnit(total_memory, 'MB')) || 'MB';
+                const cpuTotal = formatMetricValue(total_cpu, 0);
+                const cpuAllocated = formatMetricValue(used_cpu);
+                const cpuAllocatedPercent = formatMetricPercent((Number(used_cpu) / Number(total_cpu)) * 100);
+                const cpuRemaining = formatMetricValue(Number(total_cpu) - Number(used_cpu));
+                const cpuActualUsed = formatMetricValue(cpu_used);
+                const cpuActualPercent = formatMetricPercent((Number(cpu_used) / Number(total_cpu)) * 100);
+                const cpuActualRemaining = formatMetricValue(Number(total_cpu) - Number(cpu_used));
+                const cpuDisplayValue = typeStatusCpu ? cpuActualUsed : cpuAllocated;
+                const cpuDisplayPercent = typeStatusCpu ? cpuActualPercent : cpuAllocatedPercent;
+                const cpuDisplayRemaining = typeStatusCpu ? cpuActualRemaining : cpuRemaining;
+                const memoryTotalGb = formatMetricValue(Number(total_memory) / 1024);
+                const memoryAllocatedGb = formatMetricValue(Number(used_memory) / 1024);
+                const memoryAllocatedPercent = formatMetricPercent((Number(used_memory) / Number(total_memory)) * 100);
+                const memoryRemainingGb = formatMetricValue((Number(total_memory) - Number(used_memory)) / 1024);
+                const memoryActualUsedGb = formatMetricValue(memory_used);
+                const memoryActualPercent = formatMetricPercent((Number(memory_used) / (Number(total_memory) / 1024)) * 100);
+                const memoryActualRemainingGb = formatMetricValue((Number(total_memory) / 1024) - Number(memory_used));
+                const memoryDisplayValue = typeStatusMemory ? memoryActualUsedGb : memoryAllocatedGb;
+                const memoryDisplayPercent = typeStatusMemory ? memoryActualPercent : memoryAllocatedPercent;
+                const memoryDisplayRemaining = typeStatusMemory ? memoryActualRemainingGb : memoryRemainingGb;
+                const clusterType = region_type && region_type[0];
                 return (
-                  <div className={enterpriseStyles.clusterInfo}>
-                    <div className={enterpriseStyles.clusterInfo_title}>
-                      <div className={enterpriseStyles.clusterName}>
-                        {region_alias}
-                        <div className={enterpriseStyles.status}>
-                          {this.clusterStatus(status, health_status)}
+                  <div className={enterpriseStyles.clusterInfo} key={region_id || region_alias}>
+                    <div className={enterpriseStyles.clusterSummary}>
+                      <div className={enterpriseStyles.clusterSummaryMain}>
+                        <div className={enterpriseStyles.clusterIconBox}>
+                          {this.clusterIcon(provider, clusterType)}
                         </div>
-                      </div>
-                      <div className={enterpriseStyles.setting}>
-                        <Link to={`/enterprise/${eid}/clusters/ClustersMGT/${region_id}`} >
-                          {SVG.getSvg("settingSvg", 18)}
-                        </Link>
-                      </div>
-                    </div>
-                    {health_status !== 'failure' ? (
-                      <div className={enterpriseStyles.clusterInfo_content}>
-                        <div className={enterpriseStyles.content_left}>
-                          <div className={enterpriseStyles.clusterIcon}>
-                            {this.clusterIcon(provider, region_type[0])}
+                        <div className={enterpriseStyles.clusterSummaryContent}>
+                          <div className={enterpriseStyles.clusterNameRow}>
+                            <span className={enterpriseStyles.clusterName}>{region_alias}</span>
+                            <div className={`${enterpriseStyles.clusterStatus} ${health_status === 'failure' ? enterpriseStyles.clusterStatusError : ''}`}>
+                              {this.clusterStatus(status, health_status)}
+                            </div>
                           </div>
-                          <div className={enterpriseStyles.clusterVersion}>
-                            <p>
-                              <span className={enterpriseStyles.infoLabel}>{formatMessage({ id: 'enterpriseOverview.overview.colonyVersion' })}:</span>
+                          <div className={enterpriseStyles.clusterMetaList}>
+                            <div className={enterpriseStyles.clusterMetaItem}>
+                              <span className={enterpriseStyles.clusterMetaLabel}>{formatMessage({ id: 'enterpriseOverview.overview.colonyVersion' })}</span>
                               <Tooltip title={rbd_version}>
-                                <span className={enterpriseStyles.infoValue}>{rbd_version || '-'}</span>
+                                <span className={enterpriseStyles.clusterMetaValue}>{rbd_version || '-'}</span>
                               </Tooltip>
-                            </p>
-                            <p>
-                              <span className={enterpriseStyles.infoLabel}>{formatMessage({ id: 'enterpriseOverview.overview.KubernetesVersion' })}:</span>
-                              <span className={enterpriseStyles.infoValue}>{k8s_version == {} ? "-" : k8s_version || "-"}</span>
-                            </p>
-                            <p>
-                              <span className={enterpriseStyles.infoLabel}>{formatMessage({ id: 'enterpriseOverview.overview.createTime' })}:</span>
-                              <span className={enterpriseStyles.infoValue}>{globalUtil.fetchdayTime(create_time)}</span>
-                            </p>
+                            </div>
+                            <div className={enterpriseStyles.clusterMetaItem}>
+                              <span className={enterpriseStyles.clusterMetaLabel}>Kubernetes</span>
+                              <span className={enterpriseStyles.clusterMetaValue}>{k8s_version || '-'}</span>
+                            </div>
+                            <div className={enterpriseStyles.clusterMetaItem}>
+                              <span className={enterpriseStyles.clusterMetaLabel}>{formatMessage({ id: 'enterpriseOverview.overview.createTime' })}</span>
+                              <span className={enterpriseStyles.clusterMetaValue}>{globalUtil.fetchdayTime(create_time)}</span>
+                            </div>
                           </div>
                         </div>
-                        <div className={enterpriseStyles.content_right}>
-                          <div className={enterpriseStyles.content_data}>
-                            <p>
-                              {formatMessage({ id: 'enterpriseOverview.overview.cpu_total' })}:
-                              <span>{cpuTotal || 0}</span>Core 
-                              {isSaas && <div onClick={()=>this.handleClickStatus('cpu')}>{switchSvg}</div>}
-                            </p>
-                            {typeStatusCpu ? (
-                              <Charts keys={'upcpu1' + `${index}`} unit={'Core'} usedValue={cpu_used && Number(cpu_used).toFixed(2) || 0}  svalue={percentCpu} cname={formatMessage({ id: 'enterpriseColony.mgt.cluster.used' })} swidth='100%' sheight='120px' />
-                            ) : (
-                              <Charts keys={'upcpu2' + `${index}`} unit={'Core'} usedValue={used_cpu}  svalue={cpuUsed} cname={formatMessage({ id: 'enterpriseColony.mgt.cluster.assigned' })} swidth='100%' sheight='120px' />
-                            )}
+                      </div>
+                      <Link className={enterpriseStyles.clusterSetting} to={`/enterprise/${eid}/clusters/ClustersMGT/${region_id}`} >
+                        <Tooltip title={formatMessage({ id: 'enterpriseOverview.overview.edit' })}>
+                          {SVG.getSvg("settingSvg", 18)}
+                        </Tooltip>
+                      </Link>
+                    </div>
+                    <div className={enterpriseStyles.clusterDivider} />
+                    {health_status !== 'failure' ? (
+                      <div className={enterpriseStyles.clusterMetrics}>
+                        <div className={enterpriseStyles.clusterMetricItem}>
+                          <div className={enterpriseStyles.clusterMetricTitleRow}>
+                            <span className={enterpriseStyles.clusterMetricTitle}>
+                              {formatMessage({ id: typeStatusCpu ? 'enterpriseOverview.overview.cpu_used' : 'enterpriseOverview.overview.cpu_allocated' })}
+                            </span>
+                            <Tooltip title={formatMessage({ id: typeStatusCpu ? 'enterpriseColony.mgt.cluster.assigned' : 'enterpriseColony.mgt.cluster.used' })}>
+                              <button
+                                className={enterpriseStyles.clusterMetricSwitch}
+                                type="button"
+                                onClick={() => this.handleClickStatus('cpu')}
+                              >
+                                {switchSvg}
+                              </button>
+                            </Tooltip>
                           </div>
-                          <div className={enterpriseStyles.content_data}>
-                            <p>
-                              {formatMessage({ id: 'enterpriseOverview.overview.memory_total' })}: 
-                              <span>{memoryTotal || 0}</span>
-                              {memoryTotalUnit} 
-                              {isSaas && <div onClick={()=>this.handleClickStatus('memory')}>{switchSvg}</div>}
-                            </p>
-                            {typeStatusMemory ? (
-                              <Charts keys={'memory1' + `${index}`} unit={'GB'} usedValue={memory_used && Number(memory_used).toFixed(2) || 0}  svalue={percentMemory} cname={formatMessage({ id: 'enterpriseColony.mgt.cluster.used' })} swidth='100%' sheight='120px' />
-                            ) : (
-                              <Charts keys={'memory2' + `${index}`} unit={'GB'} usedValue={(used_memory / 1024).toFixed(2)}  svalue={memoryUsed} cname={formatMessage({ id: 'enterpriseColony.mgt.cluster.assigned' })} swidth='100%' sheight='120px' />
-                            )}
+                          <div className={enterpriseStyles.clusterMetricValue}>
+                            <span>{cpuDisplayValue}</span>
+                            <em>/{cpuTotal} Core</em>
                           </div>
-                          <div className={enterpriseStyles.node}>
-                            <p>{formatMessage({ id: 'enterpriseOverview.overview.node_total' })}</p>
-                            <div className={enterpriseStyles.nodeData}>
-                              <span className={enterpriseStyles.running}>{node_ready == {} ? 0 : node_ready || 0}</span>
-                              <span className={enterpriseStyles.sum}>/{all_nodes || 0}</span>
-                            </div>
+                          <div className={enterpriseStyles.clusterMetricDesc}>
+                            {formatMessage({ id: 'enterpriseOverview.overview.remaining' })}
+                            <span>{cpuDisplayRemaining}</span>
+                            Core
                           </div>
-                          <div className={enterpriseStyles.node}>
-                            <p >{formatMessage({ id: 'enterpriseOverview.overview.pod_total' })}</p>
-                            <div className={enterpriseStyles.nodeData}>
-                              <span className={enterpriseStyles.running}>{run_pod_number && run_pod_number || 0}</span>
-                            </div>
+                          <div className={enterpriseStyles.clusterGaugeFloat}>
+                            <Charts
+                              chartType="progressGauge"
+                              keys={`enterpriseCpuGauge${region_id || region_alias}`}
+                              unit="%"
+                              usedValue={cpuDisplayPercent}
+                              svalue={cpuDisplayPercent}
+                              swidth="140px"
+                              sheight="140px"
+                            />
                           </div>
+                        </div>
+                        <div className={enterpriseStyles.clusterMetricItem}>
+                          <div className={enterpriseStyles.clusterMetricTitleRow}>
+                            <span className={enterpriseStyles.clusterMetricTitle}>
+                              {formatMessage({ id: typeStatusMemory ? 'enterpriseOverview.overview.memory_used' : 'enterpriseOverview.overview.memory_allocated' })}
+                            </span>
+                            <Tooltip title={formatMessage({ id: typeStatusMemory ? 'enterpriseColony.mgt.cluster.assigned' : 'enterpriseColony.mgt.cluster.used' })}>
+                              <button
+                                className={enterpriseStyles.clusterMetricSwitch}
+                                type="button"
+                                onClick={() => this.handleClickStatus('memory')}
+                              >
+                                {switchSvg}
+                              </button>
+                            </Tooltip>
+                          </div>
+                          <div className={enterpriseStyles.clusterMetricValue}>
+                            <span>{memoryDisplayValue}</span>
+                            <em>/{memoryTotalGb} GB</em>
+                          </div>
+                          <div className={enterpriseStyles.clusterMetricDesc}>
+                            {formatMessage({ id: 'enterpriseOverview.overview.remaining' })}
+                            <span>{memoryDisplayRemaining}</span>
+                            GB
+                          </div>
+                          <div className={enterpriseStyles.clusterGaugeFloat}>
+                            <Charts
+                              chartType="progressGauge"
+                              keys={`enterpriseMemoryGauge${region_id || region_alias}`}
+                              unit="%"
+                              usedValue={memoryDisplayPercent}
+                              svalue={memoryDisplayPercent}
+                              swidth="140px"
+                              sheight="140px"
+                            />
+                          </div>
+                        </div>
+                        <div className={enterpriseStyles.clusterMetricItem}>
+                          <div className={enterpriseStyles.clusterMetricTitle}>{formatMessage({ id: 'enterpriseOverview.overview.node_normal' })}</div>
+                          <div className={enterpriseStyles.clusterMetricValue}>
+                            <span>{node_ready == {} ? 0 : node_ready || 0}</span>
+                            <em>/{all_nodes || 0}</em>
+                            <small>{formatMessage({ id: 'enterpriseOverview.overview.unit.count' })}</small>
+                          </div>
+                          <div className={enterpriseStyles.clusterMetricDesc}>Node</div>
+                        </div>
+                        <div className={enterpriseStyles.clusterMetricItem}>
+                          <div className={enterpriseStyles.clusterMetricTitle}>{formatMessage({ id: 'enterpriseOverview.overview.running_components' })}</div>
+                          <div className={enterpriseStyles.clusterMetricValue}>
+                            <span>{run_pod_number && run_pod_number || 0}</span>
+                            <small>{formatMessage({ id: 'enterpriseOverview.overview.unit.count' })}</small>
+                          </div>
+                          <div className={enterpriseStyles.clusterMetricDesc}>Pod</div>
                         </div>
                       </div>) : (
-                      <div className={enterpriseStyles.clusterInfo_content}>
+                      <div className={enterpriseStyles.clusterFailureContent}>
                         <div className={enterpriseStyles.error_troubleshoot_left}>
                           <Empty
                             image={errorSvg}
@@ -1220,62 +1278,69 @@ export default class Enterprise extends PureComponent {
                 )}
             </div>
           </Spin>
+          </div>
         </div>
-        {/* 应用报警 - 只在有数据时显示 */}
+        {/* 应用报警 */}
         {!appAlertLoding && appAlertList.length > 0 && (
-          <div className={enterpriseStyles.cardContainer}>
+          <div className={enterpriseStyles.appAlertCard}>
             <div className={enterpriseStyles.cardHeader}>
               <span>{appErrorSvg}</span>
               <h2>{formatMessage({ id: 'enterpriseOverview.information.appAlert' })}</h2>
             </div>
             <div className={enterpriseStyles.cardBody}>
               <div className={enterpriseStyles.appAlertContent}>
-                <div style={{
-                  height: 170,
-                  overflowX: "hidden",
-                  overflowY: 'scroll'
-                }}>
+                <div className={enterpriseStyles.appAlertList}>
                   {appAlertList.map(item => {
-                    const { group_id, group_name, region_name, service_alias, service_cname, tenant_name, tenant_alias } = item
+                    const { group_id, group_name, region_name, service_alias, service_cname, tenant_name, tenant_alias, alert_date } = item
                     return (
-                      <div className={enterpriseStyles.contentAlert}>
-                        <div>
-                          <span
-                            className={enterpriseStyles.spanStyle}
-                            onClick={() => {
-                              this.onJumpAlert('team', tenant_name, region_name, group_id, service_alias)
-                            }}
-                          >
-                            {tenant_alias}
-                          </span>
-                          &nbsp;
-                          {formatMessage({ id: 'enterpriseOverview.team.group' })}
-                          &nbsp;
-                          <span
-                            className={enterpriseStyles.spanStyle}
-                            onClick={() => {
-                              this.onJumpAlert('app', tenant_name, region_name, group_id, service_alias)
-                            }}
-                          >
-                            {group_name}
-                          </span>
-                          &nbsp;{formatMessage({ id: 'enterpriseOverview.overview.component' })}&nbsp;
-                          <span
-                            className={enterpriseStyles.spanStyle}
-                            onClick={() => {
-                              this.onJumpAlert('component', tenant_name, region_name, group_id, service_alias)
-                            }}
-                          >
-                            {service_cname}
-                          </span>
-                          &nbsp;
-                          <span style={{ color: globalUtil.getPublicColor('error-color') }}>{formatMessage({ id: 'enterpriseOverview.overview.error' })}</span>
+                      <div className={enterpriseStyles.appAlertItem} key={`${tenant_name}-${group_id}-${service_alias}`}>
+                        <div className={enterpriseStyles.appAlertIcon}>
+                          <Icon type="warning" />
                         </div>
-                        <div>
-                          <span style={{ marginTop: '2px' }}>
-                            {globalUtil.fetchSvg('runTime')}
-                          </span>
-                          {moment(timestamp).locale('zh-cn').format('YYYY-MM-DD')}
+                        <div className={enterpriseStyles.appAlertInfo}>
+                          <div className={enterpriseStyles.appAlertColumn}>
+                            <span className={enterpriseStyles.appAlertLabel}>{formatMessage({ id: 'enterpriseOverview.overview.source' })}</span>
+                            <button
+                              className={enterpriseStyles.appAlertValueLink}
+                              type="button"
+                              onClick={() => {
+                                this.onJumpAlert('team', tenant_name, region_name, group_id, service_alias)
+                              }}
+                            >
+                              {tenant_alias}
+                            </button>
+                          </div>
+                          <div className={enterpriseStyles.appAlertColumn}>
+                            <span className={enterpriseStyles.appAlertLabel}>{formatMessage({ id: 'enterpriseOverview.overview.team' })}</span>
+                            <button
+                              className={enterpriseStyles.appAlertValueLink}
+                              type="button"
+                              onClick={() => {
+                                this.onJumpAlert('app', tenant_name, region_name, group_id, service_alias)
+                              }}
+                            >
+                              {group_name}
+                            </button>
+                          </div>
+                          <div className={enterpriseStyles.appAlertColumn}>
+                            <span className={enterpriseStyles.appAlertLabel}>{formatMessage({ id: 'enterpriseOverview.overview.component' })}</span>
+                            <button
+                              className={enterpriseStyles.appAlertValueLink}
+                              type="button"
+                              onClick={() => {
+                                this.onJumpAlert('component', tenant_name, region_name, group_id, service_alias)
+                              }}
+                            >
+                              {service_cname}
+                            </button>
+                          </div>
+                          <div className={enterpriseStyles.appAlertColumn}>
+                            <span className={enterpriseStyles.appAlertLabel}>{formatMessage({ id: 'enterpriseOverview.overview.status' })}</span>
+                            <span className={enterpriseStyles.appAlertStatus}>{formatMessage({ id: 'enterpriseOverview.overview.error' })}</span>
+                          </div>
+                        </div>
+                        <div className={enterpriseStyles.appAlertDate}>
+                          {alert_date || moment(timestamp).locale('zh-cn').format('YYYY-MM-DD')}
                         </div>
                       </div>
                     )

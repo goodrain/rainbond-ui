@@ -1,79 +1,20 @@
 @import "~antd/lib/style/themes/default.less";
 
-.resourceRow {
-    display: flex;
-    width: 100%;
-    justify-content: space-between;
-    gap: 24px;
-    
-}
-
-.resourceItem {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 24px 0;
-    background-color: @rbd-background-color;
-    border-radius: 12px;
-    
-}
-
-.resourceTitle {
-    p {
-        font-size: @rbd-sub-title-size;
-        color: @rbd-content-color-secondary;
-        line-height: @rbd-sub-title-line-height;
-        margin-bottom: 8px;
-        font-weight: 500;
-
-        span {
-            color: @primary-color;
-            font-size: @rbd-title-size;
-            line-height: @rbd-title-line-height;
-            font-weight: bolder;
-            margin-right: 4px;
-        }
-    }
-}
-
-.resourceChart {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.resourceValue {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 20px;
-    min-height: 80px;
-
-    p {
-        margin-bottom: 0 !important;
-        color: @rbd-success-status;
-        font-size: 40px;
-
-        span {
-            color: @rbd-content-color-secondary;
-            font-size: 20px;
-        }
-    }
-}
-
 .cardContainer {
-    background: #fff;
-    margin: 2px;
-    border-radius: 12px;
-    box-shadow: @rbd-min-card-shadow;
-    border: 1px solid rgba(16, 24, 40, 0.08);
     margin-bottom: 16px;
+    border: 1px solid fade(@primary-color, 12%);
+    border-radius: 22px;
+    overflow: hidden;
+    background-color: #fff;
+    background-image: radial-gradient(circle at top right,
+            fade(@primary-color, 8%) 0%,
+            fade(@primary-color, 4%) 42%,
+            transparent 78%);
+
 }
 
 .cardHeader {
-    padding: 16px 24px;
+    padding: 24px 24px 16px;
 }
 
 .cardBody {
@@ -85,17 +26,100 @@
     align-items: center;
 
     span:nth-of-type(1) {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         margin-right: 6px;
+        color: @primary-color;
 
         svg {
+            width: @rbd-sub-title-size;
+            height: @rbd-sub-title-size;
             vertical-align: bottom;
         }
     }
 
     span:nth-of-type(2) {
-        font-weight: bolder;
+        color: @heading-color;
         font-size: @rbd-sub-title-size;
-        color: @rbd-sub-title-color;
         line-height: @rbd-sub-title-line-height;
+        font-weight: 600;
     }
+}
+
+.clusterMetrics {
+    display: grid;
+    grid-template-columns: 1.3fr 1.3fr 0.9fr 0.9fr;
+    gap: 12px;
+}
+
+.clusterMetricItem {
+    position: relative;
+    min-width: 0;
+    min-height: 150px;
+    padding: 22px 28px;
+    border-radius: 22px;
+    background: #fff;
+
+
+    &:first-child {
+        border-left: none;
+    }
+}
+
+.clusterMetricItem:nth-child(-n + 2) {
+    padding-right: 156px;
+}
+
+.clusterMetricTitle {
+    margin-bottom: 28px;
+    color: @rbd-content-color-secondary;
+    font-size: @rbd-content-size;
+    line-height: @rbd-content-line-height;
+    font-weight: 600;
+}
+
+.clusterMetricValue {
+    display: flex;
+    align-items: baseline;
+    margin-bottom: 28px;
+    color: @rbd-content-color;
+
+    span {
+        color: @primary-color;
+        font-size: @rbd-display-size;
+        line-height: @rbd-display-line-height;
+        font-weight: 700;
+    }
+
+    em {
+        margin-left: 4px;
+        color: @rbd-content-color-secondary;
+        font-size: @rbd-title-size;
+        line-height: @rbd-title-line-height;
+        font-style: normal;
+        font-weight: 600;
+    }
+}
+
+.clusterMetricDesc {
+    color: @rbd-content-color;
+    font-size: @rbd-content-size;
+    line-height: @rbd-content-line-height;
+    font-weight: 600;
+
+    span {
+        margin: 0 6px;
+        color: @rbd-content-color;
+        font-weight: 600;
+    }
+}
+
+.clusterGaugeFloat {
+    position: absolute;
+    right: 16px;
+    bottom: -6px;
+    width: 140px;
+    height: 140px;
+    pointer-events: none;
 }
