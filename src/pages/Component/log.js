@@ -335,7 +335,10 @@ export default class Index extends PureComponent {
         data.status_code === 200 &&
         data.response_data
       ) {
-        const arr = data.response_data.split('\n');
+        const raw = typeof data.response_data === 'string'
+          ? data.response_data
+          : (data.response_data.data || '');
+        const arr = typeof raw === 'string' ? raw.split('\n') : [];
         this.setState(
           {
             containerLog: arr || []
