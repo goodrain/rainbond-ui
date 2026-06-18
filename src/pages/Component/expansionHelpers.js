@@ -55,8 +55,18 @@ function getRunningVMLiveUpdateChangedResource({
   return '';
 }
 
+function canShowExpansionTab(method) {
+  return method !== 'job' && method !== 'cronjob';
+}
+
+function supportsHorizontalScaling(method) {
+  return method !== 'vm' && method !== 'daemonset';
+}
+
 module.exports = {
+  canShowExpansionTab,
   getRunningVMLiveUpdateChangedResource,
   getVmPassthroughScalingLockMessageId,
-  isVmGpuPassthroughScalingLocked
+  isVmGpuPassthroughScalingLocked,
+  supportsHorizontalScaling
 };

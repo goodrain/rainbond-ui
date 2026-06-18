@@ -16,7 +16,7 @@ const global = {
     'global.fetchStateText.ABNORMAL':'运行异常',
     'global.fetchStateText.TEMINATING':'关闭中',
     'global.fetchStateText.INITIATING':'等待启动',
-    'global.fetchStateText.SCHEDULING':'调度中',
+    'global.fetchStateText.SCHEDULING':'创建中',
     'global.fetchStateText.TheInternet':'等待启动',
     'global.fetchStateText.upgrade':'升级中',
     'global.fetchStateText.creating':'部署中',
@@ -85,12 +85,14 @@ const global = {
     'global.getComponentType.state_multiple':'有状态服务(Statefulset类型)',
     'global.getComponentType.job':'任务(Job类型)',
     'global.getComponentType.cronjob':'周期性任务(Cronjob类型)',
+    'global.getComponentType.daemonset':'守护进程组件(DaemonSet类型)',
 
     // getSupportComponentTyps
     'global.getSupportComponentTyps.stateless_multiple':'部署为无状态服务(Deployment类型),一般用于Web类、API类等组件。',
     'global.getSupportComponentTyps.state_multiple':'部署为有状态服务(Statefulset类型),一般用于DB类、消息中间件类、数据类组件。',
     'global.getSupportComponentTyps.job':'部署为任务(Job类型),一般用于一次性任务,完成后容器就退出。',
     'global.getSupportComponentTyps.cronjob':'部署为周期性任务(Cronjob类型),一般用于处理周期性的、需反复执行的定时任务。',
+    'global.getSupportComponentTyps.daemonset':'部署为守护进程组件(DaemonSet类型),一般用于每个节点都需要运行的日志、监控、节点代理类组件。',
 
     // fetchStateOptTypeText
     'global.fetchStateOptTypeText.deploy':'构建组件',
@@ -158,6 +160,7 @@ const global = {
     'global.fetchStateOptTypeText.delete-service-port':'删除组件端口',
     'global.fetchStateOptTypeText.handle-service-outerport':'修改组件对外端口',
     'global.fetchStateOptTypeText.handle-service-innerport':'修改组件对内端口',
+    'global.fetchStateOptTypeText.delete-gateway-http-route':'删除组件网关路由',
     'global.fetchStateOptTypeText.change-service-lbport':'修改组件LB端口',
     'global.fetchStateOptTypeText.rollback-service':'回滚',
     'global.fetchStateOptTypeText.add-service-volume':'添加组件持久化存储',

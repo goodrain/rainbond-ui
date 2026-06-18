@@ -249,7 +249,7 @@ class UserLayout extends React.PureComponent {
                       <h1>{loginTitleValue}</h1>
                     ) : (
                       <>
-                        <h1><FormattedMessage id="layout.userLayout.normal.title1" defaultMessage="AI 时代的" /></h1>
+                        <h1><FormattedMessage id="layout.userLayout.normal.title1" defaultMessage="不用懂 Kubernetes 的" /></h1>
                         <h1><FormattedMessage id="layout.userLayout.normal.title2" defaultMessage="开源容器平台" /></h1>
                       </>
                     )}

@@ -196,9 +196,50 @@
     &:hover {
         .appItemContent {
             background-color: @rbd-background-color;
-            border-color: @primary-color;
-            box-shadow: 0 2px 8px fade(@primary-color, 8%);
+            border-color: transparent;
+            box-shadow: none;
             transform: translateX(2px);
+        }
+
+        .appItemIcon {
+            background: #e1e7f0;
+            color: @text-color;
+        }
+
+        .appItemName {
+            color: #262626;
+        }
+    }
+
+    &:active {
+        .appItemContent {
+            transform: translateX(0);
+            box-shadow: 0 1px 4px fade(@primary-color, 12%);
+        }
+    }
+}
+
+.appItemCurrent {
+    .appItemContent {
+        background-color: fade(@primary-color, 8%);
+        border-color: @primary-color;
+        box-shadow: 0 2px 8px fade(@primary-color, 8%);
+    }
+
+    .appItemIcon {
+        background: @primary-color;
+        color: #ffffff;
+    }
+
+    .appItemName {
+        color: @primary-color;
+    }
+
+    &:hover {
+        .appItemContent {
+            background-color: fade(@primary-color, 10%);
+            border-color: @primary-color;
+            box-shadow: 0 2px 8px fade(@primary-color, 10%);
         }
 
         .appItemIcon {
@@ -208,13 +249,6 @@
 
         .appItemName {
             color: @primary-color;
-        }
-    }
-
-    &:active {
-        .appItemContent {
-            transform: translateX(0);
-            box-shadow: 0 1px 4px fade(@primary-color, 12%);
         }
     }
 }

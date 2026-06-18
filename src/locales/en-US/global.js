@@ -16,7 +16,7 @@ const global = {
     'global.fetchStateText.ABNORMAL':'Abnormal',
     'global.fetchStateText.TEMINATING':'Teminating',
     'global.fetchStateText.INITIATING':'Initiating',
-    'global.fetchStateText.SCHEDULING':'Scheduling',
+    'global.fetchStateText.SCHEDULING':'Creating',
     'global.fetchStateText.TheInternet':'Unknown',
     'global.fetchStateText.upgrade':'Upgrading',
     'global.fetchStateText.creating':'Creating',
@@ -85,12 +85,14 @@ const global = {
     'global.getComponentType.state_multiple':'Stateful service(Statefulset)',
     'global.getComponentType.job':'Task(Job)',
     'global.getComponentType.cronjob':'Recurring tasks(Cronjob)',
+    'global.getComponentType.daemonset':'Daemon workload(DaemonSet)',
 
     // getSupportComponentTyps
     'global.getSupportComponentTyps.stateless_multiple':'Deployed as a stateless service (Deployment), it is generally used for components such as web classes and API classes.',
     'global.getSupportComponentTyps.state_multiple':'Deployed as stateful service (Statefulset), it is generally used for DB class, message middleware class and data class components.',
     'global.getSupportComponentTyps.job':'Deployed as a task (Job), it is generally used for one-time tasks, and the container exits after completion.',
     'global.getSupportComponentTyps.cronjob':'Deployed as a periodic task (Cronjob) and is generally used to process periodic scheduled tasks that need to be executed repeatedly.',
+    'global.getSupportComponentTyps.daemonset':'Deployed as a daemon workload (DaemonSet), generally used for log agents, monitoring agents, and node-level services that should run on every node.',
 
     // fetchStateOptTypeText
     'global.fetchStateOptTypeText.deploy':'Building component',
@@ -158,6 +160,7 @@ const global = {
     'global.fetchStateOptTypeText.delete-service-port':'Delete component port',
     'global.fetchStateOptTypeText.handle-service-outerport':'Modify component external port',
     'global.fetchStateOptTypeText.handle-service-innerport':'Modify the internal port of the component',
+    'global.fetchStateOptTypeText.delete-gateway-http-route':'Delete component gateway route',
     'global.fetchStateOptTypeText.change-service-lbport':'Modify component LB port',
     'global.fetchStateOptTypeText.rollback-service':'Rollback',
     'global.fetchStateOptTypeText.add-service-volume':'Add component persistent storage',

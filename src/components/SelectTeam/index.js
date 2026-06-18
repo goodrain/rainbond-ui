@@ -97,6 +97,69 @@ export default class SelectTeam extends PureComponent {
       }
     }
   }
+  getTeamRegionItems = teams => {
+    const { currentUser, currentTeam, currentRegion } = this.props;
+    const { queryName } = this.state;
+    const currentTeamName = currentTeam && currentTeam.team_name;
+    const currentRegionName = currentRegion && currentRegion.team_region_name;
+    const items = [];
+
+    const addTeamRegions = team => {
+      if (!team || !team.team_name) {
+        return;
+      }
+      const teamInfo = userUtil.getTeamByTeamName(currentUser, team.team_name) || team;
+      const regions = teamInfo.region || team.region || [];
+      regions.forEach(region => {
+        if (!region || !region.team_region_name) {
+          return;
+        }
+        const item = {
+          key: `${team.team_name}-${region.team_region_name}`,
+          teamName: team.team_name,
+          teamAlias: team.team_alias || teamInfo.team_alias || team.team_name,
+          regionName: region.team_region_name,
+          regionAlias: region.team_region_alias || region.team_region_name,
+          link: `/team/${team.team_name}/region/${region.team_region_name}/index`
+        };
+        items.push({
+          ...item,
+          isCurrent:
+            item.teamName === currentTeamName &&
+            item.regionName === currentRegionName
+        });
+      });
+    };
+
+    teams.forEach(addTeamRegions);
+
+    const hasCurrent = items.some(item => item.isCurrent);
+    if (!queryName && currentTeamName && currentRegionName && !hasCurrent) {
+      const currentUserTeam =
+        userUtil.getTeamByTeamName(currentUser, currentTeamName) || currentTeam;
+      const currentRegionInfo =
+        ((currentUserTeam && currentUserTeam.region) || []).find(
+          region => region.team_region_name === currentRegionName
+        ) || currentRegion;
+
+      items.unshift({
+        key: `${currentTeamName}-${currentRegionName}`,
+        teamName: currentTeamName,
+        teamAlias:
+          (currentUserTeam && currentUserTeam.team_alias) ||
+          (currentTeam && currentTeam.team_alias) ||
+          currentTeamName,
+        regionName: currentRegionName,
+        regionAlias:
+          (currentRegionInfo && currentRegionInfo.team_region_alias) ||
+          currentRegionName,
+        link: `/team/${currentTeamName}/region/${currentRegionName}/index`,
+        isCurrent: true
+      });
+    }
+
+    return items;
+  }
   render() {
     const {
       className,
@@ -112,21 +175,9 @@ export default class SelectTeam extends PureComponent {
     const currentEnterpriseTeamPageLink = this.getLoginRole(currentUser)
     // 从最新的 userTeamList 中获取当前团队的最新名称
     const updatedCurrentTeam = userTeamList.find(team => team.team_name === currentTeam?.team_name);
-    const displayTeamAlias = updatedCurrentTeam?.team_alias || currentTeam?.team_alias;
-    const items = [];
-    userTeamList.map(team => {
-      const teamInfo = userUtil.getTeamByTeamName(currentUser, team.team_name);
-      if (teamInfo) {
-        teamInfo.region.map(region => {
-          const link = `/team/${team?.team_name}/region/${region?.team_region_name}/index`;
-          const item = {
-            name: `${team?.team_alias} | ${region?.team_region_alias}`,
-            link
-          };
-          items.push(item);
-        });
-      }
-    });
+    const currentUserTeam = userUtil.getTeamByTeamName(currentUser, currentTeam?.team_name);
+    const displayTeamAlias = updatedCurrentTeam?.team_alias || currentUserTeam?.team_alias || currentTeam?.team_alias;
+    const items = this.getTeamRegionItems(userTeamList || []);
     const dropdown = (
       <div className={style.dropBox}>
         <div className={style.dropBoxSearch}>
@@ -145,24 +196,24 @@ export default class SelectTeam extends PureComponent {
               <ul>
                 {items.map(item => {
                   if (item.link) {
-                    const [teamName, regionName] = item.name.split(' | ');
                     return (
-                      <li key={item.name}>
+                      <li key={item.key}>
                         <Link
                           to={item.link}
-                          title={item.name}
+                          title={`${item.teamAlias} | ${item.regionAlias}`}
+                          aria-current={item.isCurrent ? 'page' : undefined}
                           onClick={()=>{changeTeam && changeTeam()}}
-                          className={style.teamItem}
+                          className={`${style.teamItem} ${item.isCurrent ? style.teamItemCurrent : ''}`}
                         >
                           <div className={style.teamItemContent}>
                             <div className={style.teamItemIcon}>
                               <Icon type="team" />
                             </div>
                             <div className={style.teamItemInfo}>
-                              <div className={style.teamItemName}>{teamName}</div>
+                              <div className={style.teamItemName}>{item.teamAlias}</div>
                               <div className={style.teamItemRegion}>
                                 <Icon type="cluster" className={style.clusterIcon} />
-                                {regionName}
+                                {item.regionAlias}
                               </div>
                             </div>
                           </div>

@@ -117,9 +117,15 @@ export default class SelectApp extends PureComponent {
               <ul>
                 {teamApps.map(item => {
                   const link = `/team/${teamName}/region/${regionName}/apps/${item.group_id}/overview`;
+                  const isCurrentApp = String(item.group_id) === String(currentAppID);
                   return (
                     <li key={item.group_id} onClick={this.handleClickApp}>
-                      <Link to={link} title={item.group_name} className={style.appItem}>
+                      <Link
+                        to={link}
+                        title={item.group_name}
+                        className={`${style.appItem} ${isCurrentApp ? style.appItemCurrent : ''}`}
+                        aria-current={isCurrentApp ? 'page' : undefined}
+                      >
                         <div className={style.appItemContent}>
                           <div className={style.appItemIcon}>
                             <Icon type="appstore" />

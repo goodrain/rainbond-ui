@@ -236,7 +236,11 @@ export default class Index extends PureComponent {
         // 处理私有镜像仓库凭证
         if (!isPublic) {
           const secretObj = imgRepostoryList && imgRepostoryList.find(item => item.secret_id === secretId);
-          if (secretObj) {
+          if (secretObj && secretObj.scope === 'enterprise') {
+            fieldsValue.registry_auth_id = secretId;
+            delete fieldsValue.user_name;
+            delete fieldsValue.password;
+          } else if (secretObj) {
             fieldsValue.user_name = secretObj.username;
             fieldsValue.password = secretObj.password;
           }

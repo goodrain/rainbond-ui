@@ -3005,6 +3005,7 @@ const global = {
       'delete-service-port': formatMessage({ id: 'global.fetchStateOptTypeText.delete-service-port' }),
       'handle-service-outerport': formatMessage({ id: 'global.fetchStateOptTypeText.handle-service-outerport' }),
       'handle-service-innerport': formatMessage({ id: 'global.fetchStateOptTypeText.handle-service-innerport' }),
+      'delete-gateway-http-route': formatMessage({ id: 'global.fetchStateOptTypeText.delete-gateway-http-route' }),
       'change-service-lbport': formatMessage({ id: 'global.fetchStateOptTypeText.change-service-lbport' }),
       'rollback-service': formatMessage({ id: 'global.fetchStateOptTypeText.rollback-service' }),
       'add-service-volume': formatMessage({ id: 'global.fetchStateOptTypeText.add-service-volume' }),
@@ -3080,8 +3081,8 @@ const global = {
     );
     return href;
   },
-  getSupportComponentTyps() {
-    return [
+  getSupportComponentTyps(includeDaemonSet = true) {
+    const componentTypes = [
       {
         type: 'stateless_multiple',
         name: this.getComponentType('stateless_multiple'),
@@ -3103,6 +3104,14 @@ const global = {
         desc: formatMessage({ id: 'global.getSupportComponentTyps.cronjob' })
       }
     ];
+    if (includeDaemonSet) {
+      componentTypes.push({
+        type: 'daemonset',
+        name: this.getComponentType('daemonset'),
+        desc: formatMessage({ id: 'global.getSupportComponentTyps.daemonset' })
+      });
+    }
+    return componentTypes;
   },
   getComponentType(componentType) {
     switch (componentType) {
@@ -3118,6 +3127,8 @@ const global = {
         return `${formatMessage({ id: 'global.getComponentType.job' })}`;
       case 'cronjob':
         return `${formatMessage({ id: 'global.getComponentType.cronjob' })}`;
+      case 'daemonset':
+        return `${formatMessage({ id: 'global.getComponentType.daemonset' })}`;
       default:
         return '';
     }

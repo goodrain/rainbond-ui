@@ -3,6 +3,8 @@ const assert = require('assert');
 const {
   buildIssueFingerprint,
   buildReadableErrorMessage,
+  classifyHttpError,
+  extractResponseMetadata,
   getPathPattern,
   getSentryConfig,
   buildSentryTunnelUrl,
@@ -11,7 +13,8 @@ const {
   sanitizeStack,
   sanitizeUrl,
   shouldPreferFetchTransport,
-  shouldReportRequestError
+  shouldReportRequestError,
+  shouldSuppressRequestError
 } = require('./sentryConfig');
 
 function test(name, fn) {
@@ -188,7 +191,8 @@ test('buildReadableErrorMessage summarizes api failures for issue lists', functi
   );
 });
 
-test('buildIssueFingerprint groups api errors by status method and route', function() {
+test('buildIssueFingerprint groups api errors by error class and business code', function() {
+  // All 502 errors group together regardless of endpoint
   assert.deepStrictEqual(
     buildIssueFingerprint(new Error('Request failed'), {
       errorSource: 'api',
@@ -196,7 +200,41 @@ test('buildIssueFingerprint groups api errors by status method and route', funct
       method: 'get',
       route: '/console/teams/:id/apps/:id/events'
     }, []),
-    ['rainbond-ui-api', '502', 'GET', '/console/teams/:id/apps/:id/events']
+    ['rainbond-ui-api', 'gateway', 'no-code']
+  );
+
+  // 500 errors group together
+  assert.deepStrictEqual(
+    buildIssueFingerprint(new Error('Request failed'), {
+      errorSource: 'api',
+      status: 500,
+      method: 'post',
+      route: '/console/teams/:id/apps/:id/overview'
+    }, []),
+    ['rainbond-ui-api', 'backend', 'no-code']
+  );
+
+  // Network errors group together
+  assert.deepStrictEqual(
+    buildIssueFingerprint(new Error('Request failed'), {
+      errorSource: 'api',
+      status: 'network',
+      method: 'get',
+      route: '/console/teams/:id/apps/:id/configs'
+    }, []),
+    ['rainbond-ui-api', 'network', 'no-code']
+  );
+
+  // Errors with same business code group together
+  assert.deepStrictEqual(
+    buildIssueFingerprint(new Error('Request failed'), {
+      errorSource: 'api',
+      status: 500,
+      method: 'get',
+      route: '/console/teams/:id/apps/:id/overview',
+      businessCode: '10411'
+    }, []),
+    ['rainbond-ui-api', 'backend', '10411']
   );
 });
 
@@ -210,4 +248,81 @@ test('shouldPreferFetchTransport sends api errors through visible fetch requests
   assert.strictEqual(shouldPreferFetchTransport({ tags: { error_source: 'api' } }), true);
   assert.strictEqual(shouldPreferFetchTransport({ errorSource: 'api' }), true);
   assert.strictEqual(shouldPreferFetchTransport({ tags: { error_source: 'window_error' } }), false);
+});
+
+test('classifyHttpError returns correct error class', function() {
+  // Network errors (no response)
+  assert.strictEqual(classifyHttpError(null), 'network');
+  assert.strictEqual(classifyHttpError({}), 'network');
+  assert.strictEqual(classifyHttpError({ response: null }), 'network');
+
+  // Specific 5xx classes
+  assert.strictEqual(classifyHttpError({ response: { status: 502 } }), 'gateway');
+  assert.strictEqual(classifyHttpError({ response: { status: 503 } }), 'overloaded');
+  assert.strictEqual(classifyHttpError({ response: { status: 504 } }), 'timeout');
+  assert.strictEqual(classifyHttpError({ response: { status: 500 } }), 'backend');
+  assert.strictEqual(classifyHttpError({ response: { status: 599 } }), 'other');
+});
+
+test('shouldSuppressRequestError suppresses expected transient errors', function() {
+  // Network errors WITH a custom handler are suppressed
+  assert.strictEqual(
+    shouldSuppressRequestError(new Error('timeout'), { handleError: () => {} }),
+    true
+  );
+
+  // Network errors WITHOUT a custom handler are NOT suppressed
+  assert.strictEqual(
+    shouldSuppressRequestError(new Error('timeout'), {}),
+    false
+  );
+
+  // 502, 503, 504 are suppressed (transient gateway errors)
+  assert.strictEqual(shouldSuppressRequestError({ response: { status: 502 } }), true);
+  assert.strictEqual(shouldSuppressRequestError({ response: { status: 503 } }), true);
+  assert.strictEqual(shouldSuppressRequestError({ response: { status: 504 } }), true);
+
+  // 500 is NOT suppressed (real backend errors should be reported)
+  assert.strictEqual(shouldSuppressRequestError({ response: { status: 500 } }), false);
+
+  // null error is not suppressed
+  assert.strictEqual(shouldSuppressRequestError(null), false);
+});
+
+test('extractResponseMetadata pulls backend request id and error code', function() {
+  assert.deepStrictEqual(
+    extractResponseMetadata(null),
+    {}
+  );
+
+  assert.deepStrictEqual(
+    extractResponseMetadata({
+      headers: { 'x-request-id': 'req-123' },
+      data: { code: 10411, msg_show: 'cluster unavailable' }
+    }),
+    {
+      request_id: 'req-123',
+      backend_error_code: 10411,
+      response_message: 'cluster unavailable'
+    }
+  );
+
+  // Falls back to X-Request-Id (capitalized)
+  assert.deepStrictEqual(
+    extractResponseMetadata({
+      headers: { 'X-Request-Id': 'req-456' },
+      data: { msg: 'error' }
+    }),
+    {
+      request_id: 'req-456',
+      backend_error_code: '',
+      response_message: 'error'
+    }
+  );
+
+  // Empty response still returns defaults
+  assert.deepStrictEqual(
+    extractResponseMetadata({}),
+    { request_id: '', backend_error_code: '', response_message: '' }
+  );
 });

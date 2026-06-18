@@ -22,6 +22,11 @@ const componentOverview = {
     'componentOverview.header.Component_container': '组件容器',
     'componentOverview.header.Plug_container': '插件容器',
     'componentOverview.header.mesh': '默认Mesh容器',
+    'componentOverview.header.debug.tooltip': '使用 toolbox 调试此容器',
+    'componentOverview.header.debug.tab': '{name}-调试容器',
+    'componentOverview.header.debug.title': '使用 toolbox 调试容器',
+    'componentOverview.header.debug.content': '将打开一个内置常用排障命令的调试终端，可用于排查网络连通性、DNS 解析、进程状态和挂载目录等问题。',
+    'componentOverview.header.debug.ok': '开始调试',
     // tabs栏
     'componentOverview.body.tab.bar.overview': '总览',
     'componentOverview.body.tab.bar.monitor': '监控',

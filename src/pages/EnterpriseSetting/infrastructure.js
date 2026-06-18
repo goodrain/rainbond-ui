@@ -1,11 +1,12 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-nested-ternary */
 /* eslint-disable no-unused-expressions */
-import { Card, Col, notification, Row, Spin, Switch } from 'antd';
+import { Card, Col, Modal, notification, Row, Spin, Switch } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import ConfirmModal from '../../components/ConfirmModal';
 import ImageHubForm from '../../components/ImageHubForm';
+import ImageWarehouse from './imageWarehouse';
 import SmsConfigForm from '../../components/SmsConfigForm';
 import ScrollerX from '../../components/ScrollerX';
 import rainbondUtil from '../../utils/rainbond';
@@ -35,6 +36,7 @@ class Infrastructure extends PureComponent {
       isEnableAppstoreImageHub: rainbondUtil.isEnableAppstoreImageHub(enterprise),
       AppstoreImageHubValue: rainbondUtil.fetchAppstoreImageHub(enterprise),
       openSmsConfig: false,
+      openGlobalImageHub: false,
       smsConfig: null
     };
   }
@@ -159,6 +161,12 @@ class Infrastructure extends PureComponent {
   handelCloseImageHub = () => {
     this.setState({ closeImageHub: false, openImageHub: false });
   };
+  handelOpenGlobalImageHub = () => {
+    this.setState({ openGlobalImageHub: true });
+  };
+  handelCloseGlobalImageHub = () => {
+    this.setState({ openGlobalImageHub: false });
+  };
   handelOpenSmsConfig = () => {
     this.setState({ openSmsConfig: true });
   };
@@ -257,6 +265,7 @@ class Infrastructure extends PureComponent {
       openImageHub,
       closeImageHub,
       openSmsConfig,
+      openGlobalImageHub,
       smsConfig
     } = this.state;
     const UserRegistered = (
@@ -373,6 +382,25 @@ class Infrastructure extends PureComponent {
         </Row>
       </Card>
     );
+    const GlobalImageWarehouseInformation = (
+      <Card hoverable bordered={false} className={styles.infrastructureCard}>
+        <Row type="flex" align="middle">
+          <Col span={3}>
+            <FormattedMessage id='enterpriseSetting.basicsSetting.globalImageRegistry.title'/>
+          </Col>
+          <Col span={17}>
+            <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
+              <FormattedMessage id='enterpriseSetting.basicsSetting.globalImageRegistry.content'/>
+            </span>
+          </Col>
+          <Col span={4} style={{ textAlign: 'right' }}>
+            <a onClick={this.handelOpenGlobalImageHub}>
+              <FormattedMessage id='enterpriseSetting.basicsSetting.checkTheConfiguration'/>
+            </a>
+          </Col>
+        </Row>
+      </Card>
+    );
     const TeamResourceView = (
       <Card hoverable bordered={false} className={styles.infrastructureCard}>
         <Row type="flex" align="middle">
@@ -420,6 +448,18 @@ class Infrastructure extends PureComponent {
             }}
           />
         )}
+        {openGlobalImageHub && (
+          <Modal
+            title={formatMessage({ id: 'enterpriseSetting.basicsSetting.globalImageRegistry.title' })}
+            visible
+            width={960}
+            footer={null}
+            onCancel={this.handelCloseGlobalImageHub}
+            destroyOnClose
+          >
+            <ImageWarehouse mode="enterprise" enterpriseId={eid} />
+          </Modal>
+        )}
         {(closeImageHub || showDeleteDomain) && (
           <ConfirmModal
             loading={closeImageHub ? imageHubLongin : oauthLongin}
@@ -461,6 +501,7 @@ class Infrastructure extends PureComponent {
             {UserRegistered}
             {Oauth}
             {MirrorWarehouseInformation}
+            {GlobalImageWarehouseInformation}
             {TeamResourceView}
           </div>
         )}
