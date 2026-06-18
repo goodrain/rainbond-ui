@@ -3,13 +3,16 @@ import {
   buildIssueFingerprint,
   buildReadableErrorMessage,
   buildSentryTunnelUrl,
+  classifyHttpError,
+  extractResponseMetadata,
   getPathPattern,
   getSentryConfig,
   parseStackFrames,
   sanitizeObject,
   sanitizeStack,
   shouldPreferFetchTransport,
-  shouldReportRequestError
+  shouldReportRequestError,
+  shouldSuppressRequestError
 } from './sentryConfig';
 
 let initialized = false;
@@ -351,12 +354,21 @@ export function captureRequestError(error, options = {}) {
   if (!initialized || !shouldReportRequestError(error)) {
     return;
   }
+  if (shouldSuppressRequestError(error, options)) {
+    return;
+  }
   const response = error && error.response;
   const config = (error && error.config) || options || {};
   const status = response && response.status;
   const method = String(config.method || 'GET').toUpperCase();
   const route = getPathPattern(config.url);
   const responseData = (response && response.data) || {};
+
+  // Extract backend metadata for cross-referencing with console/region logs
+  const responseMeta = extractResponseMetadata(response);
+  const errorClass = classifyHttpError(error);
+  const businessCode = responseData && responseData.code;
+
   const requestContext = {
     method,
     url: getPathPattern(config.url),
@@ -367,8 +379,10 @@ export function captureRequestError(error, options = {}) {
     method,
     status: status || 'network',
     status_text: response && response.statusText,
-    business_code: responseData && responseData.code,
-    response_message: responseData && (responseData.msg || responseData.msg_show)
+    business_code: businessCode,
+    response_message: responseMeta.response_message,
+    request_id: responseMeta.request_id,
+    backend_error_class: errorClass
   };
   captureException(error, {
     errorSource: 'api',
@@ -377,13 +391,17 @@ export function captureRequestError(error, options = {}) {
     route,
     status: status || 'network',
     method,
-    fingerprint: ['rainbond-ui-api', String(status || 'network'), method, route || 'unknown endpoint'],
+    backendErrorClass: errorClass,
+    businessCode: businessCode || '',
     tags: {
       component: 'rainbond-ui',
       error_source: 'api',
       request_status: status || 'network',
       request_method: method,
-      route
+      route,
+      backend_error_class: errorClass,
+      business_code: businessCode ? String(businessCode) : '',
+      request_id: responseMeta.request_id
     },
     request: requestContext,
     api: apiContext,
@@ -392,8 +410,10 @@ export function captureRequestError(error, options = {}) {
       method,
       status,
       status_text: response && response.statusText,
-      business_code: responseData && responseData.code,
-      response_message: responseData && (responseData.msg || responseData.msg_show)
+      business_code: businessCode,
+      response_message: responseMeta.response_message,
+      request_id: responseMeta.request_id,
+      backend_error_class: errorClass
     }
   });
 }

@@ -253,6 +253,78 @@ function shouldReportRequestError(error) {
   return error.response.status >= 500;
 }
 
+/**
+ * Classifies an HTTP error into a broad error class for Sentry grouping.
+ * Instead of grouping by endpoint (which over-splits during outages),
+ * group by the type of backend failure so a single outage creates one issue.
+ *
+ * Error classes:
+ *   - "network"     — no response at all (timeout, DNS, CORS, connection refused)
+ *   - "gateway"     — 502 Bad Gateway (upstream service down)
+ *   - "overloaded"  — 503 Service Unavailable (backend overloaded or deploying)
+ *   - "timeout"     — 504 Gateway Timeout
+ *   - "backend"     — 500 Internal Server Error (generic backend crash)
+ *   - "other"       — any other 5xx
+ */
+function classifyHttpError(error) {
+  if (!error || !error.response) {
+    return 'network';
+  }
+  const status = error.response.status;
+  if (status === 502) return 'gateway';
+  if (status === 503) return 'overloaded';
+  if (status === 504) return 'timeout';
+  if (status === 500) return 'backend';
+  return 'other';
+}
+
+/**
+ * Determines whether a request error is expected/transient and should be
+ * suppressed from Sentry. The UI already handles these gracefully via
+ * handleSpecialErrorCode or user-facing notifications, so reporting them
+ * creates noise without actionable signal.
+ *
+ * Suppressed conditions:
+ *   - Network errors (no response) where the caller has its own error handler
+ *   - 502/503/504 when the UI shows a user-facing notification
+ */
+function shouldSuppressRequestError(error, options) {
+  if (!error) return false;
+
+  const status = error.response && error.response.status;
+
+  // Suppress network errors when a custom error handler is provided
+  // (the caller is handling it gracefully)
+  if (!status && options && options.handleError) {
+    return true;
+  }
+
+  // Suppress 502/503/504 gateway errors — these are transient backend
+  // outages that the UI already shows via notification.warning in checkStatus
+  if (status === 502 || status === 503 || status === 504) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Extracts backend metadata from a response for Sentry tags/context.
+ * Pulls x-request-id, backend error code, and business code from
+ * the response so UI Sentry events can be cross-referenced with
+ * backend/console logs.
+ */
+function extractResponseMetadata(response) {
+  if (!response) return {};
+  const headers = response.headers || {};
+  const data = response.data || {};
+  return {
+    request_id: headers['x-request-id'] || headers['X-Request-Id'] || '',
+    backend_error_code: data.code || '',
+    response_message: data.msg_show || data.msg || ''
+  };
+}
+
 function shouldPreferFetchTransport(event) {
   return getErrorSource(event || {}) === 'api';
 }
@@ -417,7 +489,9 @@ function buildReadableErrorMessage(error, context) {
     const status = safeContext.status || (safeContext.tags && safeContext.tags.request_status) || 'Network';
     const method = normalizeMethod(safeContext.method || (safeContext.tags && safeContext.tags.request_method));
     const route = safeContext.route || (safeContext.tags && safeContext.tags.route) || 'unknown endpoint';
-    return `API ${status} ${method} ${route}`;
+    const errorClass = safeContext.backendErrorClass || (safeContext.tags && safeContext.tags.backend_error_class);
+    const classSuffix = errorClass && errorClass !== 'network' ? ` [${errorClass}]` : '';
+    return `API ${status} ${method} ${route}${classSuffix}`;
   }
 
   if (source === 'react_error_boundary') {
@@ -451,11 +525,19 @@ function buildIssueFingerprint(error, context, frames) {
 
   const source = getErrorSource(safeContext);
   if (source === 'api') {
+    // Group by error class + business_code instead of route.
+    // This prevents a single backend outage from creating one Sentry issue
+    // per API endpoint. All 500s from the same backend class group together,
+    // and all "network down" errors group together.
+    const rawStatus = safeContext.status || (safeContext.tags && safeContext.tags.request_status);
+    const errorClass = safeContext.backendErrorClass ||
+      (rawStatus === 'network' || rawStatus === 'Network' ? 'network' : classifyHttpError({ response: { status: rawStatus } }));
+    const businessCode = safeContext.businessCode || (safeContext.tags && safeContext.tags.business_code) || '';
+
     return [
       'rainbond-ui-api',
-      String(safeContext.status || (safeContext.tags && safeContext.tags.request_status) || 'network'),
-      normalizeMethod(safeContext.method || (safeContext.tags && safeContext.tags.request_method)),
-      safeContext.route || (safeContext.tags && safeContext.tags.route) || 'unknown endpoint'
+      String(errorClass),
+      businessCode ? String(businessCode) : 'no-code'
     ];
   }
 
@@ -474,6 +556,8 @@ module.exports = {
   buildIssueFingerprint,
   buildReadableErrorMessage,
   buildSentryTunnelUrl,
+  classifyHttpError,
+  extractResponseMetadata,
   getPathPattern,
   getSentryConfig,
   parseStackFrames,
@@ -481,5 +565,6 @@ module.exports = {
   sanitizeStack,
   sanitizeUrl,
   shouldPreferFetchTransport,
-  shouldReportRequestError
+  shouldReportRequestError,
+  shouldSuppressRequestError
 };
