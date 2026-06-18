@@ -54,6 +54,7 @@ class App extends PureComponent {
         WebsocketURL,
         updateTitle,
         namespace,
+        mode,
       } = this.props;
       if (!this.inputRef.current) {
         return null;
@@ -63,7 +64,10 @@ class App extends PureComponent {
         '/event_log',
         '/docker_console'
       );
-      const factory = new ConnectionFactory(consoleWebsocketURL, protocols);
+      const connectionProtocols = consoleWebsocketURL.indexOf('/console/regions/') > -1
+        ? []
+        : protocols;
+      const factory = new ConnectionFactory(consoleWebsocketURL, connectionProtocols);
       const gottyAuthToken = '';
       const hash = md5(`${tenantID}_${serviceID}_${podName}`);
       const args = {
@@ -73,11 +77,14 @@ class App extends PureComponent {
         containerName: containerName,
         Md5: hash,
         namespace: namespace,
+        mode: mode,
       };
       const xterm = new XTermCustom(term);
       xterm.removeMessage = this.clearMessage;
       xterm.setWindowTitle = title => {
-        updateTitle && updateTitle(title);
+        if (mode !== 'debug') {
+          updateTitle && updateTitle(title);
+        }
       };
       const wt = new WebTTY(xterm, factory, args, gottyAuthToken);
       const closer = wt.open();

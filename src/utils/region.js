@@ -1,5 +1,25 @@
 import cookie from './cookie';
 
+function getConsoleWebSocketBase(bean = {}) {
+  const regionName = bean.team_region_name || bean.region_name || bean.regionName || cookie.get('region_name');
+  if (!regionName || typeof window === 'undefined' || !window.location) {
+    return bean.websocket_uri || '';
+  }
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  return `${protocol}//${window.location.host}/console/regions/${regionName}/websocket`;
+}
+
+function appendWebSocketPath(bean, path) {
+  let uri = getConsoleWebSocketBase(bean);
+  if (!uri) {
+    return '';
+  }
+  if (uri[uri.length - 1] !== '/') {
+    uri += '/';
+  }
+  return `${uri}${path}`;
+}
+
 const regioniUtil = {
   actionToCN(action = []) {
     let res = [];
@@ -8,28 +28,14 @@ const regioniUtil = {
   },
   // 获取监控页面 SocketUrl
   getMonitorWebSocketUrl(bean) {
-    let uri = bean.websocket_uri;
-
-    if (uri[uri.length - 1] !== '/') {
-      uri += '/';
-    }
-
-    return `${uri}new_monitor_message`;
+    return appendWebSocketPath(bean, 'new_monitor_message');
   },
   // 获取操作日志SocketUrl
   getEventWebSocketUrl(bean) {
-    let uri = bean.websocket_uri;
-    if (uri[uri.length - 1] !== '/') {
-      uri += '/';
-    }
-    return `${uri}event_log`;
+    return appendWebSocketPath(bean, 'event_log');
   },
   getNewWebSocketUrl(bean, serviceID) {
-    let uri = bean.websocket_uri;
-    if (uri[uri.length - 1] !== '/') {
-      uri += '/';
-    }
-    return `${uri}services/${serviceID}/pubsub`;
+    return appendWebSocketPath(bean, `services/${serviceID}/pubsub`);
   },
 };
 

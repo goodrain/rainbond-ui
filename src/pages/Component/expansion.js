@@ -36,7 +36,8 @@ import handleAPIError from '../../utils/error';
 import {
   getRunningVMLiveUpdateChangedResource,
   getVmPassthroughScalingLockMessageId,
-  isVmGpuPassthroughScalingLocked
+  isVmGpuPassthroughScalingLocked,
+  supportsHorizontalScaling
 } from './expansionHelpers';
 
 
@@ -1009,16 +1010,20 @@ export default class Index extends PureComponent {
         }
       }
       
+      const payload = {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: appAlias,
+        new_memory: Number(memory),
+        new_gpu: extendInfo.current_gpu,
+        new_cpu: Number(cpu)
+      };
+      if (supportsHorizontalScaling(method)) {
+        payload.new_node = values.node;
+      }
+
       dispatch({
         type: 'appControl/newVertical',
-        payload: {
-          team_name: globalUtil.getCurrTeamName(),
-          app_alias: appAlias,
-          new_memory: Number(memory),
-          new_gpu: extendInfo.current_gpu,
-          new_cpu: Number(cpu),
-          new_node: values.node
-        },
+        payload,
         callback: () => {
           notification.success({
             message:
@@ -1333,6 +1338,7 @@ export default class Index extends PureComponent {
       extendInfo.memory_hot_update_supported
     );
     const vmWillRestartForScaling = method === 'vm' && !isVMStopped && !vmHotUpdateSupported;
+    const horizontalScalingSupported = supportsHorizontalScaling(method);
 
     const minNumber = getFieldValue('minNum') || 0;
     const formItemLayout = {
@@ -1607,7 +1613,7 @@ export default class Index extends PureComponent {
                 />
               </Form.Item>
             )}
-            {method !== 'vm' && (
+            {horizontalScalingSupported && (
               <Form.Item
                 label={<FormattedMessage id='componentOverview.body.Expansion.number' />}
                 {...formItemLayout}
@@ -1633,7 +1639,7 @@ export default class Index extends PureComponent {
         </Card>
         {/* 自动伸缩 */}
         {
-          method != 'vm' &&
+          horizontalScalingSupported &&
           <Card
             style={{ marginTop: 16 }}
             className={styles.clearCard}
@@ -1900,7 +1906,7 @@ export default class Index extends PureComponent {
           )
         }
         {
-          method != 'vm' &&
+          horizontalScalingSupported &&
           <Card
             className={styles.clearCard}
             style={{ marginTop: 16 }}

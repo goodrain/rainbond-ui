@@ -1640,6 +1640,8 @@ export async function addPlatformImageHub(body, handleError) {
       data: {
         secret_id: body.secret_id,
         domain: body.domain,
+        access_key: body.access_key,
+        access_secret: body.access_secret,
         username: body.username,
         password: body.password,
         hub_type: body.hub_type
@@ -1657,6 +1659,8 @@ export async function updatePlatformImageHub(body, handleError) {
       method: 'put',
       data: {
         domain: body.domain,
+        access_key: body.access_key,
+        access_secret: body.access_secret,
         username: body.username,
         password: body.password,
         hub_type: body.hub_type
@@ -1675,6 +1679,67 @@ export async function deletePlatformImageHub(body, handleError) {
       params: {
         secret_id: body.secret_id
       },
+      handleError
+    }
+  );
+}
+
+// 获取企业全局镜像仓库数据
+export async function fetchEnterpriseImageHub(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/hub/registry`,
+    {
+      method: 'get',
+      handleError
+    }
+  );
+}
+
+// 添加企业全局镜像仓库数据
+export async function addEnterpriseImageHub(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/hub/registry`,
+    {
+      method: 'post',
+      data: {
+        secret_id: body.secret_id,
+        domain: body.domain,
+        access_key: body.access_key,
+        access_secret: body.access_secret,
+        username: body.username,
+        password: body.password,
+        hub_type: body.hub_type
+      },
+      handleError
+    }
+  );
+}
+
+// 修改企业全局镜像仓库数据
+export async function updateEnterpriseImageHub(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/hub/registry/${body.secret_id}`,
+    {
+      method: 'put',
+      data: {
+        domain: body.domain,
+        access_key: body.access_key,
+        access_secret: body.access_secret,
+        username: body.username,
+        password: body.password,
+        hub_type: body.hub_type
+      },
+      handleError
+    }
+  );
+}
+
+// 删除企业全局镜像仓库数据
+export async function deleteEnterpriseImageHub(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/hub/registry/${body.secret_id}`,
+    {
+      method: 'delete',
       handleError
     }
   );

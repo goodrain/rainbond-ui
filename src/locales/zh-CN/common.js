@@ -346,6 +346,8 @@
         'confirmModal.app.label.sound_code':'源码:',
         'confirmModal.app.label.component_library':'组件库:',
         'confirmModal.app.label.local':'本地文件:',
+        'confirmModal.app.label.copy_not_supported':'不支持快速复制',
+        'confirmModal.app.copy.disabled.package_build':'上传软件包创建的组件不支持快速复制',
         'confirmModal.app.label.editVersions':'版本修改',
 
         //应用治理模式切换
@@ -498,8 +500,17 @@
         'confirmModal.edit.common.image.title':'修改镜像仓库',
         'confirmModal.common.image.lable.name':'仓库名称',
         'confirmModal.common.image.lable.domain':'镜像仓库地址',
+        'confirmModal.common.image.lable.access_key':'Access Key',
+        'confirmModal.common.image.lable.access_secret':'Access Secret',
         'confirmModal.common.image.lable.username':'用户名',
         'confirmModal.common.image.lable.password':'密码',
+        'confirmModal.common.image.tip.hub_type':'选择镜像仓库类型。Docker Registry/Harbor 使用标准仓库接口，云厂商类型会额外保存云 API 凭据。',
+        'confirmModal.common.image.tip.name':'Rainbond 内部使用的仓库标识，创建后不可修改。',
+        'confirmModal.common.image.tip.domain':'镜像仓库访问地址，需要包含 http:// 或 https://。',
+        'confirmModal.common.image.tip.access_key':'云厂商 API 访问凭据，用于后续对接云 API 获取命名空间、仓库和镜像信息。',
+        'confirmModal.common.image.tip.access_secret':'与 Access Key 配套的云 API 密钥，仅保存使用，不会在列表中回显。',
+        'confirmModal.common.image.tip.username':'镜像仓库登录用户名，用于 Registry v2 认证、查询标签和部署拉取镜像。',
+        'confirmModal.common.image.tip.password':'镜像仓库登录密码或访问令牌，用于 Registry v2 认证和创建镜像拉取凭据。',
     }
     const notification = {
         // 成功
@@ -843,6 +854,8 @@
         'placeholder.oauth.bucket_name':'请输入bucket_name',
         'placeholder.oauth.access_key':'请提供具有足够权限的Access Key',
         'placeholder.oauth.secret_key':'请提供具有足够权限的Secret Key',
+        'placeholder.access_key':'请输入 Access Key',
+        'placeholder.access_secret':'请输入 Access Secret',
         'placeholder.oauth.home_url':'请输入监控地址',
         'placeholder.oauth.cluster_monitor_suffix':'请输入集群监控',
         'placeholder.oauth.node_monitor_suffix':'请输入节点监控',

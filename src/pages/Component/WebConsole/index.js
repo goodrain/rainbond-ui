@@ -1,4 +1,4 @@
-import { Col, Row, Spin, Tabs, Tree } from 'antd';
+import { Col, Icon, Modal, Row, Spin, Tabs, Tooltip, Tree } from 'antd';
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
@@ -8,6 +8,7 @@ import XTerm from './xTerm';
 
 const { TreeNode } = Tree;
 const { TabPane } = Tabs;
+const DEBUG_MODE = 'debug';
 @connect(
   ({ user, appControl, global, teamControl, enterprise }) => ({
     currUser: user.currentUser,
@@ -62,19 +63,41 @@ export default class WebConsole extends PureComponent {
     }
   };
 
-  openConsole = (podName, containerName) => {
+  openConsole = (podName, containerName, options = {}) => {
     const activeKey = Math.random()
       .toString(36)
       .slice(-8);
     const tab = {
       podName,
       containerName,
-      title: containerName,
+      title: options.title || containerName,
+      mode: options.mode,
       key: activeKey
     };
     const { tabs } = this.state;
-    tabs.push(tab);
-    this.setState({ tabs, activeKey });
+    this.setState({ tabs: tabs.concat(tab), activeKey });
+  };
+
+  openDebugConsole = (podName, containerName, titleName) => {
+    const open = () => {
+      this.openConsole(podName, containerName, {
+        mode: DEBUG_MODE,
+        title: formatMessage(
+          { id: 'componentOverview.header.debug.tab' },
+          { name: titleName }
+        )
+      });
+    };
+
+    Modal.confirm({
+      title: formatMessage({ id: 'componentOverview.header.debug.title' }),
+      content: formatMessage({ id: 'componentOverview.header.debug.content' }),
+      okText: formatMessage({ id: 'componentOverview.header.debug.ok' }),
+      cancelText: formatMessage({ id: 'componentOverview.promptModal.cancel' }),
+      onOk: () => {
+        open();
+      }
+    });
   };
 
   updateTitle = (key, title) => {
@@ -249,7 +272,26 @@ export default class WebConsole extends PureComponent {
                       return (
                         <TreeNode
                           isLeaf
-                          title={titleName}
+                          title={
+                            <div className={styles.containerTitle}>
+                              <span className={styles.containerName}>{titleName}</span>
+                              <Tooltip
+                                title={formatMessage({
+                                  id: 'componentOverview.header.debug.tooltip'
+                                })}
+                              >
+                                <span
+                                  className={styles.debugIcon}
+                                  onClick={e => {
+                                    e.stopPropagation();
+                                    this.openDebugConsole(podName, containerName, titleName);
+                                  }}
+                                >
+                                  <Icon type="tool" />
+                                </span>
+                              </Tooltip>
+                            </div>
+                          }
                           key={`${podName}.${containerName}`}
                         />
                       );
@@ -264,11 +306,11 @@ export default class WebConsole extends PureComponent {
     );
   };
 
-  tabContent = (podName, containerName, key) => {
+  tabContent = (podName, containerName, key, mode) => {
     const { appDetail } = this.state;
     return (
       <XTerm
-        key={podName + containerName}
+        key={podName + containerName + (mode || '')}
         tenantID={appDetail.service.tenant_id}
         serviceID={appDetail.service.service_id}
         WebsocketURL={appDetail.event_websocket_url}
@@ -276,6 +318,7 @@ export default class WebConsole extends PureComponent {
         podName={podName}
         containerName={containerName}
         namespace={appDetail.service.namespace}
+        mode={mode}
       />
     );
   };
@@ -339,7 +382,7 @@ export default class WebConsole extends PureComponent {
                 hideAdd
               >
                 {tabs.map(item => {
-                  const { title, podName, key, containerName } = item;
+                  const { title, podName, key, containerName, mode } = item;
                   return (
                     <TabPane
                       tab={
@@ -353,7 +396,7 @@ export default class WebConsole extends PureComponent {
                       // eslint-disable-next-line react/no-array-index-key
                       key={key}
                     >
-                      {this.tabContent(podName, containerName, key)}
+                      {this.tabContent(podName, containerName, key, mode)}
                     </TabPane>
                   );
                 })}

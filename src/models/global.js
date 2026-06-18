@@ -119,6 +119,10 @@ import {
   addPlatformImageHub,
   updatePlatformImageHub,
   deletePlatformImageHub,
+  fetchEnterpriseImageHub,
+  addEnterpriseImageHub,
+  updateEnterpriseImageHub,
+  deleteEnterpriseImageHub,
   checkHubLink,
   fetchLanguageVersion,
   editLanguageDefault,
@@ -1072,6 +1076,30 @@ export default {
     },
     *deletePlatformImageHub({ payload, callback, handleError }, { put, call }) {
       const response = yield call(deletePlatformImageHub, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *fetchEnterpriseImageHub({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(fetchEnterpriseImageHub, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *addEnterpriseImageHub({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(addEnterpriseImageHub, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *updateEnterpriseImageHub({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(updateEnterpriseImageHub, payload, handleError);
+      if (callback) {
+        callback(response);
+      }
+    },
+    *deleteEnterpriseImageHub({ payload, callback, handleError }, { put, call }) {
+      const response = yield call(deleteEnterpriseImageHub, payload, handleError);
       if (callback) {
         callback(response);
       }

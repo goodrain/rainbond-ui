@@ -141,7 +141,7 @@ class DrawerForm extends PureComponent {
       callback(new Error(formatMessage({id:'placeholder.ipOrPort'})));
       return;
     }
-    const internalTcps = [80, 443, 6060, 8443, 10254, 18080, 18081];
+    const internalTcps = [80, 443, 8443, 10254, 18080, 18081];
     if (availablPort && internalTcps.includes(availablPort)) {
       callback(new Error(formatMessage({id:'placeholder.internal_port'})));
     }

@@ -26,6 +26,48 @@ assert.strictEqual(
 );
 
 assert.strictEqual(
+  typeof helpers.canShowExpansionTab,
+  'function',
+  'should expose a helper for deciding whether the expansion tab is visible'
+);
+
+assert.strictEqual(
+  typeof helpers.supportsHorizontalScaling,
+  'function',
+  'should expose a helper for deciding whether horizontal scaling controls are available'
+);
+
+assert.strictEqual(
+  helpers.canShowExpansionTab('daemonset'),
+  true,
+  'should keep the expansion tab visible for daemonset components so CPU and memory can be changed'
+);
+
+assert.strictEqual(
+  helpers.supportsHorizontalScaling('daemonset'),
+  false,
+  'should disable only horizontal instance scaling for daemonset components'
+);
+
+assert.strictEqual(
+  helpers.canShowExpansionTab('job'),
+  false,
+  'should keep job components out of the expansion tab'
+);
+
+assert.strictEqual(
+  helpers.canShowExpansionTab('cronjob'),
+  false,
+  'should keep cronjob components out of the expansion tab'
+);
+
+assert.strictEqual(
+  helpers.supportsHorizontalScaling('stateless_multiple'),
+  true,
+  'should keep horizontal scaling available for normal stateless components'
+);
+
+assert.strictEqual(
   helpers.isVmGpuPassthroughScalingLocked({
     method: 'vm',
     vmRuntime: {

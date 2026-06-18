@@ -48,6 +48,7 @@ import userUtil from '../../../utils/user';
 import ConnectionInformation from '../../../pages/Component/connectionInformation';
 import EnvironmentConfiguration from '../../../pages/Component/environmentConfiguration';
 import Expansion from '../../../pages/Component/expansion';
+import { canShowExpansionTab } from '../../../pages/Component/expansionHelpers';
 import styles from './components.less';
 import Log from '../../../pages/Component/log';
 import Members from '../../../pages/Component/members';
@@ -1652,8 +1653,7 @@ class Main extends PureComponent {
         tab: formatMessage({ id: 'componentOverview.body.tab.bar.expansion' }),
         auth: ['isTelescopic'],
         condition: (appDetail) =>
-          appDetail?.service?.extend_method !== 'job' &&
-          appDetail?.service?.extend_method !== 'cronjob' &&
+          canShowExpansionTab(appDetail?.service?.extend_method) &&
           appDetail?.service?.extend_method !== 'kubeblocks_component'
       },
       {

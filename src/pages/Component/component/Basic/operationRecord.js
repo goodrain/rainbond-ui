@@ -10,6 +10,13 @@ import styles from './operation.less';
 // eslint-disable-next-line import/first
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
+import {
+  getOperationLogTooltipTitle,
+  getOperationLogTooltipVisible,
+  getOperationRecordMessage,
+  getOperationRecordTypeText,
+  shouldShowOperationLogTooltipByDefault
+} from './operationRecordHelpers';
 
 @connect()
 @Form.create()
@@ -258,6 +265,7 @@ class Index extends PureComponent {
     const { logList, has_next, recordLoading, isopenLog } = this.props;
     const { logVisible, selectEventID, showSocket, showModalArr, showModal, isLoadingMore } = this.state;
     let showLogEvent = '';
+    let hasShownFailureLogTip = false;
     const statusMap = {
       success: 'logpassed',
       timeout: 'logcanceled',
@@ -297,7 +305,29 @@ class Index extends PureComponent {
                   showLogEvent = event_id;
                 }
                 const UserNames = this.showUserName(user_name);
+                const displayMessage = getOperationRecordMessage(message);
+                const optTypeText = getOperationRecordTypeText(
+                  opt_type,
+                  globalUtil.fetchStateOptTypeText(opt_type)
+                );
                 const Messages = globalUtil.fetchMessageLange(message, status, opt_type);
+                const logTooltipTitle = getOperationLogTooltipTitle({
+                  defaultTitle: formatMessage({ id: 'componentOverview.body.tab.overview.handle.lookLog' }),
+                  detail: status === 'failure' ? displayMessage : ''
+                });
+                const canShowLog =
+                  opt_type !== 'Unschedulable' &&
+                  opt_type !== 'INITIATING' &&
+                  syn_type === 0;
+                const showFailureLogTip = shouldShowOperationLogTooltipByDefault({
+                  status,
+                  canShowLog,
+                  hasShownFailureTip: hasShownFailureLogTip
+                });
+                if (showFailureLogTip) {
+                  hasShownFailureLogTip = true;
+                }
+                const logTooltipVisible = getOperationLogTooltipVisible(final_status, showFailureLogTip);
                 const showVMRestoreStage =
                   opt_type === 'vm-disk-restore' &&
                   final_status === '' &&
@@ -332,7 +362,7 @@ class Index extends PureComponent {
                             color: globalUtil.fetchAbnormalcolor(opt_type)
                           }}
                         >
-                          {globalUtil.fetchStateOptTypeText(opt_type)}
+                          {optTypeText}
                           &nbsp;
                         </span>
                         {showVMRestoreStage
@@ -345,10 +375,10 @@ class Index extends PureComponent {
 
                         {status === 'failure' &&
                           <Tooltip
-                            title={message}
+                            title={displayMessage}
                           >
                             <span style={{ color: '#A8A8A8' }}>
-                              ({message})
+                              ({displayMessage})
                             </span>
                           </Tooltip>
                         }
@@ -378,16 +408,13 @@ class Index extends PureComponent {
                       </span>
                     </div>
                     <div style={{ position: 'static' }} className="table-wrap">
-                      {opt_type !== 'Unschedulable' && opt_type !== 'INITIATING' &&
-                        syn_type === 0 && (
+                      {canShowLog && (
                           <Tooltip
-                            visible={final_status === ''}
+                            visible={logTooltipVisible}
                             placement="top"
                             arrowPointAtCenter
                             autoAdjustOverflow={false}
-                            title={
-                              <FormattedMessage id="componentOverview.body.tab.overview.handle.lookLog" />
-                            }
+                            title={logTooltipTitle}
                             getPopupContainer={() =>
                               document.querySelector('.table-wrap')
                             }

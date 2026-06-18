@@ -100,6 +100,28 @@ export const getUsernameRules = () => [
   }
 ];
 
+export const getAccessKeyRules = () => [
+  {
+    required: true,
+    message: formatMessage({ id: 'placeholder.access_key' })
+  },
+  {
+    max: 255,
+    message: formatMessage({ id: 'placeholder.max255' })
+  }
+];
+
+export const getAccessSecretRules = () => [
+  {
+    required: true,
+    message: formatMessage({ id: 'placeholder.access_secret' })
+  },
+  {
+    max: 255,
+    message: formatMessage({ id: 'placeholder.max255' })
+  }
+];
+
 /**
  * 密码校验规则
  */

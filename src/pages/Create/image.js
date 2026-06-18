@@ -15,6 +15,7 @@ import globalUtil from '../../utils/global';
 import ImgRepostory from '../../components/ImgRepostory';
 import AddOrEditImageRegistry from '../../components/AddOrEditImageRegistry';
 import rainbondUtil from '../../utils/rainbond';
+import { getImageRegistryTypeLabel } from '../../utils/imageRegistry';
 
 
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
@@ -127,6 +128,8 @@ export default class Main extends PureComponent {
       payload: {
         secret_id: values.secret_id,
         domain: values.domain,
+        access_key: values.access_key,
+        access_secret: values.access_secret,
         username: values.username,
         password: values.password,
         hub_type: values.hub_type
@@ -182,7 +185,7 @@ export default class Main extends PureComponent {
         map[item.secret_id] = ImgRepostory
         tabList.push({
           key: item.secret_id,
-          tab: `${item.hub_type} (${item.secret_id})`
+          tab: `${getImageRegistryTypeLabel(item.hub_type)} (${item.secret_id})`
         })
       })
     }
