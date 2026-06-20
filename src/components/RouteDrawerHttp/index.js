@@ -116,14 +116,33 @@ export default class index extends Component {
         this.setState({ editHttpStrategyLoading: true });
         const { formRefs, serviceComponentList } = this.state;
         const plugins = []
+        let pluginFormInvalid = false;
         formRefs.forEach((formRef, index) => {
             if (!formRef) return
             const form = formRef.props.form;
             form.validateFields((err, values) => {
+                if (err) {
+                    pluginFormInvalid = true;
+                    return;
+                }
                 if (!err) {
                     const { name, ...config } = values;
-                    // 递归循环所有config，将undefined、null、''、{}删除
-                    const newConfig = this.recursiveDelete(config);
+                    let extraConfig = {};
+                    if (config.extra_config) {
+                        try {
+                            extraConfig = JSON.parse(config.extra_config);
+                            if (!extraConfig || typeof extraConfig !== 'object' || Array.isArray(extraConfig)) {
+                                throw new Error('extra_config must be a JSON object');
+                            }
+                        } catch (error) {
+                            pluginFormInvalid = true;
+                            notification.warning({
+                                message: formatMessage({ id: 'gatewayplugin.extra_config.invalid' })
+                            });
+                            return;
+                        }
+                        delete config.extra_config;
+                    }
                     if (values.name == 'proxy-rewrite') {
                         let bool = true;
                         if (Object.keys(config.headers).length !== 0) {
@@ -139,10 +158,16 @@ export default class index extends Component {
                             delete config.headers;
                         }
                     }
-                    plugins.push({ name: values.name, secretRef: '', enable: true, config: config })
+                    // 递归循环所有config，将undefined、null、''、{}删除
+                    const newConfig = this.recursiveDelete(config) || {};
+                    plugins.push({ name: values.name, secretRef: '', enable: true, config: this.mergePluginConfig(extraConfig, newConfig) })
                 }
             });
         });
+        if (pluginFormInvalid) {
+            this.setState({ editHttpStrategyLoading: false });
+            return;
+        }
         const { editInfo, form, onOk } = this.props;
         form.validateFieldsAndScroll((err, values) => {
             if (!err) {
@@ -245,6 +270,26 @@ export default class index extends Component {
             }
         });
     };
+    mergePluginConfig = (target = {}, source = {}) => {
+        const result = { ...target };
+        Object.keys(source).forEach(key => {
+            const sourceValue = source[key];
+            const targetValue = result[key];
+            if (
+                sourceValue &&
+                targetValue &&
+                typeof sourceValue === 'object' &&
+                typeof targetValue === 'object' &&
+                !Array.isArray(sourceValue) &&
+                !Array.isArray(targetValue)
+            ) {
+                result[key] = this.mergePluginConfig(targetValue, sourceValue);
+                return;
+            }
+            result[key] = sourceValue;
+        });
+        return result;
+    }
     /**
      * 递归删除对象中的undefined、null、''、{}
      * @param {Object} obj 需要删除的对象
@@ -263,7 +308,12 @@ export default class index extends Component {
                         delete obj[key];
                     }
                 } else {
-                    obj[key] = this.recursiveDelete(obj[key]);
+                    const value = this.recursiveDelete(obj[key]);
+                    if (value === null || (typeof value === 'object' && Object.keys(value).length === 0)) {
+                        delete obj[key];
+                    } else {
+                        obj[key] = value;
+                    }
                 }
             }
         }

@@ -37,6 +37,9 @@ class Infrastructure extends PureComponent {
       AppstoreImageHubValue: rainbondUtil.fetchAppstoreImageHub(enterprise),
       openSmsConfig: false,
       openGlobalImageHub: false,
+      globalImageHubList: [],
+      globalImageHubLoading: false,
+      pendingEnableGlobalImageHub: false,
       smsConfig: null
     };
   }
@@ -46,6 +49,8 @@ class Infrastructure extends PureComponent {
       type: 'global/getIsRegist'
     });
     this.fetchSmsConfig();
+    this.fetchGlobalImageHub();
+    this.fetchPlatformSettings();
   }
 
   onRegistChange = checked => {
@@ -165,7 +170,8 @@ class Infrastructure extends PureComponent {
     this.setState({ openGlobalImageHub: true });
   };
   handelCloseGlobalImageHub = () => {
-    this.setState({ openGlobalImageHub: false });
+    this.setState({ openGlobalImageHub: false, pendingEnableGlobalImageHub: false });
+    this.fetchGlobalImageHub();
   };
   handelOpenSmsConfig = () => {
     this.setState({ openSmsConfig: true });
@@ -193,6 +199,95 @@ class Infrastructure extends PureComponent {
       }
     })
   }
+
+  fetchGlobalImageHub = callback => {
+    const {
+      dispatch,
+      match: {
+        params: { eid }
+      }
+    } = this.props;
+    this.setState({ globalImageHubLoading: true });
+    dispatch({
+      type: 'global/fetchEnterpriseImageHub',
+      payload: {
+        enterprise_id: eid
+      },
+      callback: res => {
+        const list = res && res.list ? res.list : [];
+        this.setState({
+          globalImageHubList: list,
+          globalImageHubLoading: false
+        }, () => {
+          if (callback) {
+            callback(list);
+          }
+        });
+      },
+      handleError: () => {
+        this.setState({ globalImageHubLoading: false });
+      }
+    });
+  };
+
+  fetchPlatformSettings = () => {
+    const {
+      dispatch,
+      match: {
+        params: { eid }
+      }
+    } = this.props;
+    dispatch({
+      type: 'global/fetchPlatformSettings',
+      payload: { eid }
+    });
+  };
+
+  handelIsOpenGlobalImageHub = enable => {
+    const { globalImageHubList } = this.state;
+    if (enable && (!globalImageHubList || !globalImageHubList.length)) {
+      this.setState({
+        openGlobalImageHub: true,
+        pendingEnableGlobalImageHub: true
+      });
+      return;
+    }
+    this.updateGlobalImageHubStatus(enable);
+  };
+
+  updateGlobalImageHubStatus = enable => {
+    const {
+      dispatch,
+      match: {
+        params: { eid }
+      }
+    } = this.props;
+    dispatch({
+      type: 'global/updatePlatformSettings',
+      payload: { eid, enable_global_image_registry: enable },
+      callback: () => {
+        notification.success({
+          message: enable
+            ? formatMessage({ id: 'notification.success.opened_successfully' })
+            : formatMessage({ id: 'notification.success.close' })
+        });
+      }
+    });
+  };
+
+  handleGlobalImageHubChange = action => {
+    const { pendingEnableGlobalImageHub } = this.state;
+    const { enterprise } = this.props;
+    this.fetchGlobalImageHub(list => {
+      if (action === 'add' && pendingEnableGlobalImageHub && list.length) {
+        this.setState({ pendingEnableGlobalImageHub: false });
+        this.updateGlobalImageHubStatus(true);
+      }
+      if (action === 'delete' && !list.length && enterprise && enterprise.enable_global_image_registry) {
+        this.updateGlobalImageHubStatus(false);
+      }
+    });
+  };
 
   onResourceViewChange = checked => {
     const {
@@ -266,8 +361,12 @@ class Infrastructure extends PureComponent {
       closeImageHub,
       openSmsConfig,
       openGlobalImageHub,
+      globalImageHubList,
+      globalImageHubLoading,
       smsConfig
     } = this.state;
+    const isEnableGlobalImageHub = !!(enterprise && enterprise.enable_global_image_registry);
+    const hasGlobalImageHubConfig = !!(globalImageHubList && globalImageHubList.length);
     const UserRegistered = (
       <Card
         hoverable
@@ -394,9 +493,19 @@ class Infrastructure extends PureComponent {
             </span>
           </Col>
           <Col span={4} style={{ textAlign: 'right' }}>
-            <a onClick={this.handelOpenGlobalImageHub}>
-              <FormattedMessage id='enterpriseSetting.basicsSetting.checkTheConfiguration'/>
-            </a>
+            {(isEnableGlobalImageHub || hasGlobalImageHubConfig) && (
+              <a
+                onClick={this.handelOpenGlobalImageHub}
+                style={{ marginRight: '10px' }}
+              >
+                <FormattedMessage id='enterpriseSetting.basicsSetting.checkTheConfiguration'/>
+              </a>
+            )}
+            <Switch
+              onChange={this.handelIsOpenGlobalImageHub}
+              checked={isEnableGlobalImageHub}
+              loading={resourceViewUpdating || globalImageHubLoading}
+            />
           </Col>
         </Row>
       </Card>
@@ -457,7 +566,11 @@ class Infrastructure extends PureComponent {
             onCancel={this.handelCloseGlobalImageHub}
             destroyOnClose
           >
-            <ImageWarehouse mode="enterprise" enterpriseId={eid} />
+            <ImageWarehouse
+              mode="enterprise"
+              enterpriseId={eid}
+              onChange={this.handleGlobalImageHubChange}
+            />
           </Modal>
         )}
         {(closeImageHub || showDeleteDomain) && (
