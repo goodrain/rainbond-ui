@@ -489,17 +489,13 @@ export default class ImgRepository extends Component {
                           </div>
                         ))}
                       </div>
-                      <div style={{
-                        textAlign: 'center',
-                        padding: '12px 0',
-                        borderTop: '1px solid #f0f0f0',
-                        background: '#fff'
-                      }}>
+                      <div className={styles.paginationBar}>
                         <Pagination
                           current={imagePagination.current}
                           pageSize={imagePagination.pageSize}
                           total={imagePagination.total}
                           showTotal={(total) => formatMessage({ id: 'versionUpdata_6_1.imageTotal' }, { total })}
+                          showLessItems
                           showSizeChanger
                           showQuickJumper
                           pageSizeOptions={['10', '20', '50', '100']}
@@ -551,17 +547,13 @@ export default class ImgRepository extends Component {
                     scroll={{ y: 'calc(100vh - 500px)' }}
                   />
                 </div>
-                <div style={{
-                  textAlign: 'center',
-                  padding: '12px 0',
-                  borderTop: '1px solid #f0f0f0',
-                  background: '#fff'
-                }}>
+                <div className={styles.paginationBar}>
                   <Pagination
                     current={tagPagination.current}
                     pageSize={tagPagination.pageSize}
                     total={tagPagination.total}
                     showTotal={total => formatMessage({ id: 'versionUpdata_6_1.tagTotal' }, { total })}
+                    showLessItems
                     showSizeChanger
                     showQuickJumper
                     pageSizeOptions={['10', '20', '50', '100']}

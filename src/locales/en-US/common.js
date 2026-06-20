@@ -505,7 +505,7 @@
         'confirmModal.common.image.tip.name':'Internal registry identifier in Rainbond. It cannot be changed after creation.',
         'confirmModal.common.image.tip.domain':'Registry access URL. It must include http:// or https://.',
         'confirmModal.common.image.tip.access_key':'Cloud API credential used later to query namespaces, repositories, and image metadata from the cloud provider.',
-        'confirmModal.common.image.tip.access_secret':'Secret paired with the Access Key. It is stored for use and never shown in registry lists.',
+        'confirmModal.common.image.tip.access_secret':'Cloud account Secret Access Key, not the registry password. Used to query namespaces, repositories, and image metadata from the cloud provider API.',
         'confirmModal.common.image.tip.username':'Registry login username used for Registry v2 authentication, tag queries, and image pulls.',
         'confirmModal.common.image.tip.password':'Registry login password or token used for Registry v2 authentication and image pull credentials.',
 
@@ -847,6 +847,7 @@
         'placeholder.oauth.secret_key':'Please provide a Secret Key with sufficient permissions',
         'placeholder.access_key':'Please enter Access Key',
         'placeholder.access_secret':'Please enter Access Secret',
+        'placeholder.secret_keep_current':'Leave blank to keep the current secret',
         'placeholder.oauth.home_url':'Please enter the monitoring address',
         'placeholder.oauth.cluster_monitor_suffix':'Enter Cluster monitoring',
         'placeholder.oauth.node_monitor_suffix':'Enter Node monitoring',

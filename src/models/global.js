@@ -665,12 +665,22 @@ export default {
         callback(response);
       }
     },
-    *fetchEnterpriseInfo({ payload, callback }, { put, call }) {
+    *fetchEnterpriseInfo({ payload, callback }, { put, call, select }) {
       const response = yield call(fetchEnterpriseInfo, payload);
       if (response) {
+        const enterprise = yield select(state => state.global.enterprise);
+        const currentEnterpriseId = enterprise && (enterprise.enterprise_id || enterprise.eid);
+        const requestEnterpriseId = payload && payload.enterprise_id;
+        const responseEnterpriseId = response.bean && (response.bean.enterprise_id || response.bean.eid);
+        const isSameEnterprise = currentEnterpriseId && (
+          (requestEnterpriseId && String(currentEnterpriseId) === String(requestEnterpriseId)) ||
+          (responseEnterpriseId && String(currentEnterpriseId) === String(responseEnterpriseId))
+        );
         yield put({
           type: 'saveEnterpriseInfo',
-          payload: response.bean
+          payload: isSameEnterprise
+            ? { ...(enterprise || {}), ...(response.bean || {}) }
+            : response.bean
         });
         if (callback) {
           callback(response);
@@ -681,9 +691,17 @@ export default {
       const response = yield call(getPlatformSettings, payload);
       if (response && response.bean) {
         const enterprise = yield select(state => state.global.enterprise);
+        const settingsEnterpriseId = payload && (payload.enterprise_id || payload.eid);
+        const currentEnterpriseId = enterprise && (enterprise.enterprise_id || enterprise.eid);
+        const shouldMergeEnterprise = !settingsEnterpriseId || !currentEnterpriseId ||
+          String(settingsEnterpriseId) === String(currentEnterpriseId);
+        const nextEnterprise = shouldMergeEnterprise ? { ...(enterprise || {}) } : {};
+        if (settingsEnterpriseId) {
+          nextEnterprise.enterprise_id = settingsEnterpriseId;
+        }
         yield put({
           type: 'saveEnterpriseInfo',
-          payload: { ...enterprise, ...response.bean }
+          payload: { ...nextEnterprise, ...response.bean }
         });
         if (callback) callback(response.bean);
       }
@@ -692,9 +710,20 @@ export default {
       const response = yield call(updatePlatformSettings, payload);
       if (response) {
         const enterprise = yield select(state => state.global.enterprise);
+        const nextEnterprise = { ...(enterprise || {}) };
+        const settingsEnterpriseId = payload && (payload.enterprise_id || payload.eid);
+        if (settingsEnterpriseId) {
+          nextEnterprise.enterprise_id = settingsEnterpriseId;
+        }
+        if (Object.prototype.hasOwnProperty.call(payload, 'enable_team_resource_view')) {
+          nextEnterprise.enable_team_resource_view = payload.enable_team_resource_view;
+        }
+        if (Object.prototype.hasOwnProperty.call(payload, 'enable_global_image_registry')) {
+          nextEnterprise.enable_global_image_registry = payload.enable_global_image_registry;
+        }
         yield put({
           type: 'saveEnterpriseInfo',
-          payload: { ...enterprise, enable_team_resource_view: payload.enable_team_resource_view }
+          payload: nextEnterprise
         });
         if (callback) callback(response);
       }

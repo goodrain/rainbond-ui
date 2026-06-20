@@ -508,7 +508,7 @@
         'confirmModal.common.image.tip.name':'Rainbond 内部使用的仓库标识，创建后不可修改。',
         'confirmModal.common.image.tip.domain':'镜像仓库访问地址，需要包含 http:// 或 https://。',
         'confirmModal.common.image.tip.access_key':'云厂商 API 访问凭据，用于后续对接云 API 获取命名空间、仓库和镜像信息。',
-        'confirmModal.common.image.tip.access_secret':'与 Access Key 配套的云 API 密钥，仅保存使用，不会在列表中回显。',
+        'confirmModal.common.image.tip.access_secret':'云账号 Secret Access Key，不是镜像仓库密码。用于调用云厂商 API 查询命名空间、仓库和镜像信息。',
         'confirmModal.common.image.tip.username':'镜像仓库登录用户名，用于 Registry v2 认证、查询标签和部署拉取镜像。',
         'confirmModal.common.image.tip.password':'镜像仓库登录密码或访问令牌，用于 Registry v2 认证和创建镜像拉取凭据。',
     }
@@ -856,6 +856,7 @@
         'placeholder.oauth.secret_key':'请提供具有足够权限的Secret Key',
         'placeholder.access_key':'请输入 Access Key',
         'placeholder.access_secret':'请输入 Access Secret',
+        'placeholder.secret_keep_current':'留空则不修改当前密钥',
         'placeholder.oauth.home_url':'请输入监控地址',
         'placeholder.oauth.cluster_monitor_suffix':'请输入集群监控',
         'placeholder.oauth.node_monitor_suffix':'请输入节点监控',

@@ -36,6 +36,12 @@ class ConfirmModal extends PureComponent {
       hubType: normalizeImageRegistryType(arg.data && arg.data.hub_type)
     };
   }
+  componentDidUpdate(prevProps) {
+    const { secretIdErrorKey, secretIdErrorMessage } = this.props;
+    if (secretIdErrorKey && secretIdErrorKey !== prevProps.secretIdErrorKey) {
+      this.setSecretIdError(secretIdErrorMessage);
+    }
+  }
   // 检查仓库链接状态
   handleCheckImageHub = (values) => {
     const { dispatch, clusters, onOk } = this.props;
@@ -89,6 +95,17 @@ class ConfirmModal extends PureComponent {
       }
     });
   };
+
+  setSecretIdError = message => {
+    const { form } = this.props;
+    form.setFields({
+      secret_id: {
+        value: form.getFieldValue('secret_id'),
+        errors: [new Error(message || formatMessage({ id: 'placeholder.warehouse_exist' }))]
+      }
+    });
+  };
+
   render() {
     const { onCancel, data, form, loading } = this.props;
     const { getFieldDecorator } = form;
@@ -209,9 +226,14 @@ class ConfirmModal extends PureComponent {
               >
                 {getFieldDecorator('access_secret', {
                   initialValue: '',
-                  rules: getAccessSecretRules()
+                  rules: getAccessSecretRules(!data)
                 })(
-                  <Input placeholder={formatMessage({ id: 'placeholder.access_secret' })} type="password" />
+                  <Input
+                    placeholder={formatMessage({
+                      id: data ? 'placeholder.secret_keep_current' : 'placeholder.access_secret'
+                    })}
+                    type="password"
+                  />
                 )}
               </FormItem>
             )}
@@ -231,10 +253,15 @@ class ConfirmModal extends PureComponent {
               label={this.renderLabel('confirmModal.common.image.lable.password', 'confirmModal.common.image.tip.password')}
             >
               {getFieldDecorator('password', {
-                initialValue: (data && data.password) || '',
-                rules: getPasswordRules()
+                initialValue: '',
+                rules: getPasswordRules(!data)
               })(
-                <Input placeholder={formatMessage({ id: 'placeholder.password_1' })} type="password" />
+                <Input
+                  placeholder={formatMessage({
+                    id: data ? 'placeholder.secret_keep_current' : 'placeholder.password_1'
+                  })}
+                  type="password"
+                />
               )}
             </FormItem>
           </Spin>

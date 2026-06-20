@@ -111,9 +111,9 @@ export const getAccessKeyRules = () => [
   }
 ];
 
-export const getAccessSecretRules = () => [
+export const getAccessSecretRules = (required = true) => [
   {
-    required: true,
+    required,
     message: formatMessage({ id: 'placeholder.access_secret' })
   },
   {
@@ -125,9 +125,9 @@ export const getAccessSecretRules = () => [
 /**
  * 密码校验规则
  */
-export const getPasswordRules = () => [
+export const getPasswordRules = (required = true) => [
   {
-    required: true,
+    required,
     message: formatMessage({ id: 'placeholder.password_1' })
   },
   {
