@@ -118,7 +118,7 @@ class LicenseDrawer extends PureComponent {
         value: editData.certificate,
         name: 'certificate',
         label: formatMessage({id:'popover.manage.certificate.label.public'}),
-        messages: formatMessage({id:'placeholder.certificate.name'}),
+        messages: formatMessage({id:'placeholder.certificate.public'}),
         uploadName: 'public_key_btn',
         mode: 'javascript'
       },
