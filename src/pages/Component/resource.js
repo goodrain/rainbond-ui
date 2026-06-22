@@ -30,6 +30,7 @@ import rainbondUtil from '../../utils/rainbond';
 import { languageObj } from '../../utils/utils';
 import { formatMessage } from '@/utils/intl';
 import styles from './resource.less';
+import { shouldShowCodeBuildConfig } from './resourceHelpers';
 import AutoDeploy from './setting/auto-deploy';
 import ChangeBuildSource from './setting/edit-buildsource';
 import ModifyUrl from '../Create/modify-url';
@@ -1369,7 +1370,7 @@ export default class Index extends PureComponent {
             </div> */}
           </Modal>
         }
-        {languageType && runtimeInfo && (
+        {shouldShowCodeBuildConfig({ buildSource, languageType, runtimeInfo }) && (
           <CodeBuildConfig
             appDetail={this.props.appDetail}
             buildSource={buildSource}
