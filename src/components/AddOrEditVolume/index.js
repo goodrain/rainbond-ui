@@ -248,6 +248,7 @@ export default class AddVolumes extends PureComponent {
               ]
             })(
               <Input
+                data-testid="rbd-volume-name-input"
                 placeholder={formatMessage({ id: 'componentOverview.body.AddVolumes.required' })}
                 disabled={!!this.props.editor}
               />
@@ -284,7 +285,7 @@ export default class AddVolumes extends PureComponent {
                     validator: this.checkMountPath
                   }
                 ]
-              })(<Input placeholder={formatMessage({ id: 'componentOverview.body.AddVolumes.volume_path_placeholder' })} />)}
+              })(<Input data-testid="rbd-volume-path-input" placeholder={formatMessage({ id: 'componentOverview.body.AddVolumes.volume_path_placeholder' })} />)}
             </FormItem>
           )}
           {method != 'vm' &&
@@ -359,7 +360,7 @@ export default class AddVolumes extends PureComponent {
           >
             <FormattedMessage id='componentOverview.body.AddVolumes.cancel' />
           </Button>
-          <Button onClick={this.handleSubmit} type="primary">
+          <Button data-testid="rbd-volume-submit-btn" onClick={this.handleSubmit} type="primary">
             <FormattedMessage id='componentOverview.body.AddVolumes.confirm' />
           </Button>
         </div>

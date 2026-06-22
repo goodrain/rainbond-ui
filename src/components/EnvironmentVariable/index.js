@@ -125,6 +125,13 @@ class EditableCell extends React.Component {
             })(
               <Input
                 // disabled={!addVariable && dataIndex === 'attr_name'}
+                data-testid={
+                  dataIndex === 'attr_name'
+                    ? 'rbd-env-key-input'
+                    : dataIndex === 'attr_value'
+                    ? 'rbd-env-value-input'
+                    : undefined
+                }
                 placeholder={placeholders}
               />
             )}
@@ -887,6 +894,7 @@ class EnvironmentVariable extends React.Component {
                 <EditableContext.Consumer>
                   {form => (
                     <Button
+                      data-testid="rbd-env-save-btn"
                       loading={editEvnsLoading || addInnerEnvsLoading}
                       onClick={() => this.save(form, data.ID)}
                       type="link"
@@ -1001,7 +1009,7 @@ class EnvironmentVariable extends React.Component {
     );
 
     const addButton = (
-      <Button onClick={this.handleAdd} disabled={addVariable}>
+      <Button data-testid="rbd-env-add-btn" onClick={this.handleAdd} disabled={addVariable}>
         <Icon type="plus" />
         {/* 添加变量 */}
         <FormattedMessage id='componentOverview.body.tab.env.table.column.add'/>
