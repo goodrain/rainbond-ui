@@ -491,6 +491,7 @@ export default class Index extends PureComponent {
       initialValue: this.state.version_type || 'branch'
     })(
       <Select
+        data-testid="rbd-create-code-versiontype"
         style={{ width: 100 }}
         getPopupContainer={triggerNode => triggerNode.parentNode}
       >
@@ -579,6 +580,7 @@ export default class Index extends PureComponent {
               rules: getGitUrlRules(createUrlValidator(serverType))
             })(
               <Input
+                data-testid="rbd-create-code-giturl"
                 addonBefore={prefixSelector}
                 placeholder={DEFAULT_DEMO.gitUrl}
               />
@@ -627,6 +629,7 @@ export default class Index extends PureComponent {
                 rules: getCodeVersionRules()
               })(
                 <Input
+                  data-testid="rbd-create-code-branch"
                   addonBefore={versionSelector}
                   placeholder={DEFAULT_DEMO.codeVersion}
                 />
