@@ -101,7 +101,7 @@ export default class Index extends PureComponent {
             </Menu>
           </Row>
         )}
-        <Row>
+        <Row data-testid="rbd-comp-monitor-panel">
           {currentMenu === 'trace' ? <TraceShow /> : <ResourceShow />}
         </Row>
       </>
