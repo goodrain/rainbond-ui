@@ -712,14 +712,14 @@ export default class index extends Component {
                 >
                     <Form hideRequiredMark onSubmit={this.handleSubmit}>
                         <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.GatewayRoute.host' })}>
-                            {getFieldDecorator('hosts', {
+                            <span data-testid="rbd-gw-route-host">{getFieldDecorator('hosts', {
                                 rules: [
                                     { validator: this.handleValidatorsHosts },
                                     // 域名不允许填入ip
                                     { validator: this.handleValidatorsHostsIp },
                                 ],
                                 initialValue: (editInfo && editInfo.match && editInfo.match.hosts) || []
-                            })(<DAHosts hostPlaceholder={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.InputHost' })} isEdit={Object.keys(editInfo).length > 0} isHosts={true} />)}
+                            })(<DAHosts hostPlaceholder={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.InputHost' })} isEdit={Object.keys(editInfo).length > 0} isHosts={true} />)}</span>
                             <span style={{ fontWeight: 'bold', fontSize: '16px' }}>
                                 <a href="javascript:void(0)" onClick={this.showDescription}>
                                     {formatMessage({ id: 'popover.access_strategy.lable.analysis' })}
@@ -890,12 +890,12 @@ export default class index extends Component {
                                                     </>
                                                 }
                                                 >
-                                                    {getFieldDecorator('comListInfo', {
+                                                    <span data-testid="rbd-gw-route-backend">{getFieldDecorator('comListInfo', {
                                                         rules: [{ validator: this.handleValidators }],
                                                         initialValue: (editInfo && editInfo.backends && this.handleService(editInfo.backends, "backends")) || []
                                                     })(
                                                         <ServiceInputK8s comList={serviceComponentList} />
-                                                    )}
+                                                    )}</span>
                                                 </Form.Item>
                                             </Skeleton>
                                         }
@@ -978,7 +978,7 @@ export default class index extends Component {
                         <Button onClick={this.onClose} style={{ marginRight: 8 }}>
                             {formatMessage({ id: 'popover.cancel' })}
                         </Button>
-                        <Button type="primary" loading={editHttpStrategyLoading} onClick={this.handleSubmit}>
+                        <Button data-testid="rbd-gw-route-submit" type="primary" loading={editHttpStrategyLoading} onClick={this.handleSubmit}>
                             {formatMessage({ id: 'popover.confirm' })}
                         </Button>
                     </div>

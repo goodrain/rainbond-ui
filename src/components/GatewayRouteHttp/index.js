@@ -418,6 +418,7 @@ export default class index extends Component {
                     />
                     {isCreate && (
                         <Button
+                            data-testid="rbd-gw-route-add-btn"
                             icon="plus"
                             type="primary"
                             onClick={() => this.routeDrawerShow({}, 'add')}
