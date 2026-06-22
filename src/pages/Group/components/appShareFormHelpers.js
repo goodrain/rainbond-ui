@@ -14,6 +14,31 @@ const cloneShareService = item => ({
     : []
 });
 
+const DAEMONSET_NODE_SCALE_FIELDS = ['min_node', 'max_node', 'step_node'];
+const DAEMONSET_NODE_SCALE_TIP = 'DaemonSet 类型资源不能设置节点步长';
+
+const isDaemonSetComponent = item =>
+  item &&
+  (item.extend_method === 'daemonset' || item.service_type === 'daemonset');
+
+const isNodeScalingDisabled = item => isDaemonSetComponent(item);
+
+const isNodeScalingField = field => DAEMONSET_NODE_SCALE_FIELDS.includes(field);
+
+const getNodeScalingDisabledTip = (item, field) =>
+  isNodeScalingDisabled(item) && isNodeScalingField(field)
+    ? DAEMONSET_NODE_SCALE_TIP
+    : '';
+
+const sanitizeExtendMethodMap = item => {
+  if (!item || !item.extend_method_map || !isDaemonSetComponent(item)) {
+    return;
+  }
+  DAEMONSET_NODE_SCALE_FIELDS.forEach(field => {
+    delete item.extend_method_map[field];
+  });
+};
+
 const collectShareServiceData = ({
   shareServiceList = [],
   selectedShareKeys = [],
@@ -81,11 +106,19 @@ const collectShareServiceData = ({
           option.extend_method_map &&
           String(ID) === String(indexarr[2])
         ) {
+          if (
+            isDaemonSetComponent(option) &&
+            isNodeScalingField(indexarr[1])
+          ) {
+            return;
+          }
           option.extend_method_map[indexarr[1]] = componentValues[index];
         }
       });
     });
   });
+
+  shareServiceData.forEach(sanitizeExtendMethodMap);
 
   const selectedShareServices = [];
   selectedShareKeys.forEach(shareKey => {
@@ -104,5 +137,8 @@ const collectShareServiceData = ({
 };
 
 module.exports = {
-  collectShareServiceData
+  collectShareServiceData,
+  getNodeScalingDisabledTip,
+  isDaemonSetComponent,
+  isNodeScalingDisabled
 };
