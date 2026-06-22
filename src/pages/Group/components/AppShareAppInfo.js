@@ -1,10 +1,24 @@
 /* eslint-disable react/jsx-no-bind */
 import React, { Fragment, PureComponent } from 'react';
-import { Checkbox, Col, Divider, Form, Input, InputNumber, Row, Tag } from 'antd';
+import {
+  Checkbox,
+  Col,
+  Divider,
+  Form,
+  Input,
+  InputNumber,
+  Row,
+  Tag,
+  Tooltip
+} from 'antd';
 import { formatMessage } from '@/utils/intl';
 import styles from '../publish.less';
 
 const FormItem = Form.Item;
+const {
+  getNodeScalingDisabledTip,
+  isNodeScalingDisabled
+} = require('./appShareFormHelpers');
 
 class AppShareAppInfo extends PureComponent {
   componentDidMount() {
@@ -184,6 +198,28 @@ class AppShareAppInfo extends PureComponent {
     }
     if (app.extend_method_map) {
       const steps = getFieldValue(`extend||step_node||${ID}`);
+      const nodeScalingDisabled = isNodeScalingDisabled(app);
+      const nodeScalingRules = nodeScalingDisabled
+        ? []
+        : [
+            {
+              required: true,
+              message: formatMessage({
+                id: 'placeholder.appShare.formatError'
+              })
+            }
+          ];
+      const renderNodeScalingInput = (field, input) => {
+        const tip = getNodeScalingDisabledTip(app, field);
+        if (!tip) {
+          return input;
+        }
+        return (
+          <Tooltip title={tip}>
+            <span style={{ display: 'block' }}>{input}</span>
+          </Tooltip>
+        );
+      };
       return (
         <div className={styles.componentSection}>
           <div className={styles.componentSectionHeader}>
@@ -206,23 +242,20 @@ class AppShareAppInfo extends PureComponent {
               >
                 {getFieldDecorator(`extend||min_node||${ID}`, {
                   initialValue: app.extend_method_map.min_node,
-                  rules: [
-                    {
-                      required: true,
-                      message: formatMessage({
-                        id: 'placeholder.appShare.formatError'
-                      })
-                    }
-                  ]
+                  rules: nodeScalingRules
                 })(
-                  <InputNumber
-                    style={{ width: '100%' }}
-                    placeholder={formatMessage({
-                      id: 'placeholder.appShare.min_node'
-                    })}
-                    min={1}
-                    step={steps || app.extend_method_map.step_node}
-                  />
+                  renderNodeScalingInput(
+                    'min_node',
+                    <InputNumber
+                      style={{ width: '100%' }}
+                      placeholder={formatMessage({
+                        id: 'placeholder.appShare.min_node'
+                      })}
+                      disabled={nodeScalingDisabled}
+                      min={1}
+                      step={steps || app.extend_method_map.step_node}
+                    />
+                  )
                 )}
               </FormItem>
             </Col>
@@ -235,23 +268,20 @@ class AppShareAppInfo extends PureComponent {
               >
                 {getFieldDecorator(`extend||max_node||${ID}`, {
                   initialValue: app.extend_method_map.max_node,
-                  rules: [
-                    {
-                      required: true,
-                      message: formatMessage({
-                        id: 'placeholder.appShare.formatError'
-                      })
-                    }
-                  ]
+                  rules: nodeScalingRules
                 })(
-                  <InputNumber
-                    style={{ width: '100%' }}
-                    placeholder={formatMessage({
-                      id: 'placeholder.appShare.max_node'
-                    })}
-                    min={1}
-                    step={steps || app.extend_method_map.step_node}
-                  />
+                  renderNodeScalingInput(
+                    'max_node',
+                    <InputNumber
+                      style={{ width: '100%' }}
+                      placeholder={formatMessage({
+                        id: 'placeholder.appShare.max_node'
+                      })}
+                      disabled={nodeScalingDisabled}
+                      min={1}
+                      step={steps || app.extend_method_map.step_node}
+                    />
+                  )
                 )}
               </FormItem>
             </Col>
@@ -264,23 +294,20 @@ class AppShareAppInfo extends PureComponent {
               >
                 {getFieldDecorator(`extend||step_node||${ID}`, {
                   initialValue: app.extend_method_map.step_node,
-                  rules: [
-                    {
-                      required: true,
-                      message: formatMessage({
-                        id: 'placeholder.appShare.formatError'
-                      })
-                    }
-                  ]
+                  rules: nodeScalingRules
                 })(
-                  <InputNumber
-                    style={{ width: '100%' }}
-                    placeholder={formatMessage({
-                      id: 'placeholder.appShare.step_node'
-                    })}
-                    min={app.extend_method_map.min_node}
-                    max={app.extend_method_map.max_node}
-                  />
+                  renderNodeScalingInput(
+                    'step_node',
+                    <InputNumber
+                      style={{ width: '100%' }}
+                      placeholder={formatMessage({
+                        id: 'placeholder.appShare.step_node'
+                      })}
+                      disabled={nodeScalingDisabled}
+                      min={app.extend_method_map.min_node}
+                      max={app.extend_method_map.max_node}
+                    />
+                  )
                 )}
               </FormItem>
             </Col>
