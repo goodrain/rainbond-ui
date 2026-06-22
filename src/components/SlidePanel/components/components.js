@@ -1408,6 +1408,7 @@ class Main extends PureComponent {
           <Button
             type={index === 0 ? "primary" : "default"}
             key={op.key}
+            data-testid={op.key ? `rbd-comp-action-${op.key}` : undefined}
             onClick={op.onClick}
             disabled={op.disabled}
             loading={op.loading}
@@ -1464,7 +1465,7 @@ class Main extends PureComponent {
                 onClick={op.onClick}
                 disabled={op.disabled}
               >
-                {op.text}
+                <span data-testid={op.key ? `rbd-comp-action-${op.key}` : undefined}>{op.text}</span>
               </Menu.Item>
             )
           ))}
@@ -1477,6 +1478,7 @@ class Main extends PureComponent {
             <Button
               type={index === 0 ? "primary" : "default"}
               key={op.key}
+              data-testid={op.key ? `rbd-comp-action-${op.key}` : undefined}
               onClick={op.onClick}
               disabled={op.disabled}
               loading={op.loading}
@@ -1514,7 +1516,7 @@ class Main extends PureComponent {
           )
         )),
         <Dropdown key="more" overlay={menu}>
-          <Button>
+          <Button data-testid="rbd-comp-more-btn">
             {formatMessage({ id: 'versionUpdata_6_2.more' })} <Icon type="down" />
           </Button>
         </Dropdown>
@@ -1868,6 +1870,7 @@ class Main extends PureComponent {
             title={<FormattedMessage id="componentOverview.promptModal.tips" />}
             visible={promptModal}
             className={styless.TelescopicModal}
+            okButtonProps={{ 'data-testid': 'rbd-comp-action-confirm' }}
             onOk={this.handleJumpAgain}
             onCancel={this.handleOffHelpfulHints}
             confirmLoading={
