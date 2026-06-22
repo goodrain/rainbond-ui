@@ -64,6 +64,7 @@ export default class AddPort extends PureComponent {
       <Modal
         title={<FormattedMessage id='componentOverview.body.AddPort.title'/>}
         onOk={this.handleSubmit}
+        okButtonProps={{ 'data-testid': 'rbd-port-add-submit' }}
         onCancel={this.props.onCancel}
         visible={true}
       >
@@ -76,6 +77,7 @@ export default class AddPort extends PureComponent {
               ]
             })(
               <Input
+                data-testid="rbd-port-input"
                 type="number"
                 placeholder={
                   this.props.isImageApp || this.props.isDockerfile

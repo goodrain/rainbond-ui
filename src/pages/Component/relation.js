@@ -181,7 +181,7 @@ export default class Index extends PureComponent {
               <span className={styles.desc}>{formatMessage({ id: 'componentOther.relationMnt.desc_relation' })}</span>
             </>}
             extra={
-              <Button onClick={this.showAddRelation}>
+              <Button data-testid="rbd-dep-add-btn" onClick={this.showAddRelation}>
                 <Icon type="plus" /> <FormattedMessage id='componentOverview.body.Relation.EnvironmentVariable.add' />
               </Button>
             }
