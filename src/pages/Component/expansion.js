@@ -34,8 +34,10 @@ import { formatMessage } from '@/utils/intl';
 import cookie from '../../utils/cookie';
 import handleAPIError from '../../utils/error';
 import {
+  canShowHorizontalScalingControls,
   getRunningVMLiveUpdateChangedResource,
   getVmPassthroughScalingLockMessageId,
+  isHorizontalScalingDisabled,
   isVmGpuPassthroughScalingLocked,
   supportsHorizontalScaling
 } from './expansionHelpers';
@@ -1339,6 +1341,8 @@ export default class Index extends PureComponent {
     );
     const vmWillRestartForScaling = method === 'vm' && !isVMStopped && !vmHotUpdateSupported;
     const horizontalScalingSupported = supportsHorizontalScaling(method);
+    const showHorizontalScalingControls = canShowHorizontalScalingControls(method);
+    const horizontalScalingDisabled = isHorizontalScalingDisabled(method);
 
     const minNumber = getFieldValue('minNum') || 0;
     const formItemLayout = {
@@ -1401,6 +1405,14 @@ export default class Index extends PureComponent {
     }[vmChangedResource];
     return (
       <div>
+        {horizontalScalingDisabled && (
+          <Alert
+            showIcon
+            message={formatMessage({ id: 'componentOverview.body.Expansion.daemonsetScalingTip' })}
+            type="info"
+            style={{ marginBottom: 24 }}
+          />
+        )}
         <Card
           className={styles.InstancesCard}
           title={<FormattedMessage id='componentOverview.body.Expansion.instance' />}
@@ -1613,7 +1625,7 @@ export default class Index extends PureComponent {
                 />
               </Form.Item>
             )}
-            {horizontalScalingSupported && (
+            {showHorizontalScalingControls && (
               <Form.Item
                 label={<FormattedMessage id='componentOverview.body.Expansion.number' />}
                 {...formItemLayout}
@@ -1622,7 +1634,7 @@ export default class Index extends PureComponent {
                   initialValue: extendInfo.current_node
                 })(
                   <Select
-                    disabled={!this.state.editBillInfo}
+                    disabled={!this.state.editBillInfo || horizontalScalingDisabled}
                     style={{ width: 500 }}
                     getPopupContainer={triggerNode => triggerNode.parentNode}
                   >
@@ -1639,7 +1651,7 @@ export default class Index extends PureComponent {
         </Card>
         {/* 自动伸缩 */}
         {
-          horizontalScalingSupported &&
+          showHorizontalScalingControls &&
           <Card
             style={{ marginTop: 16 }}
             className={styles.clearCard}
@@ -1678,8 +1690,11 @@ export default class Index extends PureComponent {
                       <img
                         src={Deleteimg}
                         alt=""
+                        style={horizontalScalingDisabled ? { cursor: 'not-allowed', opacity: 0.45 } : undefined}
                         onClick={() => {
-                          this.handleDeleteMnt('cpu');
+                          if (!horizontalScalingDisabled) {
+                            this.handleDeleteMnt('cpu');
+                          }
                         }}
                       />
                     )}
@@ -1699,8 +1714,11 @@ export default class Index extends PureComponent {
                       <img
                         src={Deleteimg}
                         alt=""
+                        style={horizontalScalingDisabled ? { cursor: 'not-allowed', opacity: 0.45 } : undefined}
                         onClick={() => {
-                          this.handleDeleteMnt('memory');
+                          if (!horizontalScalingDisabled) {
+                            this.handleDeleteMnt('memory');
+                          }
                         }}
                       />
                     )}
@@ -1719,7 +1737,7 @@ export default class Index extends PureComponent {
                   <Col span={12}>
                     <div className={styles.automaTictelescopingContent}>
                       <Switch
-                        disabled={notAllowScaling}
+                        disabled={notAllowScaling || horizontalScalingDisabled}
                         className={styles.automaTictelescopingSwitch}
                         checked={automaticTelescopic}
                         onClick={() => {
@@ -1738,7 +1756,7 @@ export default class Index extends PureComponent {
                         )
                       })(
                         <Input
-                          disabled={!automaticTelescopic}
+                          disabled={!automaticTelescopic || horizontalScalingDisabled}
                           onBlur={e => {
                             this.handlerules('minNum');
                           }}
@@ -1764,7 +1782,7 @@ export default class Index extends PureComponent {
                         ]
                       })(
                         <Input
-                          disabled={!automaticTelescopic}
+                          disabled={!automaticTelescopic || horizontalScalingDisabled}
                           min={minNumber}
                           onBlur={e => {
                             this.handlerules('maxNum');
@@ -1793,7 +1811,7 @@ export default class Index extends PureComponent {
                           ]
                         })(
                           <Input
-                            disabled={!automaticTelescopic}
+                            disabled={!automaticTelescopic || horizontalScalingDisabled}
                             onBlur={e => {
                               this.handlerules('cpuValue');
                             }}
@@ -1821,7 +1839,7 @@ export default class Index extends PureComponent {
                           ]
                         })(
                           <Input
-                            disabled={!automaticTelescopic}
+                            disabled={!automaticTelescopic || horizontalScalingDisabled}
                             onBlur={e => {
                               this.handlerules('memoryValue');
                             }}
@@ -1836,9 +1854,14 @@ export default class Index extends PureComponent {
                       {automaticTelescopic &&
                         <Icon
                           type="plus"
-                          style={{ fontSize: '23px' }}
+                          style={{
+                            color: horizontalScalingDisabled ? '#bfbfbf' : undefined,
+                            cursor: horizontalScalingDisabled || MemoryList.length === 0 ? 'not-allowed' : 'pointer',
+                            fontSize: '23px'
+                          }}
                           onClick={() => {
-                            MemoryList.length > 0 &&
+                            !horizontalScalingDisabled &&
+                              MemoryList.length > 0 &&
                               automaticTelescopic &&
                               this.handleAddIndicators('add');
                           }}
@@ -1888,7 +1911,7 @@ export default class Index extends PureComponent {
           )
         }
         {
-          showEditAutoScaling && (
+          showEditAutoScaling && !horizontalScalingDisabled && (
             <AddScaling
               data={rulesInfo}
               ref={this.saveForm}
