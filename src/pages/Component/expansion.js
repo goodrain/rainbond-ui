@@ -1471,6 +1471,13 @@ export default class Index extends PureComponent {
             type="warning"
           />
         )}
+        {horizontalScalingDisabled && (
+          <Alert
+            style={{ marginTop: '16px' }}
+            message={formatMessage({ id: 'componentOverview.body.Expansion.daemonsetScalingTip' })}
+            type="info"
+          />
+        )}
         {/* 手动伸缩   */}
         <Card
           className={styles.clerBorder}

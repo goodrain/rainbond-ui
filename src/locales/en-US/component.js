@@ -489,6 +489,7 @@ const componentOverview = {
     'componentOverview.body.Expansion.copyCommand': 'To query the detailed component instance information, please copy the query command to the cluster management node',
     'componentOverview.body.Expansion.copy': 'copy',
     'componentOverview.body.Expansion.modify': 'Single instance type components cannot scale horizontally. If necessary, please modify it to the corresponding multi instance component type',
+    'componentOverview.body.Expansion.daemonsetScalingTip': 'DaemonSet components run one instance on each schedulable node. The instance count is determined by node scheduling, so instance count changes and automatic scaling settings are disabled.',
     'componentOverview.body.Expansion.set': 'To set',
     'componentOverview.body.Expansion.telescopic': 'Manual Scaling',
     'componentOverview.body.Expansion.empower': 'The current product license does not support GPU scheduling. Therefore, GPU sharing scheduling capability is required,',
