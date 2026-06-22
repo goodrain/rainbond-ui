@@ -837,6 +837,7 @@ export default class Index extends PureComponent {
                 rules: getServiceNameRules()
               })(
                 <Input
+                  data-testid="rbd-comp-name-input"
                   disabled={disableds.indexOf('service_cname') > -1}
                   placeholder="nginx"
                 />
@@ -895,6 +896,7 @@ export default class Index extends PureComponent {
                   rules: getImageAddressRules()
                 })(
                   <Input
+                    data-testid="rbd-image-address-input"
                     onPressEnter={this.onQueryImageName}
                     placeholder={isImageProxy ? NGINX_EXAMPLE.imageAddress : NGINX_EXAMPLE.saasImageAddress}
                     disabled={!isPublic}
