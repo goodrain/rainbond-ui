@@ -1405,6 +1405,12 @@ export default class Index extends PureComponent {
     }[vmChangedResource];
     return (
       <div>
+        {horizontalScalingDisabled && (
+          <div className={styles.daemonsetScalingNotice} role="note">
+            <Icon type="info-circle" />
+            <span>{formatMessage({ id: 'componentOverview.body.Expansion.daemonsetScalingTip' })}</span>
+          </div>
+        )}
         <Card
           className={styles.InstancesCard}
           title={<FormattedMessage id='componentOverview.body.Expansion.instance' />}
@@ -1469,13 +1475,6 @@ export default class Index extends PureComponent {
             style={{ marginTop: '16px' }}
             message={formatMessage({ id: vmScalingLockMessageId })}
             type="warning"
-          />
-        )}
-        {horizontalScalingDisabled && (
-          <Alert
-            style={{ marginTop: '16px' }}
-            message={formatMessage({ id: 'componentOverview.body.Expansion.daemonsetScalingTip' })}
-            type="info"
           />
         )}
         {/* 手动伸缩   */}
