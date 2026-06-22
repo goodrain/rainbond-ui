@@ -1406,10 +1406,12 @@ export default class Index extends PureComponent {
     return (
       <div>
         {horizontalScalingDisabled && (
-          <div className={styles.daemonsetScalingNotice} role="note">
-            <Icon type="info-circle" />
-            <span>{formatMessage({ id: 'componentOverview.body.Expansion.daemonsetScalingTip' })}</span>
-          </div>
+          <Alert
+            showIcon
+            message={formatMessage({ id: 'componentOverview.body.Expansion.daemonsetScalingTip' })}
+            type="info"
+            style={{ marginBottom: 24 }}
+          />
         )}
         <Card
           className={styles.InstancesCard}
