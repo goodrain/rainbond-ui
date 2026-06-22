@@ -1496,7 +1496,7 @@ export default class Index extends PureComponent {
               }
               {this.state.editBillInfo ?
                 <div style={{ marginLeft: 10 }}>
-                  <Button type='primary' icon='save' style={{ marginRight: 10 }} onClick={this.handleFromData} disabled={isVmGpuScalingLocked}>
+                  <Button data-testid="rbd-scale-submit" type='primary' icon='save' style={{ marginRight: 10 }} onClick={this.handleFromData} disabled={isVmGpuScalingLocked}>
                     {method === 'vm'
                       ? formatMessage({
                         id: vmWillRestartForScaling
@@ -1523,7 +1523,7 @@ export default class Index extends PureComponent {
                   </Button>
                 </div>
                 :
-                <Button icon='edit' onClick={() => this.setState({ editBillInfo: true })} disabled={isVmGpuScalingLocked}>
+                <Button data-testid="rbd-scale-edit-btn" icon='edit' onClick={() => this.setState({ editBillInfo: true })} disabled={isVmGpuScalingLocked}>
                   {method === 'vm'
                     ? formatMessage({ id: 'componentOverview.body.tab.overview.vmHotUpdateEdit' })
                     : formatMessage({ id: 'componentOverview.body.tab.env.table.column.edit' })}
@@ -1630,21 +1630,23 @@ export default class Index extends PureComponent {
                 label={<FormattedMessage id='componentOverview.body.Expansion.number' />}
                 {...formItemLayout}
               >
-                {getFieldDecorator('node', {
-                  initialValue: extendInfo.current_node
-                })(
-                  <Select
-                    disabled={!this.state.editBillInfo || horizontalScalingDisabled}
-                    style={{ width: 500 }}
-                    getPopupContainer={triggerNode => triggerNode.parentNode}
-                  >
-                    {(extendInfo.node_list || []).map(item => (
-                      <Option key={item} value={item}>
-                        {item}
-                      </Option>
-                    ))}
-                  </Select>
-                )}
+                <span data-testid="rbd-scale-instance-input">
+                  {getFieldDecorator('node', {
+                    initialValue: extendInfo.current_node
+                  })(
+                    <Select
+                      disabled={!this.state.editBillInfo || horizontalScalingDisabled}
+                      style={{ width: 500 }}
+                      getPopupContainer={triggerNode => triggerNode.parentNode}
+                    >
+                      {(extendInfo.node_list || []).map(item => (
+                        <Option key={item} value={item}>
+                          {item}
+                        </Option>
+                      ))}
+                    </Select>
+                  )}
+                </span>
               </Form.Item>
             )}
           </Form>
