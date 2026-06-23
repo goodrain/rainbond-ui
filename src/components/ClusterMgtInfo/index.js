@@ -331,17 +331,6 @@ class Index extends Component {
       handleType: type,
     })
   }
-  // 导入
-  importEven = () => {
-    const {
-      dispatch,
-      rowClusterInfo
-    } = this.props;
-    const eid = globalUtil.getCurrEnterpriseId()
-    dispatch(
-      routerRedux.push(`/enterprise/${eid}/importMessage?region_id=${rowClusterInfo.region_id}`)
-    )
-  }
   // 编辑
   handleEdit = item => {
     const { rowClusterInfo } = this.props;
@@ -665,12 +654,6 @@ class Index extends Component {
                     icon="edit"
                   >
                     <FormattedMessage id='enterpriseColony.table.handle.edit' />
-                  </Button>
-                  <Button
-                    onClick={this.importEven}
-                    icon='download'
-                  >
-                    <FormattedMessage id='enterpriseColony.table.handle.import' />
                   </Button>
                   <Link
                     to={`/enterprise/${eid}/shell?region_name=${rowClusterInfo.region_name}`}

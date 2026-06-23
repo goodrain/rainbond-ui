@@ -35,6 +35,36 @@ assert.strictEqual(
 
 assert.strictEqual(
   helpers.shouldShowCodeBuildConfig({
+    buildSource: { service_source: 'package_build' },
+    languageType: 'java-jar',
+    runtimeInfo: { BUILD_RUNTIMES: 'OpenJDK' }
+  }),
+  true,
+  'should show source-code build config for uploaded jar package components'
+);
+
+assert.strictEqual(
+  helpers.shouldShowCodeBuildConfig({
+    buildSource: { service_source: 'package_build' },
+    languageType: 'java-war',
+    runtimeInfo: { BUILD_RUNTIMES: 'OpenJDK' }
+  }),
+  true,
+  'should show source-code build config for uploaded war package components'
+);
+
+assert.strictEqual(
+  helpers.shouldShowCodeBuildConfig({
+    buildSource: { service_source: 'package_build' },
+    languageType: 'static',
+    runtimeInfo: { BUILD_RUNTIMES: 'nginx' }
+  }),
+  false,
+  'should keep non-jar package build components hidden from source-code build config'
+);
+
+assert.strictEqual(
+  helpers.shouldShowCodeBuildConfig({
     buildSource: { service_source: 'source_code' },
     languageType: '',
     runtimeInfo: { BUILD_RUNTIMES: 'OpenJDK' }
