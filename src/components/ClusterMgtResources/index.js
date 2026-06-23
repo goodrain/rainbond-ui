@@ -1,11 +1,5 @@
 import React, { Component } from 'react';
-import {
-Button,
-Table,
-Row,
-Col,
-Skeleton
-} from 'antd';
+import { Skeleton } from 'antd';
 import { formatMessage } from '@/utils/intl';
 import { connect } from 'dva';
 import Charts from '../ClusterEcharts/Echarts'
@@ -38,26 +32,22 @@ class Index extends Component {
             all_nodes,
             node_ready,
             total_cpu,
-            total_disk,
             total_memory,
             used_cpu,
-            used_disk,
             used_memory,
-            services_status,
             run_pod_number
         } = rowClusterInfo
         // CPU使用率
         const cpuUsed = total_cpu == 0 ? 0 : ((used_cpu / total_cpu) * 100).toFixed(2);
         // 内存使用率
         const memoryUsed = total_memory == 0 ? 0 : ((used_memory / total_memory) * 100).toFixed(2);
-        // 存储使用量
-        const diskUsed = total_disk == 0 ? 0 : ((used_disk / total_disk) * 100).toFixed(2);
         // CPU总量
         const cpuTotal = (total_cpu && parseInt(total_cpu)) || 0;
         // 内存总量
         const memoryTotal = (total_memory && this.handlUnit(total_memory)) || 0;
-        // 存储总量
-        const diskTotal = (total_disk && parseInt(total_disk)) || 0;
+        const cpuRemaining = total_cpu ? Math.max(Number(total_cpu) - Number(used_cpu || 0), 0).toFixed(2) / 1 : 0;
+        const memoryUsedValue = used_memory ? (used_memory / 1024).toFixed(2) / 1 : 0;
+        const memoryRemaining = total_memory ? Math.max((Number(total_memory) - Number(used_memory || 0)) / 1024, 0).toFixed(2) / 1 : 0;
         return (
             <>
                 <div className={styles.cardContainer}>
@@ -69,55 +59,51 @@ class Index extends Component {
                     </div>
                     <div className={styles.cardBody}>
                         {rowClusterInfo && Object.keys(rowClusterInfo).length > 0 && showInfo ?
-                            <div className={styles.resourceRow}>
-                                <div className={styles.resourceItem}>
-                                    <div className={styles.resourceTitle}>
-                                        <p>
-                                            {formatMessage({id:'enterpriseColony.mgt.cluster.totalCpu'})}
-                                            <span>{cpuTotal}</span>
-                                            Core
-                                        </p>
+                            <div className={styles.clusterMetrics}>
+                                <div className={styles.clusterMetricItem}>
+                                    <div className={styles.clusterMetricTitle}>{formatMessage({id:'enterpriseColony.mgt.cluster.assignedCpu'})}</div>
+                                    <div className={styles.clusterMetricValue}>
+                                        <span>{used_cpu || 0}</span>
+                                        <em>/{cpuTotal} Core</em>
                                     </div>
-                                    <div className={styles.resourceChart}>
-                                        <Charts keys={'upcpu' + `${1}`} unit={'Core'} svalue={cpuUsed} usedValue={used_cpu} cname="CPU" swidth='200px' sheight='120px' />
+                                    <div className={styles.clusterMetricDesc}>
+                                        {formatMessage({ id: 'enterpriseOverview.overview.remaining' })}
+                                        <span>{cpuRemaining}</span>
+                                        Core
                                     </div>
-                                </div>
-                                <div className={styles.resourceItem}>
-                                    <div className={styles.resourceTitle}>
-                                        <p>
-                                            {formatMessage({id:'enterpriseColony.mgt.cluster.totalMemory'})}
-                                            <span>{memoryTotal}</span>
-                                            GB
-                                        </p>
-                                    </div>
-                                    <div className={styles.resourceChart}>
-                                        <Charts keys={'upcpu' + `${2}`} unit={'GB'} svalue={Number(memoryUsed) == 0 ? 0 : Number(memoryUsed)} usedValue={(used_memory / 1024).toFixed(2)} cname={formatMessage({id:'enterpriseColony.mgt.cluster.memory'})} swidth='200px' sheight='120px' />
+                                    <div className={styles.clusterGaugeFloat}>
+                                        <Charts chartType="progressGauge" keys={'mgtCpuGauge'} unit="%" svalue={cpuUsed} usedValue={cpuUsed} swidth='140px' sheight='140px' />
                                     </div>
                                 </div>
-                                <div className={styles.resourceItem}>
-                                    <div className={styles.resourceTitle}>
-                                        <p>
-                                            {formatMessage({id:'enterpriseColony.mgt.cluster.node'})}
-                                        </p>
+                                <div className={styles.clusterMetricItem}>
+                                    <div className={styles.clusterMetricTitle}>{formatMessage({id:'enterpriseColony.mgt.cluster.assignedMemory'})}</div>
+                                    <div className={styles.clusterMetricValue}>
+                                        <span>{memoryUsedValue}</span>
+                                        <em>/{memoryTotal} GB</em>
                                     </div>
-                                    <div className={styles.resourceValue}>
-                                        <p>
-                                            {node_ready == {} ? 0 : node_ready || 0}
-                                            <span>/{all_nodes || 0}</span>
-                                        </p>
+                                    <div className={styles.clusterMetricDesc}>
+                                        {formatMessage({ id: 'enterpriseOverview.overview.remaining' })}
+                                        <span>{memoryRemaining}</span>
+                                        GB
+                                    </div>
+                                    <div className={styles.clusterGaugeFloat}>
+                                        <Charts chartType="progressGauge" keys={'mgtMemoryGauge'} unit="%" svalue={Number(memoryUsed) == 0 ? 0 : Number(memoryUsed)} usedValue={Number(memoryUsed) == 0 ? 0 : Number(memoryUsed)} swidth='140px' sheight='140px' />
                                     </div>
                                 </div>
-                                <div className={styles.resourceItem}>
-                                    <div className={styles.resourceTitle}>
-                                        <p>
-                                            {formatMessage({id:'enterpriseColony.mgt.cluster.pods'})}
-                                        </p>
+                                <div className={styles.clusterMetricItem}>
+                                    <div className={styles.clusterMetricTitle}>{formatMessage({id:'enterpriseColony.mgt.cluster.node'})}</div>
+                                    <div className={styles.clusterMetricValue}>
+                                        <span>{node_ready == {} ? 0 : node_ready || 0}</span>
+                                        <em>/{all_nodes || 0}</em>
                                     </div>
-                                    <div className={styles.resourceValue}>
-                                        <p>
-                                            {run_pod_number || 0}
-                                        </p>
+                                    <div className={styles.clusterMetricDesc}>Node</div>
+                                </div>
+                                <div className={styles.clusterMetricItem}>
+                                    <div className={styles.clusterMetricTitle}>{formatMessage({id:'enterpriseColony.mgt.cluster.pods'})}</div>
+                                    <div className={styles.clusterMetricValue}>
+                                        <span>{run_pod_number || 0}</span>
                                     </div>
+                                    <div className={styles.clusterMetricDesc}>Pod</div>
                                 </div>
                             </div>
                             :

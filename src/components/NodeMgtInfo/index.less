@@ -1,14 +1,17 @@
 .cardContainer {
-    background: #fff;
-    margin: 2px;
+    border: 1px solid fade(@primary-color, 12%);
+    border-radius: 22px;
+    overflow: hidden;
+    background-color: #fff;
+    background-image: radial-gradient(circle at top right,
+            fade(@primary-color, 8%) 0%,
+            fade(@primary-color, 4%) 42%,
+            transparent 78%);
     margin-bottom: 16px;
-    border-radius: 12px;
-    box-shadow: @rbd-min-card-shadow;
-    border: 1px solid rgba(16, 24, 40, 0.08);
 }
 
 .cardHeader {
-    padding: 16px 24px;
+    padding: 24px 24px 16px;
 }
 
 .cardBody {
@@ -20,9 +23,15 @@
     align-items: center;
 
     span:nth-of-type(1) {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         margin-right: 6px;
+        color: @primary-color;
 
         svg {
+            width: @rbd-sub-title-size;
+            height: @rbd-sub-title-size;
             vertical-align: bottom;
         }
     }
@@ -30,7 +39,7 @@
     span:nth-of-type(2) {
         font-weight: bolder;
         font-size: @rbd-sub-title-size;
-        color: @rbd-sub-title-color;
+        color: @heading-color;
         line-height: @rbd-sub-title-line-height;
     }
 }
@@ -39,35 +48,126 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 24px;
     padding-bottom: 16px;
-    border-bottom: 1px solid #e8e8e8;
-    margin-bottom: 16px;
+    border-bottom: 1px solid @border-color-base;
+}
+
+.infoMain {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.nodeIconBox {
+    flex: 0 0 64px;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 18px;
+    border: 1px solid fade(@primary-color, 24%);
+    border-radius: 16px;
+    background: fade(@primary-color, 8%);
+
+    >span,
+    >svg {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 }
 
 .infoTitle {
-    display: flex;
-    align-items: center;
-    font-size: 16px;
+    min-width: 0;
+}
+
+.nodeName {
+    max-width: 420px;
+    margin-bottom: 8px;
+    color: @rbd-content-color;
+    font-size: @rbd-title-size;
+    line-height: @rbd-title-line-height;
     font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.nodeStatus {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 0 10px;
+    border-radius: 16px;
+    background: fade(@rbd-success-status, 12%);
+    font-size: @rbd-auxiliary-size;
+    line-height: @rbd-content-line-height;
+    font-weight: 600;
+
+    >span {
+        display: inline-flex;
+        align-items: center;
+    }
+}
+
+.nodeStatusText {
+    display: inline-flex;
+    align-items: center;
 }
 
 .infoExtra {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: wrap;
+
+    button {
+        margin-right: 0;
+    }
 }
 
-.description{
-    :global{
-        .ant-descriptions-view{
-            .ant-descriptions-item-label{
-                color: @rbd-content-color-secondary;
-                font-size: 14px;
-                font-weight:600;
-            }
-            .ant-descriptions-item-content{
-                padding-left: 10px !important;
-                color: @rbd-content-color;
-            }
+.nodeInfoGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px 28px;
+    padding-top: 16px;
+}
+
+.nodeInfoItem {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.nodeInfoLabel {
+    flex: 0 0 auto;
+    margin-right: 10px;
+    color: @rbd-content-color-secondary;
+    font-size: @rbd-content-size;
+    line-height: @rbd-content-line-height;
+    font-weight: 600;
+}
+
+.nodeInfoValue {
+    min-width: 0;
+    color: @rbd-content-color;
+    font-size: @rbd-content-size;
+    line-height: @rbd-content-line-height;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    :global {
+        .ant-tag {
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: middle;
         }
     }
 }

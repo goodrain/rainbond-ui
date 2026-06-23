@@ -1,14 +1,17 @@
 .cardContainer {
-    background: #fff;
-    margin: 2px;
+    border: 1px solid fade(@primary-color, 12%);
+    border-radius: 22px;
+    overflow: hidden;
+    background-color: #fff;
+    background-image: radial-gradient(circle at top right,
+            fade(@primary-color, 8%) 0%,
+            fade(@primary-color, 4%) 42%,
+            transparent 78%);
     margin-bottom: 16px;
-    border-radius: 12px;
-    box-shadow: @rbd-min-card-shadow;
-    border: 1px solid rgba(16, 24, 40, 0.08);
 }
 
 .cardHeader {
-    padding: 16px 24px;
+    padding: 24px 24px 16px;
 }
 
 .cardBody {
@@ -21,9 +24,15 @@
     align-items: center;
 
     span:nth-of-type(1) {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         margin-right: 6px;
+        color: @primary-color;
 
         svg {
+            width: @rbd-sub-title-size;
+            height: @rbd-sub-title-size;
             vertical-align: bottom;
         }
     }
@@ -31,62 +40,80 @@
     span:nth-of-type(2) {
         font-weight: bolder;
         font-size: @rbd-sub-title-size;
-        color: @rbd-sub-title-color;
+        color: @heading-color;
         line-height: @rbd-sub-title-line-height;
     }
 }
 
-.resourceRow {
-    width: 100%;
+.nodeMetrics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
 }
 
-.resourceItem {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 24px 0;
-    background-color: @rbd-background-color;
-    border-radius: 12px;
+.nodeMetricItem {
+    position: relative;
+    min-width: 0;
+    min-height: 150px;
+    padding: 22px 156px 22px 28px;
+    border-radius: 22px;
+    background: #fff;
+
+    &:first-child {
+        border-left: none;
+    }
 }
 
-.resourceTitle {
-    font-size: @rbd-sub-title-size;
+.nodeMetricTitle {
+    margin-bottom: 28px;
     color: @rbd-content-color-secondary;
-    line-height: @rbd-sub-title-line-height;
+    font-size: @rbd-content-size;
+    line-height: @rbd-content-line-height;
     font-weight: 600;
-    margin-bottom: 8px;
 }
 
-.resourceChart {
+.nodeMetricValue {
     display: flex;
-    justify-content: center;
-    align-items: center;
-}
+    align-items: baseline;
+    margin-bottom: 28px;
+    color: @rbd-content-color;
 
-.resourceBottom {
-    text-align: center;
+    span {
+        color: @primary-color;
+        font-size: @rbd-title-big-size;
+        line-height: @rbd-title-big-line-height;
+        font-weight: 700;
+    }
 
-    p {
+    em {
+        margin-left: 4px;
+        color: @rbd-content-color-secondary;
         font-size: @rbd-content-size;
         line-height: @rbd-content-line-height;
-        color: @rbd-content-color-secondary;
-        font-weight: 500;
-        margin-bottom: 0 !important;
-
-        span {
-            margin-right: 6px;
-            color: @primary-color;
-            font-weight: 600;
-            font-size: @rbd-title-size;
-            line-height: @rbd-title-line-height;
-        }
+        font-style: normal;
+        font-weight: 600;
+        white-space: nowrap;
     }
+}
 
-    p:nth-of-type(2) {
-        span {
-            color: @rbd-content-color-secondary;
-        }
+.nodeMetricDesc {
+    color: @rbd-content-color;
+    font-size: @rbd-content-size;
+    line-height: @rbd-content-line-height;
+    font-weight: 600;
+
+    span {
+        margin: 0 6px;
+        color: @rbd-content-color;
+        font-weight: 600;
     }
+}
+
+.nodeGaugeFloat {
+    position: absolute;
+    right: 16px;
+    bottom: -6px;
+    width: 140px;
+    height: 140px;
+    pointer-events: none;
 }

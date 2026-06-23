@@ -13,46 +13,61 @@ assert.ok(
 );
 
 assert.ok(
-  /swidth='100%'/.test(jsSource),
-  'cluster charts should use percentage width instead of a fixed pixel width'
+  /className=\{enterpriseStyles\.clusterOverviewCard\}/.test(jsSource),
+  'cluster information should use the overview card container'
 );
 
 assert.ok(
-  /\.content_right\s*\{[\s\S]*?display:\s*flex;[\s\S]*?gap:\s*12px;[\s\S]*?flex-wrap:\s*nowrap;/m.test(
-    lessSource
-  ),
-  'cluster content right area should keep a single row in the reduced viewport'
+  /className=\{enterpriseStyles\.overviewCardHeader\}[\s\S]*enterpriseOverview\.information\.colonyInfo/.test(jsSource),
+  'cluster information title should use the unified overview card header'
 );
 
 assert.ok(
-  /\.content_data\s*\{[\s\S]*?flex:\s*1 1 0;[\s\S]*?min-width:\s*0;[\s\S]*?max-width:\s*23%;/m.test(
-    lessSource
-  ),
-  'cluster chart blocks should participate in percentage-based flex sizing'
+  /className=\{enterpriseStyles\.clusterSummary\}/.test(jsSource),
+  'cluster name, status, icon, and metadata should be fused into a single summary header'
 );
 
 assert.ok(
-  /\.node\s*\{[\s\S]*?flex:\s*0 0 18%;[\s\S]*?min-width:\s*0;/m.test(
-    lessSource
-  ),
-  'node summary blocks should participate in percentage-based flex sizing'
+  /\.clusterMetrics\s*\{[\s\S]*?grid-template-columns:\s*1\.3fr 1\.3fr 0\.9fr 0\.9fr;/m.test(lessSource),
+  'cluster main metrics should render as four stable columns'
 );
 
 assert.ok(
-  /\.content_left\s*\{[\s\S]*?width:\s*32%;/m.test(lessSource),
-  'cluster left content should shrink to leave more room for the right-side statistics in narrow layouts'
+  /\.clusterIconBox\s*\{[\s\S]*?width:\s*64px;[\s\S]*?height:\s*64px;/m.test(lessSource),
+  'cluster icon should be displayed in a compact square next to the cluster name'
 );
 
 assert.ok(
-  /\.clusterIcon\s*\{[\s\S]*?width:\s*84px;[\s\S]*?height:\s*120px;/m.test(
-    lessSource
-  ),
-  'cluster icon area should shrink in narrow layouts'
+  /chartType="progressGauge"/.test(jsSource) &&
+    /handleClickStatus\('cpu'\)/.test(jsSource) &&
+    /handleClickStatus\('memory'\)/.test(jsSource) &&
+    /typeStatusMemory \? 'enterpriseOverview\.overview\.memory_used' : 'enterpriseOverview\.overview\.memory_allocated'/.test(jsSource),
+  'cluster resource metrics should use independently switchable ECharts gauges'
 );
 
 assert.ok(
-  /\.node\s*\{[\s\S]*?p\s*\{[\s\S]*?font-size:\s*16px;/m.test(lessSource),
-  'node headings should use a smaller font size in narrow layouts'
+  /enterpriseOverview\.overview\.node_normal/.test(jsSource) &&
+    /enterpriseOverview\.overview\.running_components/.test(jsSource),
+  'cluster card should show only the primary node and running component metrics below the summary'
+);
+
+assert.ok(
+  !/mockAppAlertList|displayAppAlertList|mock-plugin-daemon|平台插件|2026-06-15/.test(jsSource) &&
+    /!\s*appAlertLoding && appAlertList\.length > 0/.test(jsSource) &&
+    /\{appAlertList\.map\(item =>/.test(jsSource),
+  'app alert list should render only real API records without temporary mock data'
+);
+
+assert.ok(
+  /className=\{enterpriseStyles\.appAlertItem\}/.test(jsSource) &&
+    /\.appAlertInfo\s*\{[\s\S]*?grid-template-columns:\s*180px 180px 220px 120px;/m.test(lessSource),
+  'app alert list should render as horizontal summary cards'
+);
+
+assert.ok(
+  /className=\{enterpriseStyles\.appAlertCard\}/.test(jsSource) &&
+    /\.appAlertCard\s*\{[\s\S]*?background-image:\s*radial-gradient/m.test(lessSource),
+  'app alert section should use the same gradient card surface as other overview cards'
 );
 
 console.log('enterprise agent layout tests passed');

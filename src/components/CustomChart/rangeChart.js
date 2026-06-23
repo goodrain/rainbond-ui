@@ -10,6 +10,7 @@ import monitorDataUtil from '@/utils/monitorDataUtil';
 import { Card, notification, Spin } from 'antd';
 import { Axis, Chart, Geom, Legend, Tooltip } from 'bizcharts';
 import { connect } from 'dva';
+import * as echarts from 'echarts';
 import moment from 'moment';
 import React, { Fragment, PureComponent } from 'react';
 import { FormattedMessage } from 'umi';
@@ -24,7 +25,10 @@ export default class RangeChart extends PureComponent {
       memoryRange: [],
       performanceObj: {}
     };
+    this.resourceChart = null;
+    this.resourceChartDom = null;
   }
+
   componentWillMount() {
     const { moduleName } = this.props;
     if (
@@ -35,6 +39,12 @@ export default class RangeChart extends PureComponent {
     } else {
       this.loadRangeData(this.props);
     }
+  }
+
+  componentDidMount() {
+    this.initResourceChart();
+    this.updateResourceChart();
+    window.addEventListener('resize', this.resizeResourceChart);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -57,6 +67,49 @@ export default class RangeChart extends PureComponent {
       this.loadRangeData(nextProps);
     }
   }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { moduleName, type } = this.props;
+    if (
+      moduleName === 'ResourceMonitoring' &&
+      (prevState.memoryRange !== this.state.memoryRange ||
+        prevState.loading !== this.state.loading ||
+        prevProps.type !== type)
+    ) {
+      this.updateResourceChart();
+    }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.resizeResourceChart);
+    if (this.resourceChart) {
+      this.resourceChart.dispose();
+      this.resourceChart = null;
+    }
+  }
+
+  setResourceChartRef = node => {
+    this.resourceChartDom = node;
+    this.initResourceChart();
+    this.updateResourceChart();
+  };
+
+  initResourceChart = () => {
+    const { moduleName } = this.props;
+    if (
+      moduleName === 'ResourceMonitoring' &&
+      this.resourceChartDom &&
+      !this.resourceChart
+    ) {
+      this.resourceChart = echarts.init(this.resourceChartDom);
+    }
+  };
+
+  resizeResourceChart = () => {
+    if (this.resourceChart) {
+      this.resourceChart.resize();
+    }
+  };
 
   loadPerformanceAnalysis = (props, updateTime = false) => {
     this.setState({ loading: true });
@@ -90,6 +143,8 @@ export default class RangeChart extends PureComponent {
         this.setState({ loading: false });
         if (re.bean && re.bean.result && re.bean.result.length > 0) {
           this.setState({ memoryRange: re.bean.result });
+        } else {
+          this.setState({ memoryRange: [] });
         }
       }
     });
@@ -236,6 +291,171 @@ export default class RangeChart extends PureComponent {
     return rangedata;
   };
 
+  getChartData = () => {
+    const { moduleName } = this.props;
+    const { memoryRange, performanceObj } = this.state;
+    const { title } = this.getMeta();
+    return moduleName === 'PerformanceAnalysis'
+      ? monitorDataUtil.queryRangeTog2F(performanceObj, title)
+      : this.converData(memoryRange);
+  };
+
+  getResourceLineOption = () => {
+    const { label, unit } = this.getMeta();
+    const data = this.getChartData();
+    const seriesMap = {};
+    data.forEach(item => {
+      const seriesName = item.cid || label;
+      if (!seriesMap[seriesName]) {
+        seriesMap[seriesName] = [];
+      }
+      seriesMap[seriesName].push([item.time, item.value]);
+    });
+    const seriesNames = Object.keys(seriesMap);
+    const chartColors = [
+      globalUtil.getPublicColor(),
+      globalUtil.getPublicColor('rbd-success-status'),
+      globalUtil.getPublicColor('rbd-warning-status'),
+      globalUtil.getPublicColor('rbd-error-status'),
+      globalUtil.getPublicColor('rbd-processing-status')
+    ];
+    const series = seriesNames.map((name, index) => {
+      const color = chartColors[index % chartColors.length];
+      return {
+      name,
+      type: 'line',
+      smooth: true,
+      showSymbol: false,
+      symbolSize: 6,
+      lineStyle: {
+        width: 1.5
+      },
+      areaStyle: {
+        opacity: 1,
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          {
+            offset: 0,
+            color: echarts.color.modifyAlpha(color, 0.18)
+          },
+          {
+            offset: 1,
+            color: echarts.color.modifyAlpha(color, 0)
+          }
+        ])
+      },
+      emphasis: {
+        focus: 'series'
+      },
+      data: seriesMap[name]
+      };
+    });
+
+    return {
+      color: chartColors,
+      grid: {
+        top: 32,
+        right: 28,
+        bottom: seriesNames.length > 0 ? 76 : 42,
+        left: 64
+      },
+      legend: {
+        type: 'scroll',
+        bottom: 8,
+        left: 24,
+        right: 24,
+        icon: 'circle',
+        itemWidth: 6,
+        itemHeight: 6,
+        itemGap: 10,
+        textStyle: {
+          color: globalUtil.getPublicColor('rbd-content-color-secondary'),
+          fontSize: 10
+        },
+        data: seriesNames
+      },
+      tooltip: {
+        trigger: 'axis',
+        appendToBody: true,
+        confine: true,
+        axisPointer: {
+          type: 'line'
+        },
+        formatter: params => {
+          const list = Array.isArray(params) ? params : [params];
+          const first = list[0];
+          const timeText =
+            first && first.value
+              ? moment(first.value[0]).locale('zh-cn').format('YYYY-MM-DD HH:mm:ss')
+              : '';
+          const rows = list
+            .map(item => {
+              const value = item && item.value ? item.value[1] : '-';
+              return `${item.marker}${item.seriesName}: ${value}${unit}`;
+            })
+            .join('<br/>');
+          return `${timeText}<br/>${rows}`;
+        }
+      },
+      xAxis: {
+        type: 'time',
+        boundaryGap: false,
+        axisLine: {
+          lineStyle: {
+            color: globalUtil.getPublicColor('border-color-base')
+          }
+        },
+        axisLabel: {
+          color: globalUtil.getPublicColor('rbd-content-color-secondary'),
+          hideOverlap: true,
+          interval: 'auto',
+          rotate: 30,
+          margin: 12,
+          formatter: value => moment(value).locale('zh-cn').format('HH:mm')
+        }
+      },
+      yAxis: {
+        type: 'value',
+        name: label,
+        nameTextStyle: {
+          color: globalUtil.getPublicColor('rbd-content-color-secondary')
+        },
+        axisLabel: {
+          color: globalUtil.getPublicColor('rbd-content-color-secondary'),
+          formatter: value => `${value}${unit}`
+        },
+        splitLine: {
+          lineStyle: {
+            color: globalUtil.getPublicColor('border-color-base')
+          }
+        }
+      },
+      series,
+      graphic:
+        series.length === 0
+          ? [
+              {
+                type: 'text',
+                left: 'center',
+                top: 'middle',
+                style: {
+                  text: formatMessage({ id: 'teamAdd.create.null_data' }),
+                  fill: globalUtil.getPublicColor('rbd-content-color-secondary'),
+                  fontSize: 14
+                }
+              }
+            ]
+          : []
+    };
+  };
+
+  updateResourceChart = () => {
+    const { moduleName } = this.props;
+    if (moduleName !== 'ResourceMonitoring' || !this.resourceChart) {
+      return;
+    }
+    this.resourceChart.setOption(this.getResourceLineOption(), true);
+  };
+
   loadRefresh = () => {
     const { moduleName } = this.props;
     if (
@@ -281,13 +501,10 @@ export default class RangeChart extends PureComponent {
       CustomMonitorInfo,
       isEdit = true
     } = this.props;
-    const { memoryRange, performanceObj, loading } = this.state;
+    const { loading } = this.state;
     const isCustomMonitor = moduleName === 'CustomMonitor';
     const { title, label, unit } = this.getMeta();
-    const data =
-      moduleName === 'PerformanceAnalysis'
-        ? monitorDataUtil.queryRangeTog2F(performanceObj, title)
-        : this.converData(memoryRange);
+    const data = this.getChartData();
     const cols = {
       time: {
         alias:  formatMessage({id:'componentOverview.body.tab.monitor.history.time'}),
@@ -350,85 +567,92 @@ export default class RangeChart extends PureComponent {
               )
             }
           >
-            <Chart
-              height={isCustomMonitor ? 222 : 400}
-              data={data}
-              scale={cols}
-              forceFit
-            >
-              <Legend
-                useHtml
-                containerTpl={`<div class="g2-legend" style="position:absolute;top:20px;right:60px;width:100%;margin-top:-2px;">
+            {moduleName === 'ResourceMonitoring' ? (
+              <div
+                className={styless.resourceLineChart}
+                ref={this.setResourceChartRef}
+              />
+            ) : (
+              <Chart
+                height={isCustomMonitor ? 222 : 400}
+                data={data}
+                scale={cols}
+                forceFit
+              >
+                <Legend
+                  useHtml
+                  containerTpl={`<div class="g2-legend" style="position:absolute;top:20px;right:60px;width:100%;margin-top:-2px;">
                       <h4 class="g2-legend-title"></h4>
                       <div class=${styless.ov}><ul class="g2-legend-list" style="list-style-type:none;margin:0;padding:0;"></ul></div>
                     </div>
                `}
-                itemTpl={`
+                  itemTpl={`
                   <li class="g2-legend-list-item item-{index} {checked}" data-color="{originColor}" data-value="{originValue}" style="cursor: pointer;font-size: 14px;">
                   <i class="g2-legend-marker" style="width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:10px;background-color: {color};"></i>
                   <span title={value} class="g2-legend-text" style="display:inline-block;max-width:94%;white-space:nowrap;font-size:80%;">{value}</span>
                   </li>`}
-                g2-legend={{
-                  overflow: 'hidden',
-                  marginTop: '-2px'
-                }}
-                g2-legend-list={{
-                  marginTop: '-5px',
-                  border: 'none',
-                  height: '50px'
-                }}
-                g2-legend-list-item={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  flexWrap: 'wrap',
-                  justifyContent: 'center',
-                  marginRight: 0
-                }}
-              />
-              <Axis
-                name="value"
-                label={{
-                  offset: 75,
-                  htmlTemplate: text => {
-                    const customWidth = unit ? '50px' : '75px';
-                    return `<div 
+                  g2-legend={{
+                    overflow: 'hidden',
+                    marginTop: '-2px'
+                  }}
+                  g2-legend-list={{
+                    marginTop: '-5px',
+                    border: 'none',
+                    height: '50px'
+                  }}
+                  g2-legend-list-item={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    flexWrap: 'wrap',
+                    justifyContent: 'center',
+                    marginRight: 0
+                  }}
+                />
+                <Axis
+                  name="value"
+                  label={{
+                    offset: 75,
+                    htmlTemplate: text => {
+                      const customWidth = unit ? '50px' : '75px';
+                      return `<div 
                                 title=${text}
                                 style="width:75px;display: flex;align-items: center;"
                             >
                               <div style="width:${customWidth};text-align: right;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${text}</div>
                               <div>${unit}</div>
                             </div>`;
-                  }
-                }}
-              />
-              <Axis name="time" />
-              <Tooltip
-                shared
-                follow
-                g2-tooltip={{
-                  zIndex: 99,
-                  width: '80%',
-                  overflow: 'hidden'
-                }}
-                crosshairs={{
-                  type: 'y'
-                }}
-                containerTpl='<div class="g2-tooltip">
+                    }
+                  }}
+                />
+                <Axis name="time" />
+                <Tooltip
+                  shared
+                  follow
+                  g2-tooltip={{
+                    zIndex: 99,
+                    width: '80%',
+                    overflow: 'hidden'
+                  }}
+                  crosshairs={{
+                    type: 'y'
+                  }}
+                  containerTpl='<div class="g2-tooltip">
                                 <p class="g2-tooltip-title"></p>
                               <table class="g2-tooltip-list" style="display: block;width: 400px;"></table></div>'
-                itemTpl={`<tr class="g2-tooltip-list-item" style="display: flex;justify-content: space-between;">
+                  itemTpl={`<tr class="g2-tooltip-list-item" style="display: flex;justify-content: space-between;">
                     <td style="font-size:80%;color:{color};width:90%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">{name}</td>
                     <td style="margin-left: 5px;">{value}</td>
                   </tr>`}
-              />
-              <Geom
-                type="line"
-                position="time*value"
-                color="cid"
-                shape="smooth"
-                size={1}
-              />
-            </Chart>
+                />
+                <Geom
+                  type="line"
+                  position="time*value"
+                  color="cid"
+                  shape="smooth"
+                  size={1}
+                />
+              </Chart>
+            )}
           </Card>
         </Spin>
       </Fragment>

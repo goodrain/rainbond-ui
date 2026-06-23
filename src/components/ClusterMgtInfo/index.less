@@ -1,3 +1,188 @@
+.clusterInfoCard {
+    padding: 24px;
+    margin-bottom: 16px;
+    border: 1px solid fade(@primary-color, 12%);
+    border-radius: 22px;
+    background-color: #fff;
+    background-image: radial-gradient(circle at top right,
+            fade(@primary-color, 8%) 0%,
+            fade(@primary-color, 4%) 42%,
+            transparent 78%);
+}
+
+.clusterCardTitle {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    color: @heading-color;
+    font-size: @rbd-sub-title-size;
+    line-height: @rbd-sub-title-line-height;
+    font-weight: 600;
+}
+
+.clusterCardTitleIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 6px;
+    color: @primary-color;
+
+    svg {
+        width: @rbd-sub-title-size;
+        height: @rbd-sub-title-size;
+    }
+}
+
+.clusterCardHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid @border-color-base;
+}
+
+.clusterHeaderMain {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.clusterIconBox {
+    flex: 0 0 64px;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 18px;
+    border: 1px solid fade(@primary-color, 24%);
+    border-radius: 16px;
+    background: fade(@primary-color, 8%);
+
+    .icons {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        svg,
+        img {
+            max-width: 36px;
+            max-height: 36px;
+        }
+    }
+
+    >span {
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+    }
+
+    >span>svg {
+        width: 36px;
+        height: 36px;
+    }
+}
+
+.clusterHeaderText {
+    min-width: 0;
+}
+
+.clusterNameRow {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.clusterName {
+    max-width: 320px;
+    margin-right: 12px;
+    color: @rbd-content-color;
+    font-size: @rbd-title-size;
+    line-height: @rbd-title-line-height;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.clusterStatus {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 0 10px;
+    border-radius: 16px;
+    background: fade(@rbd-success-status, 12%);
+    font-size: @rbd-auxiliary-size;
+    line-height: @rbd-content-line-height;
+    font-weight: 600;
+
+    >div,
+    >span {
+        display: inline-flex;
+        align-items: center;
+    }
+}
+
+.clusterActions {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: wrap;
+
+    button {
+        margin-right: 0;
+    }
+}
+
+.clusterInfoGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px 28px;
+    padding-top: 16px;
+}
+
+.clusterInfoItem {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.clusterInfoLabel {
+    flex: 0 0 auto;
+    margin-right: 10px;
+    color: @rbd-content-color-secondary;
+    font-size: @rbd-content-size;
+    line-height: @rbd-content-line-height;
+    font-weight: 600;
+}
+
+.clusterInfoValue {
+    min-width: 0;
+    color: @rbd-content-color;
+    font-size: @rbd-content-size;
+    line-height: @rbd-content-line-height;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    :global {
+        .ant-tag {
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: middle;
+        }
+    }
+}
+
 .InfoStyle{
     display: flex;
     align-items: center;

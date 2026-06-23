@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
 import {
-    Row,
-    Col,
     Skeleton
 } from 'antd';
 import { formatMessage } from '@/utils/intl';
 import { connect } from 'dva';
-import Echarts from './Echarts';
+import Charts from '../ClusterEcharts/Echarts'
 import styles from "./index.less";
 
 
@@ -20,8 +18,6 @@ class Index extends Component {
         }
     }
     render() {
-        const allocation = formatMessage({ id: 'enterpriseColony.mgt.cluster.assigned' })
-        const use = formatMessage({ id: 'enterpriseColony.mgt.node.used' })
         const { nodeDetail, showInfo, titleIcon, titleText } = this.props;
         const
             {
@@ -35,22 +31,26 @@ class Index extends Component {
                 req_root_partition
             }
                 = nodeDetail;
+        const cpuCapacity = Number(cap_cpu || 0);
+        const cpuRequest = Number(req_cpu || 0);
+        const memoryCapacity = Number(cap_memory || 0);
+        const memoryRequest = Number(req_memory || 0);
+        const dockerCapacity = Number(cap_docker_partition || 0);
+        const dockerRequest = Number(req_docker_partition || 0);
+        const rootCapacity = Number(cap_root_partition || 0);
+        const rootRequest = Number(req_root_partition || 0);
         // CPU使用率
-        const cpuUsed = cap_cpu == 0 ? 0 : ((req_cpu / cap_cpu) * 100).toFixed(2);
+        const cpuUsed = cpuCapacity == 0 ? 0 : ((cpuRequest / cpuCapacity) * 100).toFixed(2);
         // 内存使用率
-        const memoryUsed = cap_memory == 0 ? 0 : ((req_memory / cap_memory) * 100).toFixed(2);
+        const memoryUsed = memoryCapacity == 0 ? 0 : ((memoryRequest / memoryCapacity) * 100).toFixed(2);
         // docker使用量
-        const dockerUsed = cap_docker_partition == 0 ? 0 : ((req_docker_partition / cap_docker_partition) * 100).toFixed(2);
+        const dockerUsed = dockerCapacity == 0 ? 0 : ((dockerRequest / dockerCapacity) * 100).toFixed(2);
         // 根分区
-        const rootUsed = cap_root_partition == 0 ? 0 : ((req_root_partition / cap_root_partition) * 100).toFixed(2);
-        // CPU总量
-        const cpuTotal = (cap_cpu && parseInt(cap_cpu)) || 0;
-        // 内存总量
-        const memoryTotal = (cap_memory && parseInt(cap_memory)) || 0;
-        // root总量
-        const rootTotal = (cap_root_partition && parseInt(cap_root_partition)) || 0;
-        // docker总量
-        const dockerTotal = (cap_docker_partition && parseInt(cap_docker_partition)) || 0;
+        const rootUsed = rootCapacity == 0 ? 0 : ((rootRequest / rootCapacity) * 100).toFixed(2);
+        const cpuRemaining = Math.max(cpuCapacity - cpuRequest, 0).toFixed(2) / 1;
+        const memoryRemaining = Math.max(memoryCapacity - memoryRequest, 0).toFixed(2) / 1;
+        const rootRemaining = Math.max(rootCapacity - rootRequest, 0).toFixed(2) / 1;
+        const dockerRemaining = Math.max(dockerCapacity - dockerRequest, 0).toFixed(2) / 1;
         
         return (
             <>
@@ -63,56 +63,68 @@ class Index extends Component {
                     </div>
                     <div className={styles.cardBody}>
                         {nodeDetail && Object.keys(nodeDetail).length > 0 && showInfo ?
-                            <Row className={styles.resourceRow} gutter={24}>
-                                <Col span={6}>
-                                    <div className={styles.resourceItem}>
-                                        <div className={styles.resourceTitle}>CPU</div>
-                                        <div className={styles.resourceChart}>
-                                            <Echarts keys={'upcpu' + `${1}`} cname={allocation} svalue={cpuUsed} uvalue={`${String(parseInt(cpuUsed))}%`} swidth='200px' sheight='150px' />
-                                        </div>
-                                        <div className={styles.resourceBottom}>
-                                            <p>{formatMessage({ id: 'enterpriseColony.mgt.node.allocated' })}<span>{req_cpu.toFixed(2)}</span>Core</p>
-                                            <p>{formatMessage({ id: 'enterpriseColony.mgt.node.assigned' })}<span>{cap_cpu.toFixed(2)}</span>Core</p>
-                                        </div>
+                            <div className={styles.nodeMetrics}>
+                                <div className={styles.nodeMetricItem}>
+                                    <div className={styles.nodeMetricTitle}>CPU</div>
+                                    <div className={styles.nodeMetricValue}>
+                                        <span>{cpuRequest.toFixed(2) / 1}</span>
+                                        <em>/{cpuCapacity.toFixed(2) / 1} Core</em>
                                     </div>
-                                </Col>
-                                <Col span={6}>
-                                    <div className={styles.resourceItem}>
-                                        <div className={styles.resourceTitle}>{formatMessage({ id: 'enterpriseColony.mgt.node.memory' })}</div>
-                                        <div className={styles.resourceChart}>
-                                            <Echarts keys={'upcpu' + `${0}`} cname={allocation} svalue={memoryUsed} uvalue={`${String(parseInt(memoryUsed))}%`} swidth='200px' sheight='150px' />
-                                        </div>
-                                        <div className={styles.resourceBottom}>
-                                            <p>{formatMessage({ id: 'enterpriseColony.mgt.node.allocated' })}<span>{req_memory.toFixed(2)}</span>GB</p>
-                                            <p>{formatMessage({ id: 'enterpriseColony.mgt.node.totalMemory' })}<span>{cap_memory.toFixed(2)}</span>GB</p>
-                                        </div>
+                                    <div className={styles.nodeMetricDesc}>
+                                        {formatMessage({ id: 'enterpriseOverview.overview.remaining' })}
+                                        <span>{cpuRemaining}</span>
+                                        Core
                                     </div>
-                                </Col>
-                                <Col span={6}>
-                                    <div className={styles.resourceItem}>
-                                        <div className={styles.resourceTitle}>{formatMessage({ id: 'enterpriseColony.mgt.node.root' })}</div>
-                                        <div className={styles.resourceChart}>
-                                            <Echarts keys={'upcpu' + `${2}`} cname={use} svalue={rootUsed} uvalue={`${String(parseInt(rootUsed))}%`} swidth='200px' sheight='150px' />
-                                        </div>
-                                        <div className={styles.resourceBottom}>
-                                            <p>{formatMessage({ id: 'enterpriseColony.mgt.node.use' })}<span>{req_root_partition.toFixed(2)}</span>GB</p>
-                                            <p>{formatMessage({ id: 'enterpriseColony.mgt.node.totalRoot' })}<span>{cap_root_partition.toFixed(2)}</span>GB</p>
-                                        </div>
+                                    <div className={styles.nodeGaugeFloat}>
+                                        <Charts chartType="progressGauge" keys={'nodeCpuGauge'} unit="%" svalue={cpuUsed} usedValue={cpuUsed} swidth='140px' sheight='140px' />
                                     </div>
-                                </Col>
-                                <Col span={6}>
-                                    <div className={styles.resourceItem}>
-                                        <div className={styles.resourceTitle}>{formatMessage({ id: 'enterpriseColony.mgt.node.vessel' })}</div>
-                                        <div className={styles.resourceChart}>
-                                            <Echarts keys={'upcpu' + `${3}`} cname={use} svalue={dockerUsed} uvalue={`${String(parseInt(dockerUsed))}%`} swidth='200px' sheight='150px' />
-                                        </div>
-                                        <div className={styles.resourceBottom}>
-                                            <p>{formatMessage({ id: 'enterpriseColony.mgt.node.use' })}<span>{req_docker_partition.toFixed(2)}</span>GB</p>
-                                            <p>{formatMessage({ id: 'enterpriseColony.mgt.node.totalvessel' })}<span>{cap_docker_partition.toFixed(2)}</span>GB</p>
-                                        </div>
+                                </div>
+                                <div className={styles.nodeMetricItem}>
+                                    <div className={styles.nodeMetricTitle}>{formatMessage({ id: 'enterpriseColony.mgt.node.memory' })}</div>
+                                    <div className={styles.nodeMetricValue}>
+                                        <span>{memoryRequest.toFixed(2) / 1}</span>
+                                        <em>/{memoryCapacity.toFixed(2) / 1} GB</em>
                                     </div>
-                                </Col>
-                            </Row>
+                                    <div className={styles.nodeMetricDesc}>
+                                        {formatMessage({ id: 'enterpriseOverview.overview.remaining' })}
+                                        <span>{memoryRemaining}</span>
+                                        GB
+                                    </div>
+                                    <div className={styles.nodeGaugeFloat}>
+                                        <Charts chartType="progressGauge" keys={'nodeMemoryGauge'} unit="%" svalue={memoryUsed} usedValue={memoryUsed} swidth='140px' sheight='140px' />
+                                    </div>
+                                </div>
+                                <div className={styles.nodeMetricItem}>
+                                    <div className={styles.nodeMetricTitle}>{formatMessage({ id: 'enterpriseColony.mgt.node.root' })}</div>
+                                    <div className={styles.nodeMetricValue}>
+                                        <span>{rootRequest.toFixed(2) / 1}</span>
+                                        <em>/{rootCapacity.toFixed(2) / 1} GB</em>
+                                    </div>
+                                    <div className={styles.nodeMetricDesc}>
+                                        {formatMessage({ id: 'enterpriseOverview.overview.remaining' })}
+                                        <span>{rootRemaining}</span>
+                                        GB
+                                    </div>
+                                    <div className={styles.nodeGaugeFloat}>
+                                        <Charts chartType="progressGauge" keys={'nodeRootGauge'} unit="%" svalue={rootUsed} usedValue={rootUsed} swidth='140px' sheight='140px' />
+                                    </div>
+                                </div>
+                                <div className={styles.nodeMetricItem}>
+                                    <div className={styles.nodeMetricTitle}>{formatMessage({ id: 'enterpriseColony.mgt.node.vessel' })}</div>
+                                    <div className={styles.nodeMetricValue}>
+                                        <span>{dockerRequest.toFixed(2) / 1}</span>
+                                        <em>/{dockerCapacity.toFixed(2) / 1} GB</em>
+                                    </div>
+                                    <div className={styles.nodeMetricDesc}>
+                                        {formatMessage({ id: 'enterpriseOverview.overview.remaining' })}
+                                        <span>{dockerRemaining}</span>
+                                        GB
+                                    </div>
+                                    <div className={styles.nodeGaugeFloat}>
+                                        <Charts chartType="progressGauge" keys={'nodeDockerGauge'} unit="%" svalue={dockerUsed} usedValue={dockerUsed} swidth='140px' sheight='140px' />
+                                    </div>
+                                </div>
+                            </div>
                             :
                             <Skeleton active />
                         }

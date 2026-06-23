@@ -61,16 +61,19 @@
   }
 
 .cardContainer {
-    background: #fff;
-    margin: 2px;
-    border-radius: 12px;
-    box-shadow: @rbd-min-card-shadow;
-    border: 1px solid rgba(16, 24, 40, 0.08);
+    border: 1px solid fade(@primary-color, 12%);
+    border-radius: 22px;
+    overflow: hidden;
+    background-color: #fff;
+    background-image: radial-gradient(circle at top right,
+            fade(@primary-color, 8%) 0%,
+            fade(@primary-color, 4%) 42%,
+            transparent 78%);
     margin-bottom: 16px;
 }
 
 .cardHeader {
-    padding: 16px 24px;
+    padding: 24px 24px 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -78,6 +81,34 @@
 
 .cardBody {
     padding: 0 24px 24px;
+
+    :global {
+        .ant-table {
+            overflow: hidden;
+            border-radius: 16px;
+            background: #fff;
+        }
+
+        .ant-table-thead>tr>th {
+            color: @rbd-content-color-secondary;
+            font-size: @rbd-auxiliary-size;
+            line-height: @rbd-auxiliary-line-height;
+            font-weight: 600;
+            background: fade(@primary-color, 3%);
+            border-bottom: 1px solid @border-color-base;
+        }
+
+        .ant-table-tbody>tr>td {
+            color: @rbd-content-color;
+            font-size: @rbd-content-size;
+            line-height: @rbd-content-line-height;
+            border-bottom: 1px solid fade(@border-color-base, 70%);
+        }
+
+        .ant-table-tbody>tr:hover>td {
+            background: fade(@primary-color, 4%);
+        }
+    }
 }
 
 .titleStyle {
@@ -95,7 +126,7 @@
     span:nth-of-type(2) {
         font-weight: bolder;
         font-size: @rbd-sub-title-size;
-        color: @rbd-sub-title-color;
+        color: @heading-color;
         line-height: @rbd-sub-title-line-height;
     }
 }

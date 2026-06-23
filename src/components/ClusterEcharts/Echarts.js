@@ -14,7 +14,11 @@ export default class Chart extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.svalue !== this.props.svalue) {
+    if (
+      prevProps.svalue !== this.props.svalue ||
+      prevProps.usedValue !== this.props.usedValue ||
+      prevProps.chartType !== this.props.chartType
+    ) {
       this.updateChart();
     }
   }
@@ -27,7 +31,11 @@ export default class Chart extends Component {
   };
 
   updateChart = () => {
-    const { keys, svalue, cname, usedValue, unit } = this.props
+    const { keys, svalue, cname, usedValue, unit, chartType } = this.props
+    if (chartType === 'progressGauge') {
+      this.updateProgressGauge();
+      return;
+    }
     // 2. options配置项
     var datas = {
       value: svalue,
@@ -233,6 +241,92 @@ export default class Chart extends Component {
       ],
     };
     this.chart.setOption(option);
+  };
+  updateProgressGauge = () => {
+    const { svalue, usedValue, unit } = this.props;
+    const value = Number(svalue) || 0;
+    const chartColor = value > 80 ? global.getPublicColor('rbd-error-status') : global.getPublicColor();
+    const axisColor = global.getPublicColor('rbd-content-color-secondary');
+    const option = {
+      backgroundColor: 'transparent',
+      series: [
+        {
+          type: 'gauge',
+          min: 0,
+          max: 100,
+          splitNumber: 10,
+          radius: '86%',
+          center: ['50%', '50%'],
+          progress: {
+            show: true,
+            width: 4,
+            itemStyle: {
+              color: chartColor
+            }
+          },
+          axisLine: {
+            lineStyle: {
+              width: 4,
+              color: [[1, global.getPublicColor('border-color-base')]]
+            }
+          },
+          axisTick: {
+            show: false
+          },
+          splitLine: {
+            show: true,
+            distance: 2,
+            length: 5,
+            lineStyle: {
+              width: 1,
+              color: axisColor
+            }
+          },
+          axisLabel: {
+            show: true,
+            distance: 6,
+            color: axisColor,
+            fontSize: 9,
+            formatter: value => value
+          },
+          pointer: {
+            show: true,
+            length: '48%',
+            width: 3,
+            itemStyle: {
+              color: chartColor
+            }
+          },
+          anchor: {
+            show: true,
+            showAbove: true,
+            size: 12,
+            itemStyle: {
+              color: '#fff',
+              borderColor: chartColor,
+              borderWidth: 4
+            }
+          },
+          title: {
+            show: false
+          },
+          detail: {
+            valueAnimation: true,
+            fontSize: 16,
+            lineHeight: 22,
+            color: global.getPublicColor('rbd-content-color'),
+            offsetCenter: [0, '76%'],
+            formatter: () => `${usedValue || 0}%`
+          },
+          data: [
+            {
+              value
+            }
+          ]
+        }
+      ]
+    };
+    this.chart.setOption(option, true);
   };
   render() {
     const { keys, swidth, sheight } = this.props

@@ -271,46 +271,46 @@ export default class EventList extends PureComponent {
     const overviewItems = [
       {
         key: 'app',
-        title: formatMessage({ id: 'versionUpdata_6_1.appNum' }),
-        value: isTeamOverview ? index?.overviewInfo?.team_app_num || 0 : '**'
+        action: '创建',
+        value: isTeamOverview ? index?.overviewInfo?.team_app_num || 0 : '**',
+        unit: '个',
+        object: '应用'
       },
       {
         key: 'service',
-        title: formatMessage({ id: 'versionUpdata_6_1.serviceNum' }),
-        value: isTeamOverview ? index?.overviewInfo?.team_service_num || 0 : '**'
+        action: '创建',
+        value: isTeamOverview ? index?.overviewInfo?.team_service_num || 0 : '**',
+        unit: '个',
+        object: '组件'
       },
       {
         key: 'cpu',
-        title: `${formatMessage({ id: 'versionUpdata_6_1.cpuUsage' })} (${this.handlUnit(
-          'cpu',
-          index?.overviewInfo?.cpu_usage,
-          'm'
-        )})`,
+        action: '使用',
         value: isTeamOverview
           ? this.handlUnit('cpu', index?.overviewInfo?.cpu_usage) || 0
-          : '**'
+          : '**',
+        unit: this.handlUnit('cpu', index?.overviewInfo?.cpu_usage, 'm'),
+        object: 'CPU'
       },
       {
         key: 'memory',
-        title: `${formatMessage({ id: 'versionUpdata_6_1.memoryUsage' })} (${this.handlUnit(
-          'memory',
-          index?.overviewInfo?.memory_usage,
-          'MB'
-        )})`,
+        action: '使用',
         value: isTeamOverview
           ? this.handlUnit('memory', index?.overviewInfo?.memory_usage) || 0
-          : '**'
+          : '**',
+        unit: this.handlUnit('memory', index?.overviewInfo?.memory_usage, 'MB'),
+        object: '内存'
       },
       {
         key: 'storage',
-        title: showStorageUsed
-          ? `${formatMessage({ id: 'versionUpdata_6_1.storageUsage' })}(${storageUsed?.unit})`
-          : `${formatMessage({ id: 'versionUpdata_6_1.diskUsage' })}(GB)`,
+        action: '使用',
         value: isTeamOverview
           ? showStorageUsed
             ? storageUsed?.value
             : index?.overviewInfo?.disk_usage
-          : '**'
+          : '**',
+        unit: showStorageUsed ? storageUsed?.unit : 'GB',
+        object: showStorageUsed ? '存储' : '磁盘'
       }
     ];
 
@@ -322,8 +322,12 @@ export default class EventList extends PureComponent {
             <div className={styles.basicInfoRow}>
               {overviewItems.map(item => (
                 <div key={item.key} className={styles.basicInfo}>
-                  <div className={styles.basicInfoTitle}>{item.title}</div>
-                  <div className={styles.basicInfoContent}>{item.value}</div>
+                  <div className={styles.basicInfoTitle}>{item.action}</div>
+                  <div className={styles.basicInfoContent}>
+                    {item.value}
+                    {item.unit && <span>{item.unit}</span>}
+                  </div>
+                  <div className={styles.basicInfoDesc}>{item.object}</div>
                 </div>
               ))}
             </div>
