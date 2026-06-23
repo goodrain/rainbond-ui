@@ -661,13 +661,7 @@ export default class EnterpriseClusters extends PureComponent {
             >
               <FormattedMessage id='enterpriseColony.table.handle.edit' />
               {/* 编辑 */}
-            </a>,
-            <Link
-              to={`/enterprise/${eid}/importMessage?region_id=${item.region_id}`}
-            >
-              <FormattedMessage id='enterpriseColony.table.handle.import' />
-              {/* 导入 */}
-            </Link>
+            </a>
           ];
           if (item.scope != 'default') {
             mlist.push(
