@@ -38,6 +38,18 @@ assert.strictEqual(
 );
 
 assert.strictEqual(
+  typeof helpers.canShowHorizontalScalingControls,
+  'function',
+  'should expose a helper for deciding whether horizontal scaling UI is visible'
+);
+
+assert.strictEqual(
+  typeof helpers.isHorizontalScalingDisabled,
+  'function',
+  'should expose a helper for deciding whether horizontal scaling UI is disabled'
+);
+
+assert.strictEqual(
   helpers.canShowExpansionTab('daemonset'),
   true,
   'should keep the expansion tab visible for daemonset components so CPU and memory can be changed'
@@ -47,6 +59,18 @@ assert.strictEqual(
   helpers.supportsHorizontalScaling('daemonset'),
   false,
   'should disable only horizontal instance scaling for daemonset components'
+);
+
+assert.strictEqual(
+  helpers.canShowHorizontalScalingControls('daemonset'),
+  true,
+  'should keep instance count and auto-scaling UI visible for daemonset components'
+);
+
+assert.strictEqual(
+  helpers.isHorizontalScalingDisabled('daemonset'),
+  true,
+  'should render daemonset horizontal scaling UI in a disabled state'
 );
 
 assert.strictEqual(
@@ -65,6 +89,24 @@ assert.strictEqual(
   helpers.supportsHorizontalScaling('stateless_multiple'),
   true,
   'should keep horizontal scaling available for normal stateless components'
+);
+
+assert.strictEqual(
+  helpers.canShowHorizontalScalingControls('stateless_multiple'),
+  true,
+  'should keep horizontal scaling UI visible for normal stateless components'
+);
+
+assert.strictEqual(
+  helpers.isHorizontalScalingDisabled('stateless_multiple'),
+  false,
+  'should keep horizontal scaling UI enabled for normal stateless components'
+);
+
+assert.strictEqual(
+  helpers.canShowHorizontalScalingControls('vm'),
+  false,
+  'should keep horizontal scaling UI hidden for vm components'
 );
 
 assert.strictEqual(

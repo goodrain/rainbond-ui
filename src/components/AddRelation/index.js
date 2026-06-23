@@ -140,6 +140,7 @@ export default class AddRelation extends PureComponent {
         width={1000}
         visible
         onOk={this.handleSubmit}
+        okButtonProps={{ 'data-testid': 'rbd-dep-submit' }}
         onCancel={this.handleCancel}
       >
         <Row>

@@ -637,7 +637,7 @@ export default class Index extends PureComponent {
           </Col>
           {!isHelm && (
             <Col span={9} style={{ textAlign: 'right' }}>
-              <Button onClick={this.showAddPort}>
+              <Button data-testid="rbd-port-add-btn" onClick={this.showAddPort}>
                 <Icon type="plus" />
                 <FormattedMessage id="componentOverview.body.Port.add" />
               </Button>

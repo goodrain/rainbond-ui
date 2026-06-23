@@ -30,6 +30,7 @@ import rainbondUtil from '../../utils/rainbond';
 import { languageObj } from '../../utils/utils';
 import { formatMessage } from '@/utils/intl';
 import styles from './resource.less';
+import { shouldShowCodeBuildConfig } from './resourceHelpers';
 import AutoDeploy from './setting/auto-deploy';
 import ChangeBuildSource from './setting/edit-buildsource';
 import ModifyUrl from '../Create/modify-url';
@@ -1082,6 +1083,17 @@ export default class Index extends PureComponent {
                     <FormattedMessage id='componentOverview.body.Resource.Retest' />
                   </Button>
                 </FormItem>
+                {languageType && languageType.indexOf('dockerfile') > -1 && buildSource.dockerfile && (
+                  <FormItem
+                    style={{
+                      marginBottom: 0
+                    }}
+                    {...formItemLayout}
+                    label={formatMessage({ id: 'componentOverview.body.Resource.dockerfile_path' })}
+                  >
+                    {buildSource.dockerfile}
+                  </FormItem>
+                )}
               </Fragment>
             ) : (
               ''
@@ -1369,7 +1381,7 @@ export default class Index extends PureComponent {
             </div> */}
           </Modal>
         }
-        {languageType && runtimeInfo && (
+        {shouldShowCodeBuildConfig({ buildSource, languageType, runtimeInfo }) && (
           <CodeBuildConfig
             appDetail={this.props.appDetail}
             buildSource={buildSource}

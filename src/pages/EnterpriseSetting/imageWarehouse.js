@@ -24,7 +24,9 @@ export default class ImageWarehouse extends PureComponent {
             total: 0,
             imageList: [],
             imageHubLoading: false,
-            clusters: []
+            clusters: [],
+            secretIdErrorKey: 0,
+            secretIdErrorMessage: ''
         };
     }
     componentDidMount() {
@@ -47,6 +49,22 @@ export default class ImageWarehouse extends PureComponent {
         password: values.password,
         hub_type: values.hub_type
     });
+    getErrorMessage = err => {
+        const data = err && err.response && err.response.data;
+        return data && (data.msg_show || data.msg);
+    };
+    handleRegistryError = err => {
+        const message = this.getErrorMessage(err) || formatMessage({ id: 'notification.warn.error' });
+        if (message === '镜像仓库已存在' || message === '资源已存在') {
+            this.setState(prevState => ({
+                secretIdErrorKey: prevState.secretIdErrorKey + 1,
+                secretIdErrorMessage: formatMessage({ id: 'placeholder.warehouse_exist' })
+            }));
+        } else {
+            notification.warning({ message });
+        }
+        this.setState({ imageHubLoading: false });
+    };
     // 获取数据
     getImageHub = () => {
         const { dispatch } = this.props
@@ -66,7 +84,7 @@ export default class ImageWarehouse extends PureComponent {
     }
     // 添加仓库
     handleAddImageHub = values => {
-        const { dispatch } = this.props
+        const { dispatch, onChange } = this.props
         dispatch({
             type: this.getActionType('add'),
             payload: {
@@ -81,18 +99,22 @@ export default class ImageWarehouse extends PureComponent {
                         message: formatMessage({ id: 'notification.success.add' })
                     })
                     this.getImageHub()
+                    if (onChange) {
+                        onChange('add')
+                    }
+                    this.setState({
+                        showAddMember: false,
+                        imageHubLoading: false
+                    })
                 }
-                this.setState({
-                    showAddMember: false,
-                    imageHubLoading: false
-                })
-            }
+            },
+            handleError: this.handleRegistryError
         })
     };
     // 修改仓库
     handleEditImageHub = data => {
         const { editData } = this.state
-        const { dispatch } = this.props
+        const { dispatch, onChange } = this.props
         dispatch({
             type: this.getActionType('update'),
             payload: {
@@ -107,19 +129,27 @@ export default class ImageWarehouse extends PureComponent {
                         message: formatMessage({ id: 'notification.success.change' })
                     })
                     this.getImageHub()
+                    if (onChange) {
+                        onChange('update')
+                    }
+                    this.setState({
+                        editData: null,
+                        showAddMember: false,
+                        imageHubLoading: false
+                    })
                 }
-                this.setState({
-                    editData: null,
-                    showAddMember: false,
-                    imageHubLoading: false
-                })
+            },
+            handleError: err => {
+                const message = this.getErrorMessage(err) || formatMessage({ id: 'notification.warn.error' });
+                notification.warning({ message });
+                this.setState({ imageHubLoading: false });
             }
         })
     };
     // 删除仓库
     handleDelImageHub = () => {
         const { toDeleteImageHub } = this.state
-        const { dispatch } = this.props
+        const { dispatch, onChange } = this.props
         dispatch({
             type: this.getActionType('delete'),
             payload: {
@@ -132,6 +162,9 @@ export default class ImageWarehouse extends PureComponent {
                         message: formatMessage({ id: 'notification.success.delete' })
                     })
                     this.getImageHub()
+                    if (onChange) {
+                        onChange('delete')
+                    }
                 }
                 this.setState({
                     toDeleteImageHub: null,
@@ -204,7 +237,9 @@ export default class ImageWarehouse extends PureComponent {
             toMoveTeam,
             imageList,
             imageHubLoading,
-            clusters
+            clusters,
+            secretIdErrorKey,
+            secretIdErrorMessage
         } = this.state;
         const columns = [
             {
@@ -325,6 +360,8 @@ export default class ImageWarehouse extends PureComponent {
                         loading={imageHubLoading}
                         clusters={clusters}
                         imageList={imageList}
+                        secretIdErrorKey={secretIdErrorKey}
+                        secretIdErrorMessage={secretIdErrorMessage}
                         data={editData}
                         onOk={this.onSubmite}
                         onCancel={this.handleCancelModel}

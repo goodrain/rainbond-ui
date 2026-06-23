@@ -29,3 +29,16 @@ export function getImageRegistryTypeLabel(type) {
   };
   return labels[normalizedType] || normalizedType;
 }
+
+export function getImageRegistryDomainPlaceholder(type) {
+  const normalizedType = normalizeImageRegistryType(type);
+  const placeholders = {
+    Docker: formatMessage({ id: 'placeholder.image_registry_domain.docker' }),
+    Harbor: formatMessage({ id: 'placeholder.image_registry_domain.harbor' }),
+    AliyunACR: formatMessage({ id: 'placeholder.image_registry_domain.aliyun_acr' }),
+    TencentTCR: formatMessage({ id: 'placeholder.image_registry_domain.tencent_tcr' }),
+    HuaweiSWR: formatMessage({ id: 'placeholder.image_registry_domain.huawei_swr' }),
+    VolcanoCR: formatMessage({ id: 'placeholder.image_registry_domain.volcano_cr' })
+  };
+  return placeholders[normalizedType] || formatMessage({ id: 'placeholder.git_url_domain' });
+}

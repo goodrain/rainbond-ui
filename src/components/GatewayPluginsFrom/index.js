@@ -43,6 +43,32 @@ export default class index extends Component {
             PluginData: PluginSystem.getFromOptins(val, {})
         })
     }
+    getInitialValue = (value, defaultValue) => {
+        if (value === undefined || value === null) {
+            return defaultValue;
+        }
+        return value;
+    }
+    renderTooltip = ({ name, label, describe }) => {
+        if (!label) {
+            return describe;
+        }
+        return (
+            <span>
+                <span>{describe}</span>
+                <br />
+                <span>{formatMessage({ id: 'gatewayplugin.field_name' })}: {name}</span>
+            </span>
+        )
+    }
+    renderLabel = ({ name, label, describe }) => (
+        <span className={styles.pluginFieldLabel}>
+            <span className={styles.pluginFieldLabelName}>{label || name}</span>
+            <Tooltip placement="top" title={this.renderTooltip({ name, label, describe })}>
+                <Icon type="question-circle" className={styles.pluginFieldLabelIcon} />
+            </Tooltip>
+        </span>
+    )
     fromItemRender = (PluginData) => {
         const { name, config, message } = PluginData
         const { getFieldDecorator } = this.props.form;
@@ -62,11 +88,11 @@ export default class index extends Component {
                         >
                             {PluginList && PluginList.map(item => {
                                 const { name, message } = item
-                                return <Option key={name} value={name} disabled={this.props.pluginName.includes(name)}>
+                                return <Select.Option key={name} value={name} disabled={this.props.pluginName.includes(name)}>
                                     <Tooltip placement="right" title={message}>
                                         <span style={{ width: "100%" }}>{name}</span>
                                     </Tooltip>
-                                </Option>
+                                </Select.Option>
 
                             })}
                         </Select>
@@ -79,30 +105,31 @@ export default class index extends Component {
         )
     }
     FromTypeRender = val => {
-        const { name, type, describe, placeholder, FromType, defaultValue, selectArr, value, rules } = val
+        const { name, type, describe, placeholder, FromType, defaultValue, selectArr, value, rules, mode, rows } = val
         const { getFieldDecorator } = this.props.form;
         const { formItemLayout } = this.props;
         switch (FromType) {
+            case 'password':
+            case 'textarea':
             case 'input':
                 return (
-                    <Form.Item label=
-                        {
-                            <span>
-                                {name}
-                                <Tooltip placement="top" title={describe}>
-                                    <Icon type="question-circle" style={{ marginLeft: 4 }} />
-                                </Tooltip>
-                            </span>
-                        }
-                        {...formItemLayout}>
+                    <Form.Item label={this.renderLabel(val)} {...formItemLayout}>
                         {getFieldDecorator(name, {
-                            initialValue: value || defaultValue,
+                            initialValue: this.getInitialValue(value, defaultValue),
                             rules: [...rules]
-                        })(type == 'integer' ? <InputNumber placeholder={placeholder} /> : <Input placeholder={placeholder} />)}
+                        })(
+                            type == 'integer'
+                                ? <InputNumber style={{ width: '100%' }} placeholder={placeholder} />
+                                : FromType == 'password'
+                                    ? <Input.Password placeholder={placeholder} />
+                                    : FromType == 'textarea'
+                                        ? <Input.TextArea rows={rows || 4} placeholder={placeholder} />
+                                        : <Input placeholder={placeholder} />
+                        )}
                     </Form.Item>
                 )
             case 'input_arr':
-                const initValue = value || defaultValue;
+                const initValue = this.getInitialValue(value, defaultValue);
                 let objectValue = [];
                 if(type === 'object'){
                     if(initValue && Object.keys(initValue).length > 0){
@@ -119,16 +146,7 @@ export default class index extends Component {
                     objectValue = initValue;
                 }
                 return (
-                    <Form.Item label=
-                        {
-                            <span>
-                                {name}
-                                <Tooltip placement="top" title={describe}>
-                                    <Icon type="question-circle" style={{ marginLeft: 4 }} />
-                                </Tooltip>
-                            </span>
-                        }
-                        {...formItemLayout}>
+                    <Form.Item label={this.renderLabel(val)} {...formItemLayout}>
                         {getFieldDecorator(name, {
                             initialValue: objectValue,
                             rules: [...rules]
@@ -137,28 +155,19 @@ export default class index extends Component {
                 )
             case 'select':
                 return (
-                    <Form.Item label=
-                        {
-                            <span>
-                                {name}
-                                <Tooltip placement="top" title={describe} >
-                                    <Icon type="question-circle" style={{ marginLeft: 4 }} />
-                                </Tooltip>
-                            </span>
-                        }
-                        {...formItemLayout}>
+                    <Form.Item label={this.renderLabel(val)} {...formItemLayout}>
                         {getFieldDecorator(name, {
-                            initialValue: value || defaultValue,
+                            initialValue: this.getInitialValue(value, defaultValue),
                             rules: [...rules]
                         })(
                             <Select
-                                mode={ name == 'method' ? 'multiple' : ''}
+                                mode={ mode || (name == 'method' ? 'multiple' : undefined)}
                                 style={{ width: '100%' }}
                                 placeholder={placeholder}
                             >
                                 {selectArr && selectArr.map(item => (
-                                    <Select.Option key={item} value={item}>
-                                        {item}
+                                    <Select.Option key={typeof item === 'object' ? item.value : item} value={typeof item === 'object' ? item.value : item}>
+                                        {typeof item === 'object' ? item.label : item}
                                     </Select.Option>
                                 ))}
                             </Select>
@@ -167,18 +176,9 @@ export default class index extends Component {
                 )
             case 'switch':
                 return (
-                    <Form.Item label=
-                        {
-                            <span>
-                                {name}
-                                <Tooltip placement="top" title={describe} >
-                                    <Icon type="question-circle" style={{ marginLeft: 4 }} />
-                                </Tooltip>
-                            </span>
-                        }
-                        {...formItemLayout}>
+                    <Form.Item label={this.renderLabel(val)} {...formItemLayout}>
                         {getFieldDecorator(name, {
-                            initialValue: value || defaultValue,
+                            initialValue: this.getInitialValue(value, defaultValue),
                             rules: [...rules],
                             valuePropName: 'checked',
                         })(

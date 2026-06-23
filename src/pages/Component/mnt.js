@@ -828,7 +828,7 @@ export default class Index extends PureComponent {
             style={{ marginBottom: 24 }}
             title={<span>{formatMessage({ id: 'componentOverview.body.mnt.save_setting' })}</span>}
             extra={
-              <Button onClick={this.handleAddVar}>
+              <Button data-testid="rbd-volume-add-btn" onClick={this.handleAddVar}>
                 <Icon type="plus" />
                 {formatMessage({ id: 'componentOverview.body.mnt.add_storage' })}
               </Button>
@@ -858,7 +858,7 @@ export default class Index extends PureComponent {
                 >
                   {formatMessage({ id: 'button.save' })}
                 </Button>
-                <Button onClick={this.handleAddVar}>
+                <Button data-testid="rbd-volume-add-btn" onClick={this.handleAddVar}>
                   <Icon type="plus" />
                   {formatMessage({ id: 'componentOverview.body.mnt.add_storage' })}
                 </Button>

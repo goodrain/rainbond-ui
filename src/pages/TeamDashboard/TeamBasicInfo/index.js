@@ -583,6 +583,8 @@ export default class index extends Component {
               return (
                 <div key={item.group_id}>
                   <div
+                    data-testid="rbd-app-card"
+                    data-name={item.group_name}
                     className={styles.teamHotAppItem}
                     onClick={() => this.jumpToAppOverview(item.group_id)}
                   >
@@ -748,6 +750,7 @@ export default class index extends Component {
               <div className={styles.appListHeaderTop}>
                 <div className={styles.appListToolbar}>
                   <Search
+                    data-testid="rbd-app-search"
                     placeholder={formatMessage({ id: 'teamOverview.searchTips' })}
                     onSearch={this.onSearch}
                     value={query}
