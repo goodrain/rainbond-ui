@@ -893,6 +893,7 @@ export default class Index extends React.Component {
                 {startProbe && (
                   <div>
                     <Button
+                      data-testid="rbd-probe-set-btn"
                       onClick={() => {
                         this.setState({ editStartHealth: startProbe });
                       }}

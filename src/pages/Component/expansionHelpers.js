@@ -63,10 +63,20 @@ function supportsHorizontalScaling(method) {
   return method !== 'vm' && method !== 'daemonset';
 }
 
+function canShowHorizontalScalingControls(method) {
+  return canShowExpansionTab(method) && method !== 'vm';
+}
+
+function isHorizontalScalingDisabled(method) {
+  return method === 'daemonset';
+}
+
 module.exports = {
+  canShowHorizontalScalingControls,
   canShowExpansionTab,
   getRunningVMLiveUpdateChangedResource,
   getVmPassthroughScalingLockMessageId,
+  isHorizontalScalingDisabled,
   isVmGpuPassthroughScalingLocked,
   supportsHorizontalScaling
 };

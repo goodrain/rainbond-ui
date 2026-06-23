@@ -320,7 +320,7 @@ const MarketModal = ({ visible, onCancel, dispatch, currentEnterprise, store, gr
               </div>
               <div className={styles.actionButtons}>
                 <Button onClick={handleBack}>返回</Button>
-                <Button onClick={handleSubmitInstall} type="primary" loading={addAppLoading}>
+                <Button data-testid="rbd-market-install-submit" onClick={handleSubmitInstall} type="primary" loading={addAppLoading}>
                   安装
                 </Button>
               </div>
@@ -328,7 +328,7 @@ const MarketModal = ({ visible, onCancel, dispatch, currentEnterprise, store, gr
           ) : (
             [
               <Button key="back" onClick={handleBack}>返回</Button>,
-              <Button key="install" onClick={handleSubmitInstall} type="primary" loading={addAppLoading}>
+              <Button key="install" data-testid="rbd-market-install-submit" onClick={handleSubmitInstall} type="primary" loading={addAppLoading}>
                 安装
               </Button>
             ]
@@ -337,6 +337,7 @@ const MarketModal = ({ visible, onCancel, dispatch, currentEnterprise, store, gr
       }
       width={currentView === 'install' ? 500 : 800}
       centered
+      data-testid="rbd-market-install-modal"
       className={styles.marketModal}
     >
       <AppMarketContent

@@ -116,7 +116,7 @@ class CodeMirrorForm extends PureComponent {
   emitValue = (value) => {
     const { onChange, name, setFieldsValue } = this.props;
 
-    if (setFieldsValue && name && !this.hasDecorator()) {
+    if (setFieldsValue && name) {
       setFieldsValue({
         [name]: value
       });

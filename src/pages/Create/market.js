@@ -944,6 +944,7 @@ export default class Main extends PureComponent {
     const defaultActions = isInstall
       ? [
         <span
+          data-testid="rbd-market-install-btn"
           onClick={() => {
             if (type === 'helm') {
               this.handleHelmIntall(item);
@@ -962,6 +963,8 @@ export default class Main extends PureComponent {
           <GoodrainRZ style={{ marginLeft: 6, marginTop: 6 }} />
         )}
         <Card
+          data-testid="rbd-market-card"
+          data-name={item.app_name || item.name}
           className={
             handleType
               ? `${type === 'helm' ? PluginStyles.cards_helm_drawer : PluginStyles.cards} ${PluginStyles.clearAvatar}`
@@ -1382,6 +1385,7 @@ export default class Main extends PureComponent {
         {scopeMax != 'command' &&
           <span id="searchWrap" style={{ display: 'inline-block' }}>
             <Input.Search
+              data-testid="rbd-market-search"
               // eslint-disable-next-line react/no-string-refs
               ref="searchs"
               placeholder={formatMessage({ id: 'placeholder.group_name' })}

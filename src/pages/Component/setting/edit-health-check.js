@@ -189,6 +189,7 @@ export default class EditHealthCheck extends PureComponent {
         width={700}
         title={title}
         onOk={this.handleSubmit}
+        okButtonProps={{ 'data-testid': 'rbd-probe-submit' }}
         maskClosable={false}
         onCancel={onCancel}
         visible

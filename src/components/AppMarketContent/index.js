@@ -187,6 +187,7 @@ const AppMarketContent = forwardRef(({
                 ]
               })(
                 <Select
+                  data-testid="rbd-market-version-select"
                   getPopupContainer={triggerNode => triggerNode.parentNode}
                   onChange={onChangeVersion}
                   style={{ width: '100%' }}
@@ -261,7 +262,7 @@ const AppMarketContent = forwardRef(({
                   message: '最多24个字符'
                 }
               ]
-            })(<Input placeholder="请输入应用名称" />)}
+            })(<Input data-testid="rbd-market-app-name-input" placeholder="请输入应用名称" />)}
           </Form.Item>
         )}
 
@@ -277,6 +278,7 @@ const AppMarketContent = forwardRef(({
               ]
             })(
               <Select
+                data-testid="rbd-market-group-select"
                 placeholder="请选择应用"
                 style={{ width: '100%' }}
                 getPopupContainer={triggerNode => triggerNode.parentNode}
