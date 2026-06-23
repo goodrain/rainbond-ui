@@ -44,7 +44,7 @@ export default class Index extends PureComponent {
     if (!this.canView()) return <NoPermTip />;
 
     return (
-      <Row>
+      <Row data-testid="rbd-comp-monitor-panel">
         <ResourceShow />
       </Row>
     );
