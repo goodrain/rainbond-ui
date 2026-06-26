@@ -1643,6 +1643,7 @@ const componentOther = {
     'componentOverview.body.TarImageUpload.start_parse': '开始解析',
     'componentOverview.body.TarImageUpload.parsing': '解析中...',
     'componentOverview.body.TarImageUpload.please_upload': '请先上传tar包文件',
+    'componentOverview.body.TarImageUpload.single_file_limit': '只允许上传一个镜像包，请删除已有文件后重新上传',
     'componentOverview.body.TarImageUpload.start_parse_tar': '开始解析tar包',
     'componentOverview.body.TarImageUpload.parse_task_failed': '启动解析任务失败',
     'componentOverview.body.TarImageUpload.parse_success': '镜像解析成功',

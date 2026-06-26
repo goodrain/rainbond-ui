@@ -172,6 +172,7 @@ const teamAdd = {
   'teamAdd.create.upload.waitForCompletion': 'The image file is still uploading. Please wait until it finishes before creating the virtual machine',
   'teamAdd.create.upload.fileTypeJarWar': 'Only .jar, .war, .zip, .tar files are supported',
   'teamAdd.create.upload.fileTypeTar': 'Only .tar files are supported',
+  'teamAdd.create.upload.singleFileOnly': 'Only one image package can be uploaded. Delete the existing file before uploading another one.',
   // Advanced options
   'teamAdd.create.advancedOptions': 'Advanced Options',
 

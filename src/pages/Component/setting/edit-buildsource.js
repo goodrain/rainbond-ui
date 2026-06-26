@@ -253,12 +253,12 @@ export default class ChangeBuildSource extends PureComponent {
   // 4. 上传文件变化
   onChangeTarUpload = (info) => {
     let { fileList } = info;
-    fileList = fileList.filter((file) => {
+    fileList = fileList.filter((file) => file.status).filter((file) => {
       if (file.response) {
         return file.response.msg === 'success';
       }
       return true;
-    });
+    }).slice(0, 1);
 
     const { status } = info.file;
     if (status === 'done') {
@@ -266,7 +266,21 @@ export default class ChangeBuildSource extends PureComponent {
         message: formatMessage({ id: 'notification.success.upload_file' })
       });
     }
-    this.setState({ fileList, isDisabledUpload: true });
+    this.setState({ fileList, isDisabledUpload: fileList.length > 0 });
+  };
+
+  beforeUploadTarImage = (file, selectedFiles = []) => {
+    const { fileList, existFileList } = this.state;
+    const isExtraSelectedFile = selectedFiles.length > 1 && selectedFiles[0].uid !== file.uid;
+
+    if (fileList.length > 0 || existFileList.length > 0 || isExtraSelectedFile) {
+      notification.warning({
+        message: formatMessage({ id: 'componentOverview.body.TarImageUpload.single_file_limit' })
+      });
+      return false;
+    }
+
+    return true;
   };
 
   // 5. 删除上传文件
@@ -282,6 +296,13 @@ export default class ChangeBuildSource extends PureComponent {
     if (existFileList.length === 0) {
       notification.warning({
         message: formatMessage({ id: 'componentOverview.body.TarImageUpload.please_upload' })
+      });
+      return;
+    }
+
+    if (existFileList.length > 1) {
+      notification.warning({
+        message: formatMessage({ id: 'componentOverview.body.TarImageUpload.single_file_limit' })
       });
       return;
     }
@@ -737,17 +758,17 @@ export default class ChangeBuildSource extends PureComponent {
             extra={formatMessage({ id: 'componentOverview.body.TarImageUpload.file_format_tip' })}
           >
             <Upload
-              disabled={existFileList.length === 1}
+              disabled={existFileList.length > 0}
               fileList={fileList}
               accept=".tar,.tar.gz"
               name="packageTarFile"
+              beforeUpload={this.beforeUploadTarImage}
               onChange={this.onChangeTarUpload}
               onRemove={this.onRemoveTarFile}
               action={uploadRecord.upload_url}
-              maxCount={1}
               multiple={false}
             >
-              <Button disabled={isDisabledUpload || existFileList.length === 1}>
+              <Button disabled={isDisabledUpload || existFileList.length > 0}>
                 <Icon type="upload" /> <FormattedMessage id="componentOverview.body.TarImageUpload.select_file" />
               </Button>
             </Upload>
