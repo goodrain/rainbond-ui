@@ -152,7 +152,7 @@ export default class Index extends PureComponent {
   handleSubmit = e => {
     e.preventDefault();
     const { form, onSubmit, archInfo, imgRepostoryList, secretId, isPublic = true, pluginsList } = this.props;
-    const { event_id, radioKey } = this.state;
+    const { event_id, radioKey, existFileList } = this.state;
     const group_id = globalUtil.getAppID();
     const isCloudProxy = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
 
@@ -203,6 +203,11 @@ export default class Index extends PureComponent {
       if (errors.length > 0) {
         return;
       }
+    }
+
+    if (radioKey === 'upload' && existFileList.length > 1) {
+      message.warning(formatMessage({ id: 'teamAdd.create.upload.singleFileOnly' }));
+      return;
     }
 
     form.validateFields((err, fieldsValue) => {
@@ -427,7 +432,12 @@ export default class Index extends PureComponent {
       callback: data => {
         if (data.bean.res === 'ok') {
           this.setState({
-            existFileList: []
+            existFileList: [],
+            fileList: [],
+            currentFile: null,
+            chunkUploader: null,
+            chunkUploadProgress: 0,
+            isChunkUploading: false
           });
           notification.success({
             message: formatMessage({ id: 'notification.success.delete_file' })
@@ -458,12 +468,12 @@ export default class Index extends PureComponent {
   // 上传文件
   onChangeUpload = info => {
     let { fileList } = info;
-    fileList = fileList.filter(file => {
+    fileList = fileList.filter(file => file.status).filter(file => {
       if (file.response) {
         return file.response.msg === 'success';
       }
       return true;
-    });
+    }).slice(0, 1);
 
     if (info && info.event && info.event.percent) {
       this.setState({
@@ -480,6 +490,18 @@ export default class Index extends PureComponent {
     this.setState({ fileList });
   };
 
+  beforeUploadTarFile = (file, selectedFiles = []) => {
+    const { fileList, existFileList } = this.state;
+    const isExtraSelectedFile = selectedFiles.length > 1 && selectedFiles[0].uid !== file.uid;
+
+    if (fileList.length > 0 || existFileList.length > 0 || isExtraSelectedFile) {
+      message.warning(formatMessage({ id: 'teamAdd.create.upload.singleFileOnly' }));
+      return false;
+    }
+
+    return true;
+  };
+
   // 删除文件
   onRemove = () => {
     this.setState({ fileList: [] });
@@ -492,7 +514,12 @@ export default class Index extends PureComponent {
 
   // 处理分片上传文件选择
   handleChunkFileSelect = (file) => {
-    const { event_id, record } = this.state;
+    const { event_id, record, currentFile, existFileList } = this.state;
+
+    if (currentFile || existFileList.length > 0) {
+      message.warning(formatMessage({ id: 'teamAdd.create.upload.singleFileOnly' }));
+      return false;
+    }
 
     // 检查文件类型
     const allowedTypes = ['.tar'];
@@ -982,14 +1009,15 @@ export default class Index extends PureComponent {
                           fileList={fileList}
                           accept='.tar'
                           name="packageTarFile"
+                          beforeUpload={this.beforeUploadTarFile}
                           onChange={this.onChangeUpload}
                           onRemove={this.onRemove}
                           action={this.state.record.upload_url}
                           headers={myheaders}
-                          multiple={true}
+                          multiple={false}
                         >
 
-                          <Button>
+                          <Button disabled={fileList.length > 0 || existFileList.length > 0}>
                             <Icon type="upload" />
                             {formatMessage({ id: 'Vm.createVm.imgUpload' })}
                           </Button>

@@ -1631,6 +1631,7 @@ const componentOther = {
     'componentOverview.body.TarImageUpload.start_parse': 'Start Parsing',
     'componentOverview.body.TarImageUpload.parsing': 'Parsing...',
     'componentOverview.body.TarImageUpload.please_upload': 'Please upload tar package file first',
+    'componentOverview.body.TarImageUpload.single_file_limit': 'Only one image package can be uploaded. Delete the existing file before uploading another one.',
     'componentOverview.body.TarImageUpload.start_parse_tar': 'Start parsing tar package',
     'componentOverview.body.TarImageUpload.parse_task_failed': 'Failed to start parsing task',
     'componentOverview.body.TarImageUpload.parse_success': 'Image parsing successful',

@@ -173,6 +173,7 @@ const teamAdd = {
   'teamAdd.create.upload.waitForCompletion': '镜像文件仍在上传中，请等待上传完成后再创建',
   'teamAdd.create.upload.fileTypeJarWar': '只支持 .jar、.war、.zip、.tar 格式的文件',
   'teamAdd.create.upload.fileTypeTar': '只支持 .tar 格式的文件',
+  'teamAdd.create.upload.singleFileOnly': '只允许上传一个镜像包，请删除已有文件后重新上传',
   // 高级选项
   'teamAdd.create.advancedOptions': '高级选项',
 
