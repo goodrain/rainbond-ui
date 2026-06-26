@@ -2863,7 +2863,7 @@ const global = {
     return adviceType[type] || type;
   },
   fetchOperation(finalstatus, status) {
-    if (finalstatus === '') {
+    if (finalstatus === '' || finalstatus === 'running') {
       return (
         <span style={{ color: '#F69C49', paddingLeft: '5px' }}>
           {/* 进行中 */}
