@@ -336,7 +336,7 @@ const global = {
       WAITING: '#F69D4A', // 等待中
       Starting: '#F69D4A', // 启动中
       NOTREADY: '#F69D4A', // 未就绪
-      checking: 'F69D4A', // 检测中
+      checking: '#F69D4A', // 检测中
       SCHEDULING: '#F69D4A', // 检测中
       stopping: '#20124A', // 关闭中 紫色
       Stopping: '#20124A', // 关闭中 紫色
@@ -2863,7 +2863,7 @@ const global = {
     return adviceType[type] || type;
   },
   fetchOperation(finalstatus, status) {
-    if (finalstatus === '') {
+    if (finalstatus === '' || finalstatus === 'running') {
       return (
         <span style={{ color: '#F69C49', paddingLeft: '5px' }}>
           {/* 进行中 */}

@@ -3,7 +3,9 @@ const {
   getOperationLogTooltipTitle,
   getOperationLogTooltipVisible,
   getOperationRecordMessage,
+  getOperationRecordStatusClass,
   getOperationRecordTypeText,
+  isOperationLogRunning,
   shouldShowOperationLogTooltipByDefault
 } = require('./operationRecordHelpers');
 
@@ -44,6 +46,12 @@ assert.strictEqual(
 );
 
 assert.strictEqual(
+  getOperationRecordStatusClass('checking'),
+  'logfored',
+  'should render checking health-check events with the in-progress operation style'
+);
+
+assert.strictEqual(
   getOperationLogTooltipTitle({
     defaultTitle: '查看日志',
     detail: '程序启动失败，请查看日志'
@@ -65,6 +73,24 @@ assert.strictEqual(
   getOperationLogTooltipVisible(''),
   true,
   'should keep in-progress operation log tips visible'
+);
+
+assert.strictEqual(
+  getOperationLogTooltipVisible('running'),
+  true,
+  'should keep running health-check operation log tips visible'
+);
+
+assert.strictEqual(
+  isOperationLogRunning('running'),
+  true,
+  'should treat running health-check operation logs as dynamic'
+);
+
+assert.strictEqual(
+  isOperationLogRunning('empty'),
+  false,
+  'should not treat finished health-check operation logs as dynamic'
 );
 
 assert.strictEqual(
@@ -107,6 +133,16 @@ assert.strictEqual(
   }),
   false,
   'should not show successful log icon tips by default'
+);
+
+assert.strictEqual(
+  shouldShowOperationLogTooltipByDefault({
+    status: 'checking',
+    canShowLog: true,
+    hasShownFailureTip: false
+  }),
+  false,
+  'should not treat checking health-check events as failed log tips'
 );
 
 console.log('operation record helper tests passed');
