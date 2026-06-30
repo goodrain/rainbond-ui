@@ -109,27 +109,27 @@ assert.strictEqual(
   shouldShowOperationLogTooltipByDefault({
     status: 'failure',
     canShowLog: true,
-    hasShownFailureTip: false
+    isLatestRecord: true
   }),
   true,
-  'should show the first failed log icon tip by default'
+  'should show the latest failed log icon tip by default'
 );
 
 assert.strictEqual(
   shouldShowOperationLogTooltipByDefault({
     status: 'failure',
     canShowLog: true,
-    hasShownFailureTip: true
+    isLatestRecord: false
   }),
   false,
-  'should not show every failed log icon tip by default'
+  'should not show historical failed log icon tips by default'
 );
 
 assert.strictEqual(
   shouldShowOperationLogTooltipByDefault({
     status: 'success',
     canShowLog: true,
-    hasShownFailureTip: false
+    isLatestRecord: true
   }),
   false,
   'should not show successful log icon tips by default'
@@ -139,7 +139,7 @@ assert.strictEqual(
   shouldShowOperationLogTooltipByDefault({
     status: 'checking',
     canShowLog: true,
-    hasShownFailureTip: false
+    isLatestRecord: true
   }),
   false,
   'should not treat checking health-check events as failed log tips'
