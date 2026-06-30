@@ -53,6 +53,29 @@ assert.strictEqual(
   'should show source-code build config for uploaded war package components'
 );
 
+[
+  'java-maven',
+  'gradle',
+  'Node.js',
+  'nodejs',
+  'NodeJSStatic',
+  'python',
+  'Golang',
+  'php',
+  '.NetCore',
+  'dockerfile'
+].forEach(languageType => {
+  assert.strictEqual(
+    helpers.shouldShowCodeBuildConfig({
+      buildSource: { service_source: 'package_build' },
+      languageType,
+      runtimeInfo: { BUILD_RUNTIMES: 'runtime' }
+    }),
+    true,
+    `should show source-code build config for uploaded ${languageType} package components`
+  );
+});
+
 assert.strictEqual(
   helpers.shouldShowCodeBuildConfig({
     buildSource: { service_source: 'package_build' },
