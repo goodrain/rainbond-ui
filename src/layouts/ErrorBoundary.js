@@ -2,6 +2,7 @@ import { connect } from 'dva';
 import { Button } from 'antd';
 import { PureComponent } from 'react';
 import  Result  from '../components/Result/index';
+import { captureErrorViewed } from '../posthog';
 import { captureException } from '../sentry';
 
 @connect(({ user }) => ({
@@ -29,6 +30,10 @@ export default class ErrorBoundary extends PureComponent {
     ) {
       return null;
     }
+    captureErrorViewed('frontend_render_error', {
+      error_code: error && (error.name || error.message),
+      stage: 'react_error_boundary'
+    });
     captureException(error, {
       errorSource: 'react_error_boundary',
       user: currentUser,

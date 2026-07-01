@@ -22,7 +22,7 @@ import styles from './index.less';
 import cookie from '../../utils/cookie';
 import globalUtil from '../../utils/global';
 import { isAgentRouteHidden } from '../../utils/agentContext';
-import { isPluginBaseId } from '../../utils/pluginArchUtils';
+import { isPluginBaseId, shouldFetchUserBalanceForPlugins } from '../../utils/pluginArchUtils';
 import { isRainbondInfoAgentEnabled } from '../../utils/agentVisibility';
 import { buildPortalSsoUrl } from '../../utils/portal';
 import * as agentLauncherAction from './agentLauncherAction';
@@ -331,7 +331,7 @@ class GlobalHeader extends PureComponent {
     this.lastPluginListKey = pluginListKey;
 
     const hasAgentPlugin = pluginList.some(item => this.isInstalledPlugin(item, 'rainbond-agent'));
-    const hasBillPlugin = pluginList.some(item => this.isInstalledPlugin(item, 'rainbond-bill'));
+    const hasBillPlugin = shouldFetchUserBalanceForPlugins(pluginList);
 
     this.setState(
       {
@@ -341,7 +341,7 @@ class GlobalHeader extends PureComponent {
       },
       () => {
         this.loadAgentAccessState();
-        if (hasAgentPlugin || hasBillPlugin) {
+        if (hasBillPlugin) {
           this.fetchBalance();
         }
       }

@@ -7,6 +7,7 @@ import cookie from '../../../../utils/cookie';
 import styles from '../../Index.less';
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
+import { getInstanceDisplayStatus } from './instanceStatusHelpers';
 
 @connect()
 @Form.create()
@@ -97,6 +98,7 @@ class Index extends PureComponent {
             list.length > 0 &&
             list.map(item => {
               const { pod_status: podStatus, pod_name: podName } = item;
+              const displayStatus = getInstanceDisplayStatus(podStatus);
               return (
                 <Col
                   xs={wd}
@@ -115,11 +117,11 @@ class Index extends PureComponent {
                       }}
                       style={{
                         cursor: 'pointer',
-                        background: globalUtil.fetchStateColor(podStatus)
+                        background: globalUtil.fetchStateColor(displayStatus)
                       }}
                     />
                   </Tooltip>
-                  <p>{globalUtil.fetchStateText(podStatus)}</p>
+                  <p>{globalUtil.fetchStateText(displayStatus)}</p>
                 </Col>
               );
             })}

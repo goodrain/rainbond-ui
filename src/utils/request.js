@@ -12,6 +12,7 @@ import { updateRenewedTokenFromResponse } from './token';
 import { formatMessage } from '@/utils/intl';
 import { history, getDvaApp } from 'umi';
 import { captureRequestError } from '../sentry';
+import { captureErrorViewed } from '../posthog';
 
 
 const codeMessage = {
@@ -272,6 +273,11 @@ export default function request(url, options) {
     })
     .catch(error => {
       captureRequestError(error, newOptions);
+      captureErrorViewed(error && error.response ? 'api_response_error' : 'network_error', {
+        error_code: error && (error.name || error.code || error.message),
+        status: error && error.response && error.response.status,
+        stage: 'request'
+      });
       if (showLoading) {
         handleStoreDispatch('global/hiddenLoading');
       }

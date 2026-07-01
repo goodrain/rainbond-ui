@@ -18,6 +18,18 @@ function getOperationRecordTypeText(optType, defaultText) {
   return defaultText;
 }
 
+function getOperationRecordStatusClass(status) {
+  const statusMap = {
+    success: 'logpassed',
+    timeout: 'logcanceled',
+    failure: 'logfailed',
+    checking: 'logfored',
+    restoring: 'logfored'
+  };
+
+  return statusMap[status] || 'logfored';
+}
+
 function getOperationLogTooltipTitle({ defaultTitle, detail }) {
   if (!detail) {
     return defaultTitle;
@@ -29,24 +41,30 @@ function getOperationLogTooltipTitle({ defaultTitle, detail }) {
 }
 
 function getOperationLogTooltipVisible(finalStatus, showByDefault = false) {
-  if (finalStatus === '' || showByDefault) {
+  if (finalStatus === '' || finalStatus === 'running' || showByDefault) {
     return true;
   }
   return undefined;
 }
 
+function isOperationLogRunning(finalStatus) {
+  return finalStatus === '' || finalStatus === 'running';
+}
+
 function shouldShowOperationLogTooltipByDefault({
   status,
   canShowLog,
-  hasShownFailureTip
+  isLatestRecord
 }) {
-  return status === 'failure' && canShowLog && !hasShownFailureTip;
+  return isLatestRecord && status === 'failure' && canShowLog;
 }
 
 module.exports = {
   getOperationLogTooltipTitle,
   getOperationLogTooltipVisible,
   getOperationRecordMessage,
+  getOperationRecordStatusClass,
   getOperationRecordTypeText,
+  isOperationLogRunning,
   shouldShowOperationLogTooltipByDefault
 };

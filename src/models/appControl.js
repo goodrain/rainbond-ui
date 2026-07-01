@@ -159,6 +159,45 @@ import {
 } from '../services/app';
 import { getGroupApps } from '../services/application';
 import { addCertificate, getCertificates } from '../services/team';
+import {
+  captureAppOperation,
+  captureFirstAppDeploySuccess,
+  captureMeaningfulActive
+} from '../posthog';
+
+function buildAppControlProperties(payload = {}, overrides = {}) {
+  return {
+    team_name: payload.team_name,
+    app_alias: payload.app_alias || payload.service_alias,
+    app_id: payload.app_id || payload.group_id,
+    component_id: payload.service_id,
+    deploy_type: payload.deploy_type,
+    ...overrides
+  };
+}
+
+function trackOperationSucceeded(actionType, payload, response) {
+  captureAppOperation(actionType, 'succeeded', buildAppControlProperties(payload, {
+    action_type: actionType,
+    event_id: response && response.event_id
+  }));
+}
+
+function isRunningStatus(status) {
+  const normalized = String(status || '').toLowerCase();
+  return ['running', 'active', 'ready', 'available', 'deployed', 'succeeded', 'completed'].indexOf(normalized) > -1;
+}
+
+function markFirstDeploySuccessOnce(properties = {}) {
+  const key = `rainbond_first_app_deploy_success:${properties.team_name || ''}:${properties.app_alias || properties.app_id || ''}`;
+  if (typeof window !== 'undefined' && window.localStorage) {
+    if (window.localStorage.getItem(key)) {
+      return;
+    }
+    window.localStorage.setItem(key, '1');
+  }
+  captureFirstAppDeploySuccess(properties);
+}
 
 export default {
   namespace: 'appControl',
@@ -282,19 +321,31 @@ export default {
       }
     },
     *putDeploy({ payload, callback, handleError }, { call }) {
+      captureAppOperation('deploy', 'started', buildAppControlProperties(payload));
       const response = yield call(deploy, payload, handleError);
+      if (response) {
+        trackOperationSucceeded('deploy', payload, response);
+      }
       if (response && callback) {
         callback(response);
       }
     },
     *putUpgrade({ payload, callback, handleError }, { call }) {
+      captureAppOperation('upgrade', 'started', buildAppControlProperties(payload));
       const response = yield call(upgrade, payload, handleError);
+      if (response) {
+        trackOperationSucceeded('upgrade', payload, response);
+      }
       if (response && callback) {
         callback(response);
       }
     },
     *putUpdateRolling({ payload, callback }, { call }) {
+      captureAppOperation('rolling_update', 'started', buildAppControlProperties(payload));
       const response = yield call(updateRolling, payload);
+      if (response) {
+        trackOperationSucceeded('rolling_update', payload, response);
+      }
       if (response && callback) {
         callback(response);
       }
@@ -318,19 +369,31 @@ export default {
       }
     },
     *putReStart({ payload, callback, handleError }, { call }) {
+      captureAppOperation('restart', 'started', buildAppControlProperties(payload));
       const response = yield call(restart, payload, handleError);
+      if (response) {
+        trackOperationSucceeded('restart', payload, response);
+      }
       if (response && callback) {
         callback(response);
       }
     },
     *putStart({ payload, callback, handleError }, { call }) {
+      captureAppOperation('start', 'started', buildAppControlProperties(payload));
       const response = yield call(start, payload, handleError);
+      if (response) {
+        trackOperationSucceeded('start', payload, response);
+      }
       if (response && callback) {
         callback(response);
       }
     },
     *putStop({ payload, callback, handleError }, { call }) {
+      captureAppOperation('stop', 'started', buildAppControlProperties(payload));
       const response = yield call(stop, payload, handleError);
+      if (response) {
+        trackOperationSucceeded('stop', payload, response);
+      }
       if (response && callback) {
         callback(response);
       }
@@ -579,6 +642,17 @@ export default {
     *fetchDetail({ payload, callback, handleError }, { call, put }) {
       const response = yield call(getDetail, payload, handleError);
       if (response) {
+        captureMeaningfulActive('view_app', buildAppControlProperties(payload));
+        const detail = response.bean || {};
+        const statusInfo = detail.status || {};
+        if (isRunningStatus(statusInfo.status || detail.service_status || detail.cur_status)) {
+          markFirstDeploySuccessOnce(buildAppControlProperties(payload, {
+            app_alias: payload && (payload.app_alias || payload.service_alias || (detail.service && detail.service.service_alias)),
+            action_type: 'first_app_deploy',
+            stage: 'detail_running',
+            deploy_type: detail.service && detail.service.service_source
+          }));
+        }
         yield put({ type: 'saveDetail', payload: response.bean });
         if (callback) {
           callback(response.bean);
@@ -659,7 +733,11 @@ export default {
       }
     },
     *bindDomain({ payload, callback }, { call }) {
+      captureAppOperation('bind_domain', 'started', buildAppControlProperties(payload));
       const response = yield call(bindDomain, payload);
+      if (response) {
+        trackOperationSucceeded('bind_domain', payload, response);
+      }
       if (response && callback) {
         callback(response);
       }
@@ -725,7 +803,11 @@ export default {
       }
     },
     *addInnerEnvs({ payload, callback }, { call }) {
+      captureAppOperation('env_change', 'started', buildAppControlProperties(payload, { stage: 'inner_env' }));
       const response = yield call(addInnerEnvs, payload);
+      if (response) {
+        trackOperationSucceeded('env_change', payload, response);
+      }
       if (response && callback) {
         callback(response);
       }
@@ -749,7 +831,11 @@ export default {
       }
     },
     *addOuterEnvs({ payload, callback }, { call }) {
+      captureAppOperation('env_change', 'started', buildAppControlProperties(payload, { stage: 'outer_env' }));
       const response = yield call(addOuterEnvs, payload);
+      if (response) {
+        trackOperationSucceeded('env_change', payload, response);
+      }
       if (response && callback) {
         callback(response);
       }
@@ -809,7 +895,11 @@ export default {
       }
     },
     *editEvns({ payload, callback }, { call }) {
+      captureAppOperation('env_change', 'started', buildAppControlProperties(payload, { stage: 'edit_env' }));
       const response = yield call(editEvns, payload);
+      if (response) {
+        trackOperationSucceeded('env_change', payload, response);
+      }
       if (response && callback) {
         callback(response);
       }
@@ -862,6 +952,7 @@ export default {
     *fetchBaseInfo({ payload }, { call, put }) {
       const response = yield call(getBaseInfo, payload);
       if (response) {
+        captureMeaningfulActive('view_app', buildAppControlProperties(payload));
         yield put({ type: 'saveBaseInfo', payload: response.bean });
       }
     },
@@ -908,7 +999,11 @@ export default {
       }
     },
     *addVolume({ payload, callback }, { call }) {
+      captureAppOperation('storage_mount', 'started', buildAppControlProperties(payload));
       const response = yield call(addVolume, payload);
+      if (response) {
+        trackOperationSucceeded('storage_mount', payload, response);
+      }
       if (response && callback) {
         callback(response);
       }
@@ -1247,25 +1342,41 @@ export default {
     },
     // 组件批量操作
     *batchOperation({ payload, callback, handleError }, { call }) {
+      captureAppOperation(payload && payload.action ? payload.action : 'batch_operation', 'started', buildAppControlProperties(payload));
       const response = yield call(batchOperation, payload, handleError);
+      if (response) {
+        trackOperationSucceeded(payload && payload.action ? payload.action : 'batch_operation', payload, response);
+      }
       if (response && callback) {
         callback(response);
       }
     },
     *horizontal({ payload, callback, handleError }, { call }) {
+      captureAppOperation('scale_horizontal', 'started', buildAppControlProperties(payload));
       const response = yield call(horizontal, payload, handleError);
+      if (response) {
+        trackOperationSucceeded('scale_horizontal', payload, response);
+      }
       if (response && callback) {
         callback(response);
       }
     },
     *vertical({ payload, callback, handleError }, { call }) {
+      captureAppOperation('scale_vertical', 'started', buildAppControlProperties(payload));
       const response = yield call(vertical, payload, handleError);
+      if (response) {
+        trackOperationSucceeded('scale_vertical', payload, response);
+      }
       if (response && callback) {
         callback(response);
       }
     },
     *newVertical({ payload, callback, handleError }, { call }) {
+      captureAppOperation('scale_vertical', 'started', buildAppControlProperties(payload));
       const response = yield call(newVertical, payload, handleError);
+      if (response) {
+        trackOperationSucceeded('scale_vertical', payload, response);
+      }
       if (response && callback) {
         callback(response);
       }

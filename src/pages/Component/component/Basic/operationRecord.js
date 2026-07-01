@@ -14,7 +14,9 @@ import {
   getOperationLogTooltipTitle,
   getOperationLogTooltipVisible,
   getOperationRecordMessage,
+  getOperationRecordStatusClass,
   getOperationRecordTypeText,
+  isOperationLogRunning,
   shouldShowOperationLogTooltipByDefault
 } from './operationRecordHelpers';
 
@@ -266,12 +268,6 @@ class Index extends PureComponent {
     const { logVisible, selectEventID, showSocket, showModalArr, showModal, isLoadingMore } = this.state;
     let showLogEvent = '';
     let hasShownFailureLogTip = false;
-    const statusMap = {
-      success: 'logpassed',
-      timeout: 'logcanceled',
-      failure: 'logfailed',
-      restoring: 'logfored'
-    };
     return (
       <Card
         title={<FormattedMessage id='componentOverview.body.tab.overview.handle.operationRecord' />}
@@ -281,7 +277,7 @@ class Index extends PureComponent {
         <Row gutter={24}>
           <Col xs={24} xm={24} md={24} lg={24} xl={24}>
             {logList &&
-              logList.map(item => {
+              logList.map((item, index) => {
                 const {
                   status,
                   final_status,
@@ -297,7 +293,7 @@ class Index extends PureComponent {
                 } = item;
                 if (
                   isopenLog &&
-                  final_status === '' &&
+                  isOperationLogRunning(final_status) &&
                   opt_type &&
                   opt_type.indexOf('build') > -1 &&
                   showLogEvent === ''
@@ -322,11 +318,8 @@ class Index extends PureComponent {
                 const showFailureLogTip = shouldShowOperationLogTooltipByDefault({
                   status,
                   canShowLog,
-                  hasShownFailureTip: hasShownFailureLogTip
+                  isLatestRecord: index === 0
                 });
-                if (showFailureLogTip) {
-                  hasShownFailureLogTip = true;
-                }
                 const logTooltipVisible = getOperationLogTooltipVisible(final_status, showFailureLogTip);
                 const showVMRestoreStage =
                   opt_type === 'vm-disk-restore' &&
@@ -335,8 +328,7 @@ class Index extends PureComponent {
                 return (
                   <div
                     key={event_id}
-                    className={`${styles.loginfo} ${styles[statusMap[status] || 'logfored']
-                      }`}
+                    className={`${styles.loginfo} ${styles[getOperationRecordStatusClass(status)]}`}
                   >
                     <Tooltip
                       title={moment(create_time)
@@ -424,7 +416,7 @@ class Index extends PureComponent {
                                 width: '16px'
                               }}
                               onClick={() => {
-                                this.showLogModal(event_id, final_status === '', opt_type);
+                                this.showLogModal(event_id, isOperationLogRunning(final_status), opt_type);
                               }}
                             >
                               {globalUtil.fetchSvg('logs', status === 'failure' && opt_type === 'build-service' ? '#CE0601' : '#cccccc')}

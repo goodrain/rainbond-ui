@@ -17,16 +17,17 @@ const {
   formatRawJsonAttributeDisplayValue,
   formatRawJsonAttributeValue,
   isRawJsonAttribute,
+  normalizeBooleanAttributeValue,
   parseRawJsonAttributeValue
 } = require('./kubernetsAttributeHelpers');
 
 const { Option, OptGroup } = Select;
-const DEFAULT_ATTRIBUTE_FIELDS = ['nodeSelector', 'labels', 'volumes', 'volumeMounts', 'hostAliases', 'affinity', 'tolerations', 'serviceAccountName', 'cmd', 'privileged', 'env', 'shareProcessNamespace', 'dnsPolicy', 'hostIPC', 'resources', 'lifecycle', 'dnsConfig', 'volumeClaimTemplate', 'envFromSource', 'annotations', 'securityContext', 'livenessProbe', 'readinessProbe'];
+const DEFAULT_ATTRIBUTE_FIELDS = ['nodeSelector', 'labels', 'volumes', 'volumeMounts', 'hostAliases', 'affinity', 'tolerations', 'serviceAccountName', 'cmd', 'privileged', 'env', 'shareProcessNamespace', 'hostNetwork', 'dnsPolicy', 'hostIPC', 'resources', 'lifecycle', 'dnsConfig', 'volumeClaimTemplate', 'envFromSource', 'annotations', 'securityContext', 'livenessProbe', 'readinessProbe'];
 const VM_ATTRIBUTE_FIELDS = ['nodeSelector', 'labels', 'tolerations', 'dnsPolicy', 'annotations', 'affinity', 'livenessProbe', 'readinessProbe', 'vm_asset_id'];
 const JSON_FIELDS = KEY_VALUE_JSON_FIELDS;
 const YAML_FIELDS = ['volumeMounts', 'hostAliases', 'volumeClaimTemplate', 'envFromSource', 'livenessProbe', 'readinessProbe', 'volumes', 'securityContext', 'affinity', 'tolerations', 'env', 'dnsConfig', 'resources', 'lifecycle'];
 const STRING_FIELDS = ['serviceAccountName', 'cmd', 'vm_asset_id'];
-const BOOLEAN_FIELDS = ['privileged', 'shareProcessNamespace', 'hostIPC'];
+const BOOLEAN_FIELDS = ['privileged', 'shareProcessNamespace', 'hostNetwork', 'hostIPC'];
 const SELECT_FIELDS = {
   dnsPolicy: ['Default', 'ClusterFirst', 'ClusterFirstWithHostNet', 'None']
 };
@@ -267,7 +268,7 @@ class Index extends PureComponent {
       return (
         <span style={{ paddingTop: '6px' }}>
           <FormattedMessage id='componentOverview.body.Kubernetes.current' />
-          {attributeValue == 'true'
+          {normalizeBooleanAttributeValue(attributeValue)
             ? <FormattedMessage id='componentOverview.body.Kubernetes.Opened' />
             : <FormattedMessage id='componentOverview.body.Kubernetes.Closed' />}
         </span>
@@ -638,12 +639,10 @@ class Index extends PureComponent {
                   <Form.Item  {...formItemLayouts}>
                     <div style={language ? {} : { marginLeft: 38 }}>
                       {getFieldDecorator(`${selectVal}`, {
-                        initialValue: strValue || false,
+                        initialValue: normalizeBooleanAttributeValue(strValue),
+                        valuePropName: 'checked',
                         rules: [{ required: false }]
-                      })(<Switch
-                        defaultChecked={strValue || false}
-                        style={{ marginTop: '8px' }}
-                      />)}
+                      })(<Switch style={{ marginTop: '8px' }} />)}
                     </div>
                   </Form.Item>
                 }
@@ -734,7 +733,7 @@ class Index extends PureComponent {
                       {item.name &&
                         BOOLEAN_FIELDS.includes(item.name) &&
                         hasAttributeValue(item.attribute_value) &&
-                        <span style={{ paddingTop: "6px" }}><FormattedMessage id='componentOverview.body.Kubernetes.current' />{item.attribute_value == "true" ? <FormattedMessage id='componentOverview.body.Kubernetes.Opened' /> : <FormattedMessage id='componentOverview.body.Kubernetes.Closed' />}</span>
+                        <span style={{ paddingTop: "6px" }}><FormattedMessage id='componentOverview.body.Kubernetes.current' />{normalizeBooleanAttributeValue(item.attribute_value) ? <FormattedMessage id='componentOverview.body.Kubernetes.Opened' /> : <FormattedMessage id='componentOverview.body.Kubernetes.Closed' />}</span>
                       }
                       {item.name &&
                         item.name == "dnsPolicy" &&
