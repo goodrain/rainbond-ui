@@ -139,6 +139,7 @@ assert.strictEqual(
   shouldShowOperationLogTooltipByDefault({
     status: 'checking',
     canShowLog: true,
+    hasShownFailureTip: false,
     isLatestRecord: true
   }),
   false,

@@ -5,8 +5,12 @@ const {
   getPostHogConfig,
   sanitizeObject,
   sanitizePostHogEvent,
+  buildHashedId,
   buildPostHogDistinctId,
-  buildPostHogUserProperties
+  buildPostHogUserProperties,
+  buildPostHogGroupProperties,
+  classifyPostHogInteraction,
+  inferPostHogCreateStep
 } = require('./posthogConfig');
 
 const DEFAULT_POSTHOG_PROJECT_TOKEN = 'phc_oCoPwcxutKCU9AZtUT63dMTNhWezUxCXCLtSZE6a4wvE';
@@ -146,30 +150,49 @@ test('sanitizePostHogEvent preserves PostHog token while filtering event propert
   );
 });
 
-test('buildPostHogUserProperties keeps identifiers minimal', function() {
-  assert.deepStrictEqual(
-    buildPostHogUserProperties(
-      {
-        user_id: 1,
-        email: 'user@example.com',
-        nick_name: 'alice',
-        enterprise_id: 'eid',
-        is_enterprise_admin: true,
-        teams: [{ team_name: 'team-a' }]
-      },
-      {
-        instance_id: 'instance-a',
-        rainbond_version: 'v6.0.0'
-      }
-    ),
+test('buildPostHogUserProperties keeps identifiers hashed and minimal', function() {
+  const properties = buildPostHogUserProperties(
     {
+      user_id: 1,
+      email: 'user@example.com',
+      nick_name: 'alice',
       enterprise_id: 'eid',
       is_enterprise_admin: true,
-      team_count: 1,
+      teams: [{ team_name: 'team-a' }]
+    },
+    {
       instance_id: 'instance-a',
       rainbond_version: 'v6.0.0'
     }
   );
+
+  assert.strictEqual(properties.enterprise_id_hash, buildHashedId('eid'));
+  assert.strictEqual(properties.enterprise_id, undefined);
+  assert.strictEqual(properties.is_enterprise_admin, true);
+  assert.strictEqual(properties.team_count, 1);
+  assert.strictEqual(properties.instance_id, 'instance-a');
+  assert.strictEqual(properties.rainbond_version, 'v6.0.0');
+});
+
+test('buildPostHogGroupProperties builds enterprise group id without raw identifiers', function() {
+  const group = buildPostHogGroupProperties(
+    {
+      enterprise_id: 'enterprise-raw',
+      is_enterprise_admin: false,
+      teams: [{}, {}]
+    },
+    {
+      instance_id: 'instance-a'
+    }
+  );
+
+  assert.strictEqual(group.enterpriseIdHash, buildHashedId('enterprise-raw', 'enterprise'));
+  assert.strictEqual(group.enterpriseIdHash.indexOf('enterprise-raw'), -1);
+  assert.deepStrictEqual(group.enterpriseProperties, {
+    instance_id: 'instance-a',
+    is_enterprise_admin: false,
+    team_count: 2
+  });
 });
 
 test('posthog config reads runtime instance metadata', function() {
@@ -200,4 +223,28 @@ test('posthog config reads runtime instance metadata', function() {
 test('posthog distinct id is scoped by instance', function() {
   assert.notStrictEqual(buildPostHogDistinctId({ user_id: 1 }, 'instance-a'), buildPostHogDistinctId({ user_id: 1 }, 'instance-b'));
   assert.strictEqual(buildPostHogDistinctId({ user_id: 1 }, 'instance-a'), buildPostHogDistinctId({ user_id: '1' }, 'instance-a'));
+});
+
+test('inferPostHogCreateStep maps create routes to stable steps', function() {
+  assert.strictEqual(inferPostHogCreateStep('/team/a/region/b/create/code'), 'source_code');
+  assert.strictEqual(inferPostHogCreateStep('/team/a/region/b/create/market/:id'), 'market');
+  assert.strictEqual(inferPostHogCreateStep('/team/a/region/b/create/create-configPort/app'), 'port_config');
+  assert.strictEqual(inferPostHogCreateStep('/team/a/region/b/create-plugin'), 'plugin_create');
+  assert.strictEqual(inferPostHogCreateStep('/team/a/region/b/apps/app/overview'), '');
+});
+
+test('classifyPostHogInteraction detects blocking recovery actions', function() {
+  assert.deepStrictEqual(classifyPostHogInteraction({ element_text: '刷新重试' }), {
+    event_name: 'retry_clicked',
+    interaction_type: 'retry'
+  });
+  assert.deepStrictEqual(classifyPostHogInteraction({ element_href: '/docs/install', element_text: '查看文档' }), {
+    event_name: 'support_opened',
+    interaction_type: 'support'
+  });
+  assert.deepStrictEqual(classifyPostHogInteraction({ element_text: '复制修复命令' }), {
+    event_name: 'fix_suggestion_copied',
+    interaction_type: 'fix_copy'
+  });
+  assert.strictEqual(classifyPostHogInteraction({ element_text: '确认' }), null);
 });

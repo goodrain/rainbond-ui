@@ -3,9 +3,13 @@ import { history } from 'umi';
 import { getPathPattern } from './sentryConfig';
 import {
   DENYLISTED_PROPERTIES,
+  buildHashedId,
   buildPostHogDistinctId,
+  buildPostHogGroupProperties,
   buildPostHogUserProperties,
+  classifyPostHogInteraction,
   getPostHogConfig,
+  inferPostHogCreateStep,
   sanitizePostHogEvent
 } from './posthogConfig';
 
@@ -76,6 +80,39 @@ function buildRouteProperties(route, extra = {}) {
   };
 }
 
+function getCurrentRouteProperties(extra = {}) {
+  const route = getPathPattern(getLocationPath(history && history.location));
+  return buildRouteProperties(route, extra);
+}
+
+function buildContextProperties(properties = {}) {
+  const allowPublicAppName = !!properties.allow_public_app_name || !!properties.allowPublicAppName;
+  const marketAppName = allowPublicAppName
+    ? properties.market_app_name || properties.marketAppName || properties.template_name || properties.templateName || ''
+    : '';
+  return {
+    team_name_hash: buildHashedId(properties.team_name || properties.teamName),
+    app_alias_hash: buildHashedId(properties.app_alias || properties.appAlias || properties.service_alias),
+    app_id_hash: buildHashedId(properties.app_id || properties.appId || properties.group_id),
+    component_id_hash: buildHashedId(properties.component_id || properties.componentId || properties.service_id),
+    install_source: properties.install_source || properties.installSource || '',
+    deploy_type: properties.deploy_type || properties.deployType || '',
+    action_type: properties.action_type || properties.actionType || '',
+    stage: properties.stage || '',
+    error_code: properties.error_code || properties.errorCode || '',
+    error_category: properties.error_category || properties.errorCategory || '',
+    duration_ms: properties.duration_ms || properties.durationMs || 0,
+    attempt_id: properties.attempt_id || properties.attemptId || '',
+    retry_result: properties.retry_result || properties.retryResult || '',
+    app_name: marketAppName,
+    template_id: properties.template_id || properties.templateId || '',
+    template_name: allowPublicAppName ? properties.template_name || properties.templateName || '' : '',
+    version: properties.version || properties.app_version || properties.appVersion || '',
+    category: properties.category || '',
+    source: properties.source || ''
+  };
+}
+
 export function capturePostHogPageview(location) {
   if (!initialized) {
     return;
@@ -87,6 +124,13 @@ export function capturePostHogPageview(location) {
   posthog.capture('rainbond_module_entered', buildRouteProperties(route, {
     entry: 'page'
   }));
+  const createStep = inferPostHogCreateStep(route);
+  if (createStep) {
+    posthog.capture('create_step_viewed', buildRouteProperties(route, {
+      action_type: 'create_step_view',
+      step: createStep
+    }));
+  }
 }
 
 function installHistoryTracking() {
@@ -190,7 +234,15 @@ function installClickTracking() {
       if (!element) {
         return;
       }
-      capturePostHogEvent('rainbond_ui_click', buildClickProperties(element));
+      const clickProperties = buildClickProperties(element);
+      capturePostHogEvent('rainbond_ui_click', clickProperties);
+      const classified = classifyPostHogInteraction(clickProperties);
+      if (classified) {
+        capturePostHogEvent(classified.event_name, {
+          ...clickProperties,
+          interaction_type: classified.interaction_type
+        });
+      }
     },
     true
   );
@@ -253,6 +305,10 @@ export function identifyPostHogUser(user = {}) {
   }
   const distinctId = buildPostHogDistinctId(user, activeConfig && activeConfig.instanceId);
   posthog.identify(distinctId, buildPostHogUserProperties(user, activeConfig && activeConfig.instanceProperties));
+  const group = buildPostHogGroupProperties(user, activeConfig && activeConfig.instanceProperties);
+  if (group.enterpriseIdHash && typeof posthog.group === 'function') {
+    posthog.group('enterprise', group.enterpriseIdHash, group.enterpriseProperties);
+  }
 }
 
 export function resetPostHogUser() {
@@ -270,4 +326,91 @@ export function capturePostHogEvent(eventName, properties = {}) {
     ...getCommonProperties(),
     ...properties
   });
+}
+
+export function captureMeaningfulActive(actionType, properties = {}) {
+  capturePostHogEvent(
+    'meaningful_active',
+    getCurrentRouteProperties({
+      ...buildContextProperties(properties),
+      action_type: actionType || properties.action_type || properties.actionType || 'unknown'
+    })
+  );
+}
+
+export function captureAppOperation(actionType, status, properties = {}) {
+  const safeActionType = actionType || properties.action_type || properties.actionType || 'unknown';
+  const safeStatus = status || properties.status || 'started';
+  const eventName = `app_operation_${safeStatus}`;
+  capturePostHogEvent(
+    eventName,
+    getCurrentRouteProperties({
+      ...buildContextProperties(properties),
+      action_type: safeActionType,
+      status: safeStatus
+    })
+  );
+  if (safeStatus === 'succeeded') {
+    captureMeaningfulActive(safeActionType, properties);
+  }
+}
+
+export function captureErrorViewed(errorCategory, properties = {}) {
+  capturePostHogEvent(
+    'error_viewed',
+    getCurrentRouteProperties({
+      ...buildContextProperties(properties),
+      action_type: properties.action_type || properties.actionType || 'error_viewed',
+      error_category: errorCategory || properties.error_category || properties.errorCategory || 'unknown',
+      error_code: properties.error_code || properties.errorCode || '',
+      stage: properties.stage || '',
+      status: properties.status || 'viewed'
+    })
+  );
+}
+
+export function captureFirstAppDeploySuccess(properties = {}) {
+  capturePostHogEvent(
+    'first_app_deploy_success',
+    getCurrentRouteProperties({
+      ...buildContextProperties(properties),
+      action_type: 'first_app_deploy'
+    })
+  );
+  captureMeaningfulActive('first_app_deploy', properties);
+}
+
+export function captureMarketInstall(status, properties = {}) {
+  const safeStatus = status || properties.status || 'started';
+  capturePostHogEvent(
+    `market_install_${safeStatus}`,
+    getCurrentRouteProperties({
+      ...buildContextProperties({
+        ...properties,
+        allow_public_app_name: true
+      }),
+      action_type: 'market_install',
+      status: safeStatus
+    })
+  );
+  if (safeStatus === 'succeeded') {
+    captureMeaningfulActive('market_install', properties);
+  }
+}
+
+export function captureAgentRetentionEvent(eventName, properties = {}) {
+  capturePostHogEvent(
+    eventName,
+    getCurrentRouteProperties({
+      session_id_hash: buildHashedId(properties.session_id || properties.sessionId),
+      run_id_hash: buildHashedId(properties.run_id || properties.runId),
+      action_type: properties.action_type || properties.actionType || 'agent_question',
+      status: properties.status || '',
+      error_code: properties.error_code || properties.errorCode || '',
+      error_category: properties.error_category || properties.errorCategory || ''
+    })
+  );
+  if (eventName === 'agent_question_created') {
+    captureMeaningfulActive('agent_question', properties);
+  }
 }

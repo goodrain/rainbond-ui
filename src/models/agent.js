@@ -39,6 +39,7 @@ import * as agentClearConversation from './agentClearConversation';
 import * as agentCompactionReducer from './agentCompactionReducer';
 import * as agentToolLabels from '../utils/agentToolLabels';
 import * as agentComponentMutationFinalizer from './agentComponentMutationFinalizer';
+import { captureAgentRetentionEvent } from '../posthog';
 
 const { extractWorkflowState } = agentWorkflowState;
 const { adaptAgentEvent } = agentEventAdapter;
@@ -1048,6 +1049,10 @@ export default {
       }
 
       const contextSnapshot = (payload && payload.context) || state.context || {};
+      captureAgentRetentionEvent('agent_question_created', {
+        sessionId: state.conversationId,
+        action_type: 'agent_question'
+      });
       const suppressUserEcho = !!(payload && payload.suppressUserEcho);
       const pendingMessages = suppressUserEcho
         ? state.messages
@@ -1183,6 +1188,13 @@ export default {
         // 包含 HTTP status / message / responseBody，定位服务端报错或流式中断。
         // eslint-disable-next-line no-console
         console.error('[RainAgent] sendMessage failed:', error);
+        captureAgentRetentionEvent('agent_run_failed', {
+          sessionId: state.conversationId,
+          runId: state.activeRunId,
+          status: 'send_failed',
+          error_category: 'send_message_failed',
+          error_code: error && (error.status || error.code || error.name)
+        });
         yield put({
           type: 'saveState',
           payload: {
@@ -1488,6 +1500,18 @@ export default {
       const isRunTerminal =
         incomingType === 'run.status' &&
         ['cancelled', 'done', 'error', 'completed', 'failed'].indexOf(incomingData.status) > -1;
+      if (
+        incomingType === 'run.error' ||
+        (incomingType === 'run.status' && ['error', 'failed'].indexOf(incomingData.status) > -1)
+      ) {
+        captureAgentRetentionEvent('agent_run_failed', {
+          sessionId: incomingEvent && incomingEvent.sessionId,
+          runId: incomingEvent && incomingEvent.runId,
+          status: incomingData.status || 'error',
+          error_category: incomingType === 'run.error' ? 'run_error' : 'run_failed',
+          error_code: incomingData.code || incomingData.error_code || ''
+        });
+      }
 
       if (isRunTerminal) {
         const flushedState = yield select(store => store.agent);

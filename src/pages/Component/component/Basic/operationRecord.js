@@ -267,6 +267,7 @@ class Index extends PureComponent {
     const { logList, has_next, recordLoading, isopenLog } = this.props;
     const { logVisible, selectEventID, showSocket, showModalArr, showModal, isLoadingMore } = this.state;
     let showLogEvent = '';
+    let hasShownFailureLogTip = false;
     return (
       <Card
         title={<FormattedMessage id='componentOverview.body.tab.overview.handle.operationRecord' />}
