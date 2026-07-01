@@ -725,15 +725,17 @@ class Main extends PureComponent {
               })
             }, 100)
           } else {
-            const fallbackRoute = buildAppOverviewFallbackRoute({
-              prefixUrl,
-              groupId: group_id || globalUtil.getAppID()
-            });
             this.setState({
               routerSwitch: false
             })
-            fallbackRoute &&
-              dispatch(routerRedux.replace(fallbackRoute));
+            if (group_id) {
+              const fallbackRoute = buildAppOverviewFallbackRoute({
+                prefixUrl,
+                groupId: group_id
+              });
+              fallbackRoute &&
+                dispatch(routerRedux.replace(fallbackRoute));
+            }
           }
         } else {
           this.getStatus(false);
