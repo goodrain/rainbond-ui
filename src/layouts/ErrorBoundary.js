@@ -19,6 +19,7 @@ export default class ErrorBoundary extends PureComponent {
   }
 
   componentDidCatch(error, errorInfo) {
+    const { currentUser } = this.props;
     // 你同样可以将错误日志上报给服务器
     if (
       process &&

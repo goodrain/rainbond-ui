@@ -308,6 +308,30 @@ function shouldSuppressRequestError(error, options) {
   return false;
 }
 
+function shouldSuppressBrowserError(error, context = {}) {
+  if (!error) {
+    return false;
+  }
+
+  const source = getErrorSource(context);
+  if (source !== 'window_error' && source !== 'unhandledrejection') {
+    return false;
+  }
+
+  const message = getErrorMessage(error);
+  const errorName = error.name || context.exceptionType || '';
+
+  if (/ResizeObserver loop (limit exceeded|completed with undelivered notifications)/i.test(message)) {
+    return true;
+  }
+
+  return (
+    errorName === 'NotFoundError' &&
+    /Failed to execute 'insertBefore' on 'Node'/i.test(message) &&
+    /node before which the new node/i.test(message)
+  );
+}
+
 /**
  * Extracts backend metadata from a response for Sentry tags/context.
  * Pulls x-request-id, backend error code, and business code from
@@ -564,6 +588,7 @@ module.exports = {
   sanitizeObject,
   sanitizeStack,
   sanitizeUrl,
+  shouldSuppressBrowserError,
   shouldPreferFetchTransport,
   shouldReportRequestError,
   shouldSuppressRequestError

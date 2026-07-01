@@ -14,6 +14,7 @@ const {
   sanitizeUrl,
   shouldPreferFetchTransport,
   shouldReportRequestError,
+  shouldSuppressBrowserError,
   shouldSuppressRequestError
 } = require('./sentryConfig');
 
@@ -287,6 +288,57 @@ test('shouldSuppressRequestError suppresses expected transient errors', function
 
   // null error is not suppressed
   assert.strictEqual(shouldSuppressRequestError(null), false);
+});
+
+test('shouldSuppressBrowserError suppresses known browser runtime noise', function() {
+  assert.strictEqual(
+    shouldSuppressBrowserError(
+      new Error('ResizeObserver loop completed with undelivered notifications.'),
+      { errorSource: 'window_error' }
+    ),
+    true
+  );
+
+  assert.strictEqual(
+    shouldSuppressBrowserError(
+      new Error('ResizeObserver loop limit exceeded'),
+      { errorSource: 'unhandledrejection' }
+    ),
+    true
+  );
+
+  const insertBeforeError = new Error(
+    "Failed to execute 'insertBefore' on 'Node': The node before which the new node is to be inserted is not a child of this node."
+  );
+  insertBeforeError.name = 'NotFoundError';
+
+  assert.strictEqual(
+    shouldSuppressBrowserError(insertBeforeError, { errorSource: 'window_error' }),
+    true
+  );
+});
+
+test('shouldSuppressBrowserError keeps app render and api errors reportable', function() {
+  assert.strictEqual(
+    shouldSuppressBrowserError(
+      new Error('ResizeObserver loop completed with undelivered notifications.'),
+      { errorSource: 'react_error_boundary' }
+    ),
+    false
+  );
+
+  const insertBeforeError = new Error("Failed to execute 'insertBefore' on 'Node'");
+  insertBeforeError.name = 'Error';
+
+  assert.strictEqual(
+    shouldSuppressBrowserError(insertBeforeError, { errorSource: 'window_error' }),
+    false
+  );
+
+  assert.strictEqual(
+    shouldSuppressBrowserError(new Error('Request failed'), { errorSource: 'api' }),
+    false
+  );
 });
 
 test('extractResponseMetadata pulls backend request id and error code', function() {
