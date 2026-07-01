@@ -3,6 +3,7 @@ const {
   buildEditableAttributeFields,
   formatRawJsonAttributeValue,
   isRawJsonAttribute,
+  normalizeBooleanAttributeValue,
   parseRawJsonAttributeValue
 } = require('./kubernetsAttributeHelpers');
 
@@ -38,6 +39,24 @@ assert.deepStrictEqual(
   buildEditableAttributeFields(['nodeSelector', 'labels'], 'vm_gpu_resources'),
   ['vm_gpu_resources', 'nodeSelector', 'labels'],
   'should keep the current attribute name visible in edit mode even when it is outside the addable field list'
+);
+
+assert.strictEqual(
+  normalizeBooleanAttributeValue('true'),
+  true,
+  'should parse persisted true string as enabled'
+);
+
+assert.strictEqual(
+  normalizeBooleanAttributeValue('false'),
+  false,
+  'should parse persisted false string as disabled'
+);
+
+assert.strictEqual(
+  normalizeBooleanAttributeValue(false),
+  false,
+  'should keep boolean false disabled'
 );
 
 console.log('kubernets attribute helper tests passed');
