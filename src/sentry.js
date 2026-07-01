@@ -12,6 +12,7 @@ import {
   sanitizeStack,
   shouldPreferFetchTransport,
   shouldReportRequestError,
+  shouldSuppressBrowserError,
   shouldSuppressRequestError
 } from './sentryConfig';
 
@@ -345,6 +346,9 @@ export function initSentry() {
 
 export function captureException(error, context = {}) {
   if (!initialized || !error) {
+    return;
+  }
+  if (shouldSuppressBrowserError(error, context)) {
     return;
   }
   sendEvent(buildEvent(error, context));
