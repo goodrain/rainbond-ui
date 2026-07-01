@@ -1,7 +1,11 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const { getPluginBaseId, isPluginBaseId } = require('./pluginArchUtils');
+const {
+  getPluginBaseId,
+  isPluginBaseId,
+  shouldFetchUserBalanceForPlugins
+} = require('./pluginArchUtils');
 
 test('getPluginBaseId returns value unchanged when no arch suffix', () => {
   assert.equal(getPluginBaseId('rainbond-agent'), 'rainbond-agent');
@@ -59,4 +63,37 @@ test('isPluginBaseId rejects nullish inputs', () => {
   assert.equal(isPluginBaseId(null, 'rainbond-agent'), false);
   assert.equal(isPluginBaseId({}, ''), false);
   assert.equal(isPluginBaseId(undefined, 'rainbond-agent'), false);
+});
+
+test('shouldFetchUserBalanceForPlugins only enables the bill plugin balance API', () => {
+  assert.equal(
+    shouldFetchUserBalanceForPlugins([
+      { name: 'rainbond-agent', plugin_id: 'rainbond-agent', installed: true }
+    ]),
+    false
+  );
+
+  assert.equal(
+    shouldFetchUserBalanceForPlugins([
+      { name: 'rainbond-agent', plugin_id: 'rainbond-agent', installed: true },
+      { name: 'rainbond-bill', plugin_id: 'rainbond-bill', installed: true }
+    ]),
+    true
+  );
+});
+
+test('shouldFetchUserBalanceForPlugins honors bill plugin installation status and arch suffixes', () => {
+  assert.equal(
+    shouldFetchUserBalanceForPlugins([
+      { name: 'rainbond-bill', plugin_id: 'rainbond-bill', installed: false }
+    ]),
+    false
+  );
+
+  assert.equal(
+    shouldFetchUserBalanceForPlugins([
+      { name: 'rainbond-bill-ARM64', plugin_id: 'rainbond-bill-ARM64', installed: true }
+    ]),
+    true
+  );
 });

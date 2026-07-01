@@ -36,7 +36,23 @@ function isPluginBaseId(plugin, baseId) {
   return false;
 }
 
+function isInstalledPlugin(plugin, baseId) {
+  if (!isPluginBaseId(plugin, baseId)) {
+    return false;
+  }
+  if (Object.prototype.hasOwnProperty.call(plugin, 'installed')) {
+    return plugin.installed === true;
+  }
+  return true;
+}
+
+function shouldFetchUserBalanceForPlugins(pluginsList) {
+  const pluginList = Array.isArray(pluginsList) ? pluginsList : [];
+  return pluginList.some(item => isInstalledPlugin(item, 'rainbond-bill'));
+}
+
 module.exports = {
   getPluginBaseId,
-  isPluginBaseId
+  isPluginBaseId,
+  shouldFetchUserBalanceForPlugins
 };

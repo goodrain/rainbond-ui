@@ -362,6 +362,7 @@ export default class TcpTable extends PureComponent {
             dataIndex: 'attr_name',
             key: 'attr_name',
             align: 'center',
+            width: '33%',
             render: (text) =>{
               return <div className={styles.valueStyle}>
                         {text}
@@ -373,6 +374,7 @@ export default class TcpTable extends PureComponent {
             dataIndex: 'attr_value',
             key: 'attr_value',
             align: 'center',
+            width: '34%',
             render: (text) =>{
               return <div className={styles.valueStyle}>
                         {text}
@@ -384,6 +386,7 @@ export default class TcpTable extends PureComponent {
             dataIndex: 'name',
             key: 'name',
             align: 'center',
+            width: '33%',
             render: (text) =>{
               return <div className={styles.valueStyle}>
                       {text}

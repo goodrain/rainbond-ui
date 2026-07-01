@@ -277,7 +277,7 @@ class Index extends PureComponent {
         <Row gutter={24}>
           <Col xs={24} xm={24} md={24} lg={24} xl={24}>
             {logList &&
-              logList.map(item => {
+              logList.map((item, index) => {
                 const {
                   status,
                   final_status,
@@ -318,11 +318,8 @@ class Index extends PureComponent {
                 const showFailureLogTip = shouldShowOperationLogTooltipByDefault({
                   status,
                   canShowLog,
-                  hasShownFailureTip: hasShownFailureLogTip
+                  isLatestRecord: index === 0
                 });
-                if (showFailureLogTip) {
-                  hasShownFailureLogTip = true;
-                }
                 const logTooltipVisible = getOperationLogTooltipVisible(final_status, showFailureLogTip);
                 const showVMRestoreStage =
                   opt_type === 'vm-disk-restore' &&

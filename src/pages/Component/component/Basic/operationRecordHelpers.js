@@ -54,9 +54,9 @@ function isOperationLogRunning(finalStatus) {
 function shouldShowOperationLogTooltipByDefault({
   status,
   canShowLog,
-  hasShownFailureTip
+  isLatestRecord
 }) {
-  return status === 'failure' && canShowLog && !hasShownFailureTip;
+  return isLatestRecord && status === 'failure' && canShowLog;
 }
 
 module.exports = {

@@ -39,11 +39,16 @@ function buildEditableAttributeFields(fields, currentField) {
   return [currentField].concat(fields);
 }
 
+function normalizeBooleanAttributeValue(value) {
+  return value === true || value === 'true';
+}
+
 module.exports = {
   KEY_VALUE_JSON_FIELDS,
   buildEditableAttributeFields,
   formatRawJsonAttributeDisplayValue,
   formatRawJsonAttributeValue,
   isRawJsonAttribute,
+  normalizeBooleanAttributeValue,
   parseRawJsonAttributeValue
 };
