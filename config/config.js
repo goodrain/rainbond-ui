@@ -16,6 +16,7 @@ export default {
   history: { type: isHistory ? 'browser' : 'hash' },
   publicPath: publcPath,
   hash: true,
+  scripts: [{ src: `${publcPath}intl-compat.js` }],
   antd: {},
   dva: {
     hmr: true
