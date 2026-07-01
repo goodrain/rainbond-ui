@@ -72,6 +72,7 @@ import {
   shouldShowGenericVisitAction,
   shouldShowWebTerminalAction
 } from '../../../pages/Component/visitActionHelpers';
+import { buildAppOverviewFallbackRoute } from './navigationHelpers';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -649,8 +650,7 @@ class Main extends PureComponent {
     const {
       app_alias,
       team_name,
-      group_id,
-      serviceAlias
+      group_id
     } = this.fetchParameter();
     const prefixUrl = this.fetchPrefixUrl();
 
@@ -724,22 +724,16 @@ class Main extends PureComponent {
                 routerSwitch: false
               })
             }, 100)
-          } else if (!appUtil.isCreateFromCompose(appDetail)) {
+          } else {
+            const fallbackRoute = buildAppOverviewFallbackRoute({
+              prefixUrl,
+              groupId: group_id || globalUtil.getAppID()
+            });
             this.setState({
               routerSwitch: false
             })
-            serviceAlias &&
-              dispatch(
-                routerRedux.replace(
-                  `${prefixUrl}create/create-check/${serviceAlias}`
-                )
-              );
-          } else {
-            dispatch(
-              routerRedux.replace(
-                `${prefixUrl}create/create-compose-check/${group_id}/${appDetail.service.compose_id}`
-              )
-            );
+            fallbackRoute &&
+              dispatch(routerRedux.replace(fallbackRoute));
           }
         } else {
           this.getStatus(false);
@@ -797,7 +791,13 @@ class Main extends PureComponent {
       },
       handleError: res => {
         if (res && res.code === 404) {
-          dispatch(routerRedux.push(`${this.fetchPrefixUrl()}index`));
+          const fallbackRoute = buildAppOverviewFallbackRoute({
+            prefixUrl: this.fetchPrefixUrl(),
+            groupId: group_id || globalUtil.getAppID()
+          });
+          if (fallbackRoute) {
+            dispatch(routerRedux.push(fallbackRoute));
+          }
         }
       }
     });
