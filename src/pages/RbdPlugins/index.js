@@ -14,7 +14,7 @@ import { formatMessage } from '@/utils/intl';
 import styles from './index.less';
 
 const { Option } = Select;
-const GATEWAY_MONITORING_PLUGIN_ID = 'rainbond-gateway-monitoring';
+const GATEWAY_MONITORING_PLUGIN_ID = 'rainbond-observability';
 @connect(({ user, region }) => ({
   user: user.currentUser,
   cluster_info: region.cluster_info,

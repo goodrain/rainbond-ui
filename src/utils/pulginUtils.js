@@ -9,9 +9,9 @@ export default {
       // 根据不同视图定义需要屏蔽的插件
       const excludePluginsByView = {
         'Team': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs', 'rainbond-agent'],
-        'Application': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs',"rainbond-agent"],
+        'Application': ['rainbond-enterprise-base', 'rainbond-bill', , 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs',"rainbond-agent"],
         'Platform': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs','rainbond-gpu',"rainbond-agent"],
-        'Component': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs','rainbond-agent'],
+        'Component': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs','rainbond-agent'],
         'TeamModal': ['rainbond-enterprise-base', 'rainbond-bill', 'rainbond-observability', 'rainbond-enterprise-alarm', 'rainbond-enterprise-logs','rainbond-agent'],
       };
 

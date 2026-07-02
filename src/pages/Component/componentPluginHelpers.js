@@ -1,6 +1,6 @@
 const { isPluginBaseId } = require('../../utils/pluginArchUtils');
 
-const GATEWAY_MONITORING_PLUGIN_ID = 'rainbond-gateway-monitoring';
+const GATEWAY_MONITORING_PLUGIN_ID = 'rainbond-observability';
 const HTTP_PORT_PROTOCOLS = ['http', 'https', 'httptohttps', 'http2', 'grpc'];
 
 function hasHTTPPort(ports = []) {
