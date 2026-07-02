@@ -1,5 +1,9 @@
-const test = require('node:test');
-const assert = require('node:assert/strict');
+const assert = require('assert');
+
+function test(name, fn) {
+  fn();
+  console.log(`ok - ${name}`);
+}
 
 const {
   getPluginBaseId,

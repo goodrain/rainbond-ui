@@ -26,6 +26,82 @@ function loadPulginUtils() {
 
 const pluginUtils = loadPulginUtils();
 
+test('segregatePluginsByHierarchy keeps observability on application and component views', function () {
+  const plugins = [
+    {
+      name: 'rainbond-observability',
+      plugin_id: 'rainbond-observability',
+      plugin_views: ['Application', 'Component', 'Team', 'Platform'],
+      enable_status: 'true'
+    },
+    {
+      name: 'rainbond-observability-AMD64',
+      plugin_id: 'rainbond-observability-AMD64',
+      plugin_views: ['Application', 'Component', 'Team', 'Platform'],
+      enable_status: 'true'
+    },
+    {
+      name: 'rainbond-enterprise-alarm',
+      plugin_id: 'rainbond-enterprise-alarm',
+      plugin_views: ['Application', 'Component'],
+      enable_status: 'true'
+    },
+    {
+      name: 'demo-plugin',
+      plugin_id: 'demo-plugin',
+      plugin_views: ['Application', 'Component'],
+      enable_status: 'true'
+    },
+    {
+      name: 'disabled-plugin',
+      plugin_id: 'disabled-plugin',
+      plugin_views: ['Application'],
+      enable_status: 'false'
+    }
+  ];
+
+  assert.deepStrictEqual(
+    pluginUtils.segregatePluginsByHierarchy(plugins, 'Application').map(item => item.name),
+    ['rainbond-observability', 'rainbond-observability-AMD64', 'demo-plugin']
+  );
+  assert.deepStrictEqual(
+    pluginUtils.segregatePluginsByHierarchy(plugins, 'Component').map(item => item.name),
+    ['rainbond-observability', 'rainbond-observability-AMD64', 'demo-plugin']
+  );
+});
+
+test('segregatePluginsByHierarchy still hides observability on team and platform views', function () {
+  const plugins = [
+    {
+      name: 'rainbond-observability',
+      plugin_id: 'rainbond-observability',
+      plugin_views: ['Team', 'Platform'],
+      enable_status: 'true'
+    },
+    {
+      name: 'rainbond-observability-ARM64',
+      plugin_id: 'rainbond-observability-ARM64',
+      plugin_views: ['Team', 'Platform'],
+      enable_status: 'true'
+    },
+    {
+      name: 'demo-plugin',
+      plugin_id: 'demo-plugin',
+      plugin_views: ['Team', 'Platform'],
+      enable_status: 'true'
+    }
+  ];
+
+  assert.deepStrictEqual(
+    pluginUtils.segregatePluginsByHierarchy(plugins, 'Team').map(item => item.name),
+    ['demo-plugin']
+  );
+  assert.deepStrictEqual(
+    pluginUtils.segregatePluginsByHierarchy(plugins, 'Platform').map(item => item.name),
+    ['demo-plugin']
+  );
+});
+
 test('getCurrentViewPosition accepts full url, hash path, plain path, and explicit view', function () {
   assert.equal(
     pluginUtils.getCurrentViewPosition('http://localhost/#/enterprise/1/plugins/demo'),

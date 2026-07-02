@@ -45,7 +45,7 @@ assert.strictEqual(
 
 assert.strictEqual(
   getComponentPluginTabName(
-    { name: 'rainbond-gateway-monitoring', display_name: '网关监控' },
+    { name: 'rainbond-observability', display_name: '网关监控' },
     '监控',
     '组件流量'
   ),
@@ -55,7 +55,7 @@ assert.strictEqual(
 
 assert.strictEqual(
   getComponentPluginTabName(
-    { name: 'rainbond-gateway-monitoring-AMD64', display_name: 'Gateway Monitoring' },
+    { name: 'rainbond-observability-AMD64', display_name: 'Gateway Monitoring' },
     'Monitor',
     'Component Traffic'
   ),
@@ -113,7 +113,7 @@ assert.strictEqual(
 
 assert.strictEqual(
   shouldShowComponentPluginTab(
-    { name: 'rainbond-gateway-monitoring' },
+    { name: 'rainbond-observability' },
     { service: { extend_method: 'stateless_multiple' } },
     [{ protocol: 'tcp' }]
   ),
@@ -123,7 +123,7 @@ assert.strictEqual(
 
 assert.strictEqual(
   shouldShowComponentPluginTab(
-    { name: 'rainbond-gateway-monitoring-AMD64' },
+    { name: 'rainbond-observability-AMD64' },
     { service: { extend_method: 'stateless_multiple' } },
     [{ protocol: 'https' }]
   ),

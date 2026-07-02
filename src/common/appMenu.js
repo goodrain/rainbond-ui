@@ -6,7 +6,7 @@ import getMenuSvg from './getMenuSvg';
 import PluginUtil from '../utils/pulginUtils';
 import { isPluginBaseId } from '../utils/pluginArchUtils';
 
-const GATEWAY_MONITORING_PLUGIN_ID = 'rainbond-gateway-monitoring';
+const GATEWAY_MONITORING_PLUGIN_ID = 'rainbond-observability';
 
 function getApplicationPluginMenuName(plugin) {
   if (isPluginBaseId(plugin, GATEWAY_MONITORING_PLUGIN_ID)) {

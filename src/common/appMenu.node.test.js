@@ -5,7 +5,7 @@ const path = require('path');
 const source = fs.readFileSync(path.join(__dirname, 'appMenu.js'), 'utf8');
 
 assert.ok(
-  /const GATEWAY_MONITORING_PLUGIN_ID = 'rainbond-gateway-monitoring';/.test(source) &&
+  /const GATEWAY_MONITORING_PLUGIN_ID = 'rainbond-observability';/.test(source) &&
     /function getApplicationPluginMenuName\(plugin\) \{[\s\S]*isPluginBaseId\(plugin, GATEWAY_MONITORING_PLUGIN_ID\)[\s\S]*menu\.app\.gatewayMonitoring\.applicationTraffic[\s\S]*return plugin\.display_name;[\s\S]*\}/.test(source),
   'app menu should render the gateway monitoring application plugin with a host-defined title'
 );
