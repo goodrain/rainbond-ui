@@ -89,6 +89,8 @@ const teamAdd = {
   'teamAdd.create.demo.cancel':'Cancel Demo',
   'teamAdd.create.demo.select':'Select Demo',
   'teamAdd.create.demo.alert':'Demo mode activated. The form has been auto-filled with sample data. You can modify and create.',
+  'teamAdd.create.image.demo.use':'Use Example',
+  'teamAdd.create.image.demo.cancel':'Cancel Example',
 
   // code
   'teamAdd.create.code.title':'Create components from the source code',
