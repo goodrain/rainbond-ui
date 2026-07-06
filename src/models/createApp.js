@@ -13,6 +13,7 @@ import {
   createThirtAppByCodes,
   getAppsByComposeId,
   installApp,
+  preflightInstallApp,
   installAppPlugin,
   changeAppVersions,
   installHelmApp,
@@ -105,6 +106,20 @@ export default {
           error_category: 'request_failed',
           error_code: e && (e.status || e.code || e.name)
         }));
+        if (handleError) {
+          handleError(e);
+        } else {
+          throw e;
+        }
+      }
+    },
+    *preflightInstallApp({ payload, callback, handleError }, { call }) {
+      try {
+        const data = yield call(preflightInstallApp, payload, handleError);
+        if (data && callback) {
+          callback(data);
+        }
+      } catch (e) {
         if (handleError) {
           handleError(e);
         } else {

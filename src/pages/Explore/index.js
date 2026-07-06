@@ -28,6 +28,7 @@ import { HotIcon, HeartIcon } from './icons';
 import globalUtil from '../../utils/global';
 import role from '../../utils/newRole';
 import userUtil from '../../utils/user';
+import { runMarketInstallPreflight } from '../../utils/marketInstallPreflight';
 import styles from './index.less';
 
 const { Search } = Input;
@@ -643,19 +644,21 @@ class Explore extends PureComponent {
 
       const teamName = selectedTeam.team_name;
 
+      const buildInstallPayload = finalGroupId => ({
+        team_name: teamName,
+        region_name: regionName,
+        group_id: finalGroupId,
+        app_id: selectedLocalApp.app_id,
+        is_deploy: true,
+        group_key: selectedLocalApp.group_key || selectedLocalApp.ID,
+        app_version: selectedLocalVersion,
+        install_from_cloud: false
+      });
+
       const installApp = (finalGroupId, isNewApp = false) => {
         dispatch({
           type: 'createApp/installApp',
-          payload: {
-            team_name: teamName,
-            region_name: regionName,
-            group_id: finalGroupId,
-            app_id: selectedLocalApp.app_id,
-            is_deploy: true,
-            group_key: selectedLocalApp.group_key || selectedLocalApp.ID,
-            app_version: selectedLocalVersion,
-            install_from_cloud: false
-          },
+          payload: buildInstallPayload(finalGroupId),
           callback: () => {
             notification.success({
               message: formatMessage({ id: 'explore.success.install' }),
@@ -677,37 +680,50 @@ class Explore extends PureComponent {
         });
       };
 
-      if (localInstallType === 'new' && values.group_name) {
-        // 创建新应用
-        const k8s_app = this.generateEnglishName(values.group_name);
-        dispatch({
-          type: 'application/addGroup',
-          payload: {
-            region_name: regionName,
-            team_name: teamName,
-            group_name: values.group_name,
-            k8s_app: k8s_app,
-            note: ''
-          },
-          callback: (res) => {
-            if (res && res.group_id) {
-              installApp(res.group_id, true);
-            } else {
+      const submitInstall = () => {
+        if (localInstallType === 'new' && values.group_name) {
+          // 创建新应用
+          const k8s_app = this.generateEnglishName(values.group_name);
+          dispatch({
+            type: 'application/addGroup',
+            payload: {
+              region_name: regionName,
+              team_name: teamName,
+              group_name: values.group_name,
+              k8s_app: k8s_app,
+              note: ''
+            },
+            callback: (res) => {
+              if (res && res.group_id) {
+                installApp(res.group_id, true);
+              } else {
+                this.setState({ localInstallLoading: false });
+              }
+            },
+            handleError: () => {
+              message.error(formatMessage({ id: 'explore.error.create_app_failed' }));
               this.setState({ localInstallLoading: false });
             }
-          },
-          handleError: () => {
-            message.error(formatMessage({ id: 'explore.error.create_app_failed' }));
-            this.setState({ localInstallLoading: false });
-          }
-        });
-      } else if (localInstallType === 'existing' && values.group_id) {
-        // 安装到已有应用
-        installApp(values.group_id, false);
-      } else {
-        this.setState({ localInstallLoading: false });
-        message.error(formatMessage({ id: 'explore.error.fill_complete_info' }));
-      }
+          });
+        } else if (localInstallType === 'existing' && values.group_id) {
+          // 安装到已有应用
+          installApp(values.group_id, false);
+        } else {
+          this.setState({ localInstallLoading: false });
+          message.error(formatMessage({ id: 'explore.error.fill_complete_info' }));
+        }
+      };
+
+      runMarketInstallPreflight({
+        dispatch,
+        payload: buildInstallPayload(values.group_id || 0),
+        onPass: submitInstall,
+        onCancel: () => this.setState({ localInstallLoading: false }),
+        onError: () => {
+          message.error(formatMessage({ id: 'explore.error.install_failed' }));
+          this.setState({ localInstallLoading: false });
+        }
+      });
     });
   };
 
