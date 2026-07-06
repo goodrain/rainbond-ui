@@ -3,7 +3,7 @@
 /* eslint-disable no-void */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-underscore-dangle */
-import { notification } from 'antd';
+import { notification, Modal } from 'antd';
 import axios from 'axios';
 import globalUtil from '../utils/global';
 import cookie from './cookie';
@@ -146,6 +146,18 @@ function handleSpecialErrorCode(code, resData, options, error, TEAM_NAME, REGION
       }
       if (options.noModels) {
         return false; // 让外层处理 Promise.reject
+      }
+      return true;
+
+    case 10412:
+      // 应用市场安装前检测阻断
+      Modal.error({
+        title: '暂不能安装',
+        content: resData.data?.bean?.summary || resData.msg_show || '当前环境不满足应用安装条件',
+        okText: '我知道了'
+      });
+      if (options.handleError) {
+        options.handleError(error);
       }
       return true;
 
