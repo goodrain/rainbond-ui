@@ -77,7 +77,12 @@ export function runMarketInstallPreflight({ dispatch, payload, onPass, onCancel,
     callback: response => {
       confirmMarketInstallPreflight(getMarketInstallPreflightBean(response), {
         onPass,
-        onCancel
+        onCancel,
+        copy: {
+          blockTitle: '暂不能部署',
+          warningTitle: '部署前检测未完全通过',
+          continueText: '继续部署'
+        }
       });
     },
     handleError: onError
