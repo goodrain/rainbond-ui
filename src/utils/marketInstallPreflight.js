@@ -26,7 +26,7 @@ function renderPreflightContent(preflight, copyType) {
     <div>
       {display.summary && <p>{display.summary}</p>}
       {display.messages.length > 0 && (
-        <ul style={{ paddingLeft: 20, marginBottom: 0 }}>
+        <ul style={{ listStyle: 'none', paddingLeft: 0, marginBottom: 0 }}>
           {display.messages.map((message, index) => (
             <li key={`${message}-${index}`}>{message}</li>
           ))}
