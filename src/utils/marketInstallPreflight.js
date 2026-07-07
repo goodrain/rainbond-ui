@@ -40,8 +40,8 @@ export function confirmMarketInstallPreflight(preflight, { onPass, onCancel, cop
   const safePreflight = preflight || {};
   const modalCopy = {
     blockTitle: '暂不能安装',
-    warningTitle: '安装前检测未完全通过',
-    continueText: '继续安装',
+    warningTitle: '部分检测无法确认',
+    continueText: '仍然继续安装',
     copyType: 'install',
     ...copy
   };
@@ -80,8 +80,8 @@ export function runMarketInstallPreflight({ dispatch, payload, onPass, onCancel,
         onCancel,
         copy: {
           blockTitle: '暂不能部署',
-          warningTitle: '部署前检测未完全通过',
-          continueText: '继续部署'
+          warningTitle: '部分检测无法确认',
+          continueText: '仍然继续部署'
         }
       });
     },
@@ -99,8 +99,8 @@ export function runDeployPreflight({ dispatch, payload, onPass, onCancel, onErro
         onCancel,
         copy: {
           blockTitle: '暂不能部署',
-          warningTitle: '部署前检测未完全通过',
-          continueText: '继续部署',
+          warningTitle: '部分检测无法确认',
+          continueText: '仍然继续部署',
           copyType: 'deploy'
         }
       });
