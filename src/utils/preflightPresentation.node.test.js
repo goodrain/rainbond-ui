@@ -31,4 +31,18 @@ assert.deepStrictEqual(
   'preflight display should keep distinct warning/block messages and remove duplicates'
 );
 
+assert.deepStrictEqual(
+  getPreflightDisplay({
+    summary: '部分安装环境检测未完成，安装可继续',
+    checks: [
+      { status: 'warning', message: '部分镜像版本检测未完成，安装将继续' }
+    ]
+  }, { copyType: 'deploy' }),
+  {
+    summary: '',
+    messages: ['部分镜像版本检测未完成，部署将继续']
+  },
+  'deploy preflight should use deployment wording and avoid showing generic warning summary with a detailed image warning'
+);
+
 console.log('preflight presentation tests passed');
