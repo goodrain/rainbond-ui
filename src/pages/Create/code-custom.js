@@ -6,8 +6,11 @@ import React, { PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
 import CodeCustomForm from '../../components/CodeCustomForm';
 import TopUpHints from '../../components/TopUpHints';
+import { buildDeployPreflightPayload } from '../../components/CreateComponentModal/deployPreflightPayload';
 import globalUtil from '../../utils/global';
+import handleAPIError from '../../utils/error';
 import roleUtil from '../../utils/newRole';
+import { runDeployPreflight } from '../../utils/marketInstallPreflight';
 import styles from './Index.less';
 
 @connect(({ user, global }) => ({
@@ -86,14 +89,32 @@ export default class Index extends PureComponent {
     })
   }
 
+  runDeployPreflight = (value, onPass) => {
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+    runDeployPreflight({
+      dispatch: this.props.dispatch,
+      payload: buildDeployPreflightPayload({
+        currentFormType: 'code-custom',
+        value,
+        teamName,
+        regionName
+      }),
+      onPass,
+      onError: handleAPIError
+    });
+  };
+
   handleInstallApp = (value) => {
-    if(value.group_id){
-      // 已有应用
-      this.handleSubmit(value)
-    } else {
-      // 新建应用再创建组件
-      this.installApp(value)
-    }
+    this.runDeployPreflight(value, () => {
+      if(value.group_id){
+        // 已有应用
+        this.handleSubmit(value)
+      } else {
+        // 新建应用再创建组件
+        this.installApp(value)
+      }
+    });
   };
 
   render() {

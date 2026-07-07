@@ -5,9 +5,12 @@ import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
 import CodeJwarForm from '../../components/CodeJwarForm';
+import { buildDeployPreflightPayload } from '../../components/CreateComponentModal/deployPreflightPayload';
 import TopUpHints from '../../components/TopUpHints';
 import globalUtil from '../../utils/global';
+import handleAPIError from '../../utils/error';
 import roleUtil from '../../utils/newRole';
+import { runDeployPreflight } from '../../utils/marketInstallPreflight';
 import styles from './Index.less';
 
 @connect(({ user, global }) => ({
@@ -105,14 +108,33 @@ export default class Index extends PureComponent {
     })
   }
 
+  runDeployPreflight = (value, event_id, onPass) => {
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+    runDeployPreflight({
+      dispatch: this.props.dispatch,
+      payload: buildDeployPreflightPayload({
+        currentFormType: 'code-jwar',
+        value,
+        eventId: event_id,
+        teamName,
+        regionName
+      }),
+      onPass,
+      onError: handleAPIError
+    });
+  };
+
   handleInstallApp = (value, event_id) => {
-    if(value.group_id){
-      // 已有应用
-      this.handleSubmit(value, event_id)
-    } else {
-      // 新建应用再创建组件
-      this.installApp(value, event_id)
-    }
+    this.runDeployPreflight(value, event_id, () => {
+      if(value.group_id){
+        // 已有应用
+        this.handleSubmit(value, event_id)
+      } else {
+        // 新建应用再创建组件
+        this.installApp(value, event_id)
+      }
+    });
   };
 
   render() {
