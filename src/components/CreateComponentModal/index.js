@@ -32,7 +32,7 @@ import ThirdList from '../ThirdList';
 import oauthUtil from '../../utils/oauth';
 import handleAPIError from '../../utils/error';
 import { getImageRegistryTypeLabel } from '../../utils/imageRegistry';
-import { runMarketInstallPreflight } from '../../utils/marketInstallPreflight';
+import { runDeployPreflight, runMarketInstallPreflight } from '../../utils/marketInstallPreflight';
 import styles from './index.less';
 import mysql from '../../../public/images/mysql.svg';
 import postgresql from '../../../public/images/postgresql.svg';
@@ -59,6 +59,10 @@ import {
   GiteeIcon,
   GiteaIcon
 } from './icons';
+const {
+  buildDeployPreflightPayload,
+  buildOauthDeployPreflightPayload
+} = require('./deployPreflightPayload');
 const {
   buildLlmAssetDownloadPayload,
   buildLlmCatalogDownloadPayload,
@@ -2470,33 +2474,54 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   };
 
   const handleInstallApp = (value, event_id) => {
-    if (value.group_id) {
-      // 已有应用
-      handleFormSubmit(value, event_id);
-    } else {
-      // 新建应用再创建组件
-      const teamName = globalUtil.getCurrTeamName();
-      const regionName = globalUtil.getCurrRegionName();
-      dispatch({
-        type: 'application/addGroup',
-        payload: {
-          region_name: regionName,
-          team_name: teamName,
-          group_name: value.group_name,
-          k8s_app: value.k8s_app,
-          note: '',
-        },
-        callback: (res) => {
-          if (res && res.group_id) {
-            value.group_id = res.group_id;
-            handleFormSubmit(value, event_id);
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+    const submit = () => {
+      if (value.group_id) {
+        // 已有应用
+        handleFormSubmit(value, event_id);
+      } else {
+        // 新建应用再创建组件
+        dispatch({
+          type: 'application/addGroup',
+          payload: {
+            region_name: regionName,
+            team_name: teamName,
+            group_name: value.group_name,
+            k8s_app: value.k8s_app,
+            note: '',
+          },
+          callback: (res) => {
+            if (res && res.group_id) {
+              value.group_id = res.group_id;
+              handleFormSubmit(value, event_id);
+            }
+          },
+          handleError: err => {
+            handleAPIError(err);
           }
-        },
-        handleError: err => {
-          handleAPIError(err);
-        }
-      });
+        });
+      }
+    };
+    const preflightPayload = buildDeployPreflightPayload({
+      currentFormType,
+      value,
+      eventId: event_id,
+      teamName,
+      regionName
+    });
+    if (!preflightPayload) {
+      submit();
+      return;
     }
+    runDeployPreflight({
+      dispatch,
+      payload: preflightPayload,
+      onPass: submit,
+      onError: err => {
+        handleAPIError(err);
+      }
+    });
   };
 
   // 处理从ThirdList提交(OAuth仓库项目)
@@ -2504,21 +2529,12 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
 
-    const payload = {
-      service_id: selectedOauthService.service_id,
-      code_version: value.code_version,
-      git_url: value.project_url,
-      group_id: value.group_id,
-      server_type: 'git',
-      service_cname: value.service_cname,
-      is_oauth: true,
-      git_project_id: value.project_id,
-      team_name: teamName,
-      open_webhook: value.open_webhook,
-      full_name: value.project_full_name,
-      k8s_component_name: value.k8s_component_name,
-      arch: value.arch,
-    };
+    const payload = buildOauthDeployPreflightPayload({
+      selectedOauthService,
+      value,
+      teamName,
+      regionName
+    });
 
     const createThirdApp = () => {
       dispatch({
@@ -2539,31 +2555,50 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       });
     };
 
-    if (value.group_id) {
-      // 已有应用,直接创建组件
-      createThirdApp();
-    } else {
-      // 新建应用再创建组件
-      dispatch({
-        type: 'application/addGroup',
-        payload: {
-          region_name: regionName,
-          team_name: teamName,
-          group_name: value.group_name,
-          k8s_app: value.k8s_app,
-          note: '',
-        },
-        callback: (res) => {
-          if (res && res.group_id) {
-            payload.group_id = res.group_id;
-            createThirdApp();
+    const submit = () => {
+      if (value.group_id) {
+        // 已有应用,直接创建组件
+        createThirdApp();
+      } else {
+        // 新建应用再创建组件
+        dispatch({
+          type: 'application/addGroup',
+          payload: {
+            region_name: regionName,
+            team_name: teamName,
+            group_name: value.group_name,
+            k8s_app: value.k8s_app,
+            note: '',
+          },
+          callback: (res) => {
+            if (res && res.group_id) {
+              payload.group_id = res.group_id;
+              createThirdApp();
+            }
+          },
+          handleError: err => {
+            handleAPIError(err);
           }
-        },
-        handleError: err => {
-          handleAPIError(err);
+        });
+      }
+    };
+
+    runDeployPreflight({
+      dispatch,
+      payload: {
+        team_name: teamName,
+        region_name: regionName,
+        deploy_type: 'source_code',
+        payload: {
+          ...payload,
+          code_from: 'oauth',
         }
-      });
-    }
+      },
+      onPass: submit,
+      onError: err => {
+        handleAPIError(err);
+      }
+    });
   };
 
   const getTitle = () => {

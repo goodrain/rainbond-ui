@@ -84,3 +84,17 @@ export function runMarketInstallPreflight({ dispatch, payload, onPass, onCancel,
     handleError: onError
   });
 }
+
+export function runDeployPreflight({ dispatch, payload, onPass, onCancel, onError }) {
+  dispatch({
+    type: 'createApp/preflightDeploy',
+    payload,
+    callback: response => {
+      confirmMarketInstallPreflight(getMarketInstallPreflightBean(response), {
+        onPass,
+        onCancel
+      });
+    },
+    handleError: onError
+  });
+}

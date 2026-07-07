@@ -502,6 +502,23 @@ export function getMarketApp(body = {}) {
 /*
   从云市安装应用
 */
+export async function preflightDeploy(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/deploy_preflight`,
+    {
+      method: 'post',
+      data: {
+        deploy_type: body.deploy_type,
+        payload: body.payload || {}
+      },
+      params: {
+        region_name: body.region_name
+      },
+      handleError
+    }
+  );
+}
+
 export async function preflightInstallApp(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/market_create/preflight`,
