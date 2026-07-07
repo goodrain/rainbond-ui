@@ -17,7 +17,7 @@ assert.deepStrictEqual(
 
 assert.deepStrictEqual(
   getPreflightDisplay({
-    summary: '部分部署前检测未完成',
+    summary: '部分部署前检测无法确认',
     checks: [
       { status: 'warning', message: '镜像仓库检测超时' },
       { status: 'warning', message: '镜像仓库检测超时' },
@@ -25,7 +25,7 @@ assert.deepStrictEqual(
     ]
   }),
   {
-    summary: '部分部署前检测未完成',
+    summary: '',
     messages: ['镜像仓库检测超时']
   },
   'preflight display should keep distinct warning/block messages and remove duplicates'
@@ -33,16 +33,16 @@ assert.deepStrictEqual(
 
 assert.deepStrictEqual(
   getPreflightDisplay({
-    summary: '部分安装环境检测未完成，安装可继续',
+    summary: '部分安装前检测无法确认',
     checks: [
-      { status: 'warning', message: '部分镜像版本检测未完成，安装将继续' }
+      { status: 'warning', message: '部分镜像版本检测无法确认' }
     ]
   }, { copyType: 'deploy' }),
   {
     summary: '',
-    messages: ['部分镜像版本检测未完成，部署将继续']
+    messages: ['部分镜像版本检测无法确认']
   },
-  'deploy preflight should use deployment wording and avoid showing generic warning summary with a detailed image warning'
+  'deploy preflight should avoid showing generic warning summary with a detailed image warning'
 );
 
 console.log('preflight presentation tests passed');
