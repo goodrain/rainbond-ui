@@ -4,9 +4,12 @@ import { routerRedux } from "dva/router";
 import { Card } from "antd";
 import styles from "./Index.less";
 import globalUtil from "../../utils/global";
+import { buildDeployPreflightPayload } from "../../components/CreateComponentModal/deployPreflightPayload";
+import handleAPIError from "../../utils/error";
 import roleUtil from '../../utils/newRole';
 import ImageNameForm from "../../components/ImageNameForm";
 import TopUpHints from '../../components/TopUpHints';
+import { runDeployPreflight } from "../../utils/marketInstallPreflight";
 
 @connect(({ user, global }) => ({ 
   currUser: user.currentUser, 
@@ -101,14 +104,32 @@ export default class Index extends PureComponent {
     })
   }
 
+  runDeployPreflight = (value, onPass) => {
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = globalUtil.getCurrRegionName();
+    runDeployPreflight({
+      dispatch: this.props.dispatch,
+      payload: buildDeployPreflightPayload({
+        currentFormType: 'image',
+        value,
+        teamName,
+        regionName
+      }),
+      onPass,
+      onError: handleAPIError
+    });
+  };
+
   handleInstallApp = (value) => {
-    if(value.group_id){
-      // 已有应用
-      this.handleSubmit(value)
-    } else {
-      // 新建应用再创建组件
-      this.installApp(value)
-    }
+    this.runDeployPreflight(value, () => {
+      if(value.group_id){
+        // 已有应用
+        this.handleSubmit(value)
+      } else {
+        // 新建应用再创建组件
+        this.installApp(value)
+      }
+    });
   };
   render() {
     const image = decodeURIComponent(this.props.handleType && this.props.handleType === "Service" ? "" : (this.props.match?.params?.image || ""));
