@@ -20,8 +20,8 @@ export function getMarketInstallPreflightBean(response) {
   return {};
 }
 
-function renderPreflightContent(preflight) {
-  const display = getPreflightDisplay(preflight);
+function renderPreflightContent(preflight, copyType) {
+  const display = getPreflightDisplay(preflight, { copyType });
   return (
     <div>
       {display.summary && <p>{display.summary}</p>}
@@ -42,12 +42,13 @@ export function confirmMarketInstallPreflight(preflight, { onPass, onCancel, cop
     blockTitle: '暂不能安装',
     warningTitle: '安装前检测未完全通过',
     continueText: '继续安装',
+    copyType: 'install',
     ...copy
   };
   if (safePreflight.should_block) {
     Modal.error({
       title: modalCopy.blockTitle,
-      content: renderPreflightContent(safePreflight),
+      content: renderPreflightContent(safePreflight, modalCopy.copyType),
       okText: '我知道了',
       onOk: onCancel
     });
@@ -56,7 +57,7 @@ export function confirmMarketInstallPreflight(preflight, { onPass, onCancel, cop
   if (safePreflight.status === 'warning') {
     Modal.confirm({
       title: modalCopy.warningTitle,
-      content: renderPreflightContent(safePreflight),
+      content: renderPreflightContent(safePreflight, modalCopy.copyType),
       okText: modalCopy.continueText,
       cancelText: '取消',
       onOk: onPass,
@@ -95,7 +96,13 @@ export function runDeployPreflight({ dispatch, payload, onPass, onCancel, onErro
     callback: response => {
       confirmMarketInstallPreflight(getMarketInstallPreflightBean(response), {
         onPass,
-        onCancel
+        onCancel,
+        copy: {
+          blockTitle: '暂不能部署',
+          warningTitle: '部署前检测未完全通过',
+          continueText: '继续部署',
+          copyType: 'deploy'
+        }
       });
     },
     handleError: onError
