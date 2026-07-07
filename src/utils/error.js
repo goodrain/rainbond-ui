@@ -1,6 +1,10 @@
 /* eslint-disable prefer-destructuring */
 import { notification } from 'antd';
 import { formatMessage } from '@/utils/intl';
+import errorMessage from './errorMessage';
+
+const { getErrorCodeMessage } = errorMessage;
+
 export default function handleAPIError(err) {
   let data = null;
   let messages = null;
@@ -19,7 +23,9 @@ export default function handleAPIError(err) {
         messages = `${formatMessage({id:'utils.errror.Not_available'})}`;
         break;
       case 10412:
-        messages = `${formatMessage({id:'utils.errror.not_exist'})}`;
+        messages = getErrorCodeMessage(data, {
+          notExist: `${formatMessage({id:'utils.errror.not_exist'})}`
+        });
         break;
       case 20900:
         messages = `${formatMessage({id:'utils.errror.Upgrade_record'})}`;
