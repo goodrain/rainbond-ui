@@ -13,6 +13,7 @@ import {
   createThirtAppByCodes,
   getAppsByComposeId,
   installApp,
+  preflightDeploy,
   preflightInstallApp,
   installAppPlugin,
   changeAppVersions,
@@ -116,6 +117,20 @@ export default {
     *preflightInstallApp({ payload, callback, handleError }, { call }) {
       try {
         const data = yield call(preflightInstallApp, payload, handleError);
+        if (data && callback) {
+          callback(data);
+        }
+      } catch (e) {
+        if (handleError) {
+          handleError(e);
+        } else {
+          throw e;
+        }
+      }
+    },
+    *preflightDeploy({ payload, callback, handleError }, { call }) {
+      try {
+        const data = yield call(preflightDeploy, payload, handleError);
         if (data && callback) {
           callback(data);
         }
