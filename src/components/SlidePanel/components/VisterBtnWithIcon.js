@@ -1,7 +1,6 @@
 /* eslint-disable react/jsx-no-target-blank */
 import { Button, Dropdown, Menu, Tooltip } from 'antd';
 import React, { PureComponent } from 'react';
-import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
 
 /*
@@ -58,7 +57,7 @@ export default class VisterBtnWithIcon extends PureComponent {
                 window.open(singleLink);
               }}
             >
-             <FormattedMessage id='componentOverview.header.right.visit'/>
+              {formatMessage({ id: 'componentOverview.header.right.visit' })}
             </a>
           ) : (
             <Button
@@ -69,7 +68,7 @@ export default class VisterBtnWithIcon extends PureComponent {
                 window.open(singleLink);
               }}
             >
-              <FormattedMessage id='componentOverview.header.right.visit'/>
+              {formatMessage({ id: 'componentOverview.header.right.visit' })}
             </Button>
           )}
         </Tooltip>
@@ -111,9 +110,9 @@ export default class VisterBtnWithIcon extends PureComponent {
           placement="bottomRight"
         >
           {type === 'link' ? (
-            <a style={{ fontSize: '14px' }}><FormattedMessage id='componentOverview.header.right.visit'/></a>
+            <a style={{ fontSize: '14px' }}>{formatMessage({ id: 'componentOverview.header.right.visit' })}</a>
           ) : (
-            <Button type={type} icon="link"><FormattedMessage id='componentOverview.header.right.visit'/></Button>
+            <Button type={type} icon="link">{formatMessage({ id: 'componentOverview.header.right.visit' })}</Button>
           )}
         </Dropdown>
       </Tooltip>

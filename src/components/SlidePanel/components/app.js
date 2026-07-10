@@ -13,7 +13,6 @@ import VisterBtnWithIcon from './VisterBtnWithIcon';
 import AppDeteleResource from '../../../components/AppDeteleResource'
 import RapidCopy from '../../../components/RapidCopy';
 import cookie from '../../../utils/cookie';
-import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import AddServiceComponent from '../../../pages/Group/AddServiceComponent';
@@ -452,7 +451,7 @@ export default class app extends Component {
         key: 'addComponent',
         type: 'button',
         icon: 'plus',
-        text: <FormattedMessage id="versionUpdata_6_4.overview.add" defaultMessage="添加" />,
+        text: formatMessage({ id: 'versionUpdata_6_4.overview.add', defaultMessage: '添加' }),
         show: isCreate && !isSlidePanel,
         disabled: false,
         onClick: () => this.handleOpenAddComponentOrAppDetail('addComponent')
@@ -476,7 +475,7 @@ export default class app extends Component {
         key: 'appUpgrade',
         type: 'badge',
         icon: 'arrow-up',
-        text: <FormattedMessage id="versionUpdata_6_4.overview.upgrade" />,
+        text: formatMessage({ id: 'versionUpdata_6_4.overview.upgrade' }),
         show: isAppUpgrade && !isSlidePanel && upgradableNum !== 0,
         disabled: false,
         onClick: () => this.handleJump('upgrade')
@@ -484,7 +483,7 @@ export default class app extends Component {
       {
         key: 'update',
         type: 'button',
-        text: <FormattedMessage id="appOverview.btn.update" defaultMessage="更新" />,
+        text: formatMessage({ id: 'appOverview.btn.update', defaultMessage: '更新' }),
         show: isUpdate && resources.status !== 'CLOSED',
         onClick: () => this.handleTopology('upgrade'),
         disabled: BtnDisabled
@@ -492,7 +491,7 @@ export default class app extends Component {
       {
         key: 'build',
         type: 'button',
-        text: <FormattedMessage id="appOverview.btn.build" defaultMessage="构建" />,
+        text: formatMessage({ id: 'appOverview.btn.build', defaultMessage: '构建' }),
         show: isConstruct,
         onClick: () => this.handleTopology('deploy'),
         disabled: BtnDisabled
@@ -500,7 +499,7 @@ export default class app extends Component {
       {
         key: 'copy',
         type: 'button',
-        text: <FormattedMessage id="appOverview.btn.copy" defaultMessage="复制" />,
+        text: formatMessage({ id: 'appOverview.btn.copy', defaultMessage: '复制' }),
         show: isCopy,
         disabled: BtnDisabled,
         onClick: () => this.handleOpenRapidCopy()
@@ -508,7 +507,7 @@ export default class app extends Component {
       {
         key: 'start',
         type: 'button',
-        text: <FormattedMessage id="appOverview.btn.start" defaultMessage="启动" />,
+        text: formatMessage({ id: 'appOverview.btn.start', defaultMessage: '启动' }),
         show: resources.status && resources.status !== 'STARTING' && resources.status !== 'RUNNING' && serviceIds && serviceIds.length > 0 && isStart,
         disabled: BtnDisabled,
         onClick: () => this.handleTopology('start')
@@ -516,7 +515,7 @@ export default class app extends Component {
       {
         key: 'restart',
         type: 'button',
-        text: <FormattedMessage id="appOverview.btn.restart" defaultMessage="重启" />,
+        text: formatMessage({ id: 'appOverview.btn.restart', defaultMessage: '重启' }),
         show: resources.status && (resources.status === 'ABNORMAL' || resources.status === 'PARTIAL_ABNORMAL') && serviceIds && serviceIds.length > 0 && isUpdate,
         disabled: BtnDisabled,
         onClick: () => this.handleTopology('restart')
@@ -525,7 +524,7 @@ export default class app extends Component {
       {
         key: 'stop',
         type: 'button',
-        text: <FormattedMessage id="appOverview.btn.stop" defaultMessage="停止" />,
+        text: formatMessage({ id: 'appOverview.btn.stop', defaultMessage: '停止' }),
         show: resources.status && resources.status !== 'CLOSED' && resources.status !== 'STOPPING' && isStop,
         disabled: BtnDisabled,
         onClick: () => this.handleTopology('stop')
@@ -533,7 +532,7 @@ export default class app extends Component {
       {
         key: 'delete',
         type: 'button',
-        text: <FormattedMessage id="appOverview.list.table.delete" defaultMessage="删除" />,
+        text: formatMessage({ id: 'appOverview.list.table.delete', defaultMessage: '删除' }),
         show: isDelete,
         onClick: () => this.toDelete()
       },
@@ -547,7 +546,7 @@ export default class app extends Component {
       {
         key: 'appGateway',
         type: 'button',
-        text: <FormattedMessage id="menu.app.gateway" />,
+        text: formatMessage({ id: 'menu.app.gateway' }),
         show: (isAppGatewayMonitor || isAppRouteManage || isAppTargetServices || isAppCertificate) && !isSlidePanel,
         disabled: false,
         onClick: () => this.handleJump('gateway')
@@ -555,7 +554,7 @@ export default class app extends Component {
       {
         key: 'appResources',
         type: 'button',
-        text: <FormattedMessage id="menu.app.k8s" />,
+        text: formatMessage({ id: 'menu.app.k8s' }),
         show: isAppResources && canAccessAppK8sResources && !isSlidePanel,
         disabled: false,
         onClick: () => this.handleJump('asset')
@@ -563,7 +562,7 @@ export default class app extends Component {
       {
         key: 'appConfigGroup',
         type: 'button',
-        text: <FormattedMessage id="menu.app.configgroups" />,
+        text: formatMessage({ id: 'menu.app.configgroups' }),
         show: isAppConfigGroup && !isSlidePanel,
         disabled: false,
         onClick: () => this.handleJump('configgroups')
@@ -645,7 +644,7 @@ export default class app extends Component {
           onClick={() => this.handleOpenAddComponentOrAppDetail('appDetail')}
           style={{marginRight:8}}
         >
-          <FormattedMessage id="versionUpdata_6_4.overview.detail" defaultMessage="详情" />
+          {formatMessage({ id: 'versionUpdata_6_4.overview.detail', defaultMessage: '详情' })}
         </Button>
       );
     }
