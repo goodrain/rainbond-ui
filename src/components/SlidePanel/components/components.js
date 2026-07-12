@@ -1828,11 +1828,7 @@ class Main extends PureComponent {
     const refreshKey = globalUtil.getRefresh() || 'steady';
     const pendingMutationRefreshKey =
       this.props.pendingMutationRefreshKey || 'stable';
-    const activeSubTab = globalUtil.getSlidePanelSubTab() || '';
-    const componentRenderKey =
-      currentActiveTab === 'advancedSettings'
-        ? `${currentActiveTab}-${activeSubTab || 'default'}-${refreshKey}-${pendingMutationRefreshKey}`
-        : `${currentActiveTab}-${refreshKey}-${pendingMutationRefreshKey}`;
+    const componentRenderKey = `${currentActiveTab}-${refreshKey}-${pendingMutationRefreshKey}`;
     const formItemLayout = {
       labelCol: {
         span: 1
