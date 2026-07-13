@@ -718,20 +718,21 @@ class GlobalHeader extends PureComponent {
     return enterpriseId ? `/enterprise/${enterpriseId}/extension` : '';
   };
 
-  getAgentConfigPath = () => {
+  getAgentPluginPath = () => {
     const { currentUser, enterprise, eid } = this.props;
     const enterpriseId =
       currentUser?.enterprise_id ||
       enterprise?.enterprise_id ||
       globalUtil.getCurrEnterpriseId() ||
       eid;
+    const regionName = this.getFallbackPluginRegionName() || 'rainbond';
 
-    return enterpriseId ? `/enterprise/${enterpriseId}/ai/agent-config` : '';
+    return enterpriseId ? `/enterprise/${enterpriseId}/plugins/${regionName}/rainbond-agent` : '';
   };
 
   handleMissingAgentApiKey = () => {
     const { dispatch, currentUser } = this.props;
-    const agentConfigPath = this.getAgentConfigPath();
+    const agentPluginPath = this.getAgentPluginPath();
 
     if (!currentUser?.is_enterprise_admin) {
       Modal.warning({
@@ -769,8 +770,8 @@ class GlobalHeader extends PureComponent {
         defaultMessage: '取消'
       }),
       onOk: () => {
-        if (agentConfigPath) {
-          dispatch(routerRedux.push(agentConfigPath));
+        if (agentPluginPath) {
+          dispatch(routerRedux.push(agentPluginPath));
         }
       }
     });
