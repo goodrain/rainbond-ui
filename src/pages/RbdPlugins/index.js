@@ -165,7 +165,11 @@ export default class Index extends Component {
       callback: (res) => {
         this.isLoading = false; // 重置加载标志
         if (res && res.list) {
-          const plugin = res.list.find((item) => item.name === pluginId) || {};
+          const plugin = res.list.find((item) =>
+            item.name === pluginId ||
+            getPluginBaseId(item.name) === pluginId ||
+            getPluginBaseId(item.plugin_id) === pluginId
+          ) || {};
           // 先设置插件信息
           this.setState({ plugins: plugin, loading: false });
           // 对于JSInject类型的插件，延迟调用importPlugin避免重复渲染

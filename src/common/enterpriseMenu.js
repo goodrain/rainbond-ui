@@ -6,6 +6,14 @@ import getMenuSvg from './getMenuSvg';
 import PluginUtil from '../utils/pulginUtils'
 import { isRainbondInfoAgentEnabled } from '../utils/agentVisibility';
 
+function getAgentPluginPath(eid, pluginList, clusterList) {
+  const agentPlugin = PluginUtil.getPluginInfo(pluginList, 'rainbond-agent');
+  const firstPluginRegion = Object.keys(agentPlugin || {})[0];
+  const firstClusterRegion = clusterList && clusterList[0] && clusterList[0].region_name;
+  const regionName = firstPluginRegion || firstClusterRegion || 'rainbond';
+  return `/enterprise/${eid}/plugins/${regionName}/rainbond-agent`;
+}
+
 /**
  * 生成分组菜单数据
  * @param {string} eid - 企业ID
@@ -134,7 +142,7 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList, rainbon
         {
           name: formatMessage({ id: 'menu.enterprise.agent_config', defaultMessage: 'AI助手配置' }),
           icon: getMenuSvg.getSvg('agentConfig'),
-          path: `/enterprise/${eid}/ai/agent-config`,
+          path: getAgentPluginPath(eid, pluginList, clusterList),
           authority: ['admin', 'user']
         }
       ]
