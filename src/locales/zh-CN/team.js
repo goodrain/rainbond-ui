@@ -87,6 +87,8 @@ const teamAdd = {
   'teamAdd.create.demo.cancel':'取消示例',
   'teamAdd.create.demo.select':'选择示例',
   'teamAdd.create.demo.alert':'示例模式已激活，表单已自动填充示例数据，您可以修改后创建',
+  'teamAdd.create.image.demo.use':'使用示例',
+  'teamAdd.create.image.demo.cancel':'取消示例',
   
   // code
   'teamAdd.create.code.title':'从源码创建组件',

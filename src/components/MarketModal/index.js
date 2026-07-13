@@ -7,6 +7,7 @@ import PluginUtil from '../../utils/pulginUtils';
 import { pinyin } from 'pinyin-pro';
 import AppMarketContent from '../AppMarketContent';
 import roleUtil from '../../utils/newRole';
+import { runMarketInstallPreflight } from '../../utils/marketInstallPreflight';
 import appIcon from '../../../public/images/app_icon.jpg';
 import styles from './index.less';
 
@@ -206,20 +207,23 @@ const MarketModal = ({ visible, onCancel, dispatch, currentEnterprise, store, gr
         const regionName = globalUtil.getCurrRegionName();
         const group_id = globalUtil.getAppID();
 
+        const buildInstallPayload = finalGroupId => ({
+          team_name: teamName,
+          region_name: regionName,
+          ...vals,
+          group_id: finalGroupId,
+          app_id: selectedApp.app_id,
+          is_deploy: true,
+          group_key: selectedApp.group_key || selectedApp.ID,
+          app_version: vals.group_version,
+          marketName: store.name,
+          install_from_cloud: true
+        });
+
         const installApp = (finalGroupId, isNewApp = false) => {
           dispatch({
             type: 'createApp/installApp',
-            payload: {
-              team_name: teamName,
-              ...vals,
-              group_id: finalGroupId,
-              app_id: selectedApp.app_id,
-              is_deploy: true,
-              group_key: selectedApp.group_key || selectedApp.ID,
-              app_version: vals.group_version,
-              marketName: store.name,
-              install_from_cloud: true
-            },
+            payload: buildInstallPayload(finalGroupId),
             callback: () => {
               dispatch({
                 type: 'global/fetchGroups',
@@ -246,39 +250,49 @@ const MarketModal = ({ visible, onCancel, dispatch, currentEnterprise, store, gr
           });
         };
 
-        if (group_id) {
-          // 已有 group_id,直接安装
-          installApp(group_id);
-        } else if (vals.install_type === 'new' && vals.group_name) {
-          // 创建新应用,先创建应用获取 group_id,再安装
-          const k8s_app = generateEnglishName(vals.group_name);
-          dispatch({
-            type: 'application/addGroup',
-            payload: {
-              region_name: regionName,
-              team_name: teamName,
-              group_name: vals.group_name,
-              k8s_app: k8s_app,
-              note: '',
-            },
-            callback: (res) => {
-              roleUtil.refreshPermissionsInfo()
-              if (res && res.group_id) {
-                installApp(res.group_id, true);
-              } else {
+        const submitInstall = () => {
+          if (group_id) {
+            // 已有 group_id,直接安装
+            installApp(group_id);
+          } else if (vals.install_type === 'new' && vals.group_name) {
+            // 创建新应用,先创建应用获取 group_id,再安装
+            const k8s_app = generateEnglishName(vals.group_name);
+            dispatch({
+              type: 'application/addGroup',
+              payload: {
+                region_name: regionName,
+                team_name: teamName,
+                group_name: vals.group_name,
+                k8s_app: k8s_app,
+                note: '',
+              },
+              callback: (res) => {
+                roleUtil.refreshPermissionsInfo()
+                if (res && res.group_id) {
+                  installApp(res.group_id, true);
+                } else {
+                  setAddAppLoading(false);
+                }
+              },
+              handleError: () => {
                 setAddAppLoading(false);
               }
-            },
-            handleError: () => {
-              setAddAppLoading(false);
-            }
-          });
-        } else if (vals.install_type === 'existing' && vals.group_id) {
-          // 安装到已有应用
-          installApp(vals.group_id, true);
-        } else {
-          setAddAppLoading(false);
-        }
+            });
+          } else if (vals.install_type === 'existing' && vals.group_id) {
+            // 安装到已有应用
+            installApp(vals.group_id, true);
+          } else {
+            setAddAppLoading(false);
+          }
+        };
+
+        runMarketInstallPreflight({
+          dispatch,
+          payload: buildInstallPayload(group_id || vals.group_id || 0),
+          onPass: submitInstall,
+          onCancel: () => setAddAppLoading(false),
+          onError: () => setAddAppLoading(false)
+        });
       }
     });
   };

@@ -94,7 +94,8 @@ export default class Index extends PureComponent {
       chunkUploadProgress: 0,
       isChunkUploading: false,
       currentFile: null,
-      chunkUploader: null
+      chunkUploader: null,
+      showImageDemo: false
     };
   }
   componentWillMount() {
@@ -355,6 +356,78 @@ export default class Index extends PureComponent {
     return cleanedPinyinName;
   }
 
+  getImageDemoValues = () => {
+    const { pluginsList } = this.props;
+    const isCloudProxy = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
+    const serviceName = 'nginx';
+
+    return {
+      service_cname: serviceName,
+      k8s_component_name: this.generateEnglishName(serviceName),
+      docker_cmd: isCloudProxy ? NGINX_EXAMPLE.imageAddress : NGINX_EXAMPLE.saasImageAddress
+    };
+  }
+
+  applyImageDemoToForm = () => {
+    const { form } = this.props;
+    const demoValues = this.getImageDemoValues();
+
+    this.setState(
+      {
+        radioKey: 'address',
+        showImageDemo: true,
+        showUsernameAndPass: false,
+        warehouseImageTags: [],
+        checkedValues: '',
+        isHub: true,
+        warehouseInfo: false,
+        domain: '',
+        fileList: [],
+        currentFile: null,
+        chunkUploader: null,
+        chunkUploadProgress: 0,
+        isChunkUploading: false
+      },
+      () => {
+        form.setFieldsValue({
+          imagefrom: 'address',
+          service_cname: demoValues.service_cname,
+          k8s_component_name: demoValues.k8s_component_name,
+          docker_cmd: demoValues.docker_cmd,
+          user_name: undefined,
+          password: undefined
+        });
+      }
+    );
+  }
+
+  handleToggleImageDemo = () => {
+    const { form } = this.props;
+    const { showImageDemo } = this.state;
+
+    if (!showImageDemo) {
+      this.applyImageDemoToForm();
+      return;
+    }
+
+    this.setState({
+      showImageDemo: false,
+      warehouseImageTags: [],
+      checkedValues: '',
+      isHub: true,
+      warehouseInfo: false,
+      domain: '',
+      showUsernameAndPass: false
+    });
+    form.setFieldsValue({
+      service_cname: '',
+      k8s_component_name: '',
+      docker_cmd: '',
+      user_name: undefined,
+      password: undefined
+    });
+  }
+
   handleJarWarUpload = () => {
     const { dispatch } = this.props;
     const teamName = globalUtil.getCurrTeamName();
@@ -460,7 +533,8 @@ export default class Index extends PureComponent {
       isHub: true,
       warehouseInfo: false,
       domain: '',
-      showUsernameAndPass: false
+      showUsernameAndPass: false,
+      showImageDemo: false
     });
     form.resetFields(['docker_cmd', 'user_name', 'password']);
   }
@@ -837,6 +911,7 @@ export default class Index extends PureComponent {
       warehouseImageTags,
       tagLoading,
       checkedValues,
+      showImageDemo,
       creatComPermission: { isCreate }
     } = this.state;
     const group_id = globalUtil.getAppID();
@@ -858,7 +933,42 @@ export default class Index extends PureComponent {
       <Fragment>
         <div >
           <Form onSubmit={this.handleSubmit} layout="vertical" hideRequiredMark>
-            <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
+            <Form.Item
+              {...is_language}
+              label={
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                  <span>{formatMessage({ id: 'teamAdd.create.form.service_cname' })}</span>
+                  {isPublic && (
+                    <Button
+                      type="link"
+                      size="small"
+                      style={{ padding: 0, height: 'auto', fontSize: 14, display: 'flex', alignItems: 'center' }}
+                      onClick={this.handleToggleImageDemo}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        style={{ marginRight: 4 }}
+                      >
+                        <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
+                        <path d="M20 3v4" />
+                        <path d="M22 5h-4" />
+                        <path d="M4 17v2" />
+                        <path d="M5 18H3" />
+                      </svg>
+                      {showImageDemo ? formatMessage({ id: 'teamAdd.create.image.demo.cancel' }) : formatMessage({ id: 'teamAdd.create.image.demo.use' })}
+                    </Button>
+                  )}
+                </div>
+              }
+            >
               {getFieldDecorator('service_cname', {
                 initialValue: data.service_cname || (selectedImage && selectedImage.name) || '',
                 rules: getServiceNameRules()

@@ -9,6 +9,7 @@ import globalUtil from '../../utils/global';
 import handleAPIError from '../../utils/error';
 import role from '../../utils/newRole';
 import userUtil from '../../utils/user';
+import { runMarketInstallPreflight } from '../../utils/marketInstallPreflight';
 import styles from './Detail.less';
 
 const { TabPane } = Tabs;
@@ -451,18 +452,21 @@ class ExploreDetail extends PureComponent {
       // market_name 使用市场的 name 字段
       const marketName = 'RainbondMarket';
 
+      const buildInstallPayload = finalGroupId => ({
+        team_name: teamName,
+        region_name: regionName,
+        group_id: finalGroupId,
+        app_id: detail.appKeyID,
+        app_version: values.group_version,
+        is_deploy: true,
+        install_from_cloud: true,
+        marketName: marketName
+      });
+
       const installApp = (finalGroupId, isNewApp = false) => {
         dispatch({
           type: 'createApp/installApp',
-          payload: {
-            team_name: teamName,
-            group_id: finalGroupId,
-            app_id: detail.appKeyID,
-            app_version: values.group_version,
-            is_deploy: true,
-            install_from_cloud: true,
-            marketName: marketName
-          },
+          payload: buildInstallPayload(finalGroupId),
           callback: () => {
             dispatch({
               type: 'global/fetchGroups',
@@ -492,36 +496,49 @@ class ExploreDetail extends PureComponent {
         });
       };
 
-      if (values.install_type === 'new' && values.group_name) {
-        // 创建新应用，先创建应用获取 group_id，再安装
-        const k8s_app = this.generateEnglishName(values.group_name);
-        dispatch({
-          type: 'application/addGroup',
-          payload: {
-            region_name: regionName,
-            team_name: teamName,
-            group_name: values.group_name,
-            k8s_app: k8s_app,
-            note: ''
-          },
-          callback: (res) => {
-            if (res && res.group_id) {
-              installApp(res.group_id, true);
-            } else {
+      const submitInstall = () => {
+        if (values.install_type === 'new' && values.group_name) {
+          // 创建新应用，先创建应用获取 group_id，再安装
+          const k8s_app = this.generateEnglishName(values.group_name);
+          dispatch({
+            type: 'application/addGroup',
+            payload: {
+              region_name: regionName,
+              team_name: teamName,
+              group_name: values.group_name,
+              k8s_app: k8s_app,
+              note: ''
+            },
+            callback: (res) => {
+              if (res && res.group_id) {
+                installApp(res.group_id, true);
+              } else {
+                this.setState({ submitLoading: false });
+              }
+            },
+            handleError: (error) => {
               this.setState({ submitLoading: false });
+              handleAPIError(error);
             }
-          },
-          handleError: (error) => {
-            this.setState({ submitLoading: false });
-            handleAPIError(error);
-          }
-        });
-      } else if (values.install_type === 'existing' && values.group_id) {
-        // 安装到已有应用
-        installApp(values.group_id, true);
-      } else {
-        this.setState({ submitLoading: false });
-      }
+          });
+        } else if (values.install_type === 'existing' && values.group_id) {
+          // 安装到已有应用
+          installApp(values.group_id, true);
+        } else {
+          this.setState({ submitLoading: false });
+        }
+      };
+
+      runMarketInstallPreflight({
+        dispatch,
+        payload: buildInstallPayload(values.group_id || 0),
+        onPass: submitInstall,
+        onCancel: () => this.setState({ submitLoading: false }),
+        onError: (error) => {
+          this.setState({ submitLoading: false });
+          handleAPIError(error);
+        }
+      });
     });
   };
 

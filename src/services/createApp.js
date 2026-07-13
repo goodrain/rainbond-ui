@@ -502,6 +502,47 @@ export function getMarketApp(body = {}) {
 /*
   从云市安装应用
 */
+export async function preflightDeploy(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/deploy_preflight`,
+    {
+      method: 'post',
+      data: {
+        deploy_type: body.deploy_type,
+        payload: body.payload || {}
+      },
+      params: {
+        region_name: body.region_name
+      },
+      handleError
+    }
+  );
+}
+
+export async function preflightInstallApp(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/market_create/preflight`,
+    {
+      method: 'post',
+      data: {
+        group_id: body.group_id,
+        app_id: body.app_id,
+        group_key: body.group_key,
+        app_version: body.app_version,
+        is_deploy: body.is_deploy,
+        install_from_cloud: body.install_from_cloud
+          ? body.install_from_cloud
+          : false,
+        market_name: body.marketName
+      },
+      params: {
+        region_name: body.region_name
+      },
+      handleError
+    }
+  );
+}
+
 export async function installApp(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/market_create`,

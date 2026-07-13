@@ -3,7 +3,7 @@
 /* eslint-disable no-void */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-underscore-dangle */
-import { notification } from 'antd';
+import { notification, Modal } from 'antd';
 import axios from 'axios';
 import globalUtil from '../utils/global';
 import cookie from './cookie';
@@ -146,6 +146,21 @@ function handleSpecialErrorCode(code, resData, options, error, TEAM_NAME, REGION
       }
       if (options.noModels) {
         return false; // 让外层处理 Promise.reject
+      }
+      return true;
+
+    case 10412:
+      // 安装/部署前检测阻断
+      const preflightBean = resData.data?.bean || {};
+      const isDeployPreflight = resData.msg === 'deploy preflight blocked' || preflightBean.deploy_type;
+      Modal.error({
+        title: isDeployPreflight ? '暂不能部署' : '暂不能安装',
+        content: preflightBean.summary || resData.msg_show ||
+          (isDeployPreflight ? '当前环境不满足部署条件' : '当前环境不满足应用安装条件'),
+        okText: '我知道了'
+      });
+      if (options.handleError) {
+        options.handleError(error);
       }
       return true;
 
