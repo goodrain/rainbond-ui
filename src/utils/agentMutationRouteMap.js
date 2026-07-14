@@ -6,6 +6,15 @@ function buildQuery(params = {}) {
   return entries.length ? `?${entries.join('&')}` : '';
 }
 
+const KUBERNETES_MUTATION_TOOL_PREFIX = 'rainbond_kube_';
+
+export function isKubernetesMutationTool(toolName) {
+  return (
+    typeof toolName === 'string' &&
+    toolName.indexOf(KUBERNETES_MUTATION_TOOL_PREFIX) === 0
+  );
+}
+
 function buildTeamIndexRoute(context = {}) {
   const teamName = context.teamName || '';
   const regionName = context.regionName || '';
@@ -305,10 +314,16 @@ const MUTATION_ROUTE_POLICIES = {
 };
 
 export function getAgentMutationRoutePolicy(toolName) {
+  if (isKubernetesMutationTool(toolName)) {
+    return null;
+  }
   return MUTATION_ROUTE_POLICIES[toolName] || null;
 }
 
 export function isSupportedAgentMutationTool(toolName) {
+  if (isKubernetesMutationTool(toolName)) {
+    return false;
+  }
   return !!getAgentMutationRoutePolicy(toolName);
 }
 
@@ -316,6 +331,12 @@ export function shouldHandleApprovedMutationTrace({
   toolName,
   pendingMutationTool,
 }) {
+  if (
+    isKubernetesMutationTool(toolName) ||
+    isKubernetesMutationTool(pendingMutationTool)
+  ) {
+    return false;
+  }
   return !!(
     toolName &&
     pendingMutationTool &&
@@ -453,6 +474,9 @@ function resolveRouteMeta(toolName, routeMeta = {}, ref = null) {
 }
 
 export function resolvePreActionRoute({ toolName, context, appDetail, targetRef }) {
+  if (isKubernetesMutationTool(toolName)) {
+    return '';
+  }
   const policy = getAgentMutationRoutePolicy(toolName);
   if (!policy || !policy.pre) return '';
   const routeMeta = resolveRouteMeta(toolName, policy.pre, targetRef);
@@ -467,6 +491,9 @@ export function resolvePreActionRoute({ toolName, context, appDetail, targetRef 
 }
 
 export function resolvePostActionRoute({ toolName, context, appDetail, result, resultRef }) {
+  if (isKubernetesMutationTool(toolName)) {
+    return '';
+  }
   const policy = getAgentMutationRoutePolicy(toolName);
   if (!policy || !policy.post) return '';
   const routeMeta = resolveRouteMeta(toolName, policy.post, resultRef || (result && result.result_ref));

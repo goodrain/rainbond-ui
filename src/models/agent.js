@@ -1561,15 +1561,18 @@ export default {
         pa.status === 'pending' &&
         pa.approvalId !== prevApprovalId
       ) {
-        const componentMutationTrackingPatch = buildComponentMutationTrackingPatch({
-          toolName: pa.skillId,
-          context: nextState.context,
-          targetRef: pa.targetRef,
-        });
+        const shouldTrackMutationTool = isSupportedAgentMutationTool(pa.skillId);
+        const componentMutationTrackingPatch = shouldTrackMutationTool
+          ? buildComponentMutationTrackingPatch({
+              toolName: pa.skillId,
+              context: nextState.context,
+              targetRef: pa.targetRef,
+            })
+          : createClearedComponentMutationTrackingState();
         yield put({
           type: 'saveState',
           payload: {
-            pendingMutationTool: pa.skillId || '',
+            pendingMutationTool: shouldTrackMutationTool ? pa.skillId || '' : '',
             pendingMutationRoute: '',
             pendingMutationNavigationKey: '',
             ...componentMutationTrackingPatch,
