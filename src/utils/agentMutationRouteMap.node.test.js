@@ -12,6 +12,8 @@ function loadRouteMapModule() {
   vm.runInNewContext(
     `${source}
 module.exports = {
+  isKubernetesMutationTool,
+  isSupportedAgentMutationTool,
   resolvePreActionRoute,
   resolvePostActionRoute,
   shouldHandleApprovedMutationTrace,
@@ -27,6 +29,8 @@ module.exports = {
 }
 
 const {
+  isKubernetesMutationTool,
+  isSupportedAgentMutationTool,
   resolvePreActionRoute,
   resolvePostActionRoute,
   shouldHandleApprovedMutationTrace,
@@ -273,6 +277,66 @@ function runTests() {
     }),
     true,
     'approved autoscaler mutation traces should trigger navigation'
+  );
+
+  assert.strictEqual(
+    isKubernetesMutationTool('rainbond_kube_patch_resource'),
+    true,
+    'kubernetes tools should be identified by their rainbond_kube_ prefix'
+  );
+  assert.strictEqual(
+    isSupportedAgentMutationTool('rainbond_kube_patch_resource'),
+    false,
+    'kubernetes approval tools should not be treated as navigable Rainbond mutations'
+  );
+  assert.strictEqual(
+    resolvePreActionRoute({
+      toolName: 'rainbond_kube_patch_resource',
+      context: {
+        teamName: 'demo',
+        regionName: 'test',
+        appId: '8',
+        componentAlias: 'api',
+      },
+      targetRef: {
+        cluster: 'rainbond',
+        namespace: 'rbd-plugins',
+        kind: 'Deployment',
+        name: 'rainbond-agent-api',
+      },
+    }),
+    '',
+    'kubernetes approvals should not navigate before approval'
+  );
+  assert.strictEqual(
+    resolvePostActionRoute({
+      toolName: 'rainbond_kube_patch_resource',
+      context: {
+        teamName: 'demo',
+        regionName: 'test',
+        appId: '8',
+        componentAlias: 'api',
+      },
+      result: {
+        result_ref: {
+          cluster: 'rainbond',
+          namespace: 'rbd-plugins',
+          kind: 'Deployment',
+          name: 'rainbond-agent-api',
+          operation: 'patch',
+        },
+      },
+    }),
+    '',
+    'kubernetes approvals should not navigate after approval'
+  );
+  assert.strictEqual(
+    shouldHandleApprovedMutationTrace({
+      toolName: 'rainbond_kube_patch_resource',
+      pendingMutationTool: 'rainbond_kube_patch_resource',
+    }),
+    false,
+    'approved kubernetes traces should only render approval cards and skip navigation'
   );
 }
 
