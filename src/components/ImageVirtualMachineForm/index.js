@@ -12,7 +12,11 @@ import {
   notification,
   Switch,
   InputNumber,
-  message
+  message,
+  Modal,
+  Table,
+  Tag,
+  Popconfirm
 } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
@@ -63,6 +67,8 @@ const PUBLIC_VM_OPTIONS = [
     rainbondInfo: global.rainbondInfo,
     createAppByVirtualMachineLoading:
       loading.effects['createApp/createAppByVirtualMachine'],
+    deleteVirtualMachineImageAssetLoading:
+      loading.effects['createApp/deleteVirtualMachineImageAsset'],
     currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
   }),
   null,
@@ -90,7 +96,9 @@ export default class Index extends PureComponent {
       publicVmOptions: PUBLIC_VM_OPTIONS,
       selectedPublicVm: defaultPublicVm,
       comNames: [],
-      creatComPermission: {}
+      creatComPermission: {},
+      assetCatalogVisible: false,
+      deletingAssetId: ''
     };
     this.appliedTemplateVersionId = null;
   }
@@ -436,6 +444,141 @@ export default class Index extends PureComponent {
     this.applyLocalImageSelection(selectedAsset);
   };
 
+  openAssetCatalog = () => {
+    this.setState({
+      assetCatalogVisible: true
+    });
+  };
+
+  closeAssetCatalog = () => {
+    this.setState({
+      assetCatalogVisible: false
+    });
+  };
+
+  getAssetId = asset => {
+    return asset ? asset.id || asset.asset_id || '' : '';
+  };
+
+  getAssetReferenceCount = asset => {
+    if (!asset) {
+      return 0;
+    }
+    const referenceCount =
+      asset.reference_count !== undefined
+        ? asset.reference_count
+        : asset.references || asset.ref_count || 0;
+    const numericCount = Number(referenceCount);
+    return Number.isNaN(numericCount) ? 0 : numericCount;
+  };
+
+  getAssetSource = asset => {
+    if (!asset) {
+      return '';
+    }
+    return asset.source_uri || asset.vm_url || asset.source || asset.image_url || '';
+  };
+
+  getAssetCreatedAt = asset => {
+    if (!asset) {
+      return '';
+    }
+    return asset.created_at || asset.create_time || asset.update_time || '';
+  };
+
+  formatAssetSize = value => {
+    if (value === undefined || value === null || value === '') {
+      return '-';
+    }
+    const size = Number(value);
+    if (Number.isNaN(size)) {
+      return value;
+    }
+    if (size < 1024) {
+      return `${size} B`;
+    }
+    const units = ['KB', 'MB', 'GB', 'TB'];
+    let nextSize = size / 1024;
+    let unitIndex = 0;
+    while (nextSize >= 1024 && unitIndex < units.length - 1) {
+      nextSize /= 1024;
+      unitIndex += 1;
+    }
+    return `${nextSize.toFixed(nextSize >= 10 ? 1 : 2)} ${units[unitIndex]}`;
+  };
+
+  renderAssetStatus = asset => {
+    const status = (asset && asset.status) || formatMessage({ id: 'Vm.assetCatalog.statusUnknown' });
+    const statusColorMap = {
+      ready: 'green',
+      importing: 'blue',
+      pending: 'orange',
+      failed: 'red',
+      error: 'red'
+    };
+    return <Tag color={statusColorMap[status] || 'default'}>{status}</Tag>;
+  };
+
+  refreshVirtualMachineImages = () => {
+    const { onRefreshVirtualMachineImage } = this.props;
+    if (typeof onRefreshVirtualMachineImage === 'function') {
+      onRefreshVirtualMachineImage();
+    }
+  };
+
+  handleSelectCatalogAsset = asset => {
+    this.applyLocalImageSelection(asset);
+    if (isVMAssetSelectable(asset)) {
+      this.closeAssetCatalog();
+    }
+  };
+
+  handleDeleteCatalogAsset = asset => {
+    const { dispatch, form } = this.props;
+    const assetId = this.getAssetId(asset);
+    if (!assetId) {
+      return;
+    }
+    if (this.getAssetReferenceCount(asset) > 0) {
+      message.warning(formatMessage({ id: 'Vm.assetCatalog.deleteDisabled' }));
+      return;
+    }
+    this.setState({
+      deletingAssetId: assetId
+    });
+    dispatch({
+      type: 'createApp/deleteVirtualMachineImageAsset',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        asset_id: assetId
+      },
+      callback: () => {
+        const selectedAssetId = form.getFieldValue('asset_id');
+        const selectedImageName = form.getFieldValue('image_name');
+        if (
+          String(selectedAssetId || '') === String(assetId) ||
+          selectedImageName === asset.name
+        ) {
+          form.setFieldsValue({
+            asset_id: '',
+            image_name: undefined
+          });
+        }
+        this.setState({
+          deletingAssetId: ''
+        });
+        message.success(formatMessage({ id: 'Vm.assetCatalog.deleteSuccess' }));
+        this.refreshVirtualMachineImages();
+      },
+      handleError: err => {
+        this.setState({
+          deletingAssetId: ''
+        });
+        handleAPIError(err);
+      }
+    });
+  };
+
   validateRuntimeResources = (enabledField, messageId) => (_, value, callback) => {
     if (!this.props.form.getFieldValue(enabledField)) {
       callback();
@@ -629,6 +772,150 @@ export default class Index extends PureComponent {
     );
   };
 
+  renderAssetCatalogModal = () => {
+    const { virtualMachineImage = [], deleteVirtualMachineImageAssetLoading } = this.props;
+    const { assetCatalogVisible, deletingAssetId } = this.state;
+    const columns = [
+      {
+        title: formatMessage({ id: 'Vm.assetCatalog.name' }),
+        dataIndex: 'name',
+        key: 'name',
+        width: 180,
+        render: (text, record) => (
+          <div className={styles.assetCatalogNameWrap}>
+            <div className={styles.assetCatalogName}>
+              {record.display_name || text || '-'}
+            </div>
+            <div className={styles.assetCatalogMeta}>
+              {this.getAssetId(record) || '-'}
+            </div>
+          </div>
+        )
+      },
+      {
+        title: formatMessage({ id: 'Vm.assetCatalog.source' }),
+        dataIndex: 'source_uri',
+        key: 'source_uri',
+        width: 220,
+        render: (_, record) => (
+          <span title={this.getAssetSource(record) || formatMessage({ id: 'Vm.assetCatalog.sourceUnknown' })}>
+            {this.getAssetSource(record) || formatMessage({ id: 'Vm.assetCatalog.sourceUnknown' })}
+          </span>
+        )
+      },
+      {
+        title: formatMessage({ id: 'Vm.assetCatalog.archFormat' }),
+        key: 'arch_format',
+        width: 120,
+        render: (_, record) => `${record.arch || '-'} / ${record.format || '-'}`
+      },
+      {
+        title: formatMessage({ id: 'Vm.assetCatalog.size' }),
+        dataIndex: 'size',
+        key: 'size',
+        width: 90,
+        render: (value, record) =>
+          this.formatAssetSize(value || record.size_bytes || record.virtual_size || record.disk_size)
+      },
+      {
+        title: formatMessage({ id: 'Vm.assetCatalog.status' }),
+        dataIndex: 'status',
+        key: 'status',
+        width: 90,
+        render: (_, record) => this.renderAssetStatus(record)
+      },
+      {
+        title: formatMessage({ id: 'Vm.assetCatalog.references' }),
+        dataIndex: 'reference_count',
+        key: 'reference_count',
+        width: 90,
+        render: (_, record) => this.getAssetReferenceCount(record)
+      },
+      {
+        title: formatMessage({ id: 'Vm.assetCatalog.createdAt' }),
+        key: 'created_at',
+        width: 150,
+        render: (_, record) => this.getAssetCreatedAt(record) || '-'
+      },
+      {
+        title: formatMessage({ id: 'Vm.assetCatalog.actions' }),
+        key: 'actions',
+        width: 140,
+        render: (_, record) => {
+          const assetId = this.getAssetId(record);
+          const referenceCount = this.getAssetReferenceCount(record);
+          const deleteDisabled = !assetId || referenceCount > 0;
+          const deleteButton = (
+            <Button
+              type="link"
+              className={styles.assetDangerAction}
+              disabled={deleteDisabled}
+              loading={
+                deleteVirtualMachineImageAssetLoading &&
+                deletingAssetId === assetId
+              }
+            >
+              {formatMessage({ id: 'Vm.assetCatalog.delete' })}
+            </Button>
+          );
+          return (
+            <div className={styles.assetCatalogActions}>
+              <Button
+                type="link"
+                disabled={!isVMAssetSelectable(record)}
+                onClick={() => this.handleSelectCatalogAsset(record)}
+              >
+                {formatMessage({ id: 'Vm.assetCatalog.useAsset' })}
+              </Button>
+              {deleteDisabled ? (
+                <Tooltip
+                  title={
+                    referenceCount > 0
+                      ? formatMessage({ id: 'Vm.assetCatalog.deleteDisabled' })
+                      : null
+                  }
+                >
+                  <span>{deleteButton}</span>
+                </Tooltip>
+              ) : (
+                <Popconfirm
+                  title={formatMessage({ id: 'Vm.assetCatalog.deleteConfirm' })}
+                  onConfirm={() => this.handleDeleteCatalogAsset(record)}
+                  okText={formatMessage({ id: 'button.confirm' })}
+                  cancelText={formatMessage({ id: 'button.cancel' })}
+                >
+                  {deleteButton}
+                </Popconfirm>
+              )}
+            </div>
+          );
+        }
+      }
+    ];
+
+    return (
+      <Modal
+        title={formatMessage({ id: 'Vm.assetCatalog.title' })}
+        visible={assetCatalogVisible}
+        onCancel={this.closeAssetCatalog}
+        footer={null}
+        width={920}
+        destroyOnClose
+      >
+        <Table
+          rowKey={record => this.getAssetId(record) || record.name}
+          columns={columns}
+          dataSource={virtualMachineImage || []}
+          size="middle"
+          pagination={{ pageSize: 6 }}
+          locale={{
+            emptyText: formatMessage({ id: 'Vm.assetCatalog.empty' })
+          }}
+        />
+      </Modal>
+    );
+  };
+
   renderSourceFields = () => {
     const { form, virtualMachineImage = [] } = this.props;
     const { getFieldDecorator } = form;
@@ -707,6 +994,24 @@ export default class Index extends PureComponent {
 
     return (
       <Fragment>
+        <div className={styles.assetSelectHeader}>
+          <span className={styles.assetSelectSummary}>
+            {formatMessage(
+              { id: 'Vm.assetCatalog.total' },
+              {
+                count: selectableVirtualMachineImages.length,
+                total: (virtualMachineImage || []).length
+              }
+            )}
+          </span>
+          <Button
+            size="small"
+            icon="setting"
+            onClick={this.openAssetCatalog}
+          >
+            {formatMessage({ id: 'Vm.assetCatalog.manage' })}
+          </Button>
+        </div>
         <Form.Item label={formatMessage({ id: 'Vm.createVm.img' })}>
           {getFieldDecorator('image_name', {
             rules: [{ required: true, message: formatMessage({ id: 'Vm.createVm.selectImg' }) }]
@@ -724,6 +1029,7 @@ export default class Index extends PureComponent {
             </Select>
           )}
         </Form.Item>
+        {this.renderAssetCatalogModal()}
       </Fragment>
     );
   };
@@ -989,10 +1295,7 @@ export default class Index extends PureComponent {
                     {formatMessage({ id: 'Vm.createVm.upload' })}
                   </Radio>
                   {virtualMachineImage && virtualMachineImage.length > 0 ? (
-                    <Radio
-                      value="existing"
-                      disabled={getSelectableVMAssets(virtualMachineImage).length === 0}
-                    >
+                    <Radio value="existing">
                       {formatMessage({ id: 'Vm.createVm.have' })}
                     </Radio>
                   ) : null}

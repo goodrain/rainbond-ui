@@ -821,6 +821,7 @@ const Vm = {
   'Vm.assetCatalog.clone': '快速复制',
   'Vm.assetCatalog.cloneSuccess': '本地镜像复制成功',
   'Vm.assetCatalog.delete': '删除',
+  'Vm.assetCatalog.deleteSuccess': '本地镜像删除成功',
   'Vm.assetCatalog.deleteConfirm': '确认删除该本地镜像吗？',
   'Vm.assetCatalog.deleteDisabled': '该本地镜像仍被虚拟机引用，暂不支持删除',
   'Vm.assetCatalog.useDisabled': '本地镜像尚未就绪，暂时不能用于创建虚拟机',

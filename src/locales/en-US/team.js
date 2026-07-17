@@ -811,6 +811,7 @@ const Vm = {
   'Vm.assetCatalog.clone': 'Quick Copy',
   'Vm.assetCatalog.cloneSuccess': 'Local image copied successfully',
   'Vm.assetCatalog.delete': 'Delete',
+  'Vm.assetCatalog.deleteSuccess': 'Local image deleted successfully',
   'Vm.assetCatalog.deleteConfirm': 'Delete this local image?',
   'Vm.assetCatalog.deleteDisabled': 'This local image is still referenced by virtual machines',
   'Vm.assetCatalog.useDisabled': 'This local image is not ready yet and cannot be used to create a virtual machine',

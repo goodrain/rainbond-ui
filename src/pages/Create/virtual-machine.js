@@ -149,6 +149,7 @@ export default class Index extends PureComponent {
             {...this.props}
             isDemo={true}
             virtualMachineImage={virtualMachineImage}
+            onRefreshVirtualMachineImage={this.handleGetVirtualMachineImage}
           />
         </div>
       </Card>

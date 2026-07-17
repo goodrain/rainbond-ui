@@ -306,11 +306,25 @@ export async function createAppByVirtualMachine(body = {}) {
 /*
    虚拟机获取本地镜像
 */
-export async function getAppByVirtualMachineImage(body = {}) {
+export async function getAppByVirtualMachineImage(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/vm/assets`,
     {
       method: 'get',
+      handleError
+    }
+  );
+}
+
+/*
+   虚拟机删除本地镜像
+*/
+export async function deleteVirtualMachineImageAsset(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/vm/assets/${body.asset_id}`,
+    {
+      method: 'delete',
+      handleError
     }
   );
 }

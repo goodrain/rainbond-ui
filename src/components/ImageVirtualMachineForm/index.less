@@ -105,6 +105,64 @@
   word-break: break-word;
 }
 
+.assetSelectHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.assetSelectSummary {
+  min-width: 0;
+  color: @text-color-secondary;
+  font-size: 12px;
+  line-height: 20px;
+}
+
+.assetCatalogNameWrap {
+  min-width: 0;
+}
+
+.assetCatalogName {
+  overflow: hidden;
+  color: @heading-color;
+  font-weight: 500;
+  line-height: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.assetCatalogMeta {
+  overflow: hidden;
+  color: @text-color-secondary;
+  font-size: 12px;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.assetCatalogActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  :global {
+    .ant-btn-link {
+      height: 24px;
+      padding: 0;
+    }
+  }
+}
+
+.assetDangerAction {
+  color: @error-color !important;
+
+  &[disabled] {
+    color: @disabled-color !important;
+  }
+}
+
 .uploadPanel {
   padding: 6px 0 0;
   background: transparent;
