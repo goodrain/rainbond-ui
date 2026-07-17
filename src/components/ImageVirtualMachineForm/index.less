@@ -142,10 +142,75 @@
   white-space: nowrap;
 }
 
+.assetCatalogSource,
+.assetCatalogCompactText {
+  display: block;
+  overflow: hidden;
+  max-width: 100%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.assetCatalogModal {
+  max-width: calc(100vw - 48px);
+
+  :global {
+    .ant-modal {
+      max-width: calc(100vw - 48px);
+    }
+
+    .ant-modal-body {
+      overflow: hidden;
+      padding: 24px 32px 20px;
+    }
+  }
+}
+
+.assetCatalogTable {
+  max-width: 100%;
+
+  :global {
+    .ant-table-wrapper,
+    .ant-spin-nested-loading,
+    .ant-spin-container,
+    .ant-table,
+    .ant-table-content,
+    .ant-table-scroll {
+      max-width: 100%;
+    }
+
+    .ant-table table {
+      table-layout: fixed;
+    }
+
+    .ant-table-thead > tr > th,
+    .ant-table-tbody > tr > td {
+      overflow: hidden;
+      padding: 12px 10px;
+      vertical-align: middle;
+      text-overflow: ellipsis;
+    }
+
+    .ant-table-thead > tr > th {
+      white-space: nowrap;
+    }
+
+    .ant-table-tbody > tr > td {
+      white-space: normal;
+    }
+
+    .ant-table-pagination.ant-pagination {
+      margin: 16px 0 0;
+    }
+  }
+}
+
 .assetCatalogActions {
   display: flex;
   align-items: center;
-  gap: 4px;
+  justify-content: flex-start;
+  gap: 8px;
+  white-space: nowrap;
 
   :global {
     .ant-btn-link {

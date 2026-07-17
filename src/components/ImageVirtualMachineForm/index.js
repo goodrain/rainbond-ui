@@ -780,7 +780,7 @@ export default class Index extends PureComponent {
         title: formatMessage({ id: 'Vm.assetCatalog.name' }),
         dataIndex: 'name',
         key: 'name',
-        width: 180,
+        width: 150,
         render: (text, record) => (
           <div className={styles.assetCatalogNameWrap}>
             <div className={styles.assetCatalogName}>
@@ -796,9 +796,12 @@ export default class Index extends PureComponent {
         title: formatMessage({ id: 'Vm.assetCatalog.source' }),
         dataIndex: 'source_uri',
         key: 'source_uri',
-        width: 220,
+        width: 248,
         render: (_, record) => (
-          <span title={this.getAssetSource(record) || formatMessage({ id: 'Vm.assetCatalog.sourceUnknown' })}>
+          <span
+            className={styles.assetCatalogSource}
+            title={this.getAssetSource(record) || formatMessage({ id: 'Vm.assetCatalog.sourceUnknown' })}
+          >
             {this.getAssetSource(record) || formatMessage({ id: 'Vm.assetCatalog.sourceUnknown' })}
           </span>
         )
@@ -806,14 +809,18 @@ export default class Index extends PureComponent {
       {
         title: formatMessage({ id: 'Vm.assetCatalog.archFormat' }),
         key: 'arch_format',
-        width: 120,
-        render: (_, record) => `${record.arch || '-'} / ${record.format || '-'}`
+        width: 100,
+        render: (_, record) => (
+          <span className={styles.assetCatalogCompactText}>
+            {`${record.arch || '-'} / ${record.format || '-'}`}
+          </span>
+        )
       },
       {
         title: formatMessage({ id: 'Vm.assetCatalog.size' }),
         dataIndex: 'size',
         key: 'size',
-        width: 90,
+        width: 72,
         render: (value, record) =>
           this.formatAssetSize(value || record.size_bytes || record.virtual_size || record.disk_size)
       },
@@ -821,26 +828,26 @@ export default class Index extends PureComponent {
         title: formatMessage({ id: 'Vm.assetCatalog.status' }),
         dataIndex: 'status',
         key: 'status',
-        width: 90,
+        width: 78,
         render: (_, record) => this.renderAssetStatus(record)
       },
       {
         title: formatMessage({ id: 'Vm.assetCatalog.references' }),
         dataIndex: 'reference_count',
         key: 'reference_count',
-        width: 90,
+        width: 66,
         render: (_, record) => this.getAssetReferenceCount(record)
       },
       {
         title: formatMessage({ id: 'Vm.assetCatalog.createdAt' }),
         key: 'created_at',
-        width: 150,
+        width: 132,
         render: (_, record) => this.getAssetCreatedAt(record) || '-'
       },
       {
         title: formatMessage({ id: 'Vm.assetCatalog.actions' }),
         key: 'actions',
-        width: 140,
+        width: 104,
         render: (_, record) => {
           const assetId = this.getAssetId(record);
           const referenceCount = this.getAssetReferenceCount(record);
@@ -899,14 +906,18 @@ export default class Index extends PureComponent {
         visible={assetCatalogVisible}
         onCancel={this.closeAssetCatalog}
         footer={null}
-        width={920}
+        width="min(1040px, calc(100vw - 48px))"
+        className={styles.assetCatalogModal}
         destroyOnClose
       >
         <Table
+          className={styles.assetCatalogTable}
           rowKey={record => this.getAssetId(record) || record.name}
           columns={columns}
           dataSource={virtualMachineImage || []}
           size="middle"
+          tableLayout="fixed"
+          scroll={{ x: 950 }}
           pagination={{ pageSize: 6 }}
           locale={{
             emptyText: formatMessage({ id: 'Vm.assetCatalog.empty' })
