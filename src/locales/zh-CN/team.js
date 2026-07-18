@@ -815,6 +815,8 @@ const Vm = {
   'Vm.assetCatalog.status': '状态',
   'Vm.assetCatalog.statusUnknown': '未知',
   'Vm.assetCatalog.references': '引用数',
+  'Vm.assetCatalog.referenceComponents': '引用组件',
+  'Vm.assetCatalog.jumpToComponent': '跳转',
   'Vm.assetCatalog.createdAt': '创建时间',
   'Vm.assetCatalog.actions': '操作',
   'Vm.assetCatalog.useAsset': '选择',

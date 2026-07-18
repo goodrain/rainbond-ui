@@ -805,6 +805,8 @@ const Vm = {
   'Vm.assetCatalog.status': 'Status',
   'Vm.assetCatalog.statusUnknown': 'Unknown',
   'Vm.assetCatalog.references': 'References',
+  'Vm.assetCatalog.referenceComponents': 'Referenced Components',
+  'Vm.assetCatalog.jumpToComponent': 'Open',
   'Vm.assetCatalog.createdAt': 'Created At',
   'Vm.assetCatalog.actions': 'Actions',
   'Vm.assetCatalog.useAsset': 'Select',

@@ -16,9 +16,11 @@ import {
   Modal,
   Table,
   Tag,
-  Popconfirm
+  Popconfirm,
+  Popover
 } from 'antd';
 import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
 import { pinyin } from 'pinyin-pro';
@@ -467,9 +469,107 @@ export default class Index extends PureComponent {
     const referenceCount =
       asset.reference_count !== undefined
         ? asset.reference_count
-        : asset.references || asset.ref_count || 0;
+        : Array.isArray(asset.references)
+          ? asset.references.length
+          : asset.references || asset.ref_count || 0;
     const numericCount = Number(referenceCount);
     return Number.isNaN(numericCount) ? 0 : numericCount;
+  };
+
+  getAssetReferences = asset => {
+    if (!asset || !Array.isArray(asset.references)) {
+      return [];
+    }
+    return asset.references;
+  };
+
+  getReferenceDisplayName = reference => {
+    if (!reference) {
+      return '';
+    }
+    return (
+      reference.display_name ||
+      reference.service_cname ||
+      reference.service_alias ||
+      reference.service_id ||
+      reference.component_id ||
+      ''
+    );
+  };
+
+  buildReferenceRoute = reference => {
+    if (!reference) {
+      return '';
+    }
+    const teamName = globalUtil.getCurrTeamName();
+    const regionName = reference.region_name || globalUtil.getCurrRegionName();
+    const groupId = reference.group_id || reference.app_id;
+    const serviceAlias = reference.service_alias || reference.component_alias || '';
+    if (!teamName || !regionName || !groupId || !serviceAlias) {
+      return '';
+    }
+    return `/team/${teamName}/region/${regionName}/apps/${groupId}/overview?type=components&componentID=${encodeURIComponent(serviceAlias)}&tab=overview`;
+  };
+
+  handleJumpReference = reference => {
+    const { dispatch } = this.props;
+    const route = this.buildReferenceRoute(reference);
+    if (!route) {
+      return;
+    }
+    this.closeAssetCatalog();
+    dispatch(routerRedux.push(route));
+  };
+
+  renderReferencePopover = references => (
+    <div className={styles.assetReferenceList}>
+      {references.map(reference => {
+        const route = this.buildReferenceRoute(reference);
+        const displayName = this.getReferenceDisplayName(reference);
+        const serviceAlias = reference.service_alias || reference.component_id || reference.service_id || '';
+        return (
+          <div
+            className={styles.assetReferenceItem}
+            key={`${reference.service_id || reference.component_id || serviceAlias}-${reference.group_id || reference.app_id || ''}`}
+          >
+            <div className={styles.assetReferenceInfo}>
+              <div className={styles.assetReferenceName} title={displayName}>
+                {displayName || '-'}
+              </div>
+              <div className={styles.assetReferenceMeta} title={serviceAlias}>
+                {serviceAlias || '-'}
+              </div>
+            </div>
+            <Button
+              type="link"
+              disabled={!route}
+              onClick={() => this.handleJumpReference(reference)}
+            >
+              {formatMessage({ id: 'Vm.assetCatalog.jumpToComponent' })}
+            </Button>
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  renderAssetReferences = asset => {
+    const referenceCount = this.getAssetReferenceCount(asset);
+    const references = this.getAssetReferences(asset);
+    if (referenceCount <= 0 || references.length === 0) {
+      return referenceCount;
+    }
+    return (
+      <Popover
+        trigger="click"
+        title={formatMessage({ id: 'Vm.assetCatalog.referenceComponents' })}
+        content={this.renderReferencePopover(references)}
+      >
+        <Button type="link" className={styles.assetReferenceCount}>
+          {referenceCount}
+        </Button>
+      </Popover>
+    );
   };
 
   getAssetSource = asset => {
@@ -835,8 +935,8 @@ export default class Index extends PureComponent {
         title: formatMessage({ id: 'Vm.assetCatalog.references' }),
         dataIndex: 'reference_count',
         key: 'reference_count',
-        width: 66,
-        render: (_, record) => this.getAssetReferenceCount(record)
+        width: 84,
+        render: (_, record) => this.renderAssetReferences(record)
       },
       {
         title: formatMessage({ id: 'Vm.assetCatalog.createdAt' }),
@@ -917,7 +1017,7 @@ export default class Index extends PureComponent {
           dataSource={virtualMachineImage || []}
           size="middle"
           tableLayout="fixed"
-          scroll={{ x: 950 }}
+          scroll={{ x: 980 }}
           pagination={{ pageSize: 6 }}
           locale={{
             emptyText: formatMessage({ id: 'Vm.assetCatalog.empty' })

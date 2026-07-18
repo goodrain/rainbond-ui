@@ -220,6 +220,63 @@
   }
 }
 
+.assetReferenceCount {
+  height: 24px;
+  padding: 0 !important;
+  line-height: 24px;
+}
+
+.assetReferenceList {
+  width: 260px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.assetReferenceItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid @border-color-base;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  :global {
+    .ant-btn-link {
+      height: 24px;
+      padding: 0;
+      white-space: nowrap;
+    }
+  }
+}
+
+.assetReferenceInfo {
+  min-width: 0;
+  flex: 1;
+}
+
+.assetReferenceName {
+  overflow: hidden;
+  color: @heading-color;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.assetReferenceMeta {
+  overflow: hidden;
+  color: @text-color-secondary;
+  font-size: 12px;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .assetDangerAction {
   color: @error-color !important;
 
