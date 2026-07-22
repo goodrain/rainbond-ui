@@ -219,9 +219,8 @@ class ApprovalMessageCard extends PureComponent {
             : '该资源'
       : '';
 
-    const onAddPolicy = scope => () => {
-      autoApprovalPolicy.addPolicy(scope);
-      onDecision('approved');
+    const onAddPolicy = kind => () => {
+      onDecision('approved', autoApprovalPolicy.toRememberPolicy(kind));
     };
 
     const menu = (
@@ -229,7 +228,7 @@ class ApprovalMessageCard extends PureComponent {
         {targetKey ? (
           <Menu.Item
             key="target"
-            onClick={onAddPolicy({ kind: 'session-target', targetKey })}
+            onClick={onAddPolicy('session-target')}
           >
             {targetLabel}所有操作自动批准
           </Menu.Item>
@@ -237,11 +236,7 @@ class ApprovalMessageCard extends PureComponent {
         {targetKey && approval.skillId ? (
           <Menu.Item
             key="target-op"
-            onClick={onAddPolicy({
-              kind: 'session-target-op',
-              targetKey,
-              skillId: approval.skillId,
-            })}
+            onClick={onAddPolicy('session-target-op')}
           >
             {targetLabel}同类操作自动批准
           </Menu.Item>
@@ -249,17 +244,14 @@ class ApprovalMessageCard extends PureComponent {
         {approval.skillId ? (
           <Menu.Item
             key="op"
-            onClick={onAddPolicy({
-              kind: 'session-op',
-              skillId: approval.skillId,
-            })}
+            onClick={onAddPolicy('session-op')}
           >
             全局同类操作自动批准
           </Menu.Item>
         ) : null}
         <Menu.Item
           key="all"
-          onClick={onAddPolicy({ kind: 'session-all' })}
+          onClick={onAddPolicy('session-all')}
         >
           本会话全部自动批准
         </Menu.Item>
@@ -516,7 +508,11 @@ function formatRelativeTime(iso) {
 export default class AgentHost extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = { historyPopoverVisible: false, updateBannerDismissed: false };
+    this.state = {
+      historyPopoverVisible: false,
+      approvalSettingsVisible: false,
+      updateBannerDismissed: false,
+    };
     this.messagesRef = null;
     this.isAutoScrollEnabled = true;
     this.lastRenderedMessagesRef = null;
@@ -910,13 +906,14 @@ export default class AgentHost extends PureComponent {
     );
   };
 
-  handleApprovalDecision = decision => {
+  handleApprovalDecision = (decision, rememberPolicy = null) => {
     const { dispatch } = this.props;
     this.resumeAutoScroll();
     dispatch({
       type: 'agent/resolveApproval',
       payload: {
         decision,
+        rememberPolicy,
       },
     });
   };
@@ -967,26 +964,29 @@ export default class AgentHost extends PureComponent {
     return <ErrorMessageRow key={item.id} item={item} />;
   };
 
-  formatPolicyLabel = policy => {
-    switch (policy.kind) {
-      case 'session-all':
-        return '本会话全部自动批准';
-      case 'session-target':
-        return `资源 ${policy.targetKey} 所有操作`;
-      case 'session-op':
-        return `操作 ${policy.skillId}（全局）`;
-      case 'session-target-op':
-        return `${policy.targetKey} · ${policy.skillId}`;
-      default:
-        return JSON.stringify(policy);
-    }
-  };
-
   handleHistoryVisibleChange = visible => {
     this.setState({ historyPopoverVisible: visible });
     if (visible) {
       this.props.dispatch({ type: 'agent/loadSessionList' });
     }
+  };
+
+  handleApprovalSettingsVisibleChange = visible => {
+    this.setState({ approvalSettingsVisible: visible });
+    if (visible) {
+      this.props.dispatch({ type: 'agent/loadApprovalPolicies' });
+    }
+  };
+
+  handleRemoveApprovalPolicy = policyId => {
+    this.props.dispatch({
+      type: 'agent/removeApprovalPolicy',
+      payload: { policyId },
+    });
+  };
+
+  handleClearApprovalPolicies = () => {
+    this.props.dispatch({ type: 'agent/clearApprovalPolicies' });
   };
 
   handleSwitchSession = sessionId => {
@@ -1055,45 +1055,47 @@ export default class AgentHost extends PureComponent {
   };
 
   renderAutoApprovalSettings = () => {
-    const policies = autoApprovalPolicy.getPolicies();
-    if (policies.length === 0) {
-      return (
-        <div className={styles.autoApprovalEmpty}>
-          <div>暂无自动批准策略</div>
-          <div className={styles.autoApprovalHint}>
-            策略仅在本次会话内生效，关闭浏览器后失效
-          </div>
-        </div>
-      );
+    const { agent } = this.props;
+    const policies = (agent && agent.approvalPolicies) || [];
+    const loading = !!(agent && agent.approvalPoliciesLoading);
+    const error = (agent && agent.approvalPolicyError) || '';
+    const notice = (agent && agent.approvalPolicyNotice) || '';
+
+    if (loading) {
+      return <div className={styles.autoApprovalEmpty}>加载中…</div>;
     }
+
     return (
       <div className={styles.autoApprovalList}>
-        {policies.map((p, idx) => (
-          <div key={idx} className={styles.autoApprovalItem}>
-            <span>{this.formatPolicyLabel(p)}</span>
-            <a
-              onClick={() => {
-                autoApprovalPolicy.removePolicy(p);
-                this.forceUpdate();
-              }}
-            >
-              移除
-            </a>
+        {notice ? (
+          <div className={styles.autoApprovalHint}>{notice}</div>
+        ) : null}
+        {error ? (
+          <div className={styles.autoApprovalError}>{error}</div>
+        ) : null}
+        {!policies.length ? (
+          <div className={styles.autoApprovalEmpty}>暂无自动批准规则</div>
+        ) : (
+          policies.map(policy => (
+            <div key={policy.policy_id} className={styles.autoApprovalItem}>
+              <span title={autoApprovalPolicy.formatServerPolicyLabel(policy)}>
+                {autoApprovalPolicy.formatServerPolicyLabel(policy)}
+              </span>
+              <a onClick={() => this.handleRemoveApprovalPolicy(policy.policy_id)}>
+                移除
+              </a>
+            </div>
+          ))
+        )}
+        {policies.length ? (
+          <div className={styles.autoApprovalActions}>
+            <Button size="small" onClick={this.handleClearApprovalPolicies}>
+              全部清除
+            </Button>
           </div>
-        ))}
-        <div className={styles.autoApprovalActions}>
-          <Button
-            size="small"
-            onClick={() => {
-              autoApprovalPolicy.clearPolicies();
-              this.forceUpdate();
-            }}
-          >
-            全部清除
-          </Button>
-        </div>
+        ) : null}
         <div className={styles.autoApprovalHint}>
-          策略仅在本次会话内生效，关闭浏览器后失效
+          规则由服务端保存，仅对当前会话的低风险操作生效
         </div>
       </div>
     );
@@ -1352,6 +1354,8 @@ export default class AgentHost extends PureComponent {
                   placement="bottomRight"
                   content={this.renderAutoApprovalSettings()}
                   overlayClassName={styles.autoApprovalPopover}
+                  visible={this.state.approvalSettingsVisible}
+                  onVisibleChange={this.handleApprovalSettingsVisibleChange}
                 >
                   <button className={styles.headerIconButton} aria-label="自动批准设置">
                     <Icon type="setting" />
