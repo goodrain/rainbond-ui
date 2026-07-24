@@ -36,8 +36,18 @@ function compareHelmValuesFileKeys(left, right) {
   return leftPriority.normalized.localeCompare(rightPriority.normalized);
 }
 
+function isRootHelmValuesFileKey(fileKey) {
+  const segments = getPathSegments(fileKey);
+  const basename = segments[segments.length - 1] || '';
+  return basename === 'values.yaml'
+    && segments.indexOf('charts') === -1
+    && segments.length <= 2;
+}
+
 function getSortedHelmValuesFileKeys(valuesMap) {
-  return Object.keys(valuesMap || {}).sort(compareHelmValuesFileKeys);
+  return Object.keys(valuesMap || {})
+    .filter(isRootHelmValuesFileKey)
+    .sort(compareHelmValuesFileKeys);
 }
 
 function getPreferredHelmValuesFileKey(valuesMap) {

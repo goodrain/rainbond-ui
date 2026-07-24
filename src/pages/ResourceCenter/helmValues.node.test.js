@@ -1,5 +1,9 @@
 const assert = require('assert');
-const { decodeBase64Text, getPreferredHelmValuesFileKey } = require('./helmValues');
+const {
+  decodeBase64Text,
+  getPreferredHelmValuesFileKey,
+  getSortedHelmValuesFileKeys,
+} = require('./helmValues');
 
 function encodeBase64(value) {
   return Buffer.from(value, 'utf8').toString('base64');
@@ -18,13 +22,23 @@ assert.strictEqual(
   'should prefer the chart root values.yaml over nested dependency values files'
 );
 
+assert.deepStrictEqual(
+  getSortedHelmValuesFileKeys({
+    'highgo-stack/charts/hghac-see/values.yaml': 'database-values',
+    'highgo-stack/values.yaml': 'root-values',
+    'highgo-stack/charts/hgproxy/values.yaml': 'proxy-values',
+  }),
+  ['highgo-stack/values.yaml'],
+  'should only expose the root values file as install overrides'
+);
+
 assert.strictEqual(
   getPreferredHelmValuesFileKey({
-    'demo/charts/common/templates/values.yaml': 'deep-values',
     'demo/charts/common/values.yaml': 'child-values',
+    'demo/templates/values.yaml': 'template-values',
   }),
-  'demo/charts/common/values.yaml',
-  'should fall back to the shortest nested values path when no root values exists'
+  '',
+  'should not use dependency or template values files when the root values file is missing'
 );
 
 assert.strictEqual(
