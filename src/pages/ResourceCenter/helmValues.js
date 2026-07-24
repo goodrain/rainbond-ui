@@ -44,7 +44,32 @@ function getPreferredHelmValuesFileKey(valuesMap) {
   return getSortedHelmValuesFileKeys(valuesMap)[0] || '';
 }
 
+function getBrowserBase64Decoder() {
+  if (typeof window === 'undefined' || typeof window.atob !== 'function') {
+    return null;
+  }
+  return window.atob.bind(window);
+}
+
+function decodeBase64Text(value, decodeBase64) {
+  if (!value) {
+    return '';
+  }
+  try {
+    const decoder = decodeBase64 || getBrowserBase64Decoder();
+    if (!decoder) {
+      return '';
+    }
+    const binary = decoder(value);
+    const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
+    return new TextDecoder('utf-8').decode(bytes);
+  } catch (e) {
+    return '';
+  }
+}
+
 module.exports = {
+  decodeBase64Text,
   getPreferredHelmValuesFileKey,
   getSortedHelmValuesFileKeys,
 };

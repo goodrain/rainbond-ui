@@ -19,7 +19,7 @@ import {
 } from 'antd';
 import Result from '@/components/Result';
 import { getHelmChartUrlValidation, getHelmChartUrlValidationMessage } from '../helmChartUrl';
-import { getPreferredHelmValuesFileKey, getSortedHelmValuesFileKeys } from '../helmValues';
+import { decodeBase64Text, getPreferredHelmValuesFileKey, getSortedHelmValuesFileKeys } from '../helmValues';
 import HelmIcon from './HelmIcon';
 import styles from '../index.less';
 
@@ -163,17 +163,6 @@ export default class HelmUpgradeModal extends PureComponent {
   getChartIcon = (chart) => {
     const versions = (chart && chart.versions) || [];
     return (chart && chart.icon) || (versions[0] && versions[0].icon) || '';
-  };
-
-  decodeBase64Text = (value) => {
-    if (!value) {
-      return '';
-    }
-    try {
-      return window.atob(value);
-    } catch (e) {
-      return '';
-    }
   };
 
   buildExternalChartUrl = () => {
@@ -474,7 +463,7 @@ export default class HelmUpgradeModal extends PureComponent {
   applyPreview = (preview, sourceType) => {
     const valuesMap = (preview && preview.values) || {};
     const firstKey = getPreferredHelmValuesFileKey(valuesMap);
-    const decodedValues = firstKey ? this.decodeBase64Text(valuesMap[firstKey]) : '';
+    const decodedValues = firstKey ? decodeBase64Text(valuesMap[firstKey]) : '';
     const nextState = {
       previewLoading: false,
       previewData: preview || null,
@@ -535,7 +524,7 @@ export default class HelmUpgradeModal extends PureComponent {
   handlePreviewFileChange = (fileKey) => {
     const { previewData, sourceType } = this.state;
     const valuesMap = (previewData && previewData.values) || {};
-    const decodedValues = fileKey ? this.decodeBase64Text(valuesMap[fileKey]) : '';
+    const decodedValues = fileKey ? decodeBase64Text(valuesMap[fileKey]) : '';
     const nextState = { previewFileKey: fileKey };
     if (sourceType === 'store') {
       nextState.storeForm = { ...this.state.storeForm, values: decodedValues };
@@ -824,7 +813,7 @@ export default class HelmUpgradeModal extends PureComponent {
     const { previewData, previewFileKey } = this.state;
     const valuesMap = (previewData && previewData.values) || {};
     const valueFiles = getSortedHelmValuesFileKeys(valuesMap);
-    const readme = previewData && this.decodeBase64Text(previewData.readme);
+    const readme = previewData && decodeBase64Text(previewData.readme);
     const formState = formKey === 'external'
       ? this.state.externalForm
       : formKey === 'upload'

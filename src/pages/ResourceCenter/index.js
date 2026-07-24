@@ -10,7 +10,7 @@ import Exception from '../Exception/403';
 import jsYaml from 'js-yaml';
 import styles from './index.less';
 import { getHelmChartUrlValidation, getHelmChartUrlValidationMessage } from './helmChartUrl';
-import { getPreferredHelmValuesFileKey } from './helmValues';
+import { decodeBase64Text, getPreferredHelmValuesFileKey } from './helmValues';
 import { getWorkloadKindOptions, getResourceStatusMeta } from './utils';
 import {
   DEFAULT_TAB,
@@ -1555,17 +1555,6 @@ class ResourceCenter extends PureComponent {
     });
   };
 
-  decodeBase64Text = (value) => {
-    if (!value) {
-      return '';
-    }
-    try {
-      return window.atob(value);
-    } catch (e) {
-      return '';
-    }
-  };
-
   getHelmErrorMessage = (err, fallbackMessage) =>
     (err && (
       err.msg_show
@@ -1611,7 +1600,7 @@ class ResourceCenter extends PureComponent {
   applyHelmPreview = (preview, sourceType, callback) => {
     const valuesMap = (preview && preview.values) || {};    
     const firstKey = getPreferredHelmValuesFileKey(valuesMap);
-    const decodedValues = firstKey ? this.decodeBase64Text(valuesMap[firstKey]) : '';
+    const decodedValues = firstKey ? decodeBase64Text(valuesMap[firstKey]) : '';
     const formStateKey = this.getHelmFormStateKey(sourceType);
     const nextState = {
       helmPreviewLoading: false,
@@ -1680,7 +1669,7 @@ class ResourceCenter extends PureComponent {
   handleHelmPreviewFileChange = (fileKey) => {
     const { helmPreviewData, helmSourceType } = this.state;
     const valuesMap = (helmPreviewData && helmPreviewData.values) || {};
-    const decodedValues = fileKey ? this.decodeBase64Text(valuesMap[fileKey]) : '';
+    const decodedValues = fileKey ? decodeBase64Text(valuesMap[fileKey]) : '';
     const formStateKey = this.getHelmFormStateKey(helmSourceType);
     const nextState = {
       helmPreviewFileKey: fileKey,
@@ -2292,7 +2281,7 @@ class ResourceCenter extends PureComponent {
             buildHelmExternalChartUrl={this.buildHelmExternalChartUrl}
             getHelmExternalChartValidationMessage={this.getHelmExternalChartValidationMessage}
             getHelmChartIcon={this.getHelmChartIcon}
-            decodeBase64Text={this.decodeBase64Text}
+            decodeBase64Text={decodeBase64Text}
             onSourceChange={this.handleHelmSourceChange}
             onRepoSelect={this.handleHelmRepoSelect}
             onChartSearch={this.handleHelmChartSearch}
