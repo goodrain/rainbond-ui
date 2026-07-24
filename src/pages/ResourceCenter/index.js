@@ -10,7 +10,12 @@ import Exception from '../Exception/403';
 import jsYaml from 'js-yaml';
 import styles from './index.less';
 import { getHelmChartUrlValidation, getHelmChartUrlValidationMessage } from './helmChartUrl';
-import { decodeBase64Text, getPreferredHelmValuesFileKey } from './helmValues';
+import {
+  buildHelmValuesOverride,
+  decodeBase64Text,
+  decodeHelmValuesFiles,
+  getPreferredHelmValuesFileKey,
+} from './helmValues';
 import { getWorkloadKindOptions, getResourceStatusMeta } from './utils';
 import {
   DEFAULT_TAB,
@@ -107,6 +112,8 @@ class ResourceCenter extends PureComponent {
     helmPreviewLoading: false,
     helmPreviewData: null,
     helmPreviewFileKey: '',
+    helmValuesDrafts: {},
+    helmValuesDirtyFiles: {},
     helmPreviewStatus: 'idle',
     helmPreviewError: '',
     helmConfigVisible: false,
@@ -898,6 +905,8 @@ class ResourceCenter extends PureComponent {
       helmPreviewLoading: false,
       helmPreviewData: null,
       helmPreviewFileKey: '',
+      helmValuesDrafts: {},
+      helmValuesDirtyFiles: {},
       helmPreviewStatus: 'idle',
       helmPreviewError: '',
       helmConfigVisible: false,
@@ -1590,6 +1599,8 @@ class ResourceCenter extends PureComponent {
       helmPreviewLoading: false,
       helmPreviewData: null,
       helmPreviewFileKey: '',
+      helmValuesDrafts: {},
+      helmValuesDirtyFiles: {},
       helmPreviewStatus: 'idle',
       helmPreviewError: '',
       helmConfigVisible: false,
@@ -1598,14 +1609,17 @@ class ResourceCenter extends PureComponent {
   };
 
   applyHelmPreview = (preview, sourceType, callback) => {
-    const valuesMap = (preview && preview.values) || {};    
+    const valuesMap = (preview && preview.values) || {};
+    const valuesDrafts = decodeHelmValuesFiles(valuesMap);
     const firstKey = getPreferredHelmValuesFileKey(valuesMap);
-    const decodedValues = firstKey ? decodeBase64Text(valuesMap[firstKey]) : '';
+    const decodedValues = firstKey ? valuesDrafts[firstKey] : '';
     const formStateKey = this.getHelmFormStateKey(sourceType);
     const nextState = {
       helmPreviewLoading: false,
       helmPreviewData: preview || null,
       helmPreviewFileKey: firstKey,
+      helmValuesDrafts: valuesDrafts,
+      helmValuesDirtyFiles: {},
       helmPreviewStatus: 'success',
       helmPreviewError: '',
       helmConfigVisible: true,
@@ -1634,6 +1648,8 @@ class ResourceCenter extends PureComponent {
       helmPreviewLoading: true,
       helmPreviewData: null,
       helmPreviewFileKey: '',
+      helmValuesDrafts: {},
+      helmValuesDirtyFiles: {},
       helmPreviewStatus: 'checking',
       helmPreviewError: '',
       helmConfigVisible: false,
@@ -1667,9 +1683,13 @@ class ResourceCenter extends PureComponent {
   };
 
   handleHelmPreviewFileChange = (fileKey) => {
-    const { helmPreviewData, helmSourceType } = this.state;
+    const { helmPreviewData, helmSourceType, helmValuesDrafts } = this.state;
     const valuesMap = (helmPreviewData && helmPreviewData.values) || {};
-    const decodedValues = fileKey ? decodeBase64Text(valuesMap[fileKey]) : '';
+    const decodedValues = fileKey
+      ? (Object.prototype.hasOwnProperty.call(helmValuesDrafts, fileKey)
+        ? helmValuesDrafts[fileKey]
+        : decodeBase64Text(valuesMap[fileKey]))
+      : '';
     const formStateKey = this.getHelmFormStateKey(helmSourceType);
     const nextState = {
       helmPreviewFileKey: fileKey,
@@ -1679,6 +1699,30 @@ class ResourceCenter extends PureComponent {
       },
     };
     this.setState(nextState);
+  };
+
+  handleHelmValuesChange = (sourceType, values) => {
+    const formStateKey = this.getHelmFormStateKey(sourceType);
+    this.setState(prevState => {
+      const fileKey = prevState.helmPreviewFileKey;
+      const nextState = {
+        [formStateKey]: {
+          ...prevState[formStateKey],
+          values,
+        },
+      };
+      if (fileKey) {
+        nextState.helmValuesDrafts = {
+          ...prevState.helmValuesDrafts,
+          [fileKey]: values,
+        };
+        nextState.helmValuesDirtyFiles = {
+          ...prevState.helmValuesDirtyFiles,
+          [fileKey]: true,
+        };
+      }
+      return nextState;
+    });
   };
 
   fetchHelmUploadStatusAndInfo = () => {
@@ -1915,6 +1959,24 @@ class ResourceCenter extends PureComponent {
 
     if (validationMessage) {
       notification.warning({ message: validationMessage });
+      return;
+    }
+
+    try {
+      payload.values = buildHelmValuesOverride({
+        valuesMap: (this.state.helmPreviewData && this.state.helmPreviewData.values) || {},
+        drafts: this.state.helmValuesDrafts,
+        dirtyFiles: this.state.helmValuesDirtyFiles,
+        fallbackValues: payload.values,
+      });
+    } catch (error) {
+      notification.warning({
+        message: formatMessage({
+          id: 'resourceCenter.helm.validation.invalidValuesFile',
+          defaultMessage: 'Values 文件格式错误',
+        }),
+        description: error.message,
+      });
       return;
     }
 
@@ -2293,6 +2355,7 @@ class ResourceCenter extends PureComponent {
             onResetUploadFileList={() => this.setState({ helmUploadFileList: [] })}
             onUploadRemove={this.handleHelmUploadRemove}
             onPreviewFileChange={this.handleHelmPreviewFileChange}
+            onValuesChange={this.handleHelmValuesChange}
             onOpenValuesEditor={this.openHelmValuesEditor}
             onCloseValuesEditor={this.closeHelmValuesEditor}
             onPrevStep={this.goToPrevHelmStep}

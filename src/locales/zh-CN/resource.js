@@ -305,6 +305,7 @@ const resource = {
   'resourceCenter.helm.modal.expandEditor': '放大编辑',
   'resourceCenter.helm.modal.valuesFallbackPlaceholder': '当前 Chart 未返回 values.yaml，请按需手动填写 YAML',
   'resourceCenter.helm.modal.valuesPlaceholder': 'Chart 检测完成后会在这里展示真实 values.yaml',
+  'resourceCenter.helm.validation.invalidValuesFile': 'Values 文件格式错误',
   'resourceCenter.helm.modal.readmeTitle': '应用说明',
   'resourceCenter.helm.modal.readmeDesc': '来自 Chart README 的原始内容',
   'resourceCenter.helm.modal.tabStore': 'Helm 商店',
