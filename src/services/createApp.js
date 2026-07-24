@@ -861,6 +861,7 @@ export async function uploadChunk(body = {}, handleError) {
     {
       method: 'post',
       data: formData,
+      skipSlowRequestTelemetry: true,
       headers: {
         accept: '*/*'
       },

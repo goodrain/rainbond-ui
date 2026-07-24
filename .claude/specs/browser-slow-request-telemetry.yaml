@@ -1,0 +1,112 @@
+meta:
+  name: "browser-slow-request-telemetry"
+  version: "1.0"
+  repo: "/Users/goodrain/.config/superpowers/worktrees/rainbond-ui/browser-slow-request-telemetry"
+  branch: "codex/browser-slow-request-telemetry"
+  design_doc: "docs/plans/2026-07-23-browser-slow-request-telemetry-design.md"
+  created_at: "2026-07-23"
+
+constraints:
+  - "Sampling is decided before timing, with a fixed probability of 0.01"
+  - "Only sampled requests strictly slower than 1000 milliseconds produce transactions"
+  - "At most 10 emission attempts may occur in any rolling 60000 millisecond interval"
+  - "Slow-request transactions use the direct DSN envelope URL; existing error events keep their current tunnel behavior"
+  - "Transport is fire-and-forget through sendBeacon or fetch keepalive, with no retry, persistence, or queue"
+  - "The payload is an allowlist and must not contain raw URL, query, host, user, tenant, team, region, app or component identifiers, headers, bodies, tokens, cookies, or authorization data"
+  - "Cancellation, Sentry/PostHog telemetry endpoints, and requests with skipSlowRequestTelemetry=true are excluded"
+  - "Direct fetch and streaming code paths remain uninstrumented in the first version"
+
+sprints:
+  - id: sprint-1
+    name: "Implement sampled browser slow-request transactions"
+    commits:
+      - id: commit-1
+        message: "feat: collect sampled browser slow requests"
+        tasks: [task-1.1, task-1.2, task-1.3]
+    tasks:
+      - id: task-1.1
+        name: "Add testable sampling, privacy, threshold, and budget helpers"
+        status: completed
+        files:
+          modify:
+            - path: "src/sentryConfig.node.test.js"
+              lines: "1-420"
+            - path: "src/sentryConfig.js"
+              lines: "1-590"
+        steps:
+          - action: "test"
+            description: "Add failing Node tests for the 0.01 sampling boundary, unsampled no-clock behavior, fail-closed query-free route templates, malformed/absolute/encoded/unknown paths, explicit skip option, Sentry/PostHog endpoint exclusions, strict >1000ms threshold, cancellation, idempotent completion, rolling 10-per-minute fake-clock boundaries, HTTP trace status mapping, and the exact recursive payload allowlist even when Axios-like input contains headers, body, auth, and identifiers."
+            run: "node src/sentryConfig.node.test.js"
+            expect: "FAIL before implementation"
+          - action: "implement"
+            description: "Add constants SLOW_REQUEST_SAMPLE_RATE=0.01, SLOW_REQUEST_THRESHOLD_MS=1000, SLOW_REQUEST_MAX_EVENTS=10, and SLOW_REQUEST_WINDOW_MS=60000. Add pure helpers to build a fail-closed route template without query/host data, decide eligibility and sampling before reading the injected clock, idempotently complete timing, consume a rolling timestamp budget, map HTTP status to Sentry trace status, and build a transaction from explicit allowlisted inputs. Unknown segments become placeholders; malformed paths and encoded separators are dropped."
+          - action: "privacy"
+            description: "Build only event_id, type=transaction, transaction, transaction_info.source=custom, start_timestamp, timestamp, platform, environment, optional release, static/method/status/sample-rate tags, and contexts.trace with trace_id/span_id/op/status. Never spread caller options or Axios objects into the event."
+          - action: "verify"
+            description: "Run the Node test suite and recursively assert the exact transaction keys plus absence of every forbidden fixture value."
+            run: "node src/sentryConfig.node.test.js"
+            expect: "exit 0"
+        acceptance:
+          - cmd: "node src/sentryConfig.node.test.js"
+            expect: "exit 0"
+      - id: task-1.2
+        name: "Integrate direct transaction transport and Axios lifecycle timing"
+        status: completed
+        files:
+          modify:
+            - path: "src/sentry.js"
+              lines: "1-95,333-410"
+            - path: "src/sentryTransport.js"
+            - path: "src/sentryTransport.node.test.js"
+            - path: "src/utils/request.js"
+              lines: "6-15,265-345"
+          create:
+            - path: "src/utils/requestSlowTelemetry.js"
+            - path: "src/utils/requestSlowTelemetry.node.test.js"
+        steps:
+          - action: "implement"
+            description: "Add an injectable, Node-testable envelope transport. Retain both tunnel and direct envelope URLs in the Sentry client. Generalize sendEvent to select item type and target while keeping current error-event defaults exactly unchanged. Tests must prove transaction/direct and event/tunnel selection, sendBeacon fallback to one fetch keepalive call, rejection swallowing, and no retry/queue/storage behavior."
+          - action: "implement"
+            description: "Export startSlowRequestTracking(options) and finishSlowRequestTracking(context, outcome). Start returns immediately unless Sentry is initialized, a provably safe route is eligible, and the pre-request random sample succeeds; only then read the wall clock. Finish is idempotent, drops cancellation and <=1000ms results, applies the rolling page budget, builds IDs and an allowlisted transaction, and sends item type transaction directly to the DSN endpoint. No-response failures use status network_error."
+          - action: "implement"
+            description: "In request.js, create the tracking context immediately before axios(newOptions). Finish once on the first response handler before checkStatus and again defensively in catch; idempotence prevents duplicate events when checkStatus throws. Use axios.isCancel(error) for cancellation. Preserve all existing response values, error handlers, loading behavior, and error telemetry."
+          - action: "verify"
+            description: "Run the Node tests followed by the production build."
+            run: "node src/sentryConfig.node.test.js && node src/sentryTransport.node.test.js && yarn build"
+            expect: "exit 0"
+        acceptance:
+          - cmd: "node src/sentryConfig.node.test.js"
+            expect: "exit 0"
+          - cmd: "node src/sentryTransport.node.test.js"
+            expect: "exit 0"
+          - cmd: "yarn build"
+            expect: "exit 0"
+      - id: task-1.3
+        name: "Opt actual upload transfers out before sampling"
+        status: completed
+        files:
+          modify:
+            - path: "package.json"
+            - path: "yarn.lock"
+            - path: "src/services/aiEngine.js"
+              lines: "51-61"
+            - path: "src/services/createApp.js"
+              lines: "851-872"
+          create:
+            - path: "src/services/slowRequestOptOut.node.test.js"
+        steps:
+          - action: "test"
+            description: "Add a failing source-level Node test that identifies uploadTeamLlmArtifact and uploadChunk and requires skipSlowRequestTelemetry: true inside each request option object."
+            run: "node src/services/slowRequestOptOut.node.test.js"
+            expect: "FAIL before implementation"
+          - action: "implement"
+            description: "Set skipSlowRequestTelemetry: true on the model artifact and chunk data-transfer requests. Leave init, completion, status, cancellation, and server-side download-trigger control calls eligible because they are ordinary small API requests."
+          - action: "verify"
+            description: "Run the opt-out test and production build."
+            run: "node src/services/slowRequestOptOut.node.test.js && yarn build"
+            expect: "exit 0"
+        acceptance:
+          - cmd: "node src/services/slowRequestOptOut.node.test.js"
+            expect: "exit 0"
+          - cmd: "yarn build"
+            expect: "exit 0"
