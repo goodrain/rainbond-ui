@@ -247,23 +247,17 @@ class CodeMirrorForm extends PureComponent {
     }
   };
   validateYaml = (value) => {
+    const {
+      yamlValueType,
+      yamlItemType,
+      yamlArrayMessage,
+      yamlStringArrayMessage
+    } = this.props;
     try {
       if (value) {
-        // 去除首尾空白字符
         const trimmedValue = value.trim();
-
-        // 检查是否包含冒号（key-value 格式的基本特征）
-        if (!trimmedValue.includes(':')) {
-          return {
-            isValid: false,
-            error: 'YAML 格式必须包含 key: value 格式的内容'
-          };
-        }
-
-        // 解析 YAML
         const parsed = jsYaml.load(trimmedValue);
 
-        // 验证解析结果必须是对象或数组
         if (parsed === null || parsed === undefined) {
           return {
             isValid: false,
@@ -276,6 +270,23 @@ class CodeMirrorForm extends PureComponent {
             isValid: false,
             error: 'YAML 格式必须是对象或数组结构'
           };
+        }
+
+        if (yamlValueType === 'array' && !Array.isArray(parsed)) {
+          return {
+            isValid: false,
+            error: yamlArrayMessage || 'YAML 内容必须是数组结构'
+          };
+        }
+
+        if (yamlItemType === 'string' && Array.isArray(parsed)) {
+          const invalidIndex = parsed.findIndex(item => typeof item !== 'string');
+          if (invalidIndex !== -1) {
+            return {
+              isValid: false,
+              error: yamlStringArrayMessage || `YAML 数组第 ${invalidIndex + 1} 项必须是字符串`
+            };
+          }
         }
 
         return { isValid: true };

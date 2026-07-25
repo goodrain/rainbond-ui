@@ -490,7 +490,7 @@ class HelmModals extends PureComponent {
                 <TextArea
                   rows={12}
                   value={currentForm.values}
-                  onChange={e => this.props.updateFormState(sourceType, { values: e.target.value })}
+                  onChange={e => this.props.onValuesChange(sourceType, e.target.value)}
                   placeholder={emptyValuesHint
                     ? t('resourceCenter.helm.modal.valuesFallbackPlaceholder', '当前 Chart 未返回 values.yaml，请按需手动填写 YAML')
                     : t('resourceCenter.helm.modal.valuesPlaceholder', 'Chart 检测完成后会在这里展示真实 values.yaml')}
@@ -830,7 +830,7 @@ class HelmModals extends PureComponent {
         <TextArea
           rows={26}
           value={helmEditorForm.values}
-          onChange={e => this.props.updateFormState(helmValuesEditorSourceType, { values: e.target.value })}
+          onChange={e => this.props.onValuesChange(helmValuesEditorSourceType, e.target.value)}
           placeholder={t('resourceCenter.helm.modal.valuesPlaceholder', 'Chart 检测完成后会在这里展示真实 values.yaml')}
           className={styles.modalDarkEditor}
           style={{ minHeight: 560, resize: 'vertical' }}

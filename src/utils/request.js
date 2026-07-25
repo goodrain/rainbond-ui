@@ -11,8 +11,13 @@ import handleAPIError from './error';
 import { updateRenewedTokenFromResponse } from './token';
 import { formatMessage } from '@/utils/intl';
 import { history, getDvaApp } from 'umi';
-import { captureRequestError } from '../sentry';
+import {
+  captureRequestError,
+  finishSlowRequestTracking,
+  startSlowRequestTracking
+} from '../sentry';
 import { captureErrorViewed } from '../posthog';
+import { trackSlowRequestLifecycle } from './requestSlowTelemetry';
 
 
 const codeMessage = {
@@ -277,8 +282,13 @@ export default function request(url, options) {
   if (showLoading) {
     handleStoreDispatch('global/showLoading');
   }
-  return axios(newOptions)
-    .then(checkStatus)
+  const slowRequestContext = startSlowRequestTracking(newOptions);
+  return trackSlowRequestLifecycle(axios(newOptions), {
+    context: slowRequestContext,
+    finish: finishSlowRequestTracking,
+    checkStatus,
+    isCancel: error => axios.isCancel(error)
+  })
     .then(response => {
       updateRenewedTokenFromResponse(response);
       if (showLoading) {
