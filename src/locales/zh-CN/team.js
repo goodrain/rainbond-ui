@@ -486,6 +486,7 @@ const teamPlugin = {
   'teamPlugin.create.lable.update_info':'更新说明',
   'teamPlugin.create.lable.desc':'一句话说明',
   'teamPlugin.create.pages.key':'配置授权Key',
+  'teamPlugin.create.pages.key.required':'请先配置并确认授权 Key',
   'teamPlugin.create.pages.btn':'填写仓库账号密码',
   'teamPlugin.create.pages.image':'镜像',
   'teamPlugin.create.pages.dockerfile':'Dockerfile',

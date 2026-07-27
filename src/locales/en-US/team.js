@@ -476,6 +476,7 @@ const teamPlugin = {
   'teamPlugin.create.lable.update_info':'Update Description',
   'teamPlugin.create.lable.desc':'Description',
   'teamPlugin.create.pages.key':'Config auth key',
+  'teamPlugin.create.pages.key.required':'Configure and confirm the authorization key before continuing',
   'teamPlugin.create.pages.btn':'Enter repository auth info',
   'teamPlugin.create.pages.image':'Image',
   'teamPlugin.create.pages.dockerfile':'Dockerfile',
