@@ -22,7 +22,7 @@ sprints:
     tasks:
       - id: task-1.1
         name: "Build and send the scoped deploy preflight request"
-        status: pending
+        status: completed
         files:
           create:
             - path: "src/services/deployPreflightRequest.js"
@@ -108,3 +108,6 @@ sprints:
           - path: "src/components/CreateComponentModal/deployPreflightPayload.js:1-70"
             note: "Existing nested group_id payload generation"
 
+verification_notes:
+  - "The new request-contract test and existing deploy preflight payload test passed."
+  - "NODE_OPTIONS=--openssl-legacy-provider yarn build passed under local Node.js 22; the option is required by the repository's Webpack 4 toolchain."
