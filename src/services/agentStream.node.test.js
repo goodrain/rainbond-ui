@@ -68,6 +68,7 @@ async function main() {
   assert.strictEqual(events[2].data.status, 'done', 'agent stream helper should stop on terminal run status');
 
   await testDefaultClosesOnFirstWaitingApproval(encoder);
+  await testAutoApprovedPolicyStreamReachesDone(encoder);
   await testSkipFirstWaitingApprovalDeliversSubsequent(encoder);
   await testSkipFirstStillClosesOnDone(encoder);
   await testSkipFirstStillClosesOnError(encoder);
@@ -286,6 +287,47 @@ async function testDefaultClosesOnFirstWaitingApproval(encoder) {
   assert.strictEqual(events.length, 1, 'default mode stops on first waiting_approval');
   assert.strictEqual(seen.length, 1, 'default mode does not deliver post-terminal events');
   assert.strictEqual(events[0].data.status, 'waiting_approval');
+}
+
+async function testAutoApprovedPolicyStreamReachesDone(encoder) {
+  const seen = [];
+  const response = buildResponse(encoder, [
+    {
+      type: 'approval.requested',
+      data: { approval_id: 'ap_policy', skill_id: 'rainbond_manage_component_envs' },
+    },
+    {
+      type: 'approval.resolved',
+      data: {
+        approval_id: 'ap_policy',
+        status: 'approved',
+        auto_approved: true,
+        decision_source: 'policy',
+      },
+    },
+    { type: 'chat.trace', data: { tool_name: 'rainbond_manage_component_envs' } },
+    { type: 'chat.message', data: { role: 'assistant', content: '环境变量已更新。' } },
+    { type: 'run.status', data: { status: 'done' } },
+  ]);
+
+  const events = await readSseEvents(response, {
+    onEvent: event => seen.push(event.type),
+  });
+
+  assert.deepStrictEqual(
+    seen,
+    [
+      'approval.requested',
+      'approval.resolved',
+      'chat.trace',
+      'chat.message',
+      'run.status',
+    ],
+    'a server-side policy decision should reach the final answer without a manual re-subscribe'
+  );
+  assert.strictEqual(events.length, 5);
+  assert.strictEqual(events[1].data.auto_approved, true);
+  assert.strictEqual(events[4].data.status, 'done');
 }
 
 async function testSkipFirstWaitingApprovalDeliversSubsequent(encoder) {
