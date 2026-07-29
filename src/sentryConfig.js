@@ -2,6 +2,74 @@ const SENSITIVE_KEY_RE = /(token|password|secret|authorization|cookie|key|dsn)/i
 const SENSITIVE_VALUE_RE = /\b((?:token|password|secret|authorization|cookie|dsn|api[_-]?key|access[_-]?key|secret[_-]?key)\s*[:=]\s*)(?:bearer\s+)?[^&\s"'<>]+/gi;
 const BEARER_VALUE_RE = /\b(bearer\s+)[a-z0-9._~+/=-]+/gi;
 const DEFAULT_TRACE_SAMPLE_RATE = 0;
+const SLOW_REQUEST_SAMPLE_RATE = 0.01;
+const SLOW_REQUEST_THRESHOLD_MS = 1000;
+const SLOW_REQUEST_MAX_EVENTS = 10;
+const SLOW_REQUEST_WINDOW_MS = 60000;
+const SLOW_REQUEST_METHODS = {
+  DELETE: true,
+  GET: true,
+  HEAD: true,
+  OPTIONS: true,
+  PATCH: true,
+  POST: true,
+  PUT: true
+};
+const SLOW_REQUEST_RESOURCE_SEGMENTS = {
+  apps: true,
+  clusters: true,
+  components: true,
+  enterprises: true,
+  enterprise: true,
+  groups: true,
+  namespaces: true,
+  nodes: true,
+  plugins: true,
+  regions: true,
+  roles: true,
+  services: true,
+  teams: true,
+  users: true
+};
+const SLOW_REQUEST_STATIC_SEGMENTS = {
+  apps: true,
+  clusters: true,
+  components: true,
+  config: true,
+  configs: true,
+  deploy: true,
+  detail: true,
+  details: true,
+  enterprises: true,
+  enterprise: true,
+  events: true,
+  features: true,
+  groups: true,
+  health: true,
+  logs: true,
+  metrics: true,
+  namespaces: true,
+  nodes: true,
+  openapi: true,
+  overview: true,
+  permissions: true,
+  plugins: true,
+  posthog: true,
+  regions: true,
+  restart: true,
+  roles: true,
+  sentry: true,
+  services: true,
+  settings: true,
+  start: true,
+  status: true,
+  stop: true,
+  teams: true,
+  users: true,
+  v1: true,
+  v2: true,
+  v3: true
+};
 const DYNAMIC_SEGMENT_MARKERS = {
   teams: true,
   team: true,
@@ -40,6 +108,10 @@ const DYNAMIC_SEGMENT_MARKERS = {
   backups: true,
   versions: true
 };
+
+function hasOwn(map, key) {
+  return Object.prototype.hasOwnProperty.call(map, key);
+}
 
 function readRuntimeConfig() {
   if (typeof window === 'undefined') {
@@ -125,6 +197,360 @@ function buildSentryTunnelUrl(tunnel, envelopePath, queryString) {
   }
 
   return `${tunnelBase}/${requestPath}${requestQuery}`;
+}
+
+function hasAbsoluteDotSegment(url) {
+  const authorityStart = url.indexOf('://') + 3;
+  const remainder = url.slice(authorityStart);
+  const pathBoundary = remainder.search(/[/?#]/);
+  if (pathBoundary === -1 || remainder.charAt(pathBoundary) !== '/') {
+    return false;
+  }
+  const rawPath = remainder.slice(pathBoundary).split(/[?#]/, 1)[0];
+  return rawPath.split('/').some(rawSegment => {
+    try {
+      const segment = decodeURIComponent(rawSegment);
+      return segment === '.' || segment === '..';
+    } catch (error) {
+      return false;
+    }
+  });
+}
+
+function parseSlowRequestPath(url) {
+  if (!url || typeof url !== 'string' || url !== url.trim() || url.indexOf('\\') !== -1) {
+    return null;
+  }
+
+  let pathname;
+  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(url)) {
+    if (hasAbsoluteDotSegment(url)) {
+      return null;
+    }
+    try {
+      const parsed = new URL(url);
+      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+        return null;
+      }
+      pathname = parsed.pathname;
+    } catch (error) {
+      return null;
+    }
+  } else {
+    if (url.charAt(0) !== '/' || url.indexOf('//') === 0) {
+      return null;
+    }
+    pathname = url.split(/[?#]/, 1)[0];
+  }
+
+  if (
+    !pathname ||
+    pathname.indexOf('\\') !== -1 ||
+    pathname.indexOf('//') !== -1 ||
+    /%(?:25)*(?:2f|5c)/i.test(pathname) ||
+    /%(?![0-9a-f]{2})/i.test(pathname)
+  ) {
+    return null;
+  }
+
+  const rawSegments = pathname.split('/');
+  const segments = [];
+  for (let index = 1; index < rawSegments.length; index += 1) {
+    if (!rawSegments[index]) {
+      if (index !== rawSegments.length - 1) {
+        return null;
+      }
+      continue;
+    }
+    try {
+      const segment = decodeURIComponent(rawSegments[index]);
+      if (!segment || segment === '.' || segment === '..' || /[\/#\\]/.test(segment)) {
+        return null;
+      }
+      segments.push(segment);
+    } catch (error) {
+      return null;
+    }
+  }
+
+  if (!segments.length) {
+    return null;
+  }
+  const root = segments[0].toLowerCase();
+  if (root !== 'console' && root !== 'openapi') {
+    return null;
+  }
+  segments[0] = root;
+  return segments;
+}
+
+function buildSlowRequestRouteTemplate(url) {
+  const segments = parseSlowRequestPath(url);
+  if (!segments) {
+    return null;
+  }
+
+  const template = [segments[0]];
+  for (let index = 1; index < segments.length; index += 1) {
+    const segment = segments[index];
+    const normalized = segment.toLowerCase();
+    const previous = segments[index - 1].toLowerCase();
+
+    if (hasOwn(SLOW_REQUEST_RESOURCE_SEGMENTS, previous) || isDynamicSegment(segment)) {
+      template.push(':id');
+    } else if (hasOwn(SLOW_REQUEST_STATIC_SEGMENTS, normalized)) {
+      template.push(normalized);
+    } else {
+      template.push(':unknown');
+    }
+  }
+  return `/${template.join('/')}`;
+}
+
+function isSafeSlowRequestRouteTemplate(route) {
+  if (!route || typeof route !== 'string' || /[?#]/.test(route)) {
+    return false;
+  }
+  const segments = route.split('/');
+  if (segments[0] !== '' || (segments[1] !== 'console' && segments[1] !== 'openapi')) {
+    return false;
+  }
+  return segments.slice(2).every(segment => (
+    segment === ':id' ||
+    segment === ':unknown' ||
+    hasOwn(SLOW_REQUEST_STATIC_SEGMENTS, segment)
+  ));
+}
+
+function isSlowRequestEligible(options) {
+  if (!options || options.skipSlowRequestTelemetry === true) {
+    return false;
+  }
+  const route = buildSlowRequestRouteTemplate(options.url);
+  if (!route) {
+    return false;
+  }
+  return !isExcludedSlowRequestRoute(route);
+}
+
+function isExcludedSlowRequestRoute(route) {
+  return (
+    route === '/console/sentry' ||
+    route.indexOf('/console/sentry/') === 0 ||
+    route === '/console/posthog' ||
+    route.indexOf('/console/posthog/') === 0
+  );
+}
+
+function shouldSampleSlowRequest(randomValue) {
+  return (
+    typeof randomValue === 'number' &&
+    randomValue >= 0 &&
+    randomValue < SLOW_REQUEST_SAMPLE_RATE
+  );
+}
+
+function normalizeSlowRequestMethod(method) {
+  const normalized = String(method || 'GET').toUpperCase();
+  return hasOwn(SLOW_REQUEST_METHODS, normalized) ? normalized : null;
+}
+
+function startSlowRequestTiming(
+  options,
+  random = Math.random,
+  monotonicNow,
+  epochNow = Date.now,
+  routeTemplate = buildSlowRequestRouteTemplate
+) {
+  if (
+    !options ||
+    options.skipSlowRequestTelemetry === true ||
+    !options.url ||
+    typeof options.url !== 'string' ||
+    typeof random !== 'function' ||
+    typeof monotonicNow !== 'function' ||
+    typeof epochNow !== 'function' ||
+    typeof routeTemplate !== 'function'
+  ) {
+    return null;
+  }
+  const method = normalizeSlowRequestMethod(options.method);
+  if (!method || !shouldSampleSlowRequest(random())) {
+    return null;
+  }
+  const route = routeTemplate(options.url);
+  if (!isSafeSlowRequestRouteTemplate(route) || isExcludedSlowRequestRoute(route)) {
+    return null;
+  }
+  const monotonicStartedAt = monotonicNow();
+  const startedAt = epochNow();
+  if (!Number.isFinite(monotonicStartedAt) || !Number.isFinite(startedAt)) {
+    return null;
+  }
+  return {
+    route,
+    method,
+    monotonicStartedAt,
+    startedAt,
+    completed: false
+  };
+}
+
+function normalizeSlowRequestStatus(status) {
+  if (status === 'network_error') {
+    return status;
+  }
+  const numericStatus = Number(status);
+  if (!Number.isInteger(numericStatus) || numericStatus < 100 || numericStatus > 599) {
+    return 'network_error';
+  }
+  return numericStatus;
+}
+
+function mapHttpStatusToTraceStatus(status) {
+  if (status === 'network_error') return 'unavailable';
+  const numericStatus = Number(status);
+  if (!Number.isInteger(numericStatus) || numericStatus < 100 || numericStatus > 599) return 'unknown_error';
+  if (numericStatus < 400) return 'ok';
+  if (numericStatus === 400) return 'invalid_argument';
+  if (numericStatus === 401) return 'unauthenticated';
+  if (numericStatus === 403) return 'permission_denied';
+  if (numericStatus === 404) return 'not_found';
+  if (numericStatus === 409) return 'already_exists';
+  if (numericStatus === 429) return 'resource_exhausted';
+  if (numericStatus === 499) return 'cancelled';
+  if (numericStatus === 501) return 'unimplemented';
+  if (numericStatus === 503) return 'unavailable';
+  if (numericStatus === 504) return 'deadline_exceeded';
+  if (numericStatus < 500) return 'failed_precondition';
+  return 'internal_error';
+}
+
+function completeSlowRequestTiming(context, outcome, monotonicNow) {
+  if (!context || context.completed || typeof monotonicNow !== 'function') {
+    return null;
+  }
+  context.completed = true;
+  if (outcome && outcome.cancelled === true) {
+    return null;
+  }
+
+  const monotonicEndedAt = monotonicNow();
+  const duration = monotonicEndedAt - context.monotonicStartedAt;
+  if (
+    !Number.isFinite(context.monotonicStartedAt) ||
+    !Number.isFinite(context.startedAt) ||
+    !Number.isFinite(monotonicEndedAt) ||
+    duration <= SLOW_REQUEST_THRESHOLD_MS
+  ) {
+    return null;
+  }
+
+  const status = normalizeSlowRequestStatus(outcome && outcome.status);
+  return {
+    route: context.route,
+    method: context.method,
+    startedAt: context.startedAt,
+    endedAt: context.startedAt + duration,
+    status
+  };
+}
+
+function consumeSlowRequestBudget(attemptTimestamps, now) {
+  if (!Array.isArray(attemptTimestamps) || typeof now !== 'number' || !Number.isFinite(now)) {
+    return false;
+  }
+  const cutoff = now - SLOW_REQUEST_WINDOW_MS;
+  const activeAttempts = attemptTimestamps.filter(timestamp => (
+    typeof timestamp === 'number' &&
+    Number.isFinite(timestamp) &&
+    timestamp > cutoff
+  ));
+  attemptTimestamps.splice(0, attemptTimestamps.length);
+  Array.prototype.push.apply(attemptTimestamps, activeAttempts);
+  if (attemptTimestamps.length >= SLOW_REQUEST_MAX_EVENTS) {
+    return false;
+  }
+  attemptTimestamps.push(now);
+  return true;
+}
+
+function isValidSentryEnvironment(value) {
+  return (
+    typeof value === 'string' &&
+    value.length > 0 &&
+    value.length <= 64 &&
+    value !== 'None' &&
+    !/[\s/\\]/.test(value)
+  );
+}
+
+function isValidSentryRelease(value) {
+  return (
+    typeof value === 'string' &&
+    value.length > 0 &&
+    value.length <= 200 &&
+    value === value.trim() &&
+    value !== 'None' &&
+    value !== '.' &&
+    value !== '..' &&
+    !/[\u0000-\u001f\u007f/\\]/.test(value)
+  );
+}
+
+function buildSlowRequestTransaction(input) {
+  const safeInput = input || {};
+  const eventId = typeof safeInput.eventId === 'string' ? safeInput.eventId.toLowerCase() : '';
+  const traceId = typeof safeInput.traceId === 'string' ? safeInput.traceId.toLowerCase() : '';
+  const spanId = typeof safeInput.spanId === 'string' ? safeInput.spanId.toLowerCase() : '';
+  const method = normalizeSlowRequestMethod(safeInput.method);
+  const status = normalizeSlowRequestStatus(safeInput.status);
+
+  if (
+    !/^[0-9a-f]{32}$/.test(eventId) ||
+    !/^[0-9a-f]{32}$/.test(traceId) ||
+    !/^[0-9a-f]{16}$/.test(spanId) ||
+    !method ||
+    !isSafeSlowRequestRouteTemplate(safeInput.route) ||
+    !Number.isFinite(safeInput.startedAt) ||
+    !Number.isFinite(safeInput.endedAt) ||
+    safeInput.endedAt <= safeInput.startedAt ||
+    !isValidSentryEnvironment(safeInput.environment)
+  ) {
+    return null;
+  }
+
+  const event = {
+    event_id: eventId,
+    type: 'transaction',
+    transaction: `${method} ${safeInput.route}`,
+    transaction_info: {
+      source: 'custom'
+    },
+    start_timestamp: safeInput.startedAt / 1000,
+    timestamp: safeInput.endedAt / 1000,
+    platform: 'javascript',
+    environment: safeInput.environment,
+    tags: {
+      component: 'rainbond-ui',
+      source: 'browser_slow_request',
+      method,
+      status: String(status),
+      sample_rate: String(SLOW_REQUEST_SAMPLE_RATE)
+    },
+    contexts: {
+      trace: {
+        trace_id: traceId,
+        span_id: spanId,
+        op: 'http.client',
+        status: mapHttpStatusToTraceStatus(status)
+      }
+    }
+  };
+  if (isValidSentryRelease(safeInput.release)) {
+    event.release = safeInput.release;
+  }
+  return event;
 }
 
 function isTelemetryDisabled(runtime, env) {
@@ -373,7 +799,7 @@ function getPathPattern(url) {
     if (!segment) {
       return segment;
     }
-    if (previous && DYNAMIC_SEGMENT_MARKERS[String(previous).toLowerCase()]) {
+    if (previous && hasOwn(DYNAMIC_SEGMENT_MARKERS, String(previous).toLowerCase())) {
       return ':id';
     }
     return isDynamicSegment(segment) ? ':id' : segment;
@@ -577,19 +1003,31 @@ function buildIssueFingerprint(error, context, frames) {
 }
 
 module.exports = {
+  SLOW_REQUEST_MAX_EVENTS,
+  SLOW_REQUEST_SAMPLE_RATE,
+  SLOW_REQUEST_THRESHOLD_MS,
+  SLOW_REQUEST_WINDOW_MS,
   buildIssueFingerprint,
   buildReadableErrorMessage,
   buildSentryTunnelUrl,
+  buildSlowRequestRouteTemplate,
+  buildSlowRequestTransaction,
   classifyHttpError,
+  completeSlowRequestTiming,
+  consumeSlowRequestBudget,
   extractResponseMetadata,
   getPathPattern,
   getSentryConfig,
+  isSlowRequestEligible,
+  mapHttpStatusToTraceStatus,
   parseStackFrames,
   sanitizeObject,
   sanitizeStack,
   sanitizeUrl,
+  shouldSampleSlowRequest,
   shouldSuppressBrowserError,
   shouldPreferFetchTransport,
   shouldReportRequestError,
-  shouldSuppressRequestError
+  shouldSuppressRequestError,
+  startSlowRequestTiming
 };

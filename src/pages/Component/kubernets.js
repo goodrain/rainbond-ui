@@ -2,6 +2,7 @@ import { Button, Card, Form, Input, Select, Switch, notification, Icon, Drawer, 
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { FormattedMessage } from 'umi';
+import jsYaml from 'js-yaml';
 import { formatMessage } from '@/utils/intl';
 import { addKubernetes, getKubernetes, deleteKubernetes, editKubernetes } from '../../services/app';
 import handleAPIError from '../../utils/error';
@@ -22,11 +23,12 @@ const {
 } = require('./kubernetsAttributeHelpers');
 
 const { Option, OptGroup } = Select;
-const DEFAULT_ATTRIBUTE_FIELDS = ['nodeSelector', 'labels', 'volumes', 'volumeMounts', 'hostAliases', 'affinity', 'tolerations', 'serviceAccountName', 'cmd', 'privileged', 'env', 'shareProcessNamespace', 'hostNetwork', 'dnsPolicy', 'hostIPC', 'resources', 'lifecycle', 'dnsConfig', 'volumeClaimTemplate', 'envFromSource', 'annotations', 'securityContext', 'livenessProbe', 'readinessProbe'];
+const DEFAULT_ATTRIBUTE_FIELDS = ['nodeSelector', 'labels', 'volumes', 'volumeMounts', 'hostAliases', 'affinity', 'tolerations', 'serviceAccountName', 'cmd', 'args', 'privileged', 'env', 'shareProcessNamespace', 'hostNetwork', 'dnsPolicy', 'hostIPC', 'resources', 'lifecycle', 'dnsConfig', 'volumeClaimTemplate', 'envFromSource', 'annotations', 'securityContext', 'livenessProbe', 'readinessProbe'];
 const VM_ATTRIBUTE_FIELDS = ['nodeSelector', 'labels', 'tolerations', 'dnsPolicy', 'annotations', 'affinity', 'livenessProbe', 'readinessProbe', 'vm_asset_id'];
 const JSON_FIELDS = KEY_VALUE_JSON_FIELDS;
-const YAML_FIELDS = ['volumeMounts', 'hostAliases', 'volumeClaimTemplate', 'envFromSource', 'livenessProbe', 'readinessProbe', 'volumes', 'securityContext', 'affinity', 'tolerations', 'env', 'dnsConfig', 'resources', 'lifecycle'];
-const STRING_FIELDS = ['serviceAccountName', 'cmd', 'vm_asset_id'];
+const YAML_FIELDS = ['cmd', 'args', 'volumeMounts', 'hostAliases', 'volumeClaimTemplate', 'envFromSource', 'livenessProbe', 'readinessProbe', 'volumes', 'securityContext', 'affinity', 'tolerations', 'env', 'dnsConfig', 'resources', 'lifecycle'];
+const STRING_FIELDS = ['serviceAccountName', 'vm_asset_id'];
+const COMMAND_ARGS_YAML_FIELDS = ['cmd', 'args'];
 const BOOLEAN_FIELDS = ['privileged', 'shareProcessNamespace', 'hostNetwork', 'hostIPC'];
 const SELECT_FIELDS = {
   dnsPolicy: ['Default', 'ClusterFirst', 'ClusterFirstWithHostNet', 'None']
@@ -39,6 +41,28 @@ const BOOLEAN_ATTRIBUTE_NAMES = BOOLEAN_FIELDS;
 const isSelectField = name => Object.prototype.hasOwnProperty.call(SELECT_FIELDS, name);
 const isStringField = (name, attribute = {}) => STRING_FIELDS.includes(name) || (attribute.save_type === 'string' && !BOOLEAN_FIELDS.includes(name) && !isSelectField(name));
 const hasAttributeValue = value => Array.isArray(value) ? value.length > 0 : value !== undefined && value !== null && value !== '';
+const isCommandArgsYamlField = name => COMMAND_ARGS_YAML_FIELDS.includes(name);
+const dumpYaml = value => jsYaml.dump(value, { noRefs: true, lineWidth: 120 });
+const formatStringSequenceYamlValue = value => {
+  if (!hasAttributeValue(value)) {
+    return '';
+  }
+  if (Array.isArray(value)) {
+    return dumpYaml(value);
+  }
+  if (typeof value === 'string') {
+    try {
+      const parsed = jsYaml.load(value);
+      if (Array.isArray(parsed)) {
+        return value;
+      }
+    } catch (error) {
+      return dumpYaml([value]);
+    }
+    return dumpYaml([value]);
+  }
+  return dumpYaml([String(value)]);
+};
 
 @Form.create()
 @connect(({ user, appControl }) => ({
@@ -76,6 +100,8 @@ class Index extends PureComponent {
         livenessProbe: '#sample\n#readinessProbe:\n#    tcpSocket:\n#  port: 8080\n#    initialDelaySeconds: 15\n#    periodSeconds: 10',
         readinessProbe: '#sample\n#readinessProbe:\n#    tcpSocket:\n#  port: 8080\n#    initialDelaySeconds: 15\n#    periodSeconds: 10',
         hostAliases: '#sample\n#- ip: "127.0.0.1"\n#  hostnames:\n#  - foo.local\n#  - bar.local\n#- ip: "10.1.2.3"\n#  hostnames:\n#  - foo.remote\n#  - bar.remote',
+        cmd: '#sample\n#- /entrypoint.sh\n#- /bin/sh\n#- -c\n#- echo hello\n',
+        args: '#sample\n#- /entrypoint.sh;while true;do echo hello >/dev/null;sleep 1;done\n',
       },
       TooltipValue: '',
       language: cookie.get('language') === 'zh-CN' ? true : false,
@@ -141,6 +167,8 @@ class Index extends PureComponent {
     };
     if (val.save_type === 'yaml') {
       valueStateMap.yamlValue = val.attribute_value;
+    } else if (isCommandArgsYamlField(val.name)) {
+      valueStateMap.yamlValue = formatStringSequenceYamlValue(val.attribute_value);
     } else if (val.save_type === 'json') {
       if (isRawJsonAttribute(val.name, val)) {
         valueStateMap.jsonTextValue = formatRawJsonAttributeValue(val.attribute_value);
@@ -216,9 +244,23 @@ class Index extends PureComponent {
 
   isYamlAttribute = name => YAML_ATTRIBUTE_NAMES.includes(name);
 
-  isStringAttribute = name => STRING_ATTRIBUTE_NAMES.includes(name);
-
   isBooleanAttribute = name => BOOLEAN_ATTRIBUTE_NAMES.includes(name);
+
+  isYamlDisplayAttribute = item => item && item.name && (
+    item.save_type === 'yaml' || (this.isYamlAttribute(item.name) && item.save_type !== 'string')
+  );
+
+  isStringDisplayAttribute = item => item && item.name && isStringField(item.name, item) && !this.isYamlDisplayAttribute(item);
+
+  getYamlHelpMessage = name => {
+    if (name === 'dnsConfig') {
+      return formatMessage({ id: 'componentOverview.body.Kubernetes.onlyDnsPolicy' });
+    }
+    if (isCommandArgsYamlField(name)) {
+      return formatMessage({ id: 'componentOverview.body.Kubernetes.cmd_args_yaml_tip' });
+    }
+    return ' ';
+  };
 
   renderAttributeValue = (item, uploadYaml) => {
     const { name, attribute_value: attributeValue } = item;
@@ -244,7 +286,7 @@ class Index extends PureComponent {
       ));
     }
 
-    if (this.isYamlAttribute(name)) {
+    if (this.isYamlDisplayAttribute(item)) {
       return (
         <div className={styles.yamlValue_style}>
           {uploadYaml}
@@ -254,7 +296,7 @@ class Index extends PureComponent {
       );
     }
 
-    if (this.isStringAttribute(name)) {
+    if (this.isStringDisplayAttribute(item)) {
       return (
         <div style={{ padding: '10px 15px', backgroundColor: '#f0f4f8', borderRadius: '10px' }}>
           <Tooltip placement="top" title={attributeValue}>
@@ -457,11 +499,10 @@ class Index extends PureComponent {
       return notAddible
     })
     const selectOptions = selectVal && isSelectField(selectVal) ? SELECT_FIELDS[selectVal] : [];
+    const isCommandArgsYaml = isCommandArgsYamlField(selectVal);
     const inputLabel = selectVal === 'serviceAccountName'
       ? formatMessage({ id: 'componentOverview.body.Kubernetes.input' })
-      : selectVal === 'cmd'
-        ? formatMessage({ id: 'componentOverview.body.Kubernetes.input_cmd' })
-        : selectVal;
+      : selectVal;
     const inputPlaceholder = inputLabel || '';
     const formItemLayoutss = {
       labelCol: {
@@ -603,7 +644,7 @@ class Index extends PureComponent {
                   selectVal &&
                   YAML_FIELDS.includes(selectVal) &&
                   <>
-                    <p style={{ padding: '10px 0' }}> {selectVal == "dnsConfig" ? formatMessage({ id: 'componentOverview.body.Kubernetes.onlyDnsPolicy' }) : ' '}</p>
+                    <p style={{ padding: '10px 0' }}>{this.getYamlHelpMessage(selectVal)}</p>
                     <CodeMirrorForm
                       setFieldsValue={setFieldsValue}
                       formItemLayout={formItemLayoutss}
@@ -616,12 +657,17 @@ class Index extends PureComponent {
                       mode={'yaml'}
                       bool={isBool}
                       TooltipValue={TooltipValue}
+                      yamlValueType={isCommandArgsYaml ? 'array' : undefined}
+                      yamlItemType={isCommandArgsYaml ? 'string' : undefined}
+                      yamlArrayMessage={formatMessage({ id: 'componentOverview.body.Kubernetes.cmd_args_yaml_array' })}
+                      yamlStringArrayMessage={formatMessage({ id: 'componentOverview.body.Kubernetes.cmd_args_yaml_string_array' })}
                     />
                   </>
                 }
                 {
                   selectVal &&
                   isStringField(selectVal, currentAttribute) &&
+                  !YAML_FIELDS.includes(selectVal) &&
                   <Form.Item  {...formItemLayouts}>
                     <div style={language ? {} : { marginLeft: 38 }}>
                       <div className={language ? styles.accountName_style : styles.en_accountName_style}>
@@ -669,8 +715,10 @@ class Index extends PureComponent {
               allData &&
                 allData.length > 0 ? (
                 allData.map((item, index) => {
+                  const displayAsYaml = this.isYamlDisplayAttribute(item);
+                  const displayAsString = this.isStringDisplayAttribute(item);
                   return <Row key={index}>
-                    {(YAML_FIELDS.includes(item.name) || item.save_type === 'yaml') ? (
+                    {displayAsYaml ? (
                       <Col span={4} className={styles.yamlTitle_style}>{item.name}:</Col>
                     ) : (
                       <Col span={4}>{item.name}:</Col>
@@ -707,14 +755,14 @@ class Index extends PureComponent {
                         ))
                       }
                       {item.name &&
-                        (YAML_FIELDS.includes(item.name) || item.save_type === 'yaml') &&
+                        displayAsYaml &&
                         hasAttributeValue(item.attribute_value) &&
                         <div className={styles.yamlValue_style}>
                           {uploadYaml} &nbsp;&nbsp;&nbsp;&nbsp;<FormattedMessage id='componentOverview.body.Kubernetes.yaml' />
                         </div>
                       }
                       {item.name &&
-                        isStringField(item.name, item) &&
+                        displayAsString &&
                         <div style={{ padding: "10px 15px", backgroundColor: "#f0f4f8", borderRadius: "10px" }}>
                           <Tooltip key={index} placement="top" title={item.attribute_value}>
                             {hasAttributeValue(item.attribute_value) ? item.attribute_value : '-'}

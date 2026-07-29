@@ -3,7 +3,10 @@ import {
   buildIssueFingerprint,
   buildReadableErrorMessage,
   buildSentryTunnelUrl,
+  buildSlowRequestTransaction,
   classifyHttpError,
+  completeSlowRequestTiming,
+  consumeSlowRequestBudget,
   extractResponseMetadata,
   getPathPattern,
   getSentryConfig,
@@ -13,11 +16,15 @@ import {
   shouldPreferFetchTransport,
   shouldReportRequestError,
   shouldSuppressBrowserError,
-  shouldSuppressRequestError
+  shouldSuppressRequestError,
+  startSlowRequestTiming
 } from './sentryConfig';
+import { sendEnvelope } from './sentryTransport';
 
 let initialized = false;
 let sentryClient = null;
+let fallbackIdCounter = 0;
+const slowRequestAttemptTimestamps = [];
 
 function buildClient(config) {
   let parsed;
@@ -47,10 +54,12 @@ function buildClient(config) {
   parsed.searchParams.set('sentry_version', '7');
   parsed.searchParams.set('sentry_client', 'rainbond-ui/1.0');
   parsed.searchParams.set('sentry_key', publicKey);
+  const directEnvelopeUrl = parsed.toString();
 
   return {
     dsn: publicDsn.toString(),
-    envelopeUrl: buildSentryTunnelUrl(config.tunnel, parsed.pathname, parsed.search) || parsed.toString(),
+    envelopeUrl: buildSentryTunnelUrl(config.tunnel, parsed.pathname, parsed.search) || directEnvelopeUrl,
+    directEnvelopeUrl,
     environment: config.environment,
     release: config.release
   };
@@ -66,38 +75,69 @@ function eventId() {
   return String(Date.now());
 }
 
-function sendEvent(event) {
+function sendEvent(event, options = {}) {
   if (!sentryClient) {
     return;
   }
   const sanitizedEvent = sanitizeObject(event);
-  const payload = [
-    JSON.stringify({
-      event_id: sanitizedEvent.event_id,
-      sent_at: new Date().toISOString(),
-      dsn: sentryClient.dsn
-    }),
-    JSON.stringify({
-      type: 'event',
-      content_type: 'application/json'
-    }),
-    JSON.stringify(sanitizedEvent)
-  ].join('\n');
-  const preferFetch = shouldPreferFetchTransport(sanitizedEvent);
-  if (!preferFetch && navigator && navigator.sendBeacon && navigator.sendBeacon(sentryClient.envelopeUrl, payload)) {
-    return;
+  sendEnvelope(sentryClient, sanitizedEvent, {
+    itemType: options.itemType || 'event',
+    direct: options.direct === true,
+    preferFetch: options.preferFetch === undefined
+      ? shouldPreferFetchTransport(sanitizedEvent)
+      : options.preferFetch
+  });
+}
+
+function monotonicNow() {
+  try {
+    if (
+      typeof window !== 'undefined' &&
+      window.performance &&
+      typeof window.performance.now === 'function'
+    ) {
+      return window.performance.now();
+    }
+  } catch (error) {
+    return NaN;
   }
-  if (typeof fetch !== 'function') {
-    return;
+  try {
+    if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
+      return performance.now();
+    }
+  } catch (error) {
+    return NaN;
   }
-  fetch(sentryClient.envelopeUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'text/plain;charset=UTF-8'
-    },
-    body: payload,
-    keepalive: true
-  }).catch(() => {});
+  return NaN;
+}
+
+function slowRequestId(length) {
+  const byteLength = length / 2;
+  try {
+    const cryptoObject = typeof window !== 'undefined' && (window.crypto || window.msCrypto);
+    if (cryptoObject && typeof cryptoObject.getRandomValues === 'function') {
+      const bytes = new Uint8Array(byteLength);
+      cryptoObject.getRandomValues(bytes);
+      const value = Array.prototype.map.call(
+        bytes,
+        item => (`0${item.toString(16)}`).slice(-2)
+      ).join('');
+      if (!/^0+$/.test(value)) {
+        return value;
+      }
+    }
+  } catch (error) {
+    // Use the non-cryptographic fallback below.
+  }
+
+  fallbackIdCounter = (fallbackIdCounter + 1) >>> 0;
+  let value = '';
+  for (let index = 0; index < byteLength; index += 1) {
+    const randomByte = Math.floor(Math.random() * 256);
+    const byte = (randomByte + fallbackIdCounter + index * 37) & 255;
+    value += (`0${byte.toString(16)}`).slice(-2);
+  }
+  return /^0+$/.test(value) ? `${value.slice(0, -1)}1` : value;
 }
 
 function getCurrentRoute() {
@@ -342,6 +382,50 @@ export function initSentry() {
   initialized = true;
   installGlobalHandlers();
   return true;
+}
+
+export function startSlowRequestTracking(options) {
+  if (!initialized) {
+    return;
+  }
+  try {
+    return startSlowRequestTiming(options, Math.random, monotonicNow, Date.now);
+  } catch (error) {
+    return;
+  }
+}
+
+export function finishSlowRequestTracking(context, outcome) {
+  if (!initialized || !context) {
+    return;
+  }
+  try {
+    const monotonicEndedAt = monotonicNow();
+    const completed = completeSlowRequestTiming(context, outcome, () => monotonicEndedAt);
+    if (!completed || !consumeSlowRequestBudget(slowRequestAttemptTimestamps, monotonicEndedAt)) {
+      return;
+    }
+    const transaction = buildSlowRequestTransaction({
+      eventId: slowRequestId(32),
+      route: completed.route,
+      method: completed.method,
+      startedAt: completed.startedAt,
+      endedAt: completed.endedAt,
+      status: completed.status,
+      environment: sentryClient.environment,
+      release: sentryClient.release,
+      traceId: slowRequestId(32),
+      spanId: slowRequestId(16)
+    });
+    if (transaction) {
+      sendEvent(transaction, {
+        itemType: 'transaction',
+        direct: true
+      });
+    }
+  } catch (error) {
+    return;
+  }
 }
 
 export function captureException(error, context = {}) {

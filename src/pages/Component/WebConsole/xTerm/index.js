@@ -9,6 +9,24 @@ import { protocols, WebTTY } from '../../../../utils/webconsole/webtty';
 import { Xterm as XTermCustom } from '../../../../utils/webconsole/xterm';
 import XTerm from '../ReactXTerm/react-xterm';
 
+function normalizeWebSocketURL(websocketURL) {
+  if (!websocketURL || typeof window === 'undefined' || !window.location) {
+    return websocketURL;
+  }
+  try {
+    const url = new URL(websocketURL, window.location.href);
+    const isWebSocket = url.protocol === 'ws:' || url.protocol === 'wss:';
+    const isSameHost = url.host === window.location.host;
+    if (isWebSocket && isSameHost) {
+      url.protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      return url.toString();
+    }
+  } catch (e) {
+    return websocketURL;
+  }
+  return websocketURL;
+}
+
 class App extends PureComponent {
   constructor(args) {
     super(args);
@@ -21,8 +39,8 @@ class App extends PureComponent {
 
   componentDidMount() {
     const { WebsocketURL } = this.props;
-    var xx = new WebSocket(WebsocketURL)
-    const { bool } = this.state;
+    const websocketURL = normalizeWebSocketURL(WebsocketURL);
+    const xx = new WebSocket(websocketURL);
     const { type = false } = this.props;
     if (type) {
       const time = setInterval(() => {
@@ -56,11 +74,12 @@ class App extends PureComponent {
         namespace,
         mode,
       } = this.props;
+      const websocketURL = normalizeWebSocketURL(WebsocketURL);
       if (!this.inputRef.current) {
         return null;
       }
       const term = this.inputRef.current.getTerminal();
-      const consoleWebsocketURL = WebsocketURL.replace(
+      const consoleWebsocketURL = websocketURL.replace(
         '/event_log',
         '/docker_console'
       );

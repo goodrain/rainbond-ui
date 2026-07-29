@@ -86,6 +86,7 @@
     "yarn": "^1.19.2"
   },
   "devDependencies": {
+    "@babel/parser": "7.28.5",
     "babel-eslint": "^8.1.2",
     "babel-plugin-dva-hmr": "^0.4.1",
     "babel-plugin-import": "^1.6.3",
