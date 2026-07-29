@@ -28,6 +28,7 @@ import {
 } from '../../services/cloud';
 import { connect } from 'dva';
 import RKEClusterCmd from '../RKEClusterCmd'
+import DiskAlertBar from '../DiskAlertBar';
 import { Link, routerRedux } from 'dva/router';
 import global from '../../utils/global'
 import SVG from '../../utils/pageHeaderSvg'
@@ -104,6 +105,18 @@ class Index extends Component {
       },
     };
   }
+  handleViewDiskAlert = alert => {
+    const { dispatch, rowClusterInfo } = this.props;
+    const eid = global.getCurrEnterpriseId();
+    if (!rowClusterInfo || !rowClusterInfo.region_id || !alert.node) {
+      return;
+    }
+    dispatch(
+      routerRedux.push(
+        `/enterprise/${eid}/clusters/nodemgt/${rowClusterInfo.region_id}?name=${encodeURIComponent(alert.node)}`
+      )
+    );
+  }
   clusterNodeAdd = () => {
     this.setState({
       isShowAddNodeModal: true
@@ -154,7 +167,7 @@ class Index extends Component {
     })
   }
   render() {
-    const { nodeList, rowClusterInfo, showInfo, form, eventId, titleIcon, titleText } = this.props
+    const { nodeList, rowClusterInfo, showInfo, form, eventId, titleIcon, titleText, diskAlerts } = this.props
     const { selectArr, isShowAddNodeModal } = this.state
     const eid = global.getCurrEnterpriseId()
     const { getFieldDecorator } = form;
@@ -320,14 +333,20 @@ class Index extends Component {
           </div>
           <div className={styles.cardBody}>
             {showInfo ?
-              <Table
-                columns={columns}
-                rowKey={(record,index) => index}
-                dataSource={nodeList}
-                pagination={pagination}
-                onRow={this.onClickRow}
-                rowClassName={styles.rowStyle}
-              />
+              <>
+                <DiskAlertBar
+                  alerts={diskAlerts}
+                  onView={this.handleViewDiskAlert}
+                />
+                <Table
+                  columns={columns}
+                  rowKey={(record,index) => index}
+                  dataSource={nodeList}
+                  pagination={pagination}
+                  onRow={this.onClickRow}
+                  rowClassName={styles.rowStyle}
+                />
+              </>
               :
               <Skeleton active />
             }

@@ -4,6 +4,14 @@ const path = require('path');
 
 const jsSource = fs.readFileSync(path.join(__dirname, 'index.js'), 'utf8');
 const lessSource = fs.readFileSync(path.join(__dirname, 'index.less'), 'utf8');
+const enterpriseLayoutSource = fs.readFileSync(
+  path.join(__dirname, '../../layouts/EnterpriseLayout.js'),
+  'utf8'
+);
+const enterpriseLayoutLess = fs.readFileSync(
+  path.join(__dirname, '../../layouts/EnterpriseLayout.less'),
+  'utf8'
+);
 
 assert.ok(
   /<ScrollerX\s+sm=\{`calc\(1100px - var\(--agent-panel-width,\s*0px\)\)`\}>/.test(
@@ -25,6 +33,26 @@ assert.ok(
 assert.ok(
   /className=\{enterpriseStyles\.clusterSummary\}/.test(jsSource),
   'cluster name, status, icon, and metadata should be fused into a single summary header'
+);
+
+assert.ok(
+  /const clusterDiskAlerts = diskAlerts\.filter\([\s\S]*?alert\.regionName === region_name/.test(jsSource) &&
+    /className=\{enterpriseStyles\.clusterDiskAlerts\}[\s\S]*?<DiskAlertBar[\s\S]*?alerts=\{clusterDiskAlerts\}/.test(jsSource) &&
+    /className=\{enterpriseStyles\.clusterSummary\}[\s\S]*?className=\{enterpriseStyles\.clusterDiskAlerts\}[\s\S]*?className=\{enterpriseStyles\.clusterDivider\}/.test(jsSource) &&
+    /\.clusterDiskAlerts\s*\{[\s\S]*?margin-top:\s*14px;/m.test(lessSource),
+  'disk alerts should render inside their cluster card between the summary and resource metrics'
+);
+
+assert.ok(
+  /type: 'global\/fetchClusterUsed'[\s\S]*?query: NODE_DISK_USAGE_QUERY[\s\S]*?normalizeNodeDiskMetrics/.test(jsSource) &&
+    !/getRainbondAlert|diskPreview|getPreview|mockDisk/.test(jsSource),
+  'cluster disk alerts should use real Prometheus metrics without preview data'
+);
+
+assert.ok(
+  !/DiskAlertBar|loadDiskAlerts|diskAlertWrap/.test(enterpriseLayoutSource) &&
+    !/diskAlertWrap/.test(enterpriseLayoutLess),
+  'enterprise layout should not render or poll platform-wide disk alerts'
 );
 
 assert.ok(
