@@ -1,0 +1,54 @@
+meta:
+  name: "ai-assistant-sidebar-visibility"
+  version: "1.0"
+  repo: "/Users/guox/Desktop/Project/rainbond-ui"
+  branch: "agent-dev"
+  design_doc: "docs/plans/2026-07-29-ai-assistant-sidebar-visibility-design.md"
+
+sprints:
+  - id: sprint-1
+    name: "AI assistant sidebar visibility"
+    commits:
+      - id: commit-1
+        message: "fix: hide ai assistant config until plugin installed"
+        tasks: [task-1.1]
+    tasks:
+      - id: task-1.1
+        name: "Gate AI assistant menu by installed plugin"
+        status: pending
+        files:
+          modify:
+            - path: "src/common/enterpriseMenu.js"
+              lines: "9-15,27-30,136-150"
+        steps:
+          - action: "implement"
+            description: "Resolve the installed AI plugin once and reuse it for visibility and routing."
+            code: |
+              function getAgentPluginPath(eid, agentPlugin) {
+                const firstPluginRegion = Object.keys(agentPlugin || {})[0];
+                return `/enterprise/${eid}/plugins/${firstPluginRegion}/rainbond-agent`;
+              }
+
+              const agentPlugin = PluginUtil.getPluginInfo(pluginList, 'rainbond-agent');
+              const agentInstalled = Object.keys(agentPlugin || {}).length > 0;
+
+              if (adminer && agentEnabled && agentInstalled) {
+                // existing AI menu group, using getAgentPluginPath(eid, agentPlugin)
+              }
+            run: "node src/utils/pluginArchUtils.node.test.js"
+            expect: "PASS"
+          - action: "verify"
+            description: "Build the React application using the project Node version."
+            run: "source ~/.nvm/nvm.sh && nvm use 20.20.2 >/dev/null && yarn build"
+            expect: "PASS"
+        acceptance:
+          - cmd: "node src/utils/pluginArchUtils.node.test.js"
+            expect: "All plugin base-id compatibility cases pass"
+          - cmd: "source ~/.nvm/nvm.sh && nvm use 20.20.2 >/dev/null && yarn build"
+            expect: "Production build succeeds"
+        references:
+          - path: "src/common/enterpriseMenu.js:9-15"
+            note: "Current AI plugin route selection"
+          - path: "src/utils/pulginUtils.js:38-48"
+            note: "Existing cross-region plugin lookup with architecture suffix normalization"
+
