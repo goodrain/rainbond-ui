@@ -20,6 +20,10 @@ import pageheaderSvg from '@/utils/pageHeaderSvg';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import pluginUtils from '../../../utils/pulginUtils';
 import global from '@/utils/global';
+import {
+  NODE_DISK_USAGE_QUERY,
+  normalizeNodeDiskMetrics
+} from '@/utils/nodeDisk';
 import styles from "./index.less";
 
 @connect(({ global }) => ({
@@ -43,17 +47,23 @@ class Index extends Component {
       dashboardShow: false,
       eventId: '',
       showGpuBtn: false,
+      diskAlerts: [],
     }
     this.timer = null
+    this.diskAlertTimer = null
   }
   componentDidMount() {
     this.loadClusters();
+    this.diskAlertTimer = window.setInterval(this.loadDiskAlerts, 60000);
     this.setState({
       showGpuBtn: pluginUtils.isInstallPlugin(this.props.pluginsList, 'rainbond-gpu')
     });
   }
   componentWillUnmount() {
     clearTimeout(this.timer)
+    if (this.diskAlertTimer) {
+      window.clearInterval(this.diskAlertTimer);
+    }
   }
   fetchClusterInfoList = () => {
     const { dispatch } = this.props;
@@ -95,6 +105,7 @@ class Index extends Component {
               }, () => {
                 this.fetClusterNodeList(item);
                 this.fetDashboardList(item)
+                this.loadDiskAlerts(item)
                 if (item.provider == 'rke') {
                   this.fetchClusterInfoList()
                 }
@@ -107,6 +118,28 @@ class Index extends Component {
           });
         }
       }
+    });
+  };
+  loadDiskAlerts = (cluster = this.state.rowCluster) => {
+    const { dispatch } = this.props;
+    if (!cluster || !cluster.region_name) {
+      return;
+    }
+    dispatch({
+      type: 'global/fetchClusterUsed',
+      payload: {
+        query: NODE_DISK_USAGE_QUERY,
+        regionName: cluster.region_name
+      },
+      callback: res => {
+        this.setState({
+          diskAlerts: normalizeNodeDiskMetrics(
+            (res && res.result) || [],
+            cluster
+          )
+        });
+      },
+      handleError: () => this.setState({ diskAlerts: [] })
     });
   };
   // 编辑节点信息
@@ -314,7 +347,8 @@ class Index extends Component {
       dashboardShow,
       nodeType,
       eventId,
-      showGpuBtn
+      showGpuBtn,
+      diskAlerts
     } = this.state
     return (
       <PageHeaderLayout
@@ -346,6 +380,7 @@ class Index extends Component {
               showInfo={showListInfo}
               updateCluster={this.updateCluster}
               handleLoadClusters={() => { this.loadClusters() }}
+              diskAlerts={diskAlerts}
             />
           </Row>
           <Row>
