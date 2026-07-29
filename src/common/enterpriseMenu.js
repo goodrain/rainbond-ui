@@ -6,12 +6,9 @@ import getMenuSvg from './getMenuSvg';
 import PluginUtil from '../utils/pulginUtils'
 import { isRainbondInfoAgentEnabled } from '../utils/agentVisibility';
 
-function getAgentPluginPath(eid, pluginList, clusterList) {
-  const agentPlugin = PluginUtil.getPluginInfo(pluginList, 'rainbond-agent');
+function getAgentPluginPath(eid, agentPlugin) {
   const firstPluginRegion = Object.keys(agentPlugin || {})[0];
-  const firstClusterRegion = clusterList && clusterList[0] && clusterList[0].region_name;
-  const regionName = firstPluginRegion || firstClusterRegion || 'rainbond';
-  return `/enterprise/${eid}/plugins/${regionName}/rainbond-agent`;
+  return `/enterprise/${eid}/plugins/${firstPluginRegion}/rainbond-agent`;
 }
 
 /**
@@ -27,6 +24,8 @@ function getAgentPluginPath(eid, pluginList, clusterList) {
 function menuData(eid, currentUser, enterprise, pluginList, clusterList, rainbondInfo) {
   const adminer = userUtil.isCompanyAdmin(currentUser);
   const agentEnabled = isRainbondInfoAgentEnabled(rainbondInfo);
+  const agentPlugin = PluginUtil.getPluginInfo(pluginList, 'rainbond-agent');
+  const agentInstalled = Object.keys(agentPlugin || {}).length > 0;
   const menuGroups = [];
 
   // ============ 第一组：企业总览（无标题） ============
@@ -134,7 +133,7 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList, rainbon
   }
 
   // ============ 第四组：AI功能 ============
-  if (adminer && agentEnabled) {
+  if (adminer && agentEnabled && agentInstalled) {
     menuGroups.push({
       groupKey: 'ai',
       groupName: formatMessage({ id: 'menu.group.ai', defaultMessage: 'AI功能' }),
@@ -142,7 +141,7 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList, rainbon
         {
           name: formatMessage({ id: 'menu.enterprise.agent_config', defaultMessage: 'AI助手配置' }),
           icon: getMenuSvg.getSvg('agentConfig'),
-          path: getAgentPluginPath(eid, pluginList, clusterList),
+          path: getAgentPluginPath(eid, agentPlugin),
           authority: ['admin', 'user']
         }
       ]

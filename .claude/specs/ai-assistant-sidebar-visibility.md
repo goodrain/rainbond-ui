@@ -18,5 +18,5 @@ Verification:
 
 ```bash
 node src/utils/pluginArchUtils.node.test.js
-source ~/.nvm/nvm.sh && nvm use 20.20.2 >/dev/null && yarn build
+source ~/.nvm/nvm.sh && nvm use 20.20.2 >/dev/null && NODE_OPTIONS=--openssl-legacy-provider ./node_modules/.bin/yarn build
 ```

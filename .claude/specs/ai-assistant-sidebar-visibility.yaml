@@ -15,7 +15,7 @@ sprints:
     tasks:
       - id: task-1.1
         name: "Gate AI assistant menu by installed plugin"
-        status: pending
+        status: completed
         files:
           modify:
             - path: "src/common/enterpriseMenu.js"
@@ -39,16 +39,15 @@ sprints:
             expect: "PASS"
           - action: "verify"
             description: "Build the React application using the project Node version."
-            run: "source ~/.nvm/nvm.sh && nvm use 20.20.2 >/dev/null && yarn build"
+            run: "source ~/.nvm/nvm.sh && nvm use 20.20.2 >/dev/null && NODE_OPTIONS=--openssl-legacy-provider ./node_modules/.bin/yarn build"
             expect: "PASS"
         acceptance:
           - cmd: "node src/utils/pluginArchUtils.node.test.js"
             expect: "All plugin base-id compatibility cases pass"
-          - cmd: "source ~/.nvm/nvm.sh && nvm use 20.20.2 >/dev/null && yarn build"
+          - cmd: "source ~/.nvm/nvm.sh && nvm use 20.20.2 >/dev/null && NODE_OPTIONS=--openssl-legacy-provider ./node_modules/.bin/yarn build"
             expect: "Production build succeeds"
         references:
           - path: "src/common/enterpriseMenu.js:9-15"
             note: "Current AI plugin route selection"
           - path: "src/utils/pulginUtils.js:38-48"
             note: "Existing cross-region plugin lookup with architecture suffix normalization"
-
