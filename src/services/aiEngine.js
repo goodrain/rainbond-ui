@@ -54,6 +54,7 @@ export async function uploadTeamLlmArtifact(body = {}) {
     {
       method: 'post',
       data: body.formData,
+      skipSlowRequestTelemetry: true,
       headers: buildTeamHeaders(body),
     }
   );

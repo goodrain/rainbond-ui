@@ -19,7 +19,13 @@ import {
 } from 'antd';
 import Result from '@/components/Result';
 import { getHelmChartUrlValidation, getHelmChartUrlValidationMessage } from '../helmChartUrl';
-import { getPreferredHelmValuesFileKey, getSortedHelmValuesFileKeys } from '../helmValues';
+import {
+  buildHelmValuesOverride,
+  decodeBase64Text,
+  decodeHelmValuesFiles,
+  getPreferredHelmValuesFileKey,
+  getSortedHelmValuesFileKeys,
+} from '../helmValues';
 import HelmIcon from './HelmIcon';
 import styles from '../index.less';
 
@@ -108,6 +114,8 @@ export default class HelmUpgradeModal extends PureComponent {
       previewLoading: false,
       previewData: null,
       previewFileKey: '',
+      valuesDrafts: {},
+      valuesDirtyFiles: {},
       previewStatus: 'idle',
       previewError: '',
       configVisible: false,
@@ -141,6 +149,8 @@ export default class HelmUpgradeModal extends PureComponent {
       previewLoading: false,
       previewData: null,
       previewFileKey: '',
+      valuesDrafts: {},
+      valuesDirtyFiles: {},
       previewStatus: 'idle',
       previewError: '',
       configVisible: false,
@@ -163,17 +173,6 @@ export default class HelmUpgradeModal extends PureComponent {
   getChartIcon = (chart) => {
     const versions = (chart && chart.versions) || [];
     return (chart && chart.icon) || (versions[0] && versions[0].icon) || '';
-  };
-
-  decodeBase64Text = (value) => {
-    if (!value) {
-      return '';
-    }
-    try {
-      return window.atob(value);
-    } catch (e) {
-      return '';
-    }
   };
 
   buildExternalChartUrl = () => {
@@ -473,12 +472,15 @@ export default class HelmUpgradeModal extends PureComponent {
 
   applyPreview = (preview, sourceType) => {
     const valuesMap = (preview && preview.values) || {};
+    const valuesDrafts = decodeHelmValuesFiles(valuesMap);
     const firstKey = getPreferredHelmValuesFileKey(valuesMap);
-    const decodedValues = firstKey ? this.decodeBase64Text(valuesMap[firstKey]) : '';
+    const decodedValues = firstKey ? valuesDrafts[firstKey] : '';
     const nextState = {
       previewLoading: false,
       previewData: preview || null,
       previewFileKey: firstKey,
+      valuesDrafts,
+      valuesDirtyFiles: {},
       previewStatus: 'success',
       previewError: '',
       configVisible: true,
@@ -503,6 +505,10 @@ export default class HelmUpgradeModal extends PureComponent {
     const requestId = this.getNextPreviewRequestId();
     this.setState({
       previewLoading: true,
+      previewData: null,
+      previewFileKey: '',
+      valuesDrafts: {},
+      valuesDirtyFiles: {},
       previewStatus: 'checking',
       previewError: '',
       configVisible: false,
@@ -533,9 +539,13 @@ export default class HelmUpgradeModal extends PureComponent {
   };
 
   handlePreviewFileChange = (fileKey) => {
-    const { previewData, sourceType } = this.state;
+    const { previewData, sourceType, valuesDrafts } = this.state;
     const valuesMap = (previewData && previewData.values) || {};
-    const decodedValues = fileKey ? this.decodeBase64Text(valuesMap[fileKey]) : '';
+    const decodedValues = fileKey
+      ? (Object.prototype.hasOwnProperty.call(valuesDrafts, fileKey)
+        ? valuesDrafts[fileKey]
+        : decodeBase64Text(valuesMap[fileKey]))
+      : '';
     const nextState = { previewFileKey: fileKey };
     if (sourceType === 'store') {
       nextState.storeForm = { ...this.state.storeForm, values: decodedValues };
@@ -545,6 +555,30 @@ export default class HelmUpgradeModal extends PureComponent {
       nextState.uploadForm = { ...this.state.uploadForm, values: decodedValues };
     }
     this.setState(nextState);
+  };
+
+  handleValuesChange = (formKey, values) => {
+    const valuesField = formKey === 'external' ? 'externalForm' : formKey === 'upload' ? 'uploadForm' : 'storeForm';
+    this.setState(prevState => {
+      const fileKey = prevState.previewFileKey;
+      const nextState = {
+        [valuesField]: {
+          ...prevState[valuesField],
+          values,
+        },
+      };
+      if (fileKey) {
+        nextState.valuesDrafts = {
+          ...prevState.valuesDrafts,
+          [fileKey]: values,
+        };
+        nextState.valuesDirtyFiles = {
+          ...prevState.valuesDirtyFiles,
+          [fileKey]: true,
+        };
+      }
+      return nextState;
+    });
   };
 
   getUpgradeRisk = (payload) => {
@@ -649,6 +683,21 @@ export default class HelmUpgradeModal extends PureComponent {
 
     if (validationMessage) {
       notification.warning({ message: validationMessage });
+      return;
+    }
+
+    try {
+      payload.values = buildHelmValuesOverride({
+        valuesMap: (previewData && previewData.values) || {},
+        drafts: this.state.valuesDrafts,
+        dirtyFiles: this.state.valuesDirtyFiles,
+        fallbackValues: payload.values,
+      });
+    } catch (error) {
+      notification.warning({
+        message: t('resourceCenter.helm.validation.invalidValuesFile', 'Values 文件格式错误'),
+        description: error.message,
+      });
       return;
     }
 
@@ -824,7 +873,7 @@ export default class HelmUpgradeModal extends PureComponent {
     const { previewData, previewFileKey } = this.state;
     const valuesMap = (previewData && previewData.values) || {};
     const valueFiles = getSortedHelmValuesFileKeys(valuesMap);
-    const readme = previewData && this.decodeBase64Text(previewData.readme);
+    const readme = previewData && decodeBase64Text(previewData.readme);
     const formState = formKey === 'external'
       ? this.state.externalForm
       : formKey === 'upload'
@@ -859,12 +908,7 @@ export default class HelmUpgradeModal extends PureComponent {
             <TextArea
               rows={16}
               value={formState.values}
-              onChange={e => this.setState({
-                [valuesField]: {
-                  ...formState,
-                  values: e.target.value,
-                },
-              })}
+              onChange={e => this.handleValuesChange(formKey, e.target.value)}
               style={{
                 minHeight: 320,
               }}

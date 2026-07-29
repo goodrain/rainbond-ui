@@ -305,6 +305,7 @@ const resource = {
   'resourceCenter.helm.modal.expandEditor': 'Expand Editor',
   'resourceCenter.helm.modal.valuesFallbackPlaceholder': 'This chart did not return values.yaml. Enter YAML manually as needed.',
   'resourceCenter.helm.modal.valuesPlaceholder': 'The actual values.yaml will appear here after chart validation finishes',
+  'resourceCenter.helm.validation.invalidValuesFile': 'Invalid Values file',
   'resourceCenter.helm.modal.readmeTitle': 'Application Notes',
   'resourceCenter.helm.modal.readmeDesc': 'Raw content from the chart README',
   'resourceCenter.helm.modal.tabStore': 'Helm Store',

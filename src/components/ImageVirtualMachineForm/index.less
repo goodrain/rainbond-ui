@@ -105,6 +105,186 @@
   word-break: break-word;
 }
 
+.assetSelectHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.assetSelectSummary {
+  min-width: 0;
+  color: @text-color-secondary;
+  font-size: 12px;
+  line-height: 20px;
+}
+
+.assetCatalogNameWrap {
+  min-width: 0;
+}
+
+.assetCatalogName {
+  overflow: hidden;
+  color: @heading-color;
+  font-weight: 500;
+  line-height: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.assetCatalogMeta {
+  overflow: hidden;
+  color: @text-color-secondary;
+  font-size: 12px;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.assetCatalogSource,
+.assetCatalogCompactText {
+  display: block;
+  overflow: hidden;
+  max-width: 100%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.assetCatalogModal {
+  max-width: calc(100vw - 48px);
+
+  :global {
+    .ant-modal {
+      max-width: calc(100vw - 48px);
+    }
+
+    .ant-modal-body {
+      overflow: hidden;
+      padding: 24px 32px 20px;
+    }
+  }
+}
+
+.assetCatalogTable {
+  max-width: 100%;
+
+  :global {
+    .ant-table-wrapper,
+    .ant-spin-nested-loading,
+    .ant-spin-container,
+    .ant-table,
+    .ant-table-content,
+    .ant-table-scroll {
+      max-width: 100%;
+    }
+
+    .ant-table table {
+      table-layout: fixed;
+    }
+
+    .ant-table-thead > tr > th,
+    .ant-table-tbody > tr > td {
+      overflow: hidden;
+      padding: 12px 10px;
+      vertical-align: middle;
+      text-overflow: ellipsis;
+    }
+
+    .ant-table-thead > tr > th {
+      white-space: nowrap;
+    }
+
+    .ant-table-tbody > tr > td {
+      white-space: normal;
+    }
+
+    .ant-table-pagination.ant-pagination {
+      margin: 16px 0 0;
+    }
+  }
+}
+
+.assetCatalogActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  white-space: nowrap;
+
+  :global {
+    .ant-btn-link {
+      height: 24px;
+      padding: 0;
+    }
+  }
+}
+
+.assetReferenceCount {
+  height: 24px;
+  padding: 0 !important;
+  line-height: 24px;
+}
+
+.assetReferenceList {
+  width: 260px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.assetReferenceItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid @border-color-base;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  :global {
+    .ant-btn-link {
+      height: 24px;
+      padding: 0;
+      white-space: nowrap;
+    }
+  }
+}
+
+.assetReferenceInfo {
+  min-width: 0;
+  flex: 1;
+}
+
+.assetReferenceName {
+  overflow: hidden;
+  color: @heading-color;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.assetReferenceMeta {
+  overflow: hidden;
+  color: @text-color-secondary;
+  font-size: 12px;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.assetDangerAction {
+  color: @error-color !important;
+
+  &[disabled] {
+    color: @disabled-color !important;
+  }
+}
+
 .uploadPanel {
   padding: 6px 0 0;
   background: transparent;

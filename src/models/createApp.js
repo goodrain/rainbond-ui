@@ -24,6 +24,7 @@ import {
   setNodeLanguage,
   installRamAppCmd,
   getAppByVirtualMachineImage,
+  deleteVirtualMachineImageAsset,
   getVMCapabilities,
   createAppByVirtualMachine,
   getImageRepositories,
@@ -377,6 +378,12 @@ export default {
     },
     *getAppByVirtualMachineImage({ payload, callback, handleError }, { call }) {
       const data = yield call(getAppByVirtualMachineImage, payload, handleError);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *deleteVirtualMachineImageAsset({ payload, callback, handleError }, { call }) {
+      const data = yield call(deleteVirtualMachineImageAsset, payload, handleError);
       if (data && callback) {
         callback(data);
       }

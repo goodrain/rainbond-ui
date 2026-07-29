@@ -79,6 +79,7 @@ export default class Index extends PureComponent {
     this.state = {
       showUsernameAndPass: false,
       showKey: false,
+      showKeyError: false,
       addGroup: false,
       serverType: 'git',
       subdirectories: false,
@@ -117,16 +118,21 @@ export default class Index extends PureComponent {
       serverType: value,
       checkedList: [],
       showUsernameAndPass: false,
+      showKey: false,
+      showKeyError: false,
+      visibleKey: false,
       subdirectories: false
     });
   };
   onChange = checkedValues => {
+    const showKey = checkedValues.includes('showKey');
     this.setState({
       checkedList: checkedValues,
       showUsernameAndPass: checkedValues.includes('showUsernameAndPass'),
       subdirectories: checkedValues.includes('subdirectories'),
-      showKey: checkedValues.includes('showKey'),
-      visibleKey: !this.state.showKey && checkedValues.includes('showKey')
+      showKey,
+      showKeyError: showKey ? false : this.state.showKeyError,
+      visibleKey: !this.state.showKey && showKey
     });
   };
   getDefaultBranchName = () => {
@@ -205,6 +211,12 @@ export default class Index extends PureComponent {
     const serviceCname = currentValues.service_cname?.trim();
     const k8sComponentName = currentValues.k8s_component_name?.trim();
     const gitUrl = currentValues.git_url?.trim();
+
+    const requiresSSHKey = this.state.serverType === 'git' && /^(git@|ssh:\/\/)/i.test(gitUrl || '');
+    if (requiresSSHKey && !this.state.showKey) {
+      this.setState({ showKeyError: true });
+      return;
+    }
 
     // 检查是否全部为空（使用默认值模式）
     const allEmpty = !serviceCname && !k8sComponentName && !gitUrl;
@@ -296,11 +308,11 @@ export default class Index extends PureComponent {
   };
 
   fetchCheckboxGroup = (type, serverType) => {
-    const { checkedList, showKey } = this.state;
+    const { checkedList, showKey, showKeyError } = this.state;
     const isSubdirectories = serverType === 'git';
-    return (
+    const checkboxGroup = (
       <Checkbox.Group
-        style={{ width: '100%', marginBottom: '10px' }}
+        style={{ width: '100%' }}
         onChange={this.onChange}
         value={checkedList}
       >
@@ -326,6 +338,19 @@ export default class Index extends PureComponent {
           )}
         </Row>
       </Checkbox.Group>
+    );
+    if (type !== 'showKey') {
+      return <div style={{ marginBottom: '10px' }}>{checkboxGroup}</div>;
+    }
+    return (
+      <Form.Item
+        required
+        validateStatus={showKeyError ? 'error' : ''}
+        help={showKeyError ? formatMessage({ id: 'teamPlugin.create.pages.key.required' }) : ''}
+        style={{ marginBottom: '10px' }}
+      >
+        {checkboxGroup}
+      </Form.Item>
     );
   };
   // 获取当前选取的app的所有组件的英文名称

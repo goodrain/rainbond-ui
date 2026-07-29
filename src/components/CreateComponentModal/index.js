@@ -3119,6 +3119,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                 dispatch={dispatch}
                 archInfo={archInfo}
                 virtualMachineImage={virtualMachineImages}
+                onRefreshVirtualMachineImage={fetchVirtualMachineImages}
                 showSubmitBtn={false}
               />
             )}
