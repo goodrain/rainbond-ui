@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Modal, Button, Icon, Form } from 'antd';
+import { Modal, Button, Icon, Form, Radio } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
+import { formatMessage } from '@/utils/intl';
 import globalUtil from '../../utils/global';
 import PluginUtil from '../../utils/pulginUtils';
 import { pinyin } from 'pinyin-pro';
@@ -25,12 +26,14 @@ const MarketModal = ({ visible, onCancel, dispatch, currentEnterprise, store, gr
   const [selectedVersion, setSelectedVersion] = useState('');
   const [currentVersionInfo, setCurrentVersionInfo] = useState({});
   const [installType, setInstallType] = useState('new');
+  const [isDeploy, setIsDeploy] = useState(true);
   const [cpuPrice, setCpuPrice] = useState(0);
   const [memoryPrice, setMemoryPrice] = useState(0);
   const listRef = useRef(null);
 
   useEffect(() => {
     if (visible && store) {
+      setIsDeploy(true);
       // 如果提供了 initialApp，直接跳转到安装页面
       if (initialApp) {
         const versions = initialApp?.versions || initialApp?.versions_info || [];
@@ -174,6 +177,7 @@ const MarketModal = ({ visible, onCancel, dispatch, currentEnterprise, store, gr
     setCurrentVersionInfo(initialVersionInfo);
     setCurrentView('install');
     setInstallType('new');
+    setIsDeploy(true);
 
     // 设置表单初始值
     if (form) {
@@ -189,6 +193,7 @@ const MarketModal = ({ visible, onCancel, dispatch, currentEnterprise, store, gr
     setCurrentView('list');
     setSelectedApp(null);
     setAddAppLoading(false);
+    setIsDeploy(true);
   };
 
   const handleChangeVersion = (value) => {
@@ -213,7 +218,7 @@ const MarketModal = ({ visible, onCancel, dispatch, currentEnterprise, store, gr
           ...vals,
           group_id: finalGroupId,
           app_id: selectedApp.app_id,
-          is_deploy: true,
+          is_deploy: isDeploy,
           group_key: selectedApp.group_key || selectedApp.ID,
           app_version: vals.group_version,
           marketName: store.name,
@@ -337,15 +342,27 @@ const MarketModal = ({ visible, onCancel, dispatch, currentEnterprise, store, gr
                 <Button data-testid="rbd-market-install-submit" onClick={handleSubmitInstall} type="primary" loading={addAppLoading}>
                   安装
                 </Button>
+                <Radio
+                  checked={isDeploy}
+                  onClick={() => setIsDeploy(value => !value)}
+                >
+                  {formatMessage({ id: 'button.build_start' })}
+                </Radio>
               </div>
             </div>
           ) : (
-            [
-              <Button key="back" onClick={handleBack}>返回</Button>,
-              <Button key="install" data-testid="rbd-market-install-submit" onClick={handleSubmitInstall} type="primary" loading={addAppLoading}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
+              <Button onClick={handleBack}>返回</Button>
+              <Button data-testid="rbd-market-install-submit" onClick={handleSubmitInstall} type="primary" loading={addAppLoading}>
                 安装
               </Button>
-            ]
+              <Radio
+                checked={isDeploy}
+                onClick={() => setIsDeploy(value => !value)}
+              >
+                {formatMessage({ id: 'button.build_start' })}
+              </Radio>
+            </div>
           )
         ) : null
       }

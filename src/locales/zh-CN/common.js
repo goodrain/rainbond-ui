@@ -180,7 +180,7 @@
         'button.confirm_update':'确认修改',
         'button.components_build':'进入多组件构建',
         'button.service_build':'进入多服务构建',
-        'button.build_start':'并构建启动',
+        'button.build_start':'构建并启动',
         'button.be_authorized':'已授权',
         'button.umount':'取消挂载',
         'button.build_component':'构建组件',

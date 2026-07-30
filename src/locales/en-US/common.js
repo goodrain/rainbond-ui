@@ -182,7 +182,7 @@
         'button.confirm_update':'Confirm change',
         'button.components_build':'Enter multi-component build',
         'button.service_build':'Enter multi-service build',
-        'button.build_start':'Build Run',
+        'button.build_start':'Build and start',
         'button.be_authorized':'Be granted',
         'button.umount':'Unmount',
         'button.build_component':'Build component',

@@ -107,6 +107,7 @@ class Explore extends PureComponent {
       localInstallType: 'new',
       localInstallLoading: false,
       selectedLocalVersion: '',
+      localIsDeploy: true,
       // 权限相关状态
       creatAppPermission: {},
       creatComPermission: {},
@@ -555,6 +556,7 @@ class Explore extends PureComponent {
         ? app.versions_info[0].version
         : '',
       localInstallType: 'new',
+      localIsDeploy: true,
       selectedTeam: null,
       groupList: [],
       // 重置权限状态
@@ -575,6 +577,7 @@ class Explore extends PureComponent {
       groupList: [],
       localInstallType: 'new',
       localInstallLoading: false,
+      localIsDeploy: true,
       // 重置权限状态
       creatAppPermission: {},
       creatComPermission: {},
@@ -615,7 +618,8 @@ class Explore extends PureComponent {
       selectedLocalApp,
       selectedTeam,
       localInstallType,
-      selectedLocalVersion
+      selectedLocalVersion,
+      localIsDeploy
     } = this.state;
 
     const { form } = this.props;
@@ -649,7 +653,7 @@ class Explore extends PureComponent {
         region_name: regionName,
         group_id: finalGroupId,
         app_id: selectedLocalApp.app_id,
-        is_deploy: true,
+        is_deploy: localIsDeploy,
         group_key: selectedLocalApp.group_key || selectedLocalApp.ID,
         app_version: selectedLocalVersion,
         install_from_cloud: false
@@ -1264,6 +1268,7 @@ class Explore extends PureComponent {
       localInstallType,
       localInstallLoading,
       selectedLocalVersion,
+      localIsDeploy,
       creatAppPermission,
       creatComPermission
     } = this.state;
@@ -1383,44 +1388,52 @@ class Explore extends PureComponent {
               </Form.Item>
             )}
 
-            <Form.Item style={{ textAlign: 'center', marginTop: 24 }}>
-              {(() => {
-                // 计算权限相关的禁用状态
-                let permissionDisabled = false;
-                let permissionTip = '';
+            <Form.Item style={{ marginTop: 24 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
+                {(() => {
+                  // 计算权限相关的禁用状态
+                  let permissionDisabled = false;
+                  let permissionTip = '';
 
-                if (localInstallType === 'new' && creatAppPermission?.isAccess === false) {
-                  permissionDisabled = true;
-                  permissionTip = formatMessage({ id: 'explore.error.no_permission_create_app' });
-                } else if (localInstallType === 'existing' && creatComPermission?.isCreate === false) {
-                  permissionDisabled = true;
-                  permissionTip = formatMessage({ id: 'explore.error.no_permission_create_component' });
-                }
+                  if (localInstallType === 'new' && creatAppPermission?.isAccess === false) {
+                    permissionDisabled = true;
+                    permissionTip = formatMessage({ id: 'explore.error.no_permission_create_app' });
+                  } else if (localInstallType === 'existing' && creatComPermission?.isCreate === false) {
+                    permissionDisabled = true;
+                    permissionTip = formatMessage({ id: 'explore.error.no_permission_create_component' });
+                  }
 
-                const isDisabled = !selectedTeam || !selectedLocalVersion || permissionDisabled;
+                  const isDisabled = !selectedTeam || !selectedLocalVersion || permissionDisabled;
 
-                const button = (
-                  <Button
-                    type="primary"
-                    onClick={this.handleLocalInstallSubmit}
-                    loading={localInstallLoading}
-                    disabled={isDisabled}
-                  >
-                    {formatMessage({ id: 'explore.install.confirm' })}
-                  </Button>
-                );
-
-                // 如果因权限禁用，显示提示
-                if (permissionDisabled) {
-                  return (
-                    <Tooltip title={permissionTip}>
-                      {button}
-                    </Tooltip>
+                  const button = (
+                    <Button
+                      type="primary"
+                      onClick={this.handleLocalInstallSubmit}
+                      loading={localInstallLoading}
+                      disabled={isDisabled}
+                    >
+                      {formatMessage({ id: 'explore.install.confirm' })}
+                    </Button>
                   );
-                }
 
-                return button;
-              })()}
+                  // 如果因权限禁用，显示提示
+                  if (permissionDisabled) {
+                    return (
+                      <Tooltip title={permissionTip}>
+                        {button}
+                      </Tooltip>
+                    );
+                  }
+
+                  return button;
+                })()}
+                <Radio
+                  checked={localIsDeploy}
+                  onClick={() => this.setState(prevState => ({ localIsDeploy: !prevState.localIsDeploy }))}
+                >
+                  {formatMessage({ id: 'button.build_start' })}
+                </Radio>
+              </div>
             </Form.Item>
           </Form>
         )}

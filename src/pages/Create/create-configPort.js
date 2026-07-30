@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 /* eslint-disable react/sort-comp */
-import { Button, notification } from 'antd';
+import { Button, notification, Radio } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
@@ -342,6 +342,11 @@ export default class Index extends PureComponent {
       handleBuildSwitch: val
     });
   };
+  handleAutoBuildChange = () => {
+    this.setState({
+      isDeploy: !this.state.isDeploy
+    });
+  };
   handleLinkConfigFile = (link) => {
     const {
       match: {
@@ -361,7 +366,8 @@ export default class Index extends PureComponent {
       showDelete,
       // appPermissions: { isDelete },
       handleBuildSwitch,
-      buildAppLoading
+      buildAppLoading,
+      isDeploy
     } = this.state;
     const isDelete = true;
     const appDetail = this.state.appDetail || {};
@@ -390,7 +396,8 @@ export default class Index extends PureComponent {
               style={{
                 width: '100%',
                 display: 'flex',
-                justifyContent: 'center'
+                justifyContent: 'center',
+                alignItems: 'center'
               }}
             >
               {isDelete && (
@@ -422,6 +429,12 @@ export default class Index extends PureComponent {
               >
                 {formatMessage({ id: 'button.confirm_create' })}
               </Button>
+              <Radio
+                checked={isDeploy}
+                onClick={this.handleAutoBuildChange}
+              >
+                {formatMessage({ id: 'button.build_start' })}
+              </Radio>
             </div>
             {showDelete && (
               <ConfirmModal
