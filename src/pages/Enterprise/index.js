@@ -38,10 +38,7 @@ import K3s from '../../../public/images/k3s.png'
 import Charts from '../../components/ClusterEcharts/Echarts'
 import CodeMirrorForm from '../../components/CodeMirrorForm';
 import DiskAlertBar from '../../components/DiskAlertBar';
-import {
-  NODE_DISK_USAGE_QUERY,
-  normalizeNodeDiskMetrics
-} from '../../utils/nodeDisk';
+import { normalizeNodeDiskUsage } from '../../utils/nodeDisk';
 import enterpriseStyles from './index.less'
 
 
@@ -243,7 +240,7 @@ export default class Enterprise extends PureComponent {
 
   loadDiskAlerts = () => {
     const { dispatch } = this.props;
-    const { clusters = [] } = this.state;
+    const { clusters = [], eid } = this.state;
     if (!clusters.length) {
       this.setState({ diskAlerts: [] });
       return;
@@ -261,14 +258,14 @@ export default class Enterprise extends PureComponent {
         }));
       };
       dispatch({
-        type: 'global/fetchClusterUsed',
+        type: 'region/fetClusterNodeList',
         payload: {
-          query: NODE_DISK_USAGE_QUERY,
-          regionName: cluster.region_name
+          enterprise_id: eid,
+          region_name: cluster.region_name
         },
         callback: res => {
           updateClusterAlerts(
-            normalizeNodeDiskMetrics((res && res.result) || [], cluster)
+            normalizeNodeDiskUsage((res && res.list) || [], cluster)
           );
         },
         handleError: () => updateClusterAlerts([])

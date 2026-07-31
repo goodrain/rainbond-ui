@@ -44,12 +44,14 @@ assert.ok(
 );
 
 assert.ok(
-  /NODE_DISK_USAGE_QUERY/.test(pageSource) &&
-    /global\/fetchClusterUsed/.test(pageSource) &&
-    /container_fs_usage_bytes/.test(diskUtilsSource) &&
+  /normalizeNodeDiskUsage\(res\.list/.test(pageSource) &&
+    !/NODE_DISK_USAGE_QUERY|global\/fetchClusterUsed/.test(pageSource) &&
+    /req_docker_partition/.test(diskUtilsSource) &&
+    /cap_docker_partition/.test(diskUtilsSource) &&
+    !/container_fs_usage_bytes/.test(diskUtilsSource) &&
     /enterpriseColony\.disk\.alert\.usageTitle/.test(diskAlertSource) &&
     !/diskPreview|getPreview|mock|preview/i.test(pageSource + diskUtilsSource),
-  'node disk alerts should use real Prometheus metrics without mock data'
+  'node disk alerts should use the same node filesystem data as node details'
 );
 
 assert.ok(
