@@ -37,7 +37,9 @@ import {
 } from '@/components/CodeBuildConfig/nodejs-cnb';
 import {
   buildCreatedComponentOverviewTarget,
-  resolveCreateCheckGroupId
+  resolveCreateCheckGroupId,
+  shouldEnterMultiServiceBuild,
+  shouldShowMultiModuleBuildChoice
 } from './createCheckHelpers';
 const {
   getDefaultMirrorEnvByPackageManager
@@ -1761,7 +1763,8 @@ export default class CreateCheck extends React.Component {
       codeLanguage,
       source_from,
       ports,
-      Directory
+      Directory,
+      isMulti
     } = this.state;
     const platform_url = rainbondUtil.documentPlatform_url(rainbondInfo);
     const isDelete = true;
@@ -1770,6 +1773,17 @@ export default class CreateCheck extends React.Component {
     if (serviceInfo && serviceInfo.length > 0) {
       extra = this.renderSuccessInfo(serviceInfo)
     }
+
+    const enterMultiServiceBuild = shouldEnterMultiServiceBuild({
+      isMulti,
+      codeLanguage
+    });
+    const handleNext = enterMultiServiceBuild
+      ? this.handleMoreService
+      : this.handleConfigFile;
+    const nextButtonText = enterMultiServiceBuild
+      ? formatMessage({ id: 'button.service_build' })
+      : formatMessage({ id: 'button.next_step' });
 
     let actions = [];
     if (ServiceGetData) {
@@ -1788,9 +1802,9 @@ export default class CreateCheck extends React.Component {
             data-testid="rbd-build-wizard-next"
             type="primary"
             style={{ marginRight: '8px' }}
-            onClick={this.handleConfigFile}
+            onClick={handleNext}
           >
-            {formatMessage({ id: 'button.next_step' })}
+            {nextButtonText}
           </Button>
         </div>
       ];
@@ -1821,9 +1835,9 @@ export default class CreateCheck extends React.Component {
             data-testid="rbd-build-wizard-next"
             type="primary"
             style={{ marginRight: '8px' }}
-            onClick={this.handleConfigFile}
+            onClick={handleNext}
           >
-            {formatMessage({ id: 'button.next_step' })}
+            {nextButtonText}
           </Button>
         </div>
       ];
@@ -2148,6 +2162,10 @@ export default class CreateCheck extends React.Component {
       buildAppLoading,
       imageAddress
     } = this.state;
+    const showMultiModuleBuildChoice = shouldShowMultiModuleBuildChoice({
+      isMulti,
+      serviceInfo: this.state.serviceInfo
+    });
     const box = (
       <Card bordered={false}>
         <div
@@ -2156,8 +2174,8 @@ export default class CreateCheck extends React.Component {
           }}
         >
           {status === 'checking' && this.renderChecking()}
-          {status === 'success' && isMulti !== true && this.renderSuccess(buildAppLoading)}
-          {status === 'success' && isMulti === true && this.renderMoreService(buildAppLoading)}
+          {status === 'success' && (isMulti !== true || showMultiModuleBuildChoice) && this.renderSuccess(buildAppLoading)}
+          {status === 'success' && isMulti === true && !showMultiModuleBuildChoice && this.renderMoreService(buildAppLoading)}
           {status === 'failure' && this.renderError()}
         </div>
       </Card>
