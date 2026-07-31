@@ -44,9 +44,10 @@ assert.ok(
 );
 
 assert.ok(
-  /type: 'global\/fetchClusterUsed'[\s\S]*?query: NODE_DISK_USAGE_QUERY[\s\S]*?normalizeNodeDiskMetrics/.test(jsSource) &&
+  /type: 'region\/fetClusterNodeList'[\s\S]*?normalizeNodeDiskUsage\(\(res && res\.list\) \|\| \[\], cluster\)/.test(jsSource) &&
+    !/NODE_DISK_USAGE_QUERY/.test(jsSource) &&
     !/getRainbondAlert|diskPreview|getPreview|mockDisk/.test(jsSource),
-  'cluster disk alerts should use real Prometheus metrics without preview data'
+  'cluster disk alerts should use the same node filesystem data as node details'
 );
 
 assert.ok(
