@@ -11,6 +11,7 @@ import { setLocale, getLocale } from 'umi'
 import CustomFooter from './CustomFooter';
 import cookie from '../utils/cookie';
 import styles from './UserLayout.less';
+import { getSafeRedirect } from '../utils/authorizationRedirect';
 
 class UserLayout extends React.PureComponent {
   constructor(props) {
@@ -58,7 +59,10 @@ class UserLayout extends React.PureComponent {
               window.localStorage.setItem('link', link);
             }
             if (redirect) {
-              window.localStorage.setItem('redirect', redirect);
+              const safeRedirect = getSafeRedirect(redirect);
+              if (safeRedirect) {
+                window.localStorage.setItem('redirect', safeRedirect);
+              }
             }
           }
           // check auto login
@@ -140,7 +144,8 @@ class UserLayout extends React.PureComponent {
       cookie.set('token', portalToken);
 
       // 跳转到redirect指定的页面，如果没有则跳转到首页
-      const targetUrl = redirectUrl || (window.location.origin + '/#/');
+      const targetUrl =
+        getSafeRedirect(redirectUrl) || window.location.origin + '/#/';
       window.location.href = targetUrl;
       return true;
     }

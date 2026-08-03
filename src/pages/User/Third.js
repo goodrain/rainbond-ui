@@ -10,6 +10,7 @@ import cookie from '../../utils/cookie';
 import handleAPIError from '../../utils/error';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
+import { getSafeRedirect } from '../../utils/authorizationRedirect';
 
 const loginUrl = '/user/login?disable_auto_login=true';
 
@@ -195,11 +196,7 @@ export default class ThirdLogin extends Component {
                     if (!redirect || redirect === '') {
                       redirect = '/';
                     }
-                    if (redirect.startsWith('/')) {
-                      dispatch(routerRedux.push(redirect));
-                    } else {
-                      window.location.href = redirect;
-                    }
+                    window.location.href = getSafeRedirect(redirect) || '/';
                   });
                 } else {
                   this.handleError();
@@ -232,17 +229,12 @@ export default class ThirdLogin extends Component {
     }, 1000);
   };
   handleSuccess = () => {
-    const { dispatch } = this.props;
     let redirect = window.localStorage.getItem('redirect');
     if (!redirect || redirect === '') {
       redirect = '/';
     }
     window.localStorage.setItem('redirect', '');
-    if (redirect.startsWith('/')) {
-      dispatch(routerRedux.push(redirect));
-    } else {
-      window.location.href = redirect;
-    }
+    window.location.href = getSafeRedirect(redirect) || '/';
   };
 
   render() {

@@ -41,6 +41,7 @@ import cookie from '../utils/cookie';
 import userUtil from '../utils/global';
 import globalUtil from '../utils/global';
 import { identifyPostHogUser, resetPostHogUser } from '../posthog';
+import { redirectToAuthorization } from '../utils/authorizationRedirect';
 
 export default {
   namespace: 'user',
@@ -244,6 +245,9 @@ export default {
           response.bean.nick_name
         ) {
           const redirect = window.localStorage.getItem('redirect');
+          if (redirectToAuthorization(redirect)) {
+            return;
+          }
           let inviteId = '';
           if (redirect && redirect.includes('invite')) {
             const reg = /invite\/([^\/]+)/;
@@ -340,6 +344,9 @@ export default {
           response.bean.nick_name
         ) {
           const redirect = window.localStorage.getItem('redirect');
+          if (redirectToAuthorization(redirect)) {
+            return;
+          }
           let inviteId = '';
           if (redirect && redirect.includes('invite')) {
             const reg = /invite\/([^\/]+)/;

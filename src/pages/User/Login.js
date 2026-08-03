@@ -13,6 +13,7 @@ import logo from '../../../public/logoLogin.png';
 import styles from './Login.less';
 import LoginComponent from './loginComponent';
 import LoginSmsComponent from './loginSmsComponent';
+import { getSafeRedirect } from '../../utils/authorizationRedirect';
 @connect(({ global }) => ({
   isRegist: global.isRegist,
   rainbondInfo: global.rainbondInfo
@@ -60,10 +61,7 @@ export default class LoginPage extends Component {
         ...values
       },
       callback: () => {
-        let url = '/';
-        if (redirect) {
-          url = redirect;
-        }
+        const url = getSafeRedirect(redirect) || '/';
         window.location.href = url;
       }
     });
@@ -105,10 +103,7 @@ export default class LoginPage extends Component {
       type: 'user/smsLogin',
       payload: values,
       callback: () => {
-        let url = '/';
-        if (redirect) {
-          url = redirect;
-        }
+        const url = getSafeRedirect(redirect) || '/';
         window.location.href = url;
       }
     })
