@@ -134,39 +134,6 @@ class Control extends Component {
   handleClose = () => {
     this.setState({ visibleDrawer: false, editData: '' });
   };
-  handleApiGatewayCert = (values, type) => {
-    this.props.dispatch({
-      type: 'gateWay/handleApiGatewayCert',
-      payload: {
-        alias: values.alias,
-        teamName: globalUtil.getCurrTeamName()
-      },
-      callback: data => {
-        if (data && data.status_code === 200) {
-          if (type == 'add') {
-            notification.success({ message: formatMessage({ id: 'notification.success.add' }) });
-            this.setState({ visibleDrawer: false }, () => {
-              this.load();
-            });
-          } else {
-            notification.success({ message: data ? formatMessage({ id: 'notification.success.change' }) : formatMessage({ id: 'notification.error.change' }) });
-            this.setState({ visibleDrawer: false }, () => {
-              this.load();
-            });
-          }
-        }
-      }
-    });
-  }
-  deleteApiGatewayCert = (values) => {
-    this.props.dispatch({
-      type: 'gateWay/deleteApiGatewayCert',
-      payload: {
-        alias: values.alias,
-        teamName: globalUtil.getCurrTeamName()
-      }
-    });
-  }
   /** 添加证书 */
   handleOk = values => {
     const { editData } = this.state;
@@ -186,9 +153,10 @@ class Control extends Component {
         },
         callback: data => {
           if (data && data.status_code === 200) {
-            setTimeout(() => {
-              this.handleApiGatewayCert(values, 'add')
-            }, 500);
+            notification.success({ message: formatMessage({ id: 'notification.success.add' }) });
+            this.setState({ visibleDrawer: false }, () => {
+              this.load();
+            });
           }
         }
       });
@@ -205,9 +173,10 @@ class Control extends Component {
         },
         callback: data => {
           if (data && data.status_code === 200) {
-            setTimeout(() => {
-              this.handleApiGatewayCert(values, 'edit')
-            }, 500);
+            notification.success({ message: formatMessage({ id: 'notification.success.change' }) });
+            this.setState({ visibleDrawer: false }, () => {
+              this.load();
+            });
           }
         }
       });
@@ -215,7 +184,6 @@ class Control extends Component {
   };
   /** 删除证书 */
   handleDelete = record => {
-    this.deleteApiGatewayCert(record)
     this.props.dispatch({
       type: 'gateWay/deleteLicense',
       payload: {
