@@ -128,7 +128,7 @@ export default class Index extends PureComponent {
     });
   };
 
-  renderSuccessOnChange = () => {
+  handleAutoBuildChange = () => {
     this.setState({
       is_deploy: !this.state.is_deploy
     });
@@ -214,7 +214,7 @@ export default class Index extends PureComponent {
                   </span>
                 </span>
               </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <Button onClick={onCancel}>{formatMessage({ id: "button.cancel" })}</Button>
                   <Button
                     onClick={this.handleSubmit}
@@ -224,6 +224,12 @@ export default class Index extends PureComponent {
                   >
                     {formatMessage({ id: 'button.install' })}
                   </Button>
+                <Radio
+                  checked={this.state.is_deploy}
+                  onClick={this.handleAutoBuildChange}
+                >
+                  {formatMessage({ id: 'button.build_start' })}
+                </Radio>
               </div>
             </div>
             :
@@ -237,8 +243,14 @@ export default class Index extends PureComponent {
                   loading={addAppLoading || disabled}
                 >
                   {formatMessage({ id: 'button.install' })}
-                </Button>
+                </Button>,
               // </Tooltip>
+              <Radio
+                checked={this.state.is_deploy}
+                onClick={this.handleAutoBuildChange}
+              >
+                {formatMessage({ id: 'button.build_start' })}
+              </Radio>
             ]
         }
       >

@@ -37,6 +37,8 @@ import cookie from '../../utils/cookie';
 import K3s from '../../../public/images/k3s.png'
 import Charts from '../../components/ClusterEcharts/Echarts'
 import CodeMirrorForm from '../../components/CodeMirrorForm';
+import DiskAlertBar from '../../components/DiskAlertBar';
+import { normalizeNodeDiskUsage } from '../../utils/nodeDisk';
 import enterpriseStyles from './index.less'
 
 
@@ -67,6 +69,7 @@ export default class Enterprise extends PureComponent {
       delcollectionVisible: false,
       collectionInfo: false,
       clusters: [],
+      diskAlerts: [],
       appAlertList: [],
       appAlertLoding: true,
       language: cookie.get('language') === 'zh-CN' ? true : false,
@@ -93,11 +96,15 @@ export default class Enterprise extends PureComponent {
     this.loading();
     this.handleGetEnterpriseAuthorization();
     this.interval = setInterval(() => this.handleAppAlertInfo(), 5000);
+    this.diskAlertTimer = window.setInterval(this.loadDiskAlerts, 60000);
   }
   // 组件销毁停止计时器
   componentWillUnmount() {
     // 组件销毁  清除定时器
     clearInterval(this.interval)
+    if (this.diskAlertTimer) {
+      window.clearInterval(this.diskAlertTimer);
+    }
   }
   fetchAllVersion = () => {
     const { rainbondInfo , dispatch} = this.props
@@ -224,11 +231,66 @@ export default class Enterprise extends PureComponent {
             clusters.push(item);
             return item;
           });
-          this.setState({ clusters });
+          this.setState({ clusters, diskAlerts: [] }, this.loadDiskAlerts);
           globalUtil.putClusterInfoLog(eid, res.list);
         }
       }
     });
+  };
+
+  loadDiskAlerts = () => {
+    const { dispatch } = this.props;
+    const { clusters = [], eid } = this.state;
+    if (!clusters.length) {
+      this.setState({ diskAlerts: [] });
+      return;
+    }
+
+    clusters.forEach(cluster => {
+      const updateClusterAlerts = alerts => {
+        this.setState(prevState => ({
+          diskAlerts: [
+            ...prevState.diskAlerts.filter(
+              alert => alert.regionName !== cluster.region_name
+            ),
+            ...alerts
+          ]
+        }));
+      };
+      dispatch({
+        type: 'region/fetClusterNodeList',
+        payload: {
+          enterprise_id: eid,
+          region_name: cluster.region_name
+        },
+        callback: res => {
+          updateClusterAlerts(
+            normalizeNodeDiskUsage((res && res.list) || [], cluster)
+          );
+        },
+        handleError: () => updateClusterAlerts([])
+      });
+    });
+  };
+
+  handleViewDiskAlert = alert => {
+    const { dispatch } = this.props;
+    const { clusters = [], eid } = this.state;
+    const cluster = clusters.find(item => item.region_name === alert.regionName) || {};
+    const regionId = alert.regionId || cluster.region_id;
+    if (!regionId) {
+      dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
+      return;
+    }
+    if (!alert.node || alert.node === '-') {
+      dispatch(routerRedux.push(`/enterprise/${eid}/clusters/clustersmgt/${regionId}`));
+      return;
+    }
+    dispatch(
+      routerRedux.push(
+        `/enterprise/${eid}/clusters/nodemgt/${regionId}?name=${encodeURIComponent(alert.node)}`
+      )
+    );
   };
   getParam() {
     return this.props.match.params;
@@ -685,6 +747,7 @@ export default class Enterprise extends PureComponent {
       eid,
       language,
       clusters,
+      diskAlerts,
       appAlertList,
       appAlertLoding,
       isAuthorizationCode,
@@ -1054,6 +1117,7 @@ export default class Enterprise extends PureComponent {
                 (clusters.map(item => {
                 const {
                   region_alias,
+                  region_name,
                   rbd_version,
                   health_status,
                   provider,
@@ -1093,6 +1157,9 @@ export default class Enterprise extends PureComponent {
                 const memoryDisplayPercent = typeStatusMemory ? memoryActualPercent : memoryAllocatedPercent;
                 const memoryDisplayRemaining = typeStatusMemory ? memoryActualRemainingGb : memoryRemainingGb;
                 const clusterType = region_type && region_type[0];
+                const clusterDiskAlerts = diskAlerts.filter(
+                  alert => alert.regionName === region_name
+                );
                 return (
                   <div className={enterpriseStyles.clusterInfo} key={region_id || region_alias}>
                     <div className={enterpriseStyles.clusterSummary}>
@@ -1131,6 +1198,14 @@ export default class Enterprise extends PureComponent {
                         </Tooltip>
                       </Link>
                     </div>
+                    {clusterDiskAlerts.length > 0 && (
+                      <div className={enterpriseStyles.clusterDiskAlerts}>
+                        <DiskAlertBar
+                          alerts={clusterDiskAlerts}
+                          onView={this.handleViewDiskAlert}
+                        />
+                      </div>
+                    )}
                     <div className={enterpriseStyles.clusterDivider} />
                     {health_status !== 'failure' ? (
                       <div className={enterpriseStyles.clusterMetrics}>

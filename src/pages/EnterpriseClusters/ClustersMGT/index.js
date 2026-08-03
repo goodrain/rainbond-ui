@@ -20,6 +20,7 @@ import pageheaderSvg from '@/utils/pageHeaderSvg';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import pluginUtils from '../../../utils/pulginUtils';
 import global from '@/utils/global';
+import { normalizeNodeDiskUsage } from '@/utils/nodeDisk';
 import styles from "./index.less";
 
 @connect(({ global }) => ({
@@ -43,6 +44,7 @@ class Index extends Component {
       dashboardShow: false,
       eventId: '',
       showGpuBtn: false,
+      diskAlerts: [],
     }
     this.timer = null
   }
@@ -186,6 +188,7 @@ class Index extends Component {
         if (res && res.status_code == 200) {
           this.setState({
             nodeList: res.list,
+            diskAlerts: normalizeNodeDiskUsage(res.list, item),
             showListInfo: true,
             nodeType: res.bean
           }, () => {
@@ -201,6 +204,7 @@ class Index extends Component {
       handleError: () => {
         this.setState({
           nodeList: [],
+          diskAlerts: [],
           showListInfo: true
         }, () => {
           notification.error({
@@ -314,7 +318,8 @@ class Index extends Component {
       dashboardShow,
       nodeType,
       eventId,
-      showGpuBtn
+      showGpuBtn,
+      diskAlerts
     } = this.state
     return (
       <PageHeaderLayout
@@ -346,6 +351,7 @@ class Index extends Component {
               showInfo={showListInfo}
               updateCluster={this.updateCluster}
               handleLoadClusters={() => { this.loadClusters() }}
+              diskAlerts={diskAlerts}
             />
           </Row>
           <Row>

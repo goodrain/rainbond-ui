@@ -38,7 +38,40 @@ function buildCreatedComponentOverviewTarget({
   return `apps/${normalizedGroupId}/overview?type=components&componentID=${appAlias}&tab=${tab}`;
 }
 
+function shouldShowMultiModuleBuildChoice({
+  isMulti = false,
+  serviceInfo = []
+} = {}) {
+  if (!isMulti || !Array.isArray(serviceInfo)) {
+    return false;
+  }
+
+  const languageInfo = serviceInfo.find(item => item.type === 'language');
+  const languages = String((languageInfo && languageInfo.value) || '')
+    .split(',')
+    .map(language => language.trim().toLowerCase());
+  const dockerfileInfo = serviceInfo.find(item => item.type === 'dockerfiles');
+  const dockerfiles = dockerfileInfo && dockerfileInfo.value;
+
+  return (
+    languages.includes('dockerfile') &&
+    Array.isArray(dockerfiles) &&
+    dockerfiles.length > 0
+  );
+}
+
+function shouldEnterMultiServiceBuild({
+  isMulti = false,
+  codeLanguage = ''
+} = {}) {
+  return (
+    isMulti && String(codeLanguage).trim().toLowerCase() !== 'dockerfile'
+  );
+}
+
 module.exports = {
   buildCreatedComponentOverviewTarget,
-  resolveCreateCheckGroupId
+  resolveCreateCheckGroupId,
+  shouldEnterMultiServiceBuild,
+  shouldShowMultiModuleBuildChoice
 };
