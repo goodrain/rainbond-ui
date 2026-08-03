@@ -1167,6 +1167,7 @@ const enterpriseColony = {
     'enterpriseColony.mgt.node.memory': 'Memory',
     'enterpriseColony.mgt.node.root': 'Root partition',
     'enterpriseColony.mgt.node.vessel': 'Container partition',
+    'enterpriseColony.disk.alert.usageTitle': 'Disk usage has exceeded {thresholdPercent}%; currently {usagePercent}% used',
     'enterpriseColony.mgt.node.assigned': 'Total CPU：',
     'enterpriseColony.mgt.node.totalMemory': 'Total Memory：',
     'enterpriseColony.mgt.node.totalRoot': 'Total root partition：',

@@ -1,8 +1,10 @@
 import apiconfig from '../../config/api.config';
 import request from '../utils/request';
 import sourceBuildPayload from '../utils/sourceBuildPayload';
+import deployPreflightRequest from './deployPreflightRequest';
 
 const { sanitizePackageToolPayload } = sourceBuildPayload;
+const { buildDeployPreflightRequestData } = deployPreflightRequest;
 
 /*
    源码创建应用
@@ -521,10 +523,7 @@ export async function preflightDeploy(body = {}, handleError) {
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/deploy_preflight`,
     {
       method: 'post',
-      data: {
-        deploy_type: body.deploy_type,
-        payload: body.payload || {}
-      },
+      data: buildDeployPreflightRequestData(body),
       params: {
         region_name: body.region_name
       },

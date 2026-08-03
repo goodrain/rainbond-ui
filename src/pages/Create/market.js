@@ -749,7 +749,7 @@ export default class Main extends PureComponent {
   };
 
   // 创建新应用
-  installApp = (vals) => {
+  installApp = (vals, is_deploy) => {
     const { handleType, scopeMax } = this.state;
     const { dispatch } = this.props;
     const teamName = globalUtil.getCurrTeamName();
@@ -767,9 +767,9 @@ export default class Main extends PureComponent {
         if(res && res.group_id){
           roleUtil.refreshPermissionsInfo()
           if(handleType || scopeMax == 'localApplication'){
-            this.handleCreate(vals, true, res.group_id)
+            this.handleCreate(vals, is_deploy, res.group_id)
           } else {
-            this.handleCloudCreate(vals, true, res.group_id)
+            this.handleCloudCreate(vals, is_deploy, res.group_id)
           }
         }
       },
@@ -783,12 +783,12 @@ export default class Main extends PureComponent {
   handleInstallApp = (vals, is_deploy) => {
     const { handleType, scopeMax } = this.state;
     if(vals.install_type == 'new'){
-      this.installApp(vals)
+      this.installApp(vals, is_deploy)
     } else {
       if(handleType || scopeMax == 'localApplication'){
-        this.handleCreate(vals, true)
+        this.handleCreate(vals, is_deploy)
       } else {
-        this.handleCloudCreate(vals, true)
+        this.handleCloudCreate(vals, is_deploy)
       }
     }
   }

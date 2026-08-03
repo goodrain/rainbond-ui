@@ -26,9 +26,7 @@ class Index extends Component {
                 cap_memory,
                 req_memory,
                 cap_docker_partition,
-                req_docker_partition,
-                cap_root_partition,
-                req_root_partition
+                req_docker_partition
             }
                 = nodeDetail;
         const cpuCapacity = Number(cap_cpu || 0);
@@ -37,19 +35,14 @@ class Index extends Component {
         const memoryRequest = Number(req_memory || 0);
         const dockerCapacity = Number(cap_docker_partition || 0);
         const dockerRequest = Number(req_docker_partition || 0);
-        const rootCapacity = Number(cap_root_partition || 0);
-        const rootRequest = Number(req_root_partition || 0);
         // CPU使用率
         const cpuUsed = cpuCapacity == 0 ? 0 : ((cpuRequest / cpuCapacity) * 100).toFixed(2);
         // 内存使用率
         const memoryUsed = memoryCapacity == 0 ? 0 : ((memoryRequest / memoryCapacity) * 100).toFixed(2);
         // docker使用量
         const dockerUsed = dockerCapacity == 0 ? 0 : ((dockerRequest / dockerCapacity) * 100).toFixed(2);
-        // 根分区
-        const rootUsed = rootCapacity == 0 ? 0 : ((rootRequest / rootCapacity) * 100).toFixed(2);
         const cpuRemaining = Math.max(cpuCapacity - cpuRequest, 0).toFixed(2) / 1;
         const memoryRemaining = Math.max(memoryCapacity - memoryRequest, 0).toFixed(2) / 1;
-        const rootRemaining = Math.max(rootCapacity - rootRequest, 0).toFixed(2) / 1;
         const dockerRemaining = Math.max(dockerCapacity - dockerRequest, 0).toFixed(2) / 1;
         
         return (
@@ -92,21 +85,6 @@ class Index extends Component {
                                     </div>
                                     <div className={styles.nodeGaugeFloat}>
                                         <Charts chartType="progressGauge" keys={'nodeMemoryGauge'} unit="%" svalue={memoryUsed} usedValue={memoryUsed} swidth='140px' sheight='140px' />
-                                    </div>
-                                </div>
-                                <div className={styles.nodeMetricItem}>
-                                    <div className={styles.nodeMetricTitle}>{formatMessage({ id: 'enterpriseColony.mgt.node.root' })}</div>
-                                    <div className={styles.nodeMetricValue}>
-                                        <span>{rootRequest.toFixed(2) / 1}</span>
-                                        <em>/{rootCapacity.toFixed(2) / 1} GB</em>
-                                    </div>
-                                    <div className={styles.nodeMetricDesc}>
-                                        {formatMessage({ id: 'enterpriseOverview.overview.remaining' })}
-                                        <span>{rootRemaining}</span>
-                                        GB
-                                    </div>
-                                    <div className={styles.nodeGaugeFloat}>
-                                        <Charts chartType="progressGauge" keys={'nodeRootGauge'} unit="%" svalue={rootUsed} usedValue={rootUsed} swidth='140px' sheight='140px' />
                                     </div>
                                 </div>
                                 <div className={styles.nodeMetricItem}>

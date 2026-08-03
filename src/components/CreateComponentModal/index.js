@@ -193,6 +193,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const [selectedMarketVersion, setSelectedMarketVersion] = useState('');
   const [currentMarketVersionInfo, setCurrentMarketVersionInfo] = useState({});
   const [marketSubmitLoading, setMarketSubmitLoading] = useState(false);
+  const [marketIsDeploy, setMarketIsDeploy] = useState(true);
 
   // 本地组件库相关状态
   const [localMarketApps, setLocalMarketApps] = useState([]);
@@ -341,6 +342,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   // 处理商店应用安装按钮点击
   const handleMarketAppInstall = (app) => {
     setSelectedMarketApp(app);
+    setMarketIsDeploy(true);
     // 初始化版本信息为第一个版本
     if (app.versions_info && app.versions_info.length > 0) {
       setCurrentMarketVersionInfo(app.versions_info[0]);
@@ -355,6 +357,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   // 处理本地应用安装按钮点击
   const handleLocalAppInstall = (app) => {
     setSelectedLocalApp(app);
+    setMarketIsDeploy(true);
     // 初始化版本信息为第一个版本
     if (app.versions_info && app.versions_info.length > 0) {
       setCurrentLocalVersionInfo(app.versions_info[0]);
@@ -436,7 +439,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       ...vals,
       group_id: finalGroupId,
       app_id: selectedMarketApp.app_id,
-      is_deploy: true,
+      is_deploy: marketIsDeploy,
       group_key: selectedMarketApp.group_key || selectedMarketApp.ID,
       app_version: vals.group_version,
       marketName: selectedStore.name,
@@ -543,7 +546,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       ...vals,
       group_id: finalGroupId,
       app_id: selectedLocalApp.app_id,
-      is_deploy: true,
+      is_deploy: marketIsDeploy,
       group_key: selectedLocalApp.group_key || selectedLocalApp.ID,
       app_version: vals.group_version,
       install_from_cloud: false
@@ -1843,6 +1846,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       setMarketPage(1);
       setLocalMarketPage(1);
       setLocalMarketActiveTab('all');
+      setMarketIsDeploy(true);
       setCurrentFormType('');
       setHasInitialized(false); // 重置初始化标志
       resetLlmSelectorState();
@@ -2107,6 +2111,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       popViewHistory();
     } else if (currentView === 'marketInstall') {
       setSelectedMarketApp(null);
+      setMarketIsDeploy(true);
       popViewHistory();
     } else if (currentView === 'marketStore') {
       setSelectedStore(null);
@@ -2116,6 +2121,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       popViewHistory();
     } else if (currentView === 'localMarketInstall') {
       setSelectedLocalApp(null);
+      setMarketIsDeploy(true);
       popViewHistory();
     } else if (currentView === 'localMarket') {
       setLocalMarketApps([]);
@@ -2705,9 +2711,17 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
             }
 
           </div>
-          <Button type="primary" onClick={handleFooterSubmit} loading={marketSubmitLoading}>
-            {formatMessage({ id: 'componentOverview.body.CreateComponentModal.confirm_install' })}
-          </Button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <Button type="primary" onClick={handleFooterSubmit} loading={marketSubmitLoading}>
+              {formatMessage({ id: 'componentOverview.body.CreateComponentModal.confirm_install' })}
+            </Button>
+            <Radio
+              checked={marketIsDeploy}
+              onClick={() => setMarketIsDeploy(value => !value)}
+            >
+              {formatMessage({ id: 'button.build_start' })}
+            </Radio>
+          </div>
         </div>
       );
     }
@@ -2726,9 +2740,17 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
               </>
             }
           </div>
-          <Button type="primary" onClick={handleFooterSubmit} loading={localSubmitLoading}>
-            {formatMessage({ id: 'componentOverview.body.CreateComponentModal.confirm_install' })}
-          </Button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <Button type="primary" onClick={handleFooterSubmit} loading={localSubmitLoading}>
+              {formatMessage({ id: 'componentOverview.body.CreateComponentModal.confirm_install' })}
+            </Button>
+            <Radio
+              checked={marketIsDeploy}
+              onClick={() => setMarketIsDeploy(value => !value)}
+            >
+              {formatMessage({ id: 'button.build_start' })}
+            </Radio>
+          </div>
         </div>
       );
     }

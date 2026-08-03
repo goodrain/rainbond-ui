@@ -54,9 +54,14 @@ assert.ok(
 
 assert.ok(
   /chartType="progressGauge"/.test(nodeUseJs) &&
-    /\.nodeMetrics\s*\{[\s\S]*?grid-template-columns:\s*repeat\(4, minmax\(0, 1fr\)\);/m.test(nodeUseLess) &&
+    /\.nodeMetrics\s*\{[\s\S]*?grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\);/m.test(nodeUseLess) &&
     /\.nodeGaugeFloat\s*\{[\s\S]*?position:\s*absolute;/m.test(nodeUseLess),
   'node resource usage should use the unified metric grid with floating gauges'
+);
+
+assert.ok(
+  !/cap_root_partition|req_root_partition|enterpriseColony\.mgt\.node\.root|nodeRootGauge/.test(nodeUseJs),
+  'node resource usage should not show an unreliable root partition metric'
 );
 
 assert.ok(

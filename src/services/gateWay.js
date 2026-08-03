@@ -604,19 +604,6 @@ export async function deleteApiGatewayService(params, handleError) {
   );
 }
 
-/** 新增或编辑Api-Gateway证书 */
-export async function handleApiGatewayCert(params, handleError) {
-  return request(
-    `${apiconfig.baseUrl}/console/api-gateway/v1/${params.teamName}/cert/${params.alias}`,
-    {
-      method: 'post',
-      handleError
-    }
-  );
-}
-
-
-
 // 获取团队网关数据
 export async function getTeamGatewayData(params, handleError) {
   return request(
@@ -633,16 +620,6 @@ export async function getTeamGatewayData(params, handleError) {
     }
   )
 }
-export async function deleteApiGatewayCert(params, handleError) {
-  return request(
-    `${apiconfig.baseUrl}/console/api-gateway/v1/${params.teamName}/cert/${params.alias}`,
-    {
-      method: 'delete',
-      handleError
-    }
-  );
-}
-
 // 获取服务地址列表
 export function fetchGetServiceAddress(params) {
   return request(

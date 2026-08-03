@@ -10,6 +10,14 @@ const pageSource = fs.readFileSync(
   path.join(__dirname, '../../pages/EnterpriseClusters/ClustersMGT/index.js'),
   'utf8'
 );
+const diskAlertSource = fs.readFileSync(
+  path.join(__dirname, '../DiskAlertBar/index.js'),
+  'utf8'
+);
+const diskUtilsSource = fs.readFileSync(
+  path.join(__dirname, '../../utils/nodeDisk.js'),
+  'utf8'
+);
 
 assert.ok(
   /<ClusterList[\s\S]*?titleIcon=\{SVG\.getSvg\("listSvg", 20\)\}[\s\S]*?titleText=\{formatMessage\(\{ id: 'enterpriseColony\.mgt\.cluster\.clusterList' \}\)\}/.test(pageSource),
@@ -20,6 +28,30 @@ assert.ok(
   /\.cardContainer\s*\{[\s\S]*?background-image:\s*radial-gradient/m.test(listLess) &&
     /className=\{styles\.cardContainer\}/.test(listJs),
   'node list should use the gradient card surface'
+);
+
+assert.ok(
+  /diskAlerts=\{diskAlerts\}/.test(pageSource) &&
+    /<DiskAlertBar[\s\S]*?alerts=\{diskAlerts\}[\s\S]*?onView=\{this\.handleViewDiskAlert\}[\s\S]*?<Table/.test(listJs),
+  'node list should show disk alerts above the original table'
+);
+
+assert.ok(
+  /dataIndex: 'role'/.test(listJs) &&
+    /dataIndex: 'arch'/.test(listJs) &&
+    !/enterpriseColony\.disk\.title|dataIndex: 'disk'|<Progress|getNodeDisk|getDiskStatusRank/.test(listJs),
+  'node list should keep its original columns without a disk column'
+);
+
+assert.ok(
+  /normalizeNodeDiskUsage\(res\.list/.test(pageSource) &&
+    !/NODE_DISK_USAGE_QUERY|global\/fetchClusterUsed/.test(pageSource) &&
+    /req_docker_partition/.test(diskUtilsSource) &&
+    /cap_docker_partition/.test(diskUtilsSource) &&
+    !/container_fs_usage_bytes/.test(diskUtilsSource) &&
+    /enterpriseColony\.disk\.alert\.usageTitle/.test(diskAlertSource) &&
+    !/diskPreview|getPreview|mock|preview/i.test(pageSource + diskUtilsSource),
+  'node disk alerts should use the same node filesystem data as node details'
 );
 
 assert.ok(

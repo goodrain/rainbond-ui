@@ -1172,6 +1172,7 @@ const enterpriseColony = {
     'enterpriseColony.mgt.node.memory': '内存',
     'enterpriseColony.mgt.node.root': '根分区',
     'enterpriseColony.mgt.node.vessel': '容器分区',
+    'enterpriseColony.disk.alert.usageTitle': '磁盘空间使用率已超过 {thresholdPercent}%，当前已使用 {usagePercent}%',
     'enterpriseColony.mgt.node.assigned': 'CPU总量：',
     'enterpriseColony.mgt.node.totalMemory': '内存总量：',
     'enterpriseColony.mgt.node.totalRoot': '根分区总量：',
