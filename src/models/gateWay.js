@@ -40,8 +40,6 @@ import {
     handleApiGatewayService,
     deleteApiGatewayService,
     fetchGetServiceAddress,
-    handleApiGatewayCert,
-    deleteApiGatewayCert,
     fetchGetTcpService,
     fetchEditTcpService,
     fetchDeleteTcpService,
@@ -357,18 +355,6 @@ export default {
         },
         *fetchGetServiceAddress({ callback, payload, handleError }, { call }) {
             const response = yield call(fetchGetServiceAddress, payload, handleError);
-            if (callback) {
-                callback(response)
-            }
-        },
-        *handleApiGatewayCert({ callback, payload, handleError }, { call }) {
-            const response = yield call(handleApiGatewayCert, payload, handleError);
-            if (callback) {
-                callback(response)
-            }
-        },
-        *deleteApiGatewayCert({ callback, payload, handleError }, { call }) {
-            const response = yield call(deleteApiGatewayCert, payload, handleError);
             if (callback) {
                 callback(response)
             }
