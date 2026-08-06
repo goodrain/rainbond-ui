@@ -721,6 +721,9 @@ export default {
         if (Object.prototype.hasOwnProperty.call(payload, 'enable_global_image_registry')) {
           nextEnterprise.enable_global_image_registry = payload.enable_global_image_registry;
         }
+        if (Object.prototype.hasOwnProperty.call(payload, 'enable_external_telemetry')) {
+          nextEnterprise.enable_external_telemetry = payload.enable_external_telemetry;
+        }
         yield put({
           type: 'saveEnterpriseInfo',
           payload: nextEnterprise

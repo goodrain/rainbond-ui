@@ -1272,6 +1272,8 @@ const enterpriseSetting = {
     'enterpriseSetting.basicsSetting.mirroring.content': '用于存储发布到组件库的应用模型镜像，其需要能被所有集群访问。',
     'enterpriseSetting.basicsSetting.globalImageRegistry.content': '由平台管理员维护，企业内用户创建镜像组件时可直接使用。',
     'enterpriseSetting.basicsSetting.globalImageRegistry.title': '全局容器镜像仓库',
+    'enterpriseSetting.basicsSetting.externalTelemetry.title': '后端诊断数据上报',
+    'enterpriseSetting.basicsSetting.externalTelemetry.content': '用于收集 Rainbond 后端运行质量数据。关闭后，Console 将停止向外部诊断服务发送数据。',
     'enterpriseSetting.basicsSetting.storage.title': '对象存储',
     'enterpriseSetting.basicsSetting.storage.content': '对象存储用于云端备份功能，存储应用的备份文件。',
     'enterpriseSetting.basicsSetting.monitoring.title': '监控',
