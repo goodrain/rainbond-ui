@@ -105,18 +105,8 @@ export default class DeviceAuthorization extends Component {
 
   renderConfirm() {
     const { grant, currentUser, status } = this.props;
-    const insecure = window.location.protocol === 'http:';
     return (
       <div className={styles.content}>
-        {insecure && (
-          <Alert
-            className={styles.alert}
-            type="error"
-            showIcon
-            message={<FormattedMessage id="deviceAuthorization.insecure.title" />}
-            description={<FormattedMessage id="deviceAuthorization.insecure.detail" />}
-          />
-        )}
         <div className={styles.code}>{grant.user_code}</div>
         <dl className={styles.details}>
           <dt><FormattedMessage id="deviceAuthorization.client" /></dt>

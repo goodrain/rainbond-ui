@@ -8,8 +8,6 @@ const deviceAuthorization = {
   'deviceAuthorization.permission': 'Access',
   'deviceAuthorization.permission.mcp': 'Manage Rainbond applications and environments for this enterprise',
   'deviceAuthorization.confirm.warning': 'Only allow access when this code matches the one shown in your terminal.',
-  'deviceAuthorization.insecure.title': 'This connection is not using HTTPS',
-  'deviceAuthorization.insecure.detail': 'Continuing may expose a long-lived credential. Use this only on a trusted private network.',
   'deviceAuthorization.approve': 'Allow access',
   'deviceAuthorization.deny': 'Deny',
   'deviceAuthorization.retry': 'Enter another code',
