@@ -5,6 +5,7 @@ import PageLoading from '../components/PageLoading';
 import { stringify } from 'querystring';
 import cookie from '../utils/cookie';
 import globalUtil from '../utils/global';
+import { getSafeRedirect } from '../utils/authorizationRedirect';
 import ErrorBoundary from './ErrorBoundary';
 
 class SecurityLayout extends React.PureComponent {
@@ -78,7 +79,8 @@ class SecurityLayout extends React.PureComponent {
 
       // 如果有redirect参数，跳转到redirect指定的页面
       if (redirectUrl) {
-        window.location.href = redirectUrl;
+        window.location.href =
+          getSafeRedirect(redirectUrl) || window.location.origin + '/#/';
       } else {
         // 否则清除URL中的token参数，跳转到首页
         window.location.href = window.location.origin + '/#/';

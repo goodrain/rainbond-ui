@@ -16,6 +16,9 @@ export async function updatePlatformSettings(body = {}) {
   if (Object.prototype.hasOwnProperty.call(body, 'enable_global_image_registry')) {
     data.enable_global_image_registry = body.enable_global_image_registry;
   }
+  if (Object.prototype.hasOwnProperty.call(body, 'enable_external_telemetry')) {
+    data.enable_external_telemetry = body.enable_external_telemetry;
+  }
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.eid}/platform-settings/update`,
     {

@@ -1266,6 +1266,8 @@ const enterpriseSetting = {
     'enterpriseSetting.basicsSetting.mirroring.content': 'It is used to market the application model image published to the market, which needs to be accessible by all clusters.',
     'enterpriseSetting.basicsSetting.globalImageRegistry.content': 'Maintained by platform admins and available to users when creating image components.',
     'enterpriseSetting.basicsSetting.globalImageRegistry.title': 'Global image registries',
+    'enterpriseSetting.basicsSetting.externalTelemetry.title': 'Backend diagnostic reporting',
+    'enterpriseSetting.basicsSetting.externalTelemetry.content': 'Collects Rainbond backend quality data. When disabled, Console stops sending data to external diagnostic services.',
     'enterpriseSetting.basicsSetting.storage.title': 'Object storage',
     'enterpriseSetting.basicsSetting.storage.content': 'Object storage is used for cloud backup functions and stores backup files of applications.',
     'enterpriseSetting.basicsSetting.monitoring.title': 'Monitor',
