@@ -1758,16 +1758,20 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       } else {
         setLocalImageList([]);
       }
-      fetchArchInfo();
       if (currentFormType === 'vm') {
         fetchVirtualMachineImages();
       }
     }
   }, [visible, currentView, currentFormType]);
 
+  useEffect(() => {
+    if (visible) {
+      fetchArchInfo();
+    }
+  }, [visible]);
+
   // 当弹窗打开时，获取可用插件
   useEffect(() => {
-    fetchArchInfo();
     if (visible && pluginsList) {
       fetchAvailablePlugins();
     }
@@ -1817,9 +1821,6 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
               break;
             case 'database':
               fetchDatabaseTypes();
-              break;
-            case 'form':
-              fetchArchInfo();
               break;
             default:
               break;

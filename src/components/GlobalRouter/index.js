@@ -58,6 +58,8 @@ const UpgradeStatusIcon = ({ className }) => (
   </svg>
 );
 
+const PLATFORM_UPDATE_DELAY_MS = 5000;
+
 @connect(({ loading, global, user, agent }) => ({
   viewLoading: loading.effects['user/addCollectionView'],
   collapsed: global.collapsed,
@@ -75,13 +77,20 @@ export default class GlobalRouter extends PureComponent {
       expandedKeys: [], // 展开的子菜单 keys
       hasUpgradeVersion: false
     };
+    this.platformUpdateTimer = null;
   }
 
   componentDidMount() {
     // 初始化展开状态
     this.initExpandedKeys();
-    this.fetchPlatformUpdateStatus();
+    this.schedulePlatformUpdateStatus();
     this.syncCollapsedWithAgent();
+  }
+
+  componentWillUnmount() {
+    if (this.platformUpdateTimer) {
+      clearTimeout(this.platformUpdateTimer);
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -95,7 +104,7 @@ export default class GlobalRouter extends PureComponent {
       prevProps.currentEnterprise?.enterprise_id !== this.props.currentEnterprise?.enterprise_id ||
       prevProps.rainbondInfo?.version?.value !== this.props.rainbondInfo?.version?.value
     ) {
-      this.fetchPlatformUpdateStatus();
+      this.schedulePlatformUpdateStatus();
     }
 
     if (
@@ -117,6 +126,16 @@ export default class GlobalRouter extends PureComponent {
     }
     const match = pathname && pathname.match(/\/enterprise\/([^/]+)/);
     return match ? match[1] : '';
+  };
+
+  schedulePlatformUpdateStatus = () => {
+    if (this.platformUpdateTimer) {
+      clearTimeout(this.platformUpdateTimer);
+    }
+    this.platformUpdateTimer = setTimeout(() => {
+      this.platformUpdateTimer = null;
+      this.fetchPlatformUpdateStatus();
+    }, PLATFORM_UPDATE_DELAY_MS);
   };
 
   fetchPlatformUpdateStatus = () => {
