@@ -2,6 +2,8 @@
 import apiconfig from '../../config/api.config';
 import request from '../utils/request';
 
+const enterpriseClusterRequests = {};
+
 /*
   获取集群下的协议
 */
@@ -50,16 +52,69 @@ export async function upEnterpriseCluster(params) {
 
 /* 获取企业集群 */
 export async function fetchEnterpriseClusters(param, handleError) {
-  return request(
+  const checkStatus = param.check_status || 'yes';
+  const hasHandleError = Boolean(handleError);
+  const requestKey = JSON.stringify([
+    param.enterprise_id,
+    checkStatus,
+    hasHandleError
+  ]);
+  const existingRequest = enterpriseClusterRequests[requestKey];
+  if (existingRequest) {
+    if (handleError) {
+      existingRequest.errorHandlers.push(handleError);
+    }
+    return existingRequest.promise;
+  }
+
+  const requestEntry = {
+    errorHandlers: handleError ? [handleError] : [],
+    promise: null
+  };
+  const clearRequest = () => {
+    if (enterpriseClusterRequests[requestKey] === requestEntry) {
+      delete enterpriseClusterRequests[requestKey];
+    }
+  };
+  const notifyErrorHandlers = hasHandleError
+    ? error => {
+        clearRequest();
+        let callbackError;
+        requestEntry.errorHandlers.forEach(errorHandler => {
+          try {
+            errorHandler(error);
+          } catch (currentError) {
+            callbackError = callbackError || currentError;
+          }
+        });
+        if (callbackError) {
+          throw callbackError;
+        }
+      }
+    : undefined;
+  const pendingRequest = request(
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/regions`,
     {
       method: 'get',
       params: {
-        check_status: param.check_status || 'yes'
+        check_status: checkStatus
       },
-      handleError
+      ...(hasHandleError ? { handleError: notifyErrorHandlers } : {})
     }
   );
+
+  requestEntry.promise = pendingRequest.then(
+    response => {
+      clearRequest();
+      return response;
+    },
+    error => {
+      clearRequest();
+      throw error;
+    }
+  );
+  enterpriseClusterRequests[requestKey] = requestEntry;
+  return requestEntry.promise;
 }
 
 export async function fetchEnterpriseClusterTenants(param, handleError) {

@@ -6,6 +6,8 @@
 import apiconfig from '../../config/api.config';
 import request from '../utils/request';
 
+const userDetailRequests = {};
+
 /* Gets the access token data */
 export async function fetchAccessToken() {
   return request(`${apiconfig.baseUrl}/console/users/access-token`, {
@@ -332,13 +334,64 @@ export async function changePass(
 	查看当前登录用户的详情
 */
 export async function getDetail(body = {}, handleError) {
-  return request(`${apiconfig.baseUrl}/console/users/details`, { 
-    method: 'get',
-    params: {
-      team_name: body.team_name
+  const hasHandleError = Boolean(handleError);
+  const requestKey = JSON.stringify([body.team_name, hasHandleError]);
+  const existingRequest = userDetailRequests[requestKey];
+  if (existingRequest) {
+    if (handleError) {
+      existingRequest.errorHandlers.push(handleError);
+    }
+    return existingRequest.promise;
+  }
+
+  const requestEntry = {
+    errorHandlers: handleError ? [handleError] : [],
+    promise: null
+  };
+  const clearRequest = () => {
+    if (userDetailRequests[requestKey] === requestEntry) {
+      delete userDetailRequests[requestKey];
+    }
+  };
+  const notifyErrorHandlers = hasHandleError
+    ? error => {
+        clearRequest();
+        let callbackError;
+        requestEntry.errorHandlers.forEach(errorHandler => {
+          try {
+            errorHandler(error);
+          } catch (currentError) {
+            callbackError = callbackError || currentError;
+          }
+        });
+        if (callbackError) {
+          throw callbackError;
+        }
+      }
+    : undefined;
+  const pendingRequest = request(
+    `${apiconfig.baseUrl}/console/users/details`,
+    {
+      method: 'get',
+      params: {
+        team_name: body.team_name
+      },
+      ...(hasHandleError ? { handleError: notifyErrorHandlers } : {})
+    }
+  );
+
+  requestEntry.promise = pendingRequest.then(
+    response => {
+      clearRequest();
+      return response;
     },
-    handleError 
-  });
+    error => {
+      clearRequest();
+      throw error;
+    }
+  );
+  userDetailRequests[requestKey] = requestEntry;
+  return requestEntry.promise;
 }
 
 /*

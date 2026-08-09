@@ -362,7 +362,7 @@ export default class Overview extends Component {
           </>
         ) : (
           <>
-            {tableDataLoading &&
+            {tableDataLoading && !isVisible &&
               <AppShape
                 iframeHeight={'calc(100vh - 120px)'}
                 group_id={globalUtil.getAppID()}

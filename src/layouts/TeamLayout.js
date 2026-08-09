@@ -402,7 +402,7 @@ class TeamLayout extends PureComponent {
   };
   // get enterprise list
   getEnterpriseList = () => {
-    const { dispatch, currentUser } = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: 'global/fetchEnterpriseList',
       callback: res => {
@@ -414,22 +414,11 @@ class TeamLayout extends PureComponent {
             dispatch({ type: 'enterprise/fetchCurrentEnterprise', payload: firstEnterprise });
           }
           
-          this.setState(
-            {
-              enterpriseList: res.list,
-              // 确保 currentEnterprise 及时就绪，避免页面因为空而一直 Loading
-              currentEnterprise: (this.state.currentEnterprise || firstEnterprise) || null
-            },
-            () => {
-              if (currentUser) {
-                return this.getTeamOverview(currentUser.user_id);
-
-              }
-              // 获取最新的用户信息
-              this.fetchUserInfo();
-
-            }
-          );
+          this.setState({
+            enterpriseList: res.list,
+            // 确保 currentEnterprise 及时就绪，避免页面因为空而一直 Loading
+            currentEnterprise: (this.state.currentEnterprise || firstEnterprise) || null
+          });
         }
       }
     });
@@ -1065,12 +1054,6 @@ class TeamLayout extends PureComponent {
       return (
           <Layout key={overflow}>
             <GlobalHeader
-              key={
-                currentEnterprise?.enterprise_id +
-                currentTeam?.team_name +
-                currentRegion?.team_region_name +
-                appID
-              }
               eid={currentEnterprise?.enterprise_id}
               logo={fetchLogo}
               isPubCloud={

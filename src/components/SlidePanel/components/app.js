@@ -18,11 +18,11 @@ import { formatMessage } from '@/utils/intl';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import AddServiceComponent from '../../../pages/Group/AddServiceComponent';
 import sourceUtil from '../../../utils/source-unit';
-import PluginUtil from '../../../utils/pulginUtils'
 import moment from 'moment';
 import styles from './app.less';
 import ComponentListModal from '../../../pages/Group/ComponentListModal';
 import CreateComponentModal from '@/components/CreateComponentModal';
+import { shouldLoadStorageUsage } from './componentViewPerformance';
 @connect(({ user, application, teamControl, enterprise, loading, global }) => ({
   buildShapeLoading: loading.effects['global/buildShape'],
   editGroupLoading: loading.effects['application/editGroup'],
@@ -73,6 +73,7 @@ export default class app extends Component {
       headerLeftExpanded: false,
       
     };
+    this.storageUsageRequested = false;
   }
   componentDidMount() {
     if (!globalUtil.getAppID()) {
@@ -82,13 +83,16 @@ export default class app extends Component {
     this.handleArchCpuInfo();
     this.handleWaitLevel();
     this.handleGroupAllResource()
-    this.getStorageUsed();
+    this.loadStorageUsageIfNeeded(this.props.pluginsList);
   }
   componentDidUpdate(prevProps) {
     if (prevProps.permissions !== this.props.permissions) {
       this.setState({
         permissions: this.props.permissions,
       });
+    }
+    if (prevProps.pluginsList !== this.props.pluginsList) {
+      this.loadStorageUsageIfNeeded(this.props.pluginsList);
     }
   }
   loading = () => {
@@ -267,6 +271,14 @@ export default class app extends Component {
     });
   };
   // 获取存储实际占用
+  loadStorageUsageIfNeeded = pluginsList => {
+    if (this.storageUsageRequested || !shouldLoadStorageUsage(pluginsList)) {
+      return;
+    }
+    this.storageUsageRequested = true;
+    this.getStorageUsed();
+  };
+
   getStorageUsed = () => {
     const { dispatch } = this.props;
     dispatch({
@@ -934,7 +946,7 @@ export default class app extends Component {
       deploy: formatMessage({ id: 'appOverview.btn.build' }),
       upgrade: formatMessage({ id: 'appOverview.btn.update' }),
     };
-    const showStorageUsed = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
+    const showStorageUsed = shouldLoadStorageUsage(pluginsList);
     return (
       <div className={styles.container}>
         <div className={styles.header_container}>
