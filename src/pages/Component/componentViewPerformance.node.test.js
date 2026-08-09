@@ -166,10 +166,9 @@ assert.ok(
 );
 
 assert.ok(
-  /tableDataLoading\s*&&\s*!isVisible\s*&&\s*<AppShape/.test(
-    groupOverviewSource
-  ),
-  'the topology iframe should unmount while the component or gateway drawer is open'
+  /tableDataLoading\s*&&\s*<AppShape/.test(groupOverviewSource) &&
+    !/tableDataLoading\s*&&\s*!isVisible/.test(groupOverviewSource),
+  'the topology must remain mounted while the component drawer is open so users can keep navigating the graph'
 );
 
 console.log('component view performance tests passed');
