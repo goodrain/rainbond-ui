@@ -204,6 +204,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const [localMarketHasMore, setLocalMarketHasMore] = useState(true);
   const [localMarketLoadingMore, setLocalMarketLoadingMore] = useState(false);
   const [localMarketActiveTab, setLocalMarketActiveTab] = useState('all');
+  const [hasLocalMarketApps, setHasLocalMarketApps] = useState(false);
   const [selectedLocalApp, setSelectedLocalApp] = useState(null);
   const [localInstallType, setLocalInstallType] = useState('new');
   const [selectedLocalVersion, setSelectedLocalVersion] = useState('');
@@ -324,6 +325,25 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         setLocalMarketLoading(false);
         setLocalMarketLoadingMore(false);
         handleAPIError(err);
+      }
+    });
+  };
+
+  // 检查本地组件库是否有应用，用于控制创建组件入口展示
+  const fetchLocalMarketAvailability = () => {
+    dispatch({
+      type: 'market/fetchAppModels',
+      payload: {
+        enterprise_id: currentEnterprise.enterprise_id,
+        app_name: '',
+        page: 1,
+        page_size: 1,
+        tenant_name: globalUtil.getCurrTeamName(),
+        scope: ''
+      },
+      callback: res => {
+        const list = (res && res.list) || [];
+        setHasLocalMarketApps(list.length > 0);
       }
     });
   };
@@ -711,14 +731,14 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         iconColor: '#1890ff',
       }))
     ] : []),
-    {
+    ...(hasLocalMarketApps ? [{
       icon: 'appstore',
       iconSrc: FolderOpenIcon,
       title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.local_market' }),
       key: 'local-market',
       showLocalMarketModal: true,  // 标记需要打开本地组件库弹窗
       iconColor: '#1890ff',
-    },
+    }] : []),
     ...(!isComponentView ? [{
       icon: 'shop',
       iconSrc: UploadIcon,
@@ -876,14 +896,14 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       showMarketModal: true,
       iconColor: '#1890ff',
     })),
-    {
+    ...(hasLocalMarketApps ? [{
       icon: 'appstore',
       iconSrc: FolderOpenIcon,
       title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.local_market' }),
       key: 'local-market',
       showLocalMarketModal: true,
       iconColor: '#1890ff',
-    }
+    }] : [])
   ];
 
   const customBuildSectionItems = [
@@ -1776,6 +1796,9 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   useEffect(() => {
     if (visible && currentEnterprise?.enterprise_id) {
       fetchMarketStores();
+      fetchLocalMarketAvailability();
+    } else if (!visible) {
+      setHasLocalMarketApps(false);
     }
   }, [visible, currentEnterprise]);
 
