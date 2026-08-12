@@ -260,7 +260,8 @@ class EditName extends PureComponent {
     editNameLoading: loading.effects['appControl/editName'],
     updateRollingLoading: loading.effects['appControl/putUpdateRolling'],
     deployLoading:
-      loading.effects[('appControl/putDeploy', 'appControl/putUpgrade')],
+      loading.effects['appControl/putDeploy'] ||
+      loading.effects['appControl/putUpgrade'],
     buildInformationLoading: loading.effects['appControl/getBuildInformation'],
     pluginList: teamControl.pluginsList
   }),
@@ -295,8 +296,10 @@ class Main extends PureComponent {
       componentTimer: true,
       tabsShow: false,
       routerSwitch: true,
+      deploySubmitting: false,
       componentPermissions: this.props?.componentPermissions || {},
     };
+    this.deployRequestPending = false;
     this.socket = null;
     this.destroy = false;
     this.portsAppAlias = null;
@@ -669,16 +672,24 @@ class Main extends PureComponent {
   handleshowDeployTips = showonoff => {
     this.setState({ showDeployTips: showonoff });
   };
+  finishDeployRequest = () => {
+    this.deployRequestPending = false;
+    if (!this.destroy) {
+      this.setState({ deploySubmitting: false });
+    }
+  };
   handleDeploy = groupVersion => {
-    this.setState({
-      showDeployTips: false,
-      showreStartTips: false
-    });
     const { build_upgrade, dispatch, appDetail } = this.props;
-    if (this.state.actionIng) {
+    if (this.deployRequestPending || this.state.actionIng) {
       notification.warning({ message: formatMessage({ id: 'notification.warn.executing' }) });
       return;
     }
+    this.deployRequestPending = true;
+    this.setState({
+      showDeployTips: false,
+      showreStartTips: false,
+      deploySubmitting: true
+    });
     const { team_name, app_alias } = this.fetchParameter();
 
     dispatch({
@@ -704,11 +715,13 @@ class Main extends PureComponent {
           }
         }
         this.handleOffHelpfulHints();
+        this.finishDeployRequest();
       },
       handleError: err => {
         this.handleCancelBuild();
         notification.error({ message: err.data.msg_show });
         this.handleOffHelpfulHints();
+        this.finishDeployRequest();
       }
     });
   };
@@ -1270,6 +1283,7 @@ class Main extends PureComponent {
         isOtherSetting,
       },
       componentPermissions,
+      deploySubmitting,
     } = this.state;
     const { getFieldDecorator } = form;
     const method = appDetail && appDetail.service && appDetail.service.extend_method
@@ -1657,7 +1671,7 @@ class Main extends PureComponent {
                     : promptModal === 'start'
                       ? startLoading
                       : promptModal === 'deploy'
-                        ? deployLoading
+                        ? deployLoading || deploySubmitting
                         : promptModal === 'rolling'
                           ? updateRollingLoading
                           : !promptModal
@@ -1689,7 +1703,7 @@ class Main extends PureComponent {
                   </Button>,
                   <Button
                     type="primary"
-                    loading={deployLoading}
+                    loading={deployLoading || deploySubmitting}
                     onClick={() => {
                       this.handleOkBuild('upgrade');
                     }}
@@ -1707,7 +1721,7 @@ class Main extends PureComponent {
                   </Button>,
                   <Button
                     type="primary"
-                    loading={deployLoading}
+                    loading={deployLoading || deploySubmitting}
                     onClick={() => {
                       this.handleOkBuild('build');
                     }}
