@@ -6,6 +6,20 @@ import getMenuSvg from './getMenuSvg';
 import PluginUtil from '../utils/pulginUtils'
 import { isRainbondInfoAgentEnabled } from '../utils/agentVisibility';
 
+export const getMenuClusterList = (enterpriseId, clusterList, cachedClusterList) => {
+  if (Array.isArray(clusterList) && clusterList.length > 0) {
+    return clusterList;
+  }
+
+  if (!Array.isArray(cachedClusterList)) {
+    return [];
+  }
+
+  return cachedClusterList.filter(
+    cluster => cluster && String(cluster.enterprise_id) === String(enterpriseId)
+  );
+};
+
 /**
  * 生成分组菜单数据
  * @param {string} eid - 企业ID
