@@ -680,6 +680,10 @@ class Main extends PureComponent {
   };
   handleDeploy = groupVersion => {
     const { build_upgrade, dispatch, appDetail } = this.props;
+    if (this.state.status && this.state.status.status === 'building') {
+      notification.warning({ message: formatMessage({ id: 'notification.warn.building' }) });
+      return;
+    }
     if (this.deployRequestPending || this.state.actionIng) {
       notification.warning({ message: formatMessage({ id: 'notification.warn.executing' }) });
       return;
@@ -702,6 +706,9 @@ class Main extends PureComponent {
       },
       callback: res => {
         if (res) {
+          this.setState(({ status }) => ({
+            status: { ...status, status: 'building' }
+          }));
           this.handleCancelBuild();
           this.loadBuildState(appDetail);
           notification.success({ message: formatMessage({ id: 'notification.success.deployment' }) });
@@ -1015,6 +1022,11 @@ class Main extends PureComponent {
     const text = appDetail.rain_app_name;
     const { status } = this.state;
     const { team_name, serviceAlias } = this.fetchParameter();
+
+    if (status && status.status === 'building') {
+      notification.warning({ message: formatMessage({ id: 'notification.warn.building' }) });
+      return;
+    }
 
     if (buildType === 'market' && status && status.status !== 'undeploy') {
       dispatch({

@@ -624,6 +624,7 @@
         'notification.warn.cannot_select':'Cannot select the current application',
         'notification.warn.error':'Request error',
         'notification.warn.executing':'Executing operation, please wait',
+        'notification.warn.building':'The component is currently building. Please try again after the build is complete.',
         'notification.warn.notYet':'No instance details',
         'notification.warn.choice.catalogue':'Please select the directory to mount the shared profile',
         'notification.warn.inspect.fillIn':'Please check whether the local configuration file directory is filled in',
