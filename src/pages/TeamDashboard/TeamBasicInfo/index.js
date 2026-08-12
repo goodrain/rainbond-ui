@@ -60,6 +60,7 @@ export default class index extends Component {
       appListLoading: true,
       teamHotAppList: [],
       appListTotal: 0,
+      isFirstDeploy: null,
       cardLayoutMode: CARD_LAYOUT_MODE.DEFAULT,
       teamAppCreatePermission: newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'team_app_create'),
       language: cookie.get('language') === 'zh-CN',
@@ -237,11 +238,15 @@ export default class index extends Component {
       callback: res => {
         if (!this._isMounted) return;
         if (res && res.status_code === 200) {
-          this.setState({
+          const nextState = {
             teamHotAppList: res.list || [],
             appListTotal: res.bean?.total || 0,
             appListLoading: false,
-          });
+          };
+          if (!query && this.state.isFirstDeploy === null) {
+            nextState.isFirstDeploy = (res.bean?.total || 0) === 0;
+          }
+          this.setState(nextState);
         }
       },
       handleError: err => {
@@ -819,6 +824,7 @@ export default class index extends Component {
           rainbondInfo={this.props.rainbondInfo}
           currentUser={this.props.currentUser}
           currentView={this.state.currentView}
+          defaultUseDemo={this.state.isFirstDeploy === true}
         />
         {promptModal && (
           <Modal

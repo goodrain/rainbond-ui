@@ -107,7 +107,7 @@ export default class Index extends PureComponent {
   componentDidMount() {
     this.handleJarWarUpload();
     this.handleGetWarehouse();
-    const { handleType, groupId } = this.props;
+    const { handleType, groupId, autoUseDemo } = this.props;
     const group_id = globalUtil.getAppID()
     if (group_id) {
       this.setState({
@@ -116,6 +116,15 @@ export default class Index extends PureComponent {
     }
     if (handleType && handleType === 'Service') {
       this.fetchComponentNames(Number(groupId));
+    }
+    if (autoUseDemo) {
+      this.applyImageDemoToForm();
+    }
+  }
+  componentDidUpdate(prevProps) {
+    const { autoUseDemo, form } = this.props;
+    if (!prevProps.autoUseDemo && autoUseDemo && !form.isFieldsTouched()) {
+      this.applyImageDemoToForm();
     }
   }
   handleGetWarehouse = () => {

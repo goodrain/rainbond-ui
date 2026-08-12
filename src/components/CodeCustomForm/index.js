@@ -98,7 +98,7 @@ export default class Index extends PureComponent {
   );
 
   componentDidMount() {
-    const { handleType, groupId } = this.props;
+    const { handleType, groupId, autoUseDemo } = this.props;
     const group_id = globalUtil.getAppID()
     if (handleType && handleType === 'Service') {
       this.fetchComponentNames(Number(groupId));
@@ -108,6 +108,15 @@ export default class Index extends PureComponent {
       this.setState({
         creatComPermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${globalUtil.getAppID() || group_id}`)
       })
+    }
+    if (autoUseDemo && sourceExamples.length > 0) {
+      this.applyDemoToForm(sourceExamples[0]);
+    }
+  }
+  componentDidUpdate(prevProps) {
+    const { autoUseDemo, form } = this.props;
+    if (!prevProps.autoUseDemo && autoUseDemo && !form.isFieldsTouched() && sourceExamples.length > 0) {
+      this.applyDemoToForm(sourceExamples[0]);
     }
   }
   onAddGroup = () => {
@@ -178,6 +187,7 @@ export default class Index extends PureComponent {
 
     this.setState(
       {
+        showDemoSelect: true,
         selectedDemo: example.id,
         serverType: 'git',
         checkedList: formValues.checkedList,

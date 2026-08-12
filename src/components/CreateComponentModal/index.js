@@ -127,7 +127,7 @@ const LocalInstallFormWrapper = Form.create()(
   }
 );
 
-const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, rainbondInfo, currentUser, groups, pluginsList, currentView: initialView }) => {
+const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, rainbondInfo, currentUser, groups, pluginsList, currentView: initialView, defaultUseDemo = false }) => {
   const [currentView, setCurrentView] = useState('main'); // 'main', 'market', 'image', 'code', 'yaml', 'form', 'imageRepo', 'marketStore', 'localMarket', 'marketInstall', 'localMarketInstall'
   const [hasInitialized, setHasInitialized] = useState(false); // 标记是否已经初始化过
   const [selectedStore, setSelectedStore] = useState(null);
@@ -3092,6 +3092,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                 onSubmit={handleInstallApp}
                 dispatch={dispatch}
                 archInfo={archInfo}
+                autoUseDemo={defaultUseDemo && !isComponentView}
                 showSubmitBtn={false}
               />
             )}
@@ -3111,6 +3112,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                 dispatch={dispatch}
                 archInfo={archInfo}
                 enterpriseInfo={enterpriseInfo}
+                autoUseDemo={defaultUseDemo && !isComponentView}
                 showSubmitBtn={false}
               />
             )}
