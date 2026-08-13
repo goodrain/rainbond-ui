@@ -28,7 +28,8 @@ import styles from './NewIndex.less';
   currentEnterprise: enterprise.currentEnterprise,
   loading,
   pluginsList: teamControl.pluginsList,
-  noviceGuide: global.noviceGuide
+  noviceGuide: global.noviceGuide,
+  teamOverview: global.teamOverview
 }))
 export default class Index extends PureComponent {
   constructor(props) {
@@ -38,8 +39,7 @@ export default class Index extends PureComponent {
       userTeamList: [],
       currentTeam: this.props.currentTeam || {},
       indexLoading: true,
-      showEditName: false,
-      logoInfo: false
+      showEditName: false
     };
   }
   componentDidMount() {
@@ -130,33 +130,11 @@ export default class Index extends PureComponent {
             type: 'teamControl/fetchCurrentTeam',
             payload: team
           });
-          this.loadOverview();
         }
       },
       handleError: err => {
         handleAPIError(err);
         this.setState({ indexLoading: false });
-      }
-    });
-  };
-
-  // 获取团队下的基本信息
-  loadOverview = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'index/fetchOverview',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        region_name: globalUtil.getCurrRegionName()
-      },
-      callback: res => {
-        if (res && res.bean) {
-          this.setState({
-            logoInfo: res.bean.logo || false
-          });
-        }
-      },
-      handleError: () => {
       }
     });
   };
@@ -227,10 +205,14 @@ export default class Index extends PureComponent {
   };
 
   render() {
-    const { currentTeam, loading, indexLoading, showEditName,logoInfo } = this.state;
-    const { pluginsList, noviceGuide } = this.props;
+    const { currentTeam, loading, indexLoading, showEditName } = this.state;
+    const { pluginsList, noviceGuide, teamOverview } = this.props;
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
+    const isCurrentTeamOverview = currentTeam.team_id &&
+      teamOverview && teamOverview.team_id &&
+      String(currentTeam.team_id) === String(teamOverview.team_id);
+    const logoInfo = currentTeam.logo || (isCurrentTeamOverview && teamOverview.logo) || false;
 
     return (
       <div className={styles.container}>

@@ -444,10 +444,12 @@ export default {
         callback(data);
       }
     },
-    *getTeamOverview({ payload, callback, handleError }, { call, put }) {
+    *getTeamOverview({ payload, callback, handleError, shouldSave }, { call, put }) {
       const data = yield call(getTeamOverview, payload, handleError);
-      if (data && callback) {
+      if (data && (!shouldSave || shouldSave(data))) {
         yield put({ type: 'saveTeamOverview', payload: data.bean });
+      }
+      if (data && callback) {
         callback(data);
       }
     },
