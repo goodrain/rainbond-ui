@@ -127,9 +127,10 @@ const LocalInstallFormWrapper = Form.create()(
   }
 );
 
-const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, rainbondInfo, currentUser, groups, pluginsList, currentView: initialView, defaultUseDemo = false }) => {
+const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, rainbondInfo, currentUser, groups, pluginsList, currentView: initialView }) => {
   const [currentView, setCurrentView] = useState('main'); // 'main', 'market', 'image', 'code', 'yaml', 'form', 'imageRepo', 'marketStore', 'localMarket', 'marketInstall', 'localMarketInstall'
   const [hasInitialized, setHasInitialized] = useState(false); // 标记是否已经初始化过
+  const [firstAppDeployed, setFirstAppDeployed] = useState(null);
   const [selectedStore, setSelectedStore] = useState(null);
   const [marketStores, setMarketStores] = useState([]);
   const [loadingStores, setLoadingStores] = useState(false);
@@ -212,6 +213,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const [localSubmitLoading, setLocalSubmitLoading] = useState(false);
 
   const canAccessResourceCenter = !(rainbondInfo && rainbondInfo.is_saas) || !!(currentUser && currentUser.is_enterprise_admin);
+  const shouldUseDefaultDemo = firstAppDeployed === false;
 
   const marketListRef = useRef(null);
   const localMarketListRef = useRef(null);
@@ -1772,6 +1774,19 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   }, [localMarketLoadingMore]);
 
   useEffect(() => {
+    if (visible) {
+      setFirstAppDeployed(null);
+      dispatch({
+        type: 'global/fetchRainbondInfo',
+        callback: info => setFirstAppDeployed(info.first_app_deployed),
+        handleError: () => {}
+      });
+    } else {
+      setFirstAppDeployed(null);
+    }
+  }, [visible]);
+
+  useEffect(() => {
     if (visible && currentView === 'form') {
       if (currentFormType === 'docker') {
         fetchLocalImageList();
@@ -3092,7 +3107,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                 onSubmit={handleInstallApp}
                 dispatch={dispatch}
                 archInfo={archInfo}
-                autoUseDemo={defaultUseDemo && !isComponentView}
+                autoUseDemo={shouldUseDefaultDemo && !isComponentView}
                 showSubmitBtn={false}
               />
             )}
@@ -3112,7 +3127,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                 dispatch={dispatch}
                 archInfo={archInfo}
                 enterpriseInfo={enterpriseInfo}
-                autoUseDemo={defaultUseDemo && !isComponentView}
+                autoUseDemo={shouldUseDefaultDemo && !isComponentView}
                 showSubmitBtn={false}
               />
             )}
