@@ -29,6 +29,40 @@ const isGenericWarningSummary = summary => (
   summary === '部分部署前检测未完成，部署可继续'
 );
 
+const getResourceDetails = checks => {
+  const resourceCheck = checks.find(item => (
+    item &&
+    item.name === 'resource_capacity' &&
+    item.status === 'block' &&
+    item.reason === 'resource_not_enough'
+  ));
+  if (!resourceCheck || !resourceCheck.details) {
+    return [];
+  }
+
+  const details = resourceCheck.details;
+  const resourceDetails = [];
+  if (
+    Number.isFinite(details.required_cpu) &&
+    Number.isFinite(details.free_cpu) &&
+    Number.isFinite(details.missing_cpu)
+  ) {
+    resourceDetails.push(
+      `CPU：需要 ${details.required_cpu}m，可用 ${details.free_cpu}m，缺少 ${details.missing_cpu}m`
+    );
+  }
+  if (
+    Number.isFinite(details.required_memory) &&
+    Number.isFinite(details.free_memory) &&
+    Number.isFinite(details.missing_memory)
+  ) {
+    resourceDetails.push(
+      `内存：需要 ${details.required_memory}Mi，可用 ${details.free_memory}Mi，缺少 ${details.missing_memory}Mi`
+    );
+  }
+  return resourceDetails;
+};
+
 const getPreflightDisplay = (preflight = {}, options = {}) => {
   const summary = normalizeCopy(preflight.summary, options.copyType);
   const checks = Array.isArray(preflight.checks) ? preflight.checks : [];
@@ -51,10 +85,15 @@ const getPreflightDisplay = (preflight = {}, options = {}) => {
     messages.push(normalizeCopy(preflight.msg_show, options.copyType));
   }
 
-  return {
+  const display = {
     summary: messages.length > 0 && isGenericWarningSummary(summary) ? '' : summary,
     messages: messages.slice(0, 4)
   };
+  const resourceDetails = getResourceDetails(checks);
+  if (resourceDetails.length > 0) {
+    display.resourceDetails = resourceDetails;
+  }
+  return display;
 };
 
 module.exports = {

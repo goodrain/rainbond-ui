@@ -18,6 +18,7 @@ import {
 } from '../sentry';
 import { captureErrorViewed } from '../posthog';
 import { trackSlowRequestLifecycle } from './requestSlowTelemetry';
+import { renderPreflightContent } from './marketInstallPreflight';
 
 
 const codeMessage = {
@@ -158,10 +159,14 @@ function handleSpecialErrorCode(code, resData, options, error, TEAM_NAME, REGION
       // 安装/部署前检测阻断
       const preflightBean = resData.data?.bean || {};
       const isDeployPreflight = resData.msg === 'deploy preflight blocked' || preflightBean.deploy_type;
+      const safePreflightBean = {
+        ...preflightBean,
+        summary: preflightBean.summary || resData.msg_show ||
+          (isDeployPreflight ? '当前环境不满足部署条件' : '当前环境不满足应用安装条件')
+      };
       Modal.error({
         title: isDeployPreflight ? '暂不能部署' : '暂不能安装',
-        content: preflightBean.summary || resData.msg_show ||
-          (isDeployPreflight ? '当前环境不满足部署条件' : '当前环境不满足应用安装条件'),
+        content: renderPreflightContent(safePreflightBean, isDeployPreflight ? 'deploy' : 'install'),
         okText: '我知道了'
       });
       if (options.handleError) {

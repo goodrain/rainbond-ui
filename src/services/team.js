@@ -150,7 +150,8 @@ export async function createTeam(
     team_name,
     useable_regions: [],
     namespace
-  }
+  },
+  handleError
 ) {
   return request(`${apiconfig.baseUrl}/console/teams/add-teams`, {
     method: 'post',
@@ -160,7 +161,8 @@ export async function createTeam(
       namespace: body.namespace,
       logo: body.logo,
       bind_existing_namespace: body.bind_existing_namespace || false
-    }
+    },
+    handleError
   });
 }
 
@@ -510,7 +512,8 @@ export function openRegion(
   body = {
     team_name,
     region_names
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/region`,
@@ -518,7 +521,8 @@ export function openRegion(
       method: 'patch',
       data: {
         region_names: body.region_names
-      }
+      },
+      handleError
     }
   );
 }

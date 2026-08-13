@@ -757,8 +757,8 @@ export default {
       }
     },
 
-    *fetchEnterpriseTeams({ payload, callback }, { call }) {
-      const response = yield call(fetchEnterpriseTeams, payload);
+    *fetchEnterpriseTeams({ payload, callback, handleError }, { call }) {
+      const response = yield call(fetchEnterpriseTeams, payload, handleError);
       if (response && callback) {
         callback(response);
       }
