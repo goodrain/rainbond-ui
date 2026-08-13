@@ -621,7 +621,7 @@
         'notification.warn.cannot_select':'不能选择当前所在应用',
         'notification.warn.error':'请求错误',
         'notification.warn.executing':'正在执行操作，请稍后',
-        'notification.warn.building':'当前组件正在构建，请等待构建完成后再试',
+        'notification.warn.building':'当前组件有任务正在处理，请稍后再构建',
         'notification.warn.notYet':'暂无实例详情',
         'notification.warn.choice.catalogue':'请选择要挂载共享配置文件目录',
         'notification.warn.inspect.fillIn':'请检查本地配置文件目录是否填写',

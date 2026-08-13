@@ -680,10 +680,6 @@ class Main extends PureComponent {
   };
   handleDeploy = groupVersion => {
     const { build_upgrade, dispatch, appDetail } = this.props;
-    if (this.state.status && this.state.status.status === 'building') {
-      notification.warning({ message: formatMessage({ id: 'notification.warn.building' }) });
-      return;
-    }
     if (this.deployRequestPending || this.state.actionIng) {
       notification.warning({ message: formatMessage({ id: 'notification.warn.executing' }) });
       return;
@@ -726,7 +722,16 @@ class Main extends PureComponent {
       },
       handleError: err => {
         this.handleCancelBuild();
-        notification.error({ message: err.data.msg_show });
+        const errorStatus = (err && err.status) || (err && err.response && err.response.status);
+        if (errorStatus === 409) {
+          notification.warning({ message: formatMessage({ id: 'notification.warn.building' }) });
+        } else {
+          const errorMessage =
+            (err && err.data && err.data.msg_show) ||
+            (err && err.response && err.response.data && err.response.data.msg_show) ||
+            formatMessage({ id: 'notification.warn.error' });
+          notification.error({ message: errorMessage });
+        }
         this.handleOffHelpfulHints();
         this.finishDeployRequest();
       }
@@ -1022,11 +1027,6 @@ class Main extends PureComponent {
     const text = appDetail.rain_app_name;
     const { status } = this.state;
     const { team_name, serviceAlias } = this.fetchParameter();
-
-    if (status && status.status === 'building') {
-      notification.warning({ message: formatMessage({ id: 'notification.warn.building' }) });
-      return;
-    }
 
     if (buildType === 'market' && status && status.status !== 'undeploy') {
       dispatch({
