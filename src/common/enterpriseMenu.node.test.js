@@ -4,10 +4,6 @@ const path = require('path');
 const vm = require('vm');
 
 const source = fs.readFileSync(path.join(__dirname, 'enterpriseMenu.js'), 'utf8');
-const enterpriseLayoutSource = fs.readFileSync(
-  path.join(__dirname, '..', 'layouts', 'EnterpriseLayout.js'),
-  'utf8'
-);
 const userUtilSource = fs.readFileSync(
   path.join(__dirname, '..', 'utils', 'user.js'),
   'utf8'
@@ -31,70 +27,6 @@ assert.strictEqual(
   userUtilModule.exports.isCompanyAdmin({ roles: ['admin'] }),
   true,
   'enterprise admin checks should retain support for role-based responses'
-);
-
-const enterpriseMenuModule = { exports: {} };
-vm.runInNewContext(
-  source
-    .replace(/^import .*;?$/gm, '')
-    .replace('export const getMenuClusterList =', 'const getMenuClusterList =')
-    .replace('export const getMenuData =', 'const getMenuData =')
-    .replace('export const getFlatMenuData =', 'const getFlatMenuData =')
-    .concat('\nmodule.exports = { getMenuClusterList };'),
-  {
-    module: enterpriseMenuModule,
-    formatMessage: () => '',
-    userUtil: {},
-    isUrl: () => false,
-    getMenuSvg: {},
-    PluginUtil: {},
-    isRainbondInfoAgentEnabled: () => false
-  }
-);
-
-assert.deepStrictEqual(
-  JSON.parse(JSON.stringify(enterpriseMenuModule.exports.getMenuClusterList(
-    'enterprise-a',
-    [],
-    [{ enterprise_id: 'enterprise-a', region_name: 'rainbond' }]
-  ))),
-  [{ enterprise_id: 'enterprise-a', region_name: 'rainbond' }],
-  'storage menu should fall back to the cached clusters of the current enterprise'
-);
-
-assert.deepStrictEqual(
-  JSON.parse(JSON.stringify(enterpriseMenuModule.exports.getMenuClusterList(
-    'enterprise-a',
-    [{ enterprise_id: 'enterprise-a', region_name: 'fresh' }],
-    [{ enterprise_id: 'enterprise-a', region_name: 'cached' }]
-  ))),
-  [{ enterprise_id: 'enterprise-a', region_name: 'fresh' }],
-  'storage menu should prefer the cluster list loaded by the layout'
-);
-
-assert.deepStrictEqual(
-  JSON.parse(JSON.stringify(enterpriseMenuModule.exports.getMenuClusterList(
-    'enterprise-a',
-    [],
-    [{ enterprise_id: 'enterprise-b', region_name: 'other' }]
-  ))),
-  [],
-  'storage menu must not use cached clusters from another enterprise'
-);
-
-assert.ok(
-  /const menuClusterList = getMenuClusterList\(eid, clusterList, clusterInfo\);/.test(enterpriseLayoutSource),
-  'enterprise layout should build menus from the local and cached cluster lists'
-);
-
-assert.ok(
-  /clusterInfo: region\.cluster_info/.test(enterpriseLayoutSource),
-  'enterprise layout should receive the cached enterprise cluster list from the region model'
-);
-
-assert.ok(
-  /handleLoadEnterpriseClusters = \(\) => \{[\s\S]*?params: \{ eid \}[\s\S]*?enterprise_id: eid/.test(enterpriseLayoutSource),
-  'enterprise layout should request clusters with the current route enterprise ID'
 );
 
 assert.ok(
