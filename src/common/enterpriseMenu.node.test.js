@@ -4,6 +4,10 @@ const path = require('path');
 const vm = require('vm');
 
 const source = fs.readFileSync(path.join(__dirname, 'enterpriseMenu.js'), 'utf8');
+const platformResourcesEntrySource = fs.readFileSync(
+  path.join(__dirname, '..', 'pages', 'PlatformResources', 'Entry.js'),
+  'utf8'
+);
 const enterpriseMenuModule = { exports: {} };
 
 vm.runInNewContext(
@@ -31,17 +35,27 @@ const menuData = enterpriseMenuModule.exports.getMenuData(
   { roles: [] },
   {},
   {},
-  [{ region_name: 'rainbond' }],
+  [],
   {}
 );
 
 const storageMenu = menuData
   .reduce((items, group) => items.concat(group.items), [])
-  .find(item => item.path === '/enterprise/enterprise-a/region/rainbond/platform-resources');
+  .find(item => item.path === '/enterprise/enterprise-a/platform-resources');
 
 assert.ok(
   storageMenu,
-  'storage management should not require the enterprise administrator role'
+  'storage management should not require the enterprise administrator role or loaded clusters'
+);
+
+assert.ok(
+  /type: 'region\/fetchEnterpriseClusters'/.test(platformResourcesEntrySource),
+  'storage management entry should load enterprise clusters after it is selected'
+);
+
+assert.ok(
+  /routerRedux\.replace\([\s\S]*?`\/enterprise\/\$\{eid\}\/region\/\$\{firstCluster\.region_name\}\/platform-resources`/.test(platformResourcesEntrySource),
+  'storage management entry should redirect to the first available cluster'
 );
 
 assert.ok(
