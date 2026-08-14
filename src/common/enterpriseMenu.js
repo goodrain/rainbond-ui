@@ -71,7 +71,7 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList, rainbon
     ];
 
     resourceItems.push({
-      name: formatMessage({ id: 'menu.enterprise.platform_resources', defaultMessage: '平台资源' }),
+      name: formatMessage({ id: 'menu.enterprise.platform_resources', defaultMessage: '存储管理' }),
       icon: getMenuSvg.getSvg('StorageMgtL'),
       path: `/enterprise/${eid}/platform-resources`,
       authority: ['admin', 'user']
