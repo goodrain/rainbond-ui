@@ -1,8 +1,89 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
+const vm = require('vm');
 
 const source = fs.readFileSync(path.join(__dirname, 'enterpriseMenu.js'), 'utf8');
+const platformResourcesEntrySource = fs.readFileSync(
+  path.join(__dirname, '..', 'pages', 'PlatformResources', 'Entry.js'),
+  'utf8'
+);
+const userUtilSource = fs.readFileSync(
+  path.join(__dirname, '..', 'utils', 'user.js'),
+  'utf8'
+);
+const userUtilModule = { exports: {} };
+
+vm.runInNewContext(
+  userUtilSource
+    .replace(/^import .*;$/gm, '')
+    .replace('export default userUtil;', 'module.exports = userUtil;'),
+  { module: userUtilModule }
+);
+
+const enterpriseMenuModule = { exports: {} };
+vm.runInNewContext(
+  source
+    .replace(/^import .*;?$/gm, '')
+    .replace('export const getMenuData =', 'const getMenuData =')
+    .replace('export const getFlatMenuData =', 'const getFlatMenuData =')
+    .concat('\nmodule.exports = { getMenuData };'),
+  {
+    module: enterpriseMenuModule,
+    formatMessage: ({ defaultMessage, id }) => defaultMessage || id,
+    userUtil: userUtilModule.exports,
+    isUrl: () => false,
+    getMenuSvg: { getSvg: () => '' },
+    PluginUtil: { getPluginInfo: () => ({}) },
+    isRainbondInfoAgentEnabled: () => false
+  }
+);
+
+const menuData = enterpriseMenuModule.exports.getMenuData(
+  'enterprise-a',
+  { roles: ['admin'] },
+  {},
+  {},
+  [],
+  {}
+);
+
+const storageMenu = menuData
+  .reduce((items, group) => items.concat(group.items), [])
+  .find(item => item.path === '/enterprise/enterprise-a/platform-resources');
+
+assert.ok(
+  storageMenu,
+  'enterprise admins should see storage management before clusters finish loading'
+);
+
+const regularUserMenuData = enterpriseMenuModule.exports.getMenuData(
+  'enterprise-a',
+  { roles: [] },
+  {},
+  {},
+  [],
+  {}
+);
+
+const regularUserStorageMenu = regularUserMenuData
+  .reduce((items, group) => items.concat(group.items), [])
+  .find(item => item.path === '/enterprise/enterprise-a/platform-resources');
+
+assert.ok(
+  regularUserStorageMenu,
+  'storage management should always be visible in the platform management sidebar'
+);
+
+assert.ok(
+  /type: 'region\/fetchEnterpriseClusters'/.test(platformResourcesEntrySource),
+  'storage management entry should load enterprise clusters when it is selected'
+);
+
+assert.ok(
+  /routerRedux\.replace\([\s\S]*?`\/enterprise\/\$\{eid\}\/region\/\$\{firstCluster\.region_name\}\/platform-resources`/.test(platformResourcesEntrySource),
+  'storage management entry should redirect to the first available cluster'
+);
 
 assert.ok(
   /const gatewayMonitoringPlugin = PluginUtil\.getPluginInfo\(pluginList, 'rainbond-observability'\);/.test(source),
