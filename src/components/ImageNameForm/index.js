@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-indent */
 /* eslint-disable no-nested-ternary */
-import { Button, Form, Input, Select, Radio, Upload, Icon, notification, Tooltip, Checkbox, Divider, Progress, message } from 'antd';
+import { Button, Form, Input, Select, Radio, Upload, Icon, notification, Tooltip, Checkbox, Divider, Progress, message, Switch } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
@@ -122,8 +122,8 @@ export default class Index extends PureComponent {
     }
   }
   componentDidUpdate(prevProps) {
-    const { autoUseDemo, form } = this.props;
-    if (!prevProps.autoUseDemo && autoUseDemo && !form.isFieldsTouched()) {
+    const { autoUseDemo } = this.props;
+    if (!prevProps.autoUseDemo && autoUseDemo) {
       this.applyImageDemoToForm();
     }
   }
@@ -906,7 +906,8 @@ export default class Index extends PureComponent {
       imageUrl = false,
       tag = false,
       rainbondInfo,
-      pluginsList
+      pluginsList,
+      autoUseDemo
     } = this.props;
     const {
       language,
@@ -928,6 +929,7 @@ export default class Index extends PureComponent {
     const data = this.props.data || {};
     const disableds = this.props.disableds || [];
     const isService = handleType && handleType === 'Service';
+    const isDemoLocked = autoUseDemo && showImageDemo;
     const is_language = language ? formItemLayout : formItemLayouts;
     const isImageProxy = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
 
@@ -942,12 +944,20 @@ export default class Index extends PureComponent {
       <Fragment>
         <div >
           <Form onSubmit={this.handleSubmit} layout="vertical" hideRequiredMark>
+            {autoUseDemo && (
+              <Form.Item {...is_language}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span>{formatMessage({ id: 'teamAdd.create.image.demo.use' })}</span>
+                  <Switch checked={showImageDemo} onChange={this.handleToggleImageDemo} />
+                </div>
+              </Form.Item>
+            )}
             <Form.Item
               {...is_language}
               label={
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                   <span>{formatMessage({ id: 'teamAdd.create.form.service_cname' })}</span>
-                  {isPublic && (
+                  {isPublic && !autoUseDemo && (
                     <Button
                       type="link"
                       size="small"
@@ -984,7 +994,7 @@ export default class Index extends PureComponent {
               })(
                 <Input
                   data-testid="rbd-comp-name-input"
-                  disabled={disableds.indexOf('service_cname') > -1}
+                  disabled={isDemoLocked || disableds.indexOf('service_cname') > -1}
                   placeholder="nginx"
                 />
               )}
@@ -993,7 +1003,7 @@ export default class Index extends PureComponent {
               {getFieldDecorator('k8s_component_name', {
                 initialValue: this.generateEnglishName(form.getFieldValue('service_cname') || ''),
                 rules: getK8sComponentNameRules()
-              })(<Input placeholder="nginx" />)}
+              })(<Input placeholder="nginx" disabled={isDemoLocked} />)}
             </Form.Item>
             <Form.Item {...is_language} label={formatMessage({ id: 'Vm.createVm.from' })}>
               {getFieldDecorator('imagefrom', {
@@ -1001,7 +1011,7 @@ export default class Index extends PureComponent {
                 rules: getImageSourceRules()
               })(
                 isPublic ? (
-                  <Radio.Group onChange={this.handleChangeImageSource}>
+                  <Radio.Group disabled={isDemoLocked} onChange={this.handleChangeImageSource}>
                     <Radio value='address'>
                       {formatMessage({ id: 'teamAdd.create.image.address' })}
                     </Radio>
@@ -1023,7 +1033,7 @@ export default class Index extends PureComponent {
                       </>}
                   </Radio.Group>
                 ) : (
-                  <Radio.Group onChange={this.handleChangeImageSource}>
+                  <Radio.Group disabled={isDemoLocked} onChange={this.handleChangeImageSource}>
                     <Radio value='address'>
                       {formatMessage({ id: 'teamAdd.create.image.private' })}
                     </Radio>
@@ -1045,7 +1055,7 @@ export default class Index extends PureComponent {
                     data-testid="rbd-image-address-input"
                     onPressEnter={this.onQueryImageName}
                     placeholder={isImageProxy ? NGINX_EXAMPLE.imageAddress : NGINX_EXAMPLE.saasImageAddress}
-                    disabled={!isPublic}
+                    disabled={isDemoLocked || !isPublic}
                   />
                 )}
               </Form.Item>
@@ -1253,6 +1263,7 @@ export default class Index extends PureComponent {
               <Form.Item {...is_language}>
                 <Checkbox
                   checked={this.state.showUsernameAndPass}
+                  disabled={isDemoLocked}
                   onChange={(e) => {
                     this.setState({ showUsernameAndPass: e.target.checked });
                   }}
@@ -1302,7 +1313,7 @@ export default class Index extends PureComponent {
                   </Radio.Group>
                 )}
               </Form.Item>}
-            {!group_id && <>
+            {!group_id && !isDemoLocked && <>
               <div className="advanced-btn">
                 <Button
                   type="link"
