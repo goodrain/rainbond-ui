@@ -317,6 +317,7 @@ export default class Overview extends Component {
     return (
       <div className={`${styles.headerWrapper} ${!isVisible ? styles.headerShow : styles.headerHide}`}>
         <AppHeader
+          apps={this.state.apps}
           addComponentOrAppDetail={this.state.addComponentOrAppDetail}
           handleAddComponentOrAppDetail={this.handleAddComponentOrAppDetail}
           permissions={{

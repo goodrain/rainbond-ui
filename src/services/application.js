@@ -326,9 +326,13 @@ export async function getUpgradeComponentList(body = {}, handleError) {
 /*
 	获取某个应用组的信息
 */
-export async function getAppDetailState(body = {}) {
+export async function getAppDetailState(body = {}, handleError) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/status`
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/status`,
+    {
+      handleError,
+      showLoading: false
+    }
   );
 }
 /*
