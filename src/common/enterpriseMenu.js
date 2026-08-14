@@ -36,8 +36,10 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList, rainbon
   });
 
   // ============ 第二组：资源管理 ============
+  const resourceItems = [];
+
   if (adminer) {
-    const resourceItems = [
+    resourceItems.push(
       {
         name: formatMessage({ id: 'menu.enterprise.cluster' }),
         icon: getMenuSvg.getSvg('clusters'),
@@ -68,18 +70,7 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList, rainbon
         path: `/enterprise/${eid}/logs`,
         authority: ['admin', 'user']
       }
-    ];
-
-    // 平台资源（需要至少一个集群）
-    if (clusterList && clusterList.length > 0) {
-      const firstCluster = clusterList[0];
-      resourceItems.push({
-        name: formatMessage({ id: 'menu.enterprise.platform_resources', defaultMessage: '平台资源' }),
-        icon: getMenuSvg.getSvg('StorageMgtL'),
-        path: `/enterprise/${eid}/region/${firstCluster.region_name}/platform-resources`,
-        authority: ['admin', 'user']
-      });
-    }
+    );
 
     // 计量计费
     const billPlugin = PluginUtil.getPluginInfo(pluginList, 'rainbond-bill');
@@ -96,6 +87,20 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList, rainbon
       }
     }
 
+  }
+
+  // 存储管理不依赖企业管理员角色，但需要已知的目标集群。
+  if (clusterList && clusterList.length > 0) {
+    const firstCluster = clusterList[0];
+    resourceItems.push({
+      name: formatMessage({ id: 'menu.enterprise.platform_resources', defaultMessage: '存储管理' }),
+      icon: getMenuSvg.getSvg('StorageMgtL'),
+      path: `/enterprise/${eid}/region/${firstCluster.region_name}/platform-resources`,
+      authority: ['admin', 'user']
+    });
+  }
+
+  if (resourceItems.length > 0) {
     menuGroups.push({
       groupKey: 'resource',
       groupName: formatMessage({ id: 'menu.group.resource', defaultMessage: '资源管理' }),
