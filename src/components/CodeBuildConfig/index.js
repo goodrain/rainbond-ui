@@ -221,12 +221,12 @@ class CodeBuildConfig extends PureComponent {
           fieldsValue.BUILD_ENABLE_ORACLEJDK = true;
         }
         if (languageType && (languageType.toLowerCase().includes('dockerfile')) && onSubmit) {
-          Promise.resolve(onSubmit(setObj)).then(() => resolve(true)).catch(() => resolve(false));
+          Promise.resolve(onSubmit(setObj)).then(result => resolve(result !== false)).catch(() => resolve(false));
         } else if (onSubmit) {
           // 合并已有构建环境变量，防止全量更新时丢失未在表单中的变量（如 BUILD_PACKAGE_TOOL）
           const existingEnvs = this.props.runtimeInfo || {};
           const mergedValues = mergeRuntimeBuildEnvs(existingEnvs, fieldsValue);
-          Promise.resolve(onSubmit(mergedValues)).then(() => resolve(true)).catch(() => resolve(false));
+          Promise.resolve(onSubmit(mergedValues)).then(result => resolve(result !== false)).catch(() => resolve(false));
         } else {
           resolve(true);
         }

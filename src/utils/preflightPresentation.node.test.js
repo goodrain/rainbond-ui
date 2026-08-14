@@ -17,7 +17,7 @@ assert.deepStrictEqual(
 
 assert.deepStrictEqual(
   getPreflightDisplay({
-    summary: '部分部署前检测无法确认',
+    summary: '部分安装前检测无法确认',
     checks: [
       { status: 'warning', message: '镜像仓库检测超时' },
       { status: 'warning', message: '镜像仓库检测超时' },
@@ -37,12 +37,12 @@ assert.deepStrictEqual(
     checks: [
       { status: 'warning', message: '部分镜像版本检测无法确认' }
     ]
-  }, { copyType: 'deploy' }),
+  }),
   {
     summary: '',
     messages: ['部分镜像版本检测无法确认']
   },
-  'deploy preflight should avoid showing generic warning summary with a detailed image warning'
+  'market install preflight should avoid showing generic warning summary with a detailed image warning'
 );
 
 assert.deepStrictEqual(

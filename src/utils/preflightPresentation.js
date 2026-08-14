@@ -1,32 +1,8 @@
 const normalizeMessage = message => (message || '').trim();
 
-const DEPLOY_REPLACEMENTS = [
-  ['部分安装前检测无法确认', '部分部署前检测无法确认'],
-  ['部分安装环境检测未完成，安装可继续', '部分部署前检测未完成，部署可继续'],
-  ['安装环境检测通过', '部署前检测通过'],
-  ['无法安装应用', '无法部署组件'],
-  ['安装要求', '部署要求'],
-  ['安装可继续', '部署可继续'],
-  ['安装将继续', '部署将继续'],
-  ['安装中观察', '部署中观察']
-];
-
-const normalizeCopy = (message, copyType) => {
-  let text = normalizeMessage(message);
-  if (copyType !== 'deploy') {
-    return text;
-  }
-  DEPLOY_REPLACEMENTS.forEach(([from, to]) => {
-    text = text.replace(from, to);
-  });
-  return text;
-};
-
 const isGenericWarningSummary = summary => (
   summary === '部分安装前检测无法确认' ||
-  summary === '部分部署前检测无法确认' ||
-  summary === '部分安装环境检测未完成，安装可继续' ||
-  summary === '部分部署前检测未完成，部署可继续'
+  summary === '部分安装环境检测未完成，安装可继续'
 );
 
 const getResourceDetails = checks => {
@@ -63,8 +39,8 @@ const getResourceDetails = checks => {
   return resourceDetails;
 };
 
-const getPreflightDisplay = (preflight = {}, options = {}) => {
-  const summary = normalizeCopy(preflight.summary, options.copyType);
+const getPreflightDisplay = (preflight = {}) => {
+  const summary = normalizeMessage(preflight.summary);
   const checks = Array.isArray(preflight.checks) ? preflight.checks : [];
   const seen = {};
   const messages = [];
@@ -73,7 +49,7 @@ const getPreflightDisplay = (preflight = {}, options = {}) => {
     if (!item || (item.status !== 'block' && item.status !== 'warning')) {
       return;
     }
-    const message = normalizeCopy(item.message, options.copyType);
+    const message = normalizeMessage(item.message);
     if (!message || message === summary || seen[message]) {
       return;
     }
@@ -82,7 +58,7 @@ const getPreflightDisplay = (preflight = {}, options = {}) => {
   });
 
   if (!summary && messages.length === 0 && preflight.msg_show) {
-    messages.push(normalizeCopy(preflight.msg_show, options.copyType));
+    messages.push(normalizeMessage(preflight.msg_show));
   }
 
   const display = {

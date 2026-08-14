@@ -560,8 +560,8 @@ function testPreflightErrorPresentationSource() {
     'request should reuse the shared preflight content renderer'
   );
   assert.ok(
-    /case 10412:[\s\S]*?content:\s*renderPreflightContent\(safePreflightBean,\s*isDeployPreflight \? 'deploy' : 'install'\)/.test(requestSource),
-    '10412 modal should render the complete preflight bean using deploy/install copy'
+    /case 10412:[\s\S]*?title:\s*'暂不能安装'[\s\S]*?content:\s*renderPreflightContent\(safePreflightBean,\s*'install'\)/.test(requestSource),
+    '10412 modal should render the complete market preflight bean using install copy'
   );
   assert.ok(
     /onError:\s*error\s*=>\s*\{[\s\S]*?clearPreflight\(\)[\s\S]*?shouldNotifyPreflightError\(error\)[\s\S]*?notification\.error\(\{ message: '安装前检测失败，请稍后重试' \}\)/.test(pluginTableSource),

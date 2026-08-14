@@ -83,11 +83,7 @@ export function runMarketInstallPreflight({
   onPass,
   onCancel,
   onError,
-  copy = {
-    blockTitle: '暂不能部署',
-    warningTitle: '部分检测无法确认',
-    continueText: '仍然继续部署'
-  }
+  copy = {}
 }) {
   dispatch({
     type: 'createApp/preflightInstallApp',
@@ -97,26 +93,6 @@ export function runMarketInstallPreflight({
         onPass,
         onCancel,
         copy
-      });
-    },
-    handleError: onError
-  });
-}
-
-export function runDeployPreflight({ dispatch, payload, onPass, onCancel, onError }) {
-  dispatch({
-    type: 'createApp/preflightDeploy',
-    payload,
-    callback: response => {
-      confirmMarketInstallPreflight(getMarketInstallPreflightBean(response), {
-        onPass,
-        onCancel,
-        copy: {
-          blockTitle: '暂不能部署',
-          warningTitle: '部分检测无法确认',
-          continueText: '仍然继续部署',
-          copyType: 'deploy'
-        }
       });
     },
     handleError: onError

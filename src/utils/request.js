@@ -156,17 +156,16 @@ function handleSpecialErrorCode(code, resData, options, error, TEAM_NAME, REGION
       return true;
 
     case 10412:
-      // 安装/部署前检测阻断
+      // 应用市场安装前检测阻断
       const preflightBean = resData.data?.bean || {};
-      const isDeployPreflight = resData.msg === 'deploy preflight blocked' || preflightBean.deploy_type;
       const safePreflightBean = {
         ...preflightBean,
         summary: preflightBean.summary || resData.msg_show ||
-          (isDeployPreflight ? '当前环境不满足部署条件' : '当前环境不满足应用安装条件')
+          '当前环境不满足应用安装条件'
       };
       Modal.error({
-        title: isDeployPreflight ? '暂不能部署' : '暂不能安装',
-        content: renderPreflightContent(safePreflightBean, isDeployPreflight ? 'deploy' : 'install'),
+        title: '暂不能安装',
+        content: renderPreflightContent(safePreflightBean, 'install'),
         okText: '我知道了'
       });
       if (options.handleError) {

@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 /* eslint-disable react/sort-comp */
-import { Button, notification } from 'antd';
+import { Button, Modal, notification } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
@@ -16,6 +16,13 @@ import httpResponseUtil from '../../utils/httpResponse';
 import roleUtil from '../../utils/role';
 import pluginUtile from '../../utils/pulginUtils';
 import handleAPIError from '../../utils/error';
+import resourceSnapshot from './resourceSnapshot';
+
+const {
+  evaluateResourceAvailability,
+  normalizeAvailableResources,
+  shouldCheckAvailableResources
+} = resourceSnapshot;
 const SOURCE_BUILD_CONFIG_KEY = 'source_build_config';
 const readSourceBuildConfig = () => {
   const config = window.sessionStorage.getItem(SOURCE_BUILD_CONFIG_KEY);
@@ -45,12 +52,21 @@ export default class Index extends PureComponent {
       appDetail: null,
       handleBuildSwitch: false,
       showEnterprisePlugin: false,
+      availableResourcesStatus: 'idle',
+      availableResources: null,
+      nextLoading: false,
     };
+    this.availableResourcesRequested = false;
+    this.availableResourcesRequestToken = 0;
+    this.nextSubmitting = false;
+    this.unmounted = false;
   }
   componentDidMount() {
     this.isShowEnterprisePlugin()
   }
   componentWillUnmount() {
+    this.unmounted = true;
+    this.availableResourcesRequestToken += 1;
     this.props.dispatch({ type: 'appControl/clearDetail' });
   }
   onRef = (ref) => {
@@ -95,8 +111,7 @@ export default class Index extends PureComponent {
         app_alias
       },
       callback: data => {
-        
-        this.setState({ appDetail: data });
+        this.setState({ appDetail: data }, this.loadAvailableResources);
       },
       handleError: data => {
         const code = httpResponseUtil.getCode(data);
@@ -105,6 +120,55 @@ export default class Index extends PureComponent {
         } else {
           handleAPIError(data);
         }
+      }
+    });
+  };
+  loadAvailableResources = () => {
+    if (
+      !shouldCheckAvailableResources(this.state.appDetail) ||
+      this.availableResourcesRequested
+    ) {
+      return;
+    }
+    this.availableResourcesRequested = true;
+    const requestToken = this.availableResourcesRequestToken + 1;
+    this.availableResourcesRequestToken = requestToken;
+    const { dispatch } = this.props;
+    const { team_name, region_name } = this.fetchParameter();
+    this.setState({
+      availableResourcesStatus: 'loading',
+      availableResources: null
+    });
+    dispatch({
+      type: 'createApp/fetchAvailableResources',
+      payload: {
+        team_name,
+        region_name
+      },
+      callback: data => {
+        if (
+          this.unmounted ||
+          requestToken !== this.availableResourcesRequestToken
+        ) {
+          return;
+        }
+        const availableResources = normalizeAvailableResources(data);
+        this.setState({
+          availableResourcesStatus: availableResources ? 'success' : 'error',
+          availableResources
+        });
+      },
+      handleError: () => {
+        if (
+          this.unmounted ||
+          requestToken !== this.availableResourcesRequestToken
+        ) {
+          return;
+        }
+        this.setState({
+          availableResourcesStatus: 'error',
+          availableResources: null
+        });
       }
     });
   };
@@ -225,14 +289,69 @@ export default class Index extends PureComponent {
     } = this.props 
     dispatch(routerRedux.replace(`/team/${teamName}/region/${regionName}/create/${link}/${appAlias}`))
   }
-  handleJumpNext = async () => {
-      // 调用子组件的验证方法并等待保存完成
-      const validationResult = await this.child.childFn()
+  validateAvailableResources = requirements => {
+    const {
+      appDetail,
+      availableResourcesStatus,
+      availableResources
+    } = this.state;
+    if (!shouldCheckAvailableResources(appDetail)) {
+      return true;
+    }
+    if (availableResourcesStatus === 'loading') {
+      notification.warning({ message: '资源信息加载中，请稍后再试' });
+      return false;
+    }
+    if (availableResourcesStatus !== 'success') {
+      notification.error({ message: '资源信息加载失败，请刷新或重新进入页面后重试' });
+      return false;
+    }
 
-      // 只有验证通过才跳转到下一页
+    const result = evaluateResourceAvailability(
+      requirements,
+      availableResources
+    );
+    if (result.status === 'invalid') {
+      notification.error({ message: '资源信息加载失败，请刷新或重新进入页面后重试' });
+      return false;
+    }
+    if (result.status === 'insufficient') {
+      Modal.error({
+        title: '资源不足',
+        content: (
+          <div>
+            {result.shortages.map(item => (
+              <p key={item.key}>
+                {item.label}：需要 {item.required}{item.unit}，可用 {item.available}{item.unit}，缺少 {item.missing}{item.unit}
+              </p>
+            ))}
+          </div>
+        ),
+        okText: '我知道了'
+      });
+      return false;
+    }
+    return true;
+  };
+  handleJumpNext = async () => {
+    if (this.nextSubmitting) {
+      return;
+    }
+    this.nextSubmitting = true;
+    this.setState({ nextLoading: true });
+    try {
+      const validationResult = await this.child.childFn(
+        this.validateAvailableResources
+      );
       if (validationResult !== false) {
-          this.handleLinkConfigPort('create-configPort')
+        this.handleLinkConfigPort('create-configPort');
       }
+    } finally {
+      this.nextSubmitting = false;
+      if (!this.unmounted) {
+        this.setState({ nextLoading: false });
+      }
+    }
   }
   handleEditInfo = (val = {}) => {
     const {
@@ -245,22 +364,29 @@ export default class Index extends PureComponent {
         },
         dispatch
     } = this.props
-    dispatch({
-      type: 'appControl/editAppCreateInfo',
-      payload: {
-        team_name: teamName,
-        app_alias: appAlias,
-        ...val
-      },
-      callback: data => {
-        if (data) {
-          this.loadDetail();
-          this.handleBuildSwitch(false)
+    return new Promise(resolve => {
+      let failed = false;
+      dispatch({
+        type: 'appControl/editAppCreateInfo',
+        payload: {
+          team_name: teamName,
+          app_alias: appAlias,
+          ...val
+        },
+        callback: data => {
+          if (data) {
+            this.loadDetail();
+            this.handleBuildSwitch(false)
+          }
+        },
+        handleError: err => {
+          failed = true;
+          handleAPIError(err);
+        },
+        complete: data => {
+          resolve(!failed && !!data);
         }
-      },
-      handleError: err => {
-        handleAPIError(err);
-      }
+      });
     });
   };
   handleEditRuntime = (build_env_dict = {}) => {
@@ -275,6 +401,7 @@ export default class Index extends PureComponent {
         dispatch
     } = this.props
     return new Promise((resolve) => {
+      let failed = false;
       dispatch({
         type: 'appControl/editRuntimeBuildInfo',
         payload: {
@@ -296,11 +423,13 @@ export default class Index extends PureComponent {
             }
             this.loadDetail();
           }
-          resolve(res);
         },
         handleError: err => {
+          failed = true;
           handleAPIError(err);
-          resolve(null);
+        },
+        complete: res => {
+          resolve(!failed && res && res.status_code === 200 ? res : false);
         }
       });
     });
@@ -310,7 +439,8 @@ export default class Index extends PureComponent {
     const {
       showDelete,
       handleBuildSwitch,
-      showEnterprisePlugin
+      showEnterprisePlugin,
+      nextLoading
     } = this.state;
     const appDetail = this.state.appDetail || {};
     if (!appDetail.service) {
@@ -359,7 +489,7 @@ export default class Index extends PureComponent {
             </Button>
             <Button
               data-testid="rbd-build-wizard-confirm"
-              loading={buildAppsLoading}
+              loading={buildAppsLoading || nextLoading}
               onClick={this.handleJumpNext}
               type="primary"
             >

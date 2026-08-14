@@ -1,10 +1,8 @@
 import apiconfig from '../../config/api.config';
 import request from '../utils/request';
 import sourceBuildPayload from '../utils/sourceBuildPayload';
-import deployPreflightRequest from './deployPreflightRequest';
 
 const { sanitizePackageToolPayload } = sourceBuildPayload;
-const { buildDeployPreflightRequestData } = deployPreflightRequest;
 
 /*
    源码创建应用
@@ -518,12 +516,11 @@ export function getMarketApp(body = {}) {
 /*
   从云市安装应用
 */
-export async function preflightDeploy(body = {}, handleError) {
+export async function getAvailableResources(body = {}, handleError) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/deploy_preflight`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/available_resources`,
     {
-      method: 'post',
-      data: buildDeployPreflightRequestData(body),
+      method: 'get',
       params: {
         region_name: body.region_name
       },
