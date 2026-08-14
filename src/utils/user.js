@@ -75,9 +75,6 @@ const userUtil = {
   },
   // 是否是企业管理员
   isCompanyAdmin(userBean) {
-    if (userBean && userBean.is_enterprise_admin === true) {
-      return true;
-    }
     return (
       userBean &&
       userBean.roles &&
