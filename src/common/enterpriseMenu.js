@@ -6,6 +6,20 @@ import getMenuSvg from './getMenuSvg';
 import PluginUtil from '../utils/pulginUtils'
 import { isRainbondInfoAgentEnabled } from '../utils/agentVisibility';
 
+export const getMenuClusterList = (enterpriseId, clusterList, cachedClusterList) => {
+  if (Array.isArray(clusterList) && clusterList.length > 0) {
+    return clusterList;
+  }
+
+  if (!Array.isArray(cachedClusterList)) {
+    return [];
+  }
+
+  return cachedClusterList.filter(
+    cluster => cluster && String(cluster.enterprise_id) === String(enterpriseId)
+  );
+};
+
 /**
  * 生成分组菜单数据
  * @param {string} eid - 企业ID
@@ -70,12 +84,16 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList, rainbon
       }
     ];
 
-    resourceItems.push({
-      name: formatMessage({ id: 'menu.enterprise.platform_resources', defaultMessage: '平台资源' }),
-      icon: getMenuSvg.getSvg('StorageMgtL'),
-      path: `/enterprise/${eid}/platform-resources`,
-      authority: ['admin', 'user']
-    });
+    // 平台资源（需要至少一个集群）
+    if (clusterList && clusterList.length > 0) {
+      const firstCluster = clusterList[0];
+      resourceItems.push({
+        name: formatMessage({ id: 'menu.enterprise.platform_resources', defaultMessage: '平台资源' }),
+        icon: getMenuSvg.getSvg('StorageMgtL'),
+        path: `/enterprise/${eid}/region/${firstCluster.region_name}/platform-resources`,
+        authority: ['admin', 'user']
+      });
+    }
 
     // 计量计费
     const billPlugin = PluginUtil.getPluginInfo(pluginList, 'rainbond-bill');

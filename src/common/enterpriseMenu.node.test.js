@@ -4,8 +4,8 @@ const path = require('path');
 const vm = require('vm');
 
 const source = fs.readFileSync(path.join(__dirname, 'enterpriseMenu.js'), 'utf8');
-const platformResourcesEntrySource = fs.readFileSync(
-  path.join(__dirname, '..', 'pages', 'PlatformResources', 'Entry.js'),
+const enterpriseLayoutSource = fs.readFileSync(
+  path.join(__dirname, '..', 'layouts', 'EnterpriseLayout.js'),
   'utf8'
 );
 const userUtilSource = fs.readFileSync(
@@ -37,46 +37,64 @@ const enterpriseMenuModule = { exports: {} };
 vm.runInNewContext(
   source
     .replace(/^import .*;?$/gm, '')
+    .replace('export const getMenuClusterList =', 'const getMenuClusterList =')
     .replace('export const getMenuData =', 'const getMenuData =')
     .replace('export const getFlatMenuData =', 'const getFlatMenuData =')
-    .concat('\nmodule.exports = { getMenuData };'),
+    .concat('\nmodule.exports = { getMenuClusterList };'),
   {
     module: enterpriseMenuModule,
-    formatMessage: ({ defaultMessage, id }) => defaultMessage || id,
-    userUtil: userUtilModule.exports,
+    formatMessage: () => '',
+    userUtil: {},
     isUrl: () => false,
-    getMenuSvg: { getSvg: () => '' },
-    PluginUtil: { getPluginInfo: () => ({}) },
+    getMenuSvg: {},
+    PluginUtil: {},
     isRainbondInfoAgentEnabled: () => false
   }
 );
 
-const menuData = enterpriseMenuModule.exports.getMenuData(
-  'enterprise-a',
-  { is_enterprise_admin: true, roles: [] },
-  {},
-  {},
+assert.deepStrictEqual(
+  JSON.parse(JSON.stringify(enterpriseMenuModule.exports.getMenuClusterList(
+    'enterprise-a',
+    [],
+    [{ enterprise_id: 'enterprise-a', region_name: 'rainbond' }]
+  ))),
+  [{ enterprise_id: 'enterprise-a', region_name: 'rainbond' }],
+  'storage menu should fall back to the cached clusters of the current enterprise'
+);
+
+assert.deepStrictEqual(
+  JSON.parse(JSON.stringify(enterpriseMenuModule.exports.getMenuClusterList(
+    'enterprise-a',
+    [{ enterprise_id: 'enterprise-a', region_name: 'fresh' }],
+    [{ enterprise_id: 'enterprise-a', region_name: 'cached' }]
+  ))),
+  [{ enterprise_id: 'enterprise-a', region_name: 'fresh' }],
+  'storage menu should prefer the cluster list loaded by the layout'
+);
+
+assert.deepStrictEqual(
+  JSON.parse(JSON.stringify(enterpriseMenuModule.exports.getMenuClusterList(
+    'enterprise-a',
+    [],
+    [{ enterprise_id: 'enterprise-b', region_name: 'other' }]
+  ))),
   [],
-  {}
-);
-
-const storageMenu = menuData
-  .reduce((items, group) => items.concat(group.items), [])
-  .find(item => item.path === '/enterprise/enterprise-a/platform-resources');
-
-assert.ok(
-  storageMenu,
-  'enterprise admins should always see the storage management sidebar item before clusters finish loading'
+  'storage menu must not use cached clusters from another enterprise'
 );
 
 assert.ok(
-  /type: 'region\/fetchEnterpriseClusters'/.test(platformResourcesEntrySource),
-  'storage management entry should load the enterprise clusters only after it is selected'
+  /const menuClusterList = getMenuClusterList\(eid, clusterList, clusterInfo\);/.test(enterpriseLayoutSource),
+  'enterprise layout should build menus from the local and cached cluster lists'
 );
 
 assert.ok(
-  /routerRedux\.replace\([\s\S]*?`\/enterprise\/\$\{eid\}\/region\/\$\{firstCluster\.region_name\}\/platform-resources`/.test(platformResourcesEntrySource),
-  'storage management entry should redirect to the first available cluster'
+  /clusterInfo: region\.cluster_info/.test(enterpriseLayoutSource),
+  'enterprise layout should receive the cached enterprise cluster list from the region model'
+);
+
+assert.ok(
+  /handleLoadEnterpriseClusters = \(\) => \{[\s\S]*?params: \{ eid \}[\s\S]*?enterprise_id: eid/.test(enterpriseLayoutSource),
+  'enterprise layout should request clusters with the current route enterprise ID'
 );
 
 assert.ok(

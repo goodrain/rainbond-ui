@@ -18,7 +18,7 @@ import { ContainerQuery } from 'react-container-query';
 import ReactDOM from "react-dom"
 import DocumentTitle from 'react-document-title';
 import logo from '../../public/logo-icon.png';
-import { getMenuData } from '../common/enterpriseMenu';
+import { getMenuClusterList, getMenuData } from '../common/enterpriseMenu';
 import AuthCompany from '../components/AuthCompany';
 import GlobalHeader from '../components/GlobalHeader';
 import GlobalRouter from '../components/GlobalRouter';
@@ -364,9 +364,11 @@ class EnterpriseLayout extends PureComponent {
       rainbondInfo,
       enterprise,
       showAuthCompany,
-      terminalStatus
+      terminalStatus,
+      clusterInfo
     } = this.props;
     const { enterpriseList, enterpriseInfo, ready, pluginList, clusterList } = this.state;
+    const menuClusterList = getMenuClusterList(eid, clusterList, clusterInfo);
     const BillingFunction = rainbondUtil.isEnableBillingFunction();
     const queryString = stringify({
       redirect: window.location.href
@@ -412,7 +414,7 @@ class EnterpriseLayout extends PureComponent {
                 }
                 currentUser={currentUser}
                 Authorized={Authorized}
-                menuData={getMenuData(eid, currentUser, enterprise, pluginList, clusterList, rainbondInfo)}
+                menuData={getMenuData(eid, currentUser, enterprise, pluginList, menuClusterList, rainbondInfo)}
                 showMenu={showMenu}
                 pathname={pathname}
                 location={location}
@@ -513,5 +515,6 @@ export default connect(({ user, global, index, loading, region }) => ({
   overviewInfo: index.overviewInfo,
   nouse: global.nouse,
   enterprise: global.enterprise,
-  terminalStatus: region.terminal_status
+  terminalStatus: region.terminal_status,
+  clusterInfo: region.cluster_info
 }))(EnterpriseLayout);
