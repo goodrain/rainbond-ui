@@ -175,12 +175,6 @@ export default [
             authority: ['admin', 'user']
           },
           {
-            path: '/enterprise/:eid/platform-resources',
-            component: './PlatformResources/Entry',
-            name: 'PlatformResourcesEntry',
-            authority: ['admin', 'user']
-          },
-          {
             path: '/enterprise/:eid/region/:regionName/platform-resources',
             component: './PlatformResources',
             name: 'PlatformResources',

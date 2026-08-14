@@ -1,62 +1,8 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const vm = require('vm');
 
 const source = fs.readFileSync(path.join(__dirname, 'enterpriseMenu.js'), 'utf8');
-const platformResourcesEntrySource = fs.readFileSync(
-  path.join(__dirname, '..', 'pages', 'PlatformResources', 'Entry.js'),
-  'utf8'
-);
-const enterpriseMenuModule = { exports: {} };
-
-vm.runInNewContext(
-  source
-    .replace(/^import .*;?$/gm, '')
-    .replace('export const getMenuData =', 'const getMenuData =')
-    .replace('export const getFlatMenuData =', 'const getFlatMenuData =')
-    .concat('\nmodule.exports = { getMenuData };'),
-  {
-    module: enterpriseMenuModule,
-    formatMessage: ({ defaultMessage, id }) => defaultMessage || id,
-    userUtil: { isCompanyAdmin: () => false },
-    isUrl: () => false,
-    getMenuSvg: { getSvg: () => '' },
-    PluginUtil: {
-      getPluginInfo: () => ({}),
-      segregatePluginsByHierarchy: () => []
-    },
-    isRainbondInfoAgentEnabled: () => false
-  }
-);
-
-const menuData = enterpriseMenuModule.exports.getMenuData(
-  'enterprise-a',
-  { roles: [] },
-  {},
-  {},
-  [],
-  {}
-);
-
-const storageMenu = menuData
-  .reduce((items, group) => items.concat(group.items), [])
-  .find(item => item.path === '/enterprise/enterprise-a/platform-resources');
-
-assert.ok(
-  storageMenu,
-  'storage management should not require the enterprise administrator role or loaded clusters'
-);
-
-assert.ok(
-  /type: 'region\/fetchEnterpriseClusters'/.test(platformResourcesEntrySource),
-  'storage management entry should load enterprise clusters after it is selected'
-);
-
-assert.ok(
-  /routerRedux\.replace\([\s\S]*?`\/enterprise\/\$\{eid\}\/region\/\$\{firstCluster\.region_name\}\/platform-resources`/.test(platformResourcesEntrySource),
-  'storage management entry should redirect to the first available cluster'
-);
 
 assert.ok(
   /const gatewayMonitoringPlugin = PluginUtil\.getPluginInfo\(pluginList, 'rainbond-observability'\);/.test(source),
