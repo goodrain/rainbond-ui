@@ -200,8 +200,8 @@ export default {
       }
     },
     // 创建团队
-    *createTeam({ payload, callback }, { call }) {
-      const response = yield call(createTeam, payload);
+    *createTeam({ payload, callback, handleError }, { call }) {
+      const response = yield call(createTeam, payload, handleError);
       if (response && !response.status && callback) {
         callback(response);
       }
@@ -228,8 +228,8 @@ export default {
       yield put({ type: 'saveCurrentRegionName', payload });
     },
     // 开通集群
-    *openRegion({ payload, callback }, { call }) {
-      const response = yield call(openRegion, payload);
+    *openRegion({ payload, callback, handleError }, { call }) {
+      const response = yield call(openRegion, payload, handleError);
       if (response && !response.status && callback) {
         callback(response);
       }

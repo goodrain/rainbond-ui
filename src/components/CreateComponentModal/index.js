@@ -32,7 +32,7 @@ import ThirdList from '../ThirdList';
 import oauthUtil from '../../utils/oauth';
 import handleAPIError from '../../utils/error';
 import { getImageRegistryTypeLabel } from '../../utils/imageRegistry';
-import { runDeployPreflight, runMarketInstallPreflight } from '../../utils/marketInstallPreflight';
+import { runMarketInstallPreflight } from '../../utils/marketInstallPreflight';
 import styles from './index.less';
 import mysql from '../../../public/images/mysql.svg';
 import postgresql from '../../../public/images/postgresql.svg';
@@ -59,10 +59,6 @@ import {
   GiteeIcon,
   GiteaIcon
 } from './icons';
-const {
-  buildDeployPreflightPayload,
-  buildOauthDeployPreflightPayload
-} = require('./deployPreflightPayload');
 const {
   buildLlmAssetDownloadPayload,
   buildLlmCatalogDownloadPayload,
@@ -130,6 +126,7 @@ const LocalInstallFormWrapper = Form.create()(
 const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, rainbondInfo, currentUser, groups, pluginsList, currentView: initialView }) => {
   const [currentView, setCurrentView] = useState('main'); // 'main', 'market', 'image', 'code', 'yaml', 'form', 'imageRepo', 'marketStore', 'localMarket', 'marketInstall', 'localMarketInstall'
   const [hasInitialized, setHasInitialized] = useState(false); // 标记是否已经初始化过
+  const [firstAppDeployed, setFirstAppDeployed] = useState(null);
   const [selectedStore, setSelectedStore] = useState(null);
   const [marketStores, setMarketStores] = useState([]);
   const [loadingStores, setLoadingStores] = useState(false);
@@ -204,6 +201,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const [localMarketHasMore, setLocalMarketHasMore] = useState(true);
   const [localMarketLoadingMore, setLocalMarketLoadingMore] = useState(false);
   const [localMarketActiveTab, setLocalMarketActiveTab] = useState('all');
+  const [hasLocalMarketApps, setHasLocalMarketApps] = useState(false);
   const [selectedLocalApp, setSelectedLocalApp] = useState(null);
   const [localInstallType, setLocalInstallType] = useState('new');
   const [selectedLocalVersion, setSelectedLocalVersion] = useState('');
@@ -211,6 +209,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const [localSubmitLoading, setLocalSubmitLoading] = useState(false);
 
   const canAccessResourceCenter = !(rainbondInfo && rainbondInfo.is_saas) || !!(currentUser && currentUser.is_enterprise_admin);
+  const shouldUseDefaultDemo = firstAppDeployed === false;
 
   const marketListRef = useRef(null);
   const localMarketListRef = useRef(null);
@@ -324,6 +323,25 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         setLocalMarketLoading(false);
         setLocalMarketLoadingMore(false);
         handleAPIError(err);
+      }
+    });
+  };
+
+  // 检查本地组件库是否有应用，用于控制创建组件入口展示
+  const fetchLocalMarketAvailability = () => {
+    dispatch({
+      type: 'market/fetchAppModels',
+      payload: {
+        enterprise_id: currentEnterprise.enterprise_id,
+        app_name: '',
+        page: 1,
+        page_size: 1,
+        tenant_name: globalUtil.getCurrTeamName(),
+        scope: ''
+      },
+      callback: res => {
+        const list = (res && res.list) || [];
+        setHasLocalMarketApps(list.length > 0);
       }
     });
   };
@@ -711,14 +729,14 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         iconColor: '#1890ff',
       }))
     ] : []),
-    {
+    ...(hasLocalMarketApps ? [{
       icon: 'appstore',
       iconSrc: FolderOpenIcon,
       title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.local_market' }),
       key: 'local-market',
       showLocalMarketModal: true,  // 标记需要打开本地组件库弹窗
       iconColor: '#1890ff',
-    },
+    }] : []),
     ...(!isComponentView ? [{
       icon: 'shop',
       iconSrc: UploadIcon,
@@ -876,14 +894,14 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       showMarketModal: true,
       iconColor: '#1890ff',
     })),
-    {
+    ...(hasLocalMarketApps ? [{
       icon: 'appstore',
       iconSrc: FolderOpenIcon,
       title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.local_market' }),
       key: 'local-market',
       showLocalMarketModal: true,
       iconColor: '#1890ff',
-    }
+    }] : [])
   ];
 
   const customBuildSectionItems = [
@@ -1752,6 +1770,19 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   }, [localMarketLoadingMore]);
 
   useEffect(() => {
+    if (visible) {
+      setFirstAppDeployed(null);
+      dispatch({
+        type: 'global/fetchRainbondInfo',
+        callback: info => setFirstAppDeployed(info.first_app_deployed),
+        handleError: () => {}
+      });
+    } else {
+      setFirstAppDeployed(null);
+    }
+  }, [visible]);
+
+  useEffect(() => {
     if (visible && currentView === 'form') {
       if (currentFormType === 'docker') {
         fetchLocalImageList();
@@ -1780,6 +1811,9 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   useEffect(() => {
     if (visible && currentEnterprise?.enterprise_id) {
       fetchMarketStores();
+      fetchLocalMarketAvailability();
+    } else if (!visible) {
+      setHasLocalMarketApps(false);
     }
   }, [visible, currentEnterprise]);
 
@@ -2510,25 +2544,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         });
       }
     };
-    const preflightPayload = buildDeployPreflightPayload({
-      currentFormType,
-      value,
-      eventId: event_id,
-      teamName,
-      regionName
-    });
-    if (!preflightPayload) {
-      submit();
-      return;
-    }
-    runDeployPreflight({
-      dispatch,
-      payload: preflightPayload,
-      onPass: submit,
-      onError: err => {
-        handleAPIError(err);
-      }
-    });
+    submit();
   };
 
   // 处理从ThirdList提交(OAuth仓库项目)
@@ -2536,12 +2552,22 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
 
-    const payload = buildOauthDeployPreflightPayload({
-      selectedOauthService,
-      value,
-      teamName,
-      regionName
-    });
+    const payload = {
+      service_id: selectedOauthService.service_id,
+      code_version: value.code_version,
+      git_url: value.project_url,
+      group_id: value.group_id,
+      server_type: 'git',
+      service_cname: value.service_cname,
+      is_oauth: true,
+      git_project_id: value.project_id,
+      team_name: teamName,
+      open_webhook: value.open_webhook,
+      full_name: value.project_full_name,
+      k8s_component_name: value.k8s_component_name,
+      arch: value.arch,
+      region_name: regionName
+    };
 
     const createThirdApp = () => {
       dispatch({
@@ -2590,22 +2616,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       }
     };
 
-    runDeployPreflight({
-      dispatch,
-      payload: {
-        team_name: teamName,
-        region_name: regionName,
-        deploy_type: 'source_code',
-        payload: {
-          ...payload,
-          code_from: 'oauth',
-        }
-      },
-      onPass: submit,
-      onError: err => {
-        handleAPIError(err);
-      }
-    });
+    submit();
   };
 
   const getTitle = () => {
@@ -3070,6 +3081,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                 onSubmit={handleInstallApp}
                 dispatch={dispatch}
                 archInfo={archInfo}
+                autoUseDemo={shouldUseDefaultDemo && !isComponentView}
                 showSubmitBtn={false}
               />
             )}
@@ -3089,6 +3101,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                 dispatch={dispatch}
                 archInfo={archInfo}
                 enterpriseInfo={enterpriseInfo}
+                autoUseDemo={shouldUseDefaultDemo && !isComponentView}
                 showSubmitBtn={false}
               />
             )}

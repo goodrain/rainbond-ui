@@ -2591,7 +2591,8 @@ export async function editRuntimeBuildInfo(
     team_name,
     app_alias,
     build_env_dict
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/build_envs`,
@@ -2599,7 +2600,8 @@ export async function editRuntimeBuildInfo(
       method: 'put',
       data: {
         build_env_dict: body.build_env_dict
-      }
+      },
+      handleError
     }
   );
 }
@@ -2622,13 +2624,15 @@ export async function editAppCreateInfo(
     password,
     schedule:"*/1 * * * *",
     disk_cap
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/check_update`,
     {
       method: 'put',
-      data: body
+      data: body,
+      handleError
     }
   );
 }

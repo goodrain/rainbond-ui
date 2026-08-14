@@ -945,7 +945,7 @@ export async function saveLog(body = {}) {
   });
 }
 /* 查询企业下所有团队 */
-export async function fetchEnterpriseTeams(param) {
+export async function fetchEnterpriseTeams(param, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${param.enterprise_id}/teams`,
     {
@@ -954,7 +954,8 @@ export async function fetchEnterpriseTeams(param) {
         page: param.page,
         page_size: param.page_size,
         name: param.name
-      }
+      },
+      handleError
     }
   );
 }

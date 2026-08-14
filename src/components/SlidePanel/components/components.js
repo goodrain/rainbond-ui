@@ -266,7 +266,8 @@ class EditName extends PureComponent {
     editNameLoading: loading.effects['appControl/editName'],
     updateRollingLoading: loading.effects['appControl/putUpdateRolling'],
     deployLoading:
-      loading.effects[('appControl/putDeploy', 'appControl/putUpgrade')],
+      loading.effects['appControl/putDeploy'] ||
+      loading.effects['appControl/putUpgrade'],
     buildInformationLoading: loading.effects['appControl/getBuildInformation'],
     pluginList: teamControl.pluginsList,
     clusterDetail: kubeblocks.clusterDetail,
@@ -307,8 +308,10 @@ class Main extends PureComponent {
       componentPermissions: this.props?.permissions || {},
       activeTab: '',
       isShowKubeBlocksComponent: false,
+      deploySubmitting: false,
       prevComponentID: globalUtil.getSlidePanelComponentID() || '', // 用于追踪 componentID 变化
     };
+    this.deployRequestPending = false;
     this.socket = null;
     this.destroy = false;
     this.statusPollingGeneration = 0;
@@ -848,16 +851,24 @@ class Main extends PureComponent {
   handleshowDeployTips = showonoff => {
     this.setState({ showDeployTips: showonoff });
   };
+  finishDeployRequest = () => {
+    this.deployRequestPending = false;
+    if (!this.destroy) {
+      this.setState({ deploySubmitting: false });
+    }
+  };
   handleDeploy = groupVersion => {
-    this.setState({
-      showDeployTips: false,
-      showreStartTips: false
-    });
     const { build_upgrade, dispatch, appDetail } = this.props;
-    if (this.state.actionIng) {
+    if (this.deployRequestPending || this.state.actionIng) {
       notification.warning({ message: formatMessage({ id: 'notification.warn.executing' }) });
       return;
     }
+    this.deployRequestPending = true;
+    this.setState({
+      showDeployTips: false,
+      showreStartTips: false,
+      deploySubmitting: true
+    });
     const { team_name, app_alias } = this.fetchParameter();
 
     dispatch({
@@ -870,6 +881,9 @@ class Main extends PureComponent {
       },
       callback: res => {
         if (res) {
+          this.setState(({ status }) => ({
+            status: { ...status, status: 'building' }
+          }));
           this.handleCancelBuild();
           this.loadBuildState(appDetail);
           notification.success({ message: formatMessage({ id: 'notification.success.deployment' }) });
@@ -883,6 +897,22 @@ class Main extends PureComponent {
           }
         }
         this.handleOffHelpfulHints();
+        this.finishDeployRequest();
+      },
+      handleError: err => {
+        this.handleCancelBuild();
+        const errorStatus = (err && err.status) || (err && err.response && err.response.status);
+        if (errorStatus === 409) {
+          notification.warning({ message: formatMessage({ id: 'notification.warn.building' }) });
+        } else {
+          const errorMessage =
+            (err && err.data && err.data.msg_show) ||
+            (err && err.response && err.response.data && err.response.data.msg_show) ||
+            formatMessage({ id: 'notification.warn.error' });
+          notification.error({ message: errorMessage });
+        }
+        this.handleOffHelpfulHints();
+        this.finishDeployRequest();
       }
     });
   };
@@ -1614,7 +1644,8 @@ class Main extends PureComponent {
       tabsShow,
       routerSwitch,
       activeTab,
-      isShowKubeBlocksComponent
+      isShowKubeBlocksComponent,
+      deploySubmitting
     } = this.state;
     const { getFieldDecorator } = form;
     const method = appDetail && appDetail.service && appDetail.service.extend_method
@@ -1917,7 +1948,7 @@ class Main extends PureComponent {
                   : promptModal === 'start'
                     ? startLoading
                     : promptModal === 'deploy'
-                      ? deployLoading
+                      ? deployLoading || deploySubmitting
                       : promptModal === 'rolling'
                         ? updateRollingLoading
                         : !promptModal
@@ -1949,7 +1980,7 @@ class Main extends PureComponent {
                 </Button>,
                 <Button
                   type="primary"
-                  loading={deployLoading}
+                  loading={deployLoading || deploySubmitting}
                   onClick={() => {
                     this.handleOkBuild('upgrade');
                   }}
@@ -1967,7 +1998,7 @@ class Main extends PureComponent {
                 </Button>,
                 <Button
                   type="primary"
-                  loading={deployLoading}
+                  loading={deployLoading || deploySubmitting}
                   onClick={() => {
                     this.handleOkBuild('build');
                   }}

@@ -470,10 +470,17 @@ export default {
         callback(response);
       }
     },
-    *editAppCreateInfo({ payload, callback }, { call }) {
-      const response = yield call(editAppCreateInfo, payload);
-      if (response && callback) {
-        callback(response);
+    *editAppCreateInfo({ payload, callback, handleError, complete }, { call }) {
+      let response;
+      try {
+        response = yield call(editAppCreateInfo, payload, handleError);
+        if (response && callback) {
+          callback(response);
+        }
+      } finally {
+        if (complete) {
+          complete(response);
+        }
       }
     },
     *getRuntimeInfo({ payload, callback }, { call }) {
@@ -536,10 +543,17 @@ export default {
         callback(response);
       }
     },
-    *editRuntimeBuildInfo({ payload, callback }, { call }) {
-      const response = yield call(editRuntimeBuildInfo, payload);
-      if (response && callback) {
-        callback(response);
+    *editRuntimeBuildInfo({ payload, callback, handleError, complete }, { call }) {
+      let response;
+      try {
+        response = yield call(editRuntimeBuildInfo, payload, handleError);
+        if (response && callback) {
+          callback(response);
+        }
+      } finally {
+        if (complete) {
+          complete(response);
+        }
       }
     },
     *addTag({ payload, callback }, { call }) {

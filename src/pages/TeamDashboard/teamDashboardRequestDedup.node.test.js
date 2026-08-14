@@ -160,15 +160,14 @@ assert.ok(
 
 assert.ok(
   !/type:\s*'index\/fetchOverview'/.test(dashboardSource),
-  'team dashboard parent should not duplicate the overview request owned by TeamBasicInfo'
+  'team dashboard parent should not duplicate the overview request owned by TeamLayout'
 );
 
 assert.ok(
-  /overviewInfo:\s*index\.overviewInfo/.test(dashboardSource) &&
-    /imageUrlTeam=\{overviewInfo\s*&&\s*overviewInfo\.logo\s*\|\|\s*false\}/.test(
-      dashboardSource
-    ),
-  'team dashboard should reuse the overview data loaded by TeamBasicInfo for the edit modal'
+  /teamOverview:\s*global\.teamOverview/.test(dashboardSource) &&
+    /currentTeam\.team_id[\s\S]*?teamOverview\.team_id[\s\S]*?String\(currentTeam\.team_id\)\s*===\s*String\(teamOverview\.team_id\)/.test(dashboardSource) &&
+    /imageUrlTeam=\{logoInfo\}/.test(dashboardSource),
+  'team dashboard should use only the current team matching global overview logo for the edit modal'
 );
 
 assert.ok(

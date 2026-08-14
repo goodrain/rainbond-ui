@@ -21,12 +21,12 @@ import handleAPIError from '../../utils/error';
 import teamUtil from '../../utils/team';
 import MoveTeam from '../Team/move_team';
 import styles from './NewIndex.less';
-@connect(({ loading, global, teamControl, index }) => ({
+@connect(({ loading, global, teamControl }) => ({
   currentTeam: teamControl.currentTeam,
-  overviewInfo: index.overviewInfo,
   loading,
   pluginsList: teamControl.pluginsList,
-  noviceGuide: global.noviceGuide
+  noviceGuide: global.noviceGuide,
+  teamOverview: global.teamOverview
 }))
 export default class Index extends PureComponent {
   constructor(props) {
@@ -155,9 +155,13 @@ export default class Index extends PureComponent {
 
   render() {
     const { currentTeam, loading, indexLoading, showEditName } = this.state;
-    const { pluginsList, noviceGuide, overviewInfo } = this.props;
+    const { pluginsList, noviceGuide, teamOverview } = this.props;
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
+    const isCurrentTeamOverview = currentTeam.team_id &&
+      teamOverview && teamOverview.team_id &&
+      String(currentTeam.team_id) === String(teamOverview.team_id);
+    const logoInfo = currentTeam.logo || (isCurrentTeamOverview && teamOverview.logo) || false;
 
     return (
       <div className={styles.container}>
@@ -169,7 +173,7 @@ export default class Index extends PureComponent {
         {showEditName && (
           <MoveTeam
             teamAlias={currentTeam.team_alias}
-            imageUrlTeam={overviewInfo && overviewInfo.logo || false}
+            imageUrlTeam={logoInfo}
             onSubmit={this.handleEditName}
             onCancel={this.hideEditName}
           />

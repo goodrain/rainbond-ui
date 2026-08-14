@@ -12,8 +12,8 @@ import {
   createJarWarSubmit,
   createThirtAppByCodes,
   getAppsByComposeId,
+  getAvailableResources,
   installApp,
-  preflightDeploy,
   preflightInstallApp,
   installAppPlugin,
   changeAppVersions,
@@ -129,18 +129,10 @@ export default {
         }
       }
     },
-    *preflightDeploy({ payload, callback, handleError }, { call }) {
-      try {
-        const data = yield call(preflightDeploy, payload, handleError);
-        if (data && callback) {
-          callback(data);
-        }
-      } catch (e) {
-        if (handleError) {
-          handleError(e);
-        } else {
-          throw e;
-        }
+    *fetchAvailableResources({ payload, callback, handleError }, { call }) {
+      const data = yield call(getAvailableResources, payload, handleError);
+      if (data && callback) {
+        callback(data);
       }
     },
     *installAppPlugin({ payload, callback }, { call }) {
