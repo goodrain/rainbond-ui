@@ -67,15 +67,14 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList, rainbon
         icon: getMenuSvg.getSvg('logs'),
         path: `/enterprise/${eid}/logs`,
         authority: ['admin', 'user']
+      },
+      {
+        name: formatMessage({ id: 'menu.enterprise.platform_resources', defaultMessage: '存储管理' }),
+        icon: getMenuSvg.getSvg('StorageMgtL'),
+        path: `/enterprise/${eid}/platform-resources`,
+        authority: ['admin', 'user']
       }
     ];
-
-    resourceItems.push({
-      name: formatMessage({ id: 'menu.enterprise.platform_resources', defaultMessage: '存储管理' }),
-      icon: getMenuSvg.getSvg('StorageMgtL'),
-      path: `/enterprise/${eid}/platform-resources`,
-      authority: ['admin', 'user']
-    });
 
     // 计量计费
     const billPlugin = PluginUtil.getPluginInfo(pluginList, 'rainbond-bill');
