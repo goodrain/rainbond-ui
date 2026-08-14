@@ -28,6 +28,21 @@ const appHeaderSource = fs.readFileSync(
   path.join(uiRoot, 'components', 'SlidePanel', 'components', 'app.js'),
   'utf8'
 );
+const applicationServiceSource = fs.readFileSync(
+  path.join(uiRoot, 'services', 'application.js'),
+  'utf8'
+);
+const operatorServiceStart = applicationServiceSource.indexOf(
+  'export async function getOperator('
+);
+const operatorServiceEnd = applicationServiceSource.indexOf(
+  'export async function deleteGroup(',
+  operatorServiceStart
+);
+const operatorServiceSource = applicationServiceSource.slice(
+  operatorServiceStart,
+  operatorServiceEnd
+);
 
 assert.strictEqual(
   canReuseGroupDetail({ ID: 5, group_name: 'demo' }, '5'),
@@ -157,6 +172,13 @@ assert.ok(
       appHeaderSource
     ),
   'the application header should load billing storage at most once, including when plugins arrive asynchronously'
+);
+
+assert.ok(
+  /export async function getOperator\([\s\S]*?,\s*handleError\s*\)/.test(
+    operatorServiceSource
+  ) && /\{[\s\S]*?handleError[\s\S]*?\}\s*\)/.test(operatorServiceSource),
+  'operator polling errors must reach the caller so its in-flight guard can be reset'
 );
 
 assert.ok(
