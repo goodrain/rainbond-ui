@@ -309,6 +309,26 @@ class Infrastructure extends PureComponent {
     });
   };
 
+  onExternalTelemetryChange = checked => {
+    const {
+      dispatch,
+      match: {
+        params: { eid }
+      }
+    } = this.props;
+    dispatch({
+      type: 'global/updatePlatformSettings',
+      payload: { eid, enable_external_telemetry: checked },
+      callback: () => {
+        notification.success({
+          message: checked
+            ? formatMessage({ id: 'notification.success.opened_successfully' })
+            : formatMessage({ id: 'notification.success.close' })
+        });
+      }
+    });
+  };
+
   // 更新短信配置
   handelIsOpenSmsConfig = (enable, value) => {
     const {
@@ -350,6 +370,7 @@ class Infrastructure extends PureComponent {
     } = this.props;
     const isSaas = rainbondInfo && rainbondInfo.is_saas || false;
     const enableTeamResourceView = !!(enterprise && enterprise.enable_team_resource_view);
+    const enableExternalTelemetry = !(enterprise && enterprise.enable_external_telemetry === false);
     const {
       enterpriseAdminLoading,
       showDeleteDomain,
@@ -529,6 +550,27 @@ class Infrastructure extends PureComponent {
         </Row>
       </Card>
     );
+    const ExternalTelemetry = (
+      <Card hoverable bordered={false} className={styles.infrastructureCard}>
+        <Row type="flex" align="middle">
+          <Col span={3}>
+            <FormattedMessage id='enterpriseSetting.basicsSetting.externalTelemetry.title'/>
+          </Col>
+          <Col span={17}>
+            <span style={{ color: 'rgba(0, 0, 0, 0.45)' }}>
+              <FormattedMessage id='enterpriseSetting.basicsSetting.externalTelemetry.content'/>
+            </span>
+          </Col>
+          <Col span={4} style={{ textAlign: 'right' }}>
+            <Switch
+              onChange={this.onExternalTelemetryChange}
+              checked={enableExternalTelemetry}
+              loading={resourceViewUpdating}
+            />
+          </Col>
+        </Row>
+      </Card>
+    );
     return (
       <Fragment>
         {openSmsConfig && (
@@ -616,6 +658,7 @@ class Infrastructure extends PureComponent {
             {MirrorWarehouseInformation}
             {GlobalImageWarehouseInformation}
             {TeamResourceView}
+            {ExternalTelemetry}
           </div>
         )}
       </Fragment>

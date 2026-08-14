@@ -762,15 +762,17 @@ export default class index extends Component {
             </div>
           )}
         </div>
-        <CreateComponentModal
-          visible={this.state.createComponentVisible}
-          onCancel={this.handleCloseCreateComponent}
-          dispatch={this.props.dispatch}
-          currentEnterprise={this.props.currentEnterprise}
-          rainbondInfo={this.props.rainbondInfo}
-          currentUser={this.props.currentUser}
-          currentView={this.state.currentView}
-        />
+        {this.state.createComponentVisible && (
+          <CreateComponentModal
+            visible={this.state.createComponentVisible}
+            onCancel={this.handleCloseCreateComponent}
+            dispatch={this.props.dispatch}
+            currentEnterprise={this.props.currentEnterprise}
+            rainbondInfo={this.props.rainbondInfo}
+            currentUser={this.props.currentUser}
+            currentView={this.state.currentView}
+          />
+        )}
         {promptModal && (
           <Modal
             title={formatMessage({ id: 'confirmModal.friendly_reminder.title' })}

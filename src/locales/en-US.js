@@ -18,6 +18,7 @@ import versionUpdata from './en-US/versionUpdata'
 import explore from './en-US/explore'
 import resource from './en-US/resource'
 import cliAuth from './en-US/cliAuth'
+import deviceAuthorization from './en-US/deviceAuthorization'
 
 export default {
   'navBar.lang': 'lang',
@@ -44,5 +45,6 @@ export default {
   ...versionUpdata,
   ...explore,
   ...resource,
-  ...cliAuth
+  ...cliAuth,
+  ...deviceAuthorization
 };
