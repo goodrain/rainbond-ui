@@ -66,25 +66,7 @@ const storageMenu = menuData
 
 assert.ok(
   storageMenu,
-  'enterprise admins should always see the storage management sidebar item'
-);
-
-const regularUserMenuData = enterpriseMenuModule.exports.getMenuData(
-  'enterprise-a',
-  { is_enterprise_admin: false, roles: [] },
-  {},
-  {},
-  [],
-  {}
-);
-
-const regularUserStorageMenu = regularUserMenuData
-  .reduce((items, group) => items.concat(group.items), [])
-  .find(item => item.path === '/enterprise/enterprise-a/platform-resources');
-
-assert.ok(
-  regularUserStorageMenu,
-  'storage management should always be visible in the platform management sidebar'
+  'enterprise admins should always see the storage management sidebar item before clusters finish loading'
 );
 
 assert.ok(

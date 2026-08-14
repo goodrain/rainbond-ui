@@ -36,10 +36,8 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList, rainbon
   });
 
   // ============ 第二组：资源管理 ============
-  const resourceItems = [];
-
   if (adminer) {
-    resourceItems.push(
+    const resourceItems = [
       {
         name: formatMessage({ id: 'menu.enterprise.cluster' }),
         icon: getMenuSvg.getSvg('clusters'),
@@ -69,18 +67,15 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList, rainbon
         icon: getMenuSvg.getSvg('logs'),
         path: `/enterprise/${eid}/logs`,
         authority: ['admin', 'user']
+      },
+      {
+        name: formatMessage({ id: 'menu.enterprise.platform_resources', defaultMessage: '存储管理' }),
+        icon: getMenuSvg.getSvg('StorageMgtL'),
+        path: `/enterprise/${eid}/platform-resources`,
+        authority: ['admin', 'user']
       }
-    );
-  }
+    ];
 
-  resourceItems.push({
-    name: formatMessage({ id: 'menu.enterprise.platform_resources', defaultMessage: '存储管理' }),
-    icon: getMenuSvg.getSvg('StorageMgtL'),
-    path: `/enterprise/${eid}/platform-resources`,
-    authority: ['admin', 'user']
-  });
-
-  if (adminer) {
     // 计量计费
     const billPlugin = PluginUtil.getPluginInfo(pluginList, 'rainbond-bill');
     if (billPlugin && Object.keys(billPlugin).length !== 0) {
@@ -95,13 +90,13 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList, rainbon
         });
       }
     }
-  }
 
-  menuGroups.push({
-    groupKey: 'resource',
-    groupName: formatMessage({ id: 'menu.group.resource', defaultMessage: '资源管理' }),
-    items: resourceItems
-  });
+    menuGroups.push({
+      groupKey: 'resource',
+      groupName: formatMessage({ id: 'menu.group.resource', defaultMessage: '资源管理' }),
+      items: resourceItems
+    });
+  }
 
   // ============ 第三组：平台设置 ============
   if (adminer) {
