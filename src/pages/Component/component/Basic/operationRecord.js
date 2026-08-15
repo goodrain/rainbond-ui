@@ -28,7 +28,7 @@ class Index extends PureComponent {
     this.state = {
       logVisible: false,
       selectEventID: '',
-      showSocket: false,
+      showEventStream: false,
       isLoadingMore: false
     };
     this.sentinelRef = React.createRef();
@@ -117,7 +117,7 @@ class Index extends PureComponent {
     }
   };
 
-  showLogModal = (event_id, showSocket, opt_type = '') => {
+  showLogModal = (event_id, showEventStream, opt_type = '') => {
     const { isopenLog, onLogPush } = this.props;
     if (isopenLog && onLogPush) {
       onLogPush(false);
@@ -125,7 +125,7 @@ class Index extends PureComponent {
     this.setState({
       logVisible: true,
       selectEventID: event_id,
-      showSocket
+      showEventStream
     });
   };
 
@@ -265,7 +265,7 @@ class Index extends PureComponent {
 
   render() {
     const { logList, has_next, recordLoading, isopenLog } = this.props;
-    const { logVisible, selectEventID, showSocket, showModalArr, showModal, isLoadingMore } = this.state;
+    const { logVisible, selectEventID, showEventStream, showModalArr, showModal, isLoadingMore } = this.state;
     let showLogEvent = '';
     let hasShownFailureLogTip = false;
     return (
@@ -467,9 +467,8 @@ class Index extends PureComponent {
             width="90%"
             onOk={this.handleCancel}
             onCancel={this.handleCancel}
-            showSocket={showSocket}
+            showEventStream={showEventStream}
             EventID={selectEventID}
-            socket={this.props.socket}
           />
         )}
         <Modal

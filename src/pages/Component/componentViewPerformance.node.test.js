@@ -16,8 +16,25 @@ const componentMainSource = fs.readFileSync(
   path.join(uiRoot, 'components', 'SlidePanel', 'components', 'components.js'),
   'utf8'
 );
+const legacyComponentMainSource = fs.readFileSync(
+  path.join(__dirname, 'index.js'),
+  'utf8'
+);
 const overviewSource = fs.readFileSync(
   path.join(__dirname, 'overview.js'),
+  'utf8'
+);
+const databaseOverviewSource = fs.readFileSync(
+  path.join(__dirname, 'databaseOverview.js'),
+  'utf8'
+);
+const operationRecordSource = fs.readFileSync(
+  path.join(
+    __dirname,
+    'component',
+    'Basic',
+    'operationRecord.js'
+  ),
   'utf8'
 );
 const groupOverviewSource = fs.readFileSync(
@@ -185,6 +202,26 @@ assert.ok(
   /const Com = map\[currentActiveTab\]/.test(componentMainSource) &&
     /\{Com \? \(\s*<Com/.test(componentMainSource),
   'component tabs should continue to mount only the active tab'
+);
+
+assert.ok(
+  !/AppPubSubSocket|websocketURL|getWebSocketUrl|createSocket|socket=\{this\.socket\}/.test(
+    componentMainSource
+  ) &&
+    !/AppPubSubSocket|websocketURL|getWebSocketUrl|createSocket|socket=\{this\.socket\}/.test(
+      legacyComponentMainSource
+    ),
+  'active and legacy component containers must not create or pass a shared PubSub socket'
+);
+assert.ok(
+  !/\bsocket\b/.test(operationRecordSource) &&
+    !/<OperationRecord[\s\S]{0,500}?serviceAlias=/.test(
+      overviewSource
+    ) &&
+    !/<OperationRecord[\s\S]{0,500}?serviceAlias=/.test(
+      databaseOverviewSource
+    ),
+  'operation records should not retain shared socket or component-route plumbing'
 );
 
 assert.ok(

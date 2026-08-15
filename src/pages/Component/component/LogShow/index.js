@@ -6,6 +6,10 @@ import Ansi from '../../../../components/Ansi';
 import dateUtil from '../../../../utils/date-util';
 import globalUtil from '../../../../utils/global';
 import LogSocket from '../../../../utils/logSocket';
+import {
+  buildEventLogStreamUrl,
+  getEventLogTerminalState
+} from './eventLogStreamHelpers';
 import styles from './index.less';
 
 @connect(
@@ -26,11 +30,22 @@ class Index extends React.Component {
       dynamic: false
     };
     this.state.dockerprogress = new Map();
-    // 记录已渲染的无 id 日志行，避免 websocket 重放历史时重复追加
+    // 记录已渲染的无 id 日志行，避免实时连接重放历史时重复追加
     this.seenMessages = new Set();
+    this.eventSource = null;
+    this.socket = null;
+    this.unmounted = false;
   }
   componentDidMount() {
     this.loadEventLog();
+  }
+  componentWillUnmount() {
+    this.unmounted = true;
+    this.closeEventSource();
+    if (this.socket) {
+      this.socket.destroy();
+      this.socket = null;
+    }
   }
   shouldComponentUpdate() {
     return true;
@@ -54,7 +69,7 @@ class Index extends React.Component {
     this.props.handleCancel();
   };
   loadEventLog() {
-    const { EventID, showSocket } = this.props;
+    const { EventID } = this.props;
     const teamName = globalUtil.getCurrTeamName();
     this.props.dispatch({
       type: 'appControl/fetchLogContent',
@@ -64,22 +79,26 @@ class Index extends React.Component {
       },
       callback: res => {
         if (res) {
-          this.setState(
-            this.mergeHistoryLogs(res.list),
-            () => {
-              if (showSocket) {
-                this.showSocket();
-              }
-            }
-          );
-        } else if (showSocket) {
-          this.showSocket();
+          this.setState(this.mergeHistoryLogs(res.list), this.startRealtimeLog);
+        } else {
+          this.startRealtimeLog();
         }
       }
     });
   }
+  startRealtimeLog = () => {
+    if (this.unmounted) {
+      return;
+    }
+    const { showEventStream, showSocket, socketUrl } = this.props;
+    if (showEventStream) {
+      this.openEventStream();
+    } else if (showSocket && socketUrl) {
+      this.showSocket();
+    }
+  };
   // 历史日志去重：HTTP 拉取的历史先登记到 dockerprogress / seenMessages，
-  // 后续 websocket 建连时服务端会把同一批历史重放一遍，靠这两份登记吸收掉
+  // 后续实时连接建连时服务端会把同一批历史重放一遍，靠这两份登记吸收掉
   mergeHistoryLogs = list => {
     const { dockerprogress } = this.state;
     const logs = [];
@@ -138,8 +157,42 @@ class Index extends React.Component {
     }
     this.setState({ logs, dynamic: true });
   };
+  openEventStream = () => {
+    const { EventID } = this.props;
+    const regionName = globalUtil.getCurrRegionName();
+    const url = buildEventLogStreamUrl(EventID, regionName);
+    this.closeEventSource();
+    this.eventSource = new EventSource(url, { withCredentials: true });
+    this.eventSource.onmessage = event => {
+      let message;
+      try {
+        message = JSON.parse(event.data);
+      } catch (err) {
+        return;
+      }
+      this.handleMessage(message);
+      const terminalState = getEventLogTerminalState(message);
+      if (terminalState) {
+        this.setState({
+          status:
+            terminalState === 'success' ? (
+              <p style={{ color: 'green' }}>操作已成功</p>
+            ) : (
+              <p style={{ color: 'red' }}>操作失败</p>
+            )
+        });
+        this.closeEventSource();
+      }
+    };
+  };
+  closeEventSource = () => {
+    if (this.eventSource) {
+      this.eventSource.close();
+      this.eventSource = null;
+    }
+  };
   showSocket() {
-    const { EventID, socket, socketUrl } = this.props;
+    const { EventID, socketUrl } = this.props;
     if (socketUrl) {
       const { onClose, onSuccess, onTimeout, onFail, onComplete } = this.props;
       const isThrough = dateUtil.isWebSocketOpen(socketUrl);
@@ -177,21 +230,6 @@ class Index extends React.Component {
           }
         });
       }
-    } else if (socket) {
-      socket.watchEventLog(
-        message => {
-          this.handleMessage(message);
-        },
-        () => {
-          this.setState({
-            status: <p style={{ color: 'green' }}>操作已成功</p>
-          });
-        },
-        () => {
-          this.setState({ status: <p style={{ color: 'red' }}>操作失败</p> });
-        },
-        EventID
-      );
     }
   }
 

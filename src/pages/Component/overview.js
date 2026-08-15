@@ -788,7 +788,7 @@ export default class Index extends PureComponent {
   };
 
   render() {
-    const { status, componentPermissions, socket, appDetail, method, pluginsList } = this.props;
+    const { status, componentPermissions, appDetail, method, pluginsList } = this.props;
     const {
       resourcesLoading,
       logList,
@@ -825,7 +825,6 @@ export default class Index extends PureComponent {
           onPageChange={this.onPageChange}
           handleMore={this.handleMore}
           more={more}
-          socket={socket}
           method={method}
           vmProfile={appDetail?.vm_profile}
           vmDiskAllocation={appDetail?.service?.disk_cap}
@@ -850,7 +849,6 @@ export default class Index extends PureComponent {
             onShowSizeChange={this.onShowSizeChange}
             handleDel={this.handleDel}
             onRollback={this.handleRollback}
-            socket={socket}
             pages={pages}
             pageSize={pageSize}
             total={total}
@@ -869,14 +867,12 @@ export default class Index extends PureComponent {
               new_pods={new_pods}
               old_pods={old_pods}
               appAlias={this.props.appAlias}
-              socket={socket}
               podType={appDetail?.service?.extend_method}
             />
           </Card>
         )}
         {!more && (
           <OperationRecord
-            socket={socket}
             isopenLog={isopenLog}
             onLogPush={this.onLogPush}
             has_next={has_next}
