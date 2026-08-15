@@ -16,8 +16,25 @@ const componentMainSource = fs.readFileSync(
   path.join(uiRoot, 'components', 'SlidePanel', 'components', 'components.js'),
   'utf8'
 );
+const legacyComponentMainSource = fs.readFileSync(
+  path.join(__dirname, 'index.js'),
+  'utf8'
+);
 const overviewSource = fs.readFileSync(
   path.join(__dirname, 'overview.js'),
+  'utf8'
+);
+const databaseOverviewSource = fs.readFileSync(
+  path.join(__dirname, 'databaseOverview.js'),
+  'utf8'
+);
+const operationRecordSource = fs.readFileSync(
+  path.join(
+    __dirname,
+    'component',
+    'Basic',
+    'operationRecord.js'
+  ),
   'utf8'
 );
 const groupOverviewSource = fs.readFileSync(
@@ -27,6 +44,21 @@ const groupOverviewSource = fs.readFileSync(
 const appHeaderSource = fs.readFileSync(
   path.join(uiRoot, 'components', 'SlidePanel', 'components', 'app.js'),
   'utf8'
+);
+const applicationServiceSource = fs.readFileSync(
+  path.join(uiRoot, 'services', 'application.js'),
+  'utf8'
+);
+const operatorServiceStart = applicationServiceSource.indexOf(
+  'export async function getOperator('
+);
+const operatorServiceEnd = applicationServiceSource.indexOf(
+  'export async function deleteGroup(',
+  operatorServiceStart
+);
+const operatorServiceSource = applicationServiceSource.slice(
+  operatorServiceStart,
+  operatorServiceEnd
 );
 
 assert.strictEqual(
@@ -160,9 +192,36 @@ assert.ok(
 );
 
 assert.ok(
+  /export async function getOperator\([\s\S]*?,\s*handleError\s*\)/.test(
+    operatorServiceSource
+  ) && /\{[\s\S]*?handleError[\s\S]*?\}\s*\)/.test(operatorServiceSource),
+  'operator polling errors must reach the caller so its in-flight guard can be reset'
+);
+
+assert.ok(
   /const Com = map\[currentActiveTab\]/.test(componentMainSource) &&
     /\{Com \? \(\s*<Com/.test(componentMainSource),
   'component tabs should continue to mount only the active tab'
+);
+
+assert.ok(
+  !/AppPubSubSocket|websocketURL|getWebSocketUrl|createSocket|socket=\{this\.socket\}/.test(
+    componentMainSource
+  ) &&
+    !/AppPubSubSocket|websocketURL|getWebSocketUrl|createSocket|socket=\{this\.socket\}/.test(
+      legacyComponentMainSource
+    ),
+  'active and legacy component containers must not create or pass a shared PubSub socket'
+);
+assert.ok(
+  !/\bsocket\b/.test(operationRecordSource) &&
+    !/<OperationRecord[\s\S]{0,500}?serviceAlias=/.test(
+      overviewSource
+    ) &&
+    !/<OperationRecord[\s\S]{0,500}?serviceAlias=/.test(
+      databaseOverviewSource
+    ),
+  'operation records should not retain shared socket or component-route plumbing'
 );
 
 assert.ok(

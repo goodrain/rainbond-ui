@@ -52,6 +52,7 @@ export default class Index extends PureComponent {
     this.messageBuffer = [];
     this.batchUpdateTimer = null;
     this.MAX_LOGS = 1000;
+    this.unmounted = false;
   }
   componentDidMount() {
     if (!this.canView()) return;
@@ -102,9 +103,11 @@ export default class Index extends PureComponent {
     }
   }
   componentWillUnmount() {
+    this.unmounted = true;
     if (this.eventSources) {
       this.closeAllEventSources();
     }
+    this.closeTimer();
     if (this.intervalTimer) {
       clearInterval(this.intervalTimer);
     }
@@ -114,6 +117,7 @@ export default class Index extends PureComponent {
   }
 
   initializeEventSources(pods, lines) {
+    this.closeAllEventSources();
     const { appAlias, regionName, teamName } = this.props;
     pods.forEach(pod => {
       if (pod.pod_name) {
@@ -126,7 +130,6 @@ export default class Index extends PureComponent {
         };
         this.eventSources[pod.pod_name].onerror = (error) => {
           console.error(`${pod.pod_name} EventSource failed:`, error);
-          this.closeEventSource(pod.pod_name);
         };
       }
     });
@@ -193,6 +196,9 @@ export default class Index extends PureComponent {
         app_alias: appAlias
       },
       callback: res => {
+        if (this.unmounted) {
+          return;
+        }
         let list = [];
         if (res && res.list) {
           const new_pods =
@@ -252,9 +258,11 @@ export default class Index extends PureComponent {
           previousPodNames: currentPodNames
         }, () => {
           if (podsChanged) {
-            const { instances } = this.state;
+            const { instances, started, pod_name, filter } = this.state;
             this.closeAllEventSources();
-            this.initializeEventSources(instances, 100);
+            if (started && !pod_name && filter === '') {
+              this.initializeEventSources(instances, 100);
+            }
           }
         });
       }
@@ -285,8 +293,9 @@ export default class Index extends PureComponent {
           container_name: value[1].slice(3)
         },
         () => {
+          this.closeTimer();
+          this.closeAllEventSources();
           this.fetchContainerLog();
-          this.closeEventSource();
         }
       );
     } else {
@@ -317,7 +326,8 @@ export default class Index extends PureComponent {
 
   closeTimer = () => {
     if (this.timer) {
-      clearInterval(this.timer);
+      clearTimeout(this.timer);
+      this.timer = null;
     }
   };
 
@@ -329,6 +339,13 @@ export default class Index extends PureComponent {
       pod_name,
       container_name
     }).then(data => {
+      if (
+        this.unmounted ||
+        this.state.pod_name !== pod_name ||
+        this.state.container_name !== container_name
+      ) {
+        return;
+      }
       if (
         data &&
         data.status_code &&
@@ -344,7 +361,13 @@ export default class Index extends PureComponent {
             containerLog: arr || []
           },
           () => {
-            this.hanleTimer();
+            if (
+              !this.unmounted &&
+              this.state.pod_name === pod_name &&
+              this.state.container_name === container_name
+            ) {
+              this.hanleTimer();
+            }
           }
         );
       }
