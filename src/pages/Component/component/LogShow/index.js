@@ -22,15 +22,27 @@ class Index extends React.Component {
     this.state = {
       logs: [],
       dockerprogress: null,
-      status: null,
       dynamic: false
     };
     this.state.dockerprogress = new Map();
-    // 记录已渲染的无 id 日志行，避免 websocket 重放历史时重复追加
+    // 记录已渲染的无 id 日志行，避免 HTTP 快照重复追加
     this.seenMessages = new Set();
+    this.pollTimer = null;
+    this.unmounted = false;
   }
   componentDidMount() {
     this.loadEventLog();
+  }
+  componentWillUnmount() {
+    this.unmounted = true;
+    if (this.pollTimer) {
+      clearTimeout(this.pollTimer);
+      this.pollTimer = null;
+    }
+    if (this.socket) {
+      this.socket.destroy();
+      this.socket = null;
+    }
   }
   shouldComponentUpdate() {
     return true;
@@ -54,7 +66,7 @@ class Index extends React.Component {
     this.props.handleCancel();
   };
   loadEventLog() {
-    const { EventID, showSocket } = this.props;
+    const { EventID, showSocket, socketUrl } = this.props;
     const teamName = globalUtil.getCurrTeamName();
     this.props.dispatch({
       type: 'appControl/fetchLogContent',
@@ -63,26 +75,45 @@ class Index extends React.Component {
         eventID: EventID
       },
       callback: res => {
+        if (this.unmounted) {
+          return;
+        }
         if (res) {
           this.setState(
             this.mergeHistoryLogs(res.list),
             () => {
-              if (showSocket) {
+              if (showSocket && socketUrl) {
                 this.showSocket();
+              } else if (showSocket) {
+                this.scheduleLogPoll();
               }
             }
           );
-        } else if (showSocket) {
+        } else if (showSocket && socketUrl) {
           this.showSocket();
+        } else if (showSocket) {
+          this.scheduleLogPoll();
         }
       }
     });
   }
-  // 历史日志去重：HTTP 拉取的历史先登记到 dockerprogress / seenMessages，
-  // 后续 websocket 建连时服务端会把同一批历史重放一遍，靠这两份登记吸收掉
+  scheduleLogPoll = () => {
+    const { showSocket, socketUrl } = this.props;
+    if (this.unmounted || !showSocket || socketUrl) {
+      return;
+    }
+    if (this.pollTimer) {
+      clearTimeout(this.pollTimer);
+    }
+    this.pollTimer = setTimeout(() => {
+      this.pollTimer = null;
+      this.loadEventLog();
+    }, 2000);
+  };
+  // HTTP 接口返回完整日志快照，登记已显示内容后只追加新增日志。
   mergeHistoryLogs = list => {
     const { dockerprogress } = this.state;
-    const logs = [];
+    const logs = [...(this.state.logs || [])];
     (list || []).forEach(item => {
       const progress = this.parseProgressMessage(item.message);
       if (progress) {
@@ -97,7 +128,11 @@ class Index extends React.Component {
         logs.push(item);
       }
     });
-    return { logs, dockerprogress };
+    return {
+      logs,
+      dockerprogress,
+      dynamic: this.state.dynamic || this.props.showSocket
+    };
   };
   parseProgressMessage = message => {
     if (!message || message.indexOf('id') === -1) {
@@ -139,7 +174,7 @@ class Index extends React.Component {
     this.setState({ logs, dynamic: true });
   };
   showSocket() {
-    const { EventID, socket, socketUrl } = this.props;
+    const { EventID, socketUrl } = this.props;
     if (socketUrl) {
       const { onClose, onSuccess, onTimeout, onFail, onComplete } = this.props;
       const isThrough = dateUtil.isWebSocketOpen(socketUrl);
@@ -177,27 +212,12 @@ class Index extends React.Component {
           }
         });
       }
-    } else if (socket) {
-      socket.watchEventLog(
-        message => {
-          this.handleMessage(message);
-        },
-        () => {
-          this.setState({
-            status: <p style={{ color: 'green' }}>操作已成功</p>
-          });
-        },
-        () => {
-          this.setState({ status: <p style={{ color: 'red' }}>操作失败</p> });
-        },
-        EventID
-      );
     }
   }
 
   render() {
     const { title, onOk, onCancel, width } = this.props;
-    const { logs, status, dockerprogress, dynamic } = this.state;
+    const { logs, dockerprogress, dynamic } = this.state;
     let lineNumber = 0;
     let bodyText = '';
     const box = (
@@ -249,7 +269,6 @@ class Index extends React.Component {
               }
             })}
         </div>
-        {status && <div style={{ textAlign: 'center' }}>{status}</div>}
       </div>
     );
 

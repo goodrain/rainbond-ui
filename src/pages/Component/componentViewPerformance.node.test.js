@@ -20,6 +20,10 @@ const overviewSource = fs.readFileSync(
   path.join(__dirname, 'overview.js'),
   'utf8'
 );
+const legacyComponentSource = fs.readFileSync(
+  path.join(__dirname, 'index.js'),
+  'utf8'
+);
 const groupOverviewSource = fs.readFileSync(
   path.join(uiRoot, 'pages', 'Group', 'Overview.js'),
   'utf8'
@@ -163,6 +167,16 @@ assert.ok(
   /const Com = map\[currentActiveTab\]/.test(componentMainSource) &&
     /\{Com \? \(\s*<Com/.test(componentMainSource),
   'component tabs should continue to mount only the active tab'
+);
+
+assert.ok(
+  !/AppPubSubSocket|getNewWebSocketUrl|new AppPubSubSocket|socket=\{this\.socket\}/.test(
+    componentMainSource
+  ) &&
+    !/AppPubSubSocket|getNewWebSocketUrl|new AppPubSubSocket|socket=\{this\.socket\}/.test(
+      legacyComponentSource
+    ),
+  'opening component details from the topology must not create or pass a shared PubSub websocket'
 );
 
 assert.ok(

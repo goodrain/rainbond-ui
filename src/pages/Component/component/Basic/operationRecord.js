@@ -469,7 +469,6 @@ class Index extends PureComponent {
             onCancel={this.handleCancel}
             showSocket={showSocket}
             EventID={selectEventID}
-            socket={this.props.socket}
           />
         )}
         <Modal

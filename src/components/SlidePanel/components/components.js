@@ -37,13 +37,9 @@ import VisitBtn from '../../VisitBtn';
 import PageHeader from '../../ComponentPageHeader'
 import { rollback } from '../../../services/app';
 import appUtil from '../../../utils/app';
-import AppPubSubSocket from '../../../utils/appPubSubSocket';
 import appStatusUtil from '../../../utils/appStatus-util';
-import dateUtil from '../../../utils/date-util';
 import globalUtil from '../../../utils/global';
-import regionUtil from '../../../utils/region';
 import roleUtil from '../../../utils/newRole';
-import teamUtil from '../../../utils/team';
 import userUtil from '../../../utils/user';
 import ConnectionInformation from '../../../pages/Component/connectionInformation';
 import EnvironmentConfiguration from '../../../pages/Component/environmentConfiguration';
@@ -301,7 +297,6 @@ class Main extends PureComponent {
       BuildState: null,
       isShowThirdParty: false,
       promptModal: null,
-      websocketURL: '',
       componentTimer: true,
       tabsShow: false,
       routerSwitch: true,
@@ -312,7 +307,6 @@ class Main extends PureComponent {
       prevComponentID: globalUtil.getSlidePanelComponentID() || '', // 用于追踪 componentID 变化
     };
     this.deployRequestPending = false;
-    this.socket = null;
     this.destroy = false;
     this.statusPollingGeneration = 0;
   }
@@ -387,31 +381,10 @@ class Main extends PureComponent {
       clearTimeout(this.vmExportTimer);
       this.vmExportTimer = null;
     }
-    if (this.socket) {
-      this.socket.destroy();
-      this.socket = null;
-    }
   }
 
   onDeleteApp = () => {
     this.setState({ showDeleteApp: true });
-  }
-
-  getWebSocketUrl(service_id) {
-    const currTeam = userUtil.getTeamByTeamName(
-      this.props.currUser,
-      globalUtil.getCurrTeamName()
-    );
-    const currRegionName = globalUtil.getCurrRegionName();
-    if (currTeam) {
-      const region = teamUtil.getRegionByName(currTeam, currRegionName);
-      if (region) {
-        const websocketURL = regionUtil.getNewWebSocketUrl(region, service_id);
-        this.setState({ websocketURL }, () => {
-          this.createSocket();
-        });
-      }
-    }
   }
 
   getStatus = isCycle => {
@@ -768,8 +741,6 @@ class Main extends PureComponent {
         } else {
           this.getStatus(true);
         }
-        // get websocket url and create client
-        this.getWebSocketUrl(appDetail.service.service_id);
       },
       handleError: data => {
         if (detailGeneration !== this.statusPollingGeneration || this.destroy) {
@@ -991,21 +962,6 @@ class Main extends PureComponent {
       this.openComponentTimer();
     }
   };
-  createSocket() {
-    const { appDetail } = this.props;
-    const { websocketURL } = this.state;
-    if (websocketURL) {
-      const isThrough = dateUtil.isWebSocketOpen(websocketURL);
-      if (isThrough && isThrough === 'through') {
-        this.socket = new AppPubSubSocket({
-          url: websocketURL,
-          serviceId: appDetail.service.service_id,
-          isAutoConnect: true,
-          destroyed: false
-        });
-      }
-    }
-  }
   handleDeleteApp = () => {
     const { dispatch } = this.props;
     const { team_name, app_alias, group_id } = this.fetchParameter();
@@ -2096,7 +2052,6 @@ class Main extends PureComponent {
                   handleOperation={(msg, callback) => {
                     this.handleOperation(msg, callback);
                   }}
-                  socket={this.socket}
                   onChecked={this.handleChecked}
                   isShowUpdate={isShowUpdate}
                 />
