@@ -17,7 +17,19 @@ function getEventLogTerminalState(message) {
   return null;
 }
 
+function shouldAppendEventLog(message, seenMessages, deduplicateMessages) {
+  if (!deduplicateMessages) {
+    return true;
+  }
+  if (seenMessages.has(message)) {
+    return false;
+  }
+  seenMessages.add(message);
+  return true;
+}
+
 module.exports = {
   buildEventLogStreamUrl,
-  getEventLogTerminalState
+  getEventLogTerminalState,
+  shouldAppendEventLog
 };

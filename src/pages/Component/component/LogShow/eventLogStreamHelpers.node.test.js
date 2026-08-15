@@ -1,7 +1,8 @@
 const assert = require('assert');
 const {
   buildEventLogStreamUrl,
-  getEventLogTerminalState
+  getEventLogTerminalState,
+  shouldAppendEventLog
 } = require('./eventLogStreamHelpers');
 
 assert.strictEqual(
@@ -29,6 +30,31 @@ assert.strictEqual(
   getEventLogTerminalState(null),
   null,
   'missing event messages should not be terminal'
+);
+
+const repeatedMessage = 'the same valid log line';
+const operationLogMessages = new Set();
+assert.strictEqual(
+  shouldAppendEventLog(repeatedMessage, operationLogMessages, false),
+  true,
+  'operation and build logs should append the first ordinary log line'
+);
+assert.strictEqual(
+  shouldAppendEventLog(repeatedMessage, operationLogMessages, false),
+  true,
+  'operation and build logs should preserve identical ordinary log lines'
+);
+
+const appShareMessages = new Set();
+assert.strictEqual(
+  shouldAppendEventLog(repeatedMessage, appShareMessages, true),
+  true,
+  'the dedicated app-share socket should keep its first ordinary log line'
+);
+assert.strictEqual(
+  shouldAppendEventLog(repeatedMessage, appShareMessages, true),
+  false,
+  'the dedicated app-share socket should retain its existing replay deduplication'
 );
 
 console.log('event log stream helper tests passed');

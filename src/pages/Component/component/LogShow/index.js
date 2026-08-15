@@ -8,7 +8,8 @@ import globalUtil from '../../../../utils/global';
 import LogSocket from '../../../../utils/logSocket';
 import {
   buildEventLogStreamUrl,
-  getEventLogTerminalState
+  getEventLogTerminalState,
+  shouldAppendEventLog
 } from './eventLogStreamHelpers';
 import styles from './index.less';
 
@@ -30,7 +31,7 @@ class Index extends React.Component {
       dynamic: false
     };
     this.state.dockerprogress = new Map();
-    // 记录已渲染的无 id 日志行，避免实时连接重放历史时重复追加
+    // 仅供需要保留历史行为的独立 WebSocket 日志去重
     this.seenMessages = new Set();
     this.eventSource = null;
     this.socket = null;
@@ -97,10 +98,11 @@ class Index extends React.Component {
       this.showSocket();
     }
   };
-  // 历史日志去重：HTTP 拉取的历史先登记到 dockerprogress / seenMessages，
-  // 后续实时连接建连时服务端会把同一批历史重放一遍，靠这两份登记吸收掉
+  // progress.id 保持覆盖更新；普通日志默认全部保留。
+  // AppShareLoading 的独立 WebSocket 通过显式 prop 保留原去重行为。
   mergeHistoryLogs = list => {
     const { dockerprogress } = this.state;
+    const { deduplicateMessages } = this.props;
     const logs = [];
     (list || []).forEach(item => {
       const progress = this.parseProgressMessage(item.message);
@@ -111,8 +113,13 @@ class Index extends React.Component {
         dockerprogress.set(progress.id, progress);
         return;
       }
-      if (!this.seenMessages.has(item.message)) {
-        this.seenMessages.add(item.message);
+      if (
+        shouldAppendEventLog(
+          item.message,
+          this.seenMessages,
+          deduplicateMessages
+        )
+      ) {
         logs.push(item);
       }
     });
@@ -133,29 +140,34 @@ class Index extends React.Component {
     return null;
   };
   handleMessage = data => {
-    const logs = this.state.logs || [];
+    const { deduplicateMessages } = this.props;
     const progress = this.parseProgressMessage(data.message);
-    if (progress) {
-      const { dockerprogress } = this.state;
-      if (dockerprogress.get(progress.id) === undefined) {
-        logs.push(data);
+    this.setState(
+      prevState => {
+        const logs = [...(prevState.logs || [])];
+        const dockerprogress = new Map(prevState.dockerprogress);
+        if (progress) {
+          if (dockerprogress.get(progress.id) === undefined) {
+            logs.push(data);
+          }
+          dockerprogress.set(progress.id, progress);
+        } else if (
+          shouldAppendEventLog(
+            data.message,
+            this.seenMessages,
+            deduplicateMessages
+          )
+        ) {
+          logs.push(data);
+        }
+        return { dockerprogress, logs, dynamic: true };
+      },
+      () => {
+        if (this.refs.box) {
+          this.refs.box.scrollTop = this.refs.box.scrollHeight;
+        }
       }
-      dockerprogress.set(progress.id, progress);
-      this.setState({
-        dockerprogress,
-        logs,
-        dynamic: true
-      });
-      return;
-    }
-    if (!this.seenMessages.has(data.message)) {
-      this.seenMessages.add(data.message);
-      logs.push(data);
-    }
-    if (this.refs.box) {
-      this.refs.box.scrollTop = this.refs.box.scrollHeight;
-    }
-    this.setState({ logs, dynamic: true });
+    );
   };
   openEventStream = () => {
     const { EventID } = this.props;

@@ -7,6 +7,14 @@ const operationRecordSource = fs.readFileSync(
   path.join(__dirname, '..', 'Basic', 'operationRecord.js'),
   'utf8'
 );
+const buildHistorySource = fs.readFileSync(
+  path.join(__dirname, '..', 'BuildHistory', 'index.js'),
+  'utf8'
+);
+const appShareLoadingSource = fs.readFileSync(
+  path.join(__dirname, '..', '..', '..', 'Group', 'AppShareLoading.js'),
+  'utf8'
+);
 
 assert.ok(
   /buildEventLogStreamUrl/.test(logShowSource) &&
@@ -48,6 +56,31 @@ assert.ok(
 assert.ok(
   /socketUrl/.test(logShowSource) && /new LogSocket/.test(logShowSource),
   'the dedicated AppShareLoading LogSocket branch must remain available'
+);
+assert.ok(
+  /shouldAppendEventLog\(\s*data\.message,\s*this\.seenMessages,\s*deduplicateMessages\s*\)/.test(
+    logShowSource
+  ) &&
+    !/deduplicateMessages/.test(operationRecordSource) &&
+    !/deduplicateMessages/.test(buildHistorySource),
+  'operation records and build history should preserve repeated ordinary log lines'
+);
+assert.ok(
+  /<LogShow[\s\S]*?deduplicateMessages[\s\S]*?socketUrl=\{this\.socketUrl\}/.test(
+    appShareLoadingSource
+  ),
+  'AppShareLoading should explicitly retain ordinary-message replay deduplication'
+);
+assert.ok(
+  /dockerprogress\.get\(progress\.id\)/.test(logShowSource) &&
+    /dockerprogress\.set\(progress\.id, progress\)/.test(logShowSource),
+  'progress messages should continue to update by progress id'
+);
+assert.ok(
+  /handleMessage = data => \{[\s\S]*?this\.setState\(\s*prevState => \{[\s\S]*?\.\.\.\(prevState\.logs \|\| \[\]\)[\s\S]*?new Map\(prevState\.dockerprogress\)/.test(
+    logShowSource
+  ) && !/const logs = this\.state\.logs/.test(logShowSource),
+  'realtime log updates should copy state inside functional setState'
 );
 assert.ok(
   ![
