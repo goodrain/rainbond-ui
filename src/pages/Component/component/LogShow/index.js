@@ -7,8 +7,10 @@ import dateUtil from '../../../../utils/date-util';
 import globalUtil from '../../../../utils/global';
 import LogSocket from '../../../../utils/logSocket';
 import {
+  buildEventLogReplayBudget,
   buildEventLogStreamUrl,
   getEventLogTerminalState,
+  shouldAppendEventStreamMessage,
   shouldAppendEventLog
 } from './eventLogStreamHelpers';
 import styles from './index.less';
@@ -33,6 +35,7 @@ class Index extends React.Component {
     this.state.dockerprogress = new Map();
     // 仅供需要保留历史行为的独立 WebSocket 日志去重
     this.seenMessages = new Set();
+    this.eventLogReplayBudget = null;
     this.eventSource = null;
     this.socket = null;
     this.unmounted = false;
@@ -174,15 +177,35 @@ class Index extends React.Component {
     const regionName = globalUtil.getCurrRegionName();
     const url = buildEventLogStreamUrl(EventID, regionName);
     this.closeEventSource();
-    this.eventSource = new EventSource(url, { withCredentials: true });
-    this.eventSource.onmessage = event => {
+    const eventSource = new EventSource(url, { withCredentials: true });
+    this.eventSource = eventSource;
+    eventSource.onopen = () => {
+      if (this.eventSource !== eventSource) {
+        return;
+      }
+      this.eventLogReplayBudget = buildEventLogReplayBudget(this.state.logs);
+    };
+    eventSource.addEventListener('replay-complete', () => {
+      if (this.eventSource !== eventSource) {
+        return;
+      }
+      this.eventLogReplayBudget = null;
+    });
+    eventSource.onmessage = event => {
+      if (this.eventSource !== eventSource) {
+        return;
+      }
       let message;
       try {
         message = JSON.parse(event.data);
       } catch (err) {
         return;
       }
-      this.handleMessage(message);
+      if (
+        shouldAppendEventStreamMessage(message, this.eventLogReplayBudget)
+      ) {
+        this.handleMessage(message);
+      }
       const terminalState = getEventLogTerminalState(message);
       if (terminalState) {
         this.setState({
@@ -198,6 +221,7 @@ class Index extends React.Component {
     };
   };
   closeEventSource = () => {
+    this.eventLogReplayBudget = null;
     if (this.eventSource) {
       this.eventSource.close();
       this.eventSource = null;
