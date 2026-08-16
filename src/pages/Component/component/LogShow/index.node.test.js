@@ -40,6 +40,42 @@ assert.ok(
   'SSE data frames should be parsed and checked for terminal messages'
 );
 assert.ok(
+  /const eventSource = new EventSource\(url,[\s\S]*?this\.eventSource = eventSource/.test(
+    logShowSource
+  ),
+  'event stream callbacks should capture the EventSource instance they belong to'
+);
+assert.ok(
+  /eventSource\.onopen\s*=\s*\(\)\s*=>\s*\{\s*if \(this\.eventSource !== eventSource\) \{\s*return;\s*\}[\s\S]*?buildEventLogReplayBudget\(this\.state\.logs\)/.test(
+    logShowSource
+  ),
+  'only the current EventSource should rebuild replay counts on connection and native reconnect'
+);
+assert.ok(
+  /eventSource\.addEventListener\(\s*['"]replay-complete['"],\s*\(\)\s*=>\s*\{\s*if \(this\.eventSource !== eventSource\) \{\s*return;\s*\}[\s\S]*?this\.eventLogReplayBudget\s*=\s*null/.test(
+    logShowSource
+  ),
+  'only the current EventSource replay-complete boundary should end overlap reconciliation'
+);
+assert.ok(
+  /eventSource\.onmessage\s*=\s*event\s*=>\s*\{\s*if \(this\.eventSource !== eventSource\) \{\s*return;\s*\}/.test(
+    logShowSource
+  ),
+  'queued messages from a replaced EventSource must not update logs or terminal state'
+);
+assert.ok(
+  /shouldAppendEventStreamMessage\(message,\s*this\.eventLogReplayBudget\)[\s\S]*?this\.handleMessage\(message\)/.test(
+    logShowSource
+  ),
+  'only replay messages unmatched by the HTTP history multiset should be rendered'
+);
+assert.ok(
+  /const terminalState = getEventLogTerminalState\(message\)[\s\S]*?if \(terminalState\)[\s\S]*?this\.closeEventSource\(\)/.test(
+    logShowSource
+  ),
+  'terminal state handling must remain independent from replay rendering suppression'
+);
+assert.ok(
   /closeEventSource\s*=/.test(logShowSource) &&
     /componentWillUnmount\(\)[\s\S]*?this\.closeEventSource\(\)/.test(
       logShowSource
