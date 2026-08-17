@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-indent */
 /* eslint-disable no-void */
 /* eslint-disable no-nested-ternary */
-import { Button, Checkbox, Col, Form, Input, Row, Select, Radio, Divider, Icon } from 'antd';
+import { Button, Checkbox, Col, Form, Input, Row, Select, Radio, Divider, Icon, Switch } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
@@ -98,7 +98,7 @@ export default class Index extends PureComponent {
   );
 
   componentDidMount() {
-    const { handleType, groupId } = this.props;
+    const { handleType, groupId, autoUseDemo } = this.props;
     const group_id = globalUtil.getAppID()
     if (handleType && handleType === 'Service') {
       this.fetchComponentNames(Number(groupId));
@@ -108,6 +108,15 @@ export default class Index extends PureComponent {
       this.setState({
         creatComPermission: role.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'app_overview', `app_${globalUtil.getAppID() || group_id}`)
       })
+    }
+    if (autoUseDemo && sourceExamples.length > 0) {
+      this.applyDemoToForm(sourceExamples[0]);
+    }
+  }
+  componentDidUpdate(prevProps) {
+    const { autoUseDemo } = this.props;
+    if (!prevProps.autoUseDemo && autoUseDemo && sourceExamples.length > 0) {
+      this.applyDemoToForm(sourceExamples[0]);
     }
   }
   onAddGroup = () => {
@@ -178,6 +187,7 @@ export default class Index extends PureComponent {
 
     this.setState(
       {
+        showDemoSelect: true,
         selectedDemo: example.id,
         serverType: 'git',
         checkedList: formValues.checkedList,
@@ -454,7 +464,8 @@ export default class Index extends PureComponent {
       handleServiceBotton,
       showCreateGroup,
       archInfo,
-      enterpriseInfo
+      enterpriseInfo,
+      autoUseDemo
     } = this.props;
     const { getFieldDecorator, getFieldValue } = form;
 
@@ -485,6 +496,7 @@ export default class Index extends PureComponent {
 
     const is_language = language ? formItemLayout : en_formItemLayout;
     const gitUrl = getFieldValue('git_url');
+    const isDemoLocked = autoUseDemo && showDemoSelect;
 
     let isHttp = /(http|https):\/\/([\w.]+\/?)\S*/.test(gitUrl || '');
     // eslint-disable-next-line no-unused-vars
@@ -503,6 +515,7 @@ export default class Index extends PureComponent {
       initialValue: data.server_type || serverType
     })(
       <Select
+        disabled={isDemoLocked}
         onChange={this.onChangeServerType}
         style={{ width: 100 }}
         getPopupContainer={triggerNode => triggerNode.parentNode}
@@ -517,6 +530,7 @@ export default class Index extends PureComponent {
     })(
       <Select
         data-testid="rbd-create-code-versiontype"
+        disabled={isDemoLocked}
         style={{ width: 100 }}
         getPopupContainer={triggerNode => triggerNode.parentNode}
       >
@@ -530,37 +544,47 @@ export default class Index extends PureComponent {
     return (
       <Fragment>
         <Form onSubmit={this.handleSubmit} layout="vertical" hideRequiredMark>
+          {autoUseDemo && (
+            <Form.Item {...is_language}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span>{formatMessage({ id: 'teamAdd.create.image.demo.use' })}</span>
+                <Switch checked={showDemoSelect} onChange={this.handleToggleDemoSelect} />
+              </div>
+            </Form.Item>
+          )}
           <Form.Item
             {...is_language}
             label={
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                 <span>{formatMessage({ id: 'teamAdd.create.form.service_cname' })}</span>
-                <Button
-                  type="link"
-                  size="small"
-                  style={{ padding: 0, height: 'auto', fontSize: 14, display: 'flex', alignItems: 'center' }}
-                  onClick={this.handleToggleDemoSelect}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    style={{ marginRight: 4 }}
+                {!autoUseDemo && (
+                  <Button
+                    type="link"
+                    size="small"
+                    style={{ padding: 0, height: 'auto', fontSize: 14, display: 'flex', alignItems: 'center' }}
+                    onClick={this.handleToggleDemoSelect}
                   >
-                    <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
-                    <path d="M20 3v4" />
-                    <path d="M22 5h-4" />
-                    <path d="M4 17v2" />
-                    <path d="M5 18H3" />
-                  </svg>
-                  {showDemoSelect ? formatMessage({ id: 'teamAdd.create.demo.cancel' }) : formatMessage({ id: 'teamAdd.create.demo.use' })}
-                </Button>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      style={{ marginRight: 4 }}
+                    >
+                      <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z" />
+                      <path d="M20 3v4" />
+                      <path d="M22 5h-4" />
+                      <path d="M4 17v2" />
+                      <path d="M5 18H3" />
+                    </svg>
+                    {showDemoSelect ? formatMessage({ id: 'teamAdd.create.demo.cancel' }) : formatMessage({ id: 'teamAdd.create.demo.use' })}
+                  </Button>
+                )}
               </div>
             }
           >
@@ -570,12 +594,13 @@ export default class Index extends PureComponent {
                   initialValue: data.service_cname || '',
                   rules: getServiceNameRules()
                 })(
-                  <Input placeholder={DEFAULT_DEMO.name} />
+                  <Input placeholder={DEFAULT_DEMO.name} disabled={isDemoLocked} />
                 )}
               </div>
               {showDemoSelect && (
                 <div style={{ flex: 1, transition: 'flex 0.3s ease' }}>
                   <Select
+                    disabled={isDemoLocked}
                     placeholder={formatMessage({ id: 'teamAdd.create.demo.select' })}
                     value={selectedDemo}
                     onChange={this.handleDemoChange}
@@ -596,7 +621,7 @@ export default class Index extends PureComponent {
             {getFieldDecorator('k8s_component_name', {
               initialValue: this.generateEnglishName(form.getFieldValue('service_cname')),
               rules: getK8sComponentNameRules()
-            })(<Input placeholder={DEFAULT_DEMO.name} />)}
+            })(<Input placeholder={DEFAULT_DEMO.name} disabled={isDemoLocked} />)}
           </Form.Item>
           <Form.Item {...is_language} label={formatMessage({ id: 'teamAdd.create.code.address' })}>
             {getFieldDecorator('git_url', {
@@ -607,12 +632,14 @@ export default class Index extends PureComponent {
               <Input
                 data-testid="rbd-create-code-giturl"
                 addonBefore={prefixSelector}
+                disabled={isDemoLocked}
                 placeholder={DEFAULT_DEMO.gitUrl}
               />
             )}
           </Form.Item>
-          {gitUrl && isSSH && this.fetchCheckboxGroup('showKey', serverType)}
+          {!isDemoLocked && gitUrl && isSSH && this.fetchCheckboxGroup('showKey', serverType)}
           {gitUrl &&
+            !isDemoLocked &&
             isHttp &&
             this.fetchCheckboxGroup('showUsernameAndPass', serverType)}
 
@@ -644,7 +671,7 @@ export default class Index extends PureComponent {
               {getFieldDecorator('subdirectories', {
                 initialValue: '',
                 rules: getSubdirectoriesRules()
-              })(<Input placeholder={formatMessage({ id: 'placeholder.subdirectories' })} />)}
+              })(<Input placeholder={formatMessage({ id: 'placeholder.subdirectories' })} disabled={isDemoLocked} />)}
             </Form.Item>
           )}
           {serverType !== 'oss' && (
@@ -656,6 +683,7 @@ export default class Index extends PureComponent {
                 <Input
                   data-testid="rbd-create-code-branch"
                   addonBefore={versionSelector}
+                  disabled={isDemoLocked}
                   placeholder={DEFAULT_DEMO.codeVersion}
                 />
               )}
@@ -674,7 +702,7 @@ export default class Index extends PureComponent {
                 </Radio.Group>
               )}
             </Form.Item>}
-          {!group_id && <>
+          {!group_id && !isDemoLocked && <>
             <div className="advanced-btn">
               <Button
                 type="link"

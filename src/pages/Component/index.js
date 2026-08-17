@@ -32,7 +32,6 @@ import VisitBtn from '../../components/VisitBtn';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import { rollback } from '../../services/app';
 import appUtil from '../../utils/app';
-import AppPubSubSocket from '../../utils/appPubSubSocket';
 import appStatusUtil from '../../utils/appStatus-util';
 import ScrollerX from '../../components/ScrollerX';
 import {
@@ -41,11 +40,8 @@ import {
   createEnterprise,
   createTeam
 } from '../../utils/breadcrumb';
-import dateUtil from '../../utils/date-util';
 import globalUtil from '../../utils/global';
-import regionUtil from '../../utils/region';
 import roleUtil from '../../utils/newRole';
-import teamUtil from '../../utils/team';
 import userUtil from '../../utils/user';
 import ConnectionInformation from './connectionInformation';
 import DatabaseExpansion from './databaseExpansion';
@@ -260,7 +256,8 @@ class EditName extends PureComponent {
     editNameLoading: loading.effects['appControl/editName'],
     updateRollingLoading: loading.effects['appControl/putUpdateRolling'],
     deployLoading:
-      loading.effects[('appControl/putDeploy', 'appControl/putUpgrade')],
+      loading.effects['appControl/putDeploy'] ||
+      loading.effects['appControl/putUpgrade'],
     buildInformationLoading: loading.effects['appControl/getBuildInformation'],
     pluginList: teamControl.pluginsList
   }),
@@ -291,13 +288,13 @@ class Main extends PureComponent {
       BuildState: null,
       isShowThirdParty: false,
       promptModal: null,
-      websocketURL: '',
       componentTimer: true,
       tabsShow: false,
       routerSwitch: true,
+      deploySubmitting: false,
       componentPermissions: this.props?.componentPermissions || {},
     };
-    this.socket = null;
+    this.deployRequestPending = false;
     this.destroy = false;
     this.portsAppAlias = null;
   }
@@ -326,10 +323,6 @@ class Main extends PureComponent {
       clearTimeout(this.vmExportTimer);
       this.vmExportTimer = null;
     }
-    if (this.socket) {
-      this.socket.destroy();
-      this.socket = null;
-    }
     this.destroy = true;
   }
 
@@ -344,23 +337,6 @@ class Main extends PureComponent {
       })
     }
   };
-
-  getWebSocketUrl(service_id) {
-    const currTeam = userUtil.getTeamByTeamName(
-      this.props.currUser,
-      globalUtil.getCurrTeamName()
-    );
-    const currRegionName = globalUtil.getCurrRegionName();
-    if (currTeam) {
-      const region = teamUtil.getRegionByName(currTeam, currRegionName);
-      if (region) {
-        const websocketURL = regionUtil.getNewWebSocketUrl(region, service_id);
-        this.setState({ websocketURL }, () => {
-          this.createSocket();
-        });
-      }
-    }
-  }
 
   getStatus = isCycle => {
     const { dispatch } = this.props;
@@ -609,8 +585,6 @@ class Main extends PureComponent {
         } else {
           this.getStatus(false);
         }
-        // get websocket url and create client
-        this.getWebSocketUrl(appDetail.service.service_id);
       },
       handleError: data => {
         const { componentTimer } = this.state;
@@ -669,16 +643,24 @@ class Main extends PureComponent {
   handleshowDeployTips = showonoff => {
     this.setState({ showDeployTips: showonoff });
   };
+  finishDeployRequest = () => {
+    this.deployRequestPending = false;
+    if (!this.destroy) {
+      this.setState({ deploySubmitting: false });
+    }
+  };
   handleDeploy = groupVersion => {
-    this.setState({
-      showDeployTips: false,
-      showreStartTips: false
-    });
     const { build_upgrade, dispatch, appDetail } = this.props;
-    if (this.state.actionIng) {
+    if (this.deployRequestPending || this.state.actionIng) {
       notification.warning({ message: formatMessage({ id: 'notification.warn.executing' }) });
       return;
     }
+    this.deployRequestPending = true;
+    this.setState({
+      showDeployTips: false,
+      showreStartTips: false,
+      deploySubmitting: true
+    });
     const { team_name, app_alias } = this.fetchParameter();
 
     dispatch({
@@ -691,6 +673,9 @@ class Main extends PureComponent {
       },
       callback: res => {
         if (res) {
+          this.setState(({ status }) => ({
+            status: { ...status, status: 'building' }
+          }));
           this.handleCancelBuild();
           this.loadBuildState(appDetail);
           notification.success({ message: formatMessage({ id: 'notification.success.deployment' }) });
@@ -704,11 +689,22 @@ class Main extends PureComponent {
           }
         }
         this.handleOffHelpfulHints();
+        this.finishDeployRequest();
       },
       handleError: err => {
         this.handleCancelBuild();
-        notification.error({ message: err.data.msg_show });
+        const errorStatus = (err && err.status) || (err && err.response && err.response.status);
+        if (errorStatus === 409) {
+          notification.warning({ message: formatMessage({ id: 'notification.warn.building' }) });
+        } else {
+          const errorMessage =
+            (err && err.data && err.data.msg_show) ||
+            (err && err.response && err.response.data && err.response.data.msg_show) ||
+            formatMessage({ id: 'notification.warn.error' });
+          notification.error({ message: errorMessage });
+        }
         this.handleOffHelpfulHints();
+        this.finishDeployRequest();
       }
     });
   };
@@ -784,21 +780,6 @@ class Main extends PureComponent {
       this.openComponentTimer();
     }
   };
-  createSocket() {
-    const { appDetail } = this.props;
-    const { websocketURL } = this.state;
-    if (websocketURL) {
-      const isThrough = dateUtil.isWebSocketOpen(websocketURL);
-      if (isThrough && isThrough === 'through') {
-        this.socket = new AppPubSubSocket({
-          url: websocketURL,
-          serviceId: appDetail.service.service_id,
-          isAutoConnect: true,
-          destroyed: false
-        });
-      }
-    }
-  }
   handleDeleteApp = () => {
     const { dispatch } = this.props;
     const { team_name, app_alias, group_id } = this.fetchParameter();
@@ -1270,6 +1251,7 @@ class Main extends PureComponent {
         isOtherSetting,
       },
       componentPermissions,
+      deploySubmitting,
     } = this.state;
     const { getFieldDecorator } = form;
     const method = appDetail && appDetail.service && appDetail.service.extend_method
@@ -1657,7 +1639,7 @@ class Main extends PureComponent {
                     : promptModal === 'start'
                       ? startLoading
                       : promptModal === 'deploy'
-                        ? deployLoading
+                        ? deployLoading || deploySubmitting
                         : promptModal === 'rolling'
                           ? updateRollingLoading
                           : !promptModal
@@ -1689,7 +1671,7 @@ class Main extends PureComponent {
                   </Button>,
                   <Button
                     type="primary"
-                    loading={deployLoading}
+                    loading={deployLoading || deploySubmitting}
                     onClick={() => {
                       this.handleOkBuild('upgrade');
                     }}
@@ -1707,7 +1689,7 @@ class Main extends PureComponent {
                   </Button>,
                   <Button
                     type="primary"
-                    loading={deployLoading}
+                    loading={deployLoading || deploySubmitting}
                     onClick={() => {
                       this.handleOkBuild('build');
                     }}
@@ -1782,7 +1764,6 @@ class Main extends PureComponent {
               onshowRestartTips={msg => {
                 this.handleshowRestartTips(msg);
               }}
-              socket={this.socket}
               onChecked={this.handleChecked}
             />
           ) : (

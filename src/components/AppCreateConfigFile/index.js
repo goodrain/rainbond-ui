@@ -223,27 +223,26 @@ class BaseInfo extends PureComponent {
     }
   }
 
-  handleSubmitCpu = () => {
-    const { setUnit, memoryMarksObj, cpuMarksObj, isCustomMemory, isCustomCpu, customMemoryValue, customCpuValue, customMemoryUnit } = this.state
-    const { form, onSubmit, showEnterprisePlugin } = this.props;
+  handleSubmitCpu = beforeSubmit => {
+    const { memoryMarksObj, cpuMarksObj, isCustomMemory, isCustomCpu, customMemoryValue, customCpuValue, customMemoryUnit } = this.state
+    const { form, onSubmit } = this.props;
 
     // 如果是自定义内存，先进行验证
     if (isCustomMemory) {
       if (!this.validateCustomMemory()) {
         // 验证失败，返回 false
-        return false;
+        return Promise.resolve(false);
       }
     }
 
-    let submitSuccess = true;
-
-    form.validateFields((err, fieldsValue) => {
-      if (!err && onSubmit && fieldsValue) {
+    return new Promise(resolve => {
+      form.validateFields(async (err, fieldsValue) => {
+        if (!err && onSubmit && fieldsValue) {
         // 处理自定义内存值
         if (isCustomMemory) {
           // 再次验证以确保数据有效
           if (!this.validateCustomMemory()) {
-            submitSuccess = false;
+            resolve(false);
             return;
           }
           const memValue = parseFloat(customMemoryValue);
@@ -263,6 +262,7 @@ class BaseInfo extends PureComponent {
             fieldsValue.min_cpu = parseFloat(customCpuValue) * 1000; // 转换Core为m
           } else {
             notification.warning({ message: '请输入自定义CPU值' });
+            resolve(false);
             return;
           }
         } else {
@@ -276,13 +276,21 @@ class BaseInfo extends PureComponent {
         if (!fieldsValue.extend) {
           fieldsValue.extend_method = 'stateless_multiple'
         }
-        onSubmit(fieldsValue);
-      } else {
-        submitSuccess = false;
-      }
+        if (beforeSubmit && beforeSubmit(fieldsValue) === false) {
+          resolve(false);
+          return;
+        }
+        try {
+          const result = await onSubmit(fieldsValue);
+          resolve(result !== false);
+        } catch (error) {
+          resolve(false);
+        }
+        } else {
+          resolve(false);
+        }
+      });
     });
-
-    return submitSuccess;
   };
 
   onChecks = (e) => {
@@ -970,16 +978,18 @@ class VirtualMachineBaseInfo extends PureComponent {
     });
   };
 
-  handleSubmitCpu = () => {
+  handleSubmitCpu = beforeSubmit => {
     const { setUnit, volumeOpts } = this.state
     const { form, onSubmit } = this.props;
-    form.validateFields((err, fieldsValue) => {
+    return new Promise(resolve => {
+      form.validateFields(async (err, fieldsValue) => {
       if (!err && onSubmit && fieldsValue) {
         if (volumeOpts.length === 0) {
           notification.warning({
             message: formatMessage({ id: 'Vm.createVm.noLiveMigrationStorage' })
           });
-          return false;
+          resolve(false);
+          return;
         }
         if (fieldsValue.min_memory == 'custom' && fieldsValue.memory_value) {
           if (setUnit) {
@@ -1015,8 +1025,20 @@ class VirtualMachineBaseInfo extends PureComponent {
         fieldsValue.disk_cap = fieldsValue.disk_cap * 1
         const selectedVolumeOption = findVolumeOptionByType(volumeOpts, fieldsValue.disk_volume_type);
         fieldsValue.disk_access_mode = resolveVMStorageAccessMode(selectedVolumeOption);
-        onSubmit(fieldsValue);
+        if (beforeSubmit && beforeSubmit(fieldsValue) === false) {
+          resolve(false);
+          return;
+        }
+        try {
+          const result = await onSubmit(fieldsValue);
+          resolve(result !== false);
+        } catch (error) {
+          resolve(false);
+        }
+      } else {
+        resolve(false);
       }
+      });
     });
   };
 
@@ -1232,7 +1254,7 @@ class RenderDeploy extends PureComponent {
   onRefCpu = (ref) => {
     this.childCpu = ref
   }
-  childFn = async () => {
+  childFn = async beforeSubmit => {
     const {
       appDetail,
     } = this.props;
@@ -1242,14 +1264,17 @@ class RenderDeploy extends PureComponent {
     const language = appUtil.getLanguage(appDetail);
 
     // 先执行 CPU 内存验证，如果验证失败则返回 false
-    const cpuResult = this.childCpu.handleSubmitCpu()
+    const cpuResult = await this.childCpu.handleSubmitCpu(beforeSubmit)
     if (cpuResult === false) {
       return false
     }
 
     // 如果有语言运行时配置，等待保存完成后再跳转
     if (language && runtimeInfo && isSource) {
-      await this.child.handleSubmit()
+      const runtimeResult = await this.child.handleSubmit()
+      if (runtimeResult === false) {
+        return false
+      }
     }
 
     return true
@@ -1338,9 +1363,9 @@ export default class Index extends PureComponent {
   onRef = (ref) => {
     this.child = ref
   }
-  childFn = async () => {
+  childFn = async beforeSubmit => {
     // 调用子组件的方法并等待验证和保存完成
-    const result = await this.child.childFn()
+    const result = await this.child.childFn(beforeSubmit)
     return result
   }
   handlePermissions = type => {

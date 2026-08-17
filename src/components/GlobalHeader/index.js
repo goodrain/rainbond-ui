@@ -25,6 +25,7 @@ import { isAgentRouteHidden } from '../../utils/agentContext';
 import { isPluginBaseId, shouldFetchUserBalanceForPlugins } from '../../utils/pluginArchUtils';
 import { isRainbondInfoAgentEnabled } from '../../utils/agentVisibility';
 import { buildPortalSsoUrl } from '../../utils/portal';
+import { cacheCopilotPluginNameFromList } from '../../services/agent';
 import * as agentLauncherAction from './agentLauncherAction';
 
 const { resolveAgentLauncherAction, resolveAgentPlatformPolicy } = agentLauncherAction;
@@ -160,6 +161,7 @@ class GlobalHeader extends PureComponent {
     this.lastAgentAccessKey = null;
     this.lastAgentPluginFetchKey = null;
     this.agentPluginFetchInFlight = false;
+    this.agentUpdateTimer = null;
   }
 
   componentDidMount() {
@@ -173,6 +175,9 @@ class GlobalHeader extends PureComponent {
     // 清除防抖定时器
     if (this.sliderDebounceTimer) {
       clearTimeout(this.sliderDebounceTimer);
+    }
+    if (this.agentUpdateTimer) {
+      clearTimeout(this.agentUpdateTimer);
     }
   }
 
@@ -213,7 +218,7 @@ class GlobalHeader extends PureComponent {
     }
 
     if (this.getAgentPluginFetchKey(prevProps) !== this.getAgentPluginFetchKey()) {
-      this.fetchAgentPluginStatus({ force: true });
+      this.fetchAgentPluginStatus();
     }
   }
 
@@ -330,8 +335,14 @@ class GlobalHeader extends PureComponent {
     }
     this.lastPluginListKey = pluginListKey;
 
+    cacheCopilotPluginNameFromList(pluginList);
     const hasAgentPlugin = pluginList.some(item => this.isInstalledPlugin(item, 'rainbond-agent'));
     const hasBillPlugin = shouldFetchUserBalanceForPlugins(pluginList);
+    const enterpriseId = this.getEnterpriseId();
+    const regionName = globalUtil.getCurrRegionName();
+    if (hasAgentPlugin && enterpriseId && regionName) {
+      this.scheduleAgentUpdate(enterpriseId, [regionName]);
+    }
 
     this.setState(
       {
@@ -353,8 +364,32 @@ class GlobalHeader extends PureComponent {
     this.syncPluginStatusFromList(pluginsList, pluginsLoaded);
   };
 
+  scheduleAgentUpdate = (enterpriseId, regionNames) => {
+    if (this.agentUpdateTimer) {
+      clearTimeout(this.agentUpdateTimer);
+    }
+    this.agentUpdateTimer = setTimeout(() => {
+      this.agentUpdateTimer = null;
+      this.props.dispatch({
+        type: 'agent/fetchAgentUpdate',
+        payload: {
+          enterprise_id: enterpriseId,
+          region_names: regionNames
+        }
+      });
+    }, 1000);
+  };
+
   fetchAgentPluginStatus = ({ force = false, callback } = {}) => {
     const { dispatch } = this.props;
+
+    if (this.checkIsTeamView() && !force) {
+      if (callback) {
+        callback(this.state.agentPluginStatus);
+      }
+      return;
+    }
+
     const enterpriseId = this.getEnterpriseId();
     const fetchKey = this.getAgentPluginFetchKey();
 
@@ -392,16 +427,6 @@ class GlobalHeader extends PureComponent {
         return;
       }
 
-      // 复用已解析的区域列表，静默检测 AI 助手插件是否有可升级版本；
-      // 结果存入 agent model 的 agentUpdate，供入口红点与面板 banner 读取。
-      dispatch({
-        type: 'agent/fetchAgentUpdate',
-        payload: {
-          enterprise_id: enterpriseId,
-          region_names: uniqueRegionNames
-        }
-      });
-
       let pending = uniqueRegionNames.length;
       let successCount = 0;
       let pluginList = [];
@@ -413,7 +438,9 @@ class GlobalHeader extends PureComponent {
         }
 
         this.agentPluginFetchInFlight = false;
+        this.scheduleAgentUpdate(enterpriseId, uniqueRegionNames);
         if (successCount > 0) {
+          cacheCopilotPluginNameFromList(pluginList);
           this.syncPluginStatusFromList(pluginList, true);
           if (callback) {
             const nextStatus = pluginList.some(item => this.isInstalledPlugin(item, 'rainbond-agent'))
@@ -449,7 +476,8 @@ class GlobalHeader extends PureComponent {
     dispatch({
       type: 'region/fetchEnterpriseClusters',
       payload: {
-        enterprise_id: enterpriseId
+        enterprise_id: enterpriseId,
+        check_status: 'no'
       },
       callback: res => {
         const regionNames = ((res && res.list) || []).map(item => item.region_name);

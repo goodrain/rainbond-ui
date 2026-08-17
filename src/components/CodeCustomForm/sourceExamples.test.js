@@ -14,13 +14,13 @@ describe('source example helpers', () => {
 
     expect(visibleIds).toEqual([
       'demo-2048',
+      'java-demo',
       'vite-demo',
       'nodejs-demo',
-      'php-demo',
-      'python-demo',
       'go-demo',
-      'java-demo',
-      'dotnet-demo'
+      'python-demo',
+      'dotnet-demo',
+      'php-demo'
     ]);
   });
 

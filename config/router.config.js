@@ -60,6 +60,12 @@ export default [
         name: 'CliAuth',
         authority: ['admin', 'user'],
       },
+      {
+        path: '/device',
+        component: './DeviceAuthorization',
+        name: 'DeviceAuthorization',
+        authority: ['admin', 'user'],
+      },
       // 应用市场安装
       {
         path: '/marketplace/install/:appId',

@@ -771,6 +771,7 @@ const Vm = {
   'Vm.createVm.imgName': '镜像名称',
   'Vm.createVm.saveName': '保存的镜像名称',
   'Vm.createVm.inputName': '请输入镜像名称',
+  'Vm.createVm.invalidImageName': '仅支持字母、数字、_、.、-，须以字母、数字或 _ 开头，最长 128 个字符',
   'Vm.createVm.img': '镜像',
   'Vm.createVm.selectImg': '请选择镜像',
   'Vm.createVm.unInstall': '暂未安装虚拟机插件，如果想安装该功能，请',

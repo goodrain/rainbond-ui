@@ -2,6 +2,8 @@
 import apiconfig from '../../config/api.config';
 import request from '../utils/request';
 
+const teamRegionOverviewRequests = {};
+
 // edit role
 export async function editRole(body = {}) {
   return request(
@@ -150,7 +152,8 @@ export async function createTeam(
     team_name,
     useable_regions: [],
     namespace
-  }
+  },
+  handleError
 ) {
   return request(`${apiconfig.baseUrl}/console/teams/add-teams`, {
     method: 'post',
@@ -160,7 +163,8 @@ export async function createTeam(
       namespace: body.namespace,
       logo: body.logo,
       bind_existing_namespace: body.bind_existing_namespace || false
-    }
+    },
+    handleError
   });
 }
 
@@ -306,16 +310,68 @@ export async function getTeamRegionOverview(
   },
   handleError
 ) {
-  return request(
+  const hasHandleError = Boolean(handleError);
+  const requestKey = JSON.stringify([
+    body.team_name,
+    body.region_name,
+    hasHandleError
+  ]);
+  const existingRequest = teamRegionOverviewRequests[requestKey];
+  if (existingRequest) {
+    if (handleError) {
+      existingRequest.errorHandlers.push(handleError);
+    }
+    return existingRequest.promise;
+  }
+
+  const requestEntry = {
+    errorHandlers: handleError ? [handleError] : [],
+    promise: null
+  };
+  const clearRequest = () => {
+    if (teamRegionOverviewRequests[requestKey] === requestEntry) {
+      delete teamRegionOverviewRequests[requestKey];
+    }
+  };
+  const notifyErrorHandlers = hasHandleError
+    ? error => {
+        clearRequest();
+        let callbackError;
+        requestEntry.errorHandlers.forEach(errorHandler => {
+          try {
+            errorHandler(error);
+          } catch (currentError) {
+            callbackError = callbackError || currentError;
+          }
+        });
+        if (callbackError) {
+          throw callbackError;
+        }
+      }
+    : undefined;
+  const pendingRequest = request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/overview`,
     {
       showLoading: false,
       params: {
         region_name: body.region_name
       },
-      handleError
+      ...(hasHandleError ? { handleError: notifyErrorHandlers } : {})
     }
   );
+
+  requestEntry.promise = pendingRequest.then(
+    response => {
+      clearRequest();
+      return response;
+    },
+    error => {
+      clearRequest();
+      throw error;
+    }
+  );
+  teamRegionOverviewRequests[requestKey] = requestEntry;
+  return requestEntry.promise;
 }
 
 /*
@@ -510,7 +566,8 @@ export function openRegion(
   body = {
     team_name,
     region_names
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/region`,
@@ -518,7 +575,8 @@ export function openRegion(
       method: 'patch',
       data: {
         region_names: body.region_names
-      }
+      },
+      handleError
     }
   );
 }

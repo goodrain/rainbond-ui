@@ -15,7 +15,6 @@ import appAcionLogUtil from '../../utils/app-action-log-util';
 import dateUtil from '../../utils/date-util';
 import handleAPIError from '../../utils/error';
 import globalUtil from '../../utils/global';
-import PluginUtil from '../../utils/pulginUtils'
 import regionUtil from '../../utils/region';
 import teamUtil from '../../utils/team';
 import userUtil from '../../utils/user';
@@ -26,6 +25,7 @@ import BuildHistory from './component/BuildHistory/index';
 import Instance from './component/Instance/index';
 import styles from './Index.less';
 import { shouldRefreshVMProfileForVNC } from './vmProfileRefreshHelpers';
+import { shouldLoadStorageUsage } from '../../components/SlidePanel/components/componentViewPerformance';
 
 const ButtonGroup = Button.Group;
 
@@ -393,6 +393,7 @@ export default class Index extends PureComponent {
       }
     };
     this.inerval = 5000;
+    this.storageUsageRequested = false;
   }
   static contextTypes = {
     isActionIng: PropTypes.func,
@@ -412,6 +413,9 @@ export default class Index extends PureComponent {
   componentDidUpdate(prevProps) {
     if (prevProps.status !== this.props.status) {
       this.refreshVMProfileForVNC();
+    }
+    if (prevProps.pluginsList !== this.props.pluginsList) {
+      this.loadStorageUsageIfNeeded(this.props.pluginsList);
     }
   }
 
@@ -437,7 +441,7 @@ export default class Index extends PureComponent {
   load = () => {
     this.fetchPods(true);
     this.fetchOperationLog(true);
-    this.getStorageUsed();
+    this.loadStorageUsageIfNeeded(this.props.pluginsList);
   };
   closeTimer = () => {
     if (this.fetchOperationLogTimer) {
@@ -712,6 +716,14 @@ export default class Index extends PureComponent {
     });
   };
 
+  loadStorageUsageIfNeeded = pluginsList => {
+    if (this.storageUsageRequested || !shouldLoadStorageUsage(pluginsList)) {
+      return;
+    }
+    this.storageUsageRequested = true;
+    this.getStorageUsed();
+  };
+
   getStorageUsed = () => {
     const { dispatch, appDetail } = this.props;
     dispatch({
@@ -776,7 +788,7 @@ export default class Index extends PureComponent {
   };
 
   render() {
-    const { status, componentPermissions, socket, appDetail, method, pluginsList } = this.props;
+    const { status, componentPermissions, appDetail, method, pluginsList } = this.props;
     const {
       resourcesLoading,
       logList,
@@ -798,7 +810,7 @@ export default class Index extends PureComponent {
       total,
       storageUsed
     } = this.state;
-    const showStorageUsed = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
+    const showStorageUsed = shouldLoadStorageUsage(pluginsList);
     return (
       <Fragment>
         <Basic
@@ -813,7 +825,6 @@ export default class Index extends PureComponent {
           onPageChange={this.onPageChange}
           handleMore={this.handleMore}
           more={more}
-          socket={socket}
           method={method}
           vmProfile={appDetail?.vm_profile}
           vmDiskAllocation={appDetail?.service?.disk_cap}
@@ -838,7 +849,6 @@ export default class Index extends PureComponent {
             onShowSizeChange={this.onShowSizeChange}
             handleDel={this.handleDel}
             onRollback={this.handleRollback}
-            socket={socket}
             pages={pages}
             pageSize={pageSize}
             total={total}
@@ -857,14 +867,12 @@ export default class Index extends PureComponent {
               new_pods={new_pods}
               old_pods={old_pods}
               appAlias={this.props.appAlias}
-              socket={socket}
               podType={appDetail?.service?.extend_method}
             />
           </Card>
         )}
         {!more && (
           <OperationRecord
-            socket={socket}
             isopenLog={isopenLog}
             onLogPush={this.onLogPush}
             has_next={has_next}

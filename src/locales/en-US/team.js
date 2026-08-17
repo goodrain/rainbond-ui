@@ -761,6 +761,7 @@ const Vm = {
   'Vm.createVm.imgName': 'Image name',
   'Vm.createVm.saveName': 'Name of the saved image',
   'Vm.createVm.inputName': 'Please enter the image name',
+  'Vm.createVm.invalidImageName': 'Use 1-128 letters, numbers, _, . or -; start with a letter, number or _',
   'Vm.createVm.img': 'Mirror image',
   'Vm.createVm.selectImg': 'Please select mirror',
   'Vm.createVm.unInstall': 'The virtual machine plugin has not been installed yet. If you want to install this feature, please',

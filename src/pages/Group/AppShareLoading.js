@@ -264,6 +264,7 @@ class ShareEvent extends React.Component {
             onOk={this.handleCancel}
             onCancel={this.handleCancel}
             showSocket={isShowSocket}
+            deduplicateMessages
             EventID={openedEventId}
             socketUrl={this.socketUrl}
             socket={this.props.socket}

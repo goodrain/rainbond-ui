@@ -87,6 +87,9 @@ class TeamLayout extends PureComponent {
   constructor(props) {
     super(props);
     this.lastPluginUrlKey = '';
+    this.teamOverviewRequestKeys = new Set();
+    this.lastInitializedTeamOverviewKey = '';
+    this._isUnmounted = false;
     this.state = {
       isMobile,
       enterpriseList: [],
@@ -136,6 +139,7 @@ class TeamLayout extends PureComponent {
   }
 
   componentDidMount() {
+    this._isUnmounted = false;
     // 首次挂载时，根据当前路由参数触发一次初始化加载
     const { teamName, regionName } = this.props.match.params || {};
     if (teamName && regionName) {
@@ -164,6 +168,7 @@ class TeamLayout extends PureComponent {
       cookie.set('team_name', nextParams.teamName);
       cookie.set('region_name', nextParams.regionName);
       this.load();
+      this.getTeamOverview(nextParams);
       // 若已有 eid 或 enterprise 可用，兜底刷新官方插件 url
       const enterpriseId = this.state.eid
         || (this.state.currentEnterprise && this.state.currentEnterprise.enterprise_id)
@@ -232,6 +237,11 @@ class TeamLayout extends PureComponent {
         this.setState(nextState);
       }
     }
+  }
+
+  componentWillUnmount() {
+    this._isUnmounted = true;
+    this.teamOverviewRequestKeys.clear();
   }
 
   fetchLicenses = () => {
@@ -402,7 +412,7 @@ class TeamLayout extends PureComponent {
   };
   // get enterprise list
   getEnterpriseList = () => {
-    const { dispatch, currentUser } = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: 'global/fetchEnterpriseList',
       callback: res => {
@@ -414,22 +424,11 @@ class TeamLayout extends PureComponent {
             dispatch({ type: 'enterprise/fetchCurrentEnterprise', payload: firstEnterprise });
           }
           
-          this.setState(
-            {
-              enterpriseList: res.list,
-              // 确保 currentEnterprise 及时就绪，避免页面因为空而一直 Loading
-              currentEnterprise: (this.state.currentEnterprise || firstEnterprise) || null
-            },
-            () => {
-              if (currentUser) {
-                return this.getTeamOverview(currentUser.user_id);
-
-              }
-              // 获取最新的用户信息
-              this.fetchUserInfo();
-
-            }
-          );
+          this.setState({
+            enterpriseList: res.list,
+            // 确保 currentEnterprise 及时就绪，避免页面因为空而一直 Loading
+            currentEnterprise: (this.state.currentEnterprise || firstEnterprise) || null
+          });
         }
       }
     });
@@ -449,7 +448,7 @@ class TeamLayout extends PureComponent {
         },
         callback: res => {
           if (res && res.status_code === 200) {
-            this.getTeamOverview(res.bean && res.bean.user_id);
+            this.getTeamOverview();
           }
         },
         handleError: () => {
@@ -462,25 +461,57 @@ class TeamLayout extends PureComponent {
     return null;
   };
 
-  getTeamOverview = () => {
+  getTeamOverviewRequestKey = params => {
+    const { teamName, regionName } = params || {};
+    if (!teamName || !regionName) {
+      return '';
+    }
+    return `${teamName}:${regionName}`;
+  };
+
+  isCurrentTeamOverviewRequest = key => {
+    const params = this.props.match && this.props.match.params;
+    return key === this.getTeamOverviewRequestKey(params);
+  };
+
+  getTeamOverview = params => {
     // 避免在此处再次触发 load，统一在参数变化生命周期中触发
     const { dispatch, currentUser, rainbondInfo } = this.props;
     const isSaas = rainbondInfo && rainbondInfo.is_saas || false;
     const { enterpriseList, teamOverviewPermission: { isAccess } } = this.state;
-    const { teamName, regionName } = this.props.match.params;
+    const overviewParams = params || (this.props.match && this.props.match.params) || {};
+    const { teamName, regionName } = overviewParams;
+    const requestKey = this.getTeamOverviewRequestKey(overviewParams);
+    if (
+      !requestKey ||
+      this.teamOverviewRequestKeys.has(requestKey) ||
+      this.lastInitializedTeamOverviewKey === requestKey
+    ) {
+      return;
+    }
+    this.teamOverviewRequestKeys.add(requestKey);
     cookie.set('team_name', teamName);
     cookie.set('region_name', regionName);
     if(isSaas){
       this.fetchTeamDetails();
     }
-    dispatch({
+    const finalizeRequest = () => {
+      this.teamOverviewRequestKeys.delete(requestKey);
+    };
+    const dispatchResult = dispatch({
       type: 'global/getTeamOverview',
       payload: {
         team_name: teamName,
         region_name: regionName
       },
+      shouldSave: () => !this._isUnmounted && this.isCurrentTeamOverviewRequest(requestKey),
       callback: res => {
+        finalizeRequest();
+        if (this._isUnmounted || !this.isCurrentTeamOverviewRequest(requestKey)) {
+          return;
+        }
         if (res && res.status_code === 200) {
+          this.lastInitializedTeamOverviewKey = requestKey;
           window.sessionStorage.setItem("team_id", res.bean.team_id)
           this.setState(
             {
@@ -493,6 +524,10 @@ class TeamLayout extends PureComponent {
         }
       },
       handleError: err => {
+        finalizeRequest();
+        if (this._isUnmounted || !this.isCurrentTeamOverviewRequest(requestKey)) {
+          return;
+        }
         const link = this.getLoginRole(currentUser)
         if (err && err.data && err.data.code) {
           const errtext =
@@ -514,6 +549,7 @@ class TeamLayout extends PureComponent {
         }
       }
     });
+    dispatchResult.then(finalizeRequest, finalizeRequest);
   };
   getLoginRole = (currUser) => {
     const { dispatch } = this.props;
@@ -1065,12 +1101,6 @@ class TeamLayout extends PureComponent {
       return (
           <Layout key={overflow}>
             <GlobalHeader
-              key={
-                currentEnterprise?.enterprise_id +
-                currentTeam?.team_name +
-                currentRegion?.team_region_name +
-                appID
-              }
               eid={currentEnterprise?.enterprise_id}
               logo={fetchLogo}
               isPubCloud={

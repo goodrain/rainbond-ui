@@ -9,8 +9,14 @@ import global from '../../../utils/global';
 import AppState from '../../../components/ApplicationState';
 import { renderPlatformPluginIcon } from '../../../utils/platformPluginIcon';
 import { getPluginBaseId } from '../../../utils/pluginArchUtils';
+import { runMarketInstallPreflight } from '../../../utils/marketInstallPreflight';
 import styles from './index.less'
 import enterpriseStyles from '../../Enterprise/index.less'
+import {
+    buildMarketPreflightPayload,
+    ensurePlatformPluginTeam,
+    shouldNotifyPreflightError,
+} from './platformPluginPreflight';
 const { TabPane } = Tabs;
 @connect(({ global, user, region }) => ({
     enterprise: global.enterprise,
@@ -28,6 +34,7 @@ class Index extends PureComponent {
             authCode: '',
             installingPlugins: {},
             confirmInstallPlugin: null,
+            preflightLoading: false,
             installModalPhase: 'confirm', // confirm | installing | RUNNING
             installResultBean: null,
             installStartAt: 0,
@@ -138,6 +145,7 @@ class Index extends PureComponent {
     }
 
     componentWillUnmount() {
+        this.preflightRequestToken = null;
         if (this.pollTimer) {
             clearInterval(this.pollTimer)
         }
@@ -417,14 +425,20 @@ class Index extends PureComponent {
     }
 
     handleInstallPlugin = (plugin) => {
+        this.preflightRequestToken = null;
         this.setState({
             confirmInstallPlugin: plugin,
+            preflightLoading: false,
             installModalPhase: 'confirm',
             installResultBean: null,
         });
     }
 
     handleCloseInstallConfirm = ({ keepPolling = false } = {}) => {
+        if (this.state.preflightLoading) {
+            return;
+        }
+        this.preflightRequestToken = null;
         // keepPolling=true 用于"后台继续": 关掉 modal 但不停后台轮询和计时
         if (!keepPolling) {
             this.stopInstallPolling();
@@ -432,6 +446,7 @@ class Index extends PureComponent {
         }
         this.setState({
             confirmInstallPlugin: null,
+            preflightLoading: false,
             installModalPhase: 'confirm',
             installResultBean: null,
             ...(keepPolling ? {} : {
@@ -456,20 +471,102 @@ class Index extends PureComponent {
     }
 
     handleConfirmInstall = () => {
-        const { confirmInstallPlugin } = this.state;
-        if (confirmInstallPlugin) {
-            this.setState({
-                installModalPhase: 'installing',
-                installStartAt: Date.now(),
-                installElapsedSec: 0,
-                installingPluginInfo: {
-                    plugin_id: confirmInstallPlugin.plugin_id,
-                    plugin_name: confirmInstallPlugin.plugin_name || confirmInstallPlugin.plugin_id,
-                },
-            });
-            this.startElapsedTimer();
-            this.doInstallPlugin(confirmInstallPlugin);
+        const { confirmInstallPlugin, preflightLoading } = this.state;
+        if (!confirmInstallPlugin || preflightLoading || this.preflightRequestToken) {
+            return;
         }
+
+        const { dispatch, regionName } = this.props;
+        const enterpriseId = this.getEid();
+        const requestToken = {};
+        this.preflightRequestToken = requestToken;
+        this.setState({ preflightLoading: true });
+
+        const isCurrentRequest = () => (
+            this.preflightRequestToken === requestToken &&
+            this.state.confirmInstallPlugin === confirmInstallPlugin
+        );
+        const clearPreflight = () => {
+            if (!isCurrentRequest()) {
+                return false;
+            }
+            this.preflightRequestToken = null;
+            this.setState({ preflightLoading: false });
+            return true;
+        };
+        const handleTeamError = () => {
+            if (clearPreflight()) {
+                notification.error({ message: '安装前检测失败，请稍后重试' });
+            }
+        };
+
+        if (!enterpriseId || !regionName) {
+            handleTeamError();
+            return;
+        }
+
+        ensurePlatformPluginTeam({
+            dispatch,
+            enterpriseId,
+            regionName,
+            onSuccess: team => {
+                if (!isCurrentRequest()) {
+                    return;
+                }
+                if (!team || !team.team_name) {
+                    handleTeamError();
+                    return;
+                }
+                try {
+                    runMarketInstallPreflight({
+                        dispatch,
+                        payload: buildMarketPreflightPayload(
+                            confirmInstallPlugin,
+                            team.team_name,
+                            regionName
+                        ),
+                        copy: {
+                            blockTitle: '暂不能安装',
+                            warningTitle: '部分检测无法确认',
+                            continueText: '仍然继续安装',
+                            copyType: 'install'
+                        },
+                        onPass: () => {
+                            if (isCurrentRequest()) {
+                                this.startInstallPlugin(confirmInstallPlugin);
+                            }
+                        },
+                        onCancel: clearPreflight,
+                        onError: error => {
+                            if (clearPreflight() && shouldNotifyPreflightError(error)) {
+                                notification.error({ message: '安装前检测失败，请稍后重试' });
+                            }
+                        },
+                    });
+                } catch (error) {
+                    handleTeamError();
+                }
+            },
+            onError: handleTeamError,
+        }).catch(() => {
+            // ensurePlatformPluginTeam 会通过 onError 完成界面恢复，避免产生未处理的 Promise rejection。
+        });
+    }
+
+    startInstallPlugin = (plugin) => {
+        this.preflightRequestToken = null;
+        this.setState({
+            preflightLoading: false,
+            installModalPhase: 'installing',
+            installStartAt: Date.now(),
+            installElapsedSec: 0,
+            installingPluginInfo: {
+                plugin_id: plugin.plugin_id,
+                plugin_name: plugin.plugin_name || plugin.plugin_id,
+            },
+        });
+        this.startElapsedTimer();
+        this.doInstallPlugin(plugin);
     }
 
     isVirtualMachinePlugin = (plugin) => {
@@ -783,7 +880,7 @@ class Index extends PureComponent {
     }
 
     render() {
-        const { pluginList, loading, defaultPluginList, isAuthorizationCode, authCode, confirmInstallPlugin, installModalPhase, isServiceExpired, subscribeUntil, installElapsedSec } = this.state;
+        const { pluginList, loading, defaultPluginList, isAuthorizationCode, authCode, confirmInstallPlugin, preflightLoading, installModalPhase, isServiceExpired, subscribeUntil, installElapsedSec } = this.state;
         const eid = this.getEid();
         const isAgentInstallSuccess = confirmInstallPlugin && getPluginBaseId(confirmInstallPlugin.plugin_id) === 'rainbond-agent';
         return (
@@ -820,8 +917,8 @@ class Index extends PureComponent {
                         visible
                         onCancel={installModalPhase === 'installing' ? this.handleInstallInBackground : this.handleCloseInstallConfirm}
                         footer={null}
-                        closable
-                        maskClosable={installModalPhase !== 'installing'}
+                        closable={!preflightLoading}
+                        maskClosable={!preflightLoading && installModalPhase !== 'installing'}
                         width={480}
                         bodyStyle={{ padding: 0 }}
                         centered
@@ -868,8 +965,8 @@ class Index extends PureComponent {
                                         </div>
                                     </div>
                                     <div className={styles.installConfirmFooter}>
-                                        <Button size="large" style={{ flex: 1 }} onClick={this.handleCloseInstallConfirm}>取消</Button>
-                                        <Button size="large" type="primary" style={{ flex: 1 }} onClick={this.handleConfirmInstall}>确认安装</Button>
+                                        <Button size="large" style={{ flex: 1 }} disabled={preflightLoading} onClick={this.handleCloseInstallConfirm}>取消</Button>
+                                        <Button size="large" type="primary" style={{ flex: 1 }} loading={preflightLoading} onClick={this.handleConfirmInstall}>确认安装</Button>
                                     </div>
                                 </>
                             )}

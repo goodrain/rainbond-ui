@@ -12,23 +12,22 @@ import { buildApp } from '../../../services/createApp';
 import VisterBtnWithIcon from './VisterBtnWithIcon';
 import AppDeteleResource from '../../../components/AppDeteleResource'
 import RapidCopy from '../../../components/RapidCopy';
-import cookie from '../../../utils/cookie';
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import AddServiceComponent from '../../../pages/Group/AddServiceComponent';
 import sourceUtil from '../../../utils/source-unit';
-import PluginUtil from '../../../utils/pulginUtils'
 import moment from 'moment';
 import styles from './app.less';
 import ComponentListModal from '../../../pages/Group/ComponentListModal';
 import CreateComponentModal from '@/components/CreateComponentModal';
+import { shouldLoadStorageUsage } from './componentViewPerformance';
 @connect(({ user, application, teamControl, enterprise, loading, global }) => ({
   buildShapeLoading: loading.effects['global/buildShape'],
   editGroupLoading: loading.effects['application/editGroup'],
   deleteLoading: loading.effects['application/deleteGroupAllResource'],
   currUser: user.currentUser,
-  apps: application.apps,
+  storeApps: application.apps,
   groupDetail: application.groupDetail || {},
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
@@ -73,16 +72,20 @@ export default class app extends Component {
       headerLeftExpanded: false,
       
     };
+    this.storageUsageRequested = false;
+    this.statusRequestInFlight = false;
+    this.operatorRequestInFlight = false;
+    this.componentMounted = false;
   }
   componentDidMount() {
     if (!globalUtil.getAppID()) {
       return;
     }
+    this.componentMounted = true;
     this.loading();
-    this.handleArchCpuInfo();
     this.handleWaitLevel();
-    this.handleGroupAllResource()
-    this.getStorageUsed();
+    this.loadStorageUsageIfNeeded(this.props.pluginsList);
+    document.addEventListener('visibilitychange', this.handleVisibilityChange);
   }
   componentDidUpdate(prevProps) {
     if (prevProps.permissions !== this.props.permissions) {
@@ -90,34 +93,24 @@ export default class app extends Component {
         permissions: this.props.permissions,
       });
     }
+    if (prevProps.pluginsList !== this.props.pluginsList) {
+      this.loadStorageUsageIfNeeded(this.props.pluginsList);
+    }
+    if (prevProps.apps !== this.props.apps || prevProps.storeApps !== this.props.storeApps) {
+      this.syncComponentSummary(this.getComponents());
+    }
   }
   loading = () => {
     this.fetchAppDetail();
-    this.loadTopology(true);
-    this.fetchAppDetailState();
-    this.getOperator();
+    this.syncComponentSummary(this.getComponents());
+    this.fetchAppDetailState(true);
+    this.getOperator(true);
   };
   componentWillUnmount() {
+    this.componentMounted = false;
     this.closeTimer();
+    document.removeEventListener('visibilitychange', this.handleVisibilityChange);
   };
-  // 获取集群架构信息
-  handleArchCpuInfo = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'index/fetchArchOverview',
-      payload: {
-        region_name: globalUtil.getCurrRegionName(),
-        team_name: globalUtil.getCurrTeamName()
-      },
-      callback: res => {
-        if (res && res.bean) {
-          this.setState({
-            archInfo: res.list
-          })
-        }
-      }
-    });
-  }
   handleWaitLevel = () => {
     const { dispatch } = this.props;
     dispatch({
@@ -181,7 +174,11 @@ export default class app extends Component {
       }
     });
   };
-  fetchAppDetailState = () => {
+  fetchAppDetailState = (isCycle = false) => {
+    if (this.statusRequestInFlight) {
+      return;
+    }
+    this.statusRequestInFlight = true;
     const { dispatch } = this.props;
     dispatch({
       type: 'application/fetchAppDetailState',
@@ -190,14 +187,66 @@ export default class app extends Component {
         group_id: globalUtil.getAppID()
       },
       callback: res => {
+        this.statusRequestInFlight = false;
+        if (!this.componentMounted) {
+          return;
+        }
         this.setState({
           resources: res.list,
           appStatusConfig: true
         });
+        if (isCycle) {
+          this.scheduleStatusRefresh();
+        }
+      },
+      handleError: err => {
+        this.statusRequestInFlight = false;
+        if (!this.componentMounted) {
+          return;
+        }
+        this.handleError(err);
+        if (isCycle) {
+          this.scheduleStatusRefresh(20000);
+        }
       }
     });
   };
-  getOperator = () => {
+  scheduleStatusRefresh = (delay = 15000) => {
+    if (this.statusTimer) {
+      clearTimeout(this.statusTimer);
+    }
+    if (!this.componentMounted || !this.state.componentTimer) {
+      return;
+    }
+    this.statusTimer = setTimeout(() => {
+      if (document.hidden) {
+        this.scheduleStatusRefresh(delay);
+        return;
+      }
+      this.fetchAppDetailState(true);
+    }, delay);
+  };
+  handleVisibilityChange = () => {
+    if (!this.componentMounted || !this.state.componentTimer) {
+      return;
+    }
+    if (document.hidden) {
+      if (this.statusTimer) {
+        clearTimeout(this.statusTimer);
+      }
+      if (this.operatorTimer) {
+        clearTimeout(this.operatorTimer);
+      }
+      return;
+    }
+    this.fetchAppDetailState(true);
+    this.getOperator(true);
+  };
+  getOperator = (isCycle = false) => {
+    if (this.operatorRequestInFlight) {
+      return;
+    }
+    this.operatorRequestInFlight = true;
     const { dispatch } = this.props;
     dispatch({
       type: 'application/getOperator',
@@ -206,6 +255,10 @@ export default class app extends Component {
         group_id: globalUtil.getAppID(),
       },
       callback: data => {
+        this.operatorRequestInFlight = false;
+        if (!this.componentMounted) {
+          return;
+        }
         if (data && data.status_code == 200) {
           const arr = data.list.service
           if (arr && arr.length > 0) {
@@ -263,10 +316,46 @@ export default class app extends Component {
             })
           }
         }
+        if (isCycle) {
+          this.scheduleOperatorRefresh();
+        }
+      },
+      handleError: err => {
+        this.operatorRequestInFlight = false;
+        if (!this.componentMounted) {
+          return;
+        }
+        this.handleError(err);
+        if (isCycle) {
+          this.scheduleOperatorRefresh();
+        }
       }
     });
   };
+  scheduleOperatorRefresh = (delay = 60000) => {
+    if (this.operatorTimer) {
+      clearTimeout(this.operatorTimer);
+    }
+    if (!this.componentMounted || !this.state.componentTimer) {
+      return;
+    }
+    this.operatorTimer = setTimeout(() => {
+      if (document.hidden) {
+        this.scheduleOperatorRefresh(delay);
+        return;
+      }
+      this.getOperator(true);
+    }, delay);
+  };
   // 获取存储实际占用
+  loadStorageUsageIfNeeded = pluginsList => {
+    if (this.storageUsageRequested || !shouldLoadStorageUsage(pluginsList)) {
+      return;
+    }
+    this.storageUsageRequested = true;
+    this.getStorageUsed();
+  };
+
   getStorageUsed = () => {
     const { dispatch } = this.props;
     dispatch({
@@ -284,54 +373,28 @@ export default class app extends Component {
       }
     });
   }
-  loadTopology(isCycle) {
-    const { dispatch } = this.props;
-    const teamName = globalUtil.getCurrTeamName();
-    const regionName = globalUtil.getCurrRegionName();
-    cookie.set('team_name', teamName);
-    cookie.set('region_name', regionName);
+  getComponents = () => this.props.apps || this.props.storeApps || [];
+  syncComponentSummary = (apps = []) => {
+    const components = apps || [];
+    const serviceIds = components
+      .map(component => component && component.service_id)
+      .filter(Boolean);
+    const service_alias = components
+      .map(component => component && component.service_alias)
+      .filter(Boolean);
 
-    dispatch({
-      type: 'global/fetAllTopology',
-      payload: {
-        region_name: regionName,
-        team_name: teamName,
-        groupId: globalUtil.getAppID()
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          const data = res.bean;
-          if (JSON.stringify(data) === '{}') {
-            return;
-          }
-          const serviceIds = [];
-          const service_alias = [];
-          const { json_data } = data;
-          Object.keys(json_data).map(key => {
-            serviceIds.push(key);
-            if (
-              json_data[key].cur_status == 'running' &&
-              json_data[key].is_internet == true
-            ) {
-              service_alias.push(json_data[key].service_alias);
-            }
-          });
-
-          this.setState(
-            {
-              jsonDataLength: Object.keys(json_data).length,
-              service_alias,
-              serviceIds
-            },
-            () => {
-              this.loadLinks(service_alias.join('-'), isCycle);
-            }
-          );
-        }
-      }
+    this.setState({
+      jsonDataLength: components.length,
+      service_alias,
+      serviceIds
     });
-  }
-  loadLinks(serviceAlias, isCycle) {
+    if (service_alias.length > 0) {
+      this.loadLinks(service_alias.join('-'));
+    } else {
+      this.setState({ linkList: [] });
+    }
+  };
+  loadLinks(serviceAlias) {
     const { dispatch } = this.props;
     dispatch({
       type: 'global/queryLinks',
@@ -341,42 +404,13 @@ export default class app extends Component {
       },
       callback: res => {
         if (res && res.status_code === 200) {
-          this.setState(
-            {
-              linkList: res.list || []
-            },
-            () => {
-              if (isCycle) {
-                this.handleTimers(
-                  'timer',
-                  () => {
-                    this.fetchAppDetailState();
-                    this.fetchAppDetail();
-                    this.loadTopology(true);
-                    this.getOperator();
-                  },
-                  10000
-                );
-                setTimeout(() => {
-                  this.checkPermissions();
-                }, 100)
-              }
-            }
-          );
+          this.setState({
+            linkList: res.list || []
+          });
         }
       },
       handleError: err => {
         this.handleError(err);
-        this.handleTimers(
-          'timer',
-          () => {
-            this.fetchAppDetailState();
-            this.fetchAppDetail();
-            this.loadTopology(true);
-            this.getOperator();
-          },
-          20000
-        );
       }
     });
   }
@@ -392,21 +426,15 @@ export default class app extends Component {
       });
     }
   };
-  handleTimers = (timerName, callback, times) => {
-    const { componentTimer } = this.state;
-    if (!componentTimer) {
-      return null;
-    }
-    this[timerName] = setTimeout(() => {
-      if (!globalUtil.getAppID()) {
-        return;
-      }
-      callback();
-    }, times);
-  };
   closeTimer = () => {
     if (this.timer) {
-      clearInterval(this.timer);
+      clearTimeout(this.timer);
+    }
+    if (this.statusTimer) {
+      clearTimeout(this.statusTimer);
+    }
+    if (this.operatorTimer) {
+      clearTimeout(this.operatorTimer);
     }
   };
   // 根据权限判断是否显示
@@ -767,7 +795,7 @@ export default class app extends Component {
           });
           this.handlePromptModalClose();
         }
-        this.loadTopology(false);
+        this.fetchAppDetailState(true);
       });
     } else {
       dispatch({
@@ -785,7 +813,7 @@ export default class app extends Component {
             });
             this.handlePromptModalClose();
           }
-          this.loadTopology(false);
+          this.fetchAppDetailState(true);
         }
       });
     }
@@ -803,7 +831,7 @@ export default class app extends Component {
   };
   toDelete = () => {
     this.closeComponentTimer();
-    this.setState({ toDelete: true });
+    this.setState({ toDelete: true }, this.handleGroupAllResource);
   };
   toDeleteResource = () => {
     this.setState({ toDeleteResource: true });
@@ -818,7 +846,11 @@ export default class app extends Component {
   };
 
   cancelDelete = (isOpen = true) => {
-    this.setState({ toDelete: false, toDeleteResource: false });
+    this.setState({
+      toDelete: false,
+      toDeleteResource: false,
+      componentTimer: true
+    }, () => this.fetchAppDetailState(true));
   };
   closeComponentTimer = () => {
     this.setState({ componentTimer: false });
@@ -934,7 +966,7 @@ export default class app extends Component {
       deploy: formatMessage({ id: 'appOverview.btn.build' }),
       upgrade: formatMessage({ id: 'appOverview.btn.update' }),
     };
-    const showStorageUsed = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
+    const showStorageUsed = shouldLoadStorageUsage(pluginsList);
     return (
       <div className={styles.container}>
         <div className={styles.header_container}>

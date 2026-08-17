@@ -8,6 +8,11 @@ import { getContainerLog, getServiceLog } from '../../services/app';
 import appUtil from '../../utils/app';
 import globalUtil from '../../utils/global';
 import HistoryLog from './component/Log/history';
+import {
+  buildRuntimeLogReplayBudget,
+  rememberRuntimeLogMessage,
+  shouldAppendRuntimeLogMessage
+} from './runtimeLogReplayHelpers';
 import apiconfig from '../../../config/api.config';
 import styles from './Log.less';
 import { FormattedMessage } from 'umi';
@@ -49,9 +54,12 @@ export default class Index extends PureComponent {
       previousPodNames: []
     };
     this.eventSources = {};
+    this.runtimeLogReplayBudgets = {};
+    this.recentRuntimeLogMessages = [];
     this.messageBuffer = [];
     this.batchUpdateTimer = null;
     this.MAX_LOGS = 1000;
+    this.unmounted = false;
   }
   componentDidMount() {
     if (!this.canView()) return;
@@ -102,9 +110,11 @@ export default class Index extends PureComponent {
     }
   }
   componentWillUnmount() {
+    this.unmounted = true;
     if (this.eventSources) {
       this.closeAllEventSources();
     }
+    this.closeTimer();
     if (this.intervalTimer) {
       clearInterval(this.intervalTimer);
     }
@@ -114,29 +124,66 @@ export default class Index extends PureComponent {
   }
 
   initializeEventSources(pods, lines) {
+    this.closeAllEventSources();
     const { appAlias, regionName, teamName } = this.props;
     pods.forEach(pod => {
       if (pod.pod_name) {
-        const url = `/console/sse/v2/tenants/${teamName}/services/${appAlias}/pods/${pod.pod_name}/logs?region_name=${regionName}&lines=${lines}`;
-        this.eventSources[pod.pod_name] = new EventSource(url, { withCredentials: true });
-        this.eventSources[pod.pod_name].onmessage = (event) => {
+        const podName = pod.pod_name;
+        const url = `/console/sse/v2/tenants/${teamName}/services/${appAlias}/pods/${podName}/logs?region_name=${regionName}&lines=${lines}`;
+        const eventSource = new EventSource(url, { withCredentials: true });
+        this.eventSources[podName] = eventSource;
+        eventSource.onopen = () => {
+          if (this.eventSources[podName] !== eventSource) {
+            return;
+          }
+          this.runtimeLogReplayBudgets[podName] = buildRuntimeLogReplayBudget(
+            this.recentRuntimeLogMessages,
+            podName,
+            lines
+          );
+        };
+        eventSource.onmessage = event => {
+          if (this.eventSources[podName] !== eventSource) {
+            return;
+          }
           const newMessage = event.data;
+          if (
+            !shouldAppendRuntimeLogMessage(
+              newMessage,
+              this.runtimeLogReplayBudgets[podName]
+            )
+          ) {
+            return;
+          }
+          rememberRuntimeLogMessage(
+            this.recentRuntimeLogMessages,
+            podName,
+            newMessage,
+            this.MAX_LOGS
+          );
           this.messageBuffer.push(newMessage);
           this.debouncedBatchUpdate();
         };
-        this.eventSources[pod.pod_name].onerror = (error) => {
-          console.error(`${pod.pod_name} EventSource failed:`, error);
-          this.closeEventSource(pod.pod_name);
+        eventSource.onerror = (error) => {
+          if (this.eventSources[podName] !== eventSource) {
+            return;
+          }
+          console.error(`${podName} EventSource failed:`, error);
         };
       }
     });
   }
 
   closeEventSource(podsName) {
-    if (this.eventSources[podsName]) {
-      this.eventSources[podsName].close();
+    const eventSource = this.eventSources[podsName];
+    if (eventSource) {
+      eventSource.onopen = null;
+      eventSource.onmessage = null;
+      eventSource.onerror = null;
+      eventSource.close();
       delete this.eventSources[podsName];
     }
+    delete this.runtimeLogReplayBudgets[podsName];
   }
 
   closeAllEventSources() {
@@ -193,6 +240,9 @@ export default class Index extends PureComponent {
         app_alias: appAlias
       },
       callback: res => {
+        if (this.unmounted) {
+          return;
+        }
         let list = [];
         if (res && res.list) {
           const new_pods =
@@ -252,9 +302,11 @@ export default class Index extends PureComponent {
           previousPodNames: currentPodNames
         }, () => {
           if (podsChanged) {
-            const { instances } = this.state;
+            const { instances, started, pod_name, filter } = this.state;
             this.closeAllEventSources();
-            this.initializeEventSources(instances, 100);
+            if (started && !pod_name && filter === '') {
+              this.initializeEventSources(instances, 100);
+            }
           }
         });
       }
@@ -285,8 +337,9 @@ export default class Index extends PureComponent {
           container_name: value[1].slice(3)
         },
         () => {
+          this.closeTimer();
+          this.closeAllEventSources();
           this.fetchContainerLog();
-          this.closeEventSource();
         }
       );
     } else {
@@ -317,7 +370,8 @@ export default class Index extends PureComponent {
 
   closeTimer = () => {
     if (this.timer) {
-      clearInterval(this.timer);
+      clearTimeout(this.timer);
+      this.timer = null;
     }
   };
 
@@ -329,6 +383,13 @@ export default class Index extends PureComponent {
       pod_name,
       container_name
     }).then(data => {
+      if (
+        this.unmounted ||
+        this.state.pod_name !== pod_name ||
+        this.state.container_name !== container_name
+      ) {
+        return;
+      }
       if (
         data &&
         data.status_code &&
@@ -344,7 +405,13 @@ export default class Index extends PureComponent {
             containerLog: arr || []
           },
           () => {
-            this.hanleTimer();
+            if (
+              !this.unmounted &&
+              this.state.pod_name === pod_name &&
+              this.state.container_name === container_name
+            ) {
+              this.hanleTimer();
+            }
           }
         );
       }
@@ -375,6 +442,10 @@ export default class Index extends PureComponent {
     });
     if (newlogs.length > 5000) {
       newlogs = newlogs.slice(logs.length - 5000, logs.length);
+    }
+    if (!podName) {
+      this.recentRuntimeLogMessages = [];
+      this.runtimeLogReplayBudgets = {};
     }
     const updateInfo = podName ? { containerLog: newlogs } : { logs: newlogs };
     this.setState(updateInfo);

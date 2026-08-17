@@ -3,12 +3,9 @@ import { connect } from "dva";
 import { routerRedux } from "dva/router";
 import { Card } from "antd";
 import styles from "./Index.less";
-import { buildDeployPreflightPayload } from "../../components/CreateComponentModal/deployPreflightPayload";
 import globalUtil from "../../utils/global";
-import handleAPIError from "../../utils/error";
 import UploadJarWarForm from "../../components/UploadJarWar";
 import TopUpHints from '../../components/TopUpHints';
-import { runDeployPreflight } from "../../utils/marketInstallPreflight";
 
 @connect(({ user, global }) => ({ currUser: user.currentUser, groups: global.groups }))
 export default class Index extends PureComponent {
@@ -82,27 +79,8 @@ export default class Index extends PureComponent {
     });
   };
 
-  runDeployPreflight = (value, event_id, onPass) => {
-    const teamName = globalUtil.getCurrTeamName();
-    const regionName = globalUtil.getCurrRegionName();
-    runDeployPreflight({
-      dispatch: this.props.dispatch,
-      payload: buildDeployPreflightPayload({
-        currentFormType: 'code-jwar',
-        value,
-        eventId: event_id,
-        teamName,
-        regionName
-      }),
-      onPass,
-      onError: handleAPIError
-    });
-  };
-
   handleInstallApp = (value, event_id) => {
-    this.runDeployPreflight(value, event_id, () => {
-      this.handleSubmit(value, event_id);
-    });
+    this.handleSubmit(value, event_id);
   };
 
   render() {

@@ -37,13 +37,9 @@ import VisitBtn from '../../VisitBtn';
 import PageHeader from '../../ComponentPageHeader'
 import { rollback } from '../../../services/app';
 import appUtil from '../../../utils/app';
-import AppPubSubSocket from '../../../utils/appPubSubSocket';
 import appStatusUtil from '../../../utils/appStatus-util';
-import dateUtil from '../../../utils/date-util';
 import globalUtil from '../../../utils/global';
-import regionUtil from '../../../utils/region';
 import roleUtil from '../../../utils/newRole';
-import teamUtil from '../../../utils/team';
 import userUtil from '../../../utils/user';
 import ConnectionInformation from '../../../pages/Component/connectionInformation';
 import EnvironmentConfiguration from '../../../pages/Component/environmentConfiguration';
@@ -73,6 +69,10 @@ import {
   shouldShowWebTerminalAction
 } from '../../../pages/Component/visitActionHelpers';
 import { buildAppOverviewFallbackRoute } from './navigationHelpers';
+import {
+  canReuseGroupDetail,
+  canUpdateComponent
+} from './componentViewPerformance';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -244,7 +244,7 @@ class EditName extends PureComponent {
 
 @Form.create()
 @connect(
-  ({ user, appControl, global, teamControl, enterprise, loading, kubeblocks, agent }) => ({
+  ({ user, appControl, global, teamControl, enterprise, loading, kubeblocks, agent, application }) => ({
     currUser: user.currentUser,
     appDetail: appControl.appDetail,
     ports: appControl.ports,
@@ -262,11 +262,13 @@ class EditName extends PureComponent {
     editNameLoading: loading.effects['appControl/editName'],
     updateRollingLoading: loading.effects['appControl/putUpdateRolling'],
     deployLoading:
-      loading.effects[('appControl/putDeploy', 'appControl/putUpgrade')],
+      loading.effects['appControl/putDeploy'] ||
+      loading.effects['appControl/putUpgrade'],
     buildInformationLoading: loading.effects['appControl/getBuildInformation'],
     pluginList: teamControl.pluginsList,
     clusterDetail: kubeblocks.clusterDetail,
     pendingMutationRefreshKey: agent.pendingMutationRefreshKey,
+    cachedGroupDetail: application.groupDetail,
   }),
   null,
   null,
@@ -295,18 +297,18 @@ class Main extends PureComponent {
       BuildState: null,
       isShowThirdParty: false,
       promptModal: null,
-      websocketURL: '',
       componentTimer: true,
       tabsShow: false,
       routerSwitch: true,
       componentPermissions: this.props?.permissions || {},
       activeTab: '',
-      isShowUpdate: false,
       isShowKubeBlocksComponent: false,
+      deploySubmitting: false,
       prevComponentID: globalUtil.getSlidePanelComponentID() || '', // 用于追踪 componentID 变化
     };
-    this.socket = null;
+    this.deployRequestPending = false;
     this.destroy = false;
+    this.statusPollingGeneration = 0;
   }
 
   getChildContext() {
@@ -321,9 +323,6 @@ class Main extends PureComponent {
   }
   componentDidMount() {
     this.loadDetail();
-    setTimeout(() => {
-      this.getStatus(true);
-    }, 5000);
   }
 
   componentDidUpdate(prevProps) {
@@ -338,12 +337,13 @@ class Main extends PureComponent {
 
       // 检测 componentID 变化，重新加载组件详情
       if (currentComponentID && currentComponentID !== prevComponentID) {
+        this.resetStatusPolling();
         this.setState({
           prevComponentID: currentComponentID,
-          routerSwitch: true
+          routerSwitch: true,
+          status: {}
         }, () => {
           this.loadDetail();
-          this.getStatus(false);
         });
         return;
       }
@@ -372,6 +372,7 @@ class Main extends PureComponent {
   }
 
   componentWillUnmount() {
+    this.destroy = true;
     this.closeComponentTimer();
     this.props.dispatch({ type: 'appControl/clearPods' });
     this.props.dispatch({ type: 'appControl/clearDetail' });
@@ -380,42 +381,21 @@ class Main extends PureComponent {
       clearTimeout(this.vmExportTimer);
       this.vmExportTimer = null;
     }
-    if (this.socket) {
-      this.socket.destroy();
-      this.socket = null;
-    }
-    this.destroy = true;
   }
 
   onDeleteApp = () => {
     this.setState({ showDeleteApp: true });
   }
 
-  getWebSocketUrl(service_id) {
-    const currTeam = userUtil.getTeamByTeamName(
-      this.props.currUser,
-      globalUtil.getCurrTeamName()
-    );
-    const currRegionName = globalUtil.getCurrRegionName();
-    if (currTeam) {
-      const region = teamUtil.getRegionByName(currTeam, currRegionName);
-      if (region) {
-        const websocketURL = regionUtil.getNewWebSocketUrl(region, service_id);
-        this.setState({ websocketURL }, () => {
-          this.createSocket();
-        });
-      }
-    }
-  }
-
   getStatus = isCycle => {
     const { dispatch } = this.props;
-    const { componentTimer, isShowKubeBlocksComponent } = this.state;
+    const { isShowKubeBlocksComponent } = this.state;
     const { team_name, app_alias } = this.fetchParameter();
 
     if (!app_alias) {
       return;
     }
+    const pollingGeneration = this.statusPollingGeneration;
 
     dispatch({
       type: 'appControl/fetchComponentState',
@@ -424,6 +404,9 @@ class Main extends PureComponent {
         app_alias
       },
       callback: res => {
+        if (pollingGeneration !== this.statusPollingGeneration || this.destroy) {
+          return;
+        }
         if (res && res.status_code === 200) {
           this.setState({ status: res.bean }, () => {
             // 如果是 KubeBlocks 组件，同时刷新 KubeBlocks 相关数据
@@ -431,7 +414,7 @@ class Main extends PureComponent {
               this.getKubeBlocksStatus();
             }
 
-            if (isCycle && componentTimer) {
+            if (isCycle && this.state.componentTimer) {
               this.handleTimers(
                 'timer',
                 () => {
@@ -444,8 +427,11 @@ class Main extends PureComponent {
         }
       },
       handleError: err => {
+        if (pollingGeneration !== this.statusPollingGeneration || this.destroy) {
+          return;
+        }
         this.handleError(err);
-        if (isCycle && componentTimer && err.status !== 404) {
+        if (isCycle && this.state.componentTimer && err.status !== 404) {
           this.handleTimers(
             'timer',
             () => {
@@ -528,7 +514,11 @@ class Main extends PureComponent {
     if (!componentTimer) {
       return null;
     }
+    if (this[timerName]) {
+      clearTimeout(this[timerName]);
+    }
     this[timerName] = setTimeout(() => {
+      this[timerName] = null;
       callback();
     }, times);
   };
@@ -587,8 +577,14 @@ class Main extends PureComponent {
 
   closeTimer = () => {
     if (this.timer) {
-      clearInterval(this.timer);
+      clearTimeout(this.timer);
+      this.timer = null;
     }
+  };
+
+  resetStatusPolling = () => {
+    this.statusPollingGeneration += 1;
+    this.closeTimer();
   };
 
   loadBuildState = (appDetail, val) => {
@@ -657,6 +653,8 @@ class Main extends PureComponent {
     if (!app_alias) {
       return;
     }
+    this.resetStatusPolling();
+    const detailGeneration = this.statusPollingGeneration;
 
     dispatch({
       type: 'appControl/fetchDetail',
@@ -665,7 +663,10 @@ class Main extends PureComponent {
         app_alias
       },
       callback: appDetail => {
-        this.fetchAppDetail();
+        if (detailGeneration !== this.statusPollingGeneration || this.destroy) {
+          return;
+        }
+        this.fetchAppDetail(appDetail);
         this.fetchPortsForCurrentComponent(app_alias);
         const haveTabKey = globalUtil.getSlidePanelTab();
         const isShowThirdParty = appDetail.is_third ? appDetail.is_third : false;
@@ -718,7 +719,7 @@ class Main extends PureComponent {
             appDetail.service &&
             appDetail.service.create_status === 'complete'
           ) {
-            this.getStatus(false);
+            this.getStatus(true);
             setTimeout(() => {
               this.setState({
                 routerSwitch: false
@@ -738,12 +739,13 @@ class Main extends PureComponent {
             }
           }
         } else {
-          this.getStatus(false);
+          this.getStatus(true);
         }
-        // get websocket url and create client
-        this.getWebSocketUrl(appDetail.service.service_id);
       },
       handleError: data => {
+        if (detailGeneration !== this.statusPollingGeneration || this.destroy) {
+          return null;
+        }
         const { componentTimer } = this.state;
         if (!componentTimer) {
           return null;
@@ -772,16 +774,27 @@ class Main extends PureComponent {
     };
   };
   // 应用详情
-  fetchAppDetail = () => {
-    const { dispatch, appDetail } = this.props;
+  fetchAppDetail = loadedAppDetail => {
+    const { dispatch, appDetail, cachedGroupDetail } = this.props;
     const { team_name, region_name } = this.fetchParameter();
-    const group_id = appDetail && appDetail.service && appDetail.service.group_id;
+    const detail = loadedAppDetail || appDetail;
+    const group_id = detail && detail.service && detail.service.group_id;
+    const requestedGroupId = group_id || globalUtil.getAppID();
+
+    if (canReuseGroupDetail(cachedGroupDetail, requestedGroupId)) {
+      this.setState({
+        groupDetail: cachedGroupDetail,
+        loadingDetail: false
+      });
+      return;
+    }
+
     dispatch({
       type: 'application/fetchGroupDetail',
       payload: {
         team_name,
         region_name,
-        group_id: group_id || globalUtil.getAppID()
+        group_id: requestedGroupId
       },
       callback: res => {
         if (res && res.status_code === 200) {
@@ -795,7 +808,7 @@ class Main extends PureComponent {
         if (res && res.code === 404) {
           const fallbackRoute = buildAppOverviewFallbackRoute({
             prefixUrl: this.fetchPrefixUrl(),
-            groupId: group_id || globalUtil.getAppID()
+            groupId: requestedGroupId
           });
           if (fallbackRoute) {
             dispatch(routerRedux.push(fallbackRoute));
@@ -809,16 +822,24 @@ class Main extends PureComponent {
   handleshowDeployTips = showonoff => {
     this.setState({ showDeployTips: showonoff });
   };
+  finishDeployRequest = () => {
+    this.deployRequestPending = false;
+    if (!this.destroy) {
+      this.setState({ deploySubmitting: false });
+    }
+  };
   handleDeploy = groupVersion => {
-    this.setState({
-      showDeployTips: false,
-      showreStartTips: false
-    });
     const { build_upgrade, dispatch, appDetail } = this.props;
-    if (this.state.actionIng) {
+    if (this.deployRequestPending || this.state.actionIng) {
       notification.warning({ message: formatMessage({ id: 'notification.warn.executing' }) });
       return;
     }
+    this.deployRequestPending = true;
+    this.setState({
+      showDeployTips: false,
+      showreStartTips: false,
+      deploySubmitting: true
+    });
     const { team_name, app_alias } = this.fetchParameter();
 
     dispatch({
@@ -831,6 +852,9 @@ class Main extends PureComponent {
       },
       callback: res => {
         if (res) {
+          this.setState(({ status }) => ({
+            status: { ...status, status: 'building' }
+          }));
           this.handleCancelBuild();
           this.loadBuildState(appDetail);
           notification.success({ message: formatMessage({ id: 'notification.success.deployment' }) });
@@ -844,6 +868,22 @@ class Main extends PureComponent {
           }
         }
         this.handleOffHelpfulHints();
+        this.finishDeployRequest();
+      },
+      handleError: err => {
+        this.handleCancelBuild();
+        const errorStatus = (err && err.status) || (err && err.response && err.response.status);
+        if (errorStatus === 409) {
+          notification.warning({ message: formatMessage({ id: 'notification.warn.building' }) });
+        } else {
+          const errorMessage =
+            (err && err.data && err.data.msg_show) ||
+            (err && err.response && err.response.data && err.response.data.msg_show) ||
+            formatMessage({ id: 'notification.warn.error' });
+          notification.error({ message: errorMessage });
+        }
+        this.handleOffHelpfulHints();
+        this.finishDeployRequest();
       }
     });
   };
@@ -904,10 +944,13 @@ class Main extends PureComponent {
     }
   };
   closeComponentTimer = () => {
-    this.setState({ componentTimer: false });
-    this.closeTimer();
+    this.resetStatusPolling();
+    if (!this.destroy) {
+      this.setState({ componentTimer: false });
+    }
   };
   openComponentTimer = () => {
+    this.resetStatusPolling();
     this.setState({ componentTimer: true }, () => {
       this.getStatus(true);
     });
@@ -919,21 +962,6 @@ class Main extends PureComponent {
       this.openComponentTimer();
     }
   };
-  createSocket() {
-    const { appDetail } = this.props;
-    const { websocketURL } = this.state;
-    if (websocketURL) {
-      const isThrough = dateUtil.isWebSocketOpen(websocketURL);
-      if (isThrough && isThrough === 'through') {
-        this.socket = new AppPubSubSocket({
-          url: websocketURL,
-          serviceId: appDetail.service.service_id,
-          isAutoConnect: true,
-          destroyed: false
-        });
-      }
-    }
-  }
   handleDeleteApp = () => {
     const { dispatch } = this.props;
     const { team_name, app_alias, group_id } = this.fetchParameter();
@@ -1303,11 +1331,6 @@ class Main extends PureComponent {
       isShowThirdParty,
       isShowKubeBlocksComponent
     });
-    const isShowUpdate = isUpdate && !['undeploy', 'closed', 'stopping', 'succeeded'].includes(status?.status)
-    this.setState({
-      isShowUpdate
-    })
-    
     const allOperations = [
       {
         key: 'visit',
@@ -1577,10 +1600,12 @@ class Main extends PureComponent {
       tabsShow,
       routerSwitch,
       activeTab,
-      isShowKubeBlocksComponent
+      isShowKubeBlocksComponent,
+      deploySubmitting
     } = this.state;
     const { getFieldDecorator } = form;
     const method = appDetail && appDetail.service && appDetail.service.extend_method
+    const isShowUpdate = canUpdateComponent(isUpdate, status);
     const CompluginList = getVisibleComponentPlugins(
       PluginUtile.segregatePluginsByHierarchy(pluginList, 'Component'),
       appDetail,
@@ -1879,7 +1904,7 @@ class Main extends PureComponent {
                   : promptModal === 'start'
                     ? startLoading
                     : promptModal === 'deploy'
-                      ? deployLoading
+                      ? deployLoading || deploySubmitting
                       : promptModal === 'rolling'
                         ? updateRollingLoading
                         : !promptModal
@@ -1911,7 +1936,7 @@ class Main extends PureComponent {
                 </Button>,
                 <Button
                   type="primary"
-                  loading={deployLoading}
+                  loading={deployLoading || deploySubmitting}
                   onClick={() => {
                     this.handleOkBuild('upgrade');
                   }}
@@ -1929,7 +1954,7 @@ class Main extends PureComponent {
                 </Button>,
                 <Button
                   type="primary"
-                  loading={deployLoading}
+                  loading={deployLoading || deploySubmitting}
                   onClick={() => {
                     this.handleOkBuild('build');
                   }}
@@ -2027,9 +2052,8 @@ class Main extends PureComponent {
                   handleOperation={(msg, callback) => {
                     this.handleOperation(msg, callback);
                   }}
-                  socket={this.socket}
                   onChecked={this.handleChecked}
-                  isShowUpdate={this.state.isShowUpdate}
+                  isShowUpdate={isShowUpdate}
                 />
               ) : (
                 <FormattedMessage id="componentOverview.promptModal.error" />

@@ -1,19 +1,15 @@
 import React, { PureComponent } from 'react';
-import { Button, Spin, Icon } from 'antd';
+import { Spin } from 'antd';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import globalUtil from '@/utils/global';
 import roleUtil from '@/utils/newRole';
-import NewGateway from '@/pages/NewGateway';
 import { connect } from 'dva';
-import { routerRedux } from 'dva/router';
 import Components from './components/components';
-import App from './components/app';
 import Gateway from './components/gateway';
 import styles from './index.less';
 
-@connect(({ teamControl, user }) => ({
-  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
-  currentUser: user.currentUser,
+@connect(({ teamControl }) => ({
+  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
 }))
 class SlidePanel extends PureComponent {
   constructor(props) {
@@ -23,7 +19,6 @@ class SlidePanel extends PureComponent {
       type: props.type,
       pageHeader: {},
       componentPermissions: {},
-      appPermissions: {},
       routePermission: {},
       argetServicesPermission: {},
       certificatePermission: {}
@@ -32,7 +27,6 @@ class SlidePanel extends PureComponent {
 
   componentDidMount() {
     this.getPermissionInfo();
-    this.fetchPipePipeline();
   }
 
   componentDidUpdate(prevProps) {
@@ -47,7 +41,7 @@ class SlidePanel extends PureComponent {
   }
 
   getPermissionInfo() {
-    const { componentID, type, currentTeamPermissionsInfo } = this.props;
+    const { type, currentTeamPermissionsInfo } = this.props;
     const pageHeaderMap = {
       gateway: {
         titleSvg: pageheaderSvg.getSvg('gatewaySvg', 18),
@@ -75,7 +69,6 @@ class SlidePanel extends PureComponent {
         'team_certificate'
       );
     } else if (type === 'components') {
-      this.queryComponentDeatil();
       newState.componentPermissions = roleUtil.queryPermissionsInfo(
         currentTeamPermissionsInfo?.team,
         'app_overview',
@@ -89,77 +82,12 @@ class SlidePanel extends PureComponent {
       });
     });
   }
-  fetchPipePipeline = () => {
-    const { dispatch } = this.props;
-    const eid = this.props.currentUser.enterprise_id;
-    dispatch({
-      type: 'teamControl/fetchPluginUrl',
-      payload: {
-        enterprise_id: eid,
-        region_name: globalUtil.getCurrRegionName()
-      },
-      callback: res => {
-        if (res && res.list) {
-          res.list.map(item => {
-            if (item.name == "rainbond-vm") {
-              this.setState({
-                vm_url: item.urls[0]
-              })
-            }
-          })
-        }
-        dispatch({
-          type: 'rbdPlugin/fetchPluginList',
-          payload: res.list
-        })
-        if (res && res.bean && res.bean.need_authz) {
-          this.setState({
-            isNeedAuthz: res.bean.need_authz
-          })
-        }
-        this.setState({
-          showPipeline: res.list
-        })
-      }
-    })
-  }
-  queryComponentDeatil = () => {
-    const teamName = globalUtil.getCurrTeamName();
-    const componentID = globalUtil.getSlidePanelComponentID();
-    if (componentID) {
-      this.props.dispatch({
-        type: 'appControl/fetchDetail',
-        payload: {
-          team_name: teamName,
-          app_alias: componentID,
-          vm_url: this.state.vm_url
-        },
-        callback: appDetail => {
-          this.setState({ currentComponent: appDetail.service, GroupShow: false });
-        },
-        handleError: data => {
-          if (data.status) {
-            if (data.status === 404) {
-              this.props.dispatch(
-                routerRedux.push(
-                  `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/exception/404`
-                )
-              );
-            }
-          }
-        }
-      });
-    }
-  };
-
-
   render() {
     const { isVisible } = this.props;
     const {
       type,
       pageHeader,
       componentPermissions,
-      appPermissions,
       routePermission,
       argetServicesPermission,
       certificatePermission,
@@ -171,7 +99,7 @@ class SlidePanel extends PureComponent {
           <Spin />
         ) : (
           <>
-            {type === 'components' && (
+            {isVisible && type === 'components' && (
               <Components
                 componentID={globalUtil.getSlidePanelComponentID()}
                 pageHeader={pageHeader}
@@ -179,7 +107,7 @@ class SlidePanel extends PureComponent {
                 location={this.props.location}
               />
             )}
-            {type === 'gateway' && (
+            {isVisible && type === 'gateway' && (
               <Gateway
                 pageHeader={pageHeader}
                 permissions={{

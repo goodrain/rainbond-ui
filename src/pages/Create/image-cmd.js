@@ -18,10 +18,8 @@ import {
 import styles from "./Index.less";
 import AddGroup from "../../components/AddOrEditGroup";
 import globalUtil from "../../utils/global";
-import handleAPIError from "../../utils/error";
 import ImageCmdForm from "../../components/ImageCmdForm";
 import TopUpHints from '../../components/TopUpHints';
-import { runDeployPreflight } from "../../utils/marketInstallPreflight";
 
 const { Option } = Select;
 
@@ -107,30 +105,8 @@ export default class Index extends PureComponent {
     });
   };
 
-  runDeployPreflight = (value, onPass) => {
-    const teamName = globalUtil.getCurrTeamName();
-    const regionName = globalUtil.getCurrRegionName();
-    runDeployPreflight({
-      dispatch: this.props.dispatch,
-      payload: {
-        team_name: teamName,
-        region_name: regionName,
-        deploy_type: 'docker_run',
-        payload: {
-          image_type: 'docker_run',
-          ...value,
-          region_name: regionName
-        }
-      },
-      onPass,
-      onError: handleAPIError
-    });
-  };
-
   handleInstallApp = value => {
-    this.runDeployPreflight(value, () => {
-      this.handleSubmit(value);
-    });
+    this.handleSubmit(value);
   };
 
   render() {

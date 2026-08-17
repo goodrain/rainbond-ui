@@ -3,7 +3,6 @@ import { Button, Dropdown, Input, Spin, Pagination, Tooltip, Icon, Menu, Select,
 import { connect } from 'dva';
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
-import Result from '../../../components/Result';
 import VisterBtn from '../../../components/visitBtnForAlllink';
 import CreateComponentModal from '../../../components/CreateComponentModal';
 import AppDeteleResource from '../../../components/AppDeteleResource';
@@ -33,12 +32,9 @@ const CARD_LAYOUT_MODE = {
   MINI: 'mini',
 };
 
-@connect(({ user, index, loading, global, teamControl, enterprise }) => ({
+@connect(({ user, loading, global, teamControl, enterprise }) => ({
   currentUser: user.currentUser,
-  index,
   enterprise: global.enterprise,
-  events: index.events,
-  pagination: index.pagination,
   rainbondInfo: global.rainbondInfo,
   currentTeam: teamControl.currentTeam,
   currentRegionName: teamControl.currentRegionName,
@@ -55,8 +51,6 @@ export default class index extends Component {
       page_size: 11,
       query: '',
       sortValue: 1,
-      loadingOverview: true,
-      loadedOverview: false,
       appListLoading: true,
       teamHotAppList: [],
       appListTotal: 0,
@@ -74,12 +68,13 @@ export default class index extends Component {
     };
     // 标记组件是否已挂载
     this._isMounted = false;
+    this.appListRequestId = 0;
     this.cardListNode = null;
     this.cardListResizeObserver = null;
   }
   componentDidMount() {
     this._isMounted = true;
-    this.loadOverview();
+    this.loadHotApp();
 
     if (typeof ResizeObserver === 'undefined') {
       window.addEventListener('resize', this.handleCardListWindowResize);
@@ -107,6 +102,7 @@ export default class index extends Component {
 
   componentWillUnmount() {
     this._isMounted = false;
+    this.appListRequestId += 1;
     if (typeof ResizeObserver === 'undefined') {
       window.removeEventListener('resize', this.handleCardListWindowResize);
     }
@@ -184,47 +180,12 @@ export default class index extends Component {
     }
   };
 
-  // 获取团队下的基本信息
-  loadOverview = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'index/fetchOverview',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        region_name: globalUtil.getCurrRegionName()
-      },
-      callback: res => {
-        if (!this._isMounted) return;
-        if (res && res.bean && res.bean.region_health) {
-          this.setState(
-            { loadingOverview: false, loadedOverview: true },
-            () => {
-              this.loadHotApp();
-            }
-          );
-        } else {
-          this.handleCloseLoading();
-        }
-      },
-      handleError: (err) => {
-        handleAPIError(err);
-        if (this._isMounted) {
-          this.handleCloseLoading();
-        }
-      }
-    });
-  };
-
-  // 关闭loading
-  handleCloseLoading = () => {
-    if (this._isMounted) {
-      this.setState({ loadingOverview: false, loadedOverview: true });
-    }
-  };
   // 加载热门应用数据源
   loadHotApp = () => {
     const { page, page_size, query, sortValue } = this.state;
-    this.props.dispatch({
+    const requestId = ++this.appListRequestId;
+    let requestHandled = false;
+    const dispatchResult = this.props.dispatch({
       type: 'global/getTeamAppList',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
@@ -235,19 +196,24 @@ export default class index extends Component {
         sort: sortValue
       },
       callback: res => {
-        if (!this._isMounted) return;
+        requestHandled = true;
+        if (!this._isMounted || requestId !== this.appListRequestId) return;
         if (res && res.status_code === 200) {
           this.setState({
             teamHotAppList: res.list || [],
             appListTotal: res.bean?.total || 0,
             appListLoading: false,
           });
+        } else {
+          this.setState({ appListLoading: false });
         }
       },
       handleError: err => {
+        requestHandled = true;
+        if (!this._isMounted || requestId !== this.appListRequestId) return;
         handleAPIError(err);
-        if (!this._isMounted) return;
-        if (err && err.data && err.data.code === 10401) {
+        const errorData = err && (err.data || (err.response && err.response.data));
+        if (errorData && errorData.code === 10401) {
           this.setState(
             {
               page: 1
@@ -261,6 +227,16 @@ export default class index extends Component {
         }
       }
     });
+    const handleRequestSettled = () => {
+      if (
+        !requestHandled &&
+        this._isMounted &&
+        requestId === this.appListRequestId
+      ) {
+        this.setState({ appListLoading: false });
+      }
+    };
+    dispatchResult.then(handleRequestSettled, handleRequestSettled);
   };
 
   // pageNum变化的回调
@@ -707,8 +683,6 @@ export default class index extends Component {
   };
   render() {
     const {
-      loadingOverview,
-      loadedOverview,
       teamHotAppList,
       page,
       page_size,
@@ -720,10 +694,7 @@ export default class index extends Component {
       },
       sortValue
     } = this.state;
-    const {
-      index,
-      loading,
-    } = this.props;
+    const { loading } = this.props;
     const {
       promptModal,
       operateApp,
@@ -744,82 +715,64 @@ export default class index extends Component {
 
     return (
       <>
-        {(index?.overviewInfo?.region_health || loadingOverview) && (
-          <>
+        <div>
+          <div className={styles.appListHeaderTop}>
+            <div className={styles.appListToolbar}>
+              <Search
+                data-testid="rbd-app-search"
+                placeholder={formatMessage({ id: 'teamOverview.searchTips' })}
+                onSearch={this.onSearch}
+                value={query}
+                allowClear
+                onChange={(e) => {
+                  this.setState({ query: e.target.value });
+                }}
+                style={{ width: 180, marginRight: 10 }}
+              />
+              <Select
+                style={{ width: this.state.language ? '140px' : '170px' }}
+                placeholder={formatMessage({ id: 'teamOverview.sortTips' })}
+                value={sortValue}
+                onChange={this.handleSortChange}
+              >
+                <Option title={formatMessage({ id: 'teamOverview.runStatusSort' })} value={1}>
+                  <FormattedMessage id="teamOverview.runStatusSort" />
+                </Option>
+                <Option title={formatMessage({ id: 'teamOverview.updateTimeSort' })} value={2}>
+                  <FormattedMessage id="teamOverview.updateTimeSort" />
+                </Option>
+              </Select>
+            </div>
+          </div>
+          {!appListLoading && isAppList && (
             <div>
-              <div className={styles.appListHeaderTop}>
-                <div className={styles.appListToolbar}>
-                  <Search
-                    data-testid="rbd-app-search"
-                    placeholder={formatMessage({ id: 'teamOverview.searchTips' })}
-                    onSearch={this.onSearch}
-                    value={query}
-                    allowClear
-                    onChange={(e) => {
-                      this.setState({ query: e.target.value });
-                    }}
-                    style={{ width: 180, marginRight: 10 }}
+              {this.renderCardView()}
+              {appListTotal > page_size && (
+                <div className={styles.paginationContainer}>
+                  <Pagination
+                    current={page}
+                    pageSize={page_size}
+                    total={appListTotal}
+                    onChange={this.handleChangePage}
+                    showQuickJumper
+                    showTotal={(total) => `共 ${total} 条`}
                   />
-                  <Select
-                    style={{ width: this.state.language ? '140px' : '170px' }}
-                    placeholder={formatMessage({ id: 'teamOverview.sortTips' })}
-                    value={sortValue}
-                    onChange={this.handleSortChange}
-                  >
-                    <Option title={formatMessage({ id: 'teamOverview.runStatusSort' })} value={1}>
-                      <FormattedMessage id="teamOverview.runStatusSort" />
-                    </Option>
-                    <Option title={formatMessage({ id: 'teamOverview.updateTimeSort' })} value={2}>
-                      <FormattedMessage id="teamOverview.updateTimeSort" />
-                    </Option>
-                  </Select>
-                </div>
-              </div>
-              {/* 加载状态 */}
-
-              {!appListLoading && isAppList && (
-                <div>
-                  {this.renderCardView()}
-                  {appListTotal > page_size && (
-                    <div className={styles.paginationContainer}>
-                      <Pagination
-                        current={page}
-                        pageSize={page_size}
-                        total={appListTotal}
-                        onChange={this.handleChangePage}
-                        showQuickJumper
-                        showTotal={(total) => `共 ${total} 条`}
-                      />
-                    </div>
-                  )}
                 </div>
               )}
             </div>
-          </>
+          )}
+        </div>
+        {this.state.createComponentVisible && (
+          <CreateComponentModal
+            visible={this.state.createComponentVisible}
+            onCancel={this.handleCloseCreateComponent}
+            dispatch={this.props.dispatch}
+            currentEnterprise={this.props.currentEnterprise}
+            rainbondInfo={this.props.rainbondInfo}
+            currentUser={this.props.currentUser}
+            currentView={this.state.currentView}
+          />
         )}
-        {loadedOverview && index?.overviewInfo && !index?.overviewInfo?.region_health && (
-          <div>
-            <Result
-              type="warning"
-              title={formatMessage({ id: 'teamOverview.result.title' })}
-              description={formatMessage({ id: 'teamOverview.result.description' })}
-              actions={[
-                <Button loading={loadingOverview} onClick={this.loadOverview} type="primary" key="console">
-                  <FormattedMessage id="teamOverview.loadOverview" />
-                </Button>,
-              ]}
-            />
-          </div>
-        )}
-        <CreateComponentModal
-          visible={this.state.createComponentVisible}
-          onCancel={this.handleCloseCreateComponent}
-          dispatch={this.props.dispatch}
-          currentEnterprise={this.props.currentEnterprise}
-          rainbondInfo={this.props.rainbondInfo}
-          currentUser={this.props.currentUser}
-          currentView={this.state.currentView}
-        />
         {promptModal && (
           <Modal
             title={formatMessage({ id: 'confirmModal.friendly_reminder.title' })}

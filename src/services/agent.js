@@ -58,6 +58,21 @@ function writeCachedCopilotPluginName(name) {
   }
 }
 
+export function cacheCopilotPluginNameFromList(list = []) {
+  const installedNames = new Set(
+    (Array.isArray(list) ? list : [])
+      .map(item => item && item.name)
+      .filter(Boolean)
+  );
+  const pluginName = COPILOT_PLUGIN_CANDIDATES.find(candidate =>
+    installedNames.has(candidate)
+  );
+  if (pluginName) {
+    writeCachedCopilotPluginName(pluginName);
+  }
+  return pluginName || '';
+}
+
 async function resolveCopilotPluginName() {
   const cached = readCachedCopilotPluginName();
   if (cached) {
@@ -82,14 +97,9 @@ async function resolveCopilotPluginName() {
     if (response.ok) {
       const body = await response.json().catch(() => ({}));
       const list = (body && body.data && body.data.list) || [];
-      const installedNames = new Set(
-        list.map(item => item && item.name).filter(Boolean)
-      );
-      for (const candidate of COPILOT_PLUGIN_CANDIDATES) {
-        if (installedNames.has(candidate)) {
-          writeCachedCopilotPluginName(candidate);
-          return candidate;
-        }
+      const pluginName = cacheCopilotPluginNameFromList(list);
+      if (pluginName) {
+        return pluginName;
       }
     }
   } catch (_) {

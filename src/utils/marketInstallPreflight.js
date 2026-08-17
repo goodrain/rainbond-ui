@@ -20,7 +20,7 @@ export function getMarketInstallPreflightBean(response) {
   return {};
 }
 
-function renderPreflightContent(preflight, copyType) {
+export function renderPreflightContent(preflight, copyType) {
   const display = getPreflightDisplay(preflight, { copyType });
   return (
     <div>
@@ -29,6 +29,13 @@ function renderPreflightContent(preflight, copyType) {
         <ul style={{ listStyle: 'none', paddingLeft: 0, marginBottom: 0 }}>
           {display.messages.map((message, index) => (
             <li key={`${message}-${index}`}>{message}</li>
+          ))}
+        </ul>
+      )}
+      {display.resourceDetails && display.resourceDetails.length > 0 && (
+        <ul style={{ paddingLeft: 20, marginBottom: 0 }}>
+          {display.resourceDetails.map(detail => (
+            <li key={detail}>{detail}</li>
           ))}
         </ul>
       )}
@@ -70,7 +77,14 @@ export function confirmMarketInstallPreflight(preflight, { onPass, onCancel, cop
   }
 }
 
-export function runMarketInstallPreflight({ dispatch, payload, onPass, onCancel, onError }) {
+export function runMarketInstallPreflight({
+  dispatch,
+  payload,
+  onPass,
+  onCancel,
+  onError,
+  copy = {}
+}) {
   dispatch({
     type: 'createApp/preflightInstallApp',
     payload,
@@ -78,31 +92,7 @@ export function runMarketInstallPreflight({ dispatch, payload, onPass, onCancel,
       confirmMarketInstallPreflight(getMarketInstallPreflightBean(response), {
         onPass,
         onCancel,
-        copy: {
-          blockTitle: '暂不能部署',
-          warningTitle: '部分检测无法确认',
-          continueText: '仍然继续部署'
-        }
-      });
-    },
-    handleError: onError
-  });
-}
-
-export function runDeployPreflight({ dispatch, payload, onPass, onCancel, onError }) {
-  dispatch({
-    type: 'createApp/preflightDeploy',
-    payload,
-    callback: response => {
-      confirmMarketInstallPreflight(getMarketInstallPreflightBean(response), {
-        onPass,
-        onCancel,
-        copy: {
-          blockTitle: '暂不能部署',
-          warningTitle: '部分检测无法确认',
-          continueText: '仍然继续部署',
-          copyType: 'deploy'
-        }
+        copy
       });
     },
     handleError: onError

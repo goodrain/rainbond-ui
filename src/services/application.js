@@ -3,6 +3,8 @@
 import apiconfig from '../../config/api.config';
 import request from '../utils/request';
 
+const groupDetailRequests = {};
+
 export async function getServiceNameList(params) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${params.tenantName}/groups/${params.group_id}/k8sservices`
@@ -236,15 +238,70 @@ export async function editAppCreateCompose(
 	获取某个应用组的信息
 */
 export async function getGroupDetail(body = {}, handleError) {
-  return request(
+  const hasHandleError = Boolean(handleError);
+  const requestKey = JSON.stringify([
+    body.team_name,
+    body.region_name,
+    body.group_id === undefined || body.group_id === null
+      ? ''
+      : String(body.group_id),
+    hasHandleError
+  ]);
+  const existingRequest = groupDetailRequests[requestKey];
+  if (existingRequest) {
+    if (handleError) {
+      existingRequest.errorHandlers.push(handleError);
+    }
+    return existingRequest.promise;
+  }
+
+  const requestEntry = {
+    errorHandlers: handleError ? [handleError] : [],
+    promise: null
+  };
+  const clearRequest = () => {
+    if (groupDetailRequests[requestKey] === requestEntry) {
+      delete groupDetailRequests[requestKey];
+    }
+  };
+  const notifyErrorHandlers = hasHandleError
+    ? error => {
+        clearRequest();
+        let callbackError;
+        requestEntry.errorHandlers.forEach(errorHandler => {
+          try {
+            errorHandler(error);
+          } catch (currentError) {
+            callbackError = callbackError || currentError;
+          }
+        });
+        if (callbackError) {
+          throw callbackError;
+        }
+      }
+    : undefined;
+  const pendingRequest = request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}`,
     {
       params: {
         region_name: body.region_name
       },
-      handleError
+      ...(hasHandleError ? { handleError: notifyErrorHandlers } : {})
     }
   );
+
+  requestEntry.promise = pendingRequest.then(
+    response => {
+      clearRequest();
+      return response;
+    },
+    error => {
+      clearRequest();
+      throw error;
+    }
+  );
+  groupDetailRequests[requestKey] = requestEntry;
+  return requestEntry.promise;
 }
 
 export async function getHelmAppStoresVersions(body = {}, handleError) {
@@ -269,9 +326,13 @@ export async function getUpgradeComponentList(body = {}, handleError) {
 /*
 	获取某个应用组的信息
 */
-export async function getAppDetailState(body = {}) {
+export async function getAppDetailState(body = {}, handleError) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/status`
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/status`,
+    {
+      handleError,
+      showLoading: false
+    }
   );
 }
 /*
@@ -320,7 +381,8 @@ export async function getOperator(
   body = {
     team_name,
     group_id,
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/operator-managed`,
@@ -329,6 +391,7 @@ export async function getOperator(
       params: {
         group_id: body.group_id,
       },
+      handleError,
     }
   );
 }

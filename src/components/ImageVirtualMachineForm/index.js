@@ -32,6 +32,10 @@ import centOS from '../../../public/images/centos.png';
 import ubuntuOS from '../../../public/images/ubuntu.png';
 const { normalizeAssetRuntimeSnapshot } = require('./runtimeFieldMerge');
 const { getSelectableVMAssets, isVMAssetSelectable } = require('./assetReadiness');
+const {
+  OCI_IMAGE_TAG_PATTERN,
+  resetImageSourceFields
+} = require('./imageNameValidation');
 
 const { Option } = Select;
 
@@ -390,10 +394,7 @@ export default class Index extends PureComponent {
     this.setState({
       radioKey
     });
-    form.setFieldsValue({
-      imagefrom: radioKey,
-      asset_id: ''
-    });
+    resetImageSourceFields(form, radioKey);
   };
 
   findAssetByName = name => {
@@ -1032,6 +1033,16 @@ export default class Index extends PureComponent {
     const { getFieldDecorator } = form;
     const { radioKey } = this.state;
     const selectableVirtualMachineImages = getSelectableVMAssets(virtualMachineImage);
+    const imageNameRules = [
+      {
+        required: true,
+        message: formatMessage({ id: 'Vm.createVm.inputName' })
+      },
+      {
+        pattern: OCI_IMAGE_TAG_PATTERN,
+        message: formatMessage({ id: 'Vm.createVm.invalidImageName' })
+      }
+    ];
 
     if (radioKey === 'public') {
       return this.renderPublicVmCards();
@@ -1054,7 +1065,7 @@ export default class Index extends PureComponent {
           </Form.Item>
           <Form.Item label={formatMessage({ id: 'Vm.createVm.imgName' })}>
             {getFieldDecorator('image_name', {
-              rules: [{ required: true, message: formatMessage({ id: 'Vm.createVm.inputName' }) }]
+              rules: imageNameRules
             })(
               <Input placeholder={formatMessage({ id: 'Vm.createVm.saveName' })} />
             )}
@@ -1094,7 +1105,7 @@ export default class Index extends PureComponent {
           </Form.Item>
           <Form.Item label={formatMessage({ id: 'Vm.createVm.imgName' })}>
             {getFieldDecorator('image_name', {
-              rules: [{ required: true, message: formatMessage({ id: 'Vm.createVm.inputName' }) }]
+              rules: imageNameRules
             })(
               <Input placeholder={formatMessage({ id: 'Vm.createVm.saveName' })} />
             )}

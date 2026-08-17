@@ -21,76 +21,25 @@ import handleAPIError from '../../utils/error';
 import teamUtil from '../../utils/team';
 import MoveTeam from '../Team/move_team';
 import styles from './NewIndex.less';
-@connect(({ user, loading, global, teamControl, enterprise }) => ({
-  currentUser: user.currentUser,
-  enterprise: global.enterprise,
+@connect(({ loading, global, teamControl }) => ({
   currentTeam: teamControl.currentTeam,
-  currentEnterprise: enterprise.currentEnterprise,
   loading,
   pluginsList: teamControl.pluginsList,
-  noviceGuide: global.noviceGuide
+  noviceGuide: global.noviceGuide,
+  teamOverview: global.teamOverview
 }))
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      loading: false,
-      userTeamList: [],
       currentTeam: this.props.currentTeam || {},
       indexLoading: true,
-      showEditName: false,
-      logoInfo: false
+      showEditName: false
     };
   }
   componentDidMount() {
-    this.loadUserTeams();
     this.fetchGroup();
   }
-
-  // 获取企业ID
-  getEnterpriseId = () => {
-    const { currentEnterprise, enterprise, currentUser } = this.props;
-    return (currentEnterprise && currentEnterprise.enterprise_id)
-      || (enterprise && enterprise.enterprise_id)
-      || (currentUser && currentUser.enterprise_id)
-      || globalUtil.getCurrEnterpriseId();
-  };
-
-  // 加载用户团队
-  loadUserTeams = () => {
-    const { dispatch } = this.props;
-    const eid = this.getEnterpriseId();
-
-    if (!eid) {
-      return;
-    }
-
-    this.setState({ loading: true });
-
-    dispatch({
-      type: 'global/fetchMyTeams',
-      payload: {
-        enterprise_id: eid,
-        name: '',
-        page: 1,
-        page_size: 100
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          this.setState({
-            userTeamList: res.list,
-            loading: false
-          });
-        } else {
-          this.setState({ loading: false });
-        }
-      },
-      handleError: err => {
-        handleAPIError(err);
-        this.setState({ loading: false });
-      }
-    });
-  };
   // 设置流水线插件
   setTeamMenu = (pluginMenu, menuName) => {
     if (!pluginMenu) {
@@ -130,33 +79,11 @@ export default class Index extends PureComponent {
             type: 'teamControl/fetchCurrentTeam',
             payload: team
           });
-          this.loadOverview();
         }
       },
       handleError: err => {
         handleAPIError(err);
         this.setState({ indexLoading: false });
-      }
-    });
-  };
-
-  // 获取团队下的基本信息
-  loadOverview = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'index/fetchOverview',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        region_name: globalUtil.getCurrRegionName()
-      },
-      callback: res => {
-        if (res && res.bean) {
-          this.setState({
-            logoInfo: res.bean.logo || false
-          });
-        }
-      },
-      handleError: () => {
       }
     });
   };
@@ -227,10 +154,14 @@ export default class Index extends PureComponent {
   };
 
   render() {
-    const { currentTeam, loading, indexLoading, showEditName,logoInfo } = this.state;
-    const { pluginsList, noviceGuide } = this.props;
+    const { currentTeam, loading, indexLoading, showEditName } = this.state;
+    const { pluginsList, noviceGuide, teamOverview } = this.props;
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
+    const isCurrentTeamOverview = currentTeam.team_id &&
+      teamOverview && teamOverview.team_id &&
+      String(currentTeam.team_id) === String(teamOverview.team_id);
+    const logoInfo = currentTeam.logo || (isCurrentTeamOverview && teamOverview.logo) || false;
 
     return (
       <div className={styles.container}>

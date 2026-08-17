@@ -231,8 +231,8 @@ export default {
         callback(response);
       }
     },
-    *fetchAppDetailState({ payload, callback }, { call }) {
-      const response = yield call(getAppDetailState, payload);
+    *fetchAppDetailState({ payload, callback, handleError }, { call }) {
+      const response = yield call(getAppDetailState, payload, handleError);
       if (response && callback) {
         callback(response);
       }
