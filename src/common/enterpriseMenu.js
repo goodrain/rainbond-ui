@@ -6,6 +6,11 @@ import getMenuSvg from './getMenuSvg';
 import PluginUtil from '../utils/pulginUtils'
 import { isRainbondInfoAgentEnabled } from '../utils/agentVisibility';
 
+function getAgentPluginPath(eid, agentPlugin) {
+  const firstPluginRegion = Object.keys(agentPlugin || {})[0];
+  return `/enterprise/${eid}/plugins/${firstPluginRegion}/rainbond-agent`;
+}
+
 /**
  * 生成分组菜单数据
  * @param {string} eid - 企业ID
@@ -19,6 +24,8 @@ import { isRainbondInfoAgentEnabled } from '../utils/agentVisibility';
 function menuData(eid, currentUser, enterprise, pluginList, clusterList, rainbondInfo) {
   const adminer = userUtil.isCompanyAdmin(currentUser);
   const agentEnabled = isRainbondInfoAgentEnabled(rainbondInfo);
+  const agentPlugin = PluginUtil.getPluginInfo(pluginList, 'rainbond-agent');
+  const agentInstalled = Object.keys(agentPlugin || {}).length > 0;
   const menuGroups = [];
 
   // ============ 第一组：企业总览（无标题） ============
@@ -126,7 +133,7 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList, rainbon
   }
 
   // ============ 第四组：AI功能 ============
-  if (adminer && agentEnabled) {
+  if (adminer && agentEnabled && agentInstalled) {
     menuGroups.push({
       groupKey: 'ai',
       groupName: formatMessage({ id: 'menu.group.ai', defaultMessage: 'AI功能' }),
@@ -134,7 +141,7 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList, rainbon
         {
           name: formatMessage({ id: 'menu.enterprise.agent_config', defaultMessage: 'AI助手配置' }),
           icon: getMenuSvg.getSvg('agentConfig'),
-          path: `/enterprise/${eid}/ai/agent-config`,
+          path: getAgentPluginPath(eid, agentPlugin),
           authority: ['admin', 'user']
         }
       ]

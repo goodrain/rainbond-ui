@@ -282,6 +282,15 @@
   gap: 8px;
   padding: 4px 0;
   border-bottom: 1px solid #f5f5f5;
+
+  span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  a {
+    flex: 0 0 auto;
+  }
 }
 .autoApprovalItem:last-of-type {
   border-bottom: 0;
@@ -297,6 +306,11 @@
   margin-top: 8px;
   font-size: 12px;
   color: #8c8c8c;
+}
+
+.autoApprovalError {
+  margin-bottom: 8px;
+  color: @error-color;
 }
 
 // AI 助手插件更新提示条：窄面板内的紧凑非阻断 banner，沿用应用升级页的橙色视觉。

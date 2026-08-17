@@ -14,6 +14,22 @@ assert.strictEqual(
   formatToolLabel('rainbond_query_cloud_markets'),
   '查询云市场列表'
 );
+assert.strictEqual(
+  formatToolLabel('rainbond_kube_list_resources'),
+  '查询 Kubernetes 资源'
+);
+assert.strictEqual(
+  formatToolLabel('rainbond_kube_describe_resource'),
+  '查看 Kubernetes 资源详情'
+);
+assert.strictEqual(
+  formatToolLabel('rainbond_kube_get_logs'),
+  '查看 Kubernetes 日志'
+);
+assert.strictEqual(
+  formatToolLabel('rainbond_kube_delete_resource'),
+  '删除 Kubernetes 资源'
+);
 
 // Manage_* family refines by input.operation when present.
 assert.strictEqual(
