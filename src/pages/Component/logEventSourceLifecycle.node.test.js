@@ -14,6 +14,24 @@ assert.ok(
   ),
   'reinitializing component log streams should close all previous EventSources first'
 );
+assert.ok(
+  /const eventSource = new EventSource\([\s\S]*?this\.eventSources\[podName\] = eventSource/.test(
+    initializeBody[1]
+  ),
+  'each pod stream should keep a stable EventSource identity'
+);
+assert.ok(
+  /eventSource\.onopen = \(\) => \{[\s\S]*?this\.eventSources\[podName\] !== eventSource[\s\S]*?buildRuntimeLogReplayBudget\([\s\S]*?podName,[\s\S]*?lines/.test(
+    initializeBody[1]
+  ),
+  'opening or reconnecting a pod stream should rebuild its bounded replay budget'
+);
+assert.ok(
+  /eventSource\.onmessage = event => \{[\s\S]*?this\.eventSources\[podName\] !== eventSource[\s\S]*?shouldAppendRuntimeLogMessage\([\s\S]*?return;[\s\S]*?rememberRuntimeLogMessage\([\s\S]*?this\.messageBuffer\.push/.test(
+    initializeBody[1]
+  ),
+  'only current, non-replayed pod messages should be remembered and rendered'
+);
 
 const errorBody = logSource.match(
   /\.onerror = \(error\) => \{([\s\S]*?)\n        \};/
@@ -55,6 +73,19 @@ assert.ok(
     logSource
   ),
   'unmounting the component log page should clean up streams and its container timer'
+);
+
+assert.ok(
+  /closeEventSource\(podsName\) \{[\s\S]*?eventSource\.onopen = null;[\s\S]*?eventSource\.onmessage = null;[\s\S]*?eventSource\.onerror = null;[\s\S]*?eventSource\.close\(\);[\s\S]*?delete this\.runtimeLogReplayBudgets\[podsName\]/.test(
+    logSource
+  ),
+  'closing a pod stream should detach callbacks and discard only its replay budget'
+);
+assert.ok(
+  /setLogs = logs => \{[\s\S]*?if \(!podName\) \{[\s\S]*?this\.recentRuntimeLogMessages = \[\];[\s\S]*?this\.runtimeLogReplayBudgets = \{\};/.test(
+    logSource
+  ),
+  'filtering the combined view should reset replay history so clearing the filter can restore the server tail'
 );
 
 console.log('component log EventSource lifecycle assertions passed');
