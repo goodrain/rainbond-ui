@@ -16,6 +16,13 @@ const cliAuth = {
     '凭证已发送到本机命令行，可关闭此页面回到终端继续。',
   'cliAuth.error.noToken':
     '未检测到登录凭证，请重新登录后再试。',
+  'cliAuth.access.restricted.title': 'AI 助手暂未对当前账号开放',
+  'cliAuth.access.restricted.detail':
+    'AI 助手是 Rainbond 的可选增强插件。当前社区版默认开放首位企业管理员体验；如需团队成员共同使用，可开通企业版插件权限。Rainbond 核心能力仍保持开源可用。',
+  'cliAuth.access.restricted.enterprise': '了解企业版',
+  'cliAuth.access.restricted.acknowledge': '我知道了',
+  'cliAuth.access.error': '授权状态检查失败，请稍后重试。',
+  'cliAuth.access.retry': '重新检查'
 };
 
 export default cliAuth;

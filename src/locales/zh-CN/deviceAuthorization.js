@@ -16,7 +16,14 @@ const deviceAuthorization = {
   'deviceAuthorization.result.denied.title': '已拒绝授权',
   'deviceAuthorization.result.denied.detail': '未向终端签发访问凭证。',
   'deviceAuthorization.result.error.title': '授权码无效或已过期',
-  'deviceAuthorization.result.error.detail': '请核对终端中的代码，或重新发起安装。'
+  'deviceAuthorization.result.error.detail': '请核对终端中的代码，或重新发起安装。',
+  'deviceAuthorization.access.restricted.title': 'AI 助手暂未对当前账号开放',
+  'deviceAuthorization.access.restricted.detail':
+    'AI 助手是 Rainbond 的可选增强插件。当前社区版默认开放首位企业管理员体验；如需团队成员共同使用，可开通企业版插件权限。Rainbond 核心能力仍保持开源可用。',
+  'deviceAuthorization.access.restricted.enterprise': '了解企业版',
+  'deviceAuthorization.access.restricted.acknowledge': '我知道了',
+  'deviceAuthorization.access.error': '授权状态检查失败，请稍后重试。',
+  'deviceAuthorization.access.retry': '重新检查'
 };
 
 export default deviceAuthorization;
