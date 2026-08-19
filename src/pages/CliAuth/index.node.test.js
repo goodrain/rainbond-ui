@@ -24,3 +24,10 @@ test('CLI authorization ignores stale and unmounted access callbacks', () => {
   assert.match(source, /this\.accessRequestId \+= 1/);
   assert.match(source, /isCurrentAccessRequest\(this\.mounted, requestId, this\.accessRequestId\)/);
 });
+
+test('CLI authorization uses the enterprise upgrade modal for restricted accounts', () => {
+  assert.match(source, /Modal\.confirm\(\{/);
+  assert.match(source, /cliAuth\.access\.restricted\.acknowledge/);
+  assert.match(source, /cliAuth\.access\.restricted\.enterprise/);
+  assert.match(source, /window\.open\(AGENT_ENTERPRISE_EDITION_URL/);
+});

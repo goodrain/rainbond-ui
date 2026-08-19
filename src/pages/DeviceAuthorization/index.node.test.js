@@ -40,3 +40,10 @@ test('device access errors can be retried without approving the request', () => 
   assert.match(source, /deviceAuthorization\.access\.retry/);
   assert.match(source, /onClick=\{\(\) => this\.checkAccess\(\)\}/);
 });
+
+test('device authorization uses the enterprise upgrade modal for restricted accounts', () => {
+  assert.match(source, /Modal\.confirm\(\{/);
+  assert.match(source, /deviceAuthorization\.access\.restricted\.acknowledge/);
+  assert.match(source, /deviceAuthorization\.access\.restricted\.enterprise/);
+  assert.match(source, /window\.open\(AGENT_ENTERPRISE_EDITION_URL/);
+});
