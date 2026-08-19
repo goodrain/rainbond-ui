@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-expressions */
 import { routerRedux } from 'dva/router';
+import * as agentGuideSession from '../utils/agentGuideSession';
 import {
   addAccessToken,
   addCollectionView,
@@ -300,6 +301,7 @@ export default {
           // urlParams.searchParams.set("redirect", pathname);
           window.history.replaceState(null, 'login', urlParams.href);
         } finally {
+          yield call(agentGuideSession.clearAgentGuideSession);
           // yield put(routerRedux.push('/user/login')); Login out after permission
           // changes to admin or user The refresh will automatically redirect to the login
           // page

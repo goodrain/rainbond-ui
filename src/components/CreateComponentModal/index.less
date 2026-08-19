@@ -92,6 +92,83 @@
   line-height: 1.6;
 }
 
+.agentGuide {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 16px;
+  color: @text-color;
+  background: linear-gradient(135deg, @primary-1, @component-background 72%);
+  border: 1px solid @primary-2;
+  border-radius: @border-radius-base * 2;
+  box-shadow: @rbd-min-card-shadow;
+}
+
+.agentGuideIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  margin-right: 14px;
+  color: @primary-color;
+  font-size: @rbd-title-size;
+  background: @component-background;
+  border-radius: 50%;
+  box-shadow: @rbd-min-card-shadow;
+
+  svg {
+    display: block;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.agentGuideContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.agentGuideEyebrow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2px;
+  color: @primary-color;
+  font-size: @rbd-auxiliary-size;
+  font-weight: 600;
+  line-height: 20px;
+
+  :global(.anticon) {
+    margin-right: 5px;
+  }
+}
+
+.agentGuideTitle {
+  color: @heading-color;
+  font-size: @rbd-sub-title-size;
+  font-weight: 600;
+  line-height: 24px;
+}
+
+.agentGuideDescription {
+  margin-top: 2px;
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  line-height: 20px;
+}
+
+.agentGuideAction {
+  flex-shrink: 0;
+  height: 36px;
+  margin-left: 16px;
+
+  :global(.anticon) {
+    margin-left: 6px;
+    font-size: @rbd-auxiliary-size;
+  }
+}
+
 .menuList {
   display: flex;
   flex-direction: column;
