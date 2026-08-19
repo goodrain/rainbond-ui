@@ -1717,7 +1717,7 @@ const componentOther = {
     'componentOverview.body.CreateComponentModal.agent_guide.eyebrow': 'AI-assisted creation',
     'componentOverview.body.CreateComponentModal.agent_guide.title': 'Describe the application you want to deploy',
     'componentOverview.body.CreateComponentModal.agent_guide.description': 'Describe your repository, image, or deployment goal and the AI assistant will guide you through component creation.',
-    'componentOverview.body.CreateComponentModal.agent_guide.action': 'Build with AI',
+    'componentOverview.body.CreateComponentModal.agent_guide.action': 'Deploy with AI',
     'componentOverview.body.CreateComponentModal.agent_guide.draft': 'I want to create a component. Guide me to the right build method and help me complete its configuration.',
     'componentOverview.body.CreateComponentModal.select_deploy_method': 'Select deployment method:',
     'componentOverview.body.CreateComponentModal.custom_config': 'Custom Configuration',
