@@ -91,7 +91,7 @@ export default class DeviceAuthorization extends Component {
     this.setState({ accessStatus: 'checking' });
 
     dispatch({
-      type: 'agent/checkAccess',
+      type: 'rainskillsAccess/check',
       callback: (response, error) => {
         if (!isCurrentAccessRequest(this.mounted, requestId, this.accessRequestId)) {
           return;

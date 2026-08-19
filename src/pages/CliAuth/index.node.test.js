@@ -5,8 +5,8 @@ const path = require('node:path');
 
 const source = fs.readFileSync(path.join(__dirname, 'index.js'), 'utf8');
 
-test('CLI authorization checks RainAgent access before reading the loopback token', () => {
-  assert.match(source, /type: 'agent\/checkAccess'/);
+test('CLI authorization checks RainSkills access before reading the loopback token', () => {
+  assert.match(source, /type: 'rainskillsAccess\/check'/);
   assert.match(source, /resolveRainskillsAccessStatus\(response, error\)/);
   assert.match(source, /if \(authorize\) \{\s*this\.authorizeWithToken\(\)/);
   assert.match(source, /authorizeWithToken = \(\) => \{[\s\S]*cookie\.get\('token'\)/);

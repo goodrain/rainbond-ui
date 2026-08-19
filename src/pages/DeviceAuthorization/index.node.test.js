@@ -10,9 +10,9 @@ test('device authorization confirmation does not render an insecure HTTP warning
   assert.doesNotMatch(source, /deviceAuthorization\.insecure\.(title|detail)/);
 });
 
-test('device authorization checks RainAgent access after inspect and before approve', () => {
+test('device authorization checks RainSkills access after inspect and before approve', () => {
   assert.match(source, /componentDidUpdate\(prevProps\)/);
-  assert.match(source, /type: 'agent\/checkAccess'/);
+  assert.match(source, /type: 'rainskillsAccess\/check'/);
   assert.match(source, /resolveRainskillsAccessStatus\(response, error\)/);
   assert.match(source, /if \(approve[\s\S]*this\.submitDecision\('approve'\)/);
 });

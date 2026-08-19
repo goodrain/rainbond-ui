@@ -6,15 +6,18 @@ const {
 } = require('./rainskillsAuthorizationAccess');
 
 test('RainSkills access is allowed only by an explicit true response', () => {
-  assert.equal(resolveRainskillsAccessStatus({ bean: { can_open_agent: true } }), 'allowed');
-  assert.equal(resolveRainskillsAccessStatus({ bean: { can_open_agent: false } }), 'denied');
+  assert.equal(resolveRainskillsAccessStatus({ bean: { can_authorize_rainskills: true } }), 'allowed');
+  assert.equal(resolveRainskillsAccessStatus({ bean: { can_authorize_rainskills: false } }), 'denied');
   assert.equal(resolveRainskillsAccessStatus({ bean: {} }), 'denied');
 });
 
 test('RainSkills access fails closed for missing or failed responses', () => {
   assert.equal(resolveRainskillsAccessStatus(null), 'error');
   assert.equal(resolveRainskillsAccessStatus({}), 'error');
-  assert.equal(resolveRainskillsAccessStatus({ bean: { can_open_agent: true } }, new Error('failed')), 'error');
+  assert.equal(resolveRainskillsAccessStatus(
+    { bean: { can_authorize_rainskills: true } },
+    new Error('failed')
+  ), 'error');
 });
 
 test('only the latest mounted access request may update authorization state', () => {
