@@ -16,7 +16,13 @@ const deviceAuthorization = {
   'deviceAuthorization.result.denied.title': '已拒绝授权',
   'deviceAuthorization.result.denied.detail': '未向终端签发访问凭证。',
   'deviceAuthorization.result.error.title': '授权码无效或已过期',
-  'deviceAuthorization.result.error.detail': '请核对终端中的代码，或重新发起安装。'
+  'deviceAuthorization.result.error.detail': '请核对终端中的代码，或重新发起安装。',
+  'deviceAuthorization.access.restricted.title': 'RainSkills 暂未对当前账号开放',
+  'deviceAuthorization.access.restricted.detail':
+    '当前社区版仅支持首位企业管理员对接 RainSkills。如需团队成员共同使用，请开通企业版授权。',
+  'deviceAuthorization.access.restricted.enterprise': '了解企业版',
+  'deviceAuthorization.access.error': '授权状态检查失败，请稍后重试。',
+  'deviceAuthorization.access.retry': '重新检查'
 };
 
 export default deviceAuthorization;

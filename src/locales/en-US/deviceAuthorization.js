@@ -16,7 +16,13 @@ const deviceAuthorization = {
   'deviceAuthorization.result.denied.title': 'Authorization denied',
   'deviceAuthorization.result.denied.detail': 'No access credential was issued to the terminal.',
   'deviceAuthorization.result.error.title': 'Invalid or expired code',
-  'deviceAuthorization.result.error.detail': 'Check the code shown in your terminal or restart the installation.'
+  'deviceAuthorization.result.error.detail': 'Check the code shown in your terminal or restart the installation.',
+  'deviceAuthorization.access.restricted.title': 'RainSkills is not available for this account',
+  'deviceAuthorization.access.restricted.detail':
+    'The Community Edition allows only the initial enterprise administrator to connect RainSkills. Upgrade to Enterprise Edition to enable access for additional team members.',
+  'deviceAuthorization.access.restricted.enterprise': 'Learn about Enterprise Edition',
+  'deviceAuthorization.access.error': 'Unable to check authorization access. Please try again later.',
+  'deviceAuthorization.access.retry': 'Check again'
 };
 
 export default deviceAuthorization;

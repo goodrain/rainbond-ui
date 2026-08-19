@@ -3,10 +3,16 @@ import { Alert, Button, Input, Spin, Typography } from 'antd';
 import { connect } from 'dva';
 import React, { Component } from 'react';
 import { FormattedMessage } from 'umi';
+import rainskillsAuthorizationAccess from '../../utils/rainskillsAuthorizationAccess';
 import styles from './index.less';
 
 const { Paragraph, Text, Title } = Typography;
+const {
+  isCurrentAccessRequest,
+  resolveRainskillsAccessStatus
+} = rainskillsAuthorizationAccess;
 const USER_CODE_ALPHABET = '23456789BCDFGHJKMNPQRTVWXY';
+const AGENT_ENTERPRISE_EDITION_URL = 'https://rainbond.feishu.cn/share/base/shrcnv2iqnRsNJM6Y3hN5VhTJvg';
 
 function normalizeUserCode(value) {
   const significant = (value || '')
@@ -27,11 +33,15 @@ export default class DeviceAuthorization extends Component {
     super(props);
     const params = new URLSearchParams(props.location.search || '');
     this.state = {
-      userCode: normalizeUserCode(params.get('user_code') || '')
+      userCode: normalizeUserCode(params.get('user_code') || ''),
+      accessStatus: 'idle'
     };
+    this.mounted = false;
+    this.accessRequestId = 0;
   }
 
   componentDidMount() {
+    this.mounted = true;
     const { dispatch, currentUser } = this.props;
     if (!currentUser) {
       dispatch({ type: 'user/fetchCurrent' });
@@ -39,9 +49,23 @@ export default class DeviceAuthorization extends Component {
     if (this.state.userCode.length === 9) {
       this.inspectCode();
     }
+    if (this.props.status === 'confirm') {
+      this.checkAccess();
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    if (
+      this.props.status === 'confirm' &&
+      (prevProps.status !== 'confirm' || prevProps.grant !== this.props.grant)
+    ) {
+      this.checkAccess();
+    }
   }
 
   componentWillUnmount() {
+    this.mounted = false;
+    this.accessRequestId += 1;
     this.props.dispatch({ type: 'deviceAuthorization/reset' });
   }
 
@@ -56,7 +80,58 @@ export default class DeviceAuthorization extends Component {
     });
   };
 
+  checkAccess = approve => {
+    if (this.accessStatusRequestInFlight) {
+      return;
+    }
+    const { dispatch } = this.props;
+    const requestId = this.accessRequestId + 1;
+    this.accessRequestId = requestId;
+    this.accessStatusRequestInFlight = true;
+    this.setState({ accessStatus: 'checking' });
+
+    dispatch({
+      type: 'agent/checkAccess',
+      callback: (response, error) => {
+        if (!isCurrentAccessRequest(this.mounted, requestId, this.accessRequestId)) {
+          return;
+        }
+        this.accessStatusRequestInFlight = false;
+
+        const accessStatus = resolveRainskillsAccessStatus(response, error);
+        if (accessStatus === 'error') {
+          this.setState({ accessStatus: 'error' });
+          return;
+        }
+
+        if (accessStatus === 'denied') {
+          this.setState({ accessStatus: 'denied' });
+          return;
+        }
+
+        this.setState({ accessStatus: 'allowed' }, () => {
+          if (approve && this.mounted && requestId === this.accessRequestId) {
+            this.submitDecision('approve');
+          }
+        });
+      },
+    });
+  };
+
   decide = decision => {
+    if (decision === 'approve') {
+      if (this.state.accessStatus !== 'allowed' || this.props.status === 'submitting') {
+        return;
+      }
+      this.checkAccess(true);
+      return;
+    }
+    this.accessRequestId += 1;
+    this.accessStatusRequestInFlight = false;
+    this.submitDecision(decision);
+  };
+
+  submitDecision = decision => {
     const { grant, dispatch } = this.props;
     dispatch({
       type: 'deviceAuthorization/decide',
@@ -66,6 +141,13 @@ export default class DeviceAuthorization extends Component {
 
   handleCodeChange = event => {
     this.setState({ userCode: normalizeUserCode(event.target.value) });
+  };
+
+  handleRetry = () => {
+    this.accessRequestId += 1;
+    this.accessStatusRequestInFlight = false;
+    this.setState({ accessStatus: 'idle' });
+    this.props.dispatch({ type: 'deviceAuthorization/reset' });
   };
 
   renderHeader() {
@@ -105,6 +187,9 @@ export default class DeviceAuthorization extends Component {
 
   renderConfirm() {
     const { grant, currentUser, status } = this.props;
+    const { accessStatus } = this.state;
+    const accessRestricted = accessStatus === 'denied';
+    const accessError = accessStatus === 'error';
     return (
       <div className={styles.content}>
         <div className={styles.code}>{grant.user_code}</div>
@@ -122,11 +207,45 @@ export default class DeviceAuthorization extends Component {
           showIcon
           message={<FormattedMessage id="deviceAuthorization.confirm.warning" />}
         />
+        {accessRestricted && (
+          <Alert
+            className={styles.alert}
+            type="warning"
+            showIcon
+            message={<FormattedMessage id="deviceAuthorization.access.restricted.title" />}
+            description={
+              <div>
+                <div><FormattedMessage id="deviceAuthorization.access.restricted.detail" /></div>
+                <a href={AGENT_ENTERPRISE_EDITION_URL} target="_blank" rel="noopener noreferrer">
+                  <FormattedMessage id="deviceAuthorization.access.restricted.enterprise" />
+                </a>
+              </div>
+            }
+          />
+        )}
+        {accessError && (
+          <div>
+            <Alert
+              className={styles.alert}
+              type="error"
+              showIcon
+              message={<FormattedMessage id="deviceAuthorization.access.error" />}
+            />
+            <Button className={styles.retry} onClick={() => this.checkAccess()}>
+              <FormattedMessage id="deviceAuthorization.access.retry" />
+            </Button>
+          </div>
+        )}
         <div className={styles.actions}>
           <Button disabled={status === 'submitting'} onClick={() => this.decide('deny')}>
             <FormattedMessage id="deviceAuthorization.deny" />
           </Button>
-          <Button type="primary" loading={status === 'submitting'} onClick={() => this.decide('approve')}>
+          <Button
+            type="primary"
+            loading={status === 'submitting' || accessStatus === 'checking'}
+            disabled={status === 'submitting' || accessStatus !== 'allowed'}
+            onClick={() => this.decide('approve')}
+          >
             <FormattedMessage id="deviceAuthorization.approve" />
           </Button>
         </div>
@@ -161,7 +280,7 @@ export default class DeviceAuthorization extends Component {
       return (
         <div>
           {this.renderResult('error')}
-          <Button className={styles.retry} onClick={() => this.props.dispatch({ type: 'deviceAuthorization/reset' })}>
+          <Button className={styles.retry} onClick={this.handleRetry}>
             <FormattedMessage id="deviceAuthorization.retry" />
           </Button>
         </div>

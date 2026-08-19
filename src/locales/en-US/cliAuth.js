@@ -16,6 +16,12 @@ const cliAuth = {
     'Credentials have been sent to the local CLI. You can close this tab and return to your terminal.',
   'cliAuth.error.noToken':
     'No login token detected. Please sign in again and retry.',
+  'cliAuth.access.restricted.title': 'RainSkills is not available for this account',
+  'cliAuth.access.restricted.detail':
+    'The Community Edition allows only the initial enterprise administrator to connect RainSkills. Upgrade to Enterprise Edition to enable access for additional team members.',
+  'cliAuth.access.restricted.enterprise': 'Learn about Enterprise Edition',
+  'cliAuth.access.error': 'Unable to check authorization access. Please try again later.',
+  'cliAuth.access.retry': 'Check again'
 };
 
 export default cliAuth;
