@@ -156,6 +156,20 @@ function stopAllCrossTabSubscriptions() {
 const defaultState = {
   hydrated: false,
   visible: false,
+  entryGate: {
+    pluginStatus: 'pending',
+    access: null,
+    accessLoaded: false,
+    accessLoading: false,
+    accessError: false,
+    accessCacheKey: '',
+    configStatus: 'unknown',
+  },
+  entryRequest: {
+    id: 0,
+    source: '',
+    draft: '',
+  },
   // AI 助手插件更新信息（来自 platform-plugins 接口的 rainbond-agent 条目）；
   // null 表示无更新或尚未检测。结构见 fetchAgentUpdate effect。
   agentUpdate: null,
@@ -802,13 +816,48 @@ export default {
   state: defaultState,
 
   effects: {
-    *checkAccess({ callback }, { call }) {
+    *checkAccess({ force = false, callback }, { call, put, select }) {
+      const rootState = yield select(state => state);
+      const gate = rootState.agent && rootState.agent.entryGate;
+      const currentUser = rootState.user && rootState.user.currentUser;
+      const accessCacheKey = currentUser
+        ? `${currentUser.user_id || ''}:${currentUser.enterprise_id || ''}`
+        : '';
+      if (
+        !force &&
+        gate &&
+        gate.accessLoaded &&
+        gate.accessCacheKey === accessCacheKey
+      ) {
+        if (callback) {
+          callback({ bean: gate.access });
+        }
+        return;
+      }
+      yield put({
+        type: 'saveEntryGate',
+        payload: { accessLoading: true, accessError: false },
+      });
       try {
         const response = yield call(getAgentAccess);
+        yield put({
+          type: 'saveEntryGate',
+          payload: {
+            access: (response && response.bean) || null,
+            accessLoaded: true,
+            accessLoading: false,
+            accessError: false,
+            accessCacheKey,
+          },
+        });
         if (callback) {
           callback(response);
         }
       } catch (e) {
+        yield put({
+          type: 'saveEntryGate',
+          payload: { accessLoading: false, accessError: true },
+        });
         if (callback) {
           callback(null, e);
         }
@@ -1972,6 +2021,38 @@ export default {
       return {
         ...state,
         ...payload,
+      };
+    },
+
+    saveEntryGate(state, { payload }) {
+      return {
+        ...state,
+        entryGate: {
+          ...state.entryGate,
+          ...payload,
+        },
+      };
+    },
+
+    requestOpen(state, { payload = {} }) {
+      return {
+        ...state,
+        entryRequest: {
+          id: (state.entryRequest.id || 0) + 1,
+          source: payload.source || '',
+          draft: payload.draft || '',
+        },
+      };
+    },
+
+    clearEntryRequest(state) {
+      return {
+        ...state,
+        entryRequest: {
+          ...state.entryRequest,
+          source: '',
+          draft: '',
+        },
       };
     },
 

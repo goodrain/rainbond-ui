@@ -20,6 +20,7 @@ import ImageNameForm from '../ImageNameForm';
 import ImageComposeForm from '../ImageComposeForm';
 import ImageVirtualMachineForm from '../ImageVirtualMachineForm';
 import AddOrEditImageRegistry from '../AddOrEditImageRegistry';
+import AgentEntryIcon from '../AgentEntryIcon';
 import OauthForm from '../OauthForm';
 import CodeCustomForm from '../CodeCustomForm';
 import CodeJwarForm from '../CodeJwarForm';
@@ -33,6 +34,7 @@ import oauthUtil from '../../utils/oauth';
 import handleAPIError from '../../utils/error';
 import { getImageRegistryTypeLabel } from '../../utils/imageRegistry';
 import { runMarketInstallPreflight } from '../../utils/marketInstallPreflight';
+import { isRainbondInfoAgentEnabled } from '../../utils/agentVisibility';
 import styles from './index.less';
 import mysql from '../../../public/images/mysql.svg';
 import postgresql from '../../../public/images/postgresql.svg';
@@ -123,7 +125,7 @@ const LocalInstallFormWrapper = Form.create()(
   }
 );
 
-const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, rainbondInfo, currentUser, groups, pluginsList, currentView: initialView }) => {
+const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, rainbondInfo, currentUser, groups, pluginsList, agentVisible, currentView: initialView }) => {
   const [currentView, setCurrentView] = useState('main'); // 'main', 'market', 'image', 'code', 'yaml', 'form', 'imageRepo', 'marketStore', 'localMarket', 'marketInstall', 'localMarketInstall'
   const [hasInitialized, setHasInitialized] = useState(false); // 标记是否已经初始化过
   const [firstAppDeployed, setFirstAppDeployed] = useState(null);
@@ -210,7 +212,6 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
 
   const canAccessResourceCenter = !(rainbondInfo && rainbondInfo.is_saas) || !!(currentUser && currentUser.is_enterprise_admin);
   const shouldUseDefaultDemo = firstAppDeployed === false;
-
   const marketListRef = useRef(null);
   const localMarketListRef = useRef(null);
   const viewHistoryRef = useRef([]);
@@ -2176,6 +2177,19 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     onCancel();
   };
 
+  const handleAgentBuild = () => {
+    handleClose();
+    dispatch({
+      type: 'agent/requestOpen',
+      payload: {
+        source: 'create_component',
+        draft: formatMessage({
+          id: 'componentOverview.body.CreateComponentModal.agent_guide.draft'
+        })
+      }
+    });
+  };
+
   const handleOpenAddImageRegistry = () => {
     setShowAddImageRegistry(true);
   };
@@ -2932,6 +2946,35 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       >
         {currentView === 'main' ? (
           <>
+            {isRainbondInfoAgentEnabled(rainbondInfo) && !agentVisible && (
+              <div className={styles.agentGuide}>
+                <div className={styles.agentGuideIcon}>
+                  <AgentEntryIcon />
+                </div>
+                <div className={styles.agentGuideContent}>
+                  <div className={styles.agentGuideTitle}>
+                    {formatMessage({
+                      id: 'componentOverview.body.CreateComponentModal.agent_guide.title'
+                    })}
+                  </div>
+                  <div className={styles.agentGuideDescription}>
+                    {formatMessage({
+                      id: 'componentOverview.body.CreateComponentModal.agent_guide.description'
+                    })}
+                  </div>
+                </div>
+                <Button
+                  type="primary"
+                  className={styles.agentGuideAction}
+                  onClick={handleAgentBuild}
+                >
+                  {formatMessage({
+                    id: 'componentOverview.body.CreateComponentModal.agent_guide.action'
+                  })}
+                  <Icon type="right" />
+                </Button>
+              </div>
+            )}
             <div className={styles.subtitle}>
               {formatMessage({ id: 'componentOverview.body.CreateComponentModal.select_method' })}
             </div>
@@ -3433,10 +3476,11 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   );
 };
 
-export default connect(({ global, teamControl, user, enterprise }) => ({
+export default connect(({ global, teamControl, user, enterprise, agent }) => ({
   groups: global.groups,
   pluginsList: teamControl.pluginsList,
   rainbondInfo: global.rainbondInfo,
   currentEnterprise: enterprise.currentEnterprise || global.enterprise,
-  currentUser: user.currentUser
+  currentUser: user.currentUser,
+  agentVisible: !!(agent && agent.visible)
 }))(CreateComponentModal);

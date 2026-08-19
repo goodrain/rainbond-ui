@@ -31,6 +31,7 @@ import PropTypes from 'prop-types';
 import React, { Fragment, PureComponent } from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import ConfirmModal from '../../ConfirmModal';
+import AgentAbnormalGuideModal from '../../AgentAbnormalGuideModal';
 import styless from '../../CreateTeam/index.less';
 import MarketAppDetailShow from '../../MarketAppDetailShow';
 import VisitBtn from '../../VisitBtn';
@@ -73,6 +74,17 @@ import {
   canReuseGroupDetail,
   canUpdateComponent
 } from './componentViewPerformance';
+import { isRainbondInfoAgentEnabled } from '../../../utils/agentVisibility';
+
+const {
+  shouldShowComponentAbnormalGuide,
+} = require('../../../pages/Component/componentAbnormalGuide');
+const {
+  buildComponentGuideKey,
+  canShowComponentGuide,
+  markComponentGuideHandled,
+  suppressAgentGuidesForLogin,
+} = require('../../../utils/agentGuideSession');
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -254,6 +266,8 @@ class EditName extends PureComponent {
     currentTeam: teamControl.currentTeam,
     currentRegionName: teamControl.currentRegionName,
     currentEnterprise: enterprise.currentEnterprise,
+    rainbondInfo: global.rainbondInfo,
+    agentVisible: !!(agent && agent.visible),
     deleteAppLoading: loading.effects['appControl/deleteApp'],
     reStartLoading: loading.effects['appControl/putReStart'],
     startLoading: loading.effects['appControl/putStart'],
@@ -305,6 +319,7 @@ class Main extends PureComponent {
       isShowKubeBlocksComponent: false,
       deploySubmitting: false,
       prevComponentID: globalUtil.getSlidePanelComponentID() || '', // 用于追踪 componentID 变化
+      abnormalGuideDismissed: false,
     };
     this.deployRequestPending = false;
     this.destroy = false;
@@ -341,7 +356,8 @@ class Main extends PureComponent {
         this.setState({
           prevComponentID: currentComponentID,
           routerSwitch: true,
-          status: {}
+          status: {},
+          abnormalGuideDismissed: false
         }, () => {
           this.loadDetail();
         });
@@ -1166,6 +1182,55 @@ class Main extends PureComponent {
       }
     });
   }
+
+  getAbnormalGuideContext = activeTab => {
+    const { currUser, currentEnterprise } = this.props;
+    const {
+      app_alias,
+      team_name,
+      region_name,
+      serviceAlias,
+      service_cname,
+    } = this.fetchParameter();
+    const componentAlias = serviceAlias || app_alias || '';
+    const componentKey = buildComponentGuideKey({
+      enterpriseId:
+        (currentEnterprise && currentEnterprise.enterprise_id) ||
+        (currUser && currUser.enterprise_id),
+      teamName: team_name,
+      regionName: region_name,
+      componentAlias,
+    });
+    return {
+      activeTab,
+      componentKey,
+      componentName: service_cname || componentAlias,
+      userId: currUser && currUser.user_id,
+    };
+  };
+
+  handleAgentTroubleshoot = activeTab => {
+    const { dispatch } = this.props;
+    const guide = this.getAbnormalGuideContext(activeTab);
+    markComponentGuideHandled(guide.userId, guide.componentKey);
+    this.setState({ abnormalGuideDismissed: true });
+    dispatch({
+      type: 'agent/requestOpen',
+      payload: {
+        source: 'component_abnormal',
+        draft: formatMessage(
+          { id: 'componentOverview.agent_abnormal_guide.draft' },
+          { component: guide.componentName }
+        ),
+      },
+    });
+  };
+
+  handleSuppressAgentGuide = activeTab => {
+    const guide = this.getAbnormalGuideContext(activeTab);
+    suppressAgentGuidesForLogin(guide.userId);
+    this.setState({ abnormalGuideDismissed: true });
+  };
   handleOpenBuild = () => {
     const { appDetail, dispatch } = this.props;
     const buildType = appDetail.service.service_source;
@@ -1850,6 +1915,16 @@ class Main extends PureComponent {
       ? activeTab
       : defaultTabKey;
     const Com = map[currentActiveTab];
+    const abnormalGuide = this.getAbnormalGuideContext(currentActiveTab);
+    const showAbnormalAgentGuide = shouldShowComponentAbnormalGuide({
+      activeTab: currentActiveTab,
+      status: status && status.status,
+      agentEnabled: isRainbondInfoAgentEnabled(this.props.rainbondInfo),
+      agentVisible: this.props.agentVisible,
+      sessionAllows:
+        !this.state.abnormalGuideDismissed &&
+        canShowComponentGuide(abnormalGuide.userId, abnormalGuide.componentKey),
+    });
     const refreshKey = globalUtil.getRefresh() || 'steady';
     const pendingMutationRefreshKey =
       this.props.pendingMutationRefreshKey || 'stable';
@@ -1879,6 +1954,14 @@ class Main extends PureComponent {
           tabActiveKey={currentActiveTab}
           tabList={visibleTabList}
           content={formatMessage({ id: 'versionUpdata_6_2.componentSettings.desc' })}
+        />
+        <AgentAbnormalGuideModal
+          visible={showAbnormalAgentGuide}
+          componentName={abnormalGuide.componentName}
+          onTroubleshoot={() =>
+            this.handleAgentTroubleshoot(currentActiveTab)
+          }
+          onSuppress={() => this.handleSuppressAgentGuide(currentActiveTab)}
         />
         {this.state.showMarketAppDetail && (
           <MarketAppDetailShow
