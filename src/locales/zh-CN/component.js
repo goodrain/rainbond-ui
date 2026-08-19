@@ -1729,7 +1729,7 @@ const componentOther = {
     'componentOverview.body.CreateComponentModal.agent_guide.eyebrow': 'AI 智能创建',
     'componentOverview.body.CreateComponentModal.agent_guide.title': '用一句话描述你想部署的应用',
     'componentOverview.body.CreateComponentModal.agent_guide.description': '描述你的代码仓库、镜像或部署目标，AI 助手会引导你完成组件创建。',
-    'componentOverview.body.CreateComponentModal.agent_guide.action': '通过 AI 构建',
+    'componentOverview.body.CreateComponentModal.agent_guide.action': '通过 AI 部署',
     'componentOverview.body.CreateComponentModal.agent_guide.draft': '我想创建一个组件，请引导我选择合适的构建方式并完成配置。',
     'componentOverview.body.CreateComponentModal.select_deploy_method': '选择具体的部署方式:',
     'componentOverview.body.CreateComponentModal.custom_config': '自定义配置',

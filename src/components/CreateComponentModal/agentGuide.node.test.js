@@ -8,6 +8,14 @@ const globalHeaderSource = fs.readFileSync(
   path.join(__dirname, '../GlobalHeader/index.js'),
   'utf8'
 );
+const zhLocaleSource = fs.readFileSync(
+  path.join(__dirname, '../../locales/zh-CN/component.js'),
+  'utf8'
+);
+const enLocaleSource = fs.readFileSync(
+  path.join(__dirname, '../../locales/en-US/component.js'),
+  'utf8'
+);
 
 test('create-component guide uses the shared Agent request', () => {
   assert.match(source, /type: 'agent\/requestOpen'/);
@@ -33,4 +41,9 @@ test('guide reuses the same Agent entry icon as the global header', () => {
   assert.match(source, /<AgentEntryIcon \/>/);
   assert.match(globalHeaderSource, /import AgentEntryIcon from '..\/AgentEntryIcon'/);
   assert.match(globalHeaderSource, /<AgentEntryIcon \/>/);
+});
+
+test('AI action uses deployment wording in both locales', () => {
+  assert.match(zhLocaleSource, /agent_guide\.action': '通过 AI 部署'/);
+  assert.match(enLocaleSource, /agent_guide\.action': 'Deploy with AI'/);
 });
