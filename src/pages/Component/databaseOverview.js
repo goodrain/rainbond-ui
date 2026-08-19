@@ -773,7 +773,6 @@ export default class Index extends PureComponent {
     const {
       status,
       componentPermissions,
-      socket,
       clusterDetail
     } = this.props;
     const {
@@ -817,7 +816,6 @@ export default class Index extends PureComponent {
             onShowSizeChange={this.onShowSizeChange}
             handleDel={this.handleDel}
             onRollback={this.handleRollback}
-            socket={socket && socket}
             pages={pages}
             pageSize={pageSize}
             total={total}
@@ -841,7 +839,6 @@ export default class Index extends PureComponent {
         )}
         {!more && (
           <OperationRecord
-            socket={socket && socket}
             isopenLog={isopenLog}
             onLogPush={this.onLogPush}
             has_next={has_next}
