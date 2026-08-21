@@ -90,6 +90,7 @@ export default class Index extends React.Component {
       showAddVars: null,
       showAddRelation: false,
       mntList: [],
+      mntTotal: 0,
       toDeleteMnt: null,
       toDeleteVolume: null,
       editor: null,
@@ -411,7 +412,8 @@ export default class Index extends React.Component {
     }).then(data => {
       if (data) {
         this.setState({
-          mntList: data.list || []
+          mntList: data.list || [],
+          mntTotal: data.total || 0
         });
       }
     }).catch(err => {
@@ -581,7 +583,7 @@ export default class Index extends React.Component {
   }
   render() {
     if (!this.canView()) return <NoPermTip />;
-    const { mntList, page, page_size } = this.state;
+    const { mntList, mntTotal, page, page_size } = this.state;
     const { baseInfo, volumes, appDetail } = this.props;
     const isVirtualMachine = appDetail?.service?.extend_method === 'vm';
     const volumeTitle = isVirtualMachine ? '注入文件设置' : formatMessage({ id: 'componentOverview.body.tab.env.setting.title' });
@@ -719,14 +721,14 @@ export default class Index extends React.Component {
                 pagination={{
                   current: this.state.mntPage,
                   pageSize: this.state.mntpageSize,
-                  total: Number(mntList.length),
+                  total: Number(mntTotal),
                   onChange: this.onMntPageChange,
                   onShowSizeChange: this.onMntPageChange,
                   showQuickJumper: true,
                   showSizeChanger: true,
                   showTotal: (total) => `共 ${total} 条`,
                   pageSizeOptions: PAGE_SIZE_OPTIONS,
-                  hideOnSinglePage: Number(mntList.length) <= DEFAULT_PAGE_SIZE
+                  hideOnSinglePage: Number(mntTotal) <= DEFAULT_PAGE_SIZE
                 }}
                 rowKey={(record,index) => index}
                 columns={[
