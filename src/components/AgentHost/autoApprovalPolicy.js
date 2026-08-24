@@ -1,61 +1,30 @@
-const STORAGE_KEY = 'agent.autoApprove.session';
+const SERVER_POLICY_KINDS = {
+  'session-target': 'session_target',
+  'session-target-op': 'session_target_operation',
+  'session-op': 'session_operation',
+  'session-all': 'session_all',
+};
+const LEGACY_STORAGE_KEY = 'agent.autoApprove.session';
+const LEGACY_CLEANUP_MARKER = 'agent.autoApprove.serverMigration.v1';
 
 function getStorage() {
-  if (typeof window === 'undefined' || !window.sessionStorage) {
-    return null;
-  }
+  if (typeof window === 'undefined' || !window.sessionStorage) return null;
   return window.sessionStorage;
 }
 
-function readPolicies() {
+function discardLegacyPolicies() {
   const storage = getStorage();
-  if (!storage) return [];
-  const raw = storage.getItem(STORAGE_KEY);
-  if (!raw) return [];
+  if (!storage || storage.getItem(LEGACY_CLEANUP_MARKER) === 'done') return 0;
+  let count = 0;
   try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (e) {
-    return [];
+    const parsed = JSON.parse(storage.getItem(LEGACY_STORAGE_KEY) || '[]');
+    count = Array.isArray(parsed) ? parsed.length : 0;
+  } catch (_) {
+    count = 0;
   }
-}
-
-function writePolicies(list) {
-  const storage = getStorage();
-  if (!storage) return;
-  storage.setItem(STORAGE_KEY, JSON.stringify(list));
-}
-
-function policyEquals(a, b) {
-  if (!a || !b || a.kind !== b.kind) return false;
-  if (a.kind === 'session-all') return true;
-  if (a.kind === 'session-target') return a.targetKey === b.targetKey;
-  if (a.kind === 'session-op') return a.skillId === b.skillId;
-  if (a.kind === 'session-target-op') {
-    return a.targetKey === b.targetKey && a.skillId === b.skillId;
-  }
-  return false;
-}
-
-function getPolicies() {
-  return readPolicies();
-}
-
-function addPolicy(policy) {
-  const list = readPolicies();
-  if (list.some(p => policyEquals(p, policy))) return;
-  list.push(policy);
-  writePolicies(list);
-}
-
-function removePolicy(policy) {
-  const list = readPolicies().filter(p => !policyEquals(p, policy));
-  writePolicies(list);
-}
-
-function clearPolicies() {
-  const storage = getStorage();
-  if (storage) storage.removeItem(STORAGE_KEY);
+  storage.removeItem(LEGACY_STORAGE_KEY);
+  storage.setItem(LEGACY_CLEANUP_MARKER, 'done');
+  return count;
 }
 
 function targetRefToKey(targetRef) {
@@ -77,40 +46,31 @@ function targetRefToKey(targetRef) {
   return id ? `${targetRef.kind}:${id}` : null;
 }
 
-function policyMatches(policy, ctx) {
-  const targetKey = targetRefToKey(ctx.targetRef);
+function toRememberPolicy(kind) {
+  const serverKind = SERVER_POLICY_KINDS[kind];
+  return serverKind ? { kind: serverKind } : null;
+}
+
+function formatServerPolicyLabel(policy) {
+  if (!policy) return '';
   switch (policy.kind) {
-    case 'session-all':
-      return true;
-    case 'session-target':
-      return !!targetKey && policy.targetKey === targetKey;
-    case 'session-op':
-      return !!ctx.skillId && policy.skillId === ctx.skillId;
-    case 'session-target-op':
-      return (
-        !!targetKey &&
-        policy.targetKey === targetKey &&
-        !!ctx.skillId &&
-        policy.skillId === ctx.skillId
-      );
+    case 'session_all':
+      return '本会话全部低风险操作';
+    case 'session_target':
+      return `资源 ${policy.target_key || '-'} 的低风险操作`;
+    case 'session_operation':
+      return `同类操作 ${policy.operation_key || '-'}`;
+    case 'session_target_operation':
+      return `${policy.target_key || '-'} · ${policy.operation_key || '-'}`;
     default:
-      return false;
+      return policy.kind || '未知规则';
   }
 }
 
-function matches(ctx) {
-  if (!ctx) return false;
-  if (ctx.risk === 'high') return false;
-  const list = readPolicies();
-  return list.some(p => policyMatches(p, ctx));
-}
-
 module.exports = {
-  STORAGE_KEY,
+  LEGACY_STORAGE_KEY,
+  discardLegacyPolicies,
+  formatServerPolicyLabel,
   targetRefToKey,
-  getPolicies,
-  addPolicy,
-  removePolicy,
-  clearPolicies,
-  matches,
+  toRememberPolicy,
 };

@@ -92,6 +92,10 @@ function adaptAgentEvent(event = {}) {
         sequence,
         approvalId: data.approval_id || '',
         status: data.status || 'approved',
+        autoApproved: data.auto_approved === true,
+        decisionSource: data.decision_source || '',
+        policyId: data.policy_id || '',
+        resolvedBy: data.resolved_by || '',
       };
     case 'run.status':
       return {

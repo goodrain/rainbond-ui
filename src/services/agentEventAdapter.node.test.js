@@ -51,6 +51,22 @@ const approval = adaptAgentEvent({
 assert.strictEqual(approval.type, 'approval_requested', 'adapter should normalize approval request events');
 assert.strictEqual(approval.approvalId, 'ap_1', 'adapter should expose approval id');
 
+const autoResolved = adaptAgentEvent({
+  type: 'approval.resolved',
+  sequence: 10,
+  data: {
+    approval_id: 'ap_1',
+    status: 'approved',
+    auto_approved: true,
+    decision_source: 'policy',
+    policy_id: 'policy_1',
+    resolved_by: 'u_1'
+  }
+});
+assert.strictEqual(autoResolved.autoApproved, true, 'adapter should preserve automatic approval state');
+assert.strictEqual(autoResolved.decisionSource, 'policy', 'adapter should preserve decision source');
+assert.strictEqual(autoResolved.policyId, 'policy_1', 'adapter should preserve policy id');
+
 const completed = adaptAgentEvent({
   type: 'workflow.completed',
   sequence: 11,

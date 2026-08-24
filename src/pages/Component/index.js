@@ -26,6 +26,7 @@ import { Link, routerRedux } from 'dva/router';
 import PropTypes from 'prop-types';
 import React, { Fragment, PureComponent } from 'react';
 import ConfirmModal from '../../components/ConfirmModal';
+import AgentAbnormalGuideModal from '../../components/AgentAbnormalGuideModal';
 import styless from '../../components/CreateTeam/index.less';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
 import VisitBtn from '../../components/VisitBtn';
@@ -67,6 +68,17 @@ import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
 import { getComponentPluginTabName, getVisibleComponentPlugins, shouldClearComponentPorts } from './componentPluginHelpers';
 import { shouldShowGenericVisitAction, shouldShowWebTerminalAction } from './visitActionHelpers';
+import { isRainbondInfoAgentEnabled } from '../../utils/agentVisibility';
+
+const {
+  shouldShowComponentAbnormalGuide,
+} = require('./componentAbnormalGuide');
+const {
+  buildComponentGuideKey,
+  canShowComponentGuide,
+  markComponentGuideHandled,
+  suppressAgentGuidesForLogin,
+} = require('../../utils/agentGuideSession');
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -238,7 +250,7 @@ class EditName extends PureComponent {
 
 @Form.create()
 @connect(
-  ({ user, appControl, global, teamControl, enterprise, loading }) => ({
+  ({ user, appControl, global, teamControl, enterprise, agent, loading }) => ({
     currUser: user.currentUser,
     appDetail: appControl.appDetail,
     ports: appControl.ports,
@@ -248,6 +260,8 @@ class EditName extends PureComponent {
     currentTeam: teamControl.currentTeam,
     currentRegionName: teamControl.currentRegionName,
     currentEnterprise: enterprise.currentEnterprise,
+    rainbondInfo: global.rainbondInfo,
+    agentVisible: !!(agent && agent.visible),
     deleteAppLoading: loading.effects['appControl/deleteApp'],
     reStartLoading: loading.effects['appControl/putReStart'],
     startLoading: loading.effects['appControl/putStart'],
@@ -293,6 +307,7 @@ class Main extends PureComponent {
       routerSwitch: true,
       deploySubmitting: false,
       componentPermissions: this.props?.componentPermissions || {},
+      abnormalGuideDismissed: false,
     };
     this.deployRequestPending = false;
     this.destroy = false;
@@ -446,6 +461,56 @@ class Main extends PureComponent {
     dispatch(
       routerRedux.push(`${this.fetchPrefixUrl()}apps/${globalUtil.getAppID()}?type=components&componentID=${app_alias}&tab=${key}`)
     );
+  };
+
+  getAbnormalGuideContext = activeTab => {
+    const { currUser, currentEnterprise } = this.props;
+    const {
+      app_alias,
+      team_name,
+      region_name,
+      serviceAlias,
+      service_cname,
+    } = this.fetchParameter();
+    const componentAlias = serviceAlias || app_alias || '';
+    const componentKey = buildComponentGuideKey({
+      enterpriseId:
+        (currentEnterprise && currentEnterprise.enterprise_id) ||
+        (currUser && currUser.enterprise_id),
+      teamName: team_name,
+      regionName: region_name,
+      componentAlias,
+    });
+    return {
+      activeTab,
+      componentAlias,
+      componentKey,
+      componentName: service_cname || componentAlias,
+      userId: currUser && currUser.user_id,
+    };
+  };
+
+  handleAgentTroubleshoot = activeTab => {
+    const { dispatch } = this.props;
+    const guide = this.getAbnormalGuideContext(activeTab);
+    markComponentGuideHandled(guide.userId, guide.componentKey);
+    this.setState({ abnormalGuideDismissed: true });
+    dispatch({
+      type: 'agent/requestOpen',
+      payload: {
+        source: 'component_abnormal',
+        draft: formatMessage(
+          { id: 'componentOverview.agent_abnormal_guide.draft' },
+          { component: guide.componentName }
+        ),
+      },
+    });
+  };
+
+  handleSuppressAgentGuide = activeTab => {
+    const guide = this.getAbnormalGuideContext(activeTab);
+    suppressAgentGuidesForLogin(guide.userId);
+    this.setState({ abnormalGuideDismissed: true });
   };
 
   closeTimer = () => {
@@ -1576,6 +1641,16 @@ class Main extends PureComponent {
       type = defaultTabKey;
     }
     const Com = map[type];
+    const abnormalGuide = this.getAbnormalGuideContext(type);
+    const showAbnormalAgentGuide = shouldShowComponentAbnormalGuide({
+      activeTab: type,
+      status: status && status.status,
+      agentEnabled: isRainbondInfoAgentEnabled(this.props.rainbondInfo),
+      agentVisible: this.props.agentVisible,
+      sessionAllows:
+        !this.state.abnormalGuideDismissed &&
+        canShowComponentGuide(abnormalGuide.userId, abnormalGuide.componentKey),
+    });
     const formItemLayout = {
       labelCol: {
         span: 1
@@ -1616,6 +1691,12 @@ class Main extends PureComponent {
           tabActiveKey={type}
           tabList={visibleTabList}
         >
+          <AgentAbnormalGuideModal
+            visible={showAbnormalAgentGuide}
+            componentName={abnormalGuide.componentName}
+            onTroubleshoot={() => this.handleAgentTroubleshoot(type)}
+            onSuppress={() => this.handleSuppressAgentGuide(type)}
+          />
           {this.state.showMarketAppDetail && (
             <MarketAppDetailShow
               onOk={this.hideMarketAppDetail}

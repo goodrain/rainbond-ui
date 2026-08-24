@@ -630,7 +630,7 @@ class Index extends PureComponent {
             const eid = this.getEid();
             this.handleCloseInstallConfirm();
             if (eid) {
-                this.props.dispatch(routerRedux.push(`/enterprise/${eid}/ai/agent-config`));
+                this.props.dispatch(routerRedux.push(`/enterprise/${eid}/plugins/${regionName || 'rainbond'}/rainbond-agent`));
             }
             return;
         }

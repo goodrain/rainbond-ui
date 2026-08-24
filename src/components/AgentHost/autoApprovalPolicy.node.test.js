@@ -1,159 +1,56 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-// Mock sessionStorage in Node environment
-global.window = global.window || {};
-const storage = (() => {
-  let data = {};
-  return {
-    getItem: k => (k in data ? data[k] : null),
-    setItem: (k, v) => { data[k] = String(v); },
-    removeItem: k => { delete data[k]; },
-    clear: () => { data = {}; },
-  };
-})();
-global.window.sessionStorage = storage;
-
 const {
-  getPolicies,
-  addPolicy,
-  removePolicy,
-  clearPolicies,
-  matches,
+  toRememberPolicy,
+  targetRefToKey,
+  formatServerPolicyLabel,
+  discardLegacyPolicies,
+  LEGACY_STORAGE_KEY,
 } = require('./autoApprovalPolicy');
 
-test.beforeEach(() => storage.clear());
+test('maps UI approval choices to server policy kinds', () => {
+  assert.deepEqual(toRememberPolicy('session-target'), { kind: 'session_target' });
+  assert.deepEqual(toRememberPolicy('session-target-op'), { kind: 'session_target_operation' });
+  assert.deepEqual(toRememberPolicy('session-op'), { kind: 'session_operation' });
+  assert.deepEqual(toRememberPolicy('session-all'), { kind: 'session_all' });
+  assert.equal(toRememberPolicy('unknown'), null);
+});
 
-test('addPolicy persists and getPolicies returns it', () => {
-  addPolicy({ kind: 'session-target', targetKey: 'service:s1' });
-  assert.deepEqual(getPolicies(), [
-    { kind: 'session-target', targetKey: 'service:s1' },
+test('targetRefToKey only detects server-backed target identities', () => {
+  assert.equal(targetRefToKey({ kind: 'service', service_id: 's1' }), 'service:s1');
+  assert.equal(targetRefToKey({ kind: 'app', app_id: 'a1' }), 'app:a1');
+  assert.equal(targetRefToKey(null), null);
+});
+
+test('formats server-backed approval policy labels', () => {
+  assert.equal(
+    formatServerPolicyLabel({ kind: 'session_operation', operation_key: 'rainbond_update_component' }),
+    '同类操作 rainbond_update_component'
+  );
+  assert.equal(
+    formatServerPolicyLabel({
+      kind: 'session_target_operation',
+      target_key: 'service:svc-1',
+      operation_key: 'rainbond_update_component'
+    }),
+    'service:svc-1 · rainbond_update_component'
+  );
+});
+
+test('discards legacy browser policies exactly once', () => {
+  const values = new Map([
+    [LEGACY_STORAGE_KEY, JSON.stringify([{ kind: 'session-all' }, { kind: 'session-op' }])]
   ]);
-});
-
-test('addPolicy dedupes identical entries', () => {
-  addPolicy({ kind: 'session-op', skillId: 'foo' });
-  addPolicy({ kind: 'session-op', skillId: 'foo' });
-  assert.equal(getPolicies().length, 1);
-});
-
-test('matches returns false for high risk regardless of policy', () => {
-  addPolicy({ kind: 'session-all' });
-  assert.equal(
-    matches({ risk: 'high', skillId: 'foo', targetRef: null }),
-    false
-  );
-});
-
-test('session-target matches by targetKey', () => {
-  addPolicy({ kind: 'session-target', targetKey: 'service:s1' });
-  assert.equal(
-    matches({
-      risk: 'low',
-      skillId: 'any',
-      targetRef: { kind: 'service', service_id: 's1' },
-    }),
-    true
-  );
-  assert.equal(
-    matches({
-      risk: 'low',
-      skillId: 'any',
-      targetRef: { kind: 'service', service_id: 's2' },
-    }),
-    false
-  );
-});
-
-test('session-target-op requires both targetKey and skillId match', () => {
-  addPolicy({
-    kind: 'session-target-op',
-    targetKey: 'service:s1',
-    skillId: 'rainbond_restart',
-  });
-  assert.equal(
-    matches({
-      risk: 'low',
-      skillId: 'rainbond_restart',
-      targetRef: { kind: 'service', service_id: 's1' },
-    }),
-    true
-  );
-  assert.equal(
-    matches({
-      risk: 'low',
-      skillId: 'rainbond_other',
-      targetRef: { kind: 'service', service_id: 's1' },
-    }),
-    false
-  );
-});
-
-test('session-op matches by skillId only', () => {
-  addPolicy({ kind: 'session-op', skillId: 'rainbond_restart' });
-  assert.equal(
-    matches({
-      risk: 'low',
-      skillId: 'rainbond_restart',
-      targetRef: null,
-    }),
-    true
-  );
-});
-
-test('session-all matches non-high risk', () => {
-  addPolicy({ kind: 'session-all' });
-  assert.equal(
-    matches({ risk: 'low', skillId: 'x', targetRef: null }),
-    true
-  );
-  assert.equal(
-    matches({ risk: 'medium', skillId: 'x', targetRef: null }),
-    true
-  );
-  assert.equal(
-    matches({ risk: 'high', skillId: 'x', targetRef: null }),
-    false
-  );
-});
-
-test('targetRef null does not match target-scoped policies', () => {
-  addPolicy({ kind: 'session-target', targetKey: 'service:s1' });
-  assert.equal(
-    matches({ risk: 'low', skillId: 'x', targetRef: null }),
-    false
-  );
-});
-
-test('multiple policies: any match wins', () => {
-  addPolicy({ kind: 'session-op', skillId: 'restart' });
-  addPolicy({ kind: 'session-target', targetKey: 'service:s9' });
-  assert.equal(
-    matches({
-      risk: 'low',
-      skillId: 'restart',
-      targetRef: { kind: 'service', service_id: 'other' },
-    }),
-    true
-  );
-});
-
-test('removePolicy removes matching entry', () => {
-  addPolicy({ kind: 'session-op', skillId: 'a' });
-  addPolicy({ kind: 'session-op', skillId: 'b' });
-  removePolicy({ kind: 'session-op', skillId: 'a' });
-  assert.deepEqual(getPolicies(), [
-    { kind: 'session-op', skillId: 'b' },
-  ]);
-});
-
-test('clearPolicies wipes all', () => {
-  addPolicy({ kind: 'session-all' });
-  clearPolicies();
-  assert.deepEqual(getPolicies(), []);
-});
-
-test('corrupted storage falls back to empty', () => {
-  storage.setItem('agent.autoApprove.session', 'not-json');
-  assert.deepEqual(getPolicies(), []);
+  global.window = {
+    sessionStorage: {
+      getItem: key => values.get(key) || null,
+      setItem: (key, value) => values.set(key, value),
+      removeItem: key => values.delete(key)
+    }
+  };
+  assert.equal(discardLegacyPolicies(), 2);
+  assert.equal(values.has(LEGACY_STORAGE_KEY), false);
+  assert.equal(discardLegacyPolicies(), 0);
+  delete global.window;
 });

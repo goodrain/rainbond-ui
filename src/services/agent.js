@@ -312,6 +312,25 @@ export async function loadAgentSessionMessages(sessionId) {
   );
 }
 
+export async function listAgentApprovalPolicies(sessionId) {
+  if (!sessionId || sessionId === 'global-default') {
+    return { data: { items: [] } };
+  }
+  return requestJson(
+    `${await copilotApiBase()}/sessions/${encodeURIComponent(sessionId)}/approval-policies`,
+    { method: 'GET', headers: buildRequestHeaders() }
+  );
+}
+
+export async function deleteAgentApprovalPolicy(policyId) {
+  if (!policyId) throw new Error('policyId is required');
+  return requestJsonAcceptStatuses(
+    `${await copilotApiBase()}/approval-policies/${encodeURIComponent(policyId)}`,
+    { method: 'DELETE', headers: buildRequestHeaders() },
+    [204]
+  );
+}
+
 export async function abortAgentRun({ sessionId, runId } = {}) {
   if (!sessionId || !runId) {
     throw new Error('sessionId and runId are required');
@@ -557,7 +576,10 @@ export async function decideAgentApproval(payload = {}) {
     },
     body: JSON.stringify({
       decision: payload.decision,
-      comment: payload.comment || ''
+      comment: payload.comment || '',
+      ...(payload.rememberPolicy
+        ? { remember_policy: payload.rememberPolicy }
+        : {})
     })
   });
 

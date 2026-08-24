@@ -138,6 +138,16 @@ const BASE_LABELS = {
   rainbond_manage_component_storage: '管理存储',
   rainbond_operate_app: '操作组件运行状态',
   rainbond_update_component_envs: '更新环境变量',
+
+  // Kubernetes operations
+  rainbond_kube_list_resources: '查询 Kubernetes 资源',
+  rainbond_kube_describe_resource: '查看 Kubernetes 资源详情',
+  rainbond_kube_get_logs: '查看 Kubernetes 日志',
+  rainbond_kube_create_resource: '创建 Kubernetes 资源',
+  rainbond_kube_restart_workload: '重启 Kubernetes 工作负载',
+  rainbond_kube_scale_workload: '调整 Kubernetes 副本数',
+  rainbond_kube_patch_resource: '修改 Kubernetes 资源',
+  rainbond_kube_delete_resource: '删除 Kubernetes 资源',
 };
 
 // Operation suffixes refine the verb when the same tool covers create / read /
