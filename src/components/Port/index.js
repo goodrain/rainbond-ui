@@ -15,6 +15,7 @@ import {
 } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
+import Debounce from 'lodash-decorators/debounce';
 import React, { PureComponent } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import appPortUtil from '../../utils/appPort-util';
@@ -132,6 +133,7 @@ export default class Index extends PureComponent {
   handleDelete = () => {
     this.props.onDelete && this.props.onDelete(this.props.port.container_port);
   };
+  @Debounce(500)
   handleInnerChange = value => {
     if (value) {
       this.props.onOpenInner &&
@@ -141,6 +143,7 @@ export default class Index extends PureComponent {
         this.props.onCloseInner(this.props.port.container_port);
     }
   };
+  @Debounce(500)
   handleOuterChange = value => {
     if (value) {
       this.props.onOpenOuter &&
