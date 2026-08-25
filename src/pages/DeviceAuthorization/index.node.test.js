@@ -41,9 +41,9 @@ test('device access errors can be retried without approving the request', () => 
   assert.match(source, /onClick=\{\(\) => this\.checkAccess\(\)\}/);
 });
 
-test('device authorization uses the enterprise upgrade modal for restricted accounts', () => {
-  assert.match(source, /Modal\.confirm\(\{/);
-  assert.match(source, /deviceAuthorization\.access\.restricted\.acknowledge/);
+test('device authorization shows one inline restriction notice without a modal', () => {
+  assert.doesNotMatch(source, /Modal\.confirm\(\{/);
+  assert.doesNotMatch(source, /showAccessRestrictedModal/);
   assert.match(source, /deviceAuthorization\.access\.restricted\.enterprise/);
-  assert.match(source, /window\.open\(AGENT_ENTERPRISE_EDITION_URL/);
+  assert.match(source, /href=\{AGENT_ENTERPRISE_EDITION_URL\}/);
 });

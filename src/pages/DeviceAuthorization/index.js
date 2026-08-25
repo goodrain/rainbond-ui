@@ -1,8 +1,8 @@
 /* eslint-disable compat/compat */
-import { Alert, Button, Input, Modal, Spin, Typography } from 'antd';
+import { Alert, Button, Input, Spin, Typography } from 'antd';
 import { connect } from 'dva';
 import React, { Component } from 'react';
-import { FormattedMessage, formatMessage } from 'umi';
+import { FormattedMessage } from 'umi';
 import rainskillsAuthorizationAccess from '../../utils/rainskillsAuthorizationAccess';
 import styles from './index.less';
 
@@ -105,10 +105,7 @@ export default class DeviceAuthorization extends Component {
         }
 
         if (accessStatus === 'denied') {
-          this.setState(
-            { accessStatus: 'denied' },
-            this.showAccessRestrictedModal
-          );
+          this.setState({ accessStatus: 'denied' });
           return;
         }
 
@@ -139,18 +136,6 @@ export default class DeviceAuthorization extends Component {
     dispatch({
       type: 'deviceAuthorization/decide',
       payload: { user_code: grant.user_code, decision }
-    });
-  };
-
-  showAccessRestrictedModal = () => {
-    Modal.confirm({
-      title: formatMessage({ id: 'deviceAuthorization.access.restricted.title' }),
-      content: formatMessage({ id: 'deviceAuthorization.access.restricted.detail' }),
-      okText: formatMessage({ id: 'deviceAuthorization.access.restricted.enterprise' }),
-      cancelText: formatMessage({ id: 'deviceAuthorization.access.restricted.acknowledge' }),
-      onOk: () => {
-        window.open(AGENT_ENTERPRISE_EDITION_URL, '_blank', 'noopener,noreferrer');
-      },
     });
   };
 

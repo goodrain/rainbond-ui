@@ -1,5 +1,5 @@
 /* eslint-disable compat/compat */
-import { Alert, Button, Card, Modal, Spin, Typography } from 'antd';
+import { Alert, Button, Card, Spin, Typography } from 'antd';
 import { connect } from 'dva';
 import React, { Component } from 'react';
 import { FormattedMessage, formatMessage } from 'umi';
@@ -71,10 +71,7 @@ export default class CliAuth extends Component {
         }
 
         if (accessStatus === 'denied') {
-          this.setState(
-            { status: 'accessDenied', errorMessage: '' },
-            this.showAccessRestrictedModal
-          );
+          this.setState({ status: 'accessDenied', errorMessage: '' });
           return;
         }
 
@@ -124,18 +121,6 @@ export default class CliAuth extends Component {
       return;
     }
     this.checkAccess(true);
-  };
-
-  showAccessRestrictedModal = () => {
-    Modal.confirm({
-      title: formatMessage({ id: 'cliAuth.access.restricted.title' }),
-      content: formatMessage({ id: 'cliAuth.access.restricted.detail' }),
-      okText: formatMessage({ id: 'cliAuth.access.restricted.enterprise' }),
-      cancelText: formatMessage({ id: 'cliAuth.access.restricted.acknowledge' }),
-      onOk: () => {
-        window.open(AGENT_ENTERPRISE_EDITION_URL, '_blank', 'noopener,noreferrer');
-      },
-    });
   };
 
   renderInvalid() {
