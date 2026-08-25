@@ -1,0 +1,97 @@
+@import '~antd/lib/style/themes/default.less';
+
+.agentGuideModal {
+  :global {
+    .ant-modal-content {
+      overflow: hidden;
+      border-radius: @border-radius-base * 2;
+      box-shadow: @rbd-card-shadow;
+    }
+
+    .ant-modal-header {
+      padding: 18px 20px 8px;
+      border-bottom: 0;
+    }
+
+    .ant-modal-body {
+      padding: 0 20px 20px;
+    }
+
+    .ant-modal-footer {
+      padding: 12px 20px 16px;
+      border-top: 1px solid @border-color-split;
+    }
+  }
+}
+
+.agentGuideTitle {
+  display: flex;
+  align-items: center;
+  color: @heading-color;
+  font-size: @rbd-title-size;
+  font-weight: 600;
+  line-height: 26px;
+}
+
+.agentGuideIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  margin-right: 10px;
+  color: @error-color;
+  font-size: @rbd-sub-title-size;
+  background: fade(@error-color, 8%);
+  border-radius: 50%;
+}
+
+.agentGuideBody {
+  padding-left: 42px;
+}
+
+.agentGuideDescription {
+  color: @text-color-secondary;
+  font-size: @rbd-content-size;
+  line-height: 22px;
+}
+
+.agentGuideCapabilities {
+  display: flex;
+  align-items: center;
+  margin-top: 12px;
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  line-height: 20px;
+}
+
+.agentGuideCapabilityLead {
+  margin-right: 12px;
+}
+
+.agentGuideCapabilityItem {
+  color: @text-color;
+  white-space: nowrap;
+
+  & + & {
+    margin-left: 12px;
+  }
+
+  :global(.anticon) {
+    margin-right: 4px;
+    color: @primary-color;
+  }
+}
+
+.agentGuidePrimaryAction {
+  min-width: 154px;
+
+  svg {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin-right: 6px;
+    vertical-align: -2px;
+  }
+}

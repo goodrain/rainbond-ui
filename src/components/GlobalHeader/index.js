@@ -17,6 +17,7 @@ import ScrollerX from '../ScrollerX';
 import userIcon from '../../../public/images/default_Avatar.png';
 import defaultLogo from '../../../public/logo-icon.png';
 import ChangePassword from '../ChangePassword';
+import AgentEntryIcon from '../AgentEntryIcon';
 import ProductServiceDrawer from '../ProductServiceDrawer';
 import styles from './index.less';
 import cookie from '../../utils/cookie';
@@ -112,17 +113,6 @@ const SVG_ICONS = {
   )
 };
 
-function AgentEntryIcon() {
-  return (
-    <svg viewBox="0 0 1024 1024" focusable="false" aria-hidden="true">
-      <path
-        d="M773.592949 798.845831c92.576542-51.429966 153.877695-140.240271 153.877695-241.381967 0-63.965288-24.779932-122.862644-66.199864-170.673898a387.562305 387.562305 0 0 0 4.647051-56.840678c0-8.829831-0.976271-17.442712-1.562034-26.142373 76.643797 62.863186 124.667661 151.430508 124.667661 249.869017 0 110.409763-60.342237 208.453424-153.882034 271.620339v172.053695l-172.509288-104.695322a463.589966 463.589966 0 0 1-73.697628 6.104949c-118.510644 0-193.874441-44.691525-267.138169-115.317152 12.058034 0.685559 24.055322 1.549017 36.321627 1.549017 17.182373 0 34.130441-0.837424 50.904949-2.169492 57.842983 39.233085 100.200136 62.841492 179.911593 62.841492a394.543729 394.543729 0 0 0 79.620339-8.352543l105.033763 69.020204v-107.485288z m-338.536135-74.517695a913.464407 913.464407 0 0 1-103.515119-7.992407L158.073492 815.338305v-172.045017c-80.414373-67.479864-123.105627-161.219254-123.105628-271.620339 0-190.576814 178.818169-345.070644 400.093289-345.070644 183.942508 0 369.308203 154.493831 369.308203 345.070644s-148.349831 352.655186-369.312542 352.655187z m-110.401085-69.024543c25.6 5.258847 82.926644 8.348203 110.405424 8.348204 186.96678 0 307.75539-129.019661 307.755389-288.190916s-154.719458-288.190915-307.755389-288.190915c-192.256 0-338.536136 129.032678-338.536136 288.190915 0 101.128678 48.023864 181.308746 123.101288 241.36895v107.498305z m279.669152-234.335457a45.507254 45.507254 0 1 1 46.16678-45.507255 45.837017 45.837017 0 0 1-46.16678 45.507255z m-184.654101 0a45.507254 45.507254 0 1 1 46.16244-45.507255A45.841356 45.841356 0 0 1 419.67078 420.968136z m-184.658441 0a45.507254 45.507254 0 1 1 46.16678-45.507255 45.837017 45.837017 0 0 1-46.16678 45.507255z"
-        fill="#FFFFFF"
-      />
-    </svg>
-  );
-}
-
 class GlobalHeader extends PureComponent {
   constructor(props) {
     super(props);
@@ -143,7 +133,6 @@ class GlobalHeader extends PureComponent {
       isAdmin: !!(currentUser?.is_enterprise_admin && eid),
       agentPluginStatus: 'pending',
       checkingAgentAccess: false,
-      agentAccess: null,
       // 滑块位置
       sliderStyle: { left: 3, width: 0 }
     };
@@ -193,6 +182,12 @@ class GlobalHeader extends PureComponent {
     const eid = enterprise?.enterprise_id;
     const newIsAdmin = !!(currentUser?.is_enterprise_admin && eid);
 
+    if (prevProps.currentUser !== currentUser) {
+      this.lastPluginListKey = null;
+      this.lastAgentAccessKey = null;
+      this.lastAgentPluginFetchKey = null;
+    }
+
     // 只在从 false 变为 true 时更新一次，避免后续闪烁
     if (!isAdmin && newIsAdmin) {
       this.setState({ isAdmin: newIsAdmin });
@@ -219,6 +214,21 @@ class GlobalHeader extends PureComponent {
 
     if (this.getAgentPluginFetchKey(prevProps) !== this.getAgentPluginFetchKey()) {
       this.fetchAgentPluginStatus();
+    }
+
+    const previousRequestId = prevProps.agentEntryRequest
+      ? prevProps.agentEntryRequest.id
+      : 0;
+    const nextRequest = this.props.agentEntryRequest || {};
+    if (nextRequest.id && nextRequest.id !== previousRequestId) {
+      if (nextRequest.draft) {
+        this.props.dispatch({
+          type: 'agent/saveDraft',
+          payload: nextRequest.draft
+        });
+      }
+      this.props.dispatch({ type: 'agent/clearEntryRequest' });
+      this.openAgentDrawer();
     }
   }
 
@@ -338,6 +348,19 @@ class GlobalHeader extends PureComponent {
     cacheCopilotPluginNameFromList(pluginList);
     const hasAgentPlugin = pluginList.some(item => this.isInstalledPlugin(item, 'rainbond-agent'));
     const hasBillPlugin = shouldFetchUserBalanceForPlugins(pluginList);
+    this.props.dispatch({
+      type: 'agent/saveEntryGate',
+      payload: {
+        pluginStatus: hasAgentPlugin ? 'installed' : 'missing',
+        ...(hasAgentPlugin
+          ? {}
+          : {
+            access: null,
+            accessLoaded: false,
+            accessCacheKey: ''
+          })
+      }
+    });
     const enterpriseId = this.getEnterpriseId();
     const regionName = globalUtil.getCurrRegionName();
     if (hasAgentPlugin && enterpriseId && regionName) {
@@ -347,7 +370,6 @@ class GlobalHeader extends PureComponent {
     this.setState(
       {
         agentPluginStatus: hasAgentPlugin ? 'installed' : 'missing',
-        agentAccess: hasAgentPlugin ? this.state.agentAccess : null,
         showBill: hasBillPlugin
       },
       () => {
@@ -503,14 +525,7 @@ class GlobalHeader extends PureComponent {
     }
     this.lastAgentAccessKey = accessKey;
 
-    dispatch({
-      type: 'agent/checkAccess',
-      callback: (response) => {
-        if (response && response.bean) {
-          this.setState({ agentAccess: response.bean });
-        }
-      }
-    });
+    dispatch({ type: 'agent/checkAccess' });
   };
 
   /**
@@ -746,20 +761,21 @@ class GlobalHeader extends PureComponent {
     return enterpriseId ? `/enterprise/${enterpriseId}/extension` : '';
   };
 
-  getAgentConfigPath = () => {
+  getAgentPluginPath = () => {
     const { currentUser, enterprise, eid } = this.props;
     const enterpriseId =
       currentUser?.enterprise_id ||
       enterprise?.enterprise_id ||
       globalUtil.getCurrEnterpriseId() ||
       eid;
+    const regionName = this.getFallbackPluginRegionName() || 'rainbond';
 
-    return enterpriseId ? `/enterprise/${enterpriseId}/ai/agent-config` : '';
+    return enterpriseId ? `/enterprise/${enterpriseId}/plugins/${regionName}/rainbond-agent` : '';
   };
 
   handleMissingAgentApiKey = () => {
     const { dispatch, currentUser } = this.props;
-    const agentConfigPath = this.getAgentConfigPath();
+    const agentPluginPath = this.getAgentPluginPath();
 
     if (!currentUser?.is_enterprise_admin) {
       Modal.warning({
@@ -797,8 +813,8 @@ class GlobalHeader extends PureComponent {
         defaultMessage: '取消'
       }),
       onOk: () => {
-        if (agentConfigPath) {
-          dispatch(routerRedux.push(agentConfigPath));
+        if (agentPluginPath) {
+          dispatch(routerRedux.push(agentPluginPath));
         }
       }
     });
@@ -836,16 +852,28 @@ class GlobalHeader extends PureComponent {
       callback: res => {
         const config = (res && res.bean) || {};
         if (!config.openai_api_key_set) {
+          dispatch({
+            type: 'agent/saveEntryGate',
+            payload: { configStatus: 'missing' }
+          });
           if (onMissing) {
             onMissing(config);
           }
           return;
         }
+        dispatch({
+          type: 'agent/saveEntryGate',
+          payload: { configStatus: 'configured' }
+        });
         if (onConfigured) {
           onConfigured(config);
         }
       },
       handleError: () => {
+        dispatch({
+          type: 'agent/saveEntryGate',
+          payload: { configStatus: 'error' }
+        });
         if (onError) {
           onError();
         }
@@ -878,6 +906,7 @@ class GlobalHeader extends PureComponent {
     });
 
     if (action === 'install') {
+      this.setState({ checkingAgentAccess: false });
       const extensionPath = this.getEnterpriseExtensionPath();
       Modal.confirm({
         title: formatMessage({
@@ -906,6 +935,7 @@ class GlobalHeader extends PureComponent {
     }
 
     if (action === 'contact_admin') {
+      this.setState({ checkingAgentAccess: false });
       notification.warning({
         message: formatMessage({
           id: 'GlobalHeader.agent.contact_admin',
@@ -916,6 +946,7 @@ class GlobalHeader extends PureComponent {
     }
 
     if (action === 'error' || action === 'pending') {
+      this.setState({ checkingAgentAccess: false });
       notification.warning({
         message: formatMessage({
           id: action === 'error'
@@ -1001,7 +1032,6 @@ class GlobalHeader extends PureComponent {
         }
 
         const access = response && response.bean;
-        this.setState({ agentAccess: access || null });
 
         const policy = resolveAgentPlatformPolicy({
           isEnterpriseAdmin: !!currentUser?.is_enterprise_admin,
@@ -1021,6 +1051,13 @@ class GlobalHeader extends PureComponent {
 
         this.continueAgentOpenForAdmin();
       }
+    });
+  };
+
+  requestAgentOpen = () => {
+    this.props.dispatch({
+      type: 'agent/requestOpen',
+      payload: { source: 'global_header' }
     });
   };
 
@@ -1248,8 +1285,9 @@ class GlobalHeader extends PureComponent {
       balanceStatus,
       showChangePassword,
       showProductDrawer,
-      agentAccess
     } = this.state;
+    const { agentEntryGate } = this.props;
+    const agentAccess = agentEntryGate && agentEntryGate.access;
 
     // 获取 Logo
     const fetchLogo = logo || rainbondUtil.fetchLogo(rainbondInfo, enterprise) || defaultLogo;
@@ -1343,7 +1381,7 @@ class GlobalHeader extends PureComponent {
                 <button
                   type="button"
                   className={`${styles.agentEntry} ${showAgentEnterpriseBadge ? styles.agentEntryRestricted : ''}`}
-                  onClick={this.openAgentDrawer}
+                  onClick={this.requestAgentOpen}
                 >
                   {showAgentEnterpriseBadge && (
                     <span className={styles.agentEntryBadge}>企</span>
@@ -1404,6 +1442,8 @@ export default connect(({ user, global, agent, teamControl }) => ({
   collapsed: global.collapsed,
   agentVisible: !!(agent && agent.visible),
   agentUpdate: (agent && agent.agentUpdate) || null,
+  agentEntryGate: (agent && agent.entryGate) || null,
+  agentEntryRequest: (agent && agent.entryRequest) || null,
   pluginsList: teamControl.pluginsList,
   pluginsLoaded: teamControl.pluginsLoaded
 }))(GlobalHeader);

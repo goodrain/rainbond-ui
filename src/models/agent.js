@@ -9,6 +9,8 @@ import {
   deleteAgentSession,
   hydrateAgentSession,
   listAgentSessions,
+  listAgentApprovalPolicies,
+  deleteAgentApprovalPolicy,
   loadAgentSessionMessages,
   sendAgentMessage,
   subscribeToActiveRun,
@@ -32,7 +34,6 @@ import agentWorkflowState from './agentWorkflowState';
 import * as agentInteractionLock from './agentInteractionLock';
 import * as agentStreamMessages from './agentStreamMessages';
 import * as autoApprovalPolicy from '../components/AgentHost/autoApprovalPolicy';
-import * as inFlightAutoApprovals from '../components/AgentHost/inFlightAutoApprovals';
 import * as agentTraceHelpers from './agentTraceHelpers';
 import * as agentCrossTab from './agentCrossTab';
 import * as agentClearConversation from './agentClearConversation';
@@ -155,6 +156,20 @@ function stopAllCrossTabSubscriptions() {
 const defaultState = {
   hydrated: false,
   visible: false,
+  entryGate: {
+    pluginStatus: 'pending',
+    access: null,
+    accessLoaded: false,
+    accessLoading: false,
+    accessError: false,
+    accessCacheKey: '',
+    configStatus: 'unknown',
+  },
+  entryRequest: {
+    id: 0,
+    source: '',
+    draft: '',
+  },
   // AI 助手插件更新信息（来自 platform-plugins 接口的 rainbond-agent 条目）；
   // null 表示无更新或尚未检测。结构见 fetchAgentUpdate effect。
   agentUpdate: null,
@@ -187,6 +202,10 @@ const defaultState = {
   sessionList: [],
   sessionListLoading: false,
   sessionPendingApprovals: [],
+  approvalPolicies: [],
+  approvalPoliciesLoading: false,
+  approvalPolicyError: '',
+  approvalPolicyNotice: '',
   cancellingPending: false,
   cancellingRun: false,
   runConflict: null,
@@ -358,6 +377,10 @@ function buildHydratedState(snapshot) {
     sessionList: [],
     sessionListLoading: false,
     sessionPendingApprovals: [],
+    approvalPolicies: [],
+    approvalPoliciesLoading: false,
+    approvalPolicyError: '',
+    approvalPolicyNotice: '',
     cancellingPending: false,
     cancellingRun: false,
     runConflict: null,
@@ -635,6 +658,10 @@ function applyAgentEvents({
               ...(mutableMessages[index].approval || {}),
               approvalId,
               status: adaptedEvent.status || 'approved',
+              autoApproved: !!adaptedEvent.autoApproved,
+              decisionSource: adaptedEvent.decisionSource || '',
+              policyId: adaptedEvent.policyId || '',
+              resolvedBy: adaptedEvent.resolvedBy || '',
               lastSequence: eventSequence,
             },
           };
@@ -789,13 +816,48 @@ export default {
   state: defaultState,
 
   effects: {
-    *checkAccess({ callback }, { call }) {
+    *checkAccess({ force = false, callback }, { call, put, select }) {
+      const rootState = yield select(state => state);
+      const gate = rootState.agent && rootState.agent.entryGate;
+      const currentUser = rootState.user && rootState.user.currentUser;
+      const accessCacheKey = currentUser
+        ? `${currentUser.user_id || ''}:${currentUser.enterprise_id || ''}`
+        : '';
+      if (
+        !force &&
+        gate &&
+        gate.accessLoaded &&
+        gate.accessCacheKey === accessCacheKey
+      ) {
+        if (callback) {
+          callback({ bean: gate.access });
+        }
+        return;
+      }
+      yield put({
+        type: 'saveEntryGate',
+        payload: { accessLoading: true, accessError: false },
+      });
       try {
         const response = yield call(getAgentAccess);
+        yield put({
+          type: 'saveEntryGate',
+          payload: {
+            access: (response && response.bean) || null,
+            accessLoaded: true,
+            accessLoading: false,
+            accessError: false,
+            accessCacheKey,
+          },
+        });
         if (callback) {
           callback(response);
         }
       } catch (e) {
+        yield put({
+          type: 'saveEntryGate',
+          payload: { accessLoading: false, accessError: true },
+        });
         if (callback) {
           callback(null, e);
         }
@@ -864,11 +926,22 @@ export default {
 
     *hydrateSession({ payload }, { call, put }) {
       const userId = payload && payload.userId;
+      const discardedLegacyPolicies = yield call(
+        autoApprovalPolicy.discardLegacyPolicies
+      );
       const snapshot = yield call(hydrateAgentSession, userId);
       yield put({
         type: 'hydrateState',
         payload: snapshot,
       });
+      if (discardedLegacyPolicies > 0) {
+        yield put({
+          type: 'saveState',
+          payload: {
+            approvalPolicyNotice: `已移除 ${discardedLegacyPolicies} 条旧版浏览器自动批准规则，请按需重新授权。`,
+          },
+        });
+      }
 
       // If the page was refreshed while a run was in-flight, auto-reattach to
       // the SSE stream instead of surfacing a "another window" conflict dialog.
@@ -882,6 +955,102 @@ export default {
           afterSequence: (snapshot && snapshot.lastEventSequence) || 0,
           contextSnapshot: snapshot && snapshot.context,
         });
+      }
+      if (restoredSessionId && restoredSessionId !== 'global-default') {
+        yield put({
+          type: 'loadApprovalPolicies',
+          payload: { sessionId: restoredSessionId },
+        });
+      }
+    },
+
+    *loadApprovalPolicies({ payload }, { call, put, select }) {
+      const state = yield select(s => s.agent);
+      const sessionId =
+        (payload && payload.sessionId) || state.conversationId;
+      if (!sessionId || sessionId === 'global-default') {
+        yield put({
+          type: 'saveState',
+          payload: {
+            approvalPolicies: [],
+            approvalPoliciesLoading: false,
+            approvalPolicyError: '',
+          },
+        });
+        return;
+      }
+      yield put({
+        type: 'saveState',
+        payload: { approvalPoliciesLoading: true, approvalPolicyError: '' },
+      });
+      try {
+        const response = yield call(listAgentApprovalPolicies, sessionId);
+        const items =
+          response && response.data && Array.isArray(response.data.items)
+            ? response.data.items
+            : [];
+        yield put({
+          type: 'saveState',
+          payload: {
+            approvalPolicies: items,
+            approvalPoliciesLoading: false,
+          },
+        });
+      } catch (error) {
+        yield put({
+          type: 'saveState',
+          payload: {
+            approvalPoliciesLoading: false,
+            approvalPolicyError: getErrorMessage(error) || '加载自动批准规则失败',
+          },
+        });
+      }
+    },
+
+    *removeApprovalPolicy({ payload }, { call, put, select }) {
+      const policyId = payload && payload.policyId;
+      if (!policyId) return;
+      try {
+        yield call(deleteAgentApprovalPolicy, policyId);
+        const state = yield select(s => s.agent);
+        yield put({
+          type: 'saveState',
+          payload: {
+            approvalPolicies: (state.approvalPolicies || []).filter(
+              policy => policy.policy_id !== policyId
+            ),
+            approvalPolicyError: '',
+          },
+        });
+      } catch (error) {
+        yield put({
+          type: 'saveState',
+          payload: {
+            approvalPolicyError: getErrorMessage(error) || '移除自动批准规则失败',
+          },
+        });
+      }
+    },
+
+    *clearApprovalPolicies(_, { call, put, select }) {
+      const state = yield select(s => s.agent);
+      const policies = state.approvalPolicies || [];
+      try {
+        for (let index = 0; index < policies.length; index += 1) {
+          yield call(deleteAgentApprovalPolicy, policies[index].policy_id);
+        }
+        yield put({
+          type: 'saveState',
+          payload: { approvalPolicies: [], approvalPolicyError: '' },
+        });
+      } catch (error) {
+        yield put({
+          type: 'saveState',
+          payload: {
+            approvalPolicyError: getErrorMessage(error) || '清除自动批准规则失败',
+          },
+        });
+        yield put({ type: 'loadApprovalPolicies' });
       }
     },
 
@@ -918,6 +1087,9 @@ export default {
         patch.conversationId = 'global-default';
         patch.messages = [];
         patch.pendingApproval = null;
+        patch.approvalPolicies = [];
+        patch.approvalPoliciesLoading = false;
+        patch.approvalPolicyError = '';
         patch.activeRunId = '';
         patch.lastEventSequence = 0;
         patch.workflowState = null;
@@ -952,6 +1124,9 @@ export default {
           workflowState: null,
           structuredResult: null,
           sessionPendingApprovals: [],
+          approvalPolicies: [],
+          approvalPoliciesLoading: false,
+          approvalPolicyError: '',
           pendingMutationTool: '',
           pendingMutationRoute: '',
           pendingMutationNavigationKey: '',
@@ -975,6 +1150,10 @@ export default {
               ? data.pending_approvals
               : [],
           },
+        });
+        yield put({
+          type: 'loadApprovalPolicies',
+          payload: { sessionId },
         });
       } catch (e) {
         yield put({
@@ -1426,6 +1605,7 @@ export default {
           approvalId: pendingApproval.approvalId,
           decision: payload && payload.decision,
           comment: payload && payload.comment,
+          rememberPolicy: payload && payload.rememberPolicy,
           sessionId: pendingApproval.sessionId || state.conversationId,
           runId: pendingApproval.runId || state.activeRunId,
           afterSequence: pendingApproval.lastSequence || state.lastEventSequence,
@@ -1452,6 +1632,15 @@ export default {
             updatedAt: Date.now(),
           },
         });
+        if (payload && payload.rememberPolicy) {
+          yield put({
+            type: 'loadApprovalPolicies',
+            payload: {
+              sessionId:
+                pendingApproval.sessionId || state.conversationId,
+            },
+          });
+        }
       } catch (error) {
         yield put({
           type: 'saveState',
@@ -1462,10 +1651,6 @@ export default {
             updatedAt: Date.now(),
           },
         });
-      } finally {
-        if (payload && payload.autoApprovalId) {
-          inFlightAutoApprovals.release(payload.autoApprovalId);
-        }
       }
     },
 
@@ -1561,15 +1746,18 @@ export default {
         pa.status === 'pending' &&
         pa.approvalId !== prevApprovalId
       ) {
-        const componentMutationTrackingPatch = buildComponentMutationTrackingPatch({
-          toolName: pa.skillId,
-          context: nextState.context,
-          targetRef: pa.targetRef,
-        });
+        const shouldTrackMutationTool = isSupportedAgentMutationTool(pa.skillId);
+        const componentMutationTrackingPatch = shouldTrackMutationTool
+          ? buildComponentMutationTrackingPatch({
+              toolName: pa.skillId,
+              context: nextState.context,
+              targetRef: pa.targetRef,
+            })
+          : createClearedComponentMutationTrackingState();
         yield put({
           type: 'saveState',
           payload: {
-            pendingMutationTool: pa.skillId || '',
+            pendingMutationTool: shouldTrackMutationTool ? pa.skillId || '' : '',
             pendingMutationRoute: '',
             pendingMutationNavigationKey: '',
             ...componentMutationTrackingPatch,
@@ -1809,31 +1997,6 @@ export default {
         });
       }
 
-      if (
-        pa &&
-        pa.approvalId &&
-        pa.status === 'pending' &&
-        pa.approvalId !== prevApprovalId &&
-        autoApprovalPolicy.matches({
-          risk: pa.risk,
-          skillId: pa.skillId,
-          targetRef: pa.targetRef,
-        }) &&
-        inFlightAutoApprovals.claim(pa.approvalId)
-      ) {
-        yield put({
-          type: 'markApprovalAutoApproved',
-          payload: { approvalId: pa.approvalId },
-        });
-        yield put({
-          type: 'resolveApproval',
-          payload: {
-            decision: 'approved',
-            auto: true,
-            autoApprovalId: pa.approvalId,
-          },
-        });
-      }
     },
 
     *clearSession({ payload }, { call, put }) {
@@ -1858,6 +2021,38 @@ export default {
       return {
         ...state,
         ...payload,
+      };
+    },
+
+    saveEntryGate(state, { payload }) {
+      return {
+        ...state,
+        entryGate: {
+          ...state.entryGate,
+          ...payload,
+        },
+      };
+    },
+
+    requestOpen(state, { payload = {} }) {
+      return {
+        ...state,
+        entryRequest: {
+          id: (state.entryRequest.id || 0) + 1,
+          source: payload.source || '',
+          draft: payload.draft || '',
+        },
+      };
+    },
+
+    clearEntryRequest(state) {
+      return {
+        ...state,
+        entryRequest: {
+          ...state.entryRequest,
+          source: '',
+          draft: '',
+        },
       };
     },
 
@@ -1906,19 +2101,6 @@ export default {
         structuredResult: merged.structuredResult,
         compaction: merged.compaction,
         updatedAt: Date.now(),
-      };
-    },
-
-    markApprovalAutoApproved(state, { payload }) {
-      const approvalId = payload && payload.approvalId;
-      if (!approvalId) return state;
-      return {
-        ...state,
-        messages: (state.messages || []).map(m =>
-          m && m.kind === 'approval' && m.approval && m.approval.approvalId === approvalId
-            ? { ...m, approval: { ...m.approval, autoApproved: true } }
-            : m
-        ),
       };
     },
 

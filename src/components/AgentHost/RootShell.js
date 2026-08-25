@@ -13,6 +13,7 @@ import * as agentViewport from '../../utils/agentViewport';
 import { persistAgentSession } from '../../services/agent';
 import { getAgentPanelConfig } from '../../utils/agentLayout';
 import { isRainbondInfoAgentEnabled } from '../../utils/agentVisibility';
+import * as agentGuideSession from '../../utils/agentGuideSession';
 import {
   buildRefreshedRouteFromLocation,
   getLiveLocationRoute,
@@ -270,6 +271,7 @@ export default class AgentRootShell extends PureComponent {
       this.prevMutationRefreshKey = '';
 
       if (previousLoginKey && !loginKey) {
+        agentGuideSession.clearAgentGuideSession();
         this.persistenceScheduler.flush();
         this.persistenceScheduler.cancel();
         this.store.dispatch({
