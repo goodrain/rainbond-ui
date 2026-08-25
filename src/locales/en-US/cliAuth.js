@@ -16,11 +16,10 @@ const cliAuth = {
     'Credentials have been sent to the local CLI. You can close this tab and return to your terminal.',
   'cliAuth.error.noToken':
     'No login token detected. Please sign in again and retry.',
-  'cliAuth.access.restricted.title': 'AI assistant is not available for this account yet',
+  'cliAuth.access.restricted.title': 'RainSkills is not available for this account yet',
   'cliAuth.access.restricted.detail':
-    'The AI assistant is an optional Rainbond enhancement plugin. The Community Edition currently opens trial access to the first enterprise administrator by default. To enable team members to use it together, enable the Enterprise Edition plugin permission. Rainbond core capabilities remain open source and available.',
+    'Community Edition supports RainSkills authorization for the first enterprise administrator only. Enable an Enterprise Edition license to allow other team members to connect.',
   'cliAuth.access.restricted.enterprise': 'Learn about Enterprise Edition',
-  'cliAuth.access.restricted.acknowledge': 'Got it',
   'cliAuth.access.error': 'Unable to check authorization access. Please try again later.',
   'cliAuth.access.retry': 'Check again'
 };

@@ -17,11 +17,10 @@ const deviceAuthorization = {
   'deviceAuthorization.result.denied.detail': 'No access credential was issued to the terminal.',
   'deviceAuthorization.result.error.title': 'Invalid or expired code',
   'deviceAuthorization.result.error.detail': 'Check the code shown in your terminal or restart the installation.',
-  'deviceAuthorization.access.restricted.title': 'AI assistant is not available for this account yet',
+  'deviceAuthorization.access.restricted.title': 'RainSkills is not available for this account yet',
   'deviceAuthorization.access.restricted.detail':
-    'The AI assistant is an optional Rainbond enhancement plugin. The Community Edition currently opens trial access to the first enterprise administrator by default. To enable team members to use it together, enable the Enterprise Edition plugin permission. Rainbond core capabilities remain open source and available.',
+    'Community Edition supports RainSkills authorization for the first enterprise administrator only. Enable an Enterprise Edition license to allow other team members to connect.',
   'deviceAuthorization.access.restricted.enterprise': 'Learn about Enterprise Edition',
-  'deviceAuthorization.access.restricted.acknowledge': 'Got it',
   'deviceAuthorization.access.error': 'Unable to check authorization access. Please try again later.',
   'deviceAuthorization.access.retry': 'Check again'
 };
