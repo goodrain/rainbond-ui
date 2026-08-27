@@ -344,8 +344,13 @@ const addKubenetesResource = {
   'addKubenetesResource.table.update_success': '更新成功',
   'addKubenetesResource.table.update_error': '更新失败',
   'addKubenetesResource.table.error': '创建失败',
+  'addKubenetesResource.table.deleting': '删除中',
+  'addKubenetesResource.table.delete_failed': '删除失败',
+  'addKubenetesResource.table.delete_errorDetail': '删除失败详情',
   'addKubenetesResource.table.checkDetail': '查看详情',
   'addKubenetesResource.table.errorDetail': '失败详情',
+  'addKubenetesResource.table.btn.retry_delete': '重试删除',
+  'addKubenetesResource.notification.deleteSubmitted': '已提交删除',
   'addKubenetesResource.localContent.yaml': '#请填写yaml文件',
 }
 

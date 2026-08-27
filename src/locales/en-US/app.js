@@ -337,8 +337,13 @@ const addKubenetesResource = {
   'addKubenetesResource.table.update_success': 'Update successful',
   'addKubenetesResource.table.update_error': 'Update failed',
   'addKubenetesResource.table.error': 'Create failed',
+  'addKubenetesResource.table.deleting': 'Deleting',
+  'addKubenetesResource.table.delete_failed': 'Delete failed',
+  'addKubenetesResource.table.delete_errorDetail': 'Delete failure details',
   'addKubenetesResource.table.checkDetail': 'Details',
   'addKubenetesResource.table.errorDetail': 'Failure Details',
+  'addKubenetesResource.table.btn.retry_delete': 'Retry delete',
+  'addKubenetesResource.notification.deleteSubmitted': 'Deletion submitted',
   'addKubenetesResource.localContent.yaml': '#Please fill in the YAML file',
 }
 

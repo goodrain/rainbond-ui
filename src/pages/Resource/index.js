@@ -2,7 +2,7 @@
 /* eslint-disable import/extensions */
 /* eslint-disable no-undef */
 import PageHeaderLayout from '@/layouts/PageHeaderLayout';
-import { Button, Drawer, Form, Table, notification, Popover, Spin } from 'antd';
+import { Button, Drawer, Form, Table, notification, Popover, Spin, Tag } from 'antd';
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -42,14 +42,25 @@ class Index extends PureComponent {
       resourcePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'app_resources', `app_${globalUtil.getAppID()}`),
       page: 1,
       pageSize: 10,
-      total: 0
+      total: 0,
+      selectedRowKeys: [],
+      isDeletionSubmitting: false
     };
+    this.deletePollingTimer = null;
+    this.pageRequestSequence = 0;
+    this.isUnmounted = false;
   }
   componentDidMount() {
+    this.isUnmounted = false;
     if (!this.canAccessAppK8sResources()) {
       return;
     }
     this.getPageContent()
+  }
+
+  componentWillUnmount() {
+    this.isUnmounted = true;
+    this.clearDeletionPolling();
   }
 
   canAccessAppK8sResources = () => {
@@ -57,21 +68,74 @@ class Index extends PureComponent {
     const isSaas = !!(rainbondInfo && rainbondInfo.is_saas);
     return !isSaas || !!(currentUser && currentUser.is_enterprise_admin);
   };
+  isDeletionPending = record => record && record.delete_status === 'DELETING';
+
+  isDeletionFailed = record => record && record.delete_status === 'DELETE_FAILED';
+
+  clearDeletionPolling = () => {
+    if (this.deletePollingTimer) {
+      clearTimeout(this.deletePollingTimer);
+      this.deletePollingTimer = null;
+    }
+  };
+
+  scheduleDeletionPolling = content => {
+    this.clearDeletionPolling();
+    if (
+      !this.isUnmounted &&
+      Array.isArray(content) &&
+      content.some(this.isDeletionPending)
+    ) {
+      this.deletePollingTimer = setTimeout(() => {
+        this.deletePollingTimer = null;
+        this.getPageContent();
+      }, 3000);
+    }
+  };
+
+  isRequestAccepted = res => {
+    const businessCode = res && res.response_data && res.response_data.code;
+    const statusCode = res && (res.status_code || res._code);
+    return Number(businessCode) === 200 || Number(statusCode) === 202;
+  };
+
   getPageContent = () => {
+    this.clearDeletionPolling();
+    const requestSequence = this.pageRequestSequence + 1;
+    this.pageRequestSequence = requestSequence;
     const teamName = globalUtil.getCurrTeamName();
     const app_id = globalUtil.getAppID();
-    getKubernetesVal({
+    return getKubernetesVal({
       team_name: teamName,
       app_id: app_id,
     }).then(res => {
-      if (res && res.response_data && res.response_data.code == 200) {
-        this.setState({
-          content: res.list,
-          localContent: ' ',
-          loadingSwitch: false
-        })
+      if (this.isUnmounted || requestSequence !== this.pageRequestSequence) {
+        return;
       }
-    })
+      if (this.isRequestAccepted(res)) {
+        const content = Array.isArray(res.list) ? res.list : [];
+        const selectableRecordIDs = content.reduce((ids, record) => {
+          if (!this.isDeletionPending(record)) {
+            ids[String(record.ID)] = true;
+          }
+          return ids;
+        }, {});
+        this.setState(previousState => ({
+          content,
+          localContent: ' ',
+          loadingSwitch: false,
+          selectedRowKeys: (previousState.selectedRowKeys || []).filter(
+            resourceID => selectableRecordIDs[String(resourceID)]
+          )
+        }), () => this.scheduleDeletionPolling(content));
+      } else {
+        this.setState({ loadingSwitch: false });
+      }
+    }).catch(() => {
+      if (!this.isUnmounted && requestSequence === this.pageRequestSequence) {
+        this.setState({ loadingSwitch: false });
+      }
+    });
   }
   onClose = () => {
     this.setState({
@@ -147,25 +211,50 @@ class Index extends PureComponent {
     })
   }
   // 删除提示框弹出
-  deleteButton = (val) => {
-    if (val) {
-      this.setState({
-        showDeletePort: !this.state.showDeletePort
-      })
-      this.setState({
-        deleteVal: val,
-      })
-    } else {
-      this.setState({
-        showDeletePort: !this.state.showDeletePort
-      })
+  deleteButton = (val, handelType) => {
+    if (this.state.isDeletionSubmitting) {
+      return;
     }
-  }
+    this.setState({
+      showDeletePort: true,
+      deleteVal: val || {},
+      handelType
+    });
+  };
+
+  completeDeletion = submitted => {
+    if (this.isUnmounted) {
+      return;
+    }
+    if (submitted) {
+      notification.success({
+        message: formatMessage({ id: 'addKubenetesResource.notification.deleteSubmitted' })
+      });
+    } else {
+      notification.error({
+        message: formatMessage({ id: 'notification.error.delete' })
+      });
+    }
+    this.setState({
+      showDeletePort: false,
+      visible: false,
+      isDeletionSubmitting: false,
+      selectedRowKeys: []
+    }, () => {
+      if (submitted) {
+        this.getPageContent();
+      }
+    });
+  };
   // 删除
   handleDel = () => {
-    const { deleteVal } = this.state
+    const { deleteVal, isDeletionSubmitting } = this.state
+    if (isDeletionSubmitting) {
+      return;
+    }
     const teamName = globalUtil.getCurrTeamName();
     const app_id = globalUtil.getAppID();
+    this.setState({ isDeletionSubmitting: true });
     delSingleKubernetesVal({
       team_name: teamName,
       app_id: app_id,
@@ -173,21 +262,12 @@ class Index extends PureComponent {
       list_name: deleteVal.name,
       List_id: deleteVal.ID
     }).then(res => {
-      if (res && res.response_data && res.response_data.code == 200) {
-        notification.success({
-          message: formatMessage({ id: 'notification.success.delete' })
-        })
-        this.getPageContent()
-      }
-    })
-    this.setState({
-      showDeletePort: !this.state.showDeletePort,
-      visible: false,
-    })
+      this.completeDeletion(this.isRequestAccepted(res));
+    }).catch(() => this.completeDeletion(false));
   }
   cancalDeletePort = () => {
     this.setState({
-      showDeletePort: !this.state.showDeletePort
+      showDeletePort: false
     })
   }
   handelAddOrEdit = (list) => {
@@ -254,12 +334,15 @@ class Index extends PureComponent {
     this.setState({ selectedRowKeys });
   };
   batchDeletion = () => {
-    const { selectedRowKeys } = this.state;
+    const { selectedRowKeys, isDeletionSubmitting } = this.state;
+    if (isDeletionSubmitting || !selectedRowKeys || selectedRowKeys.length === 0) {
+      return;
+    }
     const { dispatch } = this.props;
     const teamName = globalUtil.getCurrTeamName()
     const app_id = globalUtil.getAppID();
     this.setState({
-      handelType: "multiple"
+      isDeletionSubmitting: true
     })
     dispatch({
       type: 'application/batchDelSingleKubernetesVal',
@@ -269,27 +352,10 @@ class Index extends PureComponent {
         app_id: app_id,
       },
       callback: data => {
-        notification.success({
-          message: formatMessage({ id: 'notification.success.delete' })
-        })
-        this.setState({
-          showDeletePort: !this.state.showDeletePort,
-          selectedRowKeys: []
-        }, () => {
-          this.getPageContent()
-        })
-
+        this.completeDeletion(this.isRequestAccepted(data));
       },
-      handleError: (err) => {
-        notification.error({
-          message: formatMessage({ id: 'notification.error.delete' })
-        })
-        this.setState({
-          showDeletePort: !this.state.showDeletePort,
-          selectedRowKeys: []
-        }, () => {
-          this.getPageContent()
-        })
+      handleError: () => {
+        this.completeDeletion(false);
       }
     });
   }
@@ -326,7 +392,8 @@ class Index extends PureComponent {
       },
       page,
       pageSize,
-      total
+      total,
+      isDeletionSubmitting
     } = this.state;
     if (!isAccess) {
       return roleUtil.noPermission()
@@ -347,6 +414,9 @@ class Index extends PureComponent {
     const rowSelection = {
       selectedRowKeys,
       onChange: this.onSelectChange,
+      getCheckboxProps: record => ({
+        disabled: this.isDeletionPending(record)
+      })
     };
     const formItemLayout = {
       labelCol: {
@@ -392,6 +462,30 @@ class Index extends PureComponent {
         align: 'center',
         width: 200,
         render: (text, record) => {
+          if (this.isDeletionPending(record)) {
+            return <Tag color="orange">{formatMessage({ id: 'addKubenetesResource.table.deleting' })}</Tag>;
+          }
+          if (this.isDeletionFailed(record)) {
+            const deleteError = record.delete_error || record.error_overview;
+            return <div>
+              <Tag color="red">{formatMessage({ id: 'addKubenetesResource.table.delete_failed' })}</Tag>
+              {deleteError &&
+                <Popover
+                  overlayClassName={styles.tooltip_style}
+                  placement="bottom"
+                  title={formatMessage({ id: 'addKubenetesResource.table.delete_errorDetail' })}
+                  content={deleteError}
+                  trigger="click"
+                >
+                  <span
+                    style={{ marginLeft: "20px", color: "#5672ac", cursor: "pointer" }}
+                  >
+                    {formatMessage({ id: 'addKubenetesResource.table.checkDetail' })}
+                  </span>
+                </Popover>
+              }
+            </div>;
+          }
           return <div>
             {text == 1 && <span style={{ color: 'green' }}>{formatMessage({ id: 'addKubenetesResource.table.success' })}</span>}
             {text == 2 && <span style={{ color: 'green' }}>{formatMessage({ id: 'addKubenetesResource.table.update_success' })}</span>}
@@ -441,6 +535,21 @@ class Index extends PureComponent {
         align: 'center',
         width: 200,
         render: (text, record) => {
+          if (this.isDeletionPending(record)) {
+            return (
+              <>
+                {isEdit && <span className={styles.disabledAction}>{formatMessage({ id: 'addKubenetesResource.table.btn.edit' })}</span>}
+                {isDelete && <span className={styles.disabledAction}>{formatMessage({ id: 'addKubenetesResource.table.btn.delete' })}</span>}
+              </>
+            );
+          }
+          if (this.isDeletionFailed(record)) {
+            return isDelete ? (
+              <span className={styles.action} onClick={() => this.deleteButton(record, 'single')}>
+                {formatMessage({ id: 'addKubenetesResource.table.btn.retry_delete' })}
+              </span>
+            ) : null;
+          }
           return (
             <>
               {isEdit && <>
@@ -455,10 +564,7 @@ class Index extends PureComponent {
               }
               {isDelete &&
                 <span className={styles.action} onClick={() => {
-                  this.setState({
-                    handelType: 'single'
-                  })
-                  this.deleteButton(record)
+                  this.deleteButton(record, 'single')
                 }
                 }>
                   {formatMessage({ id: 'addKubenetesResource.table.btn.delete' })}
@@ -497,10 +603,7 @@ class Index extends PureComponent {
               <Button
                 type="primary"
                 onClick={() => {
-                  this.deleteButton();
-                  this.setState({
-                    handelType: 'multiple'
-                  })
+                  this.deleteButton(null, 'multiple');
                 }}
                 icon='delete'
               >
@@ -583,6 +686,8 @@ class Index extends PureComponent {
             subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
             onOk={handelType == "multiple" ? this.batchDeletion : this.handleDel}
             onCancel={this.cancalDeletePort}
+            loading={isDeletionSubmitting}
+            disabled={isDeletionSubmitting}
           />
         )}
       </PageHeaderLayout>
