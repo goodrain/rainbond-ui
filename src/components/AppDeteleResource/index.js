@@ -9,7 +9,6 @@ import { UpOutlined, DownOutlined, FrownOutlined } from '@ant-design/icons';
 import globalUtil from '../../utils/global';
 import appUtil from '../../utils/app';
 import styles from './index.less'
-import { getK8sResources, hasK8sResources } from './k8sResourceGuard';
 @connect(
     ({ loading }) => ({
         batchDeleteLoading: loading.effects['appControl/putBatchDelete']
@@ -30,11 +29,7 @@ export default class AppDeteleResource extends PureComponent {
     }
 
     handleDeleteResource = () => {
-        const { dispatch, onCancel, group_id, team_name, regionName, onSuccess, skipRedirect, infoList } = this.props;
-        if (hasK8sResources(infoList)) {
-            this.handleManageK8sResources();
-            return;
-        }
+        const { dispatch, onCancel, group_id, team_name, regionName, onSuccess, skipRedirect } = this.props;
         dispatch({
           type: 'application/deleteGroupAllResource',
           payload: {
@@ -58,25 +53,8 @@ export default class AppDeteleResource extends PureComponent {
               }
             }
           }
-            });
-          };
-    handleManageK8sResources = () => {
-        const { dispatch, onCancel, group_id, team_name, regionName } = this.props;
-        onCancel();
-        dispatch(routerRedux.push(`/team/${team_name}/region/${regionName}/apps/${group_id}/asset`));
-    };
-    getK8sResourceDeleteStatus = status => {
-        if (status === 'ACTIVE') {
-            return formatMessage({ id: 'addKubenetesResource.table.active' });
-        }
-        if (status === 'DELETING') {
-            return formatMessage({ id: 'addKubenetesResource.table.deleting' });
-        }
-        if (status === 'DELETE_FAILED') {
-            return formatMessage({ id: 'addKubenetesResource.table.delete_failed' });
-        }
-        return status;
-    };
+        });
+      };
     handleExpandIcon = (props) => {
         if (
             (props.record.services_info && props.record.services_info.length > 0) ||
@@ -109,13 +87,11 @@ export default class AppDeteleResource extends PureComponent {
                 );
             }
         }
-        }
-        render() {
-            const { onCancel, onOk, infoList, isflag, desc, subDesc, goBack, onDelete, loading } = this.props;
-            const { } = this.state;
-            const k8sResources = getK8sResources(infoList);
-            const hasK8sResourceList = hasK8sResources(infoList);
-            const columns = [
+    }
+    render() {
+        const { onCancel, onOk, infoList, isflag, desc, subDesc, goBack, onDelete, loading } = this.props;
+        const { } = this.state;
+        const columns = [
             {
                 dataIndex: 'name',
                 key: 'name',
@@ -180,10 +156,10 @@ export default class AppDeteleResource extends PureComponent {
                         name: formatMessage({id:'appOverview.app.delete.table.th.configGroups'}),
                         config_groups: infoList[item] || []
                     })
-                }else if(item == 'k8s_resources' && k8sResources.length > 0){
+                }else if(item == 'k8s_resources' && infoList[item].length > 0){
                     data.push({
                         name: formatMessage({id:'appOverview.app.delete.table.th.k8s'}),
-                        k8s_resources: k8sResources
+                        k8s_resources: infoList[item] || []
                     })
                 }else if(item == 'domains' && infoList[item].length > 0){
                     data.push({
@@ -199,23 +175,15 @@ export default class AppDeteleResource extends PureComponent {
             })
         }
         return (
-                <Modal
-                    title={formatMessage({id:'appOverview.app.delete.title'})}
-                    bodyStyle={{ height: !hasK8sResourceList && isflag ? '200px' : '500px', overflowY: 'auto' }}
-                    visible
-                    width={600}
-                    onCancel={onCancel}
-                    footer={hasK8sResourceList ? [
-                        <Button onClick={onCancel}> <FormattedMessage id='button.cancel'/> </Button>,
-                        <Button
-                          type="primary"
-                          onClick={this.handleManageK8sResources}
-                        >
-                          {formatMessage({id:'appOverview.app.delete.k8s.manage'})}
-                        </Button>
-                    ] : !isflag ? [
-                        <Button onClick={onCancel}> <FormattedMessage id='button.cancel'/> </Button>,
-                        <Button
+            <Modal
+                title={formatMessage({id:'appOverview.app.delete.title'})}
+                bodyStyle={{ height: isflag ? '200px' : '500px', overflowY: 'auto' }}
+                visible
+                width={600}
+                onCancel={onCancel}
+                footer={!isflag ? [
+                    <Button onClick={onCancel}> <FormattedMessage id='button.cancel'/> </Button>,
+                    <Button
                       type="primary"
                       onClick={onDelete}
                     >
@@ -230,11 +198,11 @@ export default class AppDeteleResource extends PureComponent {
                       onClick={this.handleDeleteResource}
                     >
                       {formatMessage({id:'button.confirm'})}
-                        </Button>
-                    ]}
-                >
-                    {!hasK8sResourceList && isflag ? (
-                        <div className={styles.content}>
+                    </Button>
+                ]}
+            >
+                {isflag ? (
+                    <div className={styles.content}>
                         <div className={styles.inner}>
                             <span className={styles.icon}>
                                 <Icon type="exclamation-circle-o" />
@@ -244,30 +212,26 @@ export default class AppDeteleResource extends PureComponent {
                                 <p>{subDesc}</p>
                             </div>
                         </div>
-                        </div>
-                    ) : (
-                        <>
-                            {hasK8sResourceList && (
-                                <p>{formatMessage({id:'appOverview.app.delete.k8s.blocked'})}</p>
-                            )}
-                            <Table
-                                dataSource={data}
-                                rowKey={(record,index) => index}
-                                showHeader={false}
-                                pagination={false}
-                                expandIconColumnIndex={1}
-                                expandIconAsCell={false}
-                                expandIcon={this.handleExpandIcon}
-                                expandedRowRender={record => {
+                    </div>
+                ) : (
+                    <Table
+                        dataSource={data}
+                        rowKey={(record,index) => index}
+                        showHeader={false}
+                        pagination={false}
+                        expandIconColumnIndex={1}
+                        expandIconAsCell={false}
+                        expandIcon={this.handleExpandIcon}
+                        expandedRowRender={record => {
                             if (record.services_info && record.services_info.length > 0) {
                                 return <>
                                     <div className={styles.titleDesc}>
                                         <div className={styles.componentName}>{formatMessage({id:'appOverview.app.delete.table.td.serviceName'})}</div>
                                         <div className={styles.storageName}>{formatMessage({id:'appOverview.app.delete.table.td.storageName'})}</div>
                                     </div>
-                                    {record.services_info.map((item, index) => {
+                                    {record.services_info.map((item) => {
                                         return (
-                                            <div className={styles.tableBox} key={item.service_id || item.service_name || index}>
+                                            <div className={styles.tableBox}>
                                                 <div className={styles.storageContent}>
                                                     <div className={styles.serviceName}>
                                                         <p style={{ margin: 0 }}>
@@ -277,9 +241,9 @@ export default class AppDeteleResource extends PureComponent {
                                                         </p>
                                                     </div>
                                                     <div className={styles.volumeName}>
-                                                        {item.volume.length > 0 ? item.volume.map((v, index) => {
+                                                        {item.volume.length > 0 ? item.volume.map((v) => {
                                                             return (
-                                                                <Tag className={styles.tags} color="blue" key={`${v}-${index}`}>{v}</Tag>
+                                                                <Tag className={styles.tags} color="blue">{v}</Tag>
                                                             )
                                                         }) : '-'}
                                                     </div>
@@ -295,9 +259,9 @@ export default class AppDeteleResource extends PureComponent {
                                         <div className={styles.componentName}>{formatMessage({id:'appOverview.app.delete.table.td.appConfigGroups'})}</div>
                                     </div>
                                     <div className={styles.configGroups}>
-                                        {record.config_groups.map((item, index) => {
+                                        {record.config_groups.map((item) => {
                                             return (
-                                                <Tag className={styles.tags} color="blue" key={`${item}-${index}`}>{item}</Tag>
+                                                <Tag className={styles.tags} color="blue">{item}</Tag>
                                             )
                                         })}
                                     </div>
@@ -308,17 +272,9 @@ export default class AppDeteleResource extends PureComponent {
                                         <div className={styles.componentName}>{formatMessage({id:'appOverview.app.delete.table.td.k8s'})}</div>
                                     </div>
                                     <div className={styles.k8sResources}>
-                                        {record.k8s_resources.map((item, index) => {
+                                        {record.k8s_resources.map((item) => {
                                             return (
-                                                <div key={item.resource_id || item.ID || item.id || `${item.type}-${item.name}-${index}`}>
-                                                    <Tag className={styles.tags} color="blue">{item.name}（{item.type}）</Tag>
-                                                    {item.delete_status && (
-                                                        <p>{formatMessage({id:'appOverview.app.delete.k8s.status'}, { status: this.getK8sResourceDeleteStatus(item.delete_status) })}</p>
-                                                    )}
-                                                    {item.delete_error && (
-                                                        <p>{formatMessage({id:'appOverview.app.delete.k8s.error'}, { error: item.delete_error })}</p>
-                                                    )}
-                                                </div>
+                                                <Tag className={styles.tags} color="blue">{item.name}（{item.type}）</Tag>
                                             )
                                         })}
                                     </div>
@@ -329,9 +285,9 @@ export default class AppDeteleResource extends PureComponent {
                                         <div className={styles.componentName}>{formatMessage({id:'appOverview.app.delete.table.td.domain'})}</div>
                                     </div>
                                     <div className={styles.k8sResources}>
-                                        {record.domains.map((item, index) => {
+                                        {record.domains.map((item) => {
                                             return (
-                                                <Tag className={styles.tags} color="blue" key={`${item}-${index}`}>{item}</Tag>
+                                                <Tag className={styles.tags} color="blue">{item}</Tag>
                                             )
                                         })}
                                     </div>
@@ -342,9 +298,9 @@ export default class AppDeteleResource extends PureComponent {
                                         <div className={styles.componentName}>{formatMessage({id:'appOverview.app.delete.table.td.shareRecords'})}</div>
                                     </div>
                                     <div className={styles.k8sResources}>
-                                        {record.app_share_records.map((item, index) => {
+                                        {record.app_share_records.map((item) => {
                                             return (item != null && item != '') && (
-                                                <Tag className={styles.tags} color="blue" key={`${item.name}-${item.version}-${index}`}>{item.name}（{item.version}）</Tag>
+                                                <Tag className={styles.tags} color="blue">{item.name}（{item.version}）</Tag>
                                             )
                                         })}
                                     </div>
@@ -354,11 +310,10 @@ export default class AppDeteleResource extends PureComponent {
 
                                 </>
                             }
-                                }}
-                                columns={columns}
-                            />
-                        </>
-                    )}
+                        }}
+                        columns={columns}
+                    />
+                )}
             </Modal>
         );
     }

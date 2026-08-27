@@ -109,10 +109,6 @@ const appOverview = {
   'appOverview.app.delete.table.td.k8s': 'K8S Resource Name (Type)',
   'appOverview.app.delete.table.td.domain': 'Gateway policy name',
   'appOverview.app.delete.table.td.shareRecords': 'Publish template name（Version）',
-  'appOverview.app.delete.k8s.blocked': 'This application contains K8S resources. Delete them in Kubernetes Resource Management and wait for cleanup to finish before deleting the application.',
-  'appOverview.app.delete.k8s.manage': 'Go to Kubernetes Resource Management',
-  'appOverview.app.delete.k8s.status': 'Deletion status: {status}',
-  'appOverview.app.delete.k8s.error': 'Deletion failure details: {error}',
 };
 
 //应用发布
@@ -341,14 +337,8 @@ const addKubenetesResource = {
   'addKubenetesResource.table.update_success': 'Update successful',
   'addKubenetesResource.table.update_error': 'Update failed',
   'addKubenetesResource.table.error': 'Create failed',
-  'addKubenetesResource.table.deleting': 'Deleting',
-  'addKubenetesResource.table.active': 'Active',
-  'addKubenetesResource.table.delete_failed': 'Delete failed',
-  'addKubenetesResource.table.delete_errorDetail': 'Delete failure details',
   'addKubenetesResource.table.checkDetail': 'Details',
   'addKubenetesResource.table.errorDetail': 'Failure Details',
-  'addKubenetesResource.table.btn.retry_delete': 'Retry delete',
-  'addKubenetesResource.notification.deleteSubmitted': 'Deletion submitted',
   'addKubenetesResource.localContent.yaml': '#Please fill in the YAML file',
 }
 
