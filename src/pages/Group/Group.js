@@ -102,7 +102,6 @@ export default class Index extends PureComponent {
     this.loading();
     this.handleArchCpuInfo();
     this.handleWaitLevel();
-    this.handleGroupAllResource()
     this.getStorageUsed()
   }
 
@@ -370,8 +369,7 @@ export default class Index extends PureComponent {
     this.setState({ type });
   };
   toDelete = () => {
-    this.closeComponentTimer();
-    this.setState({ toDelete: true });
+    this.handleGroupAllResource();
   };
   toDeleteResource = () => {
     this.setState({ toDeleteResource: true });
@@ -407,9 +405,14 @@ export default class Index extends PureComponent {
         group_id: this.getGroupId()
       },
       callback: res => {
-        this.setState({
-          resourceList: res.bean
-        })
+        if (res && res.status_code === 200) {
+          this.closeComponentTimer();
+          this.setState({
+            resourceList: res.bean || {},
+            toDelete: true,
+            toDeleteResource: false
+          })
+        }
       }
     })
   }

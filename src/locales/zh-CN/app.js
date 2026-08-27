@@ -110,6 +110,10 @@ const appOverview = {
   'appOverview.app.delete.table.td.k8s': 'K8S资源名称（类型）',
   'appOverview.app.delete.table.td.domain': '网关策略名称',
   'appOverview.app.delete.table.td.shareRecords': '发布模版名称（版本）',
+  'appOverview.app.delete.k8s.blocked': '应用包含 K8S 资源，请先在 Kubernetes 资源管理中删除并确认资源已清理后，再删除应用。',
+  'appOverview.app.delete.k8s.manage': '前往 Kubernetes 资源管理',
+  'appOverview.app.delete.k8s.status': '删除状态：{status}',
+  'appOverview.app.delete.k8s.error': '删除失败详情：{error}',
 };
 
 //应用发布
@@ -345,6 +349,7 @@ const addKubenetesResource = {
   'addKubenetesResource.table.update_error': '更新失败',
   'addKubenetesResource.table.error': '创建失败',
   'addKubenetesResource.table.deleting': '删除中',
+  'addKubenetesResource.table.active': '正常',
   'addKubenetesResource.table.delete_failed': '删除失败',
   'addKubenetesResource.table.delete_errorDetail': '删除失败详情',
   'addKubenetesResource.table.checkDetail': '查看详情',

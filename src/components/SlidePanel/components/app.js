@@ -137,9 +137,14 @@ export default class app extends Component {
         group_id: globalUtil.getAppID()
       },
       callback: res => {
-        this.setState({
-          resourceList: res.bean
-        })
+        if (res && res.status_code === 200) {
+          this.closeComponentTimer();
+          this.setState({
+            resourceList: res.bean || {},
+            toDelete: true,
+            toDeleteResource: false
+          })
+        }
       }
     })
   }
@@ -830,8 +835,7 @@ export default class app extends Component {
     });
   };
   toDelete = () => {
-    this.closeComponentTimer();
-    this.setState({ toDelete: true }, this.handleGroupAllResource);
+    this.handleGroupAllResource();
   };
   toDeleteResource = () => {
     this.setState({ toDeleteResource: true });
