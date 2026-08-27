@@ -47,3 +47,9 @@ test('device authorization shows one inline restriction notice without a modal',
   assert.match(source, /deviceAuthorization\.access\.restricted\.enterprise/);
   assert.match(source, /href=\{AGENT_ENTERPRISE_EDITION_URL\}/);
 });
+
+test('device authorization displays the login name for the current account', () => {
+  assert.doesNotMatch(source, /currentUser\.nick_name/);
+  assert.match(source, /currentUser && currentUser\.user_name/);
+  assert.match(source, /<dd>\{currentAccount \|\| '-'\}<\/dd>/);
+});

@@ -188,6 +188,7 @@ export default class DeviceAuthorization extends Component {
   renderConfirm() {
     const { grant, currentUser, status } = this.props;
     const { accessStatus } = this.state;
+    const currentAccount = currentUser && currentUser.user_name;
     const accessRestricted = accessStatus === 'denied';
     const accessError = accessStatus === 'error';
     return (
@@ -197,7 +198,7 @@ export default class DeviceAuthorization extends Component {
           <dt><FormattedMessage id="deviceAuthorization.client" /></dt>
           <dd>{grant.client_name}</dd>
           <dt><FormattedMessage id="deviceAuthorization.account" /></dt>
-          <dd>{(currentUser && currentUser.nick_name) || '-'}</dd>
+          <dd>{currentAccount || '-'}</dd>
           <dt><FormattedMessage id="deviceAuthorization.permission" /></dt>
           <dd><FormattedMessage id="deviceAuthorization.permission.mcp" /></dd>
         </dl>
