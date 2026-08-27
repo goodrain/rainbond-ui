@@ -529,6 +529,7 @@ const topology = {
 const JavaMaven = {
   'JavaMaven.Alert':'以下为检测出的Maven多模块项目的模块信息, 请选择需要构建的模块, 并确认构建信息',
   'JavaMaven.name':'模块名称',
+  'JavaMaven.possible_dependency':'可能是依赖模块',
   'JavaMaven.cname':'组件名称',
   'JavaMaven.packaging':'包类型',
   'JavaMaven.envs':'构建变量信息',
