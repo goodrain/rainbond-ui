@@ -188,8 +188,7 @@ export default class DeviceAuthorization extends Component {
   renderConfirm() {
     const { grant, currentUser, status } = this.props;
     const { accessStatus } = this.state;
-    const currentAccount =
-      currentUser && (currentUser.nick_name || currentUser.user_name);
+    const currentAccount = currentUser && currentUser.user_name;
     const accessRestricted = accessStatus === 'denied';
     const accessError = accessStatus === 'error';
     return (
