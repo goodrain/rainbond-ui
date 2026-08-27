@@ -23,6 +23,8 @@ import pageheaderSvg from '@/utils/pageHeaderSvg';
 import jsYaml from 'js-yaml';
 import styles from './index.less';
 import theme from '../../../config/theme';
+import userUtil from '../../utils/user';
+import Exception from '../Exception/403';
 
 const { TabPane } = Tabs;
 const { Option } = Select;
@@ -147,12 +149,13 @@ const StatusDot = ({ status }) => {
   );
 };
 
-@connect(({ platformResources }) => ({
+@connect(({ platformResources, user }) => ({
   storageClasses: platformResources.storageClasses,
   persistentVolumes: platformResources.persistentVolumes,
   platformResources: platformResources.platformResources,
   resourceInstances: platformResources.resourceInstances,
   storageConfig: platformResources.storageConfig,
+  currentUser: user.currentUser,
 }))
 class PlatformResources extends PureComponent {
   state = {
@@ -187,11 +190,19 @@ class PlatformResources extends PureComponent {
   };
 
   componentDidMount() {
+    if (!this.canAccessPlatformResources()) {
+      return;
+    }
     this.fetchStorageClasses();
     this.fetchPersistentVolumes();
     this.fetchStorageConfig();
     this.fetchPlatformResources();
   }
+
+  canAccessPlatformResources = () => {
+    const { currentUser } = this.props;
+    return userUtil.isCompanyAdmin(currentUser);
+  };
 
   componentDidUpdate(prevProps, prevState) {
     const resourcesChanged = prevProps.platformResources !== this.props.platformResources;
@@ -1344,6 +1355,10 @@ class PlatformResources extends PureComponent {
   }
 
   render() {
+    if (!this.canAccessPlatformResources()) {
+      return <Exception />;
+    }
+
     const { createModalVisible, yamlContent, mainTab, storageResourceModal } = this.state;
 
     const storageResourceModalTitle = storageResourceModal.mode === 'edit'
