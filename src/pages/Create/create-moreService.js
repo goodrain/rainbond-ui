@@ -12,9 +12,6 @@ import { batchOperation } from '../../services/app';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
 import handleAPIError from '../../utils/error';
-import moduleHelpers from '../../components/AppCreateMoreService/helpers';
-
-const { normalizeDetectedModules } = moduleHelpers;
 
 @connect(
   ({ teamControl }) => ({
@@ -27,6 +24,7 @@ const { normalizeDetectedModules } = moduleHelpers;
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
+    this.mounted = false;
     this.state = {
       // appPermissions: this.handlePermissions('queryAppInfo'),
       data: null,
@@ -39,10 +37,12 @@ export default class Index extends PureComponent {
     };
   }
   componentDidMount() {
+    this.mounted = true;
     this.getMultipleModulesInfo();
     this.loadBuildSourceInfo();
   }
   componentWillUnmount() {
+    this.mounted = false;
     this.props.dispatch({ type: 'appControl/clearDetail' });
   }
   getCheck_uuid() {
@@ -60,12 +60,18 @@ export default class Index extends PureComponent {
         service_alias: this.getAppAlias()
       },
       callback: res => {
+        if (!this.mounted) {
+          return;
+        }
         this.setState({
           cnbVersionPolicy: (res && res.bean && res.bean.cnb_version_policy) || {},
           cnbVersionPolicyLoading: false
         });
       },
       handleError: err => {
+        if (!this.mounted) {
+          return;
+        }
         this.setState({ cnbVersionPolicyLoading: false });
         handleAPIError(err);
       }
@@ -80,13 +86,30 @@ export default class Index extends PureComponent {
         check_uuid: this.getCheck_uuid()
       },
       callback: res => {
+        if (!this.mounted) {
+          return;
+        }
         if (res && res.status_code === 200) {
+          const detectedModules = Array.isArray(res.list) ? res.list : [];
           this.setState({
-            data: normalizeDetectedModules(res.list)
+            data: detectedModules.map(module => {
+              const clonedModule = module && typeof module === 'object'
+                ? { ...module }
+                : {};
+              if (Array.isArray(clonedModule.envs)) {
+                clonedModule.envs = clonedModule.envs.map(env =>
+                  env && typeof env === 'object' ? { ...env } : env
+                );
+              }
+              return clonedModule;
+            })
           });
         }
       },
       handleError: err => {
+        if (!this.mounted) {
+          return;
+        }
         handleAPIError(err);
       }
     });
