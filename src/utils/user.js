@@ -75,12 +75,7 @@ const userUtil = {
   },
   // 是否是企业管理员
   isCompanyAdmin(userBean) {
-    return (
-      userBean &&
-      userBean.roles &&
-      userBean.roles.length > 0 &&
-      userBean.roles.includes('admin')
-    );
+    return !!(userBean && userBean.is_enterprise_admin === true);
   },
   // 是否有对应的权限
   isPermissions(userBean, parameter) {
