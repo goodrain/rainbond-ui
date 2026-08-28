@@ -9,6 +9,8 @@ import globalUtil from '../../utils/global';
 import userUtil from '../../utils/user';
 import styles from './index.less';
 
+const { isSourceRoute } = require('./permission');
+
 /**
  * 获取菜单图标
  */
@@ -282,7 +284,7 @@ export default class GlobalRouter extends PureComponent {
     const { currentUser } = this.props;
     const team_name = globalUtil.getCurrTeamName();
 
-    if (item.path?.indexOf('source') > -1) {
+    if (isSourceRoute(item.path)) {
       return currentUser?.is_sys_admin || currentUser?.is_user_enter_amdin;
     }
     if (item.path?.indexOf('finance') > -1) {
