@@ -8,7 +8,6 @@ import {
   Drawer,
   Form,
   Input,
-  message,
   notification,
   Radio,
   Tooltip
@@ -17,6 +16,7 @@ import React, { PureComponent } from 'react';
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
+import cookie from '../../utils/cookie';
 import pluginUtil from '../../utils/plugin';
 
 const {
@@ -26,6 +26,9 @@ const {
   hasDuplicateStoragePath,
   validatePluginStorageName
 } = require('./storageConfigHelpers');
+const {
+  selectVolumeAccessMode
+} = require('../../pages/Plugin/manageStorageHelpers');
 
 const FormItem = Form.Item;
 
@@ -33,21 +36,94 @@ const FormItem = Form.Item;
 export default class AddVolumes extends PureComponent {
   constructor(props) {
     super(props);
+    const data = props.data || {};
+    const volumeOpts = props.volumeOpts || [];
+    const volumeType =
+      data.volume_type ||
+      (volumeOpts[0] && volumeOpts[0].volume_type) ||
+      'local-path';
+    const volumeOption = volumeOpts.find(
+      item => item.volume_type === volumeType
+    );
     this.state = {
-      volumeCapacityValidation: {},
-      optionsConfig: false
+      language: cookie.get('language') === 'zh-CN',
+      volumeCapacityValidation:
+        (volumeOption && volumeOption.capacity_validation) || {}
     };
+  }
+
+  componentDidUpdate(prevProps) {
+    const {
+      data = {},
+      editor,
+      form,
+      storageType = data.attr_type || 'storage',
+      volumeOpts = []
+    } = this.props;
+    if (
+      storageType !== 'storage' ||
+      prevProps.volumeOpts === volumeOpts
+    ) {
+      return;
+    }
+
+    const currentVolumeType = form.getFieldValue('volume_type');
+    const selectedVolumeType = editor
+      ? data.volume_type || currentVolumeType
+      : volumeOpts.some(item => item.volume_type === currentVolumeType)
+      ? currentVolumeType
+      : volumeOpts[0] && volumeOpts[0].volume_type;
+    const selectedOption = volumeOpts.find(
+      item => item.volume_type === selectedVolumeType
+    );
+    const volumeCapacityValidation =
+      (selectedOption && selectedOption.capacity_validation) || {};
+
+    this.setState({ volumeCapacityValidation });
+    if (!editor && selectedOption) {
+      form.setFieldsValue({
+        volume_type: selectedVolumeType,
+        volume_capacity:
+          volumeCapacityValidation.default ||
+          form.getFieldValue('volume_capacity') ||
+          10
+      });
+    }
   }
 
   // eslint-disable-next-line react/sort-comp
   handleSubmit = e => {
     e.preventDefault();
-    const { form, onSubmit, data } = this.props;
+    const {
+      form,
+      onSubmit,
+      data,
+      storageType = (data && data.attr_type) || 'storage',
+      volumeOpts = []
+    } = this.props;
     form.validateFields((err, values) => {
       if (!err && onSubmit) {
         const ismount = pluginUtil.isMountPath(values.volume_path);
         if (ismount) {
           return notification.warning({ message:  formatMessage({id:'notification.warn.mountPath'})});
+        }
+        values.attr_type = storageType;
+        values.storageType = storageType;
+        if (storageType === 'storage') {
+          const selectedOption = volumeOpts.find(
+            item => item.volume_type === values.volume_type
+          );
+          if (!selectedOption && !this.props.editor) {
+            notification.warning({
+              message: formatMessage({
+                id: 'componentOverview.body.StorageConfig.select_type'
+              })
+            });
+            return;
+          }
+          values.access_mode = this.props.editor
+            ? data.access_mode || 'RWO'
+            : selectVolumeAccessMode(selectedOption);
         }
         onSubmit(values, data);
       }
@@ -109,100 +185,93 @@ export default class AddVolumes extends PureComponent {
     }
   };
   handleChange = e => {
-    e.target.value === 'config-file'
-      ? this.setState({
-          optionsConfig: true
-        })
-      : this.setState({
-          optionsConfig: false
-        });
-  };
-  setVolumeCapacityValidation = volume_type => {
-    const { volumeOpts } = this.props;
-    for (let i = 0; i < volumeOpts.length; i++) {
-      if (
-        volumeOpts[i].volume_type === volume_type &&
-        volumeOpts[i].capacity_validation
-      ) {
-        this.setState({
-          volumeCapacityValidation: volumeOpts[i].capacity_validation
-        });
+    const { form } = this.props;
+    this.setVolumeCapacityValidation(e.target.value, validation => {
+      if (validation.default) {
+        form.setFieldsValue({ volume_capacity: validation.default });
       }
-    }
+    });
+  };
+  setVolumeCapacityValidation = (volume_type, callback) => {
+    const { volumeOpts = [] } = this.props;
+    const option = volumeOpts.find(item => item.volume_type === volume_type);
+    const volumeCapacityValidation =
+      (option && option.capacity_validation) || {};
+    this.setState({
+      volumeCapacityValidation
+    }, () => {
+      if (callback) {
+        callback(volumeCapacityValidation);
+      }
+    });
   };
   checkVolumeCapacity = (rules, value, callback) => {
-    if (value) {
-      if (value > 1000) {
-        callback(<FormattedMessage id='componentOverview.body.StorageConfig.Maximum_limit'/>);
-        return;
-      }
-      if (value < 0) {
-        callback(<FormattedMessage id='componentOverview.body.StorageConfig.Limit'/>);
-        return;
-      }
-    }
-    callback();
-  };
-  // 验证上传文件方式
-  checkFile = (rules, value, callback) => {
-    if (value) {
+    if (value !== undefined && value !== null && value !== '') {
+      const { volumeCapacityValidation } = this.state;
+      const min = Number(volumeCapacityValidation.min) || 1;
+      const max = Number(volumeCapacityValidation.max) || 500;
+      const capacity = Number(value);
       if (
-        value.fileList.length > 0 &&
-        (value.file.name.endsWith('.txt') ||
-          value.file.name.endsWith('.json') ||
-          value.file.name.endsWith('.yaml') ||
-          value.file.name.endsWith('.yml') ||
-          value.file.name.endsWith('.xml'))
+        !Number.isFinite(capacity) ||
+        !Number.isInteger(capacity) ||
+        capacity <= 0 ||
+        capacity < min ||
+        capacity > max
       ) {
-        const fileList = value.fileList.splice(-1);
-        this.readFileContents(fileList, 'file_content');
-        callback();
+        callback(
+          <FormattedMessage
+            id='componentOverview.body.StorageConfig.capacity_range'
+            values={{ min, max }}
+          />
+        );
         return;
       }
     }
     callback();
-  };
-  beforeUpload = file => {
-    const fileArr = file.name.split('.');
-    const { length } = fileArr;
-    const isRightType =
-      fileArr[length - 1] == 'txt' ||
-      fileArr[length - 1] == 'json' ||
-      fileArr[length - 1] == 'yaml' ||
-      fileArr[length - 1] == 'yml' ||
-      fileArr[length - 1] == 'xml';
-    if (!isRightType) {
-      message.error( `${formatMessage({id:'notification.error.upload'})}`, 5);
-      return false;
-    }
-    return true;
-  };
-  readFileContents = (fileList, name) => {
-    const _th = this;
-    let fileString = '';
-    for (let i = 0; i < fileList.length; i++) {
-      const reader = new FileReader(); // 新建一个FileReader
-      reader.readAsText(fileList[i].originFileObj, 'UTF-8'); // 读取文件
-      reader.onload = function ss(evt) {
-        // 读取完文件之后会回来这里
-        fileString += evt.target.result; // 读取文件内容
-        _th.props.form.setFieldsValue({ [name]: fileString });
-      };
-    }
   };
   render() {
     const {
       data = {},
-      form: { getFieldDecorator, setFieldsValue }
+      form: { getFieldDecorator, setFieldsValue },
+      storageType = data.attr_type || 'storage',
+      volumeOpts = []
     } = this.props;
-    const { volumeCapacityValidation, optionsConfig } = this.state;
-    let defaultVolumeCapacity = '';
-    if (data.volume_capacity) {
-      defaultVolumeCapacity = data.volume_capacity || '';
-    }
-    if (volumeCapacityValidation.default) {
-      defaultVolumeCapacity = volumeCapacityValidation.default || '';
-    }
+    const { language, volumeCapacityValidation } = this.state;
+    const minimumVolumeCapacity =
+      Number(volumeCapacityValidation.min) || 1;
+    const maximumVolumeCapacity =
+      Number(volumeCapacityValidation.max) || 500;
+    const defaultVolumeCapacity =
+      data.volume_capacity !== undefined &&
+      data.volume_capacity !== null &&
+      data.volume_capacity !== ''
+        ? data.volume_capacity
+        : volumeCapacityValidation.default || 10;
+    const defaultVolumeType =
+      data.volume_type ||
+      (volumeOpts[0] && volumeOpts[0].volume_type) ||
+      'local-path';
+    const displayVolumeOpts =
+      this.props.editor &&
+      data.volume_type &&
+      !volumeOpts.some(item => item.volume_type === data.volume_type)
+        ? [
+            {
+              volume_type: data.volume_type,
+              name_show: data.volume_type,
+              description: ''
+            },
+            ...volumeOpts
+          ]
+        : volumeOpts;
+    const drawerTitleId =
+      storageType === 'config-file'
+        ? this.props.editor
+          ? 'componentOverview.body.StorageConfig.edit_config_file'
+          : 'componentOverview.body.StorageConfig.add_config_file'
+        : this.props.editor
+        ? 'componentOverview.body.StorageConfig.edit_persistent_storage'
+        : 'componentOverview.body.StorageConfig.add_persistent_storage';
 
     const formItemLayout = {
       labelCol: {
@@ -216,7 +285,7 @@ export default class AddVolumes extends PureComponent {
     };
     return (
       <Drawer
-        title={this.props.editor ? <FormattedMessage id='componentOverview.body.StorageConfig.edit'/> : <FormattedMessage id='componentOverview.body.StorageConfig.add'/>}
+        title={<FormattedMessage id={drawerTitleId}/>}
         placement="right"
         width={500}
         closable={false}
@@ -260,10 +329,10 @@ export default class AddVolumes extends PureComponent {
               ]
             })(<Input  placeholder={formatMessage({id:'componentOverview.body.StorageConfig.path'})}/>)}
           </FormItem>
-          {!this.props.editor && (
-            <FormItem {...formItemLayout}  label={<FormattedMessage id='componentOverview.body.StorageConfig.type'/>}>
+          {storageType === 'storage' && (
+            <FormItem {...formItemLayout} label={<FormattedMessage id='componentOverview.body.AddVolumes.type'/>}>
               {getFieldDecorator('volume_type', {
-                initialValue: data.attr_type || 'storage',
+                initialValue: defaultVolumeType,
                 rules: [
                   {
                     required: true,
@@ -272,23 +341,46 @@ export default class AddVolumes extends PureComponent {
                 ]
               })(
                 <Radio.Group onChange={this.handleChange}>
-                  <Radio key="1" value="storage" disabled={!!this.props.editor}>
-                    <Tooltip title=""><FormattedMessage id='componentOverview.body.StorageConfig.shared_storage'/></Tooltip>
-                  </Radio>
-                  <Radio
-                    key="2"
-                    value="config-file"
-                    disabled={!!this.props.editor}
-                  >
-                    <Tooltip title=""><FormattedMessage id='componentOverview.body.StorageConfig.file'/></Tooltip>
-                  </Radio>
+                  {displayVolumeOpts.map(item => (
+                    <Radio
+                      key={item.volume_type}
+                      value={item.volume_type}
+                      disabled={!!this.props.editor}
+                    >
+                      <Tooltip title={item.description || ''}>
+                        {language
+                          ? item.name_show || item.volume_type
+                          : item.volume_type}
+                      </Tooltip>
+                    </Radio>
+                  ))}
                 </Radio.Group>
               )}
             </FormItem>
           )}
 
-          {/* 配置项 */}
-          {(optionsConfig || data.attr_type === 'config-file') && (
+          {storageType === 'storage' && (
+            <FormItem {...formItemLayout} label={<FormattedMessage id='componentOverview.body.AddVolumes.volume_capacity'/>}>
+              {getFieldDecorator('volume_capacity', {
+                initialValue: defaultVolumeCapacity,
+                rules: [
+                  {
+                    required: true,
+                    validator: this.checkVolumeCapacity
+                  }
+                ]
+              })(
+                <Input
+                  type="number"
+                  min={minimumVolumeCapacity}
+                  max={maximumVolumeCapacity}
+                  placeholder={formatMessage({id:'componentOverview.body.AddVolumes.input'})}
+                />
+              )}
+            </FormItem>
+          )}
+
+          {storageType === 'config-file' && (
             <CodeMirrorForm
               setFieldsValue={setFieldsValue}
               formItemLayout={formItemLayout}
@@ -327,6 +419,11 @@ export default class AddVolumes extends PureComponent {
             onClick={this.handleSubmit}
             type="primary"
             loading={!!this.props.loading}
+            disabled={
+              storageType === 'storage' &&
+              !this.props.editor &&
+              volumeOpts.length === 0
+            }
           >
             <FormattedMessage id='componentOverview.body.StorageConfig.confirm'/>
           </Button>

@@ -53,7 +53,11 @@ export default class Index extends PureComponent {
       page_size: 6,
       total: 0,
       storgeListData: [],
+      configFileListData: [],
+      persistentStorageListData: [],
+      volumeOpts: [],
       showStorageConfig: false,
+      storageConfigType: 'storage',
       editStoragData: {},
       isEditor: false,
       configStorageVisible: false,
@@ -67,6 +71,7 @@ export default class Index extends PureComponent {
     this.getVersions();
     this.getUsedApp();
     this.getShareRecord();
+    this.getPluginVolumeOpts();
   }
 
   componentWillUnmount() {
@@ -76,6 +81,28 @@ export default class Index extends PureComponent {
   onPageChange = page => {
     this.setState({ page }, () => {
       this.getUsedApp();
+    });
+  };
+  // 获取插件可用的持久化存储类型
+  getPluginVolumeOpts = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'plugin/getPluginVolumeOpts',
+      payload: {
+        team_name: globalUtil.getCurrTeamName()
+      },
+      callback: data => {
+        if (data) {
+          this.setState({
+            volumeOpts: (data.list || []).filter(
+              item => item.volume_type !== 'memoryfs'
+            )
+          });
+        }
+      },
+      handleError: err => {
+        handleAPIError(err);
+      }
     });
   };
   // 获取分享记录
@@ -186,9 +213,17 @@ export default class Index extends PureComponent {
         const {
           config,
           storageListData,
+          configFileListData,
+          persistentStorageListData,
           listData
         } = partitionPluginVersionConfig(data && data.list);
-        this.setState({ config, storgeListData: storageListData, listData });
+        this.setState({
+          config,
+          storgeListData: storageListData,
+          configFileListData,
+          persistentStorageListData,
+          listData
+        });
       },
       handleError: err => {
         handleAPIError(err);
@@ -478,8 +513,8 @@ export default class Index extends PureComponent {
   };
 
   // 显示添加存储配置弹窗
-  showAddStorgeConfig = () => {
-    this.setState({ showStorageConfig: true });
+  showAddStorgeConfig = storageConfigType => {
+    this.setState({ showStorageConfig: true, storageConfigType });
   };
 
   // 取消添加存储配置
@@ -487,7 +522,8 @@ export default class Index extends PureComponent {
     this.setState({
       showStorageConfig: false,
       editStoragData: {},
-      isEditor: false
+      isEditor: false,
+      storageConfigType: 'storage'
     });
     type &&
       notification.success({
@@ -496,10 +532,16 @@ export default class Index extends PureComponent {
   };
   // 新增或编辑存储
   handleSubmitStorageConfig = (vals, data) => {
-    const { isEditor, listData, storgeListData } = this.state;
+    const {
+      isEditor,
+      listData,
+      storgeListData,
+      storageConfigType
+    } = this.state;
     const params = buildStorageSavePayload({
       values: vals,
       data,
+      storageType: storageConfigType,
       isEditor,
       storageListData: storgeListData,
       listData
@@ -511,6 +553,7 @@ export default class Index extends PureComponent {
     this.setState({
       isEditor: true,
       editStoragData: toStorageEditorData(data),
+      storageConfigType: data.attr_type || 'storage',
       showStorageConfig: true
     });
   };
@@ -573,7 +616,11 @@ export default class Index extends PureComponent {
       page_size,
       total,
       storgeListData,
+      configFileListData,
+      persistentStorageListData,
+      volumeOpts,
       showStorageConfig,
+      storageConfigType,
       isEditor,
       configStorageVisible,
       removeStorageLoading,
@@ -775,15 +822,15 @@ export default class Index extends PureComponent {
             </Button>
           </div>
         </Card>
-        {/* 存储管理 */}
+        {/* 配置文件 */}
         <Card
           style={{
             marginBottom: 16
           }}
-          title={formatMessage({id:'teamOther.manage.title'})}
+          title={formatMessage({id:'teamOther.manage.config_file_title'})}
         >
           <Table
-            rowKey={(record,index) => index}
+            rowKey={record => record.ID || record.attr_name || record.config_name}
             columns={[
               {
                 title: formatMessage({id:'teamOther.manage.name'}),
@@ -792,17 +839,9 @@ export default class Index extends PureComponent {
               },
               { title: formatMessage({id:'teamOther.manage.path'}), dataIndex: 'volume_path', key: '2' },
               {
-                title: formatMessage({id:'teamOther.manage.type'}),
-                dataIndex: 'attr_type',
-                key: '3',
-                render: val => {
-                  return val === 'storage' ? formatMessage({id:'teamOther.manage.share'}) : formatMessage({id:'teamOther.manage.add_file'});
-                }
-              },
-              {
                 title: formatMessage({id:'teamOther.manage.action'}),
                 dataIndex: 'action',
-                key: '4',
+                key: '3',
                 render: (_v, data) => {
                   return (
                     <Fragment>
@@ -832,7 +871,7 @@ export default class Index extends PureComponent {
                 }
               }
             ]}
-            dataSource={storgeListData}
+            dataSource={configFileListData}
             pagination={false}
           />
 
@@ -842,10 +881,99 @@ export default class Index extends PureComponent {
               paddingTop: 24
             }}
           >
-            <Button onClick={this.showAddStorgeConfig}>
-              <Icon type="plus" />
-              {formatMessage({id:'teamOther.manage.add_storage'})}
-            </Button>
+            {isCreate && (
+              <Button
+                onClick={() => this.showAddStorgeConfig('config-file')}
+              >
+                <Icon type="plus" />
+                {formatMessage({id:'teamOther.manage.add_config_file'})}
+              </Button>
+            )}
+          </div>
+        </Card>
+        {/* 持久化存储 */}
+        <Card
+          style={{
+            marginBottom: 16
+          }}
+          title={formatMessage({id:'teamOther.manage.persistent_storage_title'})}
+        >
+          <Table
+            rowKey={record => record.ID || record.attr_name || record.config_name}
+            columns={[
+              {
+                title: formatMessage({id:'teamOther.manage.name'}),
+                dataIndex: 'config_name',
+                key: '1'
+              },
+              {
+                title: formatMessage({id:'teamOther.manage.path'}),
+                dataIndex: 'volume_path',
+                key: '2'
+              },
+              {
+                title: formatMessage({id:'teamOther.manage.storage_class'}),
+                dataIndex: 'volume_type',
+                key: '3'
+              },
+              {
+                title: formatMessage({id:'teamOther.manage.capacity'}),
+                dataIndex: 'volume_capacity',
+                key: '4'
+              },
+              {
+                title: formatMessage({id:'teamOther.manage.access_mode'}),
+                dataIndex: 'access_mode',
+                key: '5'
+              },
+              {
+                title: formatMessage({id:'teamOther.manage.action'}),
+                dataIndex: 'action',
+                key: '6',
+                render: (_v, data) => {
+                  return (
+                    <Fragment>
+                      {isEdit && (
+                        <a
+                          onClick={() => {
+                            this.handleEditStorage(data);
+                          }}
+                          style={{
+                            marginRight: 8
+                          }}
+                        >
+                          {formatMessage({id:'teamOther.manage.edit'})}
+                        </a>
+                      )}
+                      {isDelete && (
+                        <a
+                          onClick={() => {
+                            this.handleDeleteStorage(data);
+                          }}
+                        >
+                          {formatMessage({id:'teamOther.manage.delete'})}
+                        </a>
+                      )}
+                    </Fragment>
+                  );
+                }
+              }
+            ]}
+            dataSource={persistentStorageListData}
+            pagination={false}
+          />
+          <div
+            style={{
+              textAlign: 'right',
+              paddingTop: 24
+            }}
+          >
+            {isCreate && (
+              <Button onClick={() => this.showAddStorgeConfig('storage')}>
+                <Icon type="plus" />
+                {formatMessage({id:'teamOther.manage.add_persistent_storage'})}
+              </Button>
+            )}
           </div>
         </Card>
         <Card title={formatMessage({id:'teamOther.manage.already_installed'})}>
@@ -960,6 +1088,8 @@ export default class Index extends PureComponent {
             editor={isEditor}
             loading={isEditor ? editConfigLoading : addConfigLoading}
             storageList={storgeListData}
+            storageType={storageConfigType}
+            volumeOpts={volumeOpts}
           />
         )}
       </PageHeaderLayout>
