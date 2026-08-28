@@ -5,6 +5,7 @@ import {
   getPluginVersions,
   getPluginVersionInfo,
   getPluginVersionConfig,
+  getPluginVolumeOpts,
   editPluginVersionInfo,
   addPluginVersionConfig,
   removePluginVersionConfig,
@@ -149,6 +150,12 @@ export default {
     },
     *getPluginVersionConfig({ payload, callback }, { call }) {
       const response = yield call(getPluginVersionConfig, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *getPluginVolumeOpts({ payload, callback }, { call }) {
+      const response = yield call(getPluginVolumeOpts, payload);
       if (response && callback) {
         callback(response);
       }

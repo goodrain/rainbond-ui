@@ -520,10 +520,15 @@ const JavaMaven = {
   'JavaMaven.Alert':'The following is the detected module information of the Maven multi-module project. Please select the module to be built and confirm the construction information',
   'JavaMaven.name':'Module name',
   'JavaMaven.cname':'Component name',
+  'JavaMaven.component_info':'Component info',
   'JavaMaven.packaging':'Package type',
   'JavaMaven.envs':'Build env info',
+  'JavaMaven.source_build_parameters':'Source build parameters',
+  'JavaMaven.source_build_parameters_tip':'Only the source build parameters that must be confirmed before creation are shown here. After creating the component, open Build Settings to view and edit the complete configuration.',
+  'JavaMaven.openjdk_version':'OpenJDK version',
   'JavaMaven.OPTS':'Maven build Parameters',
   'JavaMaven.GOALS':'Maven build commands',
+  'JavaMaven.build_module':'Build module',
   'JavaMaven.startValue':'Start Command (Optional)',
   'JavaMaven.index':'Port',
   'JavaMaven.id':'Operation',
@@ -535,6 +540,8 @@ const JavaMaven = {
   'JavaMaven.title':'JavaMaven Multi-module Settings',
   'JavaMaven.Tooltip':'Deselect this option to start without the build.',
   'JavaMaven.arch':'cpu architecture',
+  'JavaMaven.edit':'Edit',
+  'JavaMaven.k8s_name_duplicate':'The English component name must be unique across modules',
 }
 const helmAppInstall = {
   //安装检测主页

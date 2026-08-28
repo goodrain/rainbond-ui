@@ -75,6 +75,7 @@ const hasValue = value => typeof value === 'string' ? value.trim() !== '' : !!va
 class JavaCNBConfig extends PureComponent {
   constructor(props) {
     super(props);
+    this.mounted = false;
     this.state = {
       mavenVisible: false,
       MavenList: [],
@@ -84,9 +85,14 @@ class JavaCNBConfig extends PureComponent {
   }
 
   componentDidMount() {
+    this.mounted = true;
     if (this.isMavenLanguage(this.props.languageType)) {
       this.fetchMavensettings();
     }
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
   }
 
   componentDidUpdate(prevProps) {
@@ -131,7 +137,7 @@ class JavaCNBConfig extends PureComponent {
         onlyname: true
       },
       callback: res => {
-        if (res && res.status_code === 200) {
+        if (this.mounted && res && res.status_code === 200) {
           this.setState({ MavenList: res.list || [] });
         }
       },

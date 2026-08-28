@@ -24,19 +24,25 @@ import handleAPIError from '../../utils/error';
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
+    this.mounted = false;
     this.state = {
       // appPermissions: this.handlePermissions('queryAppInfo'),
       data: null,
       JavaMavenData: [],
       is_deploy: true,
       deleteLoading: false,
-      buildState: false
+      buildState: false,
+      cnbVersionPolicy: {},
+      cnbVersionPolicyLoading: true
     };
   }
   componentDidMount() {
+    this.mounted = true;
     this.getMultipleModulesInfo();
+    this.loadBuildSourceInfo();
   }
   componentWillUnmount() {
+    this.mounted = false;
     this.props.dispatch({ type: 'appControl/clearDetail' });
   }
   getCheck_uuid() {
@@ -46,6 +52,32 @@ export default class Index extends PureComponent {
     return this.props.match.params.appAlias;
   }
 
+  loadBuildSourceInfo = () => {
+    this.props.dispatch({
+      type: 'appControl/getAppBuidSource',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        service_alias: this.getAppAlias()
+      },
+      callback: res => {
+        if (!this.mounted) {
+          return;
+        }
+        this.setState({
+          cnbVersionPolicy: (res && res.bean && res.bean.cnb_version_policy) || {},
+          cnbVersionPolicyLoading: false
+        });
+      },
+      handleError: err => {
+        if (!this.mounted) {
+          return;
+        }
+        this.setState({ cnbVersionPolicyLoading: false });
+        handleAPIError(err);
+      }
+    });
+  };
+
   getMultipleModulesInfo = () => {
     this.props.dispatch({
       type: 'appControl/getMultipleModulesInfo',
@@ -54,13 +86,30 @@ export default class Index extends PureComponent {
         check_uuid: this.getCheck_uuid()
       },
       callback: res => {
+        if (!this.mounted) {
+          return;
+        }
         if (res && res.status_code === 200) {
+          const detectedModules = Array.isArray(res.list) ? res.list : [];
           this.setState({
-            data: res.list
+            data: detectedModules.map(module => {
+              const clonedModule = module && typeof module === 'object'
+                ? { ...module }
+                : {};
+              if (Array.isArray(clonedModule.envs)) {
+                clonedModule.envs = clonedModule.envs.map(env =>
+                  env && typeof env === 'object' ? { ...env } : env
+                );
+              }
+              return clonedModule;
+            })
           });
         }
       },
       handleError: err => {
+        if (!this.mounted) {
+          return;
+        }
         handleAPIError(err);
       }
     });
@@ -200,17 +249,12 @@ export default class Index extends PureComponent {
       is_deploy,
       buildState,
       showDelete,
-      deleteLoading
+      deleteLoading,
+      cnbVersionPolicy,
+      cnbVersionPolicyLoading
       // appPermissions: { isDelete }
     } = this.state;
     const isDelete = true;
-    const arr = data;
-    if (arr && arr.length > 0) {
-      arr.map((item, index) => {
-        arr[index].index = index;
-      });
-    }
-
     return (
       <>
         <PageHeaderLayout
@@ -226,7 +270,9 @@ export default class Index extends PureComponent {
           >
             {data && data.length > 0 && (
               <AppCreateMoreService
-                data={arr}
+                data={data}
+                cnbVersionPolicy={cnbVersionPolicy}
+                cnbVersionPolicyLoading={cnbVersionPolicyLoading}
                 onSubmit={JavaMavenData => {
                   this.setState({
                     JavaMavenData

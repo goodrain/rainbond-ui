@@ -530,10 +530,15 @@ const JavaMaven = {
   'JavaMaven.Alert':'以下为检测出的Maven多模块项目的模块信息, 请选择需要构建的模块, 并确认构建信息',
   'JavaMaven.name':'模块名称',
   'JavaMaven.cname':'组件名称',
+  'JavaMaven.component_info':'组件信息',
   'JavaMaven.packaging':'包类型',
   'JavaMaven.envs':'构建变量信息',
+  'JavaMaven.source_build_parameters':'源码构建参数',
+  'JavaMaven.source_build_parameters_tip':'这里只展示创建前需要确认的部分源码构建参数。组件创建后，可进入组件「构建设置」查看和修改完整配置。',
+  'JavaMaven.openjdk_version':'OpenJDK版本',
   'JavaMaven.OPTS':'Maven构建参数',
   'JavaMaven.GOALS':'Maven构建命令',
+  'JavaMaven.build_module':'构建模块',
   'JavaMaven.startValue':'启动命令（可选）',
   'JavaMaven.index':'端口',
   'JavaMaven.id':'操作',
@@ -545,6 +550,8 @@ const JavaMaven = {
   'JavaMaven.title':'JavaMaven多模块设置',
   'JavaMaven.Tooltip':'取消本选项,不构建启动。',
   'JavaMaven.arch':'cpu架构',
+  'JavaMaven.edit':'编辑',
+  'JavaMaven.k8s_name_duplicate':'组件英文名称不能与其他模块重复',
 }
 const helmAppInstall = {
   //安装检测主页
