@@ -958,6 +958,8 @@ export default class Index extends PureComponent {
             onSubmit={this.handleSubmitStorageConfig}
             data={editStoragData} // 编辑数据
             editor={isEditor}
+            loading={isEditor ? editConfigLoading : addConfigLoading}
+            storageList={storgeListData}
           />
         )}
       </PageHeaderLayout>

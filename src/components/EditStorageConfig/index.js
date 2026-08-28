@@ -19,6 +19,14 @@ import { formatMessage } from '@/utils/intl';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
 import pluginUtil from '../../utils/plugin';
 
+const {
+  STORAGE_NAME_ERROR_INVALID,
+  STORAGE_NAME_ERROR_TOO_LONG,
+  hasDuplicateStorageName,
+  hasDuplicateStoragePath,
+  validatePluginStorageName
+} = require('./storageConfigHelpers');
+
 const FormItem = Form.Item;
 
 @Form.create()
@@ -27,8 +35,7 @@ export default class AddVolumes extends PureComponent {
     super(props);
     this.state = {
       volumeCapacityValidation: {},
-      optionsConfig: false,
-      loading: false
+      optionsConfig: false
     };
   }
 
@@ -38,7 +45,6 @@ export default class AddVolumes extends PureComponent {
     const { form, onSubmit, data } = this.props;
     form.validateFields((err, values) => {
       if (!err && onSubmit) {
-        this.setState({ loading: true });
         const ismount = pluginUtil.isMountPath(values.volume_path);
         if (ismount) {
           return notification.warning({ message:  formatMessage({id:'notification.warn.mountPath'})});
@@ -46,6 +52,27 @@ export default class AddVolumes extends PureComponent {
         onSubmit(values, data);
       }
     });
+  };
+  checkStorageName = (_, value, callback) => {
+    const { data, storageList } = this.props;
+    const nameError = validatePluginStorageName(value);
+    if (nameError === STORAGE_NAME_ERROR_TOO_LONG) {
+      callback(
+        <FormattedMessage id='componentOverview.body.StorageConfig.Maximum_length'/>
+      );
+      return;
+    }
+    if (nameError === STORAGE_NAME_ERROR_INVALID) {
+      callback(<FormattedMessage id='componentOverview.body.StorageConfig.only'/>);
+      return;
+    }
+    if (hasDuplicateStorageName(storageList, data, value)) {
+      callback(
+        <FormattedMessage id='componentOverview.body.StorageConfig.duplicate_name'/>
+      );
+      return;
+    }
+    callback();
   };
   checkMountPath = (_, value, callback) => {
     if (value === '' || !value) {
@@ -63,6 +90,13 @@ export default class AddVolumes extends PureComponent {
     }
     if (!/^\//g.test(value)) {
       callback(<FormattedMessage id='componentOverview.body.StorageConfig.start'/>);
+      return;
+    }
+    const { data, storageList } = this.props;
+    if (hasDuplicateStoragePath(storageList, data, value)) {
+      callback(
+        <FormattedMessage id='componentOverview.body.StorageConfig.duplicate_path'/>
+      );
       return;
     }
     callback();
@@ -205,12 +239,7 @@ export default class AddVolumes extends PureComponent {
                   message: formatMessage({id:'componentOverview.body.StorageConfig.input_name'}),
                 },
                 {
-                  max: 40,
-                  message: formatMessage({id:'componentOverview.body.StorageConfig.Maximum_length'}),
-                },
-                {
-                  pattern: /^[a-zA-Z0-9]([-a-zA-Z0-9_]*[a-zA-Z0-9])?$/,
-                  message: formatMessage({id:'componentOverview.body.StorageConfig.only'}),
+                  validator: this.checkStorageName
                 }
               ]
             })(
@@ -297,7 +326,7 @@ export default class AddVolumes extends PureComponent {
           <Button
             onClick={this.handleSubmit}
             type="primary"
-            loading={this.state.loading}
+            loading={!!this.props.loading}
           >
             <FormattedMessage id='componentOverview.body.StorageConfig.confirm'/>
           </Button>
