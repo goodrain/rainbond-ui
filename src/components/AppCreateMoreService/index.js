@@ -7,24 +7,31 @@ import {
   Radio,
   Input,
   Form,
-  notification
+  notification,
+  Icon,
+  Tooltip
 } from "antd";
 import { connect } from "dva";
 import { formatMessage } from '@/utils/intl';
 import globalUtil from "../../utils/global";
+import handleAPIError from "../../utils/error";
 import cookie from "@/utils/cookie";
-import JavaCNBConfig from "../CodeBuildConfig/java-cnb";
+import {
+  getArchRules,
+  getK8sComponentNameRules,
+  getServiceNameRules
+} from "../CodeJwarForm/validations";
 import styles from "./setting.less";
 import moduleHelpers from "./helpers";
 
 const {
-  MODULE_ROLE_POSSIBLE_DEPENDENCY,
   envListToMap,
+  getDefaultOpenJDKVersion,
   getDefaultSelectedKeys,
   getSelectedModules,
-  mergeModuleBuildEnvs,
-  reconcileSelectedKeys,
-  sortModules
+  isK8sNameDuplicate,
+  normalizeDetectedModules,
+  reconcileSelectedKeys
 } = moduleHelpers;
 
 @connect(
@@ -37,16 +44,16 @@ const {
 class BaseInfo extends PureComponent {
   constructor(props) {
     super(props);
-    const memoryList = sortModules(this.props.data);
+    this.mounted = false;
+    const memoryList = normalizeDetectedModules(this.props.data);
     this.state = {
-      isShow: [true, true],
       memoryList,
       isEdit: false,
       editData: false,
-      editEnvMap: {},
       selectedRowKeys: getDefaultSelectedKeys(memoryList),
       language: cookie.get('language') === 'zh-CN' ? true : false,
-      archInfo: []
+      archInfo: [],
+      archInfoLoading: true
     };
   }
 
@@ -54,12 +61,16 @@ class BaseInfo extends PureComponent {
   //     return true
   // }
   componentDidMount() {
+    this.mounted = true;
     this.submitSelectedModules();
     this.handleArchCpuInfo()
   }
+  componentWillUnmount() {
+    this.mounted = false;
+  }
   componentDidUpdate(prevProps) {
     if (prevProps.data !== this.props.data) {
-      const memoryList = sortModules(this.props.data);
+      const memoryList = normalizeDetectedModules(this.props.data);
       this.setState(
         previousState => ({
           memoryList,
@@ -74,16 +85,12 @@ class BaseInfo extends PureComponent {
     }
   }
   submitSelectedModules = () => {
+    if (!this.mounted) {
+      return;
+    }
     const { memoryList, selectedRowKeys } = this.state;
     const selectedRows = getSelectedModules(memoryList, selectedRowKeys);
     this.props.onSubmit && this.props.onSubmit(selectedRows);
-  };
-  handleSubmit = e => {
-    const form = this.props.form;
-    form.validateFields((err, fieldsValue) => {
-      if (err) return;
-      this.props.onSubmit && this.props.onSubmit(fieldsValue);
-    });
   };
   handleArchCpuInfo = () => {
     const { dispatch } = this.props;
@@ -94,43 +101,65 @@ class BaseInfo extends PureComponent {
         team_name: globalUtil.getCurrTeamName()
       },
       callback: res => {
-        if (res && res.bean) {
-          const archInfo = Array.isArray(res.list) ? res.list : [];
-          this.setState(
-            previousState => ({
-              archInfo,
-              memoryList: archInfo.length
-                ? previousState.memoryList.map(item => ({
-                    ...item,
-                    arch: item.arch || archInfo[0]
-                  }))
-                : previousState.memoryList
-            }),
-            this.submitSelectedModules
-          );
+        if (!this.mounted) {
+          return;
         }
+        const archInfo = res && res.bean && Array.isArray(res.list)
+          ? res.list
+          : [];
+        this.setState(
+          previousState => ({
+            archInfo,
+            archInfoLoading: false,
+            memoryList: archInfo.length
+              ? previousState.memoryList.map(item => ({
+                  ...item,
+                  arch: item.arch || archInfo[0]
+                }))
+              : previousState.memoryList
+          }),
+          this.submitSelectedModules
+        );
+      },
+      handleError: err => {
+        if (!this.mounted) {
+          return;
+        }
+        this.setState({ archInfoLoading: false });
+        handleAPIError(err);
       }
     });
   }
 
   handleEdit = editData => {
-    if (this.props.cnbVersionPolicyLoading) {
+    const { archInfo, archInfoLoading } = this.state;
+    if (archInfoLoading || !(editData.arch || archInfo.length)) {
       return;
     }
     this.props.form.resetFields();
     this.setState({
       isEdit: true,
-      editData,
-      editEnvMap: envListToMap(editData && editData.envs)
+      editData
     });
   };
 
   handleOk = () => {
-    const { editData } = this.state;
+    const { editData, memoryList } = this.state;
     const form = this.props.form;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-      const { cname, arch, ...buildFields } = fieldsValue;
+      const { cname, k8s_component_name, arch } = fieldsValue;
+      if (isK8sNameDuplicate(memoryList, k8s_component_name, editData.id)) {
+        form.setFields({
+          k8s_component_name: {
+            value: k8s_component_name,
+            errors: [
+              new Error(formatMessage({id:'JavaMaven.k8s_name_duplicate'}))
+            ]
+          }
+        });
+        return;
+      }
       this.setState(
         previousState => ({
           memoryList: previousState.memoryList.map(item => {
@@ -140,8 +169,8 @@ class BaseInfo extends PureComponent {
             return {
               ...item,
               cname,
-              arch: typeof arch === 'undefined' ? item.arch : arch,
-              envs: mergeModuleBuildEnvs(item.envs, buildFields)
+              k8s_component_name,
+              arch: typeof arch === 'undefined' ? item.arch : arch
             };
           })
         }),
@@ -159,33 +188,31 @@ class BaseInfo extends PureComponent {
     this.props.form.resetFields();
     this.setState({
       isEdit: false,
-      editData: false,
-      editEnvMap: {}
+      editData: false
     });
   };
   render() {
+    const openJDKVersion = this.props.cnbVersionPolicyLoading
+      ? "--"
+      : getDefaultOpenJDKVersion(this.props.cnbVersionPolicy) || "--";
     const columns = [
       {
         title: formatMessage({id:'JavaMaven.name'}),
         dataIndex: "name",
         rowKey: "name",
-        width: "15%",
+        width: "14%"
+      },
+      {
+        title: formatMessage({id:'JavaMaven.component_info'}),
+        dataIndex: "cname",
+        rowKey: "cname",
+        width: "18%",
         render: (value, record) => (
           <div>
             <div>{value}</div>
-            {record.module_role === MODULE_ROLE_POSSIBLE_DEPENDENCY && (
-              <small>
-                {formatMessage({id:'JavaMaven.possible_dependency'})}
-              </small>
-            )}
+            <small>{record.k8s_component_name}</small>
           </div>
         )
-      },
-      {
-        title: formatMessage({id:'JavaMaven.cname'}),
-        dataIndex: "cname",
-        rowKey: "cname",
-        width: "15%"
       },
       {
         title: formatMessage({id:'JavaMaven.packaging'}),
@@ -197,7 +224,7 @@ class BaseInfo extends PureComponent {
         title: formatMessage({id:'JavaMaven.index'}),
         dataIndex: "index",
         rowKey: "index",
-        width: "10%",
+        width: "8%",
 
         render: (val, index) => {
           return (
@@ -211,44 +238,45 @@ class BaseInfo extends PureComponent {
       },
 
       {
-        title: formatMessage({id:'JavaMaven.envs'}),
+        title: (
+          <span>
+            {formatMessage({id:'JavaMaven.source_build_parameters'})}
+            <Tooltip title={formatMessage({id:'JavaMaven.source_build_parameters_tip'})}>
+              <Icon
+                type="exclamation-circle-o"
+                className={styles.sourceBuildTip}
+              />
+            </Tooltip>
+          </span>
+        ),
         dataIndex: "envs",
         rowKey: "envs",
-        width: "45%",
+        width: "44%",
 
         render: (val, row, index) => {
           const { archInfo } = this.state
           const envMap = envListToMap(val);
-          const CUSTOM_OPTS =
-            envMap.BP_MAVEN_ADDITIONAL_BUILD_ARGUMENTS ||
-            envMap.BUILD_MAVEN_CUSTOM_OPTS ||
-            "";
-          const CUSTOM_GOALS =
-            envMap.BP_MAVEN_BUILD_ARGUMENTS ||
-            envMap.BUILD_MAVEN_CUSTOM_GOALS ||
-            "";
-          const startValue = envMap.BUILD_PROCFILE || "";
+          const buildModule = envMap.BP_MAVEN_BUILT_MODULE || row.name || "--";
+          const arch = row.arch || (archInfo && archInfo[0]) || "--";
 
           return (
             <div key={index}>
               <div style={{ display: "flex", marginBottom:6 }}>
-                <p style={{ width: "30%" }}>{formatMessage({ id: 'JavaMaven.OPTS' })}:</p>
-                <div style={{ width: "70%" }}>{CUSTOM_OPTS}</div>
+                <p style={{ width: "30%" }}>{formatMessage({ id: 'JavaMaven.openjdk_version' })}:</p>
+                <div style={{ width: "70%" }}>{openJDKVersion}</div>
               </div>
               <div style={{ display: "flex", marginBottom:6 }}>
                 <p style={{ width: "30%" }}>{formatMessage({ id: 'JavaMaven.GOALS' })}:</p>
-                <div style={{ width: "70%" }}>{CUSTOM_GOALS}</div>
+                <div style={{ width: "70%" }}>clean package</div>
               </div>
               <div style={{ display: "flex", marginBottom:6 }}>
-                <p style={{ width: "30%" }}>{formatMessage({ id: 'JavaMaven.startValue' })}:</p>
-                <div style={{ width: "70%" }}>{startValue}</div>
+                <p style={{ width: "30%" }}>{formatMessage({ id: 'JavaMaven.build_module' })}:</p>
+                <div style={{ width: "70%" }}>{buildModule}</div>
               </div>
-              {(row.arch || (archInfo && archInfo.length >= 1)) &&
-                <div style={{ display: "flex", marginBottom:6 }}>
-                  <p style={{ width: "30%" }}>{formatMessage({id:'JavaMaven.arch'})}:</p>
-                  <div style={{ width: "70%" }}>{row.arch || archInfo[0]}</div>
-                </div>
-              }
+              <div style={{ display: "flex", marginBottom:6 }}>
+                <p style={{ width: "30%" }}>{formatMessage({id:'JavaMaven.arch'})}:</p>
+                <div style={{ width: "70%" }}>{arch}</div>
+              </div>
             </div>
           );
         }
@@ -260,15 +288,18 @@ class BaseInfo extends PureComponent {
         width: "7%",
 
         render: (val, index) => {
+          const { archInfo, archInfoLoading } = this.state;
+          const archUnavailable =
+            archInfoLoading || !(index.arch || archInfo.length);
           return (
             <Button
-              disabled={this.props.cnbVersionPolicyLoading}
-              loading={this.props.cnbVersionPolicyLoading}
+              disabled={archUnavailable}
+              loading={archInfoLoading}
               onClick={() => {
                 this.handleEdit(index);
               }}
             >
-              {formatMessage({id:'teamOther.manage.edit'})}
+              {formatMessage({id:'JavaMaven.edit'})}
             </Button>
           );
         }
@@ -281,7 +312,10 @@ class BaseInfo extends PureComponent {
         this.setState({ selectedRowKeys }, this.submitSelectedModules);
       },
       getCheckboxProps: record => ({
-        disabled: record.operation, // Column configuration not to be checked
+        disabled:
+          record.operation ||
+          this.state.archInfoLoading ||
+          !(record.arch || this.state.archInfo.length),
         operation: record.operation
       })
     };
@@ -327,50 +361,52 @@ class BaseInfo extends PureComponent {
       memoryList,
       isEdit,
       editData,
-      editEnvMap,
       language,
-      archInfo
+      archInfo,
+      archInfoLoading
     } = this.state;
     const isLanguage = language ? formItemLayout : en_formItemLayout
+    const archOptions = archInfo && archInfo.length
+      ? archInfo
+      : editData && editData.arch
+        ? [editData.arch]
+        : [];
     return (
       <div>
         {isEdit && (
           <Modal
-            title={formatMessage({id:'teamOther.manage.edit'})}
+            title={formatMessage({id:'JavaMaven.edit'})}
             visible={isEdit}
             onOk={this.handleOk}
             onCancel={this.handleCancel}
-            width={1000}
+            width={600}
+            confirmLoading={archInfoLoading}
           >
             <Form.Item {...isLanguage} label={formatMessage({id:'JavaMaven.cname'})}>
               {getFieldDecorator("cname", {
                 initialValue: editData && editData.cname,
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({id:'JavaMaven.cname_input'})
-                  }
-                ]
-              })(<Input placeholder="" />)}
+                rules: getServiceNameRules()
+              })(<Input placeholder={formatMessage({ id: 'placeholder.component_cname' })} />)}
             </Form.Item>
-            <JavaCNBConfig
-              languageType="java-maven"
-              envs={editEnvMap}
-              form={this.props.form}
-              cnbVersionPolicy={this.props.cnbVersionPolicy}
-            />
-            {archInfo && archInfo.length > 0 &&
-              <Form.Item {...isLanguage} label={formatMessage({id:'JavaMaven.arch'})}>
-                {getFieldDecorator("arch", {
-                  initialValue: editData.arch || (archInfo && archInfo.length > 0 && archInfo[0]),
-                })(
-                  <Radio.Group>
-                    {archInfo.map(item =>{
-                      return <Radio value={item}>{item}</Radio>
-                    })}
-                  </Radio.Group>)}
-              </Form.Item>
-            }
+            <Form.Item
+              {...isLanguage}
+              label={formatMessage({id:'teamAdd.create.form.k8s_component_name'})}
+            >
+              {getFieldDecorator("k8s_component_name", {
+                initialValue: editData && editData.k8s_component_name,
+                rules: getK8sComponentNameRules()
+              })(<Input placeholder={formatMessage({ id: 'placeholder.k8s_component_name' })} />)}
+            </Form.Item>
+            <Form.Item {...isLanguage} label={formatMessage({id:'JavaMaven.arch'})}>
+              {getFieldDecorator("arch", {
+                initialValue: (editData && editData.arch) || archOptions[0],
+                rules: getArchRules()
+              })(
+                <Radio.Group>
+                  {archOptions.map(item => <Radio key={item} value={item}>{item}</Radio>)}
+                </Radio.Group>
+              )}
+            </Form.Item>
           </Modal>
         )}
         <Table

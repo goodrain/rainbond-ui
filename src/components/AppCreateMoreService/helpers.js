@@ -1,58 +1,104 @@
 const {
-  mergeRuntimeBuildEnvs
-} = require('../CodeBuildConfig/buildEnvHelpers');
+  resolveCnbPolicyVersion
+} = require('../CodeBuildConfig/cnbVersionPolicy');
 
-const MODULE_ROLE_RUNNABLE = 'runnable';
-const MODULE_ROLE_POSSIBLE_DEPENDENCY = 'possible_dependency';
-const MAVEN_CANONICAL_LEGACY_ALIASES = {
-  BP_MAVEN_BUILD_ARGUMENTS: 'BUILD_MAVEN_CUSTOM_GOALS',
-  BP_MAVEN_ADDITIONAL_BUILD_ARGUMENTS: 'BUILD_MAVEN_CUSTOM_OPTS',
-  BP_MAVEN_BUILT_MODULE: 'BUILD_MAVEN_BUILT_MODULE',
-  BP_MAVEN_BUILT_ARTIFACT: 'BUILD_MAVEN_BUILT_ARTIFACT'
+const BUILD_MODULE_ENV = 'BP_MAVEN_BUILT_MODULE';
+const LEGACY_BUILD_MODULE_ENV = 'BUILD_MAVEN_BUILT_MODULE';
+const MAX_K8S_COMPONENT_NAME_LENGTH = 16;
+
+const envListToMap = (envs = []) =>
+  (Array.isArray(envs) ? envs : []).reduce((envMap, env) => {
+    if (env && env.name) {
+      envMap[env.name] = env.value;
+    }
+    return envMap;
+  }, {});
+
+const getBuildModule = (module = {}) => {
+  const envMap = envListToMap(module && module.envs);
+  const candidates = [
+    envMap[BUILD_MODULE_ENV],
+    envMap[LEGACY_BUILD_MODULE_ENV],
+    module && module.name
+  ];
+  for (let index = 0; index < candidates.length; index += 1) {
+    const value = String(candidates[index] || '').trim();
+    if (value) {
+      return value;
+    }
+  }
+  return '';
 };
 
-const roleRank = role => {
-  if (role === MODULE_ROLE_RUNNABLE) {
-    return 0;
+const normalizeK8sName = value => {
+  const segments = String(value || '').split('/').filter(Boolean);
+  const leafName = segments.length ? segments[segments.length - 1] : '';
+  let normalized = leafName
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  if (!normalized) {
+    normalized = 'component';
+  } else if (!/^[a-z]/.test(normalized)) {
+    normalized = `component-${normalized}`;
   }
-  if (role === MODULE_ROLE_POSSIBLE_DEPENDENCY) {
-    return 2;
-  }
-  return 1;
+
+  return normalized
+    .slice(0, MAX_K8S_COMPONENT_NAME_LENGTH)
+    .replace(/-+$/g, '') || 'component';
 };
 
-const cloneModule = module => {
-  if (!module || typeof module !== 'object') {
-    return module;
+const buildUniqueK8sName = (module, usedNames) => {
+  const sourceName =
+    (module && module.k8s_component_name) || getBuildModule(module) ||
+    (module && module.cname);
+  const baseName = normalizeK8sName(sourceName);
+  let candidate = baseName;
+  let suffixIndex = 2;
+
+  while (usedNames.has(candidate)) {
+    const suffix = `-${suffixIndex}`;
+    const prefix = baseName
+      .slice(0, MAX_K8S_COMPONENT_NAME_LENGTH - suffix.length)
+      .replace(/-+$/g, '');
+    candidate = `${prefix || 'component'}${suffix}`;
+    suffixIndex += 1;
   }
-  return {
-    ...module,
-    envs: Array.isArray(module.envs)
-      ? module.envs.map(env =>
-          env && typeof env === 'object' ? { ...env } : env
-        )
-      : module.envs
-  };
+
+  usedNames.add(candidate);
+  return candidate;
 };
 
-const sortModules = (modules = []) =>
-  (Array.isArray(modules) ? modules : [])
-    .map((module, index) => ({ module: cloneModule(module), index }))
-    .sort((left, right) => {
-      const rankDiff =
-        roleRank(left.module && left.module.module_role) -
-        roleRank(right.module && right.module.module_role);
-      return rankDiff || left.index - right.index;
-    })
-    .map(item => item.module);
+const normalizeDetectedModules = (modules = []) => {
+  const usedNames = new Set();
+  return (Array.isArray(modules) ? modules : []).map((module, index) => {
+    const normalizedModule = module && typeof module === 'object' ? module : {};
+    const buildModule = getBuildModule(normalizedModule);
+    const moduleWithoutRole = { ...normalizedModule };
+    delete moduleWithoutRole.module_role;
+    return {
+      ...moduleWithoutRole,
+      index,
+      k8s_component_name: buildUniqueK8sName(normalizedModule, usedNames),
+      envs: [{ name: BUILD_MODULE_ENV, value: buildModule }]
+    };
+  });
+};
 
-const getDefaultSelectedKeys = (modules = []) => {
-  const moduleList = Array.isArray(modules) ? modules : [];
-  const runnableModules = moduleList.filter(
-    module => module && module.module_role === MODULE_ROLE_RUNNABLE
+const getDefaultSelectedKeys = () => [];
+
+const isK8sNameDuplicate = (modules = [], value = '', excludedId) => {
+  const targetName = String(value || '').trim();
+  if (!targetName) {
+    return false;
+  }
+  return (Array.isArray(modules) ? modules : []).some(module =>
+    module &&
+    module.id !== excludedId &&
+    String(module.k8s_component_name || '').trim() === targetName
   );
-  const selectedModules = runnableModules.length ? runnableModules : moduleList;
-  return selectedModules.map(module => module && module.id);
 };
 
 const getSelectedModules = (modules = [], selectedKeys = []) => {
@@ -88,7 +134,7 @@ const reconcileSelectedKeys = (
   selectedKeys = []
 ) => {
   if (!hasSameModuleIds(previousModules, nextModules)) {
-    return getDefaultSelectedKeys(nextModules);
+    return getDefaultSelectedKeys();
   }
   const nextIds = nextModules.map(module => module && module.id);
   return (Array.isArray(selectedKeys) ? selectedKeys : []).filter(
@@ -96,53 +142,25 @@ const reconcileSelectedKeys = (
   );
 };
 
-const envListToMap = (envs = []) =>
-  (Array.isArray(envs) ? envs : []).reduce((envMap, env) => {
-    if (env && env.name) {
-      envMap[env.name] = env.value;
-    }
-    return envMap;
-  }, {});
-
-const envMapToList = (envMap = {}) => {
-  if (!envMap || typeof envMap !== 'object' || Array.isArray(envMap)) {
-    return [];
-  }
-  return Object.keys(envMap).map(name => ({ name, value: envMap[name] }));
-};
-
-const normalizeDetectedModules = (modules = []) =>
-  (Array.isArray(modules) ? modules : []).map((module, index) => ({
-    ...(module || {}),
-    index
-  }));
-
-const mergeModuleBuildEnvs = (existingEnvs = [], fieldsValue = {}) => {
-  const canonicalFields =
-    fieldsValue && typeof fieldsValue === 'object' ? fieldsValue : {};
-  const mergedEnvMap = mergeRuntimeBuildEnvs(
-    envListToMap(existingEnvs),
-    canonicalFields
+const getDefaultOpenJDKVersion = (policy = {}) => {
+  const runtimePolicy =
+    policy && policy.java && policy.java.jdk ? policy.java.jdk : {};
+  return resolveCnbPolicyVersion(
+    'java',
+    runtimePolicy.visible_versions || [],
+    '',
+    runtimePolicy.default_version || ''
   );
-
-  Object.keys(MAVEN_CANONICAL_LEGACY_ALIASES).forEach(canonicalName => {
-    if (Object.prototype.hasOwnProperty.call(canonicalFields, canonicalName)) {
-      delete mergedEnvMap[MAVEN_CANONICAL_LEGACY_ALIASES[canonicalName]];
-    }
-  });
-
-  return envMapToList(mergedEnvMap);
 };
 
 module.exports = {
-  MODULE_ROLE_POSSIBLE_DEPENDENCY,
-  MODULE_ROLE_RUNNABLE,
+  BUILD_MODULE_ENV,
   envListToMap,
-  envMapToList,
+  getBuildModule,
+  getDefaultOpenJDKVersion,
   getDefaultSelectedKeys,
   getSelectedModules,
-  mergeModuleBuildEnvs,
+  isK8sNameDuplicate,
   normalizeDetectedModules,
-  reconcileSelectedKeys,
-  sortModules
+  reconcileSelectedKeys
 };
