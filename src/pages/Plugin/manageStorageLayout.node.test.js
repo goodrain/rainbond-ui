@@ -50,4 +50,12 @@ assert.ok(
   'plugin management should render the configuration file and shared storage card'
 );
 
+assert.ok(
+  source.includes('partitionPluginVersionConfig(data && data.list)') &&
+    source.includes('buildStorageSavePayload({') &&
+    source.includes('buildStorageDeletePayload({') &&
+    source.includes('toStorageEditorData(data)'),
+  'plugin management should use the tested storage transformations for read, save, edit, and delete'
+);
+
 console.log('plugin management storage layout tests passed');
