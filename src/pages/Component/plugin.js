@@ -489,11 +489,95 @@ class ConfigUnDefine extends PureComponent {
 )
 class StorageManage extends PureComponent {
   state = {
-    editStoragData: false
+    editStoragData: false,
+    storageListData: [],
+    configFileListData: [],
+    persistentStorageListData: [],
+    volumeOpts: []
   };
   componentDidMount(){
-    this.openPlugin()
+    const { configs = {} } = this.props.pluginInfo;
+    const config =
+      configs.storage_env && Array.isArray(configs.storage_env.config)
+        ? configs.storage_env.config
+        : [];
+    this.setState(this.parseStorageConfig(config));
+    this.fetchVolumeOpts();
   }
+  fetchVolumeOpts = () => {
+    const {
+      dispatch,
+      pluginInfo: { appAlias }
+    } = this.props;
+    dispatch({
+      type: 'appControl/fetchVolumeOpts',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        app_alias: appAlias
+      },
+      callback: data => {
+        if (data) {
+          this.setState({
+            volumeOpts: (data.list || []).filter(
+              item => item.volume_type !== 'memoryfs'
+            )
+          });
+        }
+      }
+    });
+  };
+  parseStorageValue = value => {
+    if (!value) {
+      return {};
+    }
+    if (typeof value === 'object') {
+      return Array.isArray(value) ? {} : value;
+    }
+    try {
+      const parsed = JSON.parse(value);
+      return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+        ? parsed
+        : {};
+    } catch (error) {
+      return {};
+    }
+  };
+  parseStorageConfig = config => {
+    const storageListData = (Array.isArray(config) ? config : []).reduce((list, item) => {
+      const storageValue = this.parseStorageValue(item.attr_value);
+      const attrType = storageValue.attr_type || item.attr_type;
+      if (attrType !== 'config-file' && attrType !== 'storage') {
+        return list;
+      }
+      const storageData = {
+        ...item,
+        volume_path: storageValue.volume_path || '',
+        volume_name: storageValue.volume_name || '',
+        attr_type: attrType,
+        file_content: storageValue.file_content || ''
+      };
+      if (attrType === 'storage') {
+        storageData.volume_type = storageValue.volume_type || 'local-path';
+        storageData.volume_capacity =
+          storageValue.volume_capacity === undefined ||
+          storageValue.volume_capacity === null ||
+          storageValue.volume_capacity === ''
+            ? 10
+            : Number(storageValue.volume_capacity);
+        storageData.access_mode = storageValue.access_mode || 'RWO';
+      }
+      return [...list, storageData];
+    }, []);
+    return {
+      storageListData,
+      configFileListData: storageListData.filter(
+        item => item.attr_type === 'config-file'
+      ),
+      persistentStorageListData: storageListData.filter(
+        item => item.attr_type === 'storage'
+      )
+    };
+  };
   handleSubmitStorageConfig = (vals, data) => {
     const team_name = globalUtil.getCurrTeamName();
     const {
@@ -502,13 +586,29 @@ class StorageManage extends PureComponent {
     } = this.props;
     const newData = JSON.parse(JSON.stringify(data)) || {};
     const newVals = JSON.parse(JSON.stringify(vals)) || {};
-    const newConfigs = JSON.parse(JSON.stringify(configs)) || {};
+    const newConfigs = JSON.parse(JSON.stringify(configs || {}));
     const { attr_value } = newData;
-    const str = (attr_value && JSON.parse(attr_value)) || {};
+    const str = this.parseStorageValue(attr_value);
+    const storageType =
+      newVals.attr_type || newVals.storageType || newData.attr_type || 'storage';
     newData.volume_name = str.volume_name = newVals.volume_name;
     newData.volume_path = str.volume_path = newVals.volume_path;
-    newData.attr_type = str.volume_type = newVals.volume_type;
+    newData.attr_type = str.attr_type = storageType;
     newData.file_content = str.file_content = newVals.file_content || '';
+    if (storageType === 'storage') {
+      newData.volume_type = str.volume_type = newVals.volume_type;
+      newData.volume_capacity = str.volume_capacity = Number(
+        newVals.volume_capacity
+      );
+      newData.access_mode = str.access_mode = newVals.access_mode || 'RWO';
+    } else {
+      delete newData.volume_type;
+      delete newData.volume_capacity;
+      delete newData.access_mode;
+      delete str.volume_type;
+      delete str.volume_capacity;
+      delete str.access_mode;
+    }
     newData.attr_value = str && JSON.stringify(str);
     if (newConfigs && newConfigs.storage_env && newConfigs.storage_env.config) {
       const {
@@ -534,7 +634,7 @@ class StorageManage extends PureComponent {
       },
       callback: () => {
         notification.success({ message:  formatMessage({id:'notification.success.succeeded'})});
-        this.openPlugin()
+        this.openPlugin();
       }
     });
   };
@@ -559,9 +659,27 @@ class StorageManage extends PureComponent {
         build_version: build_version
       },
       callback: data => {
-        if (data) {
-          this.props.data.config = data.bean.storage_env.config
-          this.handleCancelAddStorageConfig();
+        if (data && data.bean) {
+          const {
+            configs: currentConfigs = {},
+            onConfigsChange
+          } = this.props.pluginInfo;
+          const storageEnv = data.bean.storage_env || {};
+          const nextConfigs = {
+            ...currentConfigs,
+            storage_env: storageEnv
+          };
+          const config =
+            Array.isArray(storageEnv.config)
+              ? storageEnv.config
+              : [];
+          if (onConfigsChange) {
+            onConfigsChange(nextConfigs);
+          }
+          this.setState({
+            ...this.parseStorageConfig(config),
+            editStoragData: false
+          });
         }
       }
     });
@@ -575,72 +693,87 @@ class StorageManage extends PureComponent {
     });
   };
   render() {
+    const { editStorageLoading } = this.props;
     const {
-      data: { config },
-      editStorageLoading
-    } = this.props;
-    const { editStoragData } = this.state;
-    let storageList = [];
-    storageList =
-      config &&
-      config.reduce(
-        (pre, current) =>
-          current.attr_type === 'config-file' || current.attr_type === 'storage'
-            ? [...pre, current]
-            : pre,
-        []
-      );
-    storageList.length > 0 &&
-      storageList.map(item => {
-        const { attr_value } = item;
-        const str = (attr_value && JSON.parse(attr_value)) || {};
-        item.volume_path = str.volume_path;
-        item.volume_name = str.volume_name;
-        item.attr_type = str.attr_type;
-        item.file_content = str.file_content;
-      });
+      editStoragData,
+      storageListData,
+      configFileListData,
+      persistentStorageListData,
+      volumeOpts
+    } = this.state;
+    const actionColumn = {
+      title: formatMessage({id:'componentOverview.body.handleEdit.operation'}),
+      dataIndex: 'action',
+      render: (_, data) => {
+        return (
+          <a
+            onClick={() => {
+              this.handleEdit(data);
+            }}
+          >
+            <FormattedMessage id='componentOverview.body.handleEdit.edit'/>
+          </a>
+        );
+      }
+    };
 
     return (
       <>
-        <h4><FormattedMessage id='componentOverview.body.handleEdit.share'/></h4>
-        <Table
-          rowKey={(record,index) => index}
-          columns={[
-            {
-              title: formatMessage({id:'componentOverview.body.handleEdit.name'}),
-              dataIndex: 'volume_name'
-            },
-            {
-              title: formatMessage({id:'componentOverview.body.handleEdit.path'}),
-              dataIndex: 'volume_path'
-            },
-            {
-              title: formatMessage({id:'componentOverview.body.handleEdit.type'}),
-              dataIndex: 'attr_type',
-              render(_, data) {
-                const { attr_type } = data;
-                return attr_type === 'config-file' ? <FormattedMessage id='componentOverview.body.handleEdit.file'/> : <FormattedMessage id='componentOverview.body.handleEdit.shared_storage'/>;
-              }
-            },
-            {
-              title: formatMessage({id:'componentOverview.body.handleEdit.operation'}),
-              dataIndex: 'action',
-              render: (_, data) => {
-                return (
-                  <a
-                    onClick={() => {
-                      this.handleEdit(data);
-                    }}
-                  >
-                    <FormattedMessage id='componentOverview.body.handleEdit.edit'/>
-                  </a>
-                );
-              }
-            }
-          ]}
-          dataSource={storageList}
-          pagination={false}
-        />
+        <Card
+          type="inner"
+          title={<FormattedMessage id='componentOverview.body.handleEdit.config_file'/>}
+          style={{ marginBottom: 16 }}
+        >
+          <Table
+            rowKey={record => record.ID || record.attr_name || record.volume_name}
+            columns={[
+              {
+                title: formatMessage({id:'componentOverview.body.handleEdit.name'}),
+                dataIndex: 'volume_name'
+              },
+              {
+                title: formatMessage({id:'componentOverview.body.handleEdit.path'}),
+                dataIndex: 'volume_path'
+              },
+              actionColumn
+            ]}
+            dataSource={configFileListData}
+            pagination={false}
+          />
+        </Card>
+        <Card
+          type="inner"
+          title={<FormattedMessage id='componentOverview.body.handleEdit.persistent_storage'/>}
+        >
+          <Table
+            rowKey={record => record.ID || record.attr_name || record.volume_name}
+            columns={[
+              {
+                title: formatMessage({id:'componentOverview.body.handleEdit.name'}),
+                dataIndex: 'volume_name'
+              },
+              {
+                title: formatMessage({id:'componentOverview.body.handleEdit.path'}),
+                dataIndex: 'volume_path'
+              },
+              {
+                title: formatMessage({id:'componentOverview.body.handleEdit.storage_class'}),
+                dataIndex: 'volume_type'
+              },
+              {
+                title: formatMessage({id:'componentOverview.body.handleEdit.capacity'}),
+                dataIndex: 'volume_capacity'
+              },
+              {
+                title: formatMessage({id:'componentOverview.body.handleEdit.access_mode'}),
+                dataIndex: 'access_mode'
+              },
+              actionColumn
+            ]}
+            dataSource={persistentStorageListData}
+            pagination={false}
+          />
+        </Card>
         {/* 修改 */}
         {editStoragData && (
           <EditStorageConfig
@@ -649,7 +782,9 @@ class StorageManage extends PureComponent {
             data={this.state.editStoragData} // 编辑数据
             editor // 默认是编辑
             loading={editStorageLoading}
-            storageList={storageList}
+            storageList={storageListData}
+            storageType={editStoragData.attr_type || 'storage'}
+            volumeOpts={volumeOpts}
           />
         )}
       </>
@@ -845,9 +980,20 @@ export default class Index extends PureComponent {
       }
     });
   };
+  handlePluginConfigsChange = (pluginId, nextConfigs) => {
+    this.setState(prevState => ({
+      openedPlugin: {
+        ...prevState.openedPlugin,
+        [pluginId]: nextConfigs
+      }
+    }));
+  };
   closePlugin = plugin => {
-    delete this.state.openedPlugin[plugin.plugin_id];
-    this.forceUpdate();
+    this.setState(prevState => {
+      const openedPlugin = { ...prevState.openedPlugin };
+      delete openedPlugin[plugin.plugin_id];
+      return { openedPlugin };
+    });
   };
   // 更新配置
   handleUpdateConfig = (plugin_id, data) => {
@@ -993,6 +1139,12 @@ export default class Index extends PureComponent {
                   plugin_id={item.plugin_id}
                   appAlias={this.props.appAlias}
                   pluginInfo={pluginInfo}
+                  onConfigsChange={nextConfigs =>
+                    this.handlePluginConfigsChange(
+                      item.plugin_id,
+                      nextConfigs
+                    )
+                  }
                 />
                 <div
                   style={{
@@ -1146,7 +1298,7 @@ export default class Index extends PureComponent {
         plugin_id: plugin.plugin_id
       },
       callback: () => {
-        delete this.state.openedPlugin[plugin.plugin_id];
+        this.closePlugin(plugin);
         notification.success({ message: formatMessage({id:'notification.success.uninstallToUpdate'}) });
         this.cancelDeletePlugin();
         this.getPlugins();

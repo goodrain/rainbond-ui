@@ -269,6 +269,14 @@ export async function getPluginVersionConfig(
   );
 }
 
+/* 获取插件可用的持久化存储类型 */
+export async function getPluginVolumeOpts(body = { team_name }) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/plugins/volume-opts`,
+    { method: 'get' }
+  );
+}
+
 /*
   更新某个版本的基本信息
 */
