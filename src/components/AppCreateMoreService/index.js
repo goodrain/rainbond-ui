@@ -1,35 +1,32 @@
-import React, { PureComponent, Fragment } from "react";
+import React, { PureComponent } from "react";
 import {
   Button,
-  Icon,
-  Card,
   Modal,
-  Row,
-  Col,
   Alert,
   Table,
   Radio,
-  Tabs,
-  Affix,
   Input,
   Form,
-  Tooltip,
-  Checkbox,
   notification
 } from "antd";
 import { connect } from "dva";
 import { formatMessage } from '@/utils/intl';
-import { routerRedux } from "dva/router";
 import globalUtil from "../../utils/global";
-import httpResponseUtil from "../../utils/httpResponse";
 import cookie from "@/utils/cookie";
+import JavaCNBConfig from "../CodeBuildConfig/java-cnb";
 import styles from "./setting.less";
+import moduleHelpers from "./helpers";
 
-const RadioButton = Radio.Button;
-const RadioGroup = Radio.Group;
-const TabPane = Tabs.TabPane;
-const { TextArea } = Input;
-const confirm = Modal.confirm;
+const {
+  MODULE_ROLE_POSSIBLE_DEPENDENCY,
+  envListToMap,
+  getDefaultSelectedKeys,
+  getSelectedModules,
+  mergeModuleBuildEnvs,
+  reconcileSelectedKeys,
+  sortModules
+} = moduleHelpers;
+
 @connect(
   ({ user, appControl, teamControl }) => ({ currUser: user.currentUser }),
   null,
@@ -40,16 +37,14 @@ const confirm = Modal.confirm;
 class BaseInfo extends PureComponent {
   constructor(props) {
     super(props);
+    const memoryList = sortModules(this.props.data);
     this.state = {
       isShow: [true, true],
-      memoryList: this.props.data,
+      memoryList,
       isEdit: false,
-      isIndex: false,
       editData: false,
-      buildValue: "",
-      startValue: "",
-      activeselectedRows: [],
-      activeselectedRowKeys: "",
+      editEnvMap: {},
+      selectedRowKeys: getDefaultSelectedKeys(memoryList),
       language: cookie.get('language') === 'zh-CN' ? true : false,
       archInfo: []
     };
@@ -59,8 +54,30 @@ class BaseInfo extends PureComponent {
   //     return true
   // }
   componentDidMount() {
+    this.submitSelectedModules();
     this.handleArchCpuInfo()
   }
+  componentDidUpdate(prevProps) {
+    if (prevProps.data !== this.props.data) {
+      const memoryList = sortModules(this.props.data);
+      this.setState(
+        previousState => ({
+          memoryList,
+          selectedRowKeys: reconcileSelectedKeys(
+            previousState.memoryList,
+            memoryList,
+            previousState.selectedRowKeys
+          )
+        }),
+        this.submitSelectedModules
+      );
+    }
+  }
+  submitSelectedModules = () => {
+    const { memoryList, selectedRowKeys } = this.state;
+    const selectedRows = getSelectedModules(memoryList, selectedRowKeys);
+    this.props.onSubmit && this.props.onSubmit(selectedRows);
+  };
   handleSubmit = e => {
     const form = this.props.form;
     form.validateFields((err, fieldsValue) => {
@@ -78,74 +95,58 @@ class BaseInfo extends PureComponent {
       },
       callback: res => {
         if (res && res.bean) {
-          this.setState({
-            archInfo: res.list
-          },()=>{
-            const { memoryList, archInfo } = this.state
-            const info = memoryList
-            if(memoryList && memoryList.length > 0 && archInfo && archInfo.length >0){
-              info.map(item => {
-                item.arch = archInfo[0]
-              })
-            }
-            this.setState({
-              memoryList: info
-            })
-          })
+          const archInfo = Array.isArray(res.list) ? res.list : [];
+          this.setState(
+            previousState => ({
+              archInfo,
+              memoryList: archInfo.length
+                ? previousState.memoryList.map(item => ({
+                    ...item,
+                    arch: item.arch || archInfo[0]
+                  }))
+                : previousState.memoryList
+            }),
+            this.submitSelectedModules
+          );
         }
       }
     });
   }
 
   handleEdit = editData => {
-    let buildValue = "";
-    let startValue = "";
-    if (editData && editData.envs && editData.envs.length > 0) {
-      editData.envs.map(item => {
-        item.name == "BUILD_MAVEN_CUSTOM_OPTS" ? (buildValue = item.value) : "";
-        item.name == "BUILD_PROCFILE" ? (startValue = item.value) : "";
-      });
+    if (this.props.cnbVersionPolicyLoading) {
+      return;
     }
+    this.props.form.resetFields();
     this.setState({
       isEdit: true,
       editData,
-      buildValue,
-      startValue
+      editEnvMap: envListToMap(editData && editData.envs)
     });
   };
 
   handleOk = () => {
-    const { memoryList, editData } = this.state;
+    const { editData } = this.state;
     const form = this.props.form;
-    let arr = memoryList;
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-      arr.map(item => {
-        if (item.id == editData.id) {
-          item.cname = fieldsValue.cname;
-          item.arch = fieldsValue.arch;
-          const procfileValue = (fieldsValue.PROCFILE || '').trim();
-          let hasProcfile = false;
-          item.envs.map(item => {
-            item.name == "BUILD_MAVEN_CUSTOM_OPTS"
-              ? (item.value = fieldsValue.BUILD_MAVEN_CUSTOM_OPTS)
-              : "";
-            if (item.name == "BUILD_PROCFILE") {
-              hasProcfile = true;
-              item.value = procfileValue;
-            }
-          });
-          if (!hasProcfile && procfileValue) {
-            item.envs.push({ name: "BUILD_PROCFILE", value: procfileValue });
-          }
-          item.envs = item.envs.filter(env => !(env.name == "BUILD_PROCFILE" && !env.value));
-        }
-      });
+      const { cname, arch, ...buildFields } = fieldsValue;
       this.setState(
-        {
-          memoryList: arr
-        },
+        previousState => ({
+          memoryList: previousState.memoryList.map(item => {
+            if (item.id != editData.id) {
+              return item;
+            }
+            return {
+              ...item,
+              cname,
+              arch: typeof arch === 'undefined' ? item.arch : arch,
+              envs: mergeModuleBuildEnvs(item.envs, buildFields)
+            };
+          })
+        }),
         () => {
+          this.submitSelectedModules();
           notification.destroy();
           notification.success({ message: formatMessage({id:'notification.success.edit'}) });
           this.handleCancel();
@@ -155,9 +156,11 @@ class BaseInfo extends PureComponent {
   };
 
   handleCancel = () => {
+    this.props.form.resetFields();
     this.setState({
       isEdit: false,
-      isIndex: false
+      editData: false,
+      editEnvMap: {}
     });
   };
   render() {
@@ -166,7 +169,17 @@ class BaseInfo extends PureComponent {
         title: formatMessage({id:'JavaMaven.name'}),
         dataIndex: "name",
         rowKey: "name",
-        width: "15%"
+        width: "15%",
+        render: (value, record) => (
+          <div>
+            <div>{value}</div>
+            {record.module_role === MODULE_ROLE_POSSIBLE_DEPENDENCY && (
+              <small>
+                {formatMessage({id:'JavaMaven.possible_dependency'})}
+              </small>
+            )}
+          </div>
+        )
       },
       {
         title: formatMessage({id:'JavaMaven.cname'}),
@@ -205,20 +218,16 @@ class BaseInfo extends PureComponent {
 
         render: (val, row, index) => {
           const { archInfo } = this.state
-          let CUSTOM_OPTS = "";
-          let CUSTOM_GOALS = "";
-          let startValue = "";
-          if (val && val.length > 0) {
-            val.map(item => {
-              item.name == "BUILD_MAVEN_CUSTOM_OPTS"
-                ? (CUSTOM_OPTS = item.value)
-                : "";
-              item.name == "BUILD_MAVEN_CUSTOM_GOALS"
-                ? (CUSTOM_GOALS = item.value)
-                : "";
-              item.name == "BUILD_PROCFILE" ? (startValue = item.value) : "";
-            });
-          }
+          const envMap = envListToMap(val);
+          const CUSTOM_OPTS =
+            envMap.BP_MAVEN_ADDITIONAL_BUILD_ARGUMENTS ||
+            envMap.BUILD_MAVEN_CUSTOM_OPTS ||
+            "";
+          const CUSTOM_GOALS =
+            envMap.BP_MAVEN_BUILD_ARGUMENTS ||
+            envMap.BUILD_MAVEN_CUSTOM_GOALS ||
+            "";
+          const startValue = envMap.BUILD_PROCFILE || "";
 
           return (
             <div key={index}>
@@ -253,6 +262,8 @@ class BaseInfo extends PureComponent {
         render: (val, index) => {
           return (
             <Button
+              disabled={this.props.cnbVersionPolicyLoading}
+              loading={this.props.cnbVersionPolicyLoading}
               onClick={() => {
                 this.handleEdit(index);
               }}
@@ -265,8 +276,9 @@ class BaseInfo extends PureComponent {
     ];
 
     const rowSelection = {
-      onChange: (selectedRowKeys, selectedRows) => {
-        this.props.onSubmit(selectedRows);
+      selectedRowKeys: this.state.selectedRowKeys,
+      onChange: selectedRowKeys => {
+        this.setState({ selectedRowKeys }, this.submitSelectedModules);
       },
       getCheckboxProps: record => ({
         disabled: record.operation, // Column configuration not to be checked
@@ -274,12 +286,7 @@ class BaseInfo extends PureComponent {
       })
     };
 
-    const { getFieldDecorator, getFieldValue } = this.props.form;
-    const radioStyle = {
-      display: "block",
-      height: "30px",
-      lineHeight: "30px"
-    };
+    const { getFieldDecorator } = this.props.form;
     const formItemLayout = {
       labelCol: {
         xs: {
@@ -316,7 +323,14 @@ class BaseInfo extends PureComponent {
         }
       }
     };
-    const { memoryList, isEdit, editData, buildValue, startValue, language, archInfo } = this.state;
+    const {
+      memoryList,
+      isEdit,
+      editData,
+      editEnvMap,
+      language,
+      archInfo
+    } = this.state;
     const isLanguage = language ? formItemLayout : en_formItemLayout
     return (
       <div>
@@ -326,6 +340,7 @@ class BaseInfo extends PureComponent {
             visible={isEdit}
             onOk={this.handleOk}
             onCancel={this.handleCancel}
+            width={1000}
           >
             <Form.Item {...isLanguage} label={formatMessage({id:'JavaMaven.cname'})}>
               {getFieldDecorator("cname", {
@@ -338,22 +353,12 @@ class BaseInfo extends PureComponent {
                 ]
               })(<Input placeholder="" />)}
             </Form.Item>
-            <Form.Item {...isLanguage} label={formatMessage({id:'JavaMaven.bulid'})}>
-              {getFieldDecorator("BUILD_MAVEN_CUSTOM_OPTS", {
-                initialValue: buildValue && buildValue,
-                rules: [
-                  {
-                    required: true,
-                    message: formatMessage({id:'JavaMaven.bulid_input'})
-                  }
-                ]
-              })(<TextArea placeholder="" />)}
-            </Form.Item>
-            <Form.Item {...isLanguage} label={formatMessage({id:'JavaMaven.start'})}>
-              {getFieldDecorator("PROCFILE", {
-                initialValue: startValue && startValue,
-              })(<TextArea placeholder="" />)}
-            </Form.Item>
+            <JavaCNBConfig
+              languageType="java-maven"
+              envs={editEnvMap}
+              form={this.props.form}
+              cnbVersionPolicy={this.props.cnbVersionPolicy}
+            />
             {archInfo && archInfo.length > 0 &&
               <Form.Item {...isLanguage} label={formatMessage({id:'JavaMaven.arch'})}>
                 {getFieldDecorator("arch", {
@@ -370,7 +375,7 @@ class BaseInfo extends PureComponent {
         )}
         <Table
           rowSelection={rowSelection}
-          rowKey={(record,index) => index}
+          rowKey="id"
           dataSource={memoryList}
           columns={columns}
           pagination={false}
@@ -412,7 +417,12 @@ export default class Index extends PureComponent {
               message={formatMessage({id:'JavaMaven.Alert'})}
               type="success"
             />
-            <BaseInfo data={data} onSubmit={this.props.onSubmit} />
+            <BaseInfo
+              data={data}
+              onSubmit={this.props.onSubmit}
+              cnbVersionPolicy={this.props.cnbVersionPolicy}
+              cnbVersionPolicyLoading={this.props.cnbVersionPolicyLoading}
+            />
           </div>
         </div>
       </div>

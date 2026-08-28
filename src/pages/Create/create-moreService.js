@@ -12,6 +12,9 @@ import { batchOperation } from '../../services/app';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/role';
 import handleAPIError from '../../utils/error';
+import moduleHelpers from '../../components/AppCreateMoreService/helpers';
+
+const { normalizeDetectedModules } = moduleHelpers;
 
 @connect(
   ({ teamControl }) => ({
@@ -30,11 +33,14 @@ export default class Index extends PureComponent {
       JavaMavenData: [],
       is_deploy: true,
       deleteLoading: false,
-      buildState: false
+      buildState: false,
+      cnbVersionPolicy: {},
+      cnbVersionPolicyLoading: true
     };
   }
   componentDidMount() {
     this.getMultipleModulesInfo();
+    this.loadBuildSourceInfo();
   }
   componentWillUnmount() {
     this.props.dispatch({ type: 'appControl/clearDetail' });
@@ -46,6 +52,26 @@ export default class Index extends PureComponent {
     return this.props.match.params.appAlias;
   }
 
+  loadBuildSourceInfo = () => {
+    this.props.dispatch({
+      type: 'appControl/getAppBuidSource',
+      payload: {
+        team_name: globalUtil.getCurrTeamName(),
+        service_alias: this.getAppAlias()
+      },
+      callback: res => {
+        this.setState({
+          cnbVersionPolicy: (res && res.bean && res.bean.cnb_version_policy) || {},
+          cnbVersionPolicyLoading: false
+        });
+      },
+      handleError: err => {
+        this.setState({ cnbVersionPolicyLoading: false });
+        handleAPIError(err);
+      }
+    });
+  };
+
   getMultipleModulesInfo = () => {
     this.props.dispatch({
       type: 'appControl/getMultipleModulesInfo',
@@ -56,7 +82,7 @@ export default class Index extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           this.setState({
-            data: res.list
+            data: normalizeDetectedModules(res.list)
           });
         }
       },
@@ -200,17 +226,12 @@ export default class Index extends PureComponent {
       is_deploy,
       buildState,
       showDelete,
-      deleteLoading
+      deleteLoading,
+      cnbVersionPolicy,
+      cnbVersionPolicyLoading
       // appPermissions: { isDelete }
     } = this.state;
     const isDelete = true;
-    const arr = data;
-    if (arr && arr.length > 0) {
-      arr.map((item, index) => {
-        arr[index].index = index;
-      });
-    }
-
     return (
       <>
         <PageHeaderLayout
@@ -226,7 +247,9 @@ export default class Index extends PureComponent {
           >
             {data && data.length > 0 && (
               <AppCreateMoreService
-                data={arr}
+                data={data}
+                cnbVersionPolicy={cnbVersionPolicy}
+                cnbVersionPolicyLoading={cnbVersionPolicyLoading}
                 onSubmit={JavaMavenData => {
                   this.setState({
                     JavaMavenData

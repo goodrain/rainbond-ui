@@ -519,6 +519,7 @@ const topology = {
 const JavaMaven = {
   'JavaMaven.Alert':'The following is the detected module information of the Maven multi-module project. Please select the module to be built and confirm the construction information',
   'JavaMaven.name':'Module name',
+  'JavaMaven.possible_dependency':'Possibly a dependency module',
   'JavaMaven.cname':'Component name',
   'JavaMaven.packaging':'Package type',
   'JavaMaven.envs':'Build env info',
