@@ -17,6 +17,13 @@ import pluginUtil from '../../utils/plugin';
 import handleAPIError from '../../utils/error';
 import styles from './Index.less';
 
+const {
+  buildStorageDeletePayload,
+  buildStorageSavePayload,
+  partitionPluginVersionConfig,
+  toStorageEditorData
+} = require('./manageStorageHelpers');
+
 const ButtonGroup = Button.Group;
 
 @Form.create()
@@ -176,36 +183,12 @@ export default class Index extends PureComponent {
         build_version: currVersion
       },
       callback: data => {
-        const { list } = data;
-        // 配置组管理数据过滤处理
-        const config =
-          list &&
-          list.length > 0 &&
-          list.reduce((pre, item) => {
-            return item.injection !== 'plugin_storage' ? [...pre, item] : pre;
-          }, []);
-        // 存储管理数据过滤处理
-        const storgeListDatas =
-          list &&
-          list.length > 0 &&
-          list.reduce((pre, item) => {
-            return item.injection === 'plugin_storage' ? [...pre, item] : pre;
-          }, []);
-        const storgeListData =
-          storgeListDatas.length > 0 &&
-          storgeListDatas[0].options.map(item => {
-            const attr_default_value =
-              (item.attr_default_value &&
-                JSON.parse(item.attr_default_value)) ||
-              {};
-            item.volume_path = attr_default_value.volume_path || '';
-            item.attr_type = attr_default_value.attr_type || '';
-            item.config_name = attr_default_value.volume_name || '';
-            return item;
-          });
-        if (list) {
-          this.setState({ config, storgeListData, listData: list });
-        }
+        const {
+          config,
+          storageListData,
+          listData
+        } = partitionPluginVersionConfig(data && data.list);
+        this.setState({ config, storgeListData: storageListData, listData });
       },
       handleError: err => {
         handleAPIError(err);
@@ -357,39 +340,22 @@ export default class Index extends PureComponent {
     this.setState({ removeStorageLoading: true });
     const {
       configStorageVisible,
-      showEditConfig,
       currVersion,
       storgeListData,
       listData
     } = this.state;
-    const deepCloneData = storgeListData.reduce(
-      (pre, current) =>
-        current.ID !== configStorageVisible.ID ? [...pre, current] : pre,
-      []
-    );
-    const params = {};
-    const deleteStorageID =
-      listData &&
-      listData.length > 0 &&
-      listData.filter(item => item.injection === 'plugin_storage')[0].ID;
-    params.ID = deleteStorageID || ''; // 删除时传递的ID
-    params.config_name = 'plugin_storage';
-    params.injection = 'plugin_storage';
-    params.service_meta_type = 'plugin_storage';
-    params.options = deepCloneData;
-    if (storgeListData.length === 1) {
-      params.modify_type = true;
-    }
+    const params = buildStorageDeletePayload({
+      target: configStorageVisible,
+      storageListData: storgeListData,
+      listData
+    });
     dispatch({
       type: 'plugin/editPluginVersionConfig',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         plugin_id: this.getId(),
         build_version: currVersion,
-        entry: {
-          ...showEditConfig,
-          ...params
-        }
+        entry: params
       },
       callback: () => {
         notification.success({ message: formatMessage({id:'notification.success.delete'}) });
@@ -531,63 +497,20 @@ export default class Index extends PureComponent {
   // 新增或编辑存储
   handleSubmitStorageConfig = (vals, data) => {
     const { isEditor, listData, storgeListData } = this.state;
-    const params = {};
-    const editStorageID =
-      listData &&
-      listData.length > 0 &&
-      listData.filter(item => item.injection === 'plugin_storage');
-    params.ID =
-      (editStorageID && editStorageID[0] && editStorageID[0].ID) || ''; // 编辑时传递的ID
-    params.config_name = 'plugin_storage';
-    params.injection = 'plugin_storage';
-    params.service_meta_type = 'plugin_storage';
-    if (!isEditor && storgeListData.length > 0) {
-      params.modify_type = true;
-    }
-    params.options = [
-      {
-        ID: (data && data.ID) || '',
-        attr_alt_value: '',
-        attr_default_value: JSON.stringify({
-          volume_path: vals.volume_path,
-          file_content: vals.file_content || '',
-          attr_type: vals.volume_type,
-          volume_name: vals.volume_name
-        }),
-        attr_info: '',
-        attr_name: `plugin_storage_${vals.volume_name}`,
-        attr_type: vals.volume_type,
-        is_change: true,
-        protocol: ''
-      }
-    ];
-    // 处理编辑态的数据
-    if (isEditor && data && storgeListData && storgeListData.length > 0) {
-      params.options = storgeListData.map(item => {
-        if (item.ID === data.ID) {
-          const deepVals = Object.assign({}, vals);
-          item.attr_default_value = JSON.stringify({
-            volume_path: deepVals.volume_path,
-            file_content: deepVals.file_content || '',
-            attr_type: data.attr_type,
-            volume_name: deepVals.volume_name
-          });
-        }
-        return item;
-      });
-    }
+    const params = buildStorageSavePayload({
+      values: vals,
+      data,
+      isEditor,
+      storageListData: storgeListData,
+      listData
+    });
     isEditor ? this.handleEditConfig(params) : this.handleAddConfig(params);
   };
   // 编辑存储
   handleEditStorage = data => {
-    const { config_name, attr_default_value } = data;
-
-    data.volume_name = config_name;
-    const str = (attr_default_value && JSON.parse(attr_default_value)) || '';
-    data.file_content = str.file_content;
     this.setState({
       isEditor: true,
-      editStoragData: data,
+      editStoragData: toStorageEditorData(data),
       showStorageConfig: true
     });
   };
@@ -853,7 +776,7 @@ export default class Index extends PureComponent {
           </div>
         </Card>
         {/* 存储管理 */}
-        {/* <Card
+        <Card
           style={{
             marginBottom: 16
           }}
@@ -924,7 +847,7 @@ export default class Index extends PureComponent {
               {formatMessage({id:'teamOther.manage.add_storage'})}
             </Button>
           </div>
-        </Card> */}
+        </Card>
         <Card title={formatMessage({id:'teamOther.manage.already_installed'})}>
           <Table
             rowKey={(record,index) => index}
@@ -1035,6 +958,8 @@ export default class Index extends PureComponent {
             onSubmit={this.handleSubmitStorageConfig}
             data={editStoragData} // 编辑数据
             editor={isEditor}
+            loading={isEditor ? editConfigLoading : addConfigLoading}
+            storageList={storgeListData}
           />
         )}
       </PageHeaderLayout>

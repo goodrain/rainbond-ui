@@ -481,7 +481,7 @@ class ConfigUnDefine extends PureComponent {
 @connect(
   ({ user, loading }) => ({
     currUser: user.currentUser,
-    loading: loading.appControl
+    editStorageLoading: loading.effects['appControl/editPluginConfigs']
   }),
   null,
   null,
@@ -576,7 +576,8 @@ class StorageManage extends PureComponent {
   };
   render() {
     const {
-      data: { config }
+      data: { config },
+      editStorageLoading
     } = this.props;
     const { editStoragData } = this.state;
     let storageList = [];
@@ -647,6 +648,8 @@ class StorageManage extends PureComponent {
             onSubmit={this.handleSubmitStorageConfig}
             data={this.state.editStoragData} // 编辑数据
             editor // 默认是编辑
+            loading={editStorageLoading}
+            storageList={storageList}
           />
         )}
       </>
