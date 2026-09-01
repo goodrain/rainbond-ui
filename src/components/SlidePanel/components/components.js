@@ -646,7 +646,6 @@ class Main extends PureComponent {
       return;
     }
 
-    dispatch({ type: 'appControl/clearPorts' });
     dispatch({
       type: 'appControl/fetchPorts',
       payload: {

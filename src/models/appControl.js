@@ -164,6 +164,13 @@ import {
   captureFirstAppDeploySuccess,
   captureMeaningfulActive
 } from '../posthog';
+import {
+  clearComponentPortsState,
+  prepareComponentPortsState,
+  saveComponentPortsState
+} from './appControlPortState';
+
+let portsRequestSequence = 0;
 
 function buildAppControlProperties(payload = {}, overrides = {}) {
   return {
@@ -215,6 +222,8 @@ export default {
     baseInfo: {},
     // 应用端口信息
     ports: [],
+    portsOwner: '',
+    portsRequestGeneration: 0,
     // 添加域名是所需要证书
     certificates: [],
     // 应用的环境变量
@@ -692,9 +701,22 @@ export default {
       }
     },
     *fetchPorts({ payload, callback }, { call, put }) {
+      const appAlias = payload.app_alias || payload.service_alias || '';
+      const requestGeneration = ++portsRequestSequence;
+      yield put({
+        type: 'preparePorts',
+        payload: { appAlias, requestGeneration }
+      });
       const response = yield call(getPorts, payload);
       if (response) {
-        yield put({ type: 'savePorts', payload: response.list });
+        yield put({
+          type: 'savePorts',
+          payload: {
+            appAlias,
+            requestGeneration,
+            ports: response.list || []
+          }
+        });
         callback && callback(response);
       }
     },
@@ -1485,16 +1507,17 @@ export default {
       };
     },
     clearPorts(state) {
-      return {
-        ...state,
-        ports: []
-      };
+      return clearComponentPortsState(state);
+    },
+    preparePorts(state, action) {
+      return prepareComponentPortsState(
+        state,
+        action.payload.appAlias,
+        action.payload.requestGeneration
+      );
     },
     savePorts(state, action) {
-      return {
-        ...state,
-        ports: action.payload
-      };
+      return saveComponentPortsState(state, action.payload);
     },
     clearInnerEnvs(state) {
       return {
