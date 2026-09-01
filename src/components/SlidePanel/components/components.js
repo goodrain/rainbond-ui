@@ -260,6 +260,7 @@ class EditName extends PureComponent {
     currUser: user.currentUser,
     appDetail: appControl.appDetail,
     ports: appControl.ports,
+    gatewayTrafficTabVisible: appControl.gatewayTrafficTabVisible,
     pods: appControl.pods,
     groups: global.groups,
     build_upgrade: appControl.build_upgrade,
@@ -1633,6 +1634,7 @@ class Main extends PureComponent {
       buildInformationLoading,
       pluginList,
       ports,
+      gatewayTrafficTabVisible,
       permissions,
       permissions: {
         isAccess,
@@ -1673,7 +1675,8 @@ class Main extends PureComponent {
     const CompluginList = getVisibleComponentPlugins(
       PluginUtile.segregatePluginsByHierarchy(pluginList, 'Component'),
       appDetail,
-      ports
+      ports,
+      gatewayTrafficTabVisible
     );
     const upDataText = isShowThirdParty ? <FormattedMessage id='componentOverview.header.right.update' /> : <FormattedMessage id='componentOverview.header.right.update.roll' />;
     const codeObj = {

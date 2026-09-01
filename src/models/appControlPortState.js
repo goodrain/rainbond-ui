@@ -1,3 +1,11 @@
+const HTTP_PORT_PROTOCOLS = ['http', 'https', 'httptohttps', 'http2', 'grpc'];
+
+function hasHTTPPort(ports = []) {
+  return (ports || []).some(port =>
+    HTTP_PORT_PROTOCOLS.includes(String((port && port.protocol) || '').toLowerCase())
+  );
+}
+
 function prepareComponentPortsState(state, appAlias, requestGeneration) {
   const normalizedAlias = String(appAlias || '');
   const shouldClear =
@@ -6,7 +14,8 @@ function prepareComponentPortsState(state, appAlias, requestGeneration) {
     ...state,
     ports: shouldClear ? [] : state.ports,
     portsOwner: normalizedAlias,
-    portsRequestGeneration: requestGeneration
+    portsRequestGeneration: requestGeneration,
+    gatewayTrafficTabVisible: Boolean(state.gatewayTrafficTabVisible)
   };
 }
 
@@ -19,7 +28,8 @@ function saveComponentPortsState(state, payload = {}) {
   }
   return {
     ...state,
-    ports: payload.ports || []
+    ports: payload.ports || [],
+    gatewayTrafficTabVisible: hasHTTPPort(payload.ports)
   };
 }
 
@@ -27,7 +37,8 @@ function clearComponentPortsState(state) {
   return {
     ...state,
     ports: [],
-    portsOwner: ''
+    portsOwner: '',
+    gatewayTrafficTabVisible: Boolean(state.gatewayTrafficTabVisible)
   };
 }
 

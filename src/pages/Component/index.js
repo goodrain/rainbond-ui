@@ -66,7 +66,7 @@ import PluginUtile from '../../utils/pulginUtils'
 import { ResumeContext } from "./funContext";
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
-import { getComponentPluginTabName, getVisibleComponentPlugins, shouldClearComponentPorts } from './componentPluginHelpers';
+import { getComponentPluginTabName, getVisibleComponentPlugins } from './componentPluginHelpers';
 import { shouldShowGenericVisitAction, shouldShowWebTerminalAction } from './visitActionHelpers';
 import { isRainbondInfoAgentEnabled } from '../../utils/agentVisibility';
 
@@ -254,6 +254,7 @@ class EditName extends PureComponent {
     currUser: user.currentUser,
     appDetail: appControl.appDetail,
     ports: appControl.ports,
+    gatewayTrafficTabVisible: appControl.gatewayTrafficTabVisible,
     pods: appControl.pods,
     groups: global.groups,
     build_upgrade: appControl.build_upgrade,
@@ -311,7 +312,6 @@ class Main extends PureComponent {
     };
     this.deployRequestPending = false;
     this.destroy = false;
-    this.portsAppAlias = null;
   }
 
   getChildContext() {
@@ -562,10 +562,6 @@ class Main extends PureComponent {
       return;
     }
 
-    if (shouldClearComponentPorts(this.portsAppAlias, appAlias)) {
-      dispatch({ type: 'appControl/clearPorts' });
-    }
-    this.portsAppAlias = appAlias;
     dispatch({
       type: 'appControl/fetchPorts',
       payload: {
@@ -1285,7 +1281,8 @@ class Main extends PureComponent {
       deployLoading,
       buildInformationLoading,
       pluginList,
-      ports
+      ports,
+      gatewayTrafficTabVisible
     } = this.props;
     const {
       BuildList,
@@ -1323,7 +1320,8 @@ class Main extends PureComponent {
     const CompluginList = getVisibleComponentPlugins(
       PluginUtile.segregatePluginsByHierarchy(pluginList, 'Component'),
       appDetail,
-      ports
+      ports,
+      gatewayTrafficTabVisible
     );
     const upDataText = isShowThirdParty ? <FormattedMessage id='componentOverview.header.right.update' /> : <FormattedMessage id='componentOverview.header.right.update.roll' />;
     const codeObj = {

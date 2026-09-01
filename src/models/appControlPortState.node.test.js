@@ -14,7 +14,8 @@ test('prepareComponentPortsState retains ports while refreshing the same compone
   const state = {
     ports: [{ protocol: 'http', container_port: 8080 }],
     portsOwner: 'component-a',
-    portsRequestGeneration: 1
+    portsRequestGeneration: 1,
+    gatewayTrafficTabVisible: true
   };
 
   const next = prepareComponentPortsState(state, 'component-a', 2);
@@ -22,19 +23,26 @@ test('prepareComponentPortsState retains ports while refreshing the same compone
   assert.deepStrictEqual(next.ports, state.ports);
   assert.equal(next.portsOwner, 'component-a');
   assert.equal(next.portsRequestGeneration, 2);
+  assert.equal(next.gatewayTrafficTabVisible, true);
 });
 
 test('prepareComponentPortsState clears ports when switching components', function () {
   const state = {
     ports: [{ protocol: 'http', container_port: 8080 }],
     portsOwner: 'component-a',
-    portsRequestGeneration: 1
+    portsRequestGeneration: 1,
+    gatewayTrafficTabVisible: true
   };
 
   const next = prepareComponentPortsState(state, 'component-b', 2);
 
   assert.deepStrictEqual(next.ports, []);
   assert.equal(next.portsOwner, 'component-b');
+  assert.equal(
+    next.gatewayTrafficTabVisible,
+    true,
+    'the gateway tab should remain stable while the next component ports are loading'
+  );
 });
 
 test('saveComponentPortsState rejects stale component responses', function () {
@@ -68,13 +76,32 @@ test('saveComponentPortsState accepts the current component response', function 
   });
 
   assert.deepStrictEqual(next.ports, ports);
+  assert.equal(next.gatewayTrafficTabVisible, true);
 });
 
-test('clearComponentPortsState invalidates in-flight responses', function () {
+test('saveComponentPortsState hides gateway traffic after current non-http ports load', function () {
+  const state = {
+    ports: [],
+    portsOwner: 'component-b',
+    portsRequestGeneration: 3,
+    gatewayTrafficTabVisible: true
+  };
+
+  const next = saveComponentPortsState(state, {
+    appAlias: 'component-b',
+    requestGeneration: 3,
+    ports: [{ protocol: 'tcp', container_port: 6379 }]
+  });
+
+  assert.equal(next.gatewayTrafficTabVisible, false);
+});
+
+test('clearComponentPortsState invalidates in-flight responses without hiding gateway traffic', function () {
   const state = {
     ports: [{ protocol: 'http', container_port: 8080 }],
     portsOwner: 'component-a',
-    portsRequestGeneration: 4
+    portsRequestGeneration: 4,
+    gatewayTrafficTabVisible: true
   };
 
   const next = clearComponentPortsState(state);
@@ -82,4 +109,5 @@ test('clearComponentPortsState invalidates in-flight responses', function () {
   assert.deepStrictEqual(next.ports, []);
   assert.equal(next.portsOwner, '');
   assert.equal(next.portsRequestGeneration, 4);
+  assert.equal(next.gatewayTrafficTabVisible, true);
 });

@@ -224,6 +224,7 @@ export default {
     ports: [],
     portsOwner: '',
     portsRequestGeneration: 0,
+    gatewayTrafficTabVisible: false,
     // 添加域名是所需要证书
     certificates: [],
     // 应用的环境变量
