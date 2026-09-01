@@ -1,9 +1,10 @@
 const assert = require('assert');
+const fs = require('fs');
+const path = require('path');
 const {
   getComponentPluginTabName,
   getVisibleComponentPlugins,
   hasHTTPPort,
-  shouldClearComponentPorts,
   shouldShowComponentPluginTab
 } = require('./componentPluginHelpers');
 
@@ -14,6 +15,17 @@ assert.strictEqual(
   ),
   false,
   'should hide the virtual machine plugin tab for non-vm components'
+);
+
+assert.strictEqual(
+  shouldShowComponentPluginTab(
+    { name: 'rainbond-observability' },
+    { service: { extend_method: 'stateless_multiple' } },
+    [],
+    true
+  ),
+  true,
+  'should keep gateway traffic visible while switched component ports are loading'
 );
 
 assert.strictEqual(
@@ -131,22 +143,26 @@ assert.strictEqual(
   'should show gateway monitoring component tab when the component has an http port'
 );
 
-assert.strictEqual(
-  shouldClearComponentPorts(null, 'gr1ea4bc'),
-  true,
-  'should clear stale ports before loading the first component ports'
-);
-
-assert.strictEqual(
-  shouldClearComponentPorts('gr1ea4bc', 'gr1ea4bc'),
+const componentPageSource = fs.readFileSync(path.join(__dirname, 'index.js'), 'utf8');
+assert.equal(
+  componentPageSource.includes("dispatch({ type: 'appControl/clearPorts' })"),
   false,
-  'should keep current ports while refreshing the same component to avoid plugin tab flicker'
+  'component switching should let preparePorts clear data without hiding the gateway tab first'
+);
+assert.equal(
+  componentPageSource.includes('gatewayTrafficTabVisible'),
+  true,
+  'component page should use stable gateway traffic visibility from DVA state'
 );
 
-assert.strictEqual(
-  shouldClearComponentPorts('gr1ea4bc', 'gr707edd'),
+const slidePanelSource = fs.readFileSync(
+  path.join(__dirname, '..', '..', 'components', 'SlidePanel', 'components', 'components.js'),
+  'utf8'
+);
+assert.equal(
+  slidePanelSource.includes('gatewayTrafficTabVisible'),
   true,
-  'should clear ports when switching to another component'
+  'component slide panel should use stable gateway traffic visibility from DVA state'
 );
 
 console.log('component plugin helper tests passed');

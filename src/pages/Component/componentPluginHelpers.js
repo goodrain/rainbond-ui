@@ -10,7 +10,12 @@ function hasHTTPPort(ports = []) {
   });
 }
 
-function shouldShowComponentPluginTab(plugin = {}, appDetail = {}, ports = []) {
+function shouldShowComponentPluginTab(
+  plugin = {},
+  appDetail = {},
+  ports = [],
+  gatewayTrafficTabVisible
+) {
   const service = (appDetail && appDetail.service) || {};
 
   if (!plugin || !plugin.name) {
@@ -18,6 +23,9 @@ function shouldShowComponentPluginTab(plugin = {}, appDetail = {}, ports = []) {
   }
 
   if (isPluginBaseId(plugin, GATEWAY_MONITORING_PLUGIN_ID)) {
+    if (typeof gatewayTrafficTabVisible === 'boolean') {
+      return gatewayTrafficTabVisible;
+    }
     return hasHTTPPort(ports);
   }
 
@@ -32,14 +40,20 @@ function shouldShowComponentPluginTab(plugin = {}, appDetail = {}, ports = []) {
   return true;
 }
 
-function getVisibleComponentPlugins(pluginList = [], appDetail = {}, ports = []) {
+function getVisibleComponentPlugins(
+  pluginList = [],
+  appDetail = {},
+  ports = [],
+  gatewayTrafficTabVisible
+) {
   return (pluginList || []).filter(plugin =>
-    shouldShowComponentPluginTab(plugin, appDetail, ports)
+    shouldShowComponentPluginTab(
+      plugin,
+      appDetail,
+      ports,
+      gatewayTrafficTabVisible
+    )
   );
-}
-
-function shouldClearComponentPorts(previousAppAlias, nextAppAlias) {
-  return Boolean(nextAppAlias) && previousAppAlias !== nextAppAlias;
 }
 
 function getComponentPluginTabName(plugin = {}, monitorLabel = '监控', gatewayTrafficLabel = '组件流量') {
@@ -58,6 +72,5 @@ module.exports = {
   getComponentPluginTabName,
   getVisibleComponentPlugins,
   hasHTTPPort,
-  shouldClearComponentPorts,
   shouldShowComponentPluginTab
 };
