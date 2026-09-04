@@ -139,10 +139,9 @@ const login = {
     'layout.userLayout.saas.and':'和',
     'layout.userLayout.saas.privacyPolicy':'隐私条款',
     // UserLayout - Normal mode
-    'layout.userLayout.normal.title1':'AI 生成',
-    'layout.userLayout.normal.title2':'Rainbond 运行',
-    'layout.userLayout.normal.title3':'始终由你掌控',
-    'layout.userLayout.normal.description':'将 AI 生成的项目、AI 开源软件和业务应用，以容器方式运行在自己的服务器或 Kubernetes 上，并持续完成部署、运维、升级与交付。',
+    'layout.userLayout.normal.title1':'Rainbond 是 AI 时代的',
+    'layout.userLayout.normal.title2':'应用运行平台',
+    'layout.userLayout.normal.description':'统一运行和管理 AI 项目、大模型、开源软件及业务应用，让 AI 完成部署与运维，并将应用稳定运行在用户自己的服务器或 Kubernetes 上。',
     'layout.userLayout.normal.companyInfo':'北京好雨科技有限公司出品',
 }
 
