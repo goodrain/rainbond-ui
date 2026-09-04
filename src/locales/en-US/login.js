@@ -139,8 +139,7 @@ const login = {
     'layout.userLayout.saas.and':'and',
     'layout.userLayout.saas.privacyPolicy':'Privacy Policy',
     // UserLayout - Normal mode
-    'layout.userLayout.normal.title1':'Rainbond is in the era of AI',
-    'layout.userLayout.normal.title2':'Application Runtime Platform',
+    'layout.userLayout.normal.title1':'AI Application Runtime Platform',
     'layout.userLayout.normal.description':'Unified runtime and management of AI projects, large models, open source software, and business applications, letting AI complete deployment and operation, and running applications stably on users\' own servers or Kubernetes.',
     'layout.userLayout.normal.companyInfo':'Powered by Beijing Goodrain Technology',
 }
