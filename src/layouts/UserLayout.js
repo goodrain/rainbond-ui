@@ -254,8 +254,7 @@ class UserLayout extends React.PureComponent {
                       <h1>{loginTitleValue}</h1>
                     ) : (
                       <>
-                        <h1><FormattedMessage id="layout.userLayout.normal.title1" defaultMessage="Rainbond 是 AI 时代的" /></h1>
-                        <h1><FormattedMessage id="layout.userLayout.normal.title2" defaultMessage="应用运行平台" /></h1>
+                        <h1><FormattedMessage id="layout.userLayout.normal.title1" defaultMessage="AI 应用运行平台" /></h1>
                       </>
                     )}
                   </div>
