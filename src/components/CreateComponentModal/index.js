@@ -3005,6 +3005,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                 dispatch={dispatch}
                 currentUser={currentUser}
                 imgSecretId={selectedImageHub.secret_id}
+                archInfo={archInfo}
                 showSubmitBtn={true}
               />
             )}
