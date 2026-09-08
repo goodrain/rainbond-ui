@@ -1015,7 +1015,7 @@ export async function addSingleKubernetesVal(body = {}) {
   );
 }
 // 应用下删除单个k8s资源
-export async function delSingleKubernetesVal(body = {}) {
+export async function delSingleKubernetesVal(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/k8s-resources/${body.list_name}`,
     {
@@ -1023,7 +1023,33 @@ export async function delSingleKubernetesVal(body = {}) {
       data: {
         resource_yaml:body.yaml,
         id:body.List_id,
+        cascade_crd: body.cascade_crd || false,
       },
+      handleError
+    }
+  );
+}
+// 预览删除应用下 k8s 资源的影响
+export async function previewKubernetesDeletion(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/k8s-resources/deletion-impact`,
+    {
+      method: 'post',
+      data: {
+        ids: body.List_id,
+      },
+      handleError
+    }
+  );
+}
+// 对账应用下 k8s 资源元数据
+export async function reconcileKubernetesResources(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/k8s-resources/reconcile`,
+    {
+      method: 'post',
+      data: {},
+      handleError
     }
   );
 }
@@ -1035,6 +1061,7 @@ export async function batchDelSingleKubernetesVal(body = {}, handleError) {
       method: 'DELETE',
       data: {
         ids:body.List_id,
+        cascade_crd: body.cascade_crd || false,
       },
       handleError
     }

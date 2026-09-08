@@ -236,7 +236,7 @@
         'confirmModal.backup.title.delete':'删除备份',
         'confirmModal.delete.strategy.title':'删除策略',
         'confirmModal.delete.configuration.title':'删除配置组',
-        'confirmModal.delete.resource.title':'属性删除',
+        'confirmModal.delete.resource.title':'删除 Kubernetes 资源',
         'confirmModal.abandon_create.create_check.title':'放弃创建',
         'confirmModal.compose.update.title':'修改compose内容',
         'confirmModal.umount.dalete.title':'取消挂载',
@@ -285,7 +285,10 @@
         'confirmModal.backup.delete.desc':'确定要删除此备份吗？',
         'confirmModal.delete.strategy.desc':'确定要删除此策略吗?',
         'confirmModal.delete.configuration.desc':'确定要删除此配置组吗？',
-        'confirmModal.delete.resource.desc':'确定要删除此属性吗？',
+        'confirmModal.delete.resource.desc':'确定要删除所选 Kubernetes 资源吗？',
+        'confirmModal.delete.resource.crdImpact':'本次删除包含 {crdCount} 个 CRD，将级联删除 {crCount} 个 CR，其中涉及其他应用 {otherAppCount} 个、未归属 CR {unownedCount} 个。',
+        'confirmModal.delete.resource.crdAdminRequired':'该 CRD 被其他应用或未归属资源使用，仅企业管理员可以确认级联删除。',
+        'confirmModal.delete.resource.crdCascadeWarning':'确认后将先删除全部关联 CR，确认清空后再删除 CRD，此操作会影响其他应用且不可恢复。',
         'confirmModal.delete.create_check.desc':'确定要放弃创建此组件吗？',
         'confirmModal.delete.create_check_app.desc':'确定要放弃创建此应用吗？',
         'confirmModal.delete.umount.desc':'确定要取消此挂载目录吗?',
@@ -598,6 +601,7 @@
 
         // 失败
         'notification.error.delete':'删除失败',
+        'notification.error.delete.preview':'查询资源删除影响失败',
         'notification.error.setUp':'创建失败',
         'notification.error.edit':'编辑失败',
         'notification.error.add':'添加失败',

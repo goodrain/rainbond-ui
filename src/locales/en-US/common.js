@@ -238,7 +238,7 @@
         'confirmModal.backup.title.delete':'Delete backup',
         'confirmModal.delete.strategy.title':'Deletion strategy',
         'confirmModal.delete.configuration.title':'Deleting Configuration Group',
-        'confirmModal.delete.resource.title':'Attribute delete',
+        'confirmModal.delete.resource.title':'Delete Kubernetes resources',
         'confirmModal.abandon_create.create_check.title':'Give up',
         'confirmModal.compose.update.title':'Modify Compose content',
         'confirmModal.umount.dalete.title':'Cancel mount',
@@ -285,7 +285,10 @@
         'confirmModal.backup.delete.desc':'Are you sure you want to delete this backup?',
         'confirmModal.delete.strategy.desc':'Are you sure you want to remove this policy?',
         'confirmModal.delete.configuration.desc':'Are you sure you want to delete this configuration group?',
-        'confirmModal.delete.resource.desc':'Are you sure you want to remove this property?',
+        'confirmModal.delete.resource.desc':'Are you sure you want to delete the selected Kubernetes resources?',
+        'confirmModal.delete.resource.crdImpact':'This deletion includes {crdCount} CRD(s) and will cascade to {crCount} custom resource(s), affecting {otherAppCount} other application(s) and {unownedCount} unowned resource(s).',
+        'confirmModal.delete.resource.crdAdminRequired':'This CRD is used by another application or unowned resources. Only an enterprise administrator can confirm the cascade deletion.',
+        'confirmModal.delete.resource.crdCascadeWarning':'All related custom resources will be removed and confirmed absent before the CRD is deleted. Other applications may be affected and this cannot be undone.',
         'confirmModal.delete.create_check.desc':'Are you sure you want to abandon the creation of this component?',
         'confirmModal.delete.create_check_app.desc':'Are you sure you want to give up building this application?',
         'confirmModal.delete.umount.desc':'Are you sure you want to unmount this directory?',
@@ -602,6 +605,7 @@
 
         // 失败
         'notification.error.delete':'Delete failure',
+        'notification.error.delete.preview':'Failed to inspect resource deletion impact',
         'notification.error.setUp':'Create failure',
         'notification.error.edit':'Edit failure',
         'notification.error.add':'Add failure',

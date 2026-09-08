@@ -63,6 +63,8 @@ import {
   createKubernetesVal,
   updateKubernetesVal,
   batchDelSingleKubernetesVal,
+  previewKubernetesDeletion,
+  reconcileKubernetesResources,
   getOperator,
   fetchGroupAllResource,
   deleteGroupAllResource
@@ -492,6 +494,18 @@ export default {
     },
     *batchDelSingleKubernetesVal({ payload, callback, handleError }, { call }) {
       const data = yield call(batchDelSingleKubernetesVal, payload, handleError);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *previewKubernetesDeletion({ payload, callback, handleError }, { call }) {
+      const data = yield call(previewKubernetesDeletion, payload, handleError);
+      if (data && callback) {
+        callback(data);
+      }
+    },
+    *reconcileKubernetesResources({ payload, callback, handleError }, { call }) {
+      const data = yield call(reconcileKubernetesResources, payload, handleError);
       if (data && callback) {
         callback(data);
       }

@@ -12,7 +12,7 @@ import globalUtil from "../../utils/global"
 import roleUtil from '../../utils/newRole';
 import jsYaml from 'js-yaml'
 import CodeMirrorForm from '../../components/CodeMirrorForm';
-import { getKubernetesVal, getSingleKubernetesVal, addSingleKubernetesVal, delSingleKubernetesVal, editSingleKubernetesVal } from "../../services/application";
+import { getKubernetesVal, getSingleKubernetesVal, addSingleKubernetesVal, editSingleKubernetesVal } from "../../services/application";
 import ConfirmModal from "../../components/ConfirmModal";
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import Exception from '../Exception/403';
@@ -42,7 +42,10 @@ class Index extends PureComponent {
       resourcePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'app_resources', `app_${globalUtil.getAppID()}`),
       page: 1,
       pageSize: 10,
-      total: 0
+      total: 0,
+      deletionImpact: {},
+      deletionPreviewLoading: false,
+      deleteLoading: false
     };
   }
   componentDidMount() {
@@ -58,8 +61,22 @@ class Index extends PureComponent {
     return !isSaas || !!(currentUser && currentUser.is_enterprise_admin);
   };
   getPageContent = () => {
+    const { dispatch } = this.props;
     const teamName = globalUtil.getCurrTeamName();
     const app_id = globalUtil.getAppID();
+    this.setState({ loadingSwitch: true });
+    const loadResources = () => this.loadPageContent(teamName, app_id);
+    dispatch({
+      type: 'application/reconcileKubernetesResources',
+      payload: {
+        team_name: teamName,
+        app_id
+      },
+      callback: loadResources,
+      handleError: loadResources
+    });
+  }
+  loadPageContent = (teamName, app_id) => {
     getKubernetesVal({
       team_name: teamName,
       app_id: app_id,
@@ -148,46 +165,47 @@ class Index extends PureComponent {
   }
   // 删除提示框弹出
   deleteButton = (val) => {
-    if (val) {
-      this.setState({
-        showDeletePort: !this.state.showDeletePort
-      })
-      this.setState({
-        deleteVal: val,
-      })
-    } else {
-      this.setState({
-        showDeletePort: !this.state.showDeletePort
-      })
+    const { dispatch } = this.props;
+    const { selectedRowKeys = [] } = this.state;
+    const resourceIds = val ? [val.ID] : selectedRowKeys;
+    if (!resourceIds.length) {
+      return;
     }
-  }
-  // 删除
-  handleDel = () => {
-    const { deleteVal } = this.state
     const teamName = globalUtil.getCurrTeamName();
     const app_id = globalUtil.getAppID();
-    delSingleKubernetesVal({
-      team_name: teamName,
-      app_id: app_id,
-      yaml: deleteVal.content,
-      list_name: deleteVal.name,
-      List_id: deleteVal.ID
-    }).then(res => {
-      if (res && res.response_data && res.response_data.code == 200) {
-        notification.success({
-          message: formatMessage({ id: 'notification.success.delete' })
-        })
-        this.getPageContent()
-      }
-    })
     this.setState({
-      showDeletePort: !this.state.showDeletePort,
-      visible: false,
-    })
+      deletionPreviewLoading: true,
+      deletionImpact: {},
+      deleteVal: val || {},
+      handelType: val ? 'single' : 'multiple'
+    });
+    dispatch({
+      type: 'application/previewKubernetesDeletion',
+      payload: {
+        List_id: resourceIds,
+        team_name: teamName,
+        app_id
+      },
+      callback: data => {
+        this.setState({
+          deletionImpact: data.bean || {},
+          deletionPreviewLoading: false,
+          showDeletePort: true
+        });
+      },
+      handleError: () => {
+        this.setState({ deletionPreviewLoading: false });
+        notification.error({
+          message: formatMessage({ id: 'notification.error.delete.preview' })
+        });
+      }
+    });
   }
   cancalDeletePort = () => {
     this.setState({
-      showDeletePort: !this.state.showDeletePort
+      showDeletePort: false,
+      deletionImpact: {},
+      deleteLoading: false
     })
   }
   handelAddOrEdit = (list) => {
@@ -254,27 +272,33 @@ class Index extends PureComponent {
     this.setState({ selectedRowKeys });
   };
   batchDeletion = () => {
-    const { selectedRowKeys } = this.state;
-    const { dispatch } = this.props;
+    const { selectedRowKeys = [], deleteVal, handelType, deletionImpact } = this.state;
+    const { dispatch, currentUser } = this.props;
     const teamName = globalUtil.getCurrTeamName()
     const app_id = globalUtil.getAppID();
-    this.setState({
-      handelType: "multiple"
-    })
+    const resourceIds = handelType === 'single' ? [deleteVal.ID] : selectedRowKeys;
+    const isEnterpriseAdmin = !!(currentUser && currentUser.is_enterprise_admin);
+    if (deletionImpact.requires_cascade && !isEnterpriseAdmin) {
+      return;
+    }
+    this.setState({ deleteLoading: true });
     dispatch({
       type: 'application/batchDelSingleKubernetesVal',
       payload: {
-        List_id: selectedRowKeys,
+        List_id: resourceIds,
         team_name: teamName,
         app_id: app_id,
+        cascade_crd: !!(deletionImpact.requires_cascade && isEnterpriseAdmin)
       },
       callback: data => {
         notification.success({
           message: formatMessage({ id: 'notification.success.delete' })
         })
         this.setState({
-          showDeletePort: !this.state.showDeletePort,
-          selectedRowKeys: []
+          showDeletePort: false,
+          selectedRowKeys: [],
+          deletionImpact: {},
+          deleteLoading: false
         }, () => {
           this.getPageContent()
         })
@@ -285,13 +309,41 @@ class Index extends PureComponent {
           message: formatMessage({ id: 'notification.error.delete' })
         })
         this.setState({
-          showDeletePort: !this.state.showDeletePort,
-          selectedRowKeys: []
+          showDeletePort: false,
+          selectedRowKeys: [],
+          deletionImpact: {},
+          deleteLoading: false
         }, () => {
           this.getPageContent()
         })
       }
     });
+  }
+  getDeleteDescription = () => {
+    const { deletionImpact } = this.state;
+    if (!deletionImpact.has_crd) {
+      return formatMessage({ id: 'confirmModal.delete.resource.desc' });
+    }
+    return formatMessage(
+      { id: 'confirmModal.delete.resource.crdImpact' },
+      {
+        crdCount: deletionImpact.crd_count || 0,
+        crCount: deletionImpact.cr_count || 0,
+        otherAppCount: deletionImpact.other_app_count || 0,
+        unownedCount: deletionImpact.unowned_cr_count || 0
+      }
+    );
+  }
+  getDeleteSubDescription = () => {
+    const { deletionImpact } = this.state;
+    const { currentUser } = this.props;
+    if (!deletionImpact.requires_cascade) {
+      return formatMessage({ id: 'confirmModal.delete.strategy.subDesc' });
+    }
+    if (!(currentUser && currentUser.is_enterprise_admin)) {
+      return formatMessage({ id: 'confirmModal.delete.resource.crdAdminRequired' });
+    }
+    return formatMessage({ id: 'confirmModal.delete.resource.crdCascadeWarning' });
   }
   onPageChange = (page, pageSize) => {
     this.setState({
@@ -316,7 +368,6 @@ class Index extends PureComponent {
       TooltipValue,
       type,
       selectedRowKeys,
-      handelType,
       resourcePermission,
       resourcePermission: {
         isAccess,
@@ -326,7 +377,10 @@ class Index extends PureComponent {
       },
       page,
       pageSize,
-      total
+      total,
+      deletionImpact,
+      deletionPreviewLoading,
+      deleteLoading
     } = this.state;
     if (!isAccess) {
       return roleUtil.noPermission()
@@ -455,9 +509,6 @@ class Index extends PureComponent {
               }
               {isDelete &&
                 <span className={styles.action} onClick={() => {
-                  this.setState({
-                    handelType: 'single'
-                  })
                   this.deleteButton(record)
                 }
                 }>
@@ -496,11 +547,9 @@ class Index extends PureComponent {
             {isDelete && selectedRowKeys && selectedRowKeys.length > 0 &&
               <Button
                 type="primary"
+                loading={deletionPreviewLoading}
                 onClick={() => {
                   this.deleteButton();
-                  this.setState({
-                    handelType: 'multiple'
-                  })
                 }}
                 icon='delete'
               >
@@ -579,10 +628,12 @@ class Index extends PureComponent {
         {this.state.showDeletePort && (
           <ConfirmModal
             title={formatMessage({ id: 'confirmModal.delete.resource.title' })}
-            desc={formatMessage({ id: 'confirmModal.delete.resource.desc' })}
-            subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
-            onOk={handelType == "multiple" ? this.batchDeletion : this.handleDel}
+            desc={this.getDeleteDescription()}
+            subDesc={this.getDeleteSubDescription()}
+            onOk={this.batchDeletion}
             onCancel={this.cancalDeletePort}
+            loading={deleteLoading}
+            disabled={!!(deletionImpact.requires_cascade && !(this.props.currentUser && this.props.currentUser.is_enterprise_admin))}
           />
         )}
       </PageHeaderLayout>
