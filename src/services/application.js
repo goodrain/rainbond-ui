@@ -1166,6 +1166,9 @@ export async function deleteGroupAllResource(body = {}, handleError) {
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/handle`,
     {
       method: 'delete',
+      data: {
+        cascade_crd: body.cascade_crd || false
+      },
       handleError
     }
   );

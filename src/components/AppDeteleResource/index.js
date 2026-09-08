@@ -10,8 +10,9 @@ import globalUtil from '../../utils/global';
 import appUtil from '../../utils/app';
 import styles from './index.less'
 @connect(
-    ({ loading }) => ({
-        batchDeleteLoading: loading.effects['appControl/putBatchDelete']
+    ({ loading, user }) => ({
+        batchDeleteLoading: loading.effects['appControl/putBatchDelete'],
+        currentUser: user.currentUser
     }),
     null,
     null,
@@ -29,12 +30,15 @@ export default class AppDeteleResource extends PureComponent {
     }
 
     handleDeleteResource = () => {
-        const { dispatch, onCancel, group_id, team_name, regionName, onSuccess, skipRedirect } = this.props;
+        const { dispatch, onCancel, group_id, team_name, regionName, onSuccess, skipRedirect, infoList, currentUser } = this.props;
+        const impact = (infoList && infoList.crd_deletion_impact) || {};
+        const isEnterpriseAdmin = !!(currentUser && currentUser.is_enterprise_admin);
         dispatch({
           type: 'application/deleteGroupAllResource',
           payload: {
             team_name,
-            group_id
+            group_id,
+            cascade_crd: !!(impact.requires_cascade && isEnterpriseAdmin)
           },
           callback: res => {
             if (res && res.status_code === 200) {
@@ -89,8 +93,28 @@ export default class AppDeteleResource extends PureComponent {
         }
     }
     render() {
-        const { onCancel, onOk, infoList, isflag, desc, subDesc, goBack, onDelete, loading } = this.props;
+        const { onCancel, onOk, infoList, isflag, desc, subDesc, goBack, onDelete, loading, currentUser } = this.props;
         const { } = this.state;
+        const impact = (infoList && infoList.crd_deletion_impact) || {};
+        const crdNames = (impact.crds || []).map(item => item.name).filter(Boolean).join(', ');
+        const isEnterpriseAdmin = !!(currentUser && currentUser.is_enterprise_admin);
+        const cascadeDisabled = !!(impact.inspection_error || (impact.requires_cascade && !isEnterpriseAdmin));
+        const confirmDesc = impact.inspection_error
+            ? formatMessage({id:'appOverview.app.delete.crdImpactUnavailable'}, { reason: impact.inspection_error })
+            : impact.has_crd
+            ? formatMessage({id:'appOverview.app.delete.crdImpact'}, {
+                crdNames: crdNames || '-',
+                crCount: impact.cr_count || 0,
+                otherAppCount: impact.other_app_count || 0,
+                unownedCount: impact.unowned_cr_count || 0
+            })
+            : desc;
+        let confirmSubDesc = subDesc;
+        if (impact.requires_cascade) {
+            confirmSubDesc = isEnterpriseAdmin
+                ? formatMessage({id:'appOverview.app.delete.crdCascadeWarning'})
+                : formatMessage({id:'appOverview.app.delete.crdAdminRequired'});
+        }
         const columns = [
             {
                 dataIndex: 'name',
@@ -195,6 +219,7 @@ export default class AppDeteleResource extends PureComponent {
                     <Button
                       type="primary"
                       loading={loading}
+                      disabled={cascadeDisabled}
                       onClick={this.handleDeleteResource}
                     >
                       {formatMessage({id:'button.confirm'})}
@@ -208,8 +233,8 @@ export default class AppDeteleResource extends PureComponent {
                                 <Icon type="exclamation-circle-o" />
                             </span>
                             <div className={styles.desc}>
-                                <p>{desc}</p>
-                                <p>{subDesc}</p>
+                                <p>{confirmDesc}</p>
+                                <p>{confirmSubDesc}</p>
                             </div>
                         </div>
                     </div>
