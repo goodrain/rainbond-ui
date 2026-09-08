@@ -465,7 +465,7 @@ export async function editGroups(body = {}) {
 /*
   组
 */
-export async function addGroup(body = {}) {
+export async function addGroup(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups`,
     {
@@ -481,6 +481,7 @@ export async function addGroup(body = {}) {
         logo: body.logo,
         k8s_app: body.k8s_app
       },
+      handleError,
       showMessage: body.showMessage,
       noModels: body.noModels
     }
