@@ -1,4 +1,4 @@
-import { Tabs, Col, Spin, Button, Tooltip, Dropdown, Menu, notification, Switch, Modal, Tag, Icon, Input, Alert } from 'antd';
+import { Tabs, Col, Spin, Button, Tooltip, Dropdown, Menu, notification, Switch, Modal, Tag, Icon, Input, Alert, Empty } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import React, { PureComponent } from 'react';
@@ -44,98 +44,6 @@ class Index extends PureComponent {
             isServiceExpired: false,
             subscribeUntil: null,
             licenseValid: false,
-            defaultPluginList: [
-                {
-                    "plugin_name": "监控中心",
-                    "logo": "",
-                    "icon": "observation",
-                    "description": "提供集群与应用级全方位监控能力，集成指标采集、日志分析、链路追踪可视化，支持Prometheus/Grafana无缝对接",
-                    "version": "1.0",
-                    "author": "Rainbond 官方",
-                    "installed": false,
-                    "status": ""
-                },
-                {
-                    "plugin_name": "企业基础插件",
-                    "logo": "",
-                    "icon": "basics",
-                    "description": "企业级基础能力套件，包含应用备份恢复、多租户权限管理、审计日志、自定义企业品牌等核心功能模块",
-                    "version": "1.0",
-                    "author": "Rainbond 官方",
-                    "installed": false,
-                    "status": ""
-                },
-                {
-                    "plugin_name": "告警中心",
-                    "logo": "",
-                    "icon": "alert",
-                    "description": "实时异常检测与智能告警系统，支持自定义阈值规则、多通道通知（邮件/钉钉/Webhook），保障业务连续性",
-                    "version": "1.0",
-                    "author": "Rainbond 官方",
-                    "installed": false,
-                    "status": ""
-                },
-                {
-                    "plugin_name": "GPU 管理",
-                    "logo": "",
-                    "icon": "gpu",
-                    "description": "GPU资源调度与管理模块，支持AI训练/推理任务加速、显存监控、多卡分配策略，提升计算资源利用率",
-                    "version": "1.0",
-                    "author": "Rainbond 官方",
-                    "installed": false,
-                    "status": ""
-                },
-                {
-                    "plugin_name": "流水线",
-                    "logo": "",
-                    "icon": "pipeline",
-                    "description": "企业级CI/CD流水线引擎，提供自定义流程编排的工具，通过构建，部署，测试，管控等组件化能力，把从开发到交付的各项工作串联起来，从而让企业轻松的实现持续交付。",
-                    "version": "1.0",
-                    "author": "Rainbond 官方",
-                    "installed": false,
-                    "status": ""
-                },
-                {
-                    "plugin_name": "日志中心",
-                    "logo": "",
-                    "icon": "logs",
-                    "description": "统一日志采集与分析平台，支持多集群日志聚合、全文检索、实时过滤与可视化展示，快速定位应用异常与运维问题",
-                    "version": "1.0",
-                    "author": "Rainbond 官方",
-                    "installed": false,
-                    "status": ""
-                },
-                {
-                    "plugin_name": "灾备恢复",
-                    "logo": "",
-                    "icon": "security",
-                    "description": "企业级数据保护与灾备方案，支持应用级备份恢复、跨集群迁移、定时快照策略，保障业务数据安全与连续性",
-                    "version": "1.0",
-                    "author": "Rainbond 官方",
-                    "installed": false,
-                    "status": ""
-                },
-                {
-                    "plugin_name": "计量计费",
-                    "logo": "",
-                    "icon": "bill",
-                    "description": "资源用量精细化计量与成本管理工具，支持按团队、应用、组件维度统计CPU/内存/存储消耗，生成费用报表与趋势分析",
-                    "version": "1.0",
-                    "author": "Rainbond 官方",
-                    "installed": false,
-                    "status": ""
-                },
-                {
-                    "plugin_name": "源码扫描",
-                    "logo": "",
-                    "icon": "scan",
-                    "description": "代码质量与安全扫描引擎，支持多语言源码静态分析、依赖漏洞检测、编码规范审查，助力团队提升代码质量与安全水平",
-                    "version": "1.0",
-                    "author": "Rainbond 官方",
-                    "installed": false,
-                    "status": ""
-                }
-            ],
         }
     }
     componentDidMount() {
@@ -198,9 +106,8 @@ class Index extends PureComponent {
                 region_name: regionName,
             },
             callback: res => {
-                // 接口正常返回数组就信任它，即便是空数组 (市场未匹配到任何插件 / 全被集群 arch 过滤)。
-                // 只有响应结构异常时才退化到"已安装列表"，避免空响应让整个列表闪烁消失。
-                if (res && Array.isArray(res.list)) {
+                // 离线或禁用云市场时接口会成功返回空数组，仍需读取集群已安装插件。
+                if (res && Array.isArray(res.list) && res.list.length > 0) {
                     this.setState({
                         pluginList: res.list,
                         loading: false
@@ -238,7 +145,7 @@ class Index extends PureComponent {
                 region_name: regionName,
             },
             callback: res => {
-                const plugins = res && res.list && res.list.length > 0
+                const plugins = res && Array.isArray(res.list)
                     ? res.list.map(item => this.normalizeInstalledPlugin(item))
                     : [];
                 this.setState({
@@ -739,6 +646,11 @@ class Index extends PureComponent {
                         });
                     }
                 },
+                handleError: () => {
+                    this.handleInstalledPluginList(eid, plugins => {
+                        this.completeInstallIfRunning(pluginId, plugins);
+                    });
+                },
             });
         };
         // 立即跑一次, 不必等 3s 后才出现首个状态反馈
@@ -806,7 +718,9 @@ class Index extends PureComponent {
                 <Col span={3} className={styles.versions}>{installed_version || latest_version || '-'}</Col>
                 <Col span={3}>
                     <div className={styles.statusBox}>
-                        {installed && status ? <AppState AppStatus={status} /> : <span style={{ color: '#999', fontSize: 12 }}>未安装</span>}
+                        {installed ? (
+                            status ? <AppState AppStatus={status} /> : <span>{formatMessage({ id: 'teamOther.CreateAppFromPlugin.been_installed' })}</span>
+                        ) : <span style={{ color: '#999', fontSize: 12 }}>未安装</span>}
                     </div>
                 </Col>
                 <Col span={3} className={styles.author}>
@@ -851,36 +765,8 @@ class Index extends PureComponent {
         );
     }
 
-    renderDefaultPluginCard = (item, index) => {
-        return (
-            <div className={styles.boxs} key={index}>
-                <Col span={2} className={styles.icons}>
-                    <div className={styles.imgs}>{this.renderPluginIcon(item)}</div>
-                </Col>
-                <Col span={8}>
-                    <p className={styles.pluginName}>
-                        <span>{item.plugin_name}</span>
-                        <Tag color="blue" className={styles.commercialTag}>商业</Tag>
-                    </p>
-                    <p className={styles.pluginDesc}>{item.description}</p>
-                </Col>
-                <Col span={3} className={styles.versions}>{item.version || '-'}</Col>
-                <Col span={3}>
-                    <div className={styles.statusBox}>
-                        <span style={{ color: '#999', fontSize: 12 }}>未安装</span>
-                    </div>
-                </Col>
-                <Col span={3} className={styles.author}>{item.author ? `@${item.author}` : `@Rainbond 官方`}</Col>
-                <Col span={5} className={styles.btnBox}>
-                    {/* <Button size="small">文档</Button> */}
-                    <Button size="small" type="primary" onClick={this.handleShowAuthModal}>安装</Button>
-                </Col>
-            </div>
-        );
-    }
-
     render() {
-        const { pluginList, loading, defaultPluginList, isAuthorizationCode, authCode, confirmInstallPlugin, preflightLoading, installModalPhase, isServiceExpired, subscribeUntil, installElapsedSec } = this.state;
+        const { pluginList, loading, isAuthorizationCode, authCode, confirmInstallPlugin, preflightLoading, installModalPhase, isServiceExpired, subscribeUntil, installElapsedSec } = this.state;
         const eid = this.getEid();
         const isAgentInstallSuccess = confirmInstallPlugin && getPluginBaseId(confirmInstallPlugin.plugin_id) === 'rainbond-agent';
         return (
@@ -906,7 +792,7 @@ class Index extends PureComponent {
                 )}
                 {pluginList.length === 0 && !loading && (
                     <div style={{ marginTop: '24px', minHeight: '300px' }}>
-                        {defaultPluginList.map((item, index) => this.renderDefaultPluginCard(item, index))}
+                        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
                     </div>
                 )}
                 {loading && (
