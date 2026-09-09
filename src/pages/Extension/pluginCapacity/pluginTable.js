@@ -8,6 +8,7 @@ import moment from 'moment';
 import global from '../../../utils/global';
 import AppState from '../../../components/ApplicationState';
 import { renderPlatformPluginIcon } from '../../../utils/platformPluginIcon';
+import { getOfflinePlatformPluginMetadata } from '../../../utils/offlinePlatformPluginMetadata';
 import { getPluginBaseId } from '../../../utils/pluginArchUtils';
 import { runMarketInstallPreflight } from '../../../utils/marketInstallPreflight';
 import styles from './index.less'
@@ -122,19 +123,23 @@ class Index extends PureComponent {
         })
     }
 
-    normalizeInstalledPlugin = plugin => ({
-        ...plugin,
-        plugin_id: plugin.plugin_id || plugin.name,
-        plugin_name: plugin.plugin_name || plugin.alias || plugin.display_name || plugin.name,
-        description: plugin.description || '',
-        installed: true,
-        installed_version: plugin.installed_version || plugin.version || '',
-        can_upgrade: false,
-        upgradeable: false,
-        latest_version: plugin.latest_version || '',
-        author: plugin.author || 'Rainbond 官方',
-        app_level: plugin.app_level || plugin.appLevel || 'enterprise'
-    })
+    normalizeInstalledPlugin = plugin => {
+        const metadata = getOfflinePlatformPluginMetadata(plugin);
+        return {
+            ...plugin,
+            plugin_id: plugin.plugin_id || plugin.name,
+            plugin_name: metadata ? metadata.plugin_name : plugin.plugin_name || plugin.alias || plugin.display_name || plugin.name,
+            description: metadata ? metadata.description : plugin.description || '',
+            installed: true,
+            installed_version: plugin.installed_version || plugin.version || '',
+            can_upgrade: false,
+            upgradeable: false,
+            latest_version: plugin.latest_version || '',
+            author: plugin.author || 'Rainbond 官方',
+            app_level: metadata ? metadata.app_level : plugin.app_level || plugin.appLevel || 'enterprise',
+            offlineIcon: metadata && metadata.icon
+        };
+    }
 
     handleInstalledPluginList = (eid, callback) => {
         const { dispatch, regionName } = this.props;
@@ -689,6 +694,10 @@ class Index extends PureComponent {
     };
 
     renderPluginIcon = (item) => {
+        const OfflineIcon = item.offlineIcon;
+        if (OfflineIcon) {
+            return <OfflineIcon width={44} height={44} style={{ color: global.getPublicColor() }} aria-hidden="true" />;
+        }
         return renderPlatformPluginIcon(item, { size: 44, color: global.getPublicColor() });
     }
 

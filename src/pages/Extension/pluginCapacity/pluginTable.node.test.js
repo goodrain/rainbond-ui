@@ -7,7 +7,7 @@ const { renderToStaticMarkup } = require('react-dom/server');
 const babel = require('@umijs/deps/compiled/babel/core');
 
 const filename = path.join(__dirname, 'pluginTable.js');
-const { code } = babel.transformSync(fs.readFileSync(filename, 'utf8'), {
+const transformSource = filename => babel.transformSync(fs.readFileSync(filename, 'utf8'), {
   filename,
   babelrc: false,
   configFile: false,
@@ -19,7 +19,21 @@ const { code } = babel.transformSync(fs.readFileSync(filename, 'utf8'), {
     [require('@umijs/deps/compiled/babel/plugin-proposal-decorators').default, { legacy: true }],
     [require('@umijs/deps/compiled/babel/plugin-proposal-class-properties').default, { loose: true }]
   ]
-});
+}).code;
+
+const metadataFilename = path.resolve(__dirname, '../../../utils/offlinePlatformPluginMetadata.js');
+const metadataSandbox = {
+  exports: {},
+  require: name => {
+    if (name.endsWith('.svg')) {
+      const svgPath = path.resolve(path.dirname(metadataFilename), name);
+      assert.ok(fs.existsSync(svgPath), `Missing bundled icon: ${svgPath}`);
+      return { ReactComponent: props => React.createElement('svg', { ...props, 'data-icon': path.basename(name, '.svg') }) };
+    }
+    return require(path.resolve(path.dirname(metadataFilename), name));
+  }
+};
+vm.runInNewContext(transformSource(metadataFilename), metadataSandbox, { filename: metadataFilename });
 
 const messages = {
   'teamOther.CreateAppFromPlugin.been_installed': '已安装',
@@ -41,12 +55,13 @@ const sandbox = {
     if (name === 'dva') return { connect: () => component => component };
     if (name === '@/utils/intl') return { formatMessage: ({ id }) => messages[id] || id };
     if (name.endsWith('/ApplicationState')) return ({ AppStatus }) => React.createElement('span', null, AppStatus);
+    if (name.endsWith('/offlinePlatformPluginMetadata')) return metadataSandbox.exports;
     if (name.endsWith('/platformPluginIcon')) return { renderPlatformPluginIcon: () => null };
     if (name.endsWith('/global')) return { getPublicColor: () => '#155aef' };
     return {};
   }
 };
-vm.runInNewContext(code, sandbox, { filename });
+vm.runInNewContext(transformSource(filename), sandbox, { filename });
 const PluginTable = sandbox.exports.default;
 
 const installedPlugin = {
@@ -93,7 +108,7 @@ for (const response of [{ list: [] }, undefined, {}]) {
   assert.strictEqual(plugin.app_id, 42);
   assert.strictEqual(plugin.upgradeable, false);
   const html = renderToStaticMarkup(table.render());
-  assert.ok(html.includes('企业基础插件') && html.includes('RUNNING') && html.includes('管理'));
+  assert.ok(html.includes('基础功能扩展') && html.includes('RUNNING') && html.includes('管理'));
   assert.ok(!html.includes('未安装'));
 }
 
@@ -123,5 +138,60 @@ offline.completeInstallIfRunning = (id, plugins) => { completed = { id, plugins 
 offline.startInstallPolling(installedPlugin.name);
 assert.strictEqual(completed.id, installedPlugin.name);
 assert.strictEqual(completed.plugins[0].status, 'RUNNING', 'installation polling must also fall back on market errors');
+
+const expectedPlugins = [
+  ['rainbond-ai-engine', 'AI大模型', 'free', 'brain-circuit'],
+  ['rainbond-databases', '数据库插件', 'free', 'database'],
+  ['rainbond-agent', 'AI助手', 'free', 'bot-message-square'],
+  ['rainbond-vm', '虚拟机', 'free', 'gallery-horizontal-end'],
+  ['rainbond-enterprise-pipeline', '流水线', 'enterprise', 'workflow'],
+  ['rainbond-gpu', 'GPU管理', 'enterprise', 'gpu'],
+  ['rainbond-sourcescan', '源码扫描', 'enterprise', 'shield-code'],
+  ['rainbond-recovery', '灾备恢复', 'enterprise', 'database-backup'],
+  ['rainbond-observability', '监控中心', 'enterprise', 'monitor-cog'],
+  ['rainbond-enterprise-alarm', '告警中心', 'enterprise', 'siren'],
+  ['rainbond-enterprise-logs', '日志中心', 'enterprise', 'scroll-text'],
+  ['rainbond-enterprise-base', '基础功能扩展', 'enterprise', 'blocks'],
+  ['rainbond-bill', '计量计费', 'enterprise', 'chart-column']
+];
+
+for (const [id, name, level, icon] of expectedPlugins) {
+  const table = createTable({ list: [] }, [{ ...installedPlugin, name: id, logo: 'https://unreachable.invalid/icon.png' }]).table;
+  table.handlePluginList();
+  assert.strictEqual(table.state.pluginList.length, 1, 'local metadata must not create uninstalled entries');
+  const [plugin] = table.state.pluginList;
+  assert.strictEqual(plugin.plugin_name, name);
+  assert.strictEqual(plugin.app_level, level);
+  assert.ok(plugin.description && plugin.description.trim() === plugin.description);
+  assert.strictEqual(plugin.status, 'RUNNING');
+  assert.strictEqual(plugin.installed_version, '6.9.10');
+  assert.strictEqual(plugin.app_id, 42);
+  const html = renderToStaticMarkup(table.render());
+  assert.ok(html.includes(`data-icon="${icon}"`) && html.includes('color:#155aef'));
+  assert.ok(html.includes(level === 'free' ? '免费' : '商业'));
+  assert.ok(!html.includes('<img') && !html.includes('unreachable.invalid'), 'known offline plugins must use local SVGs');
+}
+
+for (const [id, expectedName] of [
+  ['rainbond-agent-ARM64', 'AI助手'],
+  ['rainbond-enterprise-pipeline-amd64', '流水线'],
+  ['rainbond-pipeline', '流水线'],
+  ['pipeline', '流水线'],
+  ['rainbond-source-scan', '源码扫描'],
+  ['source-scan-ARM64', '源码扫描']
+]) {
+  const table = createTable({ list: [] }, [{ name: id, alias: 'Old name' }]).table;
+  table.handlePluginList();
+  assert.strictEqual(table.state.pluginList[0].plugin_id, id, 'display aliases must not rewrite the real identity');
+  assert.strictEqual(table.state.pluginList[0].plugin_name, expectedName);
+  assert.strictEqual(table.state.pluginList[0].installed_version, '', 'do not copy sample market versions');
+}
+
+const custom = createTable({ list: [] }, [{ name: 'custom-plugin', alias: '自定义插件', description: '集群提供的说明', app_level: 'free' }]).table;
+custom.handlePluginList();
+assert.strictEqual(custom.state.pluginList[0].plugin_name, '自定义插件');
+assert.strictEqual(custom.state.pluginList[0].description, '集群提供的说明');
+assert.strictEqual(custom.state.pluginList[0].app_level, 'free');
+assert.strictEqual(custom.state.pluginList[0].offlineIcon, undefined);
 
 console.log('pluginTable offline behavior checks passed');
