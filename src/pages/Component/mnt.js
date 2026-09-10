@@ -1,4 +1,4 @@
-import { Alert, Button, Card, Col, Icon, notification, Row, Table, Tooltip } from 'antd';
+import { Alert, Button, Card, Col, Icon, Modal, notification, Row, Table, Tag, Tooltip } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { Fragment, PureComponent } from 'react';
@@ -30,6 +30,12 @@ const {
   removeContainerDiskDraft,
   serializeVMDiskLayout
 } = require('./vmDiskDraftHelpers');
+const {
+  isCapacityExpansion,
+  isExpansionInProgress,
+  minimumExpansionCapacity,
+  numericCapacity
+} = require('../../utils/volumeExpansion');
 
 @connect(
   ({ appControl }) => ({
@@ -79,6 +85,10 @@ export default class Index extends PureComponent {
     }
   }
 
+  componentWillUnmount() {
+    this.clearVolumeExpansionPolling();
+  }
+
   getVolumeTypeShowName = volume_type => {
     const { volumeOpts, language } = this.state;
     return getVolumeTypeShowName(volumeOpts, volume_type, language);
@@ -115,6 +125,7 @@ export default class Index extends PureComponent {
   };
 
   fetchVolumes = () => {
+    this.clearVolumeExpansionPolling();
     const { dispatch, appAlias } = this.props;
     dispatch({
       type: 'appControl/fetchVolumes',
@@ -123,8 +134,29 @@ export default class Index extends PureComponent {
         app_alias: appAlias,
         is_config: false
       },
-      handleError: err => handleAPIError(err)
+      callback: response => this.scheduleVolumeExpansionPolling(response && response.list),
+      handleError: err => {
+        this.clearVolumeExpansionPolling();
+        handleAPIError(err);
+      }
     });
+  };
+
+  clearVolumeExpansionPolling = () => {
+    if (this.volumeExpansionTimer) {
+      clearTimeout(this.volumeExpansionTimer);
+      this.volumeExpansionTimer = null;
+    }
+  };
+
+  scheduleVolumeExpansionPolling = volumes => {
+    this.clearVolumeExpansionPolling();
+    if ((volumes || []).some(volume => isExpansionInProgress(volume.expansion_status))) {
+      this.volumeExpansionTimer = setTimeout(() => {
+        this.volumeExpansionTimer = null;
+        this.fetchVolumes();
+      }, 5000);
+    }
   };
 
   fetchVMDiskLayout = () => {
@@ -202,6 +234,25 @@ export default class Index extends PureComponent {
   };
 
   handleSubmitAddVar = vals => {
+    const { editor } = this.state;
+    if (editor && isCapacityExpansion(editor, vals.volume_capacity)) {
+      const currentCapacity = minimumExpansionCapacity(editor);
+      Modal.confirm({
+        title: formatMessage({ id: 'componentOverview.body.mnt.expansion_confirm_title' }),
+        content: formatMessage(
+          { id: 'componentOverview.body.mnt.expansion_confirm_content' },
+          { current: currentCapacity, target: Number(vals.volume_capacity) }
+        ),
+        okText: formatMessage({ id: 'componentOverview.body.mnt.expansion_confirm_ok' }),
+        cancelText: formatMessage({ id: 'componentOverview.body.AddVolumes.cancel' }),
+        onOk: () => this.submitVolume(vals)
+      });
+      return;
+    }
+    this.submitVolume(vals);
+  };
+
+  submitVolume = vals => {
     this.fetchBaseInfo();
     const { editor } = this.state;
     const { dispatch, appAlias, onshowRestartTips } = this.props;
@@ -265,6 +316,48 @@ export default class Index extends PureComponent {
         handleError: err => handleAPIError(err)
       });
     }
+  };
+
+  renderExpansionStatus = data => {
+    const status = data.expansion_status;
+    if (!status || status === 'ready' || status === 'unbound') {
+      return null;
+    }
+    const colorByStatus = {
+      resizing: 'blue',
+      filesystem_resize_pending: 'orange',
+      failed: 'red'
+    };
+    const tag = (
+      <Tag color={colorByStatus[status]} style={{ marginLeft: 8 }}>
+        {formatMessage({ id: `componentOverview.body.mnt.expansion_status.${status}` })}
+      </Tag>
+    );
+    return data.expansion_message ? <Tooltip title={data.expansion_message}>{tag}</Tooltip> : tag;
+  };
+
+  renderVolumeCapacity = (text, data) => {
+    const configuredCapacity = numericCapacity(text);
+    const requestedCapacity = numericCapacity(data.requested_capacity);
+    const actualCapacity = numericCapacity(data.actual_capacity);
+    const targetCapacity = Math.max(configuredCapacity, requestedCapacity);
+    let capacity;
+    if (!configuredCapacity && !requestedCapacity && !actualCapacity) {
+      capacity = formatMessage({ id: 'componentOverview.body.mnt.unlimited' });
+    } else if (actualCapacity && targetCapacity > actualCapacity) {
+      capacity = formatMessage(
+        { id: 'componentOverview.body.mnt.expansion_capacity_progress' },
+        { actual: actualCapacity, target: targetCapacity }
+      );
+    } else {
+      capacity = `${actualCapacity || targetCapacity}GB`;
+    }
+    return (
+      <span>
+        {capacity}
+        {this.renderExpansionStatus(data)}
+      </span>
+    );
   };
 
   remindInfo = () => {
@@ -728,11 +821,7 @@ export default class Index extends PureComponent {
       {
         title: formatMessage({ id: 'componentOverview.body.mnt.volume_capacity' }),
         dataIndex: 'volume_capacity',
-        render: text => (
-          text === 0
-            ? <span>{formatMessage({ id: 'componentOverview.body.mnt.unlimited' })}</span>
-            : <span>{text}GB</span>
-        )
+        render: this.renderVolumeCapacity
       },
       {
         title: formatMessage({ id: 'componentOverview.body.mnt.status' }),

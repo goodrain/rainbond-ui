@@ -19,6 +19,11 @@ import cookie from '../../utils/cookie';
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
 
+const {
+  canEditVolumeCapacity,
+  minimumExpansionCapacity
+} = require('../../utils/volumeExpansion');
+
 const FormItem = Form.Item;
 const RadioGroup = Radio.Group;
 const { Option } = Select;
@@ -117,13 +122,27 @@ export default class AddVolumes extends PureComponent {
     }
   };
   checkVolumeCapacity = (rules, value, callback) => {
-    if (value) {
-      if (value > 1000) {
+    if (value !== undefined && value !== null && value !== '') {
+      const capacity = Number(value);
+      if (!Number.isInteger(capacity)) {
+        callback(`${formatMessage({ id: 'componentOverview.body.AddVolumes.integer' })}`);
+        return;
+      }
+      if (capacity > 1000) {
         callback(`${formatMessage({ id: 'componentOverview.body.AddVolumes.Max' })}`);
         return;
       }
-      if (value < 0) {
+      if (capacity < 0) {
         callback(`${formatMessage({ id: 'componentOverview.body.AddVolumes.Min' })}`);
+        return;
+      }
+      const { data = {} } = this.props;
+      const minimumCapacity = minimumExpansionCapacity(data);
+      if (this.props.editor && capacity < minimumCapacity) {
+        callback(`${formatMessage(
+          { id: 'componentOverview.body.AddVolumes.shrink_unsupported' },
+          { capacity: minimumCapacity }
+        )}`);
         return;
       }
     }
@@ -191,6 +210,26 @@ export default class AddVolumes extends PureComponent {
       !!this.props.editor && data.volume_capacity === 0
         ? undefined
         : defaultVolumeCapacity || 10;
+    const editing = !!this.props.editor;
+    const capacityEditable = canEditVolumeCapacity(data, editing);
+    const minimumCapacity = minimumExpansionCapacity(data);
+    const actualCapacity = Number(data.actual_capacity) || 0;
+    const capacityExtra = editing
+      ? [
+          actualCapacity > 0
+            ? formatMessage(
+                { id: 'componentOverview.body.AddVolumes.actual_capacity' },
+                { capacity: actualCapacity }
+              )
+            : '',
+          !capacityEditable
+            ? data.expansion_message ||
+              formatMessage({ id: 'componentOverview.body.AddVolumes.expansion_unavailable' })
+            : ''
+        ]
+          .filter(Boolean)
+          .join('；')
+      : '';
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -312,7 +351,11 @@ export default class AddVolumes extends PureComponent {
             </FormItem>
           }
           {(volume_type !== 'volcengine' || volume_type == 'cephfs-external') &&
-            <FormItem {...layoutConfig} label={<FormattedMessage id='componentOverview.body.AddVolumes.volume_capacity' />}>
+            <FormItem
+              {...layoutConfig}
+              label={<FormattedMessage id='componentOverview.body.AddVolumes.volume_capacity' />}
+              extra={capacityExtra}
+            >
               {getFieldDecorator('volume_capacity', {
                 initialValue: initialVolumeCapacity,
                 rules: [
@@ -328,9 +371,9 @@ export default class AddVolumes extends PureComponent {
                       ? formatMessage({ id: 'componentOverview.body.AddVolumes.unlimited' })
                       : formatMessage({ id: 'componentOverview.body.AddVolumes.input' })
                   }
-                  min={1}
+                  min={editing ? Math.max(minimumCapacity, 1) : 1}
                   max={500}
-                  disabled={!!this.props.editor && data.volume_type === 'config-file'}
+                  disabled={editing && !capacityEditable}
                 />
               )}
             </FormItem>
