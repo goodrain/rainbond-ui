@@ -7,6 +7,7 @@ import AddPort from '../../components/AddPort';
 import ConfirmModal from '../../components/ConfirmModal';
 import NoPermTip from '../../components/NoPermTip';
 import Port from '../../components/Port';
+import GatewayRouteTcp from '../../components/GatewayRouteTcp';
 import ScrollerX from '../../components/ScrollerX';
 import SubDomain from '../../components/SubDomain';
 import SubPort from '../../components/SubPort';
@@ -246,7 +247,7 @@ export default class Index extends PureComponent {
         this.showSuccessNotification();
         onshowRestartTips(true);
       },
-      handleError: err => handleAPIError(err)
+      handleError: err => { this.fetchPorts(); handleAPIError(err); }
     });
   };
 
@@ -667,6 +668,7 @@ export default class Index extends PureComponent {
                   onCloseInner={this.onCloseInner}
                   onOpenOuter={this.handleOpenOuter}
                   onCloseOuter={this.onCloseOuter}
+                  onManageStream={port => this.setState({ streamPort: port })}
                   onAddDomain={this.onAddDomain}
                   onDeleteDomain={this.handleDeleteDomain}
                   onSubDomain={this.showSubDomain}
@@ -676,6 +678,17 @@ export default class Index extends PureComponent {
             </ScrollerX>
           </Card>
         )}
+        {this.state.streamPort && <Modal
+          title={formatMessage({ id: 'streamRules.manage' })}
+          visible width={1000} footer={null} destroyOnClose
+          onCancel={() => { this.setState({ streamPort: null }); this.fetchPorts(); }}>
+          <GatewayRouteTcp
+            appID={globalUtil.getAppID()}
+            componentPort={this.state.streamPort}
+            permission={{ isCreate: true, isEdit: true, isDelete: true }}
+            onChange={this.fetchPorts}
+          />
+        </Modal>}
         {showDeletePort && (
           <ConfirmModal
             title={<FormattedMessage id="confirmModal.deldete.port.title" />}

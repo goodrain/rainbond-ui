@@ -11,13 +11,15 @@ import {
   notification,
   Select,
   Switch,
-  Table
+  Table,
+  Tag
 } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React, { PureComponent } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import appPortUtil from '../../utils/appPort-util';
+import { protocolLabel } from '../../utils/streamProtocols';
 import globalUtil from '../../utils/global';
 import styles from './index.less';
 import { FormattedMessage } from 'umi';
@@ -75,11 +77,11 @@ class ChangeProtocol extends PureComponent {
             size="small"
             value={this.state.value}
             style={{
-              width: 80
+              width: 130
             }}
           >
             {protocols.map(item => {
-              return <Option value={item}>{item}</Option>;
+              return <Option key={item} value={item}>{protocolLabel(item)}</Option>;
             })}
           </Select>
         </FormItem>
@@ -146,8 +148,15 @@ export default class Index extends PureComponent {
       this.props.onOpenOuter &&
         this.props.onOpenOuter(this.props.port.container_port);
     } else {
-      this.props.onCloseOuter &&
-        this.props.onCloseOuter(this.props.port.container_port);
+      const mappings = [
+        ...(this.props.port.bind_domains || []).map(rule => rule.domain_name),
+        ...(this.props.port.bind_tcp_domains || []).map(rule => `${rule.nodePort} / ${protocolLabel(rule.protocol)}`)
+      ];
+      Modal.confirm({
+        title: formatMessage({ id: 'streamRules.closeAll' }),
+        content: mappings.join(', '),
+        onOk: () => this.props.onCloseOuter && this.props.onCloseOuter(this.props.port.container_port)
+      });
     }
   };
   showEditProtocol = () => {
@@ -375,7 +384,7 @@ export default class Index extends PureComponent {
             <td>
               {this.state.editProtocol ? (
                 <ChangeProtocol
-                  protocol={port.protocol}
+                  protocol={protocolLabel(port.protocol)}
                   onSubmit={this.onSubmitProtocol}
                   onCancel={this.cancelEditProtocol}
                 />
@@ -522,81 +531,19 @@ export default class Index extends PureComponent {
                   </div>
                 ) : null}
 
-                {outerUrl ? (
-                  <div>
-                    {tcp_domains.map(domain => {
-                      let str = domain.end_point;
-                      if (
-                        str.indexOf('0.0.0.0') > -1 &&
-                        currentRegion &&
-                        currentRegion.length > 0
-                      ) {
-                        str = str.replace(
-                          /0.0.0.0/g,
-                          currentRegion[0].tcpdomain
-                        );
-                      }
-
-                      return (
-                        <div>
-                          <p>
-                            {domain.protocol == 'http' ||
-                            domain.protocol == 'https' ? (
-                              <a
-                                href={`http://${str.replace(/\s+/g, '')}`}
-                                target="blank"
-                              >
-                                {domain.end_point}
-                              </a>
-                            ) : (
-                              <a
-                                href="javascript:void(0)"
-                                onClick={this.resolveNotHttp.bind(this, domain)}
-                              >
-                                {domain.end_point}
-                              </a>
-                            )}
-                          </p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div>
-                    {tcp_domains.map(domain => {
-                      return (
-                        <div>
-                          <p>
-                            <a href="javascript:void(0)" disabled>
-                              {domain.end_point}
-                            </a>
-                          </p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-                {/* {port && port.protocol == 'http' && (
-                  <Button
-                    size="small"
-                    style={{ marginTop: '5px' }}
-                    onClick={this.onAddDomain}
-                  >
-                    <FormattedMessage id='componentOverview.body.Ports.add'/>
-                  </Button>
-                )} */}
-                {/* {port && port.protocol != 'http' && (
-                  <Link
-                    to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/gateway/control/tcp`}
-                    style={{
-                      wordBreak: 'break-all',
-                      wordWrap: 'break-word',
-                      color: '#1890ff'
-                    }}
-                  >
-                    <Button size="small"><FormattedMessage id='componentOverview.body.Ports.manage'/></Button>
-                  </Link>
-                )} */}
+                {tcp_domains.map(domain => {
+                  const host = currentRegion?.[0]?.tcpdomain || '0.0.0.0';
+                  const address = (domain.end_point || '').replace('0.0.0.0', host);
+                  return <p key={domain.service_name || domain.end_point}>
+                    <Tag>{protocolLabel(domain.protocol)}</Tag>
+                    <CopyToClipboard text={address}>
+                      <a title={formatMessage({ id: 'streamRules.copy' })}>{address}</a>
+                    </CopyToClipboard>
+                  </p>;
+                })}
+                {this.props.onManageStream && <Button size="small" onClick={() => this.props.onManageStream(port)}>
+                  {formatMessage({ id: 'streamRules.manage' })}
+                </Button>}
               </td>
             )} 
             <td>

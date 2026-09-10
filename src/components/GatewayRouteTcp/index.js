@@ -9,11 +9,14 @@ import {
     Form,
     notification,
     Popconfirm,
-    Tag
+    Tag,
+    Alert
 } from 'antd';
 import { formatMessage } from '@/utils/intl';
 import RouteDrawerTcp from '../RouteDrawerTcp';
 import globalUtil from '../../utils/global';
+import { protocolLabel, routeMatchesPort } from '../../utils/streamProtocols';
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 import styles from './index.less';
 
 @Form.create()
@@ -26,9 +29,12 @@ export default class index extends Component {
         super(props);
         this.state = {
             routeDrawer: false,
+            saving: false,
+            deleting: null,
             dataSource: [],
             type: 'add',
             tableLoading: true,
+            loadFailed: false,
             comList:[],
             outer_url:'',
             pageSize: 10,
@@ -48,26 +54,7 @@ export default class index extends Component {
     componentDidMount() {
         this.getTableData();
     }
-    fetchInfo = () => {
-        const { dispatch } = this.props
-        const teamName = globalUtil.getCurrTeamName()
-        dispatch({
-            type: 'teamControl/fetchToken',
-            payload: {
-                team_name: teamName,
-                tokenNode: 'spring'
-            },
-            callback: res => {
-                if (res && res.status_code == 200) {
-                    this.setState({
-                        token: res.bean.access_key || false
-                    }, () => {
-                        this.fetchGetServiceAddress(res.bean.access_key)
-                    })
-                }
-            }
-        })
-    }
+    fetchInfo = () => this.fetchGetServiceAddress();
     // 获取当前团队的命名空间
     fetchGetServiceAddress = (token) => {
         const { dispatch, appID } = this.props
@@ -91,7 +78,7 @@ export default class index extends Component {
     }
     // 获取表格信息
     getTableData = () => {
-        this.setState({ tableLoading: true })
+        this.setState({ tableLoading: true, loadFailed: false })
         const { dispatch, nameSpace, appID, type } = this.props
         const teamName = globalUtil.getCurrTeamName()
 
@@ -105,18 +92,18 @@ export default class index extends Component {
             callback: res => {
                 if (res && res.list) {
                     this.setState({
-                        dataSource: res.list,
+                        dataSource: res.list.filter(rule => routeMatchesPort(rule, this.props.componentPort)),
                     })
                 } else {
                     this.setState({
-                        dataSource: [],
+                        loadFailed: true,
                     })
                 }
                 this.setState({ tableLoading: false })
             },
             handleError: () => {
                 this.setState({
-                    dataSource: [],
+                    loadFailed: true,
                     tableLoading: false
                 })
             }
@@ -131,7 +118,9 @@ export default class index extends Component {
         });
     }
     // 新增或修改
-    addOrEditApiGateway = (values, app_id) => {
+    addOrEditApiGateway = (values, app_id, target) => {
+        if (this.state.saving) return;
+        this.setState({ saving: true });
         const { dispatch, appID, type } = this.props
         const { editInfo } = this.state;
         const teamName = globalUtil.getCurrTeamName()
@@ -140,21 +129,29 @@ export default class index extends Component {
             payload: {
                 teamName: teamName,
                 values: values,
+                service_id: target.service_id,
+                service_type: target.service_type,
+                route_name: editInfo?.service_name || editInfo?.name || '',
                 appID: app_id || appID || '',
                 region_name: globalUtil.getCurrRegionName(),
             },
             callback: res => {
-                if(res && res.status_code === 200)
+                this.setState({ saving: false });
+                if(res && (res.status_code === 200 || res.code === 200))
                 this.setState({
                     routeDrawer: false
                 }, () => {
                     notification.success({
                         message: formatMessage({ id: 'notification.success.succeeded' }),
                     });
-                    this.getTableData()
+                    this.getTableData();
+                    this.props.onChange && this.props.onChange();
                 })
             },
             handleError: (err) => {
+                this.setState({ saving: false });
+                this.getTableData();
+                this.props.onChange && this.props.onChange();
                 notification.error({
                     message: this.getRequestErrorMessage(err),
                 });
@@ -163,6 +160,8 @@ export default class index extends Component {
     }
     // 删除表格信息
     handleDelete = (data) => {
+        if (this.state.deleting) return;
+        this.setState({ deleting: data.service_name || data.name });
         const { dispatch, nameSpace, type } = this.props
         const { appID } = this.props;
         const teamName = globalUtil.getCurrTeamName()
@@ -170,17 +169,25 @@ export default class index extends Component {
             type: 'gateWay/fetchDeleteTcpService',
             payload: {
                 teamName: teamName,
-                name: data.name,
+                name: data.service_name || data.name,
+                service_id: data.service_id,
+                port: data.container_port || data.port,
                 appID: appID || '',
                 region_name: globalUtil.getCurrRegionName(),
             },
             callback: res => {
+                this.setState({ deleting: null });
+                if (!res || (res.status_code !== 200 && res.code !== 200)) return;
+                this.props.onChange && this.props.onChange();
                 notification.success({
                     message: formatMessage({ id: 'notification.success.succeeded' }),
                 });
                 this.getTableData()
             },
             handleError: (err) => {
+                this.setState({ deleting: null });
+                this.getTableData();
+                this.props.onChange && this.props.onChange();
                 notification.error({
                     message: this.getRequestErrorMessage(err),
                 });
@@ -196,6 +203,7 @@ export default class index extends Component {
             return null;
         }
         return comList.find(item => {
+            if (Number(item.port) !== Number(record.container_port || record.port)) return false;
             return (
                 (record.service_id && item.service_id === record.service_id) ||
                 (record.service_alias && item.service_alias === record.service_alias) ||
@@ -253,7 +261,7 @@ export default class index extends Component {
                         {(record.name && record.port) &&
                             <Row style={{ marginBottom: 4 }} onClick={() => this.jump(record)}>
                                 <Tag key={record.name} color="green" style={{cursor:'pointer'}}>
-                                    {record.name}:{record.port} <span style={{ color: '#a8a8a8' }}>({this.handlename(record)})</span>
+                                    {record.backend_service_name || this.findRouteComponent(record)?.service_name || record.service_alias}:{record.container_port || record.port} <span style={{ color: '#a8a8a8' }}>({this.handlename(record)})</span>
                                 </Tag>
                             </Row>
                         }
@@ -265,9 +273,11 @@ export default class index extends Component {
                 dataIndex: 'address',
                 key: 'address',
                 render: (text, record) => (
-                    <a href={`http://${outer_url}:${record.nodePort}`} target="_blank">
-                        {outer_url}:{record.nodePort}
-                    </a>
+                    <CopyToClipboard text={`${outer_url}:${record.nodePort}`}>
+                        <Button type="link" title={formatMessage({ id: 'streamRules.copy' })}>
+                            {outer_url}:{record.nodePort}
+                        </Button>
+                    </CopyToClipboard>
                 ),
             },
             {
@@ -286,6 +296,7 @@ export default class index extends Component {
                 title: formatMessage({ id: 'teamNewGateway.NewGateway.TCP.type' }),
                 dataIndex: 'protocol',
                 key: 'protocol',
+                render: protocol => protocolLabel(protocol),
             },
             {
                 title: formatMessage({ id: 'teamNewGateway.NewGateway.TCP.handle' }),
@@ -293,11 +304,11 @@ export default class index extends Component {
                 key: 'address',
                 render: (text, record) => (
                     <span>
-                        {/* {isEdit &&
-                            <a onClick={() => this.routeDrawerShow(record, 'edit')}>
+                        {isEdit &&
+                            <a style={{ marginRight: 12 }} onClick={() => this.routeDrawerShow(record, 'edit')}>
                                 {formatMessage({ id: 'teamGateway.certificate.table.edit' })}
                             </a>
-                        } */}
+                        }
                         {isDelete &&
                             <Popconfirm
                                 title={formatMessage({ id: 'teamGateway.strategy.table.type.detele' })}
@@ -331,14 +342,17 @@ export default class index extends Component {
                             type="primary"
                             onClick={() => this.routeDrawerShow({}, 'add')}
                         >
-                            {formatMessage({ id: 'teamNewGateway.NewGateway.TCP.add' })}
+                            {formatMessage({ id: 'streamRules.add' })}
                         </Button>
                     )}
                 </div>
+                {this.state.loadFailed && <Alert type="error" showIcon message={formatMessage({ id: 'streamRules.loadFailed' })}
+                    description={<Button onClick={this.getTableData}>{formatMessage({ id: 'streamRules.retry' })}</Button>} />}
                 <Table
+                    rowKey={record => record.service_name || record.name}
                     dataSource={dataSource}
                     columns={columns}
-                    loading={tableLoading}
+                    loading={tableLoading || Boolean(this.state.deleting)}
                     pagination={{
                         current: page,
                         pageSize: pageSize,
@@ -358,6 +372,8 @@ export default class index extends Component {
                         appID={appID}
                         onOk={this.addOrEditApiGateway}
                         editInfo={editInfo}
+                        componentPort={this.props.componentPort}
+                        saving={this.state.saving}
                     />
                 }
             </div>

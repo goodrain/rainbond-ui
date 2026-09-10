@@ -427,7 +427,7 @@ const teamGateway = {
   'teamNewGateway.NewGateway.TCP.type': '协议类型',
   'teamNewGateway.NewGateway.TCP.handle': '操作',
   'teamNewGateway.NewGateway.TCP.add': '新增TCP路由',
-  'teamNewGateway.NewGateway.TCP.edit': '编辑TCP路由',
+  'teamNewGateway.NewGateway.TCP.edit': '编辑四层规则',
   'teamNewGateway.NewGateway.TCP.port': '端口号',
   'teamNewGateway.NewGateway.TCP.inputPort': '请填写端口号',
   'teamNewGateway.NewGateway.TCP.selectService': '选择服务',

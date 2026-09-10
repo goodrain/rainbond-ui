@@ -1,3 +1,4 @@
+import streamRules from './zh-CN/streamRules';
 // 中文入口文件
 
 import globalHeader from './zh-CN/globalHeader';
@@ -20,6 +21,7 @@ import resource from './zh-CN/resource'
 import cliAuth from './zh-CN/cliAuth'
 import deviceAuthorization from './zh-CN/deviceAuthorization'
 export default {
+  ...streamRules,
   'navBar.lang': '语言',
   'layout.user.link.help': '帮助',
   'layout.user.link.privacy': '隐私',
