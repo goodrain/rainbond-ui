@@ -97,6 +97,7 @@ export default class AppDeteleResource extends PureComponent {
         const { } = this.state;
         const impact = (infoList && infoList.crd_deletion_impact) || {};
         const crdNames = (impact.crds || []).map(item => item.name).filter(Boolean).join(', ');
+        const crdCount = impact.crd_count || (impact.crds || []).length;
         const isEnterpriseAdmin = !!(currentUser && currentUser.is_enterprise_admin);
         const cascadeDisabled = !!(impact.inspection_error || (impact.requires_cascade && !isEnterpriseAdmin));
         const confirmDesc = impact.inspection_error
@@ -115,6 +116,14 @@ export default class AppDeteleResource extends PureComponent {
                 ? formatMessage({id:'appOverview.app.delete.crdCascadeWarning'})
                 : formatMessage({id:'appOverview.app.delete.crdAdminRequired'});
         }
+        const deletionWaitHint = impact.has_crd
+            ? loading
+                ? formatMessage({id:'appOverview.app.delete.crdDeleting'}, {
+                    crdCount,
+                    crCount: impact.cr_count || 0
+                })
+                : formatMessage({id:'appOverview.app.delete.crdWaitHint'})
+            : null;
         const columns = [
             {
                 dataIndex: 'name',
@@ -204,7 +213,9 @@ export default class AppDeteleResource extends PureComponent {
                 bodyStyle={{ height: isflag ? '200px' : '500px', overflowY: 'auto' }}
                 visible
                 width={600}
-                onCancel={onCancel}
+                closable={!loading}
+                maskClosable={!loading}
+                onCancel={loading ? undefined : onCancel}
                 footer={!isflag ? [
                     <Button onClick={onCancel}> <FormattedMessage id='button.cancel'/> </Button>,
                     <Button
@@ -214,15 +225,17 @@ export default class AppDeteleResource extends PureComponent {
                       {formatMessage({id:'button.delete'})}
                     </Button>
                 ] : [
-                    <Button onClick={onCancel}> <FormattedMessage id='button.cancel'/> </Button>,
-                    <Button onClick={goBack}> {formatMessage({id:'button.last_step'})} </Button>,
+                    <Button disabled={loading} onClick={onCancel}> <FormattedMessage id='button.cancel'/> </Button>,
+                    <Button disabled={loading} onClick={goBack}> {formatMessage({id:'button.last_step'})} </Button>,
                     <Button
                       type="primary"
                       loading={loading}
-                      disabled={cascadeDisabled}
+                      disabled={cascadeDisabled || loading}
                       onClick={this.handleDeleteResource}
                     >
-                      {formatMessage({id:'button.confirm'})}
+                      {loading
+                          ? formatMessage({id:'appOverview.app.delete.deletingButton'})
+                          : formatMessage({id:'button.confirm'})}
                     </Button>
                 ]}
             >
@@ -235,6 +248,7 @@ export default class AppDeteleResource extends PureComponent {
                             <div className={styles.desc}>
                                 <p>{confirmDesc}</p>
                                 <p>{confirmSubDesc}</p>
+                                {deletionWaitHint && <p>{deletionWaitHint}</p>}
                             </div>
                         </div>
                     </div>
