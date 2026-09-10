@@ -4,7 +4,7 @@ import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import { Button, Modal, Table, Row, Col, Icon, Tag, Badge, Tooltip, notification } from 'antd';
+import { Alert, Button, Modal, Table, Row, Col, Icon, Tag, Badge, Tooltip, notification } from 'antd';
 import { UpOutlined, DownOutlined, FrownOutlined } from '@ant-design/icons';
 import globalUtil from '../../utils/global';
 import appUtil from '../../utils/app';
@@ -210,7 +210,7 @@ export default class AppDeteleResource extends PureComponent {
         return (
             <Modal
                 title={formatMessage({id:'appOverview.app.delete.title'})}
-                bodyStyle={{ height: isflag ? '200px' : '500px', overflowY: 'auto' }}
+                bodyStyle={{ minHeight: isflag ? '240px' : '500px', maxHeight: '70vh', overflowY: 'auto' }}
                 visible
                 width={600}
                 closable={!loading}
@@ -240,15 +240,23 @@ export default class AppDeteleResource extends PureComponent {
                 ]}
             >
                 {isflag ? (
-                    <div className={styles.content}>
-                        <div className={styles.inner}>
-                            <span className={styles.icon}>
-                                <Icon type="exclamation-circle-o" />
-                            </span>
-                            <div className={styles.desc}>
-                                <p>{confirmDesc}</p>
-                                <p>{confirmSubDesc}</p>
-                                {deletionWaitHint && <p>{deletionWaitHint}</p>}
+                    <div>
+                        {deletionWaitHint && (
+                            <Alert
+                                showIcon
+                                type={loading ? 'info' : 'warning'}
+                                message={deletionWaitHint}
+                            />
+                        )}
+                        <div className={styles.content}>
+                            <div className={styles.inner}>
+                                <span className={styles.icon}>
+                                    <Icon type="exclamation-circle-o" />
+                                </span>
+                                <div className={styles.desc}>
+                                    <p>{confirmDesc}</p>
+                                    <p>{confirmSubDesc}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
