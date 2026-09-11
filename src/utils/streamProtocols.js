@@ -7,5 +7,5 @@ export function streamProtocols(protocol) {
 }
 
 export function protocolLabel(protocol) {
-  return String(protocol || 'tcp').toUpperCase().replace('+', ' + ');
+  return String(protocol || 'tcp').toLowerCase();
 }

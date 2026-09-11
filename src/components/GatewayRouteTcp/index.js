@@ -14,6 +14,7 @@ import {
 import { formatMessage } from '@/utils/intl';
 import RouteDrawerTcp from '../RouteDrawerTcp';
 import globalUtil from '../../utils/global';
+import { protocolLabel } from '../../utils/streamProtocols';
 import styles from './index.less';
 
 @Form.create()
@@ -293,6 +294,7 @@ export default class index extends Component {
                 title: formatMessage({ id: 'teamNewGateway.NewGateway.TCP.type' }),
                 dataIndex: 'protocol',
                 key: 'protocol',
+                render: protocolLabel,
             },
             {
                 title: formatMessage({ id: 'teamNewGateway.NewGateway.TCP.handle' }),

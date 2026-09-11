@@ -80,7 +80,7 @@ class ChangeProtocol extends PureComponent {
             }}
           >
             {protocols.map(item => {
-              return <Option key={item} value={item}>{item === 'tcp+udp' ? 'TCP + UDP' : item}</Option>;
+              return <Option key={item} value={item}>{protocolLabel(item)}</Option>;
             })}
           </Select>
         </FormItem>
@@ -381,8 +381,8 @@ export default class Index extends PureComponent {
                   onCancel={this.cancelEditProtocol}
                 />
               ) : (
-                <div>
-                  {port.protocol}
+                <div className={styles.protocolValue}>
+                  <span>{protocolLabel(port.protocol)}</span>
                   {!isKubeBlocks && (
                     <a onClick={this.showEditProtocol}>
                       <Icon type="edit" />
