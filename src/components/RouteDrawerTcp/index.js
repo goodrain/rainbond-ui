@@ -1,129 +1,291 @@
-import React, { Component } from 'react';
+import React, { Fragment, PureComponent, Component } from 'react';
 import { connect } from 'dva';
-import { Drawer, Form, Button, InputNumber, Select, Alert, Spin } from 'antd';
+import { Drawer, Form, Button, Col, Row, Input, Select, DatePicker, Icon, Skeleton, Spin, Radio, Switch } from 'antd';
 import globalUtil from '../../utils/global';
-import { formatMessage } from '@/utils/intl';
 import { streamProtocols, protocolLabel } from '../../utils/streamProtocols';
-
+import { formatMessage } from '@/utils/intl';
+import ServiceInput from '../ServiceInput';
+import styles from './index.less';
+import DAinput from '../DAinput';
+import DAHosts from '../DAHosts'
+import NewHeader from '../NewHeader'
 const { Option } = Select;
-const targetKey = port => `${port.service_id}:${port.port}`;
-
 @Form.create()
-@connect()
-export default class RouteDrawerTcp extends Component {
-  state = { ports: [], loading: true, failed: false };
 
-  componentDidMount() {
-    this.loadPorts();
-  }
+@connect(({ user, global, loading, teamControl, enterprise }) => ({
+    currUser: user.currentUser,
+    groups: global.groups,
+    currentTeam: teamControl.currentTeam,
+    currentEnterprise: enterprise.currentEnterprise,
+}))
 
-  loadPorts = () => {
-    this.setState({ loading: true, failed: false });
-    const { dispatch, appID, componentPort, editInfo = {}, form } = this.props;
-    dispatch({
-      type: 'gateWay/fetchGetServiceAddress',
-      payload: { team_name: globalUtil.getCurrTeamName(), region_name: globalUtil.getCurrRegionName(), appID },
-      callback: response => {
-        const all = response?.bean?.ports;
-        if (!Array.isArray(all)) {
-          this.setState({ loading: false, failed: true });
-          return;
-        }
-        const ports = all.filter(port => !componentPort ||
-          (port.service_id === componentPort.service_id && Number(port.port) === Number(componentPort.container_port)));
-        const selected = ports.find(port =>
-          Number(port.port) === Number(editInfo.container_port || editInfo.port) &&
-          ((editInfo.service_id && port.service_id === editInfo.service_id) ||
-           (editInfo.backend_service_name && port.service_name === editInfo.backend_service_name) ||
-           (editInfo.service_alias && port.service_alias === editInfo.service_alias))) ||
-          (componentPort ? ports[0] : null);
-        this.setState({ ports, loading: false }, () => {
-          if (selected) {
-            const choices = streamProtocols(selected.protocol);
-            form.setFieldsValue({
-              target: targetKey(selected),
-              protocol: editInfo.protocol ? String(editInfo.protocol).toLowerCase() : choices[choices.length - 1]
-            });
-          }
+export default class index extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            isPerform: true,
+            serviceComponentLoading: true,
+            portLoading: false,
+            dataList: [],
+            loading: true,
+            page_num: 1,
+            page_size: 10,
+            total: '',
+            http_search: '',
+            groupSelect: 'k8s',
+            showServiceMore: false,
+            showMateMore: false,
+            selsectRewrite: 'rewrite',
+            comList: [],
+            serviceList: [],
+            serviceLoading: true
+        };
+    }
+    componentWillMount() {
+        const { editInfo } = this.props
+        this.fetchInfo()
+    }
+    extractPreviousCharacters = (inputString) => {
+        const pattern = /([^:]+):/;
+        const match = inputString.match(pattern);
+        return match ? match[1] : '';
+    }
+    extractAfterColon = (inputString) => {
+        const pattern = /:(.+)/;
+        const match = inputString.match(pattern);
+        return match ? match[1] : '';
+    }
+    onClose = () => {
+        this.props.onClose({}, "add")
+    }
+    handleSubmit = e => {
+        const { editInfo } = this.props
+        const { comList } = this.state
+        e.preventDefault();
+        this.props.form.validateFieldsAndScroll((err, values) => {
+            if (!err) {
+                const data = {}
+                const serviceInfo = this.getSelectedService(values.service_id);
+                if (!serviceInfo || !streamProtocols(serviceInfo.protocol).includes(values.protocol)) {
+                    this.props.form.setFields({ protocol: { value: values.protocol,
+                        errors: [new Error(formatMessage({ id: 'teamNewGateway.NewGateway.TCP.protocolMismatch' }))] } });
+                    return;
+                }
+                data.protocol = values.protocol.toUpperCase()
+                data.match = {
+                    host: values.host,
+                    ingressPort: Number(values.ingressPort)
+                }
+                data.backend = {
+                    serviceName: this.extractPreviousCharacters(values.service_id),
+                    servicePort: Number(this.extractAfterColon(values.service_id)),
+                }
+                this.props.onOk(data, serviceInfo.app_id, serviceInfo)
+            }
         });
-      },
-      handleError: () => this.setState({ loading: false, failed: true })
-    });
-  };
+    };
+    // 获取访问令牌token
+    fetchInfo = () => {
+        const { dispatch } = this.props
+        const teamName = globalUtil.getCurrTeamName()
+        dispatch({
+            type: 'teamControl/fetchToken',
+            payload: {
+                team_name: teamName,
+                tokenNode: 'spring'
+            },
+            callback: res => {
+                if (res && res.status_code == 200) {
+                    this.setState({
+                        token: res.bean.access_key || false
+                    }, () => {
+                        this.fetchGetServiceAddress(res.bean.access_key)
+                    })
+                }
+            }
+        })
+    }
+    // 获取当前团队的命名空间
+    fetchGetServiceAddress = (token) => {
+        const { dispatch, appID } = this.props
+        const teamName = globalUtil.getCurrTeamName()
+        const regionName = globalUtil.getCurrRegionName()
+        dispatch({
+            type: 'gateWay/fetchGetServiceAddress',
+            payload: {
+                team_name: teamName,
+                region_name: regionName,
+                token: token,
+                appID
+            },
+            callback: res => {
+                this.setState({
+                    comList: res.bean.ports,
+                    outer_url: res.bean.outer_url,
+                    serviceComponentLoading: false
+                })
+            }
+        })
+    }
 
-  changeTarget = key => {
-    const selected = this.state.ports.find(port => targetKey(port) === key);
-    const choices = streamProtocols(selected?.protocol);
-    this.props.form.setFieldsValue({ protocol: choices[choices.length - 1] });
-  };
+    getSelectedService = value => this.state.comList.find(item => `${item.service_name}:${item.port}` === value);
 
-  submit = event => {
-    event.preventDefault();
-    this.props.form.validateFields((error, values) => {
-      if (error) return;
-      const selected = this.state.ports.find(port => targetKey(port) === values.target);
-      if (!selected || !streamProtocols(selected.protocol).includes(values.protocol)) {
-        this.props.form.setFields({ protocol: { value: values.protocol,
-          errors: [new Error(formatMessage({ id: 'streamRules.incompatible' }))] } });
-        return;
-      }
-      this.props.onOk({
-        protocol: values.protocol,
-        match: { ingressPort: Number(values.ingressPort || 0) },
-        backend: { serviceName: selected.service_name || selected.service_alias, servicePort: Number(selected.port) }
-      }, selected.app_id, selected);
-    });
-  };
+    handleService = value => {
+        const service = this.getSelectedService(value);
+        const protocols = service ? streamProtocols(service.protocol) : [];
+        this.props.form.setFieldsValue({ protocol: protocols[protocols.length - 1] });
+    }
+    getAccessAddress = () => {
+        const { editInfo, form } = this.props;
+        const { getFieldValue } = form
+        const { comList, outer_url } = this.state;
+        const str = getFieldValue('service_id')
+        const port = getFieldValue('ingressPort')
+        const bool = Number(port) >= 30000 && Number(port) <= 32000
+        const arr = comList.filter(item => `${item.service_name}:${item.port}` == str)
+        if (str && port && bool) {
+            return `访问地址：${outer_url}:${port}` || ''
+        } else {
+            return ''
+        }
 
-  render() {
-    const { visible, onClose, editInfo = {}, form, saving, componentPort } = this.props;
-    const { ports, loading, failed } = this.state;
-    const editing = Boolean(editInfo.service_name || editInfo.name);
-    const selected = ports.find(port => targetKey(port) === form.getFieldValue('target'));
-    const choices = selected ? streamProtocols(selected.protocol) : [];
-    return (
-      <Drawer title={formatMessage({ id: editing ? 'streamRules.edit' : 'streamRules.add' })}
-        width={650} visible={visible} onClose={() => !saving && onClose({}, 'add')} destroyOnClose>
-        <Spin spinning={loading}>
-          {failed && <Alert type="error" showIcon message={formatMessage({ id: 'streamRules.loadFailed' })}
-            description={<Button onClick={this.loadPorts}>{formatMessage({ id: 'streamRules.retry' })}</Button>} />}
-          <Form layout="vertical" onSubmit={this.submit}>
-            <Form.Item label={formatMessage({ id: 'streamRules.target' })}>
-              {form.getFieldDecorator('target', {
-                rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }]
-              })(<Select disabled={editing || Boolean(componentPort) || saving} onChange={this.changeTarget}
-                placeholder={formatMessage({ id: 'streamRules.selectTarget' })}>
-                {ports.map(port => <Option key={targetKey(port)} value={targetKey(port)}>
-                  {port.component_name || port.service_alias} / {port.port} ({protocolLabel(port.protocol)})
-                </Option>)}
-              </Select>)}
-            </Form.Item>
-            <Form.Item label={formatMessage({ id: 'streamRules.protocol' })}
-              extra={formatMessage({ id: 'streamRules.compatibility' })}>
-              {form.getFieldDecorator('protocol', {
-                rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }]
-              })(<Select disabled={!selected || saving}>
-                {choices.map(protocol => <Option key={protocol} value={protocol}>{protocolLabel(protocol)}</Option>)}
-              </Select>)}
-            </Form.Item>
-            <Form.Item label={formatMessage({ id: 'streamRules.externalPort' })}
-              extra={formatMessage({ id: editing ? 'streamRules.fixedAddress' : 'streamRules.autoPort' })}>
-              {form.getFieldDecorator('ingressPort', {
-                initialValue: editInfo.nodePort || undefined,
-                rules: [{ validator: (_, value, callback) => {
-                  if (value != null && (!Number.isInteger(Number(value)) || Number(value) < 1 || Number(value) > 65535)) {
-                    callback(formatMessage({ id: 'streamRules.invalidPort' }));
-                  } else callback();
-                } }]
-              })(<InputNumber min={1} max={65535} precision={0} disabled={editing || saving} />)}
-            </Form.Item>
-            <Button onClick={() => onClose({}, 'add')} disabled={saving}>{formatMessage({ id: 'popover.cancel' })}</Button>{' '}
-            <Button type="primary" htmlType="submit" loading={saving} disabled={loading || failed || !selected}>
-              {formatMessage({ id: 'popover.confirm' })}
-            </Button>
-          </Form>
-        </Spin>
-      </Drawer>
-    );
-  }
+    }
+
+    render() {
+        const { getFieldDecorator, getFieldValue } = this.props.form;
+        const selectedService = this.getSelectedService(getFieldValue('service_id'));
+        const protocols = selectedService ? streamProtocols(selectedService.protocol) : [];
+        const {
+            visible,
+            groups,
+            editInfo,
+            appID
+        } = this.props;
+        const {
+            serviceComponentList,
+            serviceComponentLoading,
+            portList,
+            componentLoading,
+            portLoading,
+            groupSelect,
+            showServiceMore,
+            showMateMore,
+            selsectRewrite,
+            comList,
+            serviceLoading,
+            serviceList
+        } = this.state
+        const formItemLayout = {
+            labelCol: {
+                xs: { span: 24 },
+                sm: { span: 3 }
+            },
+            wrapperCol: {
+                xs: { span: 24 },
+                sm: { span: 18 }
+            }
+        };
+        const MethodOptions = [
+            { label: 'GET', value: 'GET' },
+            { label: 'POST', value: 'POST' },
+            { label: 'PUT', value: 'PUT' },
+            { label: 'DELETE', value: 'DELETE' },
+            { label: 'OPTIONS', value: 'OPTIONS' },
+            { label: 'HEAD', value: 'HEAD' },
+            { label: 'PATCH', value: 'PATCH' },
+            { label: 'TRACE', value: 'TRACE' },
+        ];
+        return (
+            <Drawer
+                title={Object.keys(editInfo).length > 0 ? formatMessage({ id: 'teamNewGateway.NewGateway.TCP.edit' }) : formatMessage({ id: 'teamNewGateway.NewGateway.TCP.add' })}
+                width={700}
+                onClose={this.onClose}
+                visible={visible}
+                bodyStyle={{ paddingBottom: 80 }}
+            >
+                <Form hideRequiredMark onSubmit={this.handleSubmit}>
+                    <Skeleton Skeleton loading={serviceComponentLoading} active >
+                        <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.TCP.port' })} extra={<span style={{ color: 'red' }}>{this.getAccessAddress()}</span>}>
+                            {getFieldDecorator('ingressPort', {
+                                rules: [
+                                    { required: true, message: formatMessage({ id: 'teamNewGateway.NewGateway.TCP.inputPort' }) }
+                                ],
+                                initialValue: (editInfo && editInfo.nodePort) || ''
+                            })(<Input placeholder={formatMessage({ id: 'teamNewGateway.NewGateway.TCP.inputPort' })} type='number' />)}
+                        </Form.Item>
+                    </Skeleton>
+                    < Skeleton loading={serviceComponentLoading} active >
+                        <Form.Item {...formItemLayout} label={formatMessage({ id: 'popover.access_strategy.lable.component' })} >
+                            {getFieldDecorator('service_id', {
+                                rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }],
+                                initialValue: (Object.keys(editInfo).length ? `${editInfo.name}:${editInfo.port}` : undefined)
+                            })(<Select
+                                placeholder={formatMessage({ id: 'teamNewGateway.NewGateway.TCP.selectService' })}
+                                allowClear
+                                onChange={this.handleService}
+                            >
+                                {
+                                    comList && comList.map((item, index) => {
+                                        const { component_name, port, service_name } = item;
+                                        if (service_name != null) {
+                                            return (
+                                                <Option
+                                                    value={`${service_name}:${port}`}
+                                                    key={index + service_name}
+                                                >
+                                                    <span>
+                                                        {formatMessage({ id: 'teamNewGateway.NewGateway.TCP.name' })}
+                                                        {service_name}
+                                                        <span style={{ color: 'rgb(0 0 0 / 31%)' }}>
+                                                            ({component_name})
+                                                        </span>{' '}
+                                                        {formatMessage({ id: 'teamNewGateway.NewGateway.TCP.ports' })}
+                                                        {port}
+                                                    </span>
+                                                </Option>
+                                            );
+                                        }
+                                    })
+
+                                }
+                            </Select>
+                            )}
+                        </Form.Item>
+                    </Skeleton>
+                    <Skeleton loading={serviceComponentLoading} active>
+                        <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.TCP.type' })}>
+                            {getFieldDecorator('protocol', {
+                                initialValue: 'tcp',
+                                rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }]
+                            })(<Select disabled={!selectedService}>
+                                {protocols.map(protocol => <Option key={protocol} value={protocol}>
+                                    {protocolLabel(protocol)}
+                                </Option>)}
+                            </Select>)}
+                        </Form.Item>
+                    </Skeleton>
+
+                </Form>
+                <div
+                    style={{
+                        position: 'absolute',
+                        right: 0,
+                        bottom: 0,
+                        width: '100%',
+                        borderTop: '1px solid #e9e9e9',
+                        padding: '10px 16px',
+                        background: '#fff',
+                        textAlign: 'right',
+                    }}
+                >
+                    <Button onClick={this.onClose} style={{ marginRight: 8 }}>
+                        {formatMessage({ id: 'popover.cancel' })}
+                    </Button>
+                    <Button type="primary" onClick={this.handleSubmit}>
+                        {formatMessage({ id: 'popover.confirm' })}
+                    </Button>
+                </div>
+            </Drawer>
+        )
+    }
 }

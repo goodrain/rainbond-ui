@@ -1,4 +1,3 @@
-import streamRules from './en-US/streamRules';
 //英文入口文件
 
 import globalHeader from './en-US/globalHeader';
@@ -22,7 +21,6 @@ import cliAuth from './en-US/cliAuth'
 import deviceAuthorization from './en-US/deviceAuthorization'
 
 export default {
-  ...streamRules,
   'navBar.lang': 'lang',
   'layout.user.link.help': 'help',
   'layout.user.link.privacy': 'privacy',

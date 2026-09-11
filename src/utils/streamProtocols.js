@@ -9,8 +9,3 @@ export function streamProtocols(protocol) {
 export function protocolLabel(protocol) {
   return String(protocol || 'tcp').toUpperCase().replace('+', ' + ');
 }
-
-export function routeMatchesPort(rule, port) {
-  return !port || (rule.service_id === port.service_id &&
-    Number(rule.container_port || rule.port) === Number(port.container_port));
-}

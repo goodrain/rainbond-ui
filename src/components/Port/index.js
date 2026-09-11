@@ -11,8 +11,7 @@ import {
   notification,
   Select,
   Switch,
-  Table,
-  Tag
+  Table
 } from 'antd';
 import { connect } from 'dva';
 import { Link } from 'dva/router';
@@ -77,11 +76,11 @@ class ChangeProtocol extends PureComponent {
             size="small"
             value={this.state.value}
             style={{
-              width: 130
+              width: this.state.value === 'tcp+udp' ? 120 : 80
             }}
           >
             {protocols.map(item => {
-              return <Option key={item} value={item}>{protocolLabel(item)}</Option>;
+              return <Option key={item} value={item}>{item === 'tcp+udp' ? 'TCP + UDP' : item}</Option>;
             })}
           </Select>
         </FormItem>
@@ -148,15 +147,8 @@ export default class Index extends PureComponent {
       this.props.onOpenOuter &&
         this.props.onOpenOuter(this.props.port.container_port);
     } else {
-      const mappings = [
-        ...(this.props.port.bind_domains || []).map(rule => rule.domain_name),
-        ...(this.props.port.bind_tcp_domains || []).map(rule => `${rule.nodePort} / ${protocolLabel(rule.protocol)}`)
-      ];
-      Modal.confirm({
-        title: formatMessage({ id: 'streamRules.closeAll' }),
-        content: mappings.join(', '),
-        onOk: () => this.props.onCloseOuter && this.props.onCloseOuter(this.props.port.container_port)
-      });
+      this.props.onCloseOuter &&
+        this.props.onCloseOuter(this.props.port.container_port);
     }
   };
   showEditProtocol = () => {
@@ -186,7 +178,7 @@ export default class Index extends PureComponent {
       type: 'gateWay/fetchEnvs',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: record.service_name
+        app_alias: record.service_alias || record.service_name
       },
       callback: data => {
         if (data) {
@@ -384,7 +376,7 @@ export default class Index extends PureComponent {
             <td>
               {this.state.editProtocol ? (
                 <ChangeProtocol
-                  protocol={protocolLabel(port.protocol)}
+                  protocol={port.protocol}
                   onSubmit={this.onSubmitProtocol}
                   onCancel={this.cancelEditProtocol}
                 />
@@ -531,19 +523,81 @@ export default class Index extends PureComponent {
                   </div>
                 ) : null}
 
-                {tcp_domains.map(domain => {
-                  const host = currentRegion?.[0]?.tcpdomain || '0.0.0.0';
-                  const address = (domain.end_point || '').replace('0.0.0.0', host);
-                  return <p key={domain.service_name || domain.end_point}>
-                    <Tag>{protocolLabel(domain.protocol)}</Tag>
-                    <CopyToClipboard text={address}>
-                      <a title={formatMessage({ id: 'streamRules.copy' })}>{address}</a>
-                    </CopyToClipboard>
-                  </p>;
-                })}
-                {this.props.onManageStream && <Button size="small" onClick={() => this.props.onManageStream(port)}>
-                  {formatMessage({ id: 'streamRules.manage' })}
-                </Button>}
+                {appPortUtil.isOpenOuter(port) ? (
+                  <div>
+                    {tcp_domains.map(domain => {
+                      let str = domain.end_point;
+                      if (
+                        str.indexOf('0.0.0.0') > -1 &&
+                        currentRegion &&
+                        currentRegion.length > 0
+                      ) {
+                        str = str.replace(
+                          /0.0.0.0/g,
+                          currentRegion[0].tcpdomain
+                        );
+                      }
+
+                      return (
+                        <div key={domain.service_name || domain.end_point}>
+                          <p>
+                            {domain.protocol == 'http' ||
+                            domain.protocol == 'https' ? (
+                              <a
+                                href={`http://${str.replace(/\s+/g, '')}`}
+                                target="blank"
+                              >
+                                {domain.end_point} ({protocolLabel(domain.protocol)})
+                              </a>
+                            ) : (
+                              <a
+                                href="javascript:void(0)"
+                                onClick={this.resolveNotHttp.bind(this, domain)}
+                              >
+                                {domain.end_point} ({protocolLabel(domain.protocol)})
+                              </a>
+                            )}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div>
+                    {tcp_domains.map(domain => {
+                      return (
+                        <div key={domain.service_name || domain.end_point}>
+                          <p>
+                            <a href="javascript:void(0)" disabled>
+                              {domain.end_point} ({protocolLabel(domain.protocol)})
+                            </a>
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+                {/* {port && port.protocol == 'http' && (
+                  <Button
+                    size="small"
+                    style={{ marginTop: '5px' }}
+                    onClick={this.onAddDomain}
+                  >
+                    <FormattedMessage id='componentOverview.body.Ports.add'/>
+                  </Button>
+                )} */}
+                {/* {port && port.protocol != 'http' && (
+                  <Link
+                    to={`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/gateway/control/tcp`}
+                    style={{
+                      wordBreak: 'break-all',
+                      wordWrap: 'break-word',
+                      color: '#1890ff'
+                    }}
+                  >
+                    <Button size="small"><FormattedMessage id='componentOverview.body.Ports.manage'/></Button>
+                  </Link>
+                )} */}
               </td>
             )} 
             <td>
@@ -568,7 +622,7 @@ export default class Index extends PureComponent {
             <ul className={styles.ul}>
               {port && port.protocol != 'mysql' ? (
                 <li style={{ fontWeight: 'bold' }}>
-                  <FormattedMessage id='componentOverview.body.Ports.current' values={{protocol:port.protocol}}/>
+                  <FormattedMessage id='componentOverview.body.Ports.current' values={{protocol:agreement.protocol || port.protocol}}/>
                 </li>
               ) : (
                 <li style={{ fontWeight: 'bold' }}>

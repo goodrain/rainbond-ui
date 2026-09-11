@@ -97,7 +97,7 @@ export default class AddPort extends PureComponent {
                 disabled={isKubeBlocks}
               >
                 {protocols.map(item => {
-                  return <Option key={item} value={item}>{item === 'tcp+udp' ? 'TCP + UDP' : item.toUpperCase()}</Option>;
+                  return <Option key={item} value={item}>{item === 'tcp+udp' ? 'TCP + UDP' : item}</Option>;
                 })}
               </Select>
             )}
