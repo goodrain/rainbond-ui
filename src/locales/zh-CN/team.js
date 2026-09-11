@@ -425,7 +425,6 @@ const teamGateway = {
   'teamNewGateway.NewGateway.TCP.address': '监听地址',
   'teamNewGateway.NewGateway.TCP.service': '目标服务',
   'teamNewGateway.NewGateway.TCP.type': '协议类型',
-  'teamNewGateway.NewGateway.TCP.protocolMismatch': '请选择与组件端口兼容的协议',
   'teamNewGateway.NewGateway.TCP.handle': '操作',
   'teamNewGateway.NewGateway.TCP.add': '新增TCP/UDP路由',
   'teamNewGateway.NewGateway.TCP.edit': '编辑TCP/UDP路由',

@@ -413,7 +413,6 @@ const teamGateway = {
   'teamNewGateway.NewGateway.TCP.address': 'Listen Address',
   'teamNewGateway.NewGateway.TCP.service': 'Services',
   'teamNewGateway.NewGateway.TCP.type': 'Protocol',
-  'teamNewGateway.NewGateway.TCP.protocolMismatch': 'Select a protocol supported by the component port',
   'teamNewGateway.NewGateway.TCP.handle': 'Actions',
   'teamNewGateway.NewGateway.TCP.add': 'Add TCP/UDP Route',
   'teamNewGateway.NewGateway.TCP.edit': 'Edit TCP/UDP Route',

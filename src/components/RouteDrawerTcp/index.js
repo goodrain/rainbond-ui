@@ -2,7 +2,6 @@ import React, { Fragment, PureComponent, Component } from 'react';
 import { connect } from 'dva';
 import { Drawer, Form, Button, Col, Row, Input, Select, DatePicker, Icon, Skeleton, Spin, Radio, Switch } from 'antd';
 import globalUtil from '../../utils/global';
-import { streamProtocols, protocolLabel } from '../../utils/streamProtocols';
 import { formatMessage } from '@/utils/intl';
 import ServiceInput from '../ServiceInput';
 import styles from './index.less';
@@ -65,13 +64,8 @@ export default class index extends Component {
         this.props.form.validateFieldsAndScroll((err, values) => {
             if (!err) {
                 const data = {}
-                const serviceInfo = this.getSelectedService(values.service_id);
-                if (!serviceInfo || !streamProtocols(serviceInfo.protocol).includes(values.protocol)) {
-                    this.props.form.setFields({ protocol: { value: values.protocol,
-                        errors: [new Error(formatMessage({ id: 'teamNewGateway.NewGateway.TCP.protocolMismatch' }))] } });
-                    return;
-                }
-                data.protocol = values.protocol.toUpperCase()
+                const serviceInfo = comList.find(item => item.service_name === this.extractPreviousCharacters(values.service_id));
+                data.protocol = values.protocol
                 data.match = {
                     host: values.host,
                     ingressPort: Number(values.ingressPort)
@@ -80,7 +74,11 @@ export default class index extends Component {
                     serviceName: this.extractPreviousCharacters(values.service_id),
                     servicePort: Number(this.extractAfterColon(values.service_id)),
                 }
-                this.props.onOk(data, serviceInfo.app_id, serviceInfo)
+                if(serviceInfo.app_id){
+                    this.props.onOk(data,serviceInfo.app_id)
+                }else{
+                    this.props.onOk(data)
+                }
             }
         });
     };
@@ -128,12 +126,8 @@ export default class index extends Component {
         })
     }
 
-    getSelectedService = value => this.state.comList.find(item => `${item.service_name}:${item.port}` === value);
-
-    handleService = value => {
-        const service = this.getSelectedService(value);
-        const protocols = service ? streamProtocols(service.protocol) : [];
-        this.props.form.setFieldsValue({ protocol: protocols[protocols.length - 1] });
+    handleService = (data, type) => {
+        return
     }
     getAccessAddress = () => {
         const { editInfo, form } = this.props;
@@ -152,9 +146,7 @@ export default class index extends Component {
     }
 
     render() {
-        const { getFieldDecorator, getFieldValue } = this.props.form;
-        const selectedService = this.getSelectedService(getFieldValue('service_id'));
-        const protocols = selectedService ? streamProtocols(selectedService.protocol) : [];
+        const { getFieldDecorator } = this.props.form;
         const {
             visible,
             groups,
@@ -222,7 +214,6 @@ export default class index extends Component {
                             })(<Select
                                 placeholder={formatMessage({ id: 'teamNewGateway.NewGateway.TCP.selectService' })}
                                 allowClear
-                                onChange={this.handleService}
                             >
                                 {
                                     comList && comList.map((item, index) => {
@@ -257,10 +248,10 @@ export default class index extends Component {
                             {getFieldDecorator('protocol', {
                                 initialValue: 'tcp',
                                 rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }]
-                            })(<Select disabled={!selectedService}>
-                                {protocols.map(protocol => <Option key={protocol} value={protocol}>
-                                    {protocolLabel(protocol)}
-                                </Option>)}
+                            })(<Select>
+                                <Option value="tcp">tcp</Option>
+                                <Option value="udp">udp</Option>
+                                <Option value="tcp+udp">tcp+udp</Option>
                             </Select>)}
                         </Form.Item>
                     </Skeleton>

@@ -18,7 +18,6 @@ import { Link } from 'dva/router';
 import React, { PureComponent } from 'react';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import appPortUtil from '../../utils/appPort-util';
-import { protocolLabel } from '../../utils/streamProtocols';
 import globalUtil from '../../utils/global';
 import styles from './index.less';
 import { FormattedMessage } from 'umi';
@@ -76,11 +75,11 @@ class ChangeProtocol extends PureComponent {
             size="small"
             value={this.state.value}
             style={{
-              width: this.state.value === 'tcp+udp' ? 120 : 80
+              width: 80
             }}
           >
             {protocols.map(item => {
-              return <Option key={item} value={item}>{protocolLabel(item)}</Option>;
+              return <Option value={item}>{item}</Option>;
             })}
           </Select>
         </FormItem>
@@ -178,7 +177,7 @@ export default class Index extends PureComponent {
       type: 'gateWay/fetchEnvs',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
-        app_alias: record.service_alias || record.service_name
+        app_alias: record.service_name
       },
       callback: data => {
         if (data) {
@@ -381,8 +380,8 @@ export default class Index extends PureComponent {
                   onCancel={this.cancelEditProtocol}
                 />
               ) : (
-                <div className={styles.protocolValue}>
-                  <span>{protocolLabel(port.protocol)}</span>
+                <div>
+                  {port.protocol}
                   {!isKubeBlocks && (
                     <a onClick={this.showEditProtocol}>
                       <Icon type="edit" />
@@ -523,7 +522,7 @@ export default class Index extends PureComponent {
                   </div>
                 ) : null}
 
-                {appPortUtil.isOpenOuter(port) ? (
+                {outerUrl ? (
                   <div>
                     {tcp_domains.map(domain => {
                       let str = domain.end_point;
@@ -539,7 +538,7 @@ export default class Index extends PureComponent {
                       }
 
                       return (
-                        <div key={domain.service_name || domain.end_point}>
+                        <div>
                           <p>
                             {domain.protocol == 'http' ||
                             domain.protocol == 'https' ? (
@@ -547,14 +546,14 @@ export default class Index extends PureComponent {
                                 href={`http://${str.replace(/\s+/g, '')}`}
                                 target="blank"
                               >
-                                {domain.end_point} ({protocolLabel(domain.protocol)})
+                                {domain.end_point}
                               </a>
                             ) : (
                               <a
                                 href="javascript:void(0)"
                                 onClick={this.resolveNotHttp.bind(this, domain)}
                               >
-                                {domain.end_point} ({protocolLabel(domain.protocol)})
+                                {domain.end_point}
                               </a>
                             )}
                           </p>
@@ -566,10 +565,10 @@ export default class Index extends PureComponent {
                   <div>
                     {tcp_domains.map(domain => {
                       return (
-                        <div key={domain.service_name || domain.end_point}>
+                        <div>
                           <p>
                             <a href="javascript:void(0)" disabled>
-                              {domain.end_point} ({protocolLabel(domain.protocol)})
+                              {domain.end_point}
                             </a>
                           </p>
                         </div>
@@ -622,7 +621,7 @@ export default class Index extends PureComponent {
             <ul className={styles.ul}>
               {port && port.protocol != 'mysql' ? (
                 <li style={{ fontWeight: 'bold' }}>
-                  <FormattedMessage id='componentOverview.body.Ports.current' values={{protocol:agreement.protocol || port.protocol}}/>
+                  <FormattedMessage id='componentOverview.body.Ports.current' values={{protocol:port.protocol}}/>
                 </li>
               ) : (
                 <li style={{ fontWeight: 'bold' }}>

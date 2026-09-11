@@ -621,12 +621,11 @@ export async function getTeamGatewayData(params, handleError) {
   )
 }
 // 获取服务地址列表
-export function fetchGetServiceAddress(params, handleError) {
+export function fetchGetServiceAddress(params) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${params.team_name}/regions/${params.region_name}/apps_port`,
     {
       method: 'get',
-      handleError,
       params: {
         appID: params.appID
       },
@@ -652,7 +651,7 @@ export function fetchGetTcpService(params, handleError) {
 // 编辑tcp服务
 export function fetchEditTcpService(params, handleError) {
   return request(
-    `${apiconfig.baseUrl}/console/v2/proxy-pass/gateway/${params.teamName}/routes/tcp?appID=${params.appID}&region_name=${params.region_name}&port=${params?.values?.backend?.servicePort}&service_id=${encodeURIComponent(params.service_id || '')}&service_type=${encodeURIComponent(params.service_type || '')}&action=${params.route_name ? 'edit' : 'create'}&route_name=${encodeURIComponent(params.route_name || '')}`,
+    `${apiconfig.baseUrl}/console/v2/proxy-pass/gateway/${params.teamName}/routes/tcp?appID=${params.appID}&region_name=${params.region_name}&port=${params?.values?.match?.ingressPort}`,
     {
       method: 'post',
       showMessage: false,
@@ -667,7 +666,7 @@ export function fetchEditTcpService(params, handleError) {
 // 删除tcp服务
 export function fetchDeleteTcpService(params, handleError) {
   return request(
-    `${apiconfig.baseUrl}/console/v2/proxy-pass/gateway/${params.teamName}/routes/tcp/${encodeURIComponent(params.name)}?appID=${params.appID}&region_name=${params.region_name}&service_id=${encodeURIComponent(params.service_id || '')}&port=${params.port || ''}`,
+    `${apiconfig.baseUrl}/console/v2/proxy-pass/gateway/${params.teamName}/routes/tcp/${params.name}?appID=${params.appID}&region_name=${params.region_name}`,
     {
       method: 'delete',
       showMessage: false,

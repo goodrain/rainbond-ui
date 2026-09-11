@@ -73,7 +73,7 @@ export default class index extends Component {
                         />
                     </TabPane>
                     {(isEnterpriseAdmin || !showTcp) && (
-                        <TabPane tab="TCP / UDP" key="tcp">
+                        <TabPane tab="TCP/UDP" key="tcp">
                             <GatewayRouteTcp
                                 operationPermissions={operationPermissions}
                                 open={open}

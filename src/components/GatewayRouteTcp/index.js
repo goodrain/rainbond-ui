@@ -14,7 +14,6 @@ import {
 import { formatMessage } from '@/utils/intl';
 import RouteDrawerTcp from '../RouteDrawerTcp';
 import globalUtil from '../../utils/global';
-import { protocolLabel } from '../../utils/streamProtocols';
 import styles from './index.less';
 
 @Form.create()
@@ -132,7 +131,7 @@ export default class index extends Component {
         });
     }
     // 新增或修改
-    addOrEditApiGateway = (values, app_id, target = {}) => {
+    addOrEditApiGateway = (values, app_id) => {
         const { dispatch, appID, type } = this.props
         const { editInfo } = this.state;
         const teamName = globalUtil.getCurrTeamName()
@@ -141,9 +140,6 @@ export default class index extends Component {
             payload: {
                 teamName: teamName,
                 values: values,
-                service_id: target.service_id,
-                service_type: target.service_type,
-                route_name: editInfo?.service_name || editInfo?.name || '',
                 appID: app_id || appID || '',
                 region_name: globalUtil.getCurrRegionName(),
             },
@@ -174,14 +170,11 @@ export default class index extends Component {
             type: 'gateWay/fetchDeleteTcpService',
             payload: {
                 teamName: teamName,
-                name: data.service_name || data.name,
-                service_id: data.service_id,
-                port: data.container_port || data.port,
+                name: data.name,
                 appID: appID || '',
                 region_name: globalUtil.getCurrRegionName(),
             },
             callback: res => {
-                if (!res || res.status_code !== 200) return;
                 notification.success({
                     message: formatMessage({ id: 'notification.success.succeeded' }),
                 });
@@ -203,7 +196,6 @@ export default class index extends Component {
             return null;
         }
         return comList.find(item => {
-            if (Number(item.port) !== Number(record.container_port || record.port)) return false;
             return (
                 (record.service_id && item.service_id === record.service_id) ||
                 (record.service_alias && item.service_alias === record.service_alias) ||
@@ -294,7 +286,7 @@ export default class index extends Component {
                 title: formatMessage({ id: 'teamNewGateway.NewGateway.TCP.type' }),
                 dataIndex: 'protocol',
                 key: 'protocol',
-                render: protocolLabel,
+                render: text => String(text || '').toLowerCase(),
             },
             {
                 title: formatMessage({ id: 'teamNewGateway.NewGateway.TCP.handle' }),
@@ -345,7 +337,6 @@ export default class index extends Component {
                     )}
                 </div>
                 <Table
-                    rowKey={record => record.service_name || record.name}
                     dataSource={dataSource}
                     columns={columns}
                     loading={tableLoading}

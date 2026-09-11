@@ -4,7 +4,6 @@ import React, { PureComponent } from 'react';
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
 import cookie from '../../utils/cookie';
-import { protocolLabel } from '../../utils/streamProtocols';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -98,7 +97,7 @@ export default class AddPort extends PureComponent {
                 disabled={isKubeBlocks}
               >
                 {protocols.map(item => {
-                  return <Option key={item} value={item}>{protocolLabel(item)}</Option>;
+                  return <Option key={item} value={item}>{item}</Option>;
                 })}
               </Select>
             )}

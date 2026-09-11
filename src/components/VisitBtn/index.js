@@ -152,7 +152,7 @@ export default class Index extends PureComponent {
     openInNewTab(item.key);
   };
   handleClickLinkTcp = item => {
-    openInNewTab(/^https?:/i.test(item) ? item : `http://${item}`);
+    openInNewTab(`http://${item}`);
   };
   renderNoHttpOuterTitle = item => (
     <div>
@@ -389,7 +389,7 @@ export default class Index extends PureComponent {
     const currentRegion = region.filter(item => {
       return item.team_region_name == globalUtil.getCurrRegionName();
     });
-    if (links.length === 1 && ['http', 'tcp'].includes(res[0].protocol)) {
+    if (links.length === 1 && res[0].protocol == 'tcp') {
       return (
         <Tooltip title={formatMessage({ id: 'tooltip.visit' })}>
           <Button
@@ -462,7 +462,7 @@ export default class Index extends PureComponent {
         >
           <Button type={this.props.btntype}>
             <Icon type="link" style={{ marginRight: 4 }} />
-            <a onClick={()=>this.handleClickLinkTcp(links[0])} target="_blank" style={{ color: 'inherit' }}>
+            <a onClick={()=>this.handleClickLinkTcp(links[0])} target="_blank">
               <FormattedMessage id='componentOverview.header.right.visit' />
               {/* 访问 */}
             </a>
