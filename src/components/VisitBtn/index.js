@@ -389,7 +389,7 @@ export default class Index extends PureComponent {
     const currentRegion = region.filter(item => {
       return item.team_region_name == globalUtil.getCurrRegionName();
     });
-    if (links.length === 1 && res[0].protocol == 'tcp') {
+    if (links.length === 1 && ['http', 'tcp'].includes(res[0].protocol)) {
       return (
         <Tooltip title={formatMessage({ id: 'tooltip.visit' })}>
           <Button
@@ -462,7 +462,7 @@ export default class Index extends PureComponent {
         >
           <Button type={this.props.btntype}>
             <Icon type="link" style={{ marginRight: 4 }} />
-            <a onClick={()=>this.handleClickLinkTcp(links[0])} target="_blank">
+            <a onClick={()=>this.handleClickLinkTcp(links[0])} target="_blank" style={{ color: 'inherit' }}>
               <FormattedMessage id='componentOverview.header.right.visit' />
               {/* 访问 */}
             </a>
