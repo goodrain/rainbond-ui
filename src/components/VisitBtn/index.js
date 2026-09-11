@@ -152,7 +152,7 @@ export default class Index extends PureComponent {
     openInNewTab(item.key);
   };
   handleClickLinkTcp = item => {
-    openInNewTab(`http://${item}`);
+    openInNewTab(/^https?:/i.test(item) ? item : `http://${item}`);
   };
   renderNoHttpOuterTitle = item => (
     <div>
