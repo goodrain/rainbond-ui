@@ -21,7 +21,12 @@ function minimumExpansionCapacity(volume = {}) {
 }
 
 function isCapacityExpansion(volume, value) {
-  return numericCapacity(value) > minimumExpansionCapacity(volume);
+  const runtimeCapacity = Math.max(
+    numericCapacity(volume && volume.requested_capacity),
+    numericCapacity(volume && volume.actual_capacity)
+  );
+  const currentCapacity = runtimeCapacity || numericCapacity(volume && volume.volume_capacity);
+  return numericCapacity(value) > currentCapacity;
 }
 
 function canEditVolumeCapacity(volume = {}, editing = false) {

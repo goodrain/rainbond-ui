@@ -599,6 +599,7 @@ const componentOverview = {
     'componentOverview.body.mnt.expansion_confirm_content': '存储容量将从 {current} GB 扩容到 {target} GB。扩容不可撤销，不能缩容；部分存储驱动可能需要重启组件才能完成文件系统扩容。',
     'componentOverview.body.mnt.expansion_confirm_ok': '确认扩容',
     'componentOverview.body.mnt.expansion_capacity_progress': '{actual}GB / 目标 {target}GB',
+    'componentOverview.body.mnt.expansion_status.pending': '待扩容',
     'componentOverview.body.mnt.expansion_status.resizing': '扩容中',
     'componentOverview.body.mnt.expansion_status.filesystem_resize_pending': '等待文件系统扩容',
     'componentOverview.body.mnt.expansion_status.failed': '扩容失败',

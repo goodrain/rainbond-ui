@@ -588,6 +588,7 @@ const componentOverview = {
     'componentOverview.body.mnt.expansion_confirm_content': 'The storage capacity will grow from {current} GB to {target} GB. Expansion cannot be undone or reduced. Some storage drivers may require a component restart to finish filesystem expansion.',
     'componentOverview.body.mnt.expansion_confirm_ok': 'Expand storage',
     'componentOverview.body.mnt.expansion_capacity_progress': '{actual}GB / target {target}GB',
+    'componentOverview.body.mnt.expansion_status.pending': 'Expansion pending',
     'componentOverview.body.mnt.expansion_status.resizing': 'Expanding',
     'componentOverview.body.mnt.expansion_status.filesystem_resize_pending': 'Filesystem resize pending',
     'componentOverview.body.mnt.expansion_status.failed': 'Expansion failed',

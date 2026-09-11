@@ -324,6 +324,7 @@ export default class Index extends PureComponent {
       return null;
     }
     const colorByStatus = {
+      pending: 'orange',
       resizing: 'blue',
       filesystem_resize_pending: 'orange',
       failed: 'red'

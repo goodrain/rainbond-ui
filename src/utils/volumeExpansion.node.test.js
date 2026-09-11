@@ -20,6 +20,14 @@ assert.strictEqual(
 );
 assert.strictEqual(isCapacityExpansion({ volume_capacity: 20 }, 21), true);
 assert.strictEqual(isCapacityExpansion({ volume_capacity: 20 }, 20), false);
+assert.strictEqual(
+  isCapacityExpansion(
+    { volume_capacity: 30, requested_capacity: 10, actual_capacity: 10 },
+    30
+  ),
+  true,
+  'a stored target ahead of the PVC runtime capacity still needs expansion'
+);
 
 assert.strictEqual(
   canEditVolumeCapacity({ expansion_status: 'unsupported', allow_expansion: false }, true),
