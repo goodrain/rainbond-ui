@@ -7,6 +7,7 @@ import Exception from '@/components/Exception';
 import { Link } from 'dva/router';
 import newRole from '@/utils/newRole';
 import cookie from '@/utils/cookie';
+import handleApplicationCreationError from '@/utils/applicationCreationError';
 @connect(({ user }) => ({
   currUser: user.currentUser,
 }))
@@ -103,10 +104,11 @@ export default class MarketPlaceInstallApp extends Component {
           this.installShareApp(teamName, regionName, values, res.group_id)
         }
       },
-      handleError: () => {
+      handleError: err => {
         this.setState({
           isShare: false
         })
+        handleApplicationCreationError(err);
       }
     })
   }

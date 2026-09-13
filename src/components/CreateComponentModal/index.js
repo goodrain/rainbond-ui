@@ -32,6 +32,7 @@ import ImgRepostory from '../ImgRepostory';
 import ThirdList from '../ThirdList';
 import oauthUtil from '../../utils/oauth';
 import handleAPIError from '../../utils/error';
+import handleApplicationCreationError from '../../utils/applicationCreationError';
 import { getImageRegistryTypeLabel } from '../../utils/imageRegistry';
 import { runMarketInstallPreflight } from '../../utils/marketInstallPreflight';
 import { isRainbondInfoAgentEnabled } from '../../utils/agentVisibility';
@@ -528,7 +529,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
           },
           handleError: (err) => {
             setMarketSubmitLoading(false);
-            handleAPIError(err);
+            handleApplicationCreationError(err);
           }
         });
       } else if (vals.install_type === 'existing' && vals.group_id) {
@@ -634,7 +635,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
           },
           handleError: (err) => {
             setLocalSubmitLoading(false);
-            handleAPIError(err);
+            handleApplicationCreationError(err);
           }
         });
       } else if (vals.install_type === 'existing' && vals.group_id) {
@@ -2553,7 +2554,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
             }
           },
           handleError: err => {
-            handleAPIError(err);
+            handleApplicationCreationError(err);
           }
         });
       }
@@ -2624,7 +2625,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
             }
           },
           handleError: err => {
-            handleAPIError(err);
+            handleApplicationCreationError(err);
           }
         });
       }

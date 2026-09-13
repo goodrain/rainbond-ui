@@ -1032,7 +1032,7 @@ export async function delSingleKubernetesVal(body = {}, handleError) {
 // 预览删除应用下 k8s 资源的影响
 export async function previewKubernetesDeletion(body = {}, handleError) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/k8s-resources/deletion-impact`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/k8s-resources/actions/deletion-impact`,
     {
       method: 'post',
       data: {
@@ -1045,7 +1045,7 @@ export async function previewKubernetesDeletion(body = {}, handleError) {
 // 对账应用下 k8s 资源元数据
 export async function reconcileKubernetesResources(body = {}, handleError) {
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/k8s-resources/reconcile`,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/k8s-resources/actions/reconcile`,
     {
       method: 'post',
       data: {},

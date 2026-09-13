@@ -7,6 +7,7 @@ import { formatMessage } from '@/utils/intl';
 import CodeJwarForm from '../../components/CodeJwarForm';
 import TopUpHints from '../../components/TopUpHints';
 import globalUtil from '../../utils/global';
+import handleApplicationCreationError from '../../utils/applicationCreationError';
 import roleUtil from '../../utils/newRole';
 import styles from './Index.less';
 
@@ -99,8 +100,8 @@ export default class Index extends PureComponent {
           this.handleSubmit(vals, event_id)
         }
       },
-      handleError: () => {
-        
+      handleError: err => {
+        handleApplicationCreationError(err);
       }
     })
   }

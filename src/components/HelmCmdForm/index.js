@@ -9,6 +9,7 @@ import AddGroup from '../../components/AddOrEditGroup';
 import AddHelmStore from '../../components/AddHelmStore';
 import globalUtil from '../../utils/global';
 import handleAPIError from '../../utils/error';
+import handleApplicationCreationError from '../../utils/applicationCreationError';
 import cookie from '../../utils/cookie';
 import role from '@/utils/newRole';
 import styles from './index.less';
@@ -164,8 +165,8 @@ export default class Index extends PureComponent {
             onSubmit(fieldsValue, isService);
           }
         },
-        handleError: () => {
-          // 创建应用失败处理
+        handleError: err => {
+          handleApplicationCreationError(err);
         }
       });
     });

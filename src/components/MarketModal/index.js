@@ -4,6 +4,7 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import { formatMessage } from '@/utils/intl';
 import globalUtil from '../../utils/global';
+import handleApplicationCreationError from '../../utils/applicationCreationError';
 import PluginUtil from '../../utils/pulginUtils';
 import { pinyin } from 'pinyin-pro';
 import AppMarketContent from '../AppMarketContent';
@@ -279,8 +280,9 @@ const MarketModal = ({ visible, onCancel, dispatch, currentEnterprise, store, gr
                   setAddAppLoading(false);
                 }
               },
-              handleError: () => {
+              handleError: err => {
                 setAddAppLoading(false);
+                handleApplicationCreationError(err);
               }
             });
           } else if (vals.install_type === 'existing' && vals.group_id) {

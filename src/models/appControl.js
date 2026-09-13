@@ -976,14 +976,14 @@ export default {
         callback(response);
       }
     },
-    *fetchVolumes({ payload, callback }, { call, put }) {
+    *fetchVolumes({ payload, callback, shouldApply }, { call, put }) {
       const response = yield call(getVolumes, payload);
-      if (response) {
+      if (response && (!shouldApply || shouldApply())) {
         yield put({
           type: 'saveVolumes',
           payload: response.list || []
         });
-        if (callback) {
+        if (callback && (!shouldApply || shouldApply())) {
           callback(response);
         }
       }

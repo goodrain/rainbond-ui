@@ -51,6 +51,9 @@ const {
 export default class Index extends PureComponent {
   constructor(props) {
     super(props);
+    this.unmounted = false;
+    this.volumeRequestGeneration = 0;
+    this.volumeRequestKey = this.getVolumeRequestKey();
     this.state = {
       showAddVar: null,
       showAddRelation: false,
@@ -85,7 +88,21 @@ export default class Index extends PureComponent {
     }
   }
 
+  componentDidUpdate() {
+    const requestKey = this.getVolumeRequestKey();
+    if (requestKey !== this.volumeRequestKey) {
+      this.volumeRequestKey = requestKey;
+      this.volumeRequestGeneration += 1;
+      this.clearVolumeExpansionPolling();
+      if (this.props.method !== 'vm') {
+        this.fetchVolumes();
+      }
+    }
+  }
+
   componentWillUnmount() {
+    this.unmounted = true;
+    this.volumeRequestGeneration += 1;
     this.clearVolumeExpansionPolling();
   }
 
@@ -124,20 +141,45 @@ export default class Index extends PureComponent {
     this.setState({ relyComponent: false, relyComponentList: [] });
   };
 
+  getVolumeRequestKey = () => JSON.stringify([
+    globalUtil.getCurrTeamName(),
+    globalUtil.getCurrRegionName(),
+    this.props.appAlias,
+    this.props.method
+  ]);
+
   fetchVolumes = () => {
+    if (this.unmounted || this.props.method === 'vm') {
+      return;
+    }
     this.clearVolumeExpansionPolling();
     const { dispatch, appAlias } = this.props;
+    const teamName = globalUtil.getCurrTeamName();
+    const requestKey = this.getVolumeRequestKey();
+    this.volumeRequestKey = requestKey;
+    this.volumeRequestGeneration += 1;
+    const generation = this.volumeRequestGeneration;
+    const shouldApply = () => !this.unmounted &&
+      generation === this.volumeRequestGeneration &&
+      requestKey === this.getVolumeRequestKey();
     dispatch({
       type: 'appControl/fetchVolumes',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
+        team_name: teamName,
         app_alias: appAlias,
         is_config: false
       },
-      callback: response => this.scheduleVolumeExpansionPolling(response && response.list),
+      shouldApply,
+      callback: response => {
+        if (shouldApply()) {
+          this.scheduleVolumeExpansionPolling(response && response.list, shouldApply);
+        }
+      },
       handleError: err => {
-        this.clearVolumeExpansionPolling();
-        handleAPIError(err);
+        if (shouldApply()) {
+          this.clearVolumeExpansionPolling();
+          handleAPIError(err);
+        }
       }
     });
   };
@@ -149,12 +191,17 @@ export default class Index extends PureComponent {
     }
   };
 
-  scheduleVolumeExpansionPolling = volumes => {
+  scheduleVolumeExpansionPolling = (volumes, shouldApply) => {
+    if (this.unmounted || !shouldApply()) {
+      return;
+    }
     this.clearVolumeExpansionPolling();
     if ((volumes || []).some(volume => isExpansionInProgress(volume.expansion_status))) {
       this.volumeExpansionTimer = setTimeout(() => {
         this.volumeExpansionTimer = null;
-        this.fetchVolumes();
+        if (shouldApply()) {
+          this.fetchVolumes();
+        }
       }, 5000);
     }
   };

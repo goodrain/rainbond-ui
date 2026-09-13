@@ -4,6 +4,7 @@ import { routerRedux } from "dva/router";
 import { Card } from "antd";
 import styles from "./Index.less";
 import globalUtil from "../../utils/global";
+import handleApplicationCreationError from '../../utils/applicationCreationError';
 import roleUtil from '../../utils/newRole';
 import ImageNameForm from "../../components/ImageNameForm";
 import TopUpHints from '../../components/TopUpHints';
@@ -95,8 +96,8 @@ export default class Index extends PureComponent {
           this.handleSubmit(vals)
         }
       },
-      handleError: () => {
-        
+      handleError: err => {
+        handleApplicationCreationError(err);
       }
     })
   }
