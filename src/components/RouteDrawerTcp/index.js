@@ -65,7 +65,7 @@ export default class index extends Component {
             if (!err) {
                 const data = {}
                 const serviceInfo = comList.find(item => item.service_name === this.extractPreviousCharacters(values.service_id));
-                data.protocol = "TCP"
+                data.protocol = values.protocol
                 data.match = {
                     host: values.host,
                     ingressPort: Number(values.ingressPort)
@@ -241,6 +241,18 @@ export default class index extends Component {
                                 }
                             </Select>
                             )}
+                        </Form.Item>
+                    </Skeleton>
+                    <Skeleton loading={serviceComponentLoading} active>
+                        <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.TCP.type' })}>
+                            {getFieldDecorator('protocol', {
+                                initialValue: 'tcp',
+                                rules: [{ required: true, message: formatMessage({ id: 'placeholder.select' }) }]
+                            })(<Select>
+                                <Option value="tcp">tcp</Option>
+                                <Option value="udp">udp</Option>
+                                <Option value="tcp+udp">tcp+udp</Option>
+                            </Select>)}
                         </Form.Item>
                     </Skeleton>
 

@@ -286,6 +286,7 @@ export default class index extends Component {
                 title: formatMessage({ id: 'teamNewGateway.NewGateway.TCP.type' }),
                 dataIndex: 'protocol',
                 key: 'protocol',
+                render: text => String(text || '').toLowerCase(),
             },
             {
                 title: formatMessage({ id: 'teamNewGateway.NewGateway.TCP.handle' }),

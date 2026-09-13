@@ -648,10 +648,10 @@ export function fetchGetTcpService(params, handleError) {
     },
   );
 }
-// 编辑tcp服务
+// 创建 TCP/UDP 映射
 export function fetchEditTcpService(params, handleError) {
   return request(
-    `${apiconfig.baseUrl}/console/v2/proxy-pass/gateway/${params.teamName}/routes/tcp?appID=${params.appID}&region_name=${params.region_name}&port=${params?.values?.match?.ingressPort}`,
+    `${apiconfig.baseUrl}/console/v2/proxy-pass/gateway/${params.teamName}/routes/tcp?appID=${params.appID}&region_name=${params.region_name}&port=${params?.values?.match?.ingressPort}&action=create`,
     {
       method: 'post',
       showMessage: false,
