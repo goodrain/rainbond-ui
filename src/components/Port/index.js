@@ -522,7 +522,7 @@ export default class Index extends PureComponent {
                   </div>
                 ) : null}
 
-                {outerUrl ? (
+                {appPortUtil.isOpenOuter(port) ? (
                   <div>
                     {tcp_domains.map(domain => {
                       let str = domain.end_point;

@@ -246,7 +246,7 @@ export default class Index extends PureComponent {
         this.showSuccessNotification();
         onshowRestartTips(true);
       },
-      handleError: err => handleAPIError(err)
+      handleError: err => { this.fetchPorts(); handleAPIError(err); }
     });
   };
 
