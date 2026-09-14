@@ -51,6 +51,17 @@ const map = {
       required: true, message: formatMessage({id:'login.input_Verification'}),
     }],
   },
+  ImageCaptcha: {
+    component: Input,
+    props: {
+      size: 'large',
+      prefix: <Icon type="safety-certificate" className={styles.prefixIcon} />,
+      autoComplete: 'off',
+    },
+    rules: [{
+      required: true, message: formatMessage({id:'login.captcha.required'}),
+    }],
+  },
 };
 
 export default map;

@@ -36,6 +36,41 @@
   }
 }
 
+.captchaRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.captchaInput {
+  flex: 1;
+  min-width: 0;
+}
+
+.captchaRefresh {
+  height: 40px;
+  min-width: 112px;
+  padding: 0 8px;
+  overflow: hidden;
+  cursor: pointer;
+  background: @component-background;
+  border: 1px solid @border-color-base;
+  border-radius: @border-radius-base;
+
+  img {
+    display: block;
+    max-width: 100%;
+    height: 38px;
+    margin: 0 auto;
+  }
+
+  &:hover,
+  &:focus {
+    border-color: @primary-color;
+    outline: none;
+  }
+}
+
 .registerLink {
   text-align: center;
   margin-top: 16px;

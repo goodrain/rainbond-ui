@@ -198,6 +198,10 @@ export async function queryThirdLoginBinding(
 }
 
 /* 登录 */
+export function getCaptchaURL(version = Date.now()) {
+  return `${apiconfig.baseUrl}/console/captcha?version=${encodeURIComponent(version)}`;
+}
+
 export async function login(
   body = {
     nick_name,
