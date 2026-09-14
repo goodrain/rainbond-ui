@@ -7,6 +7,7 @@ import { pinyin } from 'pinyin-pro';
 import { formatMessage } from 'umi';
 import globalUtil from '../../utils/global';
 import handleAPIError from '../../utils/error';
+import handleApplicationCreationError from '../../utils/applicationCreationError';
 import role from '../../utils/newRole';
 import userUtil from '../../utils/user';
 import { runMarketInstallPreflight } from '../../utils/marketInstallPreflight';
@@ -521,7 +522,7 @@ class ExploreDetail extends PureComponent {
             },
             handleError: (error) => {
               this.setState({ submitLoading: false });
-              handleAPIError(error);
+              handleApplicationCreationError(error);
             }
           });
         } else if (values.install_type === 'existing' && values.group_id) {

@@ -5,6 +5,7 @@ import React, { PureComponent } from 'react';
 import ImageComposeForm from '../../components/ImageComposeForm';
 import TopUpHints from '../../components/TopUpHints';
 import globalUtil from '../../utils/global';
+import handleApplicationCreationError from '../../utils/applicationCreationError';
 import roleUtil from '../../utils/newRole';
 import styles from './Index.less';
 
@@ -103,8 +104,8 @@ export default class Index extends PureComponent {
           this.handleSubmit(vals)
         }
       },
-      handleError: () => {
-        
+      handleError: err => {
+        handleApplicationCreationError(err);
       }
     })
   }

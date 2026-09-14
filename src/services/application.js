@@ -465,7 +465,7 @@ export async function editGroups(body = {}) {
 /*
   组
 */
-export async function addGroup(body = {}) {
+export async function addGroup(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups`,
     {
@@ -481,6 +481,7 @@ export async function addGroup(body = {}) {
         logo: body.logo,
         k8s_app: body.k8s_app
       },
+      handleError,
       showMessage: body.showMessage,
       noModels: body.noModels
     }
@@ -1014,7 +1015,7 @@ export async function addSingleKubernetesVal(body = {}) {
   );
 }
 // 应用下删除单个k8s资源
-export async function delSingleKubernetesVal(body = {}) {
+export async function delSingleKubernetesVal(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/k8s-resources/${body.list_name}`,
     {
@@ -1022,7 +1023,33 @@ export async function delSingleKubernetesVal(body = {}) {
       data: {
         resource_yaml:body.yaml,
         id:body.List_id,
+        cascade_crd: body.cascade_crd || false,
       },
+      handleError
+    }
+  );
+}
+// 预览删除应用下 k8s 资源的影响
+export async function previewKubernetesDeletion(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/k8s-resources/actions/deletion-impact`,
+    {
+      method: 'post',
+      data: {
+        ids: body.List_id,
+      },
+      handleError
+    }
+  );
+}
+// 对账应用下 k8s 资源元数据
+export async function reconcileKubernetesResources(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.app_id}/k8s-resources/actions/reconcile`,
+    {
+      method: 'post',
+      data: {},
+      handleError
     }
   );
 }
@@ -1034,6 +1061,7 @@ export async function batchDelSingleKubernetesVal(body = {}, handleError) {
       method: 'DELETE',
       data: {
         ids:body.List_id,
+        cascade_crd: body.cascade_crd || false,
       },
       handleError
     }
@@ -1138,6 +1166,9 @@ export async function deleteGroupAllResource(body = {}, handleError) {
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/handle`,
     {
       method: 'delete',
+      data: {
+        cascade_crd: body.cascade_crd || false
+      },
       handleError
     }
   );

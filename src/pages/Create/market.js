@@ -39,6 +39,7 @@ import PageHeaderMarket from '../../layouts/PageHeaderMarket';
 import { fetchMarketAuthority } from '../../utils/authority';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
 import globalUtil from '../../utils/global';
+import handleApplicationCreationError from '../../utils/applicationCreationError';
 import roleUtil from '../../utils/newRole';
 import PluginUtil from '../../utils/pulginUtils';
 import CommandMarket from './command-market';
@@ -773,10 +774,11 @@ export default class Main extends PureComponent {
           }
         }
       },
-      handleError: () => {
+      handleError: err => {
         this.setState({
           isShare: false
         })
+        handleApplicationCreationError(err);
       }
     })
   }

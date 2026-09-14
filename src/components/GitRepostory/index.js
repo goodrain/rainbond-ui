@@ -8,6 +8,7 @@ import React, { PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
 import ThirdList from '../../components/ThirdList';
 import globalUtil from '../../utils/global';
+import handleApplicationCreationError from '../../utils/applicationCreationError';
 import oauthUtil from '../../utils/oauth';
 import rainbondUtil from '../../utils/rainbond';
 import roleUtil from '../../utils/newRole';
@@ -158,8 +159,8 @@ export default class Index extends PureComponent {
           this.handleSubmit(vals)
         }
       },
-      handleError: () => {
-        
+      handleError: err => {
+        handleApplicationCreationError(err);
       }
     })
   }

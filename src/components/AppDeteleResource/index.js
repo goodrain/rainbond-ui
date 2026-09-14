@@ -4,14 +4,15 @@ import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import { Button, Modal, Table, Row, Col, Icon, Tag, Badge, Tooltip, notification } from 'antd';
+import { Alert, Button, Modal, Table, Row, Col, Icon, Tag, Badge, Tooltip, notification } from 'antd';
 import { UpOutlined, DownOutlined, FrownOutlined } from '@ant-design/icons';
 import globalUtil from '../../utils/global';
 import appUtil from '../../utils/app';
 import styles from './index.less'
 @connect(
-    ({ loading }) => ({
-        batchDeleteLoading: loading.effects['appControl/putBatchDelete']
+    ({ loading, user }) => ({
+        batchDeleteLoading: loading.effects['appControl/putBatchDelete'],
+        currentUser: user.currentUser
     }),
     null,
     null,
@@ -29,12 +30,15 @@ export default class AppDeteleResource extends PureComponent {
     }
 
     handleDeleteResource = () => {
-        const { dispatch, onCancel, group_id, team_name, regionName, onSuccess, skipRedirect } = this.props;
+        const { dispatch, onCancel, group_id, team_name, regionName, onSuccess, skipRedirect, infoList, currentUser } = this.props;
+        const impact = (infoList && infoList.crd_deletion_impact) || {};
+        const isEnterpriseAdmin = !!(currentUser && currentUser.is_enterprise_admin);
         dispatch({
           type: 'application/deleteGroupAllResource',
           payload: {
             team_name,
-            group_id
+            group_id,
+            cascade_crd: !!(impact.requires_cascade && isEnterpriseAdmin)
           },
           callback: res => {
             if (res && res.status_code === 200) {
@@ -89,8 +93,37 @@ export default class AppDeteleResource extends PureComponent {
         }
     }
     render() {
-        const { onCancel, onOk, infoList, isflag, desc, subDesc, goBack, onDelete, loading } = this.props;
+        const { onCancel, onOk, infoList, isflag, desc, subDesc, goBack, onDelete, loading, currentUser } = this.props;
         const { } = this.state;
+        const impact = (infoList && infoList.crd_deletion_impact) || {};
+        const crdNames = (impact.crds || []).map(item => item.name).filter(Boolean).join(', ');
+        const crdCount = impact.crd_count || (impact.crds || []).length;
+        const isEnterpriseAdmin = !!(currentUser && currentUser.is_enterprise_admin);
+        const cascadeDisabled = !!(impact.inspection_error || (impact.requires_cascade && !isEnterpriseAdmin));
+        const confirmDesc = impact.inspection_error
+            ? formatMessage({id:'appOverview.app.delete.crdImpactUnavailable'}, { reason: impact.inspection_error })
+            : impact.has_crd
+            ? formatMessage({id:'appOverview.app.delete.crdImpact'}, {
+                crdNames: crdNames || '-',
+                crCount: impact.cr_count || 0,
+                otherAppCount: impact.other_app_count || 0,
+                unownedCount: impact.unowned_cr_count || 0
+            })
+            : desc;
+        let confirmSubDesc = subDesc;
+        if (impact.requires_cascade) {
+            confirmSubDesc = isEnterpriseAdmin
+                ? formatMessage({id:'appOverview.app.delete.crdCascadeWarning'})
+                : formatMessage({id:'appOverview.app.delete.crdAdminRequired'});
+        }
+        const deletionWaitHint = impact.has_crd
+            ? loading
+                ? formatMessage({id:'appOverview.app.delete.crdDeleting'}, {
+                    crdCount,
+                    crCount: impact.cr_count || 0
+                })
+                : formatMessage({id:'appOverview.app.delete.crdWaitHint'})
+            : null;
         const columns = [
             {
                 dataIndex: 'name',
@@ -177,10 +210,12 @@ export default class AppDeteleResource extends PureComponent {
         return (
             <Modal
                 title={formatMessage({id:'appOverview.app.delete.title'})}
-                bodyStyle={{ height: isflag ? '200px' : '500px', overflowY: 'auto' }}
+                bodyStyle={{ minHeight: isflag ? '240px' : '500px', maxHeight: '70vh', overflowY: 'auto' }}
                 visible
                 width={600}
-                onCancel={onCancel}
+                closable={!loading}
+                maskClosable={!loading}
+                onCancel={loading ? undefined : onCancel}
                 footer={!isflag ? [
                     <Button onClick={onCancel}> <FormattedMessage id='button.cancel'/> </Button>,
                     <Button
@@ -190,26 +225,38 @@ export default class AppDeteleResource extends PureComponent {
                       {formatMessage({id:'button.delete'})}
                     </Button>
                 ] : [
-                    <Button onClick={onCancel}> <FormattedMessage id='button.cancel'/> </Button>,
-                    <Button onClick={goBack}> {formatMessage({id:'button.last_step'})} </Button>,
+                    <Button disabled={loading} onClick={onCancel}> <FormattedMessage id='button.cancel'/> </Button>,
+                    <Button disabled={loading} onClick={goBack}> {formatMessage({id:'button.last_step'})} </Button>,
                     <Button
                       type="primary"
                       loading={loading}
+                      disabled={cascadeDisabled || loading}
                       onClick={this.handleDeleteResource}
                     >
-                      {formatMessage({id:'button.confirm'})}
+                      {loading
+                          ? formatMessage({id:'appOverview.app.delete.deletingButton'})
+                          : formatMessage({id:'button.confirm'})}
                     </Button>
                 ]}
             >
                 {isflag ? (
-                    <div className={styles.content}>
-                        <div className={styles.inner}>
-                            <span className={styles.icon}>
-                                <Icon type="exclamation-circle-o" />
-                            </span>
-                            <div className={styles.desc}>
-                                <p>{desc}</p>
-                                <p>{subDesc}</p>
+                    <div>
+                        {deletionWaitHint && (
+                            <Alert
+                                showIcon
+                                type={loading ? 'info' : 'warning'}
+                                message={deletionWaitHint}
+                            />
+                        )}
+                        <div className={styles.content}>
+                            <div className={styles.inner}>
+                                <span className={styles.icon}>
+                                    <Icon type="exclamation-circle-o" />
+                                </span>
+                                <div className={styles.desc}>
+                                    <p>{confirmDesc}</p>
+                                    <p>{confirmSubDesc}</p>
+                                </div>
                             </div>
                         </div>
                     </div>

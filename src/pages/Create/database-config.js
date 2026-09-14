@@ -13,6 +13,7 @@ import DatabaseConfigForm from '../../components/DatabaseConfigForm';
 import { pinyin } from 'pinyin-pro';
 import styles from './Index.less';
 import handleAPIError from '../../utils/error';
+import handleApplicationCreationError from '../../utils/applicationCreationError';
 const {
   formatKubeBlocksCpuValue,
   formatKubeBlocksMemoryValue,
@@ -408,7 +409,7 @@ export default class Index extends PureComponent {
         }
       },
       handleError: (err) => {
-        handleAPIError(err);
+        handleApplicationCreationError(err);
       }
     });
   }
