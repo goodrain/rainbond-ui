@@ -15,4 +15,22 @@ assert.ok(
   'enterprise plugin page should use the host title resolver'
 );
 
+assert.ok(
+  /getSelectableClusters = \(\) => \{[\s\S]*pluginRegions[\s\S]*clusters\.filter\(cluster => pluginRegions\.includes\(cluster\.region_name\)\)/.test(source),
+  'enterprise plugin cluster selector should only show regions where the plugin is installed'
+);
+
+assert.ok(
+  /params\.set\('regionName', value\)/.test(source) &&
+    /params\.set\('showSelect', 'true'\)/.test(source) &&
+    /params\.toString\(\)/.test(source),
+  'enterprise plugin cluster switching should preserve the installed-region query metadata'
+);
+
+assert.ok(
+  /<Select value=\{regionName\}/.test(source) &&
+    /this\.getSelectableClusters\(\)\.map/.test(source),
+  'enterprise plugin cluster selector should be controlled by the active region'
+);
+
 console.log('enterprise plugin page title tests passed');
