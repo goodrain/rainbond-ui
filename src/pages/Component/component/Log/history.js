@@ -1,9 +1,10 @@
-import { Button, Icon, Modal, Select, DatePicker, Row, Col } from 'antd';
+import { Button, Icon, Input, Modal, Select, DatePicker, Row, Col } from 'antd';
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
 import global from '@/utils/global';
+import { buildHistoryLogQuery } from './historyLogQuery';
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 
@@ -49,6 +50,7 @@ export default class HistoryLog extends PureComponent {
       loading: true,
       timeRange: 'last12h',
       customTimeRange: null,
+      keyword: '',
       visibleStartIndex: 0,
       visibleEndIndex: 50,
     };
@@ -60,13 +62,21 @@ export default class HistoryLog extends PureComponent {
     this.loadData();
   }
   loadData() {
-    this.setState({ loading: true });
+    this.setState({
+      loading: true,
+      visibleStartIndex: 0,
+      visibleEndIndex: 50
+    });
+    if (this.logContainerRef.current) {
+      this.logContainerRef.current.scrollTop = 0;
+    }
     const timeParams = this.getTimeParams();
     this.queryLokiLogs(timeParams);
   }
 
   queryLokiLogs = async (timeParams) => {
-    const { appAlias, url, dispatch } = this.props;
+    const { appAlias, dispatch } = this.props;
+    const { keyword } = this.state;
     
     if (!appAlias) {
       console.warn('appAlias is required for Loki query');
@@ -82,7 +92,7 @@ export default class HistoryLog extends PureComponent {
           uid: "P8E80F9AEF21F6940"
         },
         editorMode: "code",
-        expr: `{service_alias="${appAlias}"}`,
+        expr: buildHistoryLogQuery(appAlias, keyword),
         queryType: "range",
         maxLines: 5000
       }],
@@ -204,6 +214,17 @@ export default class HistoryLog extends PureComponent {
     });
   }
 
+  handleKeywordSearch = (value) => {
+    const keyword = String(value || '').trim();
+    this.setState({ keyword }, () => this.loadData());
+  }
+
+  handleKeywordChange = (event) => {
+    if (event.target.value === '' && this.state.keyword !== '') {
+      this.handleKeywordSearch('');
+    }
+  }
+
   handleDownload = () => {
     const { list } = this.state;
     const { appAlias } = this.props;
@@ -309,6 +330,21 @@ export default class HistoryLog extends PureComponent {
                 style={{ width: '100%' }}
               />
             )}
+          </Col>
+        </Row>
+        <Row gutter={16} style={{ marginBottom: 16 }}>
+          <Col span={24}>
+            <span style={{ marginRight: 8 }}>
+              <FormattedMessage id='componentOverview.body.tab.log.text'/>
+            </span>
+            <Input.Search
+              allowClear
+              enterButton
+              placeholder={formatMessage({ id: 'componentOverview.body.tab.log.filtertext' })}
+              style={{ width: 360 }}
+              onChange={this.handleKeywordChange}
+              onSearch={this.handleKeywordSearch}
+            />
           </Col>
         </Row>
         {loading ? (
