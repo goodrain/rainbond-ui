@@ -54,6 +54,9 @@ export default class indexs extends Component {
             <p>{formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.detectNotInstall'})}  <a href={`${platformUrl}docs/how-to-guides/app-ops/cert-manager`} target="_blank">{formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.autoIssueCertificate'})} </a> </p>
           </div>}
         </TabPane>
+        <TabPane tab={formatMessage({id:'teamGateway.certificate.clientCA'})} key="3">
+          <ManualIssuance {...this.props} certificateKind="client_ca" />
+        </TabPane>
       </Tabs>
     )
   }

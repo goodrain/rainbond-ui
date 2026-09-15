@@ -26,7 +26,7 @@ class LicenseDrawer extends PureComponent {
     const { onOk } = this.props;
     this.props.form.validateFields((err, values) => {
       if (!err && onOk) {
-        values.certificate_type = "gateway"
+        values.certificate_type = this.props.certificateType || "gateway"
         onOk(values);
       }
     });
@@ -49,7 +49,7 @@ class LicenseDrawer extends PureComponent {
     return true;
   };
   rules = (val)=>{
-    const { isGateway } = this.props
+    const { isGateway, certificateType } = this.props
     let defauleArr = [
       { required: true, message: formatMessage({id:'placeholder.certificate.name'}) },
       {
@@ -73,7 +73,11 @@ class LicenseDrawer extends PureComponent {
         message: formatMessage({id:'teamGateway.license.pattern'})
       }
     ]
-    if(val){
+    if(certificateType === 'client_ca') {
+      this.setState({
+        rulesArr: defauleArr
+      })
+    }else if(val){
       this.setState({
         rulesArr: val == "gateway" ? gatewayArr : defauleArr
       })
@@ -91,7 +95,8 @@ class LicenseDrawer extends PureComponent {
       addLicenseLoading,
       editLicenseLoading,
       form,
-      isGateway = false
+      isGateway = false,
+      certificateType = 'gateway'
     } = this.props;
     const { getFieldDecorator, setFieldsValue } = form;
 
@@ -117,24 +122,40 @@ class LicenseDrawer extends PureComponent {
       {
         value: editData.certificate,
         name: 'certificate',
-        label: formatMessage({id:'popover.manage.certificate.label.public'}),
-        messages: formatMessage({id:'placeholder.certificate.public'}),
+        label: formatMessage({
+          id: certificateType === 'client_ca'
+            ? 'teamGateway.certificate.clientCA.content'
+            : 'popover.manage.certificate.label.public'
+        }),
+        messages: formatMessage({
+          id: certificateType === 'client_ca'
+            ? 'teamGateway.certificate.clientCA.content.required'
+            : 'placeholder.certificate.public'
+        }),
         uploadName: 'public_key_btn',
         mode: 'javascript'
       },
-      {
+      ...(certificateType === 'client_ca' ? [] : [{
         value: editData.private_key,
         name: 'private_key',
         label: formatMessage({id:'popover.manage.certificate.label.private'}),
         messages: formatMessage({id:'placeholder.certificate.private'}),
         uploadName: 'private_key_btn',
         mode: 'javascript'
-      }
+      }])
     ];
     return (
       <div>
         <Drawer
-          title={editData ? formatMessage({id:'popover.manage.certificate.title.edit'}) : formatMessage({id:'popover.manage.certificate.title.add'})}
+          title={certificateType === 'client_ca'
+            ? formatMessage({
+              id: editData
+                ? 'teamGateway.certificate.clientCA.edit'
+                : 'teamGateway.certificate.clientCA.add'
+            })
+            : editData
+              ? formatMessage({id:'popover.manage.certificate.title.edit'})
+              : formatMessage({id:'popover.manage.certificate.title.add'})}
           placement="right"
           width={500}
           closable={false}

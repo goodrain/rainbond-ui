@@ -11,7 +11,10 @@ import {
     Popconfirm,
     Tag,
     Tooltip,
-    Switch
+    Switch,
+    Modal,
+    Select,
+    Alert
 } from 'antd';
 import { formatMessage } from '@/utils/intl';
 import RouteDrawerHttp from '../RouteDrawerHttp';
@@ -19,6 +22,8 @@ import { routerRedux } from 'dva/router';
 import globalUtil from '../../utils/global';
 import GatewayPluginsFrom from '../GatewayPluginsFrom'
 import styles from './index.less';
+
+const { Option } = Select;
 
 @Form.create()
 @connect()
@@ -35,10 +40,17 @@ export default class index extends Component {
             pageSize: 10,
             page: 1, 
             searchKey: '', // 添加搜索关键词状态
+            clientCAList: [],
+            mtlsVisible: false,
+            mtlsDomain: '',
+            mtlsEnabled: false,
+            mtlsCASecretName: '',
+            mtlsSaving: false,
         };
     }
     componentDidMount() {
         this.getTableData();
+        this.loadClientCAs();
     }
     componentDidUpdate(prevProps) {
         if (!prevProps.existsAutomaticIssuanceCert && this.props.existsAutomaticIssuanceCert) {
@@ -285,6 +297,91 @@ export default class index extends Component {
     isStartWithStar = (arr) => {
         return arr.some(item => item.startsWith('*'));
     }
+    loadClientCAs = callback => {
+        this.props.dispatch({
+            type: 'gateWay/fetchAllLicense',
+            payload: {
+                team_name: globalUtil.getCurrTeamName(),
+                page_num: 1,
+                page_size: 1000,
+                certificate_kind: 'client_ca'
+            },
+            callback: res => {
+                const clientCAList = res && res.list ? res.list : [];
+                this.setState({ clientCAList });
+                if (callback) {
+                    callback(clientCAList);
+                }
+            }
+        });
+    }
+    getMTLSStatus = (record, domain) => {
+        const statuses = record.mtls || [];
+        return statuses.find(item => item.domain === domain) || {
+            domain,
+            enabled: false,
+            client_ca_secret_name: ''
+        };
+    }
+    getClientCAAlias = secretName => {
+        const clientCA = this.state.clientCAList.find(item => item.secret_name === secretName);
+        return clientCA ? clientCA.alias : secretName;
+    }
+    showMTLSConfig = (record, domain) => {
+        const status = this.getMTLSStatus(record, domain);
+        this.loadClientCAs();
+        this.setState({
+            mtlsVisible: true,
+            mtlsDomain: domain,
+            mtlsEnabled: !!status.enabled,
+            mtlsCASecretName: status.client_ca_secret_name || ''
+        });
+    }
+    closeMTLSConfig = () => {
+        this.setState({
+            mtlsVisible: false,
+            mtlsDomain: '',
+            mtlsEnabled: false,
+            mtlsCASecretName: '',
+            mtlsSaving: false
+        });
+    }
+    saveMTLSConfig = () => {
+        const { dispatch } = this.props;
+        const { mtlsDomain, mtlsEnabled, mtlsCASecretName } = this.state;
+        if (mtlsEnabled && !mtlsCASecretName) {
+            notification.warning({
+                message: formatMessage({ id: 'teamGateway.mtls.clientCA.required' })
+            });
+            return;
+        }
+        this.setState({ mtlsSaving: true });
+        dispatch({
+            type: mtlsEnabled ? 'gateWay/configureGatewayMTLS' : 'gateWay/disableGatewayMTLS',
+            payload: {
+                teamName: globalUtil.getCurrTeamName(),
+                domain: mtlsDomain,
+                clientCASecretName: mtlsCASecretName
+            },
+            callback: res => {
+                if (res) {
+                    notification.success({
+                        message: formatMessage({ id: 'notification.success.succeeded' })
+                    });
+                    this.closeMTLSConfig();
+                    this.getTableData();
+                } else {
+                    this.setState({ mtlsSaving: false });
+                }
+            },
+            handleError: err => {
+                this.setState({ mtlsSaving: false });
+                notification.error({
+                    message: err?.data?.msg_show || err?.data?.msg || formatMessage({ id: 'notification.error.edit' })
+                });
+            }
+        });
+    }
     render() {
         const {
             routeDrawer,
@@ -292,7 +389,13 @@ export default class index extends Component {
             editInfo,
             tableLoading,
             page,
-            pageSize
+            pageSize,
+            clientCAList,
+            mtlsVisible,
+            mtlsDomain,
+            mtlsEnabled,
+            mtlsCASecretName,
+            mtlsSaving
         } = this.state;
         const {
             appID,
@@ -354,6 +457,40 @@ export default class index extends Component {
                     <a onClick={() => this.componentsRouter(record.name)} style={{ cursor: 'pointer' }}>
                         {record.component_name || '-'}
                     </a>
+                )
+            },
+            {
+                title: formatMessage({ id: 'teamGateway.mtls.title' }),
+                dataIndex: 'mtls',
+                key: 'mtls',
+                render: (text, record) => (
+                    <span>
+                        {(record.match.hosts || []).map(domain => {
+                            const status = this.getMTLSStatus(record, domain);
+                            return (
+                                <Row key={domain} style={{ marginBottom: 4 }}>
+                                    <Tag color={status.enabled ? 'green' : 'default'}>
+                                        {formatMessage({
+                                            id: status.enabled
+                                                ? 'teamGateway.mtls.enabled'
+                                                : 'teamGateway.mtls.disabled'
+                                        })}
+                                    </Tag>
+                                    {status.enabled && (
+                                        <span>{this.getClientCAAlias(status.client_ca_secret_name)}</span>
+                                    )}
+                                    {isEdit && (
+                                        <a
+                                            style={{ marginLeft: 8 }}
+                                            onClick={() => this.showMTLSConfig(record, domain)}
+                                        >
+                                            {formatMessage({ id: 'teamGateway.mtls.config' })}
+                                        </a>
+                                    )}
+                                </Row>
+                            );
+                        })}
+                    </span>
                 )
             },
             {
@@ -454,6 +591,45 @@ export default class index extends Component {
                         onTabChange={this.props.onTabChange}
                     />
                 }
+                <Modal
+                    title={formatMessage({ id: 'teamGateway.mtls.config' })}
+                    visible={mtlsVisible}
+                    confirmLoading={mtlsSaving}
+                    onOk={this.saveMTLSConfig}
+                    onCancel={this.closeMTLSConfig}
+                    okText={formatMessage({ id: 'button.confirm' })}
+                    cancelText={formatMessage({ id: 'button.cancel' })}
+                >
+                    <Form.Item label={formatMessage({ id: 'teamNewGateway.NewGateway.GatewayRoute.host' })}>
+                        {mtlsDomain}
+                    </Form.Item>
+                    <Form.Item label={formatMessage({ id: 'teamGateway.mtls.clientAuth' })}>
+                        <Switch
+                            checked={mtlsEnabled}
+                            onChange={checked => this.setState({ mtlsEnabled: checked })}
+                        />
+                    </Form.Item>
+                    {mtlsEnabled && (
+                        <Form.Item label={formatMessage({ id: 'teamGateway.mtls.clientCA' })} required>
+                            <Select
+                                value={mtlsCASecretName || undefined}
+                                placeholder={formatMessage({ id: 'teamGateway.mtls.clientCA.placeholder' })}
+                                onChange={value => this.setState({ mtlsCASecretName: value })}
+                            >
+                                {clientCAList.map(item => (
+                                    <Option key={item.secret_name} value={item.secret_name}>
+                                        {item.alias}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </Form.Item>
+                    )}
+                    <Alert
+                        type="warning"
+                        showIcon
+                        message={formatMessage({ id: 'teamGateway.mtls.warning' })}
+                    />
+                </Modal>
             </div>
         )
     }

@@ -36,6 +36,8 @@ import {
     getApiGatewayList,
     handleApiGateway,
     deleteApiGateway,
+    configureGatewayMTLS,
+    disableGatewayMTLS,
     getApiGatewayService,
     handleApiGatewayService,
     deleteApiGatewayService,
@@ -325,6 +327,18 @@ export default {
         },
         *deleteApiGateway({ callback, payload, handleError }, { call }) {
             const response = yield call(deleteApiGateway, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *configureGatewayMTLS({ callback, payload, handleError }, { call }) {
+            const response = yield call(configureGatewayMTLS, payload, handleError);
+            if (callback) {
+                callback(response)
+            }
+        },
+        *disableGatewayMTLS({ callback, payload, handleError }, { call }) {
+            const response = yield call(disableGatewayMTLS, payload, handleError);
             if (callback) {
                 callback(response)
             }

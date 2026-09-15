@@ -108,13 +108,15 @@ class Control extends Component {
   /** 查询证书 */
   load = () => {
     const { page, pageSize, searchKey } = this.state;
+    const { certificateKind = 'server' } = this.props;
     this.props.dispatch({
       type: 'gateWay/fetchAllLicense',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         page_num: page,
         page_size: pageSize,
-        name: searchKey
+        name: searchKey,
+        certificate_kind: certificateKind
       },
       callback: data => {
         if (data && data.status_code === 200) {
@@ -146,7 +148,7 @@ class Control extends Component {
         type: 'gateWay/addLicense',
         payload: {
           alias: values.alias,
-          private_key: values.private_key,
+          private_key: values.private_key || '',
           certificate: values.certificate,
           certificate_type: values.certificate_type,
           team_name: globalUtil.getCurrTeamName()
@@ -165,7 +167,7 @@ class Control extends Component {
         type: 'gateWay/editLicense',
         payload: {
           alias: values.alias,
-          private_key: values.private_key,
+          private_key: values.private_key || '',
           certificate: values.certificate,
           certificate_type: values.certificate_type,
           team_name: globalUtil.getCurrTeamName(),
@@ -263,7 +265,8 @@ class Control extends Component {
         isCreate,
         isDelete,
         isEdit
-      }
+      },
+      certificateKind = 'server'
     } = this.props;
     const {
       page,
@@ -276,6 +279,7 @@ class Control extends Component {
       isGatewayInfo
     } = this.state;
     const bool = batchGateway && gatewayShow
+    const isClientCA = certificateKind === 'client_ca';
     const { getFieldDecorator, setFieldsValue } = form;
     const columns = [
       {
@@ -286,7 +290,11 @@ class Control extends Component {
         width: '12%'
       },
       {
-        title: formatMessage({ id: 'teamGateway.certificate.table.address' }),
+        title: formatMessage({
+          id: isClientCA
+            ? 'teamGateway.certificate.clientCA.subject'
+            : 'teamGateway.certificate.table.address'
+        }),
         dataIndex: 'issued_to',
         key: 'issued_to',
         align: 'center',
@@ -314,6 +322,16 @@ class Control extends Component {
           );
         }
       },
+      ...(isClientCA ? [{
+        title: formatMessage({ id: 'teamGateway.certificate.clientCA.boundDomains' }),
+        dataIndex: 'bound_domains',
+        key: 'bound_domains',
+        align: 'center',
+        width: '20%',
+        render: domains => domains && domains.length > 0
+          ? domains.map(domain => <Row key={domain}>{domain}</Row>)
+          : '-'
+      }] : []),
       {
         title: formatMessage({ id: 'teamGateway.certificate.table.time' }),
         dataIndex: 'end_data',
@@ -428,7 +446,11 @@ class Control extends Component {
               icon="plus"
               onClick={this.handleCick}
             >
-              {formatMessage({ id: 'teamGateway.certificate.btn.add' })}
+              {formatMessage({
+                id: isClientCA
+                  ? 'teamGateway.certificate.clientCA.add'
+                  : 'teamGateway.certificate.btn.add'
+              })}
             </Button>
           )}
         </div>
@@ -460,6 +482,7 @@ class Control extends Component {
             }}
             editData={this.state.editData}
             isGateway={bool || isGatewayInfo}
+            certificateType={isClientCA ? 'client_ca' : 'gateway'}
           />
         )}
       </div>

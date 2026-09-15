@@ -78,7 +78,8 @@ export async function fetchAllLicense(params) {
       params: {
         page_size: params.page_size || 10,
         page_num: params.page_num || 1,
-        search_key: params.name
+        search_key: params.name,
+        certificate_kind: params.certificate_kind || 'server'
       }
     }
   );
@@ -562,6 +563,35 @@ export async function deleteApiGateway(params, handleError) {
     `${apiconfig.baseUrl}/console/api-gateway/v1/${params.teamName}/routes/${params.type}/${ params.name }?appID=${params.appID}`,
     {
       method: 'delete',
+      handleError
+    }
+  );
+}
+
+/** 为 HTTP 域名开启或更新双向认证 */
+export async function configureGatewayMTLS(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/api-gateway/v1/${params.teamName}/routes/http/mtls`,
+    {
+      method: 'post',
+      data: {
+        domain: params.domain,
+        client_ca_secret_name: params.clientCASecretName
+      },
+      handleError
+    }
+  );
+}
+
+/** 关闭 HTTP 域名双向认证 */
+export async function disableGatewayMTLS(params, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/api-gateway/v1/${params.teamName}/routes/http/mtls`,
+    {
+      method: 'delete',
+      params: {
+        domain: params.domain
+      },
       handleError
     }
   );
