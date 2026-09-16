@@ -47,15 +47,12 @@ export default class indexs extends Component {
     return (
       <Tabs defaultActiveKey={this.state.activeKey} onChange={this.onChange}>
         <TabPane tab={formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.manualIssue'})} key="1">
-          <ManualIssuance {...this.props}/>
+          <ManualIssuance {...this.props} certificateKind="all" />
         </TabPane>
         <TabPane tab={formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.autoIssue'})} key="2">
           {existsAutomaticIssuanceCert ? <AutomaticIssuance {...this.props}/> : <div style={{textAlign: 'center',margin: '100px 0'}}>
             <p>{formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.detectNotInstall'})}  <a href={`${platformUrl}docs/how-to-guides/app-ops/cert-manager`} target="_blank">{formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.autoIssueCertificate'})} </a> </p>
           </div>}
-        </TabPane>
-        <TabPane tab={formatMessage({id:'teamGateway.certificate.clientCA'})} key="3">
-          <ManualIssuance {...this.props} certificateKind="client_ca" />
         </TabPane>
       </Tabs>
     )

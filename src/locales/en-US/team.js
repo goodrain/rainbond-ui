@@ -231,12 +231,13 @@ const teamGateway = {
 
   // certificate
   'teamGateway.certificate.title':'Certificate management',
-  'teamGateway.certificate.desc':'TLS Certificate management: Supports server certificates and displays the certificate expiration time',
+  'teamGateway.certificate.desc':'TLS certificate management for manually uploaded server certificates and client authentication CAs.',
   'teamGateway.certificate.btn.add':'Add certificate',
   'teamGateway.certificate.table.name':'Name certificate',
   'teamGateway.certificate.table.address':'Address certificate',
   'teamGateway.certificate.table.time':'Expiration time',
-  'teamGateway.certificate.table.type':'Certificate type',
+  'teamGateway.certificate.table.type':'Certificate purpose',
+  'teamGateway.certificate.table.info':'Certificate information',
   'teamGateway.certificate.table.source':'Certificate origin',
   'teamGateway.certificate.table.operate':'Operation',
   'teamGateway.certificate.table.edit':'Edit',
@@ -250,6 +251,10 @@ const teamGateway = {
   'teamGateway.certificate.clientCA.content.required':'Enter or upload a client CA certificate',
   'teamGateway.certificate.clientCA.subject':'CA subject',
   'teamGateway.certificate.clientCA.boundDomains':'Bound domains',
+  'teamGateway.certificate.purpose':'Certificate purpose',
+  'teamGateway.certificate.server':'Server certificate',
+  'teamGateway.certificate.purpose.server.desc':'Used by the gateway to prove its identity. Upload the certificate and private key.',
+  'teamGateway.certificate.purpose.clientCA.desc':'Used to verify client certificates. Upload only the CA certificate; clients keep their own certificate and private key.',
   'teamGateway.mtls.title':'Mutual TLS',
   'teamGateway.mtls.config':'Configure mTLS',
   'teamGateway.mtls.enabled':'Enabled',
@@ -449,7 +454,7 @@ const teamGateway = {
   'teamNewGateway.NewGateway.GatewayService.address':'Service Address',
 
   // 自动签发
-  'teamNewGateway.NewGateway.AutomaticIssuance.manualIssue': 'Manual issuance',
+  'teamNewGateway.NewGateway.AutomaticIssuance.manualIssue': 'Manual upload',
   'teamNewGateway.NewGateway.AutomaticIssuance.autoIssue': 'Automatic issuance',
   'teamNewGateway.NewGateway.AutomaticIssuance.detectNotInstall': 'Detect not installed',
   'teamNewGateway.NewGateway.AutomaticIssuance.autoIssueCertificate': 'Cert-Manager',

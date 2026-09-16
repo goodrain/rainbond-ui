@@ -1,12 +1,10 @@
-import { Button, Drawer, Form, Input, message, Radio } from 'antd';
+import { Alert, Button, Drawer, Form, Input, message, Radio } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
 import CodeMirrorForm from '../../components/CodeMirrorForm';
 
 const FormItem = Form.Item;
-const RadioGroup = Radio.Group;
-
 @connect(({ loading }) => ({
   editLicenseLoading: loading.effects['gateWay/editLicense'],
   addLicenseLoading: loading.effects['gateWay/addLicense']
@@ -14,19 +12,29 @@ const RadioGroup = Radio.Group;
 class LicenseDrawer extends PureComponent {
   constructor(props) {
     super(props);
+    const originalCertificateType = props.editData && props.editData.certificate_type
+      ? props.editData.certificate_type
+      : props.certificateType || 'gateway';
+    const certificateType = originalCertificateType === 'client_ca' ? 'client_ca' : 'gateway';
     this.state = {
-      rulesArr:[]
+      rulesArr: [],
+      certificateType
     };
   }
   componentDidMount(){
-    this.rules()
+    this.rules(this.state.certificateType)
   }
   handleSubmit = e => {
     e.preventDefault();
     const { onOk } = this.props;
     this.props.form.validateFields((err, values) => {
       if (!err && onOk) {
-        values.certificate_type = this.props.certificateType || "gateway"
+        values.certificate_type = this.props.editData && this.props.editData.certificate_type
+          ? this.props.editData.certificate_type
+          : this.state.certificateType
+        if (this.state.certificateType === 'client_ca') {
+          values.private_key = ''
+        }
         onOk(values);
       }
     });
@@ -48,8 +56,8 @@ class LicenseDrawer extends PureComponent {
     }
     return true;
   };
-  rules = (val)=>{
-    const { isGateway, certificateType } = this.props
+  rules = certificateType => {
+    const { isGateway } = this.props
     let defauleArr = [
       { required: true, message: formatMessage({id:'placeholder.certificate.name'}) },
       {
@@ -77,9 +85,9 @@ class LicenseDrawer extends PureComponent {
       this.setState({
         rulesArr: defauleArr
       })
-    }else if(val){
+    }else if(certificateType){
       this.setState({
-        rulesArr: val == "gateway" ? gatewayArr : defauleArr
+        rulesArr: certificateType == "gateway" ? gatewayArr : defauleArr
       })
     }else{
       this.setState({
@@ -87,6 +95,14 @@ class LicenseDrawer extends PureComponent {
       })
     }
 
+  }
+  handleCertificateTypeChange = e => {
+    const certificateType = e.target.value;
+    this.setState({ certificateType });
+    this.rules(certificateType);
+    if (certificateType === 'client_ca') {
+      this.props.form.setFieldsValue({ private_key: '' });
+    }
   }
   render() {
     const {
@@ -96,11 +112,11 @@ class LicenseDrawer extends PureComponent {
       editLicenseLoading,
       form,
       isGateway = false,
-      certificateType = 'gateway'
+      showCertificateType = false
     } = this.props;
     const { getFieldDecorator, setFieldsValue } = form;
 
-    const { rulesArr } =this.state
+    const { rulesArr, certificateType } =this.state
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
@@ -147,7 +163,11 @@ class LicenseDrawer extends PureComponent {
     return (
       <div>
         <Drawer
-          title={certificateType === 'client_ca'
+          title={showCertificateType
+            ? editData
+              ? formatMessage({id:'popover.manage.certificate.title.edit'})
+              : formatMessage({id:'popover.manage.certificate.title.add'})
+            : certificateType === 'client_ca'
             ? formatMessage({
               id: editData
                 ? 'teamGateway.certificate.clientCA.edit'
@@ -167,6 +187,37 @@ class LicenseDrawer extends PureComponent {
           }}
         >
           <Form onSubmit={this.handleSubmit}>
+            {showCertificateType && (
+              <Fragment>
+                <FormItem {...formItemLayout} label={formatMessage({id:'teamGateway.certificate.purpose'})}>
+                  {getFieldDecorator('certificate_type', {
+                    initialValue: certificateType
+                  })(
+                    <Radio.Group
+                      disabled={!!editData}
+                      onChange={this.handleCertificateTypeChange}
+                    >
+                      <Radio value="gateway">
+                        {formatMessage({id:'teamGateway.certificate.server'})}
+                      </Radio>
+                      <Radio value="client_ca">
+                        {formatMessage({id:'teamGateway.certificate.clientCA'})}
+                      </Radio>
+                    </Radio.Group>
+                  )}
+                </FormItem>
+                <Alert
+                  type="info"
+                  showIcon
+                  style={{ marginBottom: 16 }}
+                  message={formatMessage({
+                    id: certificateType === 'client_ca'
+                      ? 'teamGateway.certificate.purpose.clientCA.desc'
+                      : 'teamGateway.certificate.purpose.server.desc'
+                  })}
+                />
+              </Fragment>
+            )}
             <FormItem {...formItemLayout} label={formatMessage({id:'popover.manage.certificate.label.name'})}>
               {getFieldDecorator('alias', {
                 rules: rulesArr
