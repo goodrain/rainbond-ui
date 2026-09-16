@@ -144,8 +144,9 @@ const login = {
     'layout.userLayout.saas.and':'and',
     'layout.userLayout.saas.privacyPolicy':'Privacy Policy',
     // UserLayout - Normal mode
-    'layout.userLayout.normal.title1':'AI Application Runtime Platform',
-    'layout.userLayout.normal.description':'Unified runtime and management of AI projects, large models, open source software, and business applications, letting AI complete deployment and operation, and running applications stably on users\' own servers or Kubernetes.',
+    'layout.userLayout.normal.title1':'Container Platform',
+    'layout.userLayout.normal.title2':'Without Learning K8s',
+    'layout.userLayout.normal.description':'Build, deploy, assemble and manage applications on Kubernetes without K8s expertise, with full graphical management',
     'layout.userLayout.normal.companyInfo':'Powered by Beijing Goodrain Technology',
 }
 
