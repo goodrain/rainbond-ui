@@ -5,10 +5,23 @@ import { isUrl } from '../utils/utils';
 import getMenuSvg from './getMenuSvg';
 import PluginUtil from '../utils/pulginUtils'
 import { isRainbondInfoAgentEnabled } from '../utils/agentVisibility';
+import { getPluginBaseId, groupPluginsByLogicalId } from '../utils/pluginArchUtils';
 
 function getAgentPluginPath(eid, agentPlugin) {
-  const firstPluginRegion = Object.keys(agentPlugin || {})[0];
-  return `/enterprise/${eid}/plugins/${firstPluginRegion}/rainbond-agent`;
+  return buildPlatformPluginPath(eid, 'rainbond-agent', Object.keys(agentPlugin || {}));
+}
+
+function buildPlatformPluginPath(eid, pluginId, regionNames = []) {
+  const logicalId = getPluginBaseId(pluginId);
+  const firstPluginRegion = regionNames[0];
+  const query = [`regionName=${encodeURIComponent(firstPluginRegion)}`];
+
+  if (regionNames.length > 1) {
+    query.push('showSelect=true');
+    query.push(`pluginRegions=${encodeURIComponent(regionNames.join(','))}`);
+  }
+
+  return `/enterprise/${eid}/plugins/${logicalId}?${query.join('&')}`;
 }
 
 /**
@@ -93,11 +106,10 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList, rainbon
     if (billPlugin && Object.keys(billPlugin).length !== 0) {
       const firstEntry = Object.entries(billPlugin)[0];
       if (firstEntry) {
-        const [regionName] = firstEntry;
         resourceItems.push({
           name: formatMessage({ id: 'menu.enterprise.billing', defaultMessage: '计量计费' }),
           icon: getMenuSvg.getSvg('bill'),
-          path: `/enterprise/${eid}/plugins/rainbond-bill?regionName=${regionName}`,
+          path: buildPlatformPluginPath(eid, 'rainbond-bill', Object.keys(billPlugin)),
           authority: ['admin', 'user']
         });
       }
@@ -158,12 +170,11 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList, rainbon
   if (gatewayMonitoringPlugin && Object.keys(gatewayMonitoringPlugin).length !== 0) {
     const firstEntry = Object.entries(gatewayMonitoringPlugin)[0];
     if (firstEntry) {
-      const [regionName, plugin] = firstEntry;
-      const showSelect = Object.keys(gatewayMonitoringPlugin).length > 1;
+      const [, plugin] = firstEntry;
       observabilityItems.push({
         name: formatMessage({ id: 'menu.enterprise.monitoring', defaultMessage: '监控中心' }),
         icon: getMenuSvg.getSvg('monitoringSvg'),
-        path: `/enterprise/${eid}/plugins/${plugin?.name || 'rainbond-observability'}?regionName=${regionName}${showSelect ? '&showSelect=true' : ''}`,
+        path: buildPlatformPluginPath(eid, plugin?.name || 'rainbond-observability', Object.keys(gatewayMonitoringPlugin)),
         authority: ['admin', 'user']
       });
     }
@@ -173,12 +184,11 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList, rainbon
   if (alarmPlugin && Object.keys(alarmPlugin).length !== 0) {
     const firstEntry = Object.entries(alarmPlugin)[0];
     if (firstEntry) {
-      const [regionName, plugin] = firstEntry;
-      const showSelect = Object.keys(alarmPlugin).length > 1;
+      const [, plugin] = firstEntry;
       observabilityItems.push({
         name: plugin?.display_name || formatMessage({ id: 'menu.enterprise.alarm', defaultMessage: '告警中心' }),
         icon: getMenuSvg.getSvg('rainbond-enterprise-alarm'),
-        path: `/enterprise/${eid}/plugins/${plugin?.name || 'rainbond-enterprise-alarm'}?regionName=${regionName}${showSelect ? '&showSelect=true' : ''}`,
+        path: buildPlatformPluginPath(eid, plugin?.name || 'rainbond-enterprise-alarm', Object.keys(alarmPlugin)),
         authority: ['admin', 'user']
       });
     }
@@ -188,12 +198,11 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList, rainbon
   if (lokiPlugin && Object.keys(lokiPlugin).length !== 0) {
     const firstEntry = Object.entries(lokiPlugin)[0];
     if (firstEntry) {
-      const [regionName, plugin] = firstEntry;
-      const showSelect = Object.keys(lokiPlugin).length > 1;
+      const [, plugin] = firstEntry;
       observabilityItems.push({
         name: plugin?.display_name || formatMessage({ id: 'menu.enterprise.logs', defaultMessage: '日志中心' }),
         icon: getMenuSvg.getSvg('rainbond-enterprise-logs'),
-        path: `/enterprise/${eid}/plugins/${plugin?.name || 'rainbond-enterprise-logs'}?regionName=${regionName}${showSelect ? '&showSelect=true' : ''}`,
+        path: buildPlatformPluginPath(eid, plugin?.name || 'rainbond-enterprise-logs', Object.keys(lokiPlugin)),
         authority: ['admin', 'user']
       });
     }
@@ -227,16 +236,14 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList, rainbon
   }
 
   if (pluginObj && Object.keys(pluginObj).length > 0) {
-    const pluginItems = [];
-    Object.entries(pluginObj).forEach(([regionName, plugins]) => {
-      plugins.forEach(plugin => {
-        pluginItems.push({
-          name: plugin.display_name,
-          icon: getMenuSvg.getSvg('plugin'),
-          path: `/enterprise/${eid}/plugins/${plugin.name}?regionName=${regionName}`,
-          authority: ['admin', 'user']
-        });
-      });
+    const platformPluginGroups = groupPluginsByLogicalId(pluginObj);
+    const pluginItems = platformPluginGroups.map(({ logicalId, plugin, regionNames }) => {
+      return {
+        name: plugin.display_name,
+        icon: getMenuSvg.getSvg('plugin'),
+        path: buildPlatformPluginPath(eid, logicalId, regionNames),
+        authority: ['admin', 'user']
+      };
     });
 
     if (pluginItems.length > 0) {

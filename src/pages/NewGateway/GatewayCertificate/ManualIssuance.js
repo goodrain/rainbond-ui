@@ -4,6 +4,7 @@ import {
   Popconfirm,
   Row,
   Table,
+  Tag,
   Typography,
   Form,
   Input
@@ -108,13 +109,15 @@ class Control extends Component {
   /** 查询证书 */
   load = () => {
     const { page, pageSize, searchKey } = this.state;
+    const { certificateKind = 'server' } = this.props;
     this.props.dispatch({
       type: 'gateWay/fetchAllLicense',
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         page_num: page,
         page_size: pageSize,
-        name: searchKey
+        name: searchKey,
+        certificate_kind: certificateKind
       },
       callback: data => {
         if (data && data.status_code === 200) {
@@ -146,7 +149,7 @@ class Control extends Component {
         type: 'gateWay/addLicense',
         payload: {
           alias: values.alias,
-          private_key: values.private_key,
+          private_key: values.private_key || '',
           certificate: values.certificate,
           certificate_type: values.certificate_type,
           team_name: globalUtil.getCurrTeamName()
@@ -165,7 +168,7 @@ class Control extends Component {
         type: 'gateWay/editLicense',
         payload: {
           alias: values.alias,
-          private_key: values.private_key,
+          private_key: values.private_key || '',
           certificate: values.certificate,
           certificate_type: values.certificate_type,
           team_name: globalUtil.getCurrTeamName(),
@@ -223,7 +226,10 @@ class Control extends Component {
   saveForm = form => {
     this.form = form;
     if (this.state.editData && this.form) {
-      this.form.setFieldsValue(this.state.editData);
+      this.form.setFieldsValue({
+        ...this.state.editData,
+        certificate_type: this.state.editData.certificate_type === 'client_ca' ? 'client_ca' : 'gateway'
+      });
     }
   };
   /** 更新证书 */
@@ -263,7 +269,8 @@ class Control extends Component {
         isCreate,
         isDelete,
         isEdit
-      }
+      },
+      certificateKind = 'server'
     } = this.props;
     const {
       page,
@@ -276,6 +283,8 @@ class Control extends Component {
       isGatewayInfo
     } = this.state;
     const bool = batchGateway && gatewayShow
+    const isClientCA = certificateKind === 'client_ca';
+    const isUnified = certificateKind === 'all';
     const { getFieldDecorator, setFieldsValue } = form;
     const columns = [
       {
@@ -285,12 +294,28 @@ class Control extends Component {
         align: 'center',
         width: '12%'
       },
+      ...(isUnified ? [{
+        title: formatMessage({ id: 'teamGateway.certificate.purpose' }),
+        dataIndex: 'certificate_type',
+        key: 'certificate_type',
+        align: 'center',
+        width: '12%',
+        render: type => type === 'client_ca'
+          ? <Tag color="blue">{formatMessage({ id: 'teamGateway.certificate.clientCA' })}</Tag>
+          : <Tag color="green">{formatMessage({ id: 'teamGateway.certificate.server' })}</Tag>
+      }] : []),
       {
-        title: formatMessage({ id: 'teamGateway.certificate.table.address' }),
+        title: formatMessage({
+          id: isUnified
+            ? 'teamGateway.certificate.table.info'
+            : isClientCA
+            ? 'teamGateway.certificate.clientCA.subject'
+            : 'teamGateway.certificate.table.address'
+        }),
         dataIndex: 'issued_to',
         key: 'issued_to',
         align: 'center',
-        width: '25%',
+        width: isUnified ? '20%' : '25%',
         render: data => {
           return (
             <Paragraph
@@ -314,12 +339,22 @@ class Control extends Component {
           );
         }
       },
+      ...(isUnified || isClientCA ? [{
+        title: formatMessage({ id: 'teamGateway.certificate.clientCA.boundDomains' }),
+        dataIndex: 'bound_domains',
+        key: 'bound_domains',
+        align: 'center',
+        width: '18%',
+        render: (domains, record) => record.certificate_type === 'client_ca' && domains && domains.length > 0
+          ? domains.map(domain => <Row key={domain}>{domain}</Row>)
+          : '-'
+      }] : []),
       {
         title: formatMessage({ id: 'teamGateway.certificate.table.time' }),
         dataIndex: 'end_data',
         key: 'end_data',
         align: 'center',
-        width: '20%',
+        width: isUnified ? '15%' : '20%',
         render: (data, record) => {
           return (
             <div
@@ -351,14 +386,14 @@ class Control extends Component {
         dataIndex: 'issued_by',
         key: 'issued_by',
         align: 'center',
-        width: '15%'
+        width: isUnified ? '10%' : '15%'
       },
       {
         title: formatMessage({ id: 'teamGateway.certificate.table.operate' }),
         dataIndex: 'action',
         key: 'action',
         align: 'center',
-        width: '15%',
+        width: isUnified ? '13%' : '15%',
         render: (_, record) => {
           return (
             <span>
@@ -373,7 +408,7 @@ class Control extends Component {
                 </a>
               )}
 
-              {!record.issued_by.includes('第三方签发') && isEdit && (
+              {record.certificate_type !== 'client_ca' && !record.issued_by.includes('第三方签发') && isEdit && (
                 <a
                   style={{ marginRight: '10px' }}
                   onClick={() => {
@@ -428,7 +463,11 @@ class Control extends Component {
               icon="plus"
               onClick={this.handleCick}
             >
-              {formatMessage({ id: 'teamGateway.certificate.btn.add' })}
+              {formatMessage({
+                id: isClientCA && !isUnified
+                  ? 'teamGateway.certificate.clientCA.add'
+                  : 'teamGateway.certificate.btn.add'
+              })}
             </Button>
           )}
         </div>
@@ -460,6 +499,10 @@ class Control extends Component {
             }}
             editData={this.state.editData}
             isGateway={bool || isGatewayInfo}
+            certificateType={this.state.editData
+              ? this.state.editData.certificate_type
+              : isClientCA ? 'client_ca' : 'gateway'}
+            showCertificateType={isUnified}
           />
         )}
       </div>

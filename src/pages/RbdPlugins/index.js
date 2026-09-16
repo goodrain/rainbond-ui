@@ -186,10 +186,29 @@ export default class Index extends Component {
       },
     });
   };
+  getPluginRegions = () => {
+    const { location } = this.props;
+    const search = location?.search || location?.hash?.split('?')[1] || window.location.search || window.location.hash?.split('?')[1] || '';
+    const pluginRegions = new URLSearchParams(search).get('pluginRegions');
+    return pluginRegions ? pluginRegions.split(',').filter(Boolean) : [];
+  }
+  getSelectableClusters = () => {
+    const { cluster_info } = this.props;
+    const clusters = Array.isArray(cluster_info) ? cluster_info : [];
+    const pluginRegions = this.getPluginRegions();
+    if (pluginRegions.length === 0) {
+      return clusters;
+    }
+    return clusters.filter(cluster => pluginRegions.includes(cluster.region_name));
+  }
   handleChange = (value) => {
-      const { dispatch, match} = this.props;
-    const pluginId = match.params.pluginId
-    dispatch(routerRedux.push(`/enterprise/${Global.getCurrEnterpriseId()}/plugins/${pluginId}?regionName=${value}&showSelect=true`));
+    const { dispatch, location, match } = this.props;
+    const pluginId = match.params.pluginId;
+    const search = location?.search || location?.hash?.split('?')[1] || '';
+    const params = new URLSearchParams(search);
+    params.set('regionName', value);
+    params.set('showSelect', 'true');
+    dispatch(routerRedux.push(`/enterprise/${Global.getCurrEnterpriseId()}/plugins/${pluginId}?${params.toString()}`));
   }
   getPluginTitle = (plugin = {}) => {
     if (getPluginBaseId(plugin.name || plugin.plugin_id) === GATEWAY_MONITORING_PLUGIN_ID) {
@@ -214,10 +233,10 @@ export default class Index extends Component {
                 this.state.showSelect ?
                   <>
                     <span style={{ marginRight: 6 }}>选择集群：</span>
-                    <Select defaultValue={regionName} style={{ width: 120 }} onChange={this.handleChange}>
+                    <Select value={regionName} style={{ width: 120 }} onChange={this.handleChange}>
                       {
-                        this.props.cluster_info.map(item => (
-                          <Option value={item.region_name}>{item.region_alias}</Option>
+                        this.getSelectableClusters().map(item => (
+                          <Option key={item.region_name} value={item.region_name}>{item.region_alias}</Option>
                         ))
                       }
                     </Select>

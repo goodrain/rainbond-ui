@@ -7,6 +7,7 @@ function test(name, fn) {
 
 const {
   getPluginBaseId,
+  groupPluginsByLogicalId,
   isPluginBaseId,
   shouldFetchUserBalanceForPlugins
 } = require('./pluginArchUtils');
@@ -100,4 +101,53 @@ test('shouldFetchUserBalanceForPlugins honors bill plugin installation status an
     ]),
     true
   );
+});
+
+test('groupPluginsByLogicalId merges architecture variants across regions', () => {
+  const groups = groupPluginsByLogicalId({
+    east: [
+      {
+        name: 'rainbond-enterprise-pipeline-AMD64',
+        plugin_id: 'rainbond-enterprise-pipeline-AMD64',
+        display_name: '流水线'
+      }
+    ],
+    west: [
+      {
+        name: 'rainbond-enterprise-pipeline-ARM64',
+        plugin_id: 'rainbond-enterprise-pipeline-ARM64',
+        display_name: '流水线'
+      }
+    ]
+  });
+
+  assert.equal(groups.length, 1);
+  assert.equal(groups[0].logicalId, 'rainbond-enterprise-pipeline');
+  assert.deepEqual(groups[0].regionNames, ['east', 'west']);
+  assert.equal(groups[0].plugin.name, 'rainbond-enterprise-pipeline-AMD64');
+});
+
+test('groupPluginsByLogicalId keeps different plugins separate even with the same display name', () => {
+  const groups = groupPluginsByLogicalId({
+    east: [
+      { name: 'plugin-a', plugin_id: 'plugin-a', display_name: '同名插件' },
+      { name: 'plugin-b', plugin_id: 'plugin-b', display_name: '同名插件' }
+    ]
+  });
+
+  assert.deepEqual(
+    groups.map(group => group.logicalId),
+    ['plugin-a', 'plugin-b']
+  );
+});
+
+test('groupPluginsByLogicalId ignores invalid entries and de-duplicates a region', () => {
+  const plugin = { name: 'demo-plugin', display_name: 'Demo' };
+  const groups = groupPluginsByLogicalId({
+    east: [null, {}, plugin, plugin],
+    west: null
+  });
+
+  assert.equal(groups.length, 1);
+  assert.deepEqual(groups[0].regionNames, ['east']);
 });

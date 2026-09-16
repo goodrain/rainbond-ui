@@ -47,7 +47,7 @@ export default class indexs extends Component {
     return (
       <Tabs defaultActiveKey={this.state.activeKey} onChange={this.onChange}>
         <TabPane tab={formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.manualIssue'})} key="1">
-          <ManualIssuance {...this.props}/>
+          <ManualIssuance {...this.props} certificateKind="all" />
         </TabPane>
         <TabPane tab={formatMessage({id:'teamNewGateway.NewGateway.AutomaticIssuance.autoIssue'})} key="2">
           {existsAutomaticIssuanceCert ? <AutomaticIssuance {...this.props}/> : <div style={{textAlign: 'center',margin: '100px 0'}}>

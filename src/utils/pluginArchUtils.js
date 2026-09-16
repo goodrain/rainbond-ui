@@ -23,6 +23,40 @@ function getPluginBaseId(pluginId) {
   return value;
 }
 
+function groupPluginsByLogicalId(pluginListByRegion) {
+  const groupedPlugins = {};
+
+  Object.keys(pluginListByRegion || {}).forEach(regionName => {
+    const plugins = pluginListByRegion[regionName];
+    if (!Array.isArray(plugins)) {
+      return;
+    }
+
+    plugins.forEach(plugin => {
+      if (!plugin) {
+        return;
+      }
+      const logicalId = getPluginBaseId(plugin.plugin_id || plugin.name);
+      if (!logicalId) {
+        return;
+      }
+
+      if (!groupedPlugins[logicalId]) {
+        groupedPlugins[logicalId] = {
+          logicalId,
+          plugin,
+          regionNames: []
+        };
+      }
+      if (!groupedPlugins[logicalId].regionNames.includes(regionName)) {
+        groupedPlugins[logicalId].regionNames.push(regionName);
+      }
+    });
+  });
+
+  return Object.keys(groupedPlugins).map(logicalId => groupedPlugins[logicalId]);
+}
+
 function isPluginBaseId(plugin, baseId) {
   if (!plugin || !baseId) {
     return false;
@@ -53,6 +87,7 @@ function shouldFetchUserBalanceForPlugins(pluginsList) {
 
 module.exports = {
   getPluginBaseId,
+  groupPluginsByLogicalId,
   isPluginBaseId,
   shouldFetchUserBalanceForPlugins
 };
