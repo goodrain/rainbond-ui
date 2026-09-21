@@ -1,0 +1,81 @@
+const assert = require('assert');
+
+const {
+  LOG_QUERY_LIMIT,
+  buildLogCountExpression,
+  collectCompleteLogRange,
+  parseLogCountFrames
+} = require('./logDownload');
+
+async function run() {
+  assert.strictEqual(LOG_QUERY_LIMIT, 5000);
+  assert.strictEqual(
+    buildLogCountExpression('{service_alias="gr123"} |= "error"', 1000, 6500),
+    'sum(count_over_time({service_alias="gr123"} |= "error" [5500ms]))'
+  );
+  assert.strictEqual(
+    parseLogCountFrames([
+      {
+        schema: { fields: [{ name: 'Time' }, { name: 'Value' }] },
+        data: { values: [[1000], [3200]] }
+      },
+      {
+        schema: { fields: [{ name: 'Time' }, { name: 'Value #B' }] },
+        data: { values: [[1000], [1801]] }
+      }
+    ]),
+    5001
+  );
+
+  const queriedRanges = [];
+  const progress = [];
+  const logs = await collectCompleteLogRange({
+    from: 0,
+    to: 10,
+    limit: 2,
+    fetchRange: async range => {
+      queriedRanges.push([range.from, range.to]);
+      if (range.from === 0 && range.to === 10) {
+        return ['truncated-1', 'truncated-2'];
+      }
+      return range.from === 0 ? ['old'] : ['new'];
+    },
+    onProgress: count => progress.push(count)
+  });
+
+  assert.deepStrictEqual(queriedRanges, [[0, 10], [0, 5], [5, 10]]);
+  assert.deepStrictEqual(logs, ['old', 'new']);
+  assert.deepStrictEqual(progress, [1, 2]);
+
+  await assert.rejects(
+    collectCompleteLogRange({
+      from: 0,
+      to: 10,
+      limit: 2,
+      fetchRange: async range => {
+        if (range.from === 0 && range.to === 10) {
+          return ['truncated-1', 'truncated-2'];
+        }
+        throw new Error('query failed');
+      }
+    }),
+    /query failed/
+  );
+
+  await assert.rejects(
+    collectCompleteLogRange({
+      from: 0,
+      to: 1,
+      limit: 2,
+      fetchRange: async () => ['one', 'two']
+    }),
+    /单位时间内日志过多/
+  );
+
+  console.log('log download helper tests passed');
+}
+
+run().catch(error => {
+  console.error(error);
+  process.exitCode = 1;
+});

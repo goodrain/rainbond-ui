@@ -1,12 +1,33 @@
-import { Button, Icon, Input, Modal, Select, DatePicker, Row, Col } from 'antd';
+import {
+  Alert,
+  Button,
+  Col,
+  DatePicker,
+  Icon,
+  Input,
+  Modal,
+  Row,
+  Select,
+  message
+} from 'antd';
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
 import global from '@/utils/global';
 import { buildHistoryLogQuery } from './historyLogQuery';
+const {
+  LOG_QUERY_LIMIT,
+  buildLogCountExpression,
+  collectCompleteLogRange,
+  parseLogCountFrames
+} = require('./logDownload');
 const { RangePicker } = DatePicker;
 const { Option } = Select;
+const LOKI_DATASOURCE = {
+  type: 'loki',
+  uid: 'P8E80F9AEF21F6940'
+};
 
 // 优化的日志项组件，使用React.memo避免不必要的重新渲染
 const LogItem = React.memo(({ item, index }) => (
@@ -53,17 +74,38 @@ export default class HistoryLog extends PureComponent {
       keyword: '',
       visibleStartIndex: 0,
       visibleEndIndex: 50,
+      totalCount: null,
+      countLoading: false,
+      countFailed: false,
+      downloadLoading: false,
+      downloadLoaded: 0
     };
-    
+
     this.logContainerRef = React.createRef();
     this.itemHeight = 22; // 估算的每个日志项高度
+    this.lastQueryContext = null;
+    this.lastOverflowPromptKey = null;
+    this.overflowModal = null;
+    this.downloadInFlight = false;
+    this.queryRequestId = 0;
+    this.unmounted = false;
   }
   componentDidMount() {
     this.loadData();
   }
+  componentWillUnmount() {
+    this.unmounted = true;
+    this.queryRequestId += 1;
+    if (this.overflowModal && this.overflowModal.destroy) {
+      this.overflowModal.destroy();
+    }
+  }
   loadData() {
     this.setState({
       loading: true,
+      countLoading: true,
+      countFailed: false,
+      totalCount: null,
       visibleStartIndex: 0,
       visibleEndIndex: 50
     });
@@ -74,50 +116,156 @@ export default class HistoryLog extends PureComponent {
     this.queryLokiLogs(timeParams);
   }
 
+  requestLokiQuery = data => {
+    const { dispatch } = this.props;
+
+    return new Promise((resolve, reject) => {
+      dispatch({
+        type: 'region/fetchLokiLog',
+        payload: {
+          region_name: global.getCurrRegionName(),
+          data
+        },
+        callback: resolve,
+        handleError: reject
+      });
+    });
+  };
+
   queryLokiLogs = async (timeParams) => {
-    const { appAlias, dispatch } = this.props;
+    const { appAlias } = this.props;
     const { keyword } = this.state;
-    
+
     if (!appAlias) {
       console.warn('appAlias is required for Loki query');
-      this.setState({ loading: false, list: [] });
+      this.setState({
+        loading: false,
+        countLoading: false,
+        list: [],
+        totalCount: null
+      });
       return;
     }
 
+    const requestId = this.queryRequestId + 1;
+    this.queryRequestId = requestId;
+    const expression = buildHistoryLogQuery(appAlias, keyword);
     const lokiQuery = {
       queries: [{
-        refId: "A",
-        datasource: {
-          type: "loki",
-          uid: "P8E80F9AEF21F6940"
-        },
-        editorMode: "code",
-        expr: buildHistoryLogQuery(appAlias, keyword),
-        queryType: "range",
-        maxLines: 5000
+        refId: 'A',
+        datasource: LOKI_DATASOURCE,
+        direction: 'backward',
+        editorMode: 'code',
+        expr: expression,
+        queryType: 'range',
+        maxLines: LOG_QUERY_LIMIT
       }],
       range: timeParams,
       from: timeParams.from,
       to: timeParams.to
-    }; 
-    dispatch({
-      type: 'region/fetchLokiLog',
-      payload: {
-        region_name: global.getCurrRegionName(),
-        data: lokiQuery
-      },
-      callback: (res) => {        
-        const logs = this.parseLokiResponse(res.response_data);
-        this.setState({ 
-          loading: false, 
-          list: logs.sort((a, b) => b.timestamp - a.timestamp)
-        });
-      },
-      handleError: (error) => {
-        console.error('Loki query error:', error);
-        this.setState({ loading: false, list: [] });
+    };
+    const countQuery = {
+      queries: [{
+        refId: 'log-count-A',
+        datasource: LOKI_DATASOURCE,
+        editorMode: 'code',
+        expr: buildLogCountExpression(
+          expression,
+          timeParams.from,
+          timeParams.to
+        ),
+        intervalMs: Math.max(
+          1,
+          Number(timeParams.to) - Number(timeParams.from)
+        ),
+        maxDataPoints: 1,
+        instant: true,
+        range: false,
+        queryType: 'instant'
+      }],
+      range: timeParams,
+      from: timeParams.from,
+      to: timeParams.to
+    };
+
+    try {
+      const countPromise = this.requestLokiQuery(countQuery).catch(error => {
+        console.error('Loki count query error:', error);
+        return null;
+      });
+      const response = await this.requestLokiQuery(lokiQuery);
+
+      if (this.unmounted || requestId !== this.queryRequestId) {
+        return;
       }
-    });
+
+      const responseData = response && response.response_data;
+      const logs = this.parseLokiResponse(responseData).sort(
+        (a, b) => b.timestamp - a.timestamp
+      );
+      const queryContext = {
+        appAlias,
+        expression,
+        from: Number(timeParams.from),
+        to: Number(timeParams.to),
+        total: null
+      };
+
+      this.lastQueryContext = queryContext;
+      this.setState({
+        loading: false,
+        list: logs
+      });
+
+      const countResponse = await countPromise;
+
+      if (this.unmounted || requestId !== this.queryRequestId) {
+        return;
+      }
+
+      const countResponseData = countResponse && countResponse.response_data;
+      const countResult =
+        countResponseData &&
+        countResponseData.results &&
+        countResponseData.results['log-count-A'];
+      const countFailed = !countResult;
+      const parsedTotalCount = parseLogCountFrames(
+        (countResult && countResult.frames) || []
+      );
+      const totalCount = countFailed
+        ? null
+        : Math.max(logs.length, parsedTotalCount);
+
+      queryContext.total = totalCount;
+      this.lastQueryContext = queryContext;
+      this.setState({
+        countLoading: false,
+        countFailed,
+        totalCount
+      }, () => {
+        if (
+          totalCount > LOG_QUERY_LIMIT ||
+          (countFailed && logs.length >= LOG_QUERY_LIMIT)
+        ) {
+          this.showLogOverflowPrompt(queryContext, { countFailed });
+        }
+      });
+    } catch (error) {
+      if (this.unmounted || requestId !== this.queryRequestId) {
+        return;
+      }
+
+      console.error('Loki query error:', error);
+      this.lastQueryContext = null;
+      this.setState({
+        loading: false,
+        countLoading: false,
+        countFailed: false,
+        list: [],
+        totalCount: null
+      });
+      message.error('历史日志查询失败，请稍后重试');
+    }
   }
 
   parseLokiResponse = (data) => {
@@ -225,11 +373,31 @@ export default class HistoryLog extends PureComponent {
     }
   }
 
-  handleDownload = () => {
-    const { list } = this.state;
-    const { appAlias } = this.props;
-    
-    if (list.length === 0) {
+  showLogOverflowPrompt = (queryContext, { countFailed = false } = {}) => {
+    const promptKey = `${queryContext.expression}\u0000${queryContext.from}\u0000${queryContext.to}`;
+
+    if (this.lastOverflowPromptKey === promptKey) {
+      return;
+    }
+
+    this.lastOverflowPromptKey = promptKey;
+    if (this.overflowModal && this.overflowModal.destroy) {
+      this.overflowModal.destroy();
+    }
+    this.overflowModal = Modal.confirm({
+      title: '日志超过页面展示上限',
+      content: countFailed
+        ? `当前结果已达到 ${LOG_QUERY_LIMIT.toLocaleString()} 条，可能还有更多日志。是否下载当前查询范围的完整日志？`
+        : `当前时间范围约有 ${queryContext.total.toLocaleString()} 条日志，页面最多展示 ${LOG_QUERY_LIMIT.toLocaleString()} 条。是否下载当前查询范围的完整日志？`,
+      okText: '下载完整日志',
+      cancelText: `仅查看最近 ${LOG_QUERY_LIMIT.toLocaleString()} 条`,
+      onOk: () => this.handleDownload(queryContext)
+    });
+  };
+
+  saveLogFile = (list, appAlias) => {
+    if (!Array.isArray(list) || list.length === 0) {
+      message.warning('当前没有可下载的日志');
       return;
     }
 
@@ -256,6 +424,72 @@ export default class HistoryLog extends PureComponent {
     
     // 清理 URL 对象
     window.URL.revokeObjectURL(url);
+  };
+
+  handleDownload = async requestedContext => {
+    const queryContext =
+      requestedContext && requestedContext.expression
+        ? requestedContext
+        : this.lastQueryContext;
+
+    if (!queryContext || this.downloadInFlight) {
+      if (!queryContext) {
+        message.warning('请先查询历史日志');
+      }
+      return;
+    }
+
+    this.downloadInFlight = true;
+    this.setState({
+      downloadLoading: true,
+      downloadLoaded: 0
+    });
+
+    try {
+      const logs = await collectCompleteLogRange({
+        from: queryContext.from,
+        to: queryContext.to,
+        limit: LOG_QUERY_LIMIT,
+        fetchRange: async range => {
+          const response = await this.requestLokiQuery({
+            queries: [{
+              refId: 'A',
+              datasource: LOKI_DATASOURCE,
+              direction: 'backward',
+              editorMode: 'code',
+              expr: queryContext.expression,
+              queryType: 'range',
+              maxLines: range.limit
+            }],
+            range: {
+              from: String(range.from),
+              to: String(range.to)
+            },
+            from: String(range.from),
+            to: String(range.to)
+          });
+
+          return this.parseLokiResponse(response && response.response_data);
+        },
+        onProgress: downloadLoaded => {
+          if (!this.unmounted) {
+            this.setState({ downloadLoaded });
+          }
+        }
+      });
+      const sortedLogs = logs.sort((a, b) => b.timestamp - a.timestamp);
+      if (!this.unmounted) {
+        this.saveLogFile(sortedLogs, queryContext.appAlias);
+      }
+    } catch (error) {
+      console.error('Download complete logs error:', error);
+      message.error(error.message || '完整日志下载失败，请稍后重试');
+    } finally {
+      this.downloadInFlight = false;
+      if (!this.unmounted) {
+        this.setState({ downloadLoading: false });
+      }
+    }
   }
 
   handleScroll = (e) => {
@@ -273,7 +507,19 @@ export default class HistoryLog extends PureComponent {
     }
   }
   render() {
-    const { loading, list, timeRange, customTimeRange, visibleStartIndex, visibleEndIndex } = this.state;
+    const {
+      loading,
+      list,
+      timeRange,
+      customTimeRange,
+      visibleStartIndex,
+      visibleEndIndex,
+      totalCount,
+      countLoading,
+      countFailed,
+      downloadLoading,
+      downloadLoaded
+    } = this.state;
     
     // 虚拟滚动优化：只渲染可见的日志项
     const visibleItems = list.length > 50 
@@ -292,11 +538,14 @@ export default class HistoryLog extends PureComponent {
             key="download" 
             type="primary" 
             icon="download" 
-            onClick={this.handleDownload}
+            onClick={() => this.handleDownload()}
             disabled={list.length === 0}
+            loading={downloadLoading}
             style={{ marginRight: 8 }}
           >
-            下载日志
+            {downloadLoading
+              ? `正在获取 ${downloadLoaded.toLocaleString()}${Number.isFinite(totalCount) ? ` / ${totalCount.toLocaleString()}` : ''} 条`
+              : '下载完整日志'}
           </Button>,
           <Button key="close" onClick={this.props.onCancel}>
             <FormattedMessage id='componentOverview.body.tab.log.HistoryLog.close'/>
@@ -347,6 +596,36 @@ export default class HistoryLog extends PureComponent {
             />
           </Col>
         </Row>
+        {Number.isFinite(totalCount) && (
+          <Alert
+            type={totalCount > LOG_QUERY_LIMIT ? 'warning' : 'info'}
+            showIcon
+            message={`当前范围共 ${totalCount.toLocaleString()} 条日志，页面已加载 ${list.length.toLocaleString()} 条`}
+            description={
+              totalCount > LOG_QUERY_LIMIT
+                ? `页面最多展示最近 ${LOG_QUERY_LIMIT.toLocaleString()} 条，下载按钮将获取当前查询范围的完整日志。`
+                : '当前页面已经包含所选范围内的全部日志。'
+            }
+            style={{ marginBottom: 16 }}
+          />
+        )}
+        {countFailed && (
+          <Alert
+            type="warning"
+            showIcon
+            message="日志总量统计失败"
+            description="页面展示当前预览结果；完整下载仍会按所选时间范围分段获取日志。"
+            style={{ marginBottom: 16 }}
+          />
+        )}
+        {countLoading && !loading && (
+          <Alert
+            type="info"
+            showIcon
+            message="正在统计当前范围的日志总量"
+            style={{ marginBottom: 16 }}
+          />
+        )}
         {loading ? (
           <div style={{ textAlign: 'center' }}>
             <Icon
