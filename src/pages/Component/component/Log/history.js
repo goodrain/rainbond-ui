@@ -20,6 +20,7 @@ const {
   LOG_QUERY_LIMIT,
   buildLogCountExpression,
   collectCompleteLogRange,
+  parseLokiLogFrames,
   parseLogCountFrames
 } = require('./logDownload');
 const { RangePicker } = DatePicker;
@@ -269,32 +270,8 @@ export default class HistoryLog extends PureComponent {
   }
 
   parseLokiResponse = (data) => {
-    const logs = [];
-    
-    if (!data?.results?.A?.frames) {
-      return logs;
-    }
-
-    data.results.A.frames.forEach(frame => {
-      if (!frame?.data?.values) return;
-      
-      const timeValues = frame.data.values[1] || [];
-      const logValues = frame.data.values[2] || [];
-      
-      timeValues.forEach((timestamp, index) => {
-        if (logValues[index]) {
-          const parsedTimestamp = parseInt(timestamp);
-          logs.push({
-            id: `${parsedTimestamp}-${index}`,
-            timestamp: parsedTimestamp,
-            formattedTime: this.formatTimestamp(parsedTimestamp),
-            msg: logValues[index]
-          });
-        }
-      });
-    });
-
-    return logs;
+    const frames = data?.results?.A?.frames || [];
+    return parseLokiLogFrames(frames, this.formatTimestamp);
   }
 
   formatTimestamp = (timestamp) => {

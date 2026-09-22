@@ -4,6 +4,7 @@ const {
   LOG_QUERY_LIMIT,
   buildLogCountExpression,
   collectCompleteLogRange,
+  parseLokiLogFrames,
   parseLogCountFrames
 } = require('./logDownload');
 
@@ -26,6 +27,28 @@ async function run() {
     ]),
     5001
   );
+
+  const parsedLogs = parseLokiLogFrames([
+    {
+      schema: {
+        fields: [{ name: 'Line' }, { name: 'labels' }, { name: 'Time' }]
+      },
+      data: {
+        values: [
+          ['first', '', 'third', '', 'fifth'],
+          [{}, {}, {}, {}, {}],
+          [1000, 2000, 3000, 4000, 5000]
+        ]
+      }
+    }
+  ], timestamp => `time-${timestamp}`);
+
+  assert.strictEqual(parsedLogs.length, 5);
+  assert.deepStrictEqual(
+    parsedLogs.map(item => item.msg),
+    ['first', '', 'third', '', 'fifth']
+  );
+  assert.strictEqual(parsedLogs[1].formattedTime, 'time-2000');
 
   const queriedRanges = [];
   const progress = [];

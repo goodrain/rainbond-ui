@@ -76,6 +76,50 @@ function parseLogCountFrames(frames) {
   return Math.max(0, Math.round(total));
 }
 
+function parseLokiLogFrames(frames, formatTimestamp) {
+  if (!Array.isArray(frames)) {
+    return [];
+  }
+
+  const logs = [];
+
+  frames.forEach((frame, frameIndex) => {
+    const fields = (frame && frame.schema && frame.schema.fields) || [];
+    const fieldNames = fields.map(field => field && field.name);
+    const values = (frame && frame.data && frame.data.values) || [];
+    const timeIndex = fieldNames.indexOf('Time');
+    const lineIndex = fieldNames.indexOf('Line');
+    const resolvedTimeIndex = timeIndex > -1 ? timeIndex : 1;
+    const resolvedLineIndex = lineIndex > -1 ? lineIndex : 2;
+    const timeValues = values[resolvedTimeIndex] || [];
+    const lineValues = values[resolvedLineIndex] || [];
+
+    timeValues.forEach((timestamp, rowIndex) => {
+      if (rowIndex >= lineValues.length) {
+        return;
+      }
+
+      const line = lineValues[rowIndex];
+      if (line === undefined || line === null) {
+        return;
+      }
+
+      const parsedTimestamp = parseInt(timestamp, 10);
+      logs.push({
+        id: `${frameIndex}-${parsedTimestamp}-${rowIndex}`,
+        timestamp: parsedTimestamp,
+        formattedTime:
+          typeof formatTimestamp === 'function'
+            ? formatTimestamp(parsedTimestamp)
+            : String(parsedTimestamp),
+        msg: String(line)
+      });
+    });
+  });
+
+  return logs;
+}
+
 function createInitialRanges(range, expectedTotal, limit) {
   if (!Number.isFinite(expectedTotal) || expectedTotal <= limit) {
     return [range];
@@ -178,5 +222,6 @@ module.exports = {
   LOG_QUERY_LIMIT,
   buildLogCountExpression,
   collectCompleteLogRange,
+  parseLokiLogFrames,
   parseLogCountFrames
 };
