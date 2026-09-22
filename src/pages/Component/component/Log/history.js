@@ -450,6 +450,7 @@ export default class HistoryLog extends PureComponent {
         from: queryContext.from,
         to: queryContext.to,
         limit: LOG_QUERY_LIMIT,
+        expectedTotal: queryContext.total,
         fetchRange: async range => {
           const response = await this.requestLokiQuery({
             queries: [{

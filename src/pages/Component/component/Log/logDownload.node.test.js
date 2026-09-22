@@ -47,6 +47,32 @@ async function run() {
   assert.deepStrictEqual(logs, ['old', 'new']);
   assert.deepStrictEqual(progress, [1, 2]);
 
+  const preSplitRanges = [];
+  const preSplitLogs = await collectCompleteLogRange({
+    from: 0,
+    to: 10,
+    limit: 2,
+    expectedTotal: 3,
+    fetchRange: async range => {
+      preSplitRanges.push([range.from, range.to]);
+      return [`log-${range.from}`];
+    }
+  });
+
+  assert.deepStrictEqual(preSplitRanges, [[0, 3], [3, 6], [6, 10]]);
+  assert.strictEqual(preSplitLogs.length, 3);
+
+  await assert.rejects(
+    collectCompleteLogRange({
+      from: 0,
+      to: 10,
+      limit: 5,
+      expectedTotal: 3,
+      fetchRange: async () => ['one', 'two']
+    }),
+    /应有 3 条，实际获取 2 条/
+  );
+
   await assert.rejects(
     collectCompleteLogRange({
       from: 0,

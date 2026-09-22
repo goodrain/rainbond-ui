@@ -76,11 +76,38 @@ function parseLogCountFrames(frames) {
   return Math.max(0, Math.round(total));
 }
 
+function createInitialRanges(range, expectedTotal, limit) {
+  if (!Number.isFinite(expectedTotal) || expectedTotal <= limit) {
+    return [range];
+  }
+
+  const durationMs = range.to - range.from;
+  const requestedSegmentCount = Math.ceil(
+    expectedTotal / Math.max(1, limit - 1)
+  );
+  const segmentCount = Math.min(durationMs, requestedSegmentCount);
+  const ranges = [];
+
+  for (let index = 0; index < segmentCount; index += 1) {
+    const segmentFrom =
+      range.from + Math.floor(durationMs * index / segmentCount);
+    const segmentTo =
+      range.from + Math.floor(durationMs * (index + 1) / segmentCount);
+
+    if (segmentTo > segmentFrom) {
+      ranges.push({ from: segmentFrom, to: segmentTo });
+    }
+  }
+
+  return ranges.length ? ranges : [range];
+}
+
 async function collectCompleteLogRange({
   from,
   to,
   fetchRange,
   limit = LOG_QUERY_LIMIT,
+  expectedTotal,
   onProgress
 }) {
   const range = normalizeRange(from, to);
@@ -93,7 +120,12 @@ async function collectCompleteLogRange({
     throw new Error('日志单批查询上限无效');
   }
 
-  const pendingRanges = [range];
+  const normalizedExpectedTotal = Number(expectedTotal);
+  const pendingRanges = createInitialRanges(
+    range,
+    normalizedExpectedTotal,
+    limit
+  ).reverse();
   const collectedLogs = [];
 
   while (pendingRanges.length > 0) {
@@ -128,6 +160,15 @@ async function collectCompleteLogRange({
     if (typeof onProgress === 'function') {
       onProgress(collectedLogs.length);
     }
+  }
+
+  if (
+    Number.isFinite(normalizedExpectedTotal) &&
+    collectedLogs.length < normalizedExpectedTotal
+  ) {
+    throw new Error(
+      `完整日志获取不完整：应有 ${normalizedExpectedTotal} 条，实际获取 ${collectedLogs.length} 条`
+    );
   }
 
   return collectedLogs;
