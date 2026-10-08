@@ -717,6 +717,10 @@ function classifyHttpError(error) {
 function shouldSuppressRequestError(error, options) {
   if (!error) return false;
 
+  if (isCancellationError(error)) {
+    return true;
+  }
+
   const status = error.response && error.response.status;
 
   // Suppress network errors when a custom error handler is provided
@@ -734,6 +738,18 @@ function shouldSuppressRequestError(error, options) {
   return false;
 }
 
+function isCancellationError(error) {
+  if (!error) {
+    return false;
+  }
+  return (
+    error.name === 'AbortError' ||
+    error.name === 'CanceledError' ||
+    error.code === 'ERR_CANCELED' ||
+    error.__CANCEL__ === true
+  );
+}
+
 function shouldSuppressBrowserError(error, context = {}) {
   if (!error) {
     return false;
@@ -746,6 +762,10 @@ function shouldSuppressBrowserError(error, context = {}) {
 
   const message = getErrorMessage(error);
   const errorName = error.name || context.exceptionType || '';
+
+  if (isCancellationError(error)) {
+    return true;
+  }
 
   if (/ResizeObserver loop (limit exceeded|completed with undelivered notifications)/i.test(message)) {
     return true;
