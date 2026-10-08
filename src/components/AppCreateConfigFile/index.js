@@ -1248,11 +1248,32 @@ class RenderDeploy extends PureComponent {
     this.getRuntimeInfo();
     this.props.onRef(this)
   }
+  componentWillUnmount() {
+    if (this.props.onReadyChange) {
+      this.props.onReadyChange(false)
+    }
+  }
+  notifyReady = () => {
+    const { appDetail, onReadyChange } = this.props;
+    if (!onReadyChange) {
+      return;
+    }
+    const language = appUtil.getLanguage(appDetail);
+    const cpuReady = Boolean(
+      this.childCpu && typeof this.childCpu.handleSubmitCpu === 'function'
+    );
+    const runtimeReady = !language || Boolean(
+      this.child && typeof this.child.handleSubmit === 'function'
+    );
+    onReadyChange(cpuReady && runtimeReady);
+  }
   onRef = (ref) => {
     this.child = ref
+    this.notifyReady()
   }
   onRefCpu = (ref) => {
     this.childCpu = ref
+    this.notifyReady()
   }
   childFn = async beforeSubmit => {
     const {
@@ -1263,6 +1284,10 @@ class RenderDeploy extends PureComponent {
     const { runtimeInfo } = this.state
     const language = appUtil.getLanguage(appDetail);
 
+    if (!this.childCpu || typeof this.childCpu.handleSubmitCpu !== 'function') {
+      return false
+    }
+
     // 先执行 CPU 内存验证，如果验证失败则返回 false
     const cpuResult = await this.childCpu.handleSubmitCpu(beforeSubmit)
     if (cpuResult === false) {
@@ -1271,6 +1296,9 @@ class RenderDeploy extends PureComponent {
 
     // 如果有语言运行时配置，等待保存完成后再跳转
     if (language && runtimeInfo && isSource) {
+      if (!this.child || typeof this.child.handleSubmit !== 'function') {
+        return false
+      }
       const runtimeResult = await this.child.handleSubmit()
       if (runtimeResult === false) {
         return false
@@ -1365,6 +1393,9 @@ export default class Index extends PureComponent {
   }
   childFn = async beforeSubmit => {
     // 调用子组件的方法并等待验证和保存完成
+    if (!this.child || typeof this.child.childFn !== 'function') {
+      return false
+    }
     const result = await this.child.childFn(beforeSubmit)
     return result
   }
@@ -1400,6 +1431,7 @@ export default class Index extends PureComponent {
               handleEditRuntime={handleEditRuntime}
               showEnterprisePlugin={showEnterprisePlugin}
               onRef={this.onRef}
+              onReadyChange={this.props.onReadyChange}
             />
           </div>
         </div>

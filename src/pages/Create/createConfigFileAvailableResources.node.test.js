@@ -6,6 +6,10 @@ const pageSource = fs.readFileSync(
   path.join(__dirname, 'create-configFile.js'),
   'utf8'
 );
+const configFileSource = fs.readFileSync(
+  path.join(__dirname, '../../components/AppCreateConfigFile/index.js'),
+  'utf8'
+);
 const serviceSource = fs.readFileSync(
   path.join(__dirname, '../../services/createApp.js'),
   'utf8'
@@ -86,8 +90,28 @@ assert.match(
 );
 assert.match(
   nextHandler,
+  /!this\.state\.configReady[\s\S]*?!this\.child[\s\S]*?typeof this\.child\.childFn !== 'function'/,
+  'Next should stop before submission while the configuration form ref is not ready'
+);
+assert.match(
+  nextHandler,
   /finally[\s\S]*nextLoading:\s*false/,
   'Next should always release its local loading lock'
+);
+assert.match(
+  pageSource,
+  /disabled=\{!configReady\}/,
+  'the Next button should stay disabled until the configuration form is ready'
+);
+assert.match(
+  configFileSource,
+  /!this\.childCpu[\s\S]*?typeof this\.childCpu\.handleSubmitCpu !== 'function'[\s\S]*?return false/,
+  'the deploy form should guard the CPU form ref even when submission is called programmatically'
+);
+assert.match(
+  configFileSource,
+  /this\.props\.onReadyChange[\s\S]*?cpuReady\s*&&\s*runtimeReady/,
+  'the deploy form should report readiness only after all required child refs exist'
 );
 assert.match(
   appControlSource,
