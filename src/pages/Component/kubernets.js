@@ -18,6 +18,7 @@ const {
   formatRawJsonAttributeDisplayValue,
   formatRawJsonAttributeValue,
   isRawJsonAttribute,
+  normalizeKeyValueAttributeValue,
   normalizeBooleanAttributeValue,
   parseRawJsonAttributeValue
 } = require('./kubernetsAttributeHelpers');
@@ -717,6 +718,9 @@ class Index extends PureComponent {
                 allData.map((item, index) => {
                   const displayAsYaml = this.isYamlDisplayAttribute(item);
                   const displayAsString = this.isStringDisplayAttribute(item);
+                  const keyValueAttribute = normalizeKeyValueAttributeValue(
+                    item.attribute_value
+                  );
                   return <Row key={index}>
                     {displayAsYaml ? (
                       <Col span={4} className={styles.yamlTitle_style}>{item.name}:</Col>
@@ -726,8 +730,8 @@ class Index extends PureComponent {
                     <Col span={16}>{
                       item.name &&
                       JSON_FIELDS.includes(item.name) &&
-                      hasAttributeValue(item.attribute_value) &&
-                      item.attribute_value.map((ele, keyIndex) => {
+                      keyValueAttribute.length > 0 &&
+                      keyValueAttribute.map((ele, keyIndex) => {
                         return <Tooltip key={keyIndex} placement="top" title={<div><p>Key: {ele.key}</p><p>Value: {ele.value}</p></div>}>
                           <div className={styles.tipText_style}>
                             <span>{ele.key}</span>

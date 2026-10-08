@@ -8,6 +8,7 @@ import apiconfig from '../../../config/api.config';
 import cookie from '../../utils/cookie';
 import { pinyin } from 'pinyin-pro';
 import styles from './index.less';
+const { normalizeRegionOptions } = require('./regionOptions');
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -79,7 +80,7 @@ class CreateTeam extends PureComponent {
   getUnRelationedApp = ID => {
     getAllRegion({ enterprise_id: ID, status: '1' })
       .then(data => {
-        const regions = (data && data.list) || [];
+        const regions = normalizeRegionOptions(data && data.list);
         this.setState({ regions, regionLoading: false }, () => {
           // 如果只有一个集群，在 bind tab 下自动选中
           if (regions.length === 1 && this.state.activeTab === 'bind') {
@@ -323,7 +324,9 @@ class CreateTeam extends PureComponent {
                     placeholder={formatMessage({ id: 'popover.enterpriseOverview.setUpTeam.message.colony' })}
                   >
                     {(regions || []).map(item => (
-                      <Option key={item.region_name}>{item.region_alias}</Option>
+                      <Option key={item.region_name} value={item.region_name}>
+                        {item.region_alias}
+                      </Option>
                     ))}
                   </Select>
                 )}

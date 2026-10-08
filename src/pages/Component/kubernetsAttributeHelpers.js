@@ -43,6 +43,46 @@ function normalizeBooleanAttributeValue(value) {
   return value === true || value === 'true';
 }
 
+function normalizeKeyValueAttributeValue(value) {
+  const normalizeDisplayValue = itemValue => {
+    if (itemValue === undefined || itemValue === null) {
+      return '';
+    }
+    if (typeof itemValue === 'object') {
+      return JSON.stringify(itemValue);
+    }
+    return String(itemValue);
+  };
+  if (Array.isArray(value)) {
+    return value
+      .filter(
+        item =>
+          item &&
+          typeof item === 'object' &&
+          Object.prototype.hasOwnProperty.call(item, 'key')
+      )
+      .map(item => ({
+        ...item,
+        key: String(item.key),
+        value: normalizeDisplayValue(item.value)
+      }));
+  }
+  if (typeof value === 'string') {
+    try {
+      return normalizeKeyValueAttributeValue(JSON.parse(value));
+    } catch (error) {
+      return [];
+    }
+  }
+  if (value && typeof value === 'object') {
+    return Object.keys(value).map(key => ({
+      key,
+      value: normalizeDisplayValue(value[key])
+    }));
+  }
+  return [];
+}
+
 module.exports = {
   KEY_VALUE_JSON_FIELDS,
   buildEditableAttributeFields,
@@ -50,5 +90,6 @@ module.exports = {
   formatRawJsonAttributeValue,
   isRawJsonAttribute,
   normalizeBooleanAttributeValue,
+  normalizeKeyValueAttributeValue,
   parseRawJsonAttributeValue
 };

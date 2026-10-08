@@ -15,6 +15,20 @@ function normalizeGroupId(value) {
   return normalized;
 }
 
+function findCreateCheckActionElement(target, boundary) {
+  let current = target;
+  while (current && current !== boundary) {
+    if (
+      typeof current.getAttribute === 'function' &&
+      current.getAttribute('action_type')
+    ) {
+      return current;
+    }
+    current = current.parentNode;
+  }
+  return null;
+}
+
 function resolveCreateCheckGroupId({ locationQuery = {}, appDetail = {} } = {}) {
   return (
     normalizeGroupId(locationQuery.group_id) ||
@@ -71,6 +85,7 @@ function shouldEnterMultiServiceBuild({
 
 module.exports = {
   buildCreatedComponentOverviewTarget,
+  findCreateCheckActionElement,
   resolveCreateCheckGroupId,
   shouldEnterMultiServiceBuild,
   shouldShowMultiModuleBuildChoice
