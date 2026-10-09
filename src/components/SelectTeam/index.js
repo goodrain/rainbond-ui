@@ -9,6 +9,7 @@ import { formatMessage } from '@/utils/intl';
 import userUtil from '../../utils/user';
 import CreateTeam from '../CreateTeam';
 import style from './index.less';
+const { getTeamRegions, normalizeList } = require('./teamRegionHelpers');
 
 @connect(({ user }) => ({
   currentUser: user.currentUser
@@ -59,7 +60,7 @@ export default class SelectTeam extends PureComponent {
         if (!this._isMounted) return;
         if (res && res.status_code === 200) {
           this.setState({
-            userTeamList: res.list,
+            userTeamList: normalizeList(res.list),
             loading: false
           });
         }
@@ -84,10 +85,11 @@ export default class SelectTeam extends PureComponent {
   };
   getLoginRole = (currUser) => {
     const { dispatch } = this.props;
-    const { teams } = currUser
-    if (teams && teams.length > 0) {
-      const { team_name, region } = teams[0]
-      const { team_region_name } = region[0]
+    const teams = normalizeList(currUser && currUser.teams);
+    if (teams.length > 0) {
+      const { team_name } = teams[0]
+      const region = getTeamRegions(teams[0], teams[0]);
+      const { team_region_name } = region[0] || {};
       if (team_name && team_region_name) {
         return`/team/${team_name}/region/${team_region_name}/index`
       }
@@ -109,7 +111,7 @@ export default class SelectTeam extends PureComponent {
         return;
       }
       const teamInfo = userUtil.getTeamByTeamName(currentUser, team.team_name) || team;
-      const regions = teamInfo.region || team.region || [];
+      const regions = getTeamRegions(teamInfo, team);
       regions.forEach(region => {
         if (!region || !region.team_region_name) {
           return;
@@ -131,7 +133,7 @@ export default class SelectTeam extends PureComponent {
       });
     };
 
-    teams.forEach(addTeamRegions);
+    normalizeList(teams).forEach(addTeamRegions);
 
     const hasCurrent = items.some(item => item.isCurrent);
     if (!queryName && currentTeamName && currentRegionName && !hasCurrent) {
