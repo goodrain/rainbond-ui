@@ -60,6 +60,7 @@ export default class Overview extends Component {
   }
 
   componentWillMount() {
+    this.validateApplication();
     this.loadComponents();
   }
 
@@ -110,6 +111,31 @@ export default class Overview extends Component {
   }
 
   // 获取app的组件
+  validateApplication = () => {
+    const { dispatch, match } = this.props;
+    const { teamName, regionName, appID } = match.params;
+    dispatch({
+      type: 'application/fetchGroupDetail',
+      payload: {
+        team_name: teamName,
+        region_name: regionName,
+        group_id: appID
+      },
+      handleError: this.handleMissingApplication
+    });
+  };
+
+  handleMissingApplication = error => {
+    if (isMissingResourceError(error)) {
+      const { dispatch } = this.props;
+      dispatch(
+        routerRedux.replace(
+          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
+        )
+      );
+    }
+  };
+
   loadComponents = () => {
     const { dispatch } = this.props;
     dispatch({
@@ -129,15 +155,7 @@ export default class Overview extends Component {
           });
         }
       },
-      handleError: error => {
-        if (isMissingResourceError(error)) {
-          dispatch(
-            routerRedux.replace(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
-            )
-          );
-        }
-      }
+      handleError: this.handleMissingApplication
     });
   };
 
