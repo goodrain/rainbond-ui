@@ -291,16 +291,18 @@ i.trigger {
   display: flex;
   align-items: center;
   flex-shrink: 0;
+  min-width: 0;
 }
 
 .center {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
   display: flex;
+  flex: 1 1 auto;
   align-items: center;
   justify-content: center;
+  min-width: 0;
+  margin: 0 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .productIcon {
@@ -559,6 +561,7 @@ i.trigger {
 // ==================== 视图切换器 ====================
 .viewSwitcher {
   display: inline-flex;
+  flex: 0 0 auto;
   align-items: center;
   height: 36px;
 }
