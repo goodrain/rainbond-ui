@@ -28,6 +28,8 @@ import userUtil from '../../utils/user';
 import list from '@/models/list';
 import styless from '../../components/CreateTeam/index.less';
 import styles from './index.less'
+
+const { buildTopologyWebConsolePath } = require('./topologyRouteHelpers');
 @connect(
   ({ user, appControl, global, teamControl, enterprise, loading }) => ({
     currUser: user.currentUser,
@@ -146,12 +148,20 @@ class Joinmode extends React.Component {
       };
       // 拓扑图点击终端弹出事件
       window.handleClickTerminal = function (relation) {
+        const terminalPath = buildTopologyWebConsolePath(teamName, regionName, relation && relation.service_alias);
+        if (!terminalPath) {
+          return;
+        }
         that.setState({
           teamName: teamName,
           regionName: regionName,
           appAlias: relation.service_alias,
+        }, () => {
+          const link = document.getElementById('links');
+          if (link) {
+            link.click();
+          }
         })
-        const link = document.getElementById('links').click()
       };
 
       // 拓扑图点击构建事件
@@ -362,6 +372,7 @@ class Joinmode extends React.Component {
   render() {
     const { deleteAppLoading, reStartLoading, stopLoading, startLoading, updateRollingLoading, flagHeight, iframeHeight } = this.props
     const { flag, promptModal, closes, start, updated, keyes, srcUrl, teamName, regionName, appAlias, build } = this.state
+    const terminalPath = buildTopologyWebConsolePath(teamName, regionName, appAlias);
     const codeObj = {
       start: formatMessage({ id: 'topology.Topological.start' }),
       stop: formatMessage({ id: 'topology.Topological.stop' }),
@@ -403,12 +414,9 @@ class Joinmode extends React.Component {
             </p>
           </Modal>
         )}
-        <Link
-          id="links"
-          to={`/team/${teamName}/region/${regionName}/components/${appAlias}/webconsole`}
-          target="_blank"
-        >
-        </Link>
+        {terminalPath && (
+          <Link id="links" to={terminalPath} target="_blank" />
+        )}
         <iframe
           src={`${apiconfig.baseUrl}${srcUrl}`}
           style={{

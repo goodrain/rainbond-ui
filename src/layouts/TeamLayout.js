@@ -40,8 +40,14 @@ import Context from './MenuContext';
 import Overdue from '../pages/Overdue';
 import styles from './EnterpriseLayout.less'
 import PluginUtil from '../utils/pulginUtils';
+import { notifyAPIWarning } from '../utils/error';
 import * as customerServiceFloatVisibility from './customerServiceFloatVisibility';
 import * as teamMenuEnterprise from './teamMenuEnterprise';
+
+const {
+  getFallbackRoute,
+  isMissingResourceError,
+} = require('../utils/missingResourceHelpers');
 
 const {
   shouldShowCustomerServiceFloat,
@@ -90,6 +96,7 @@ class TeamLayout extends PureComponent {
     this.teamOverviewRequestKeys = new Set();
     this.lastInitializedTeamOverviewKey = '';
     this._isUnmounted = false;
+    this.missingResourceRedirected = false;
     this.state = {
       isMobile,
       enterpriseList: [],
@@ -304,6 +311,13 @@ class TeamLayout extends PureComponent {
       callback: res => {
         if (res && res.bean) {
           const team = userUtil.getTeamByTeamName(res.bean, globalUtil.getCurrTeamName());
+          if (!team) {
+            this.redirectMissingResource('team');
+            if (callback) {
+              callback(null);
+            }
+            return;
+          }
           dispatch({
             type: 'teamControl/fetchCurrentTeamPermissions',
             payload: team && team.tenant_actions
@@ -567,6 +581,23 @@ class TeamLayout extends PureComponent {
     }
   }
 
+  redirectMissingResource = (resourceType, fallbackPath) => {
+    if (this.missingResourceRedirected) {
+      return;
+    }
+    this.missingResourceRedirected = true;
+    const isApp = resourceType === 'app';
+    notifyAPIWarning(formatMessage({
+      id: isApp ? 'notification.warn.app.notExist' : 'notification.warn.team.notExist',
+      defaultMessage: isApp ? '应用不存在' : '团队不存在'
+    }));
+    const { currentUser, dispatch } = this.props;
+    const currentTeamName = this.props.match && this.props.match.params && this.props.match.params.teamName;
+    dispatch(routerRedux.replace(
+      fallbackPath || getFallbackRoute(currentUser, resourceType === 'team' ? currentTeamName : '')
+    ));
+  };
+
   // 获取团队详情
   fetchTeamDetails = () => {
     const { dispatch } = this.props;
@@ -589,6 +620,11 @@ class TeamLayout extends PureComponent {
     const { currentUser, dispatch, enterprise } = this.props;
     const { teamName, regionName } = this.props.match.params;
     const team = userUtil.getTeamByTeamName(currentUser, teamName);
+    if (currentUser && !team) {
+      this.redirectMissingResource('team');
+      return;
+    }
+    this.missingResourceRedirected = false;
     
     // 优先从 props.enterprise 获取，如果没有则从 state.enterpriseList 或 currentUser 获取
     let currentEnterprise = enterprise;
@@ -762,6 +798,7 @@ class TeamLayout extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
+          this.missingResourceRedirected = false;
           this.setState({
             currentApp: res.bean,
             GroupShow: true
@@ -772,11 +809,10 @@ class TeamLayout extends PureComponent {
         this.setState({
           currentApp: false
         });
-        if (res && res.status === 404) {
-          this.props.dispatch(
-            routerRedux.push(
-              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
-            )
+        if (isMissingResourceError(res)) {
+          this.redirectMissingResource(
+            'app',
+            `/team/${teamName}/region/${regionName}/index`
           );
         }
       }

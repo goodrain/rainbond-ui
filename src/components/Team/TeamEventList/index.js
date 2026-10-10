@@ -10,6 +10,11 @@ import globalUtil from '../../../utils/global';
 import handleAPIError from '../../../utils/error';
 import styles from './index.less';
 
+const {
+  buildTeamEventTarget,
+  getTeamEventServiceLabel,
+} = require('./helpers');
+
 @connect(({ user, index, loading, global, teamControl, enterprise }) => ({
   currentUser: user.currentUser,
   index,
@@ -193,8 +198,6 @@ export default class EventList extends PureComponent {
 
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
-    const appID = globalUtil.getAppID();
-
     return events.map(item => {
       const {
         ID,
@@ -204,12 +207,11 @@ export default class EventList extends PureComponent {
         status,
         create_time,
         target,
-        service_name,
-        service_alias,
         updatedAt
       } = item;
 
-      const linkTo = `/team/${teamName}/region/${regionName}/apps/${appID}/overview?type=components&componentID=${service_alias}&tab=overview`;
+      const linkTo = buildTeamEventTarget(teamName, regionName, item);
+      const serviceLabel = getTeamEventServiceLabel(item);
 
       return (
         <List.Item key={ID}>
@@ -221,10 +223,14 @@ export default class EventList extends PureComponent {
                 {globalUtil.fetchStateOptTypeText(opt_type)}
               </span>
               &nbsp;
-              {target === 'service' && (
-                <Link to={linkTo} className={styles.event}>
-                  {service_name}
-                </Link>
+              {target === 'service' && serviceLabel && (
+                linkTo ? (
+                  <Link to={linkTo} className={styles.event}>
+                    {serviceLabel}
+                  </Link>
+                ) : (
+                  <span className={styles.event}>{serviceLabel}</span>
+                )
               )}
               <span>
                 {formatMessage({ id: 'teamManage.tabs.dynamic.meta.app' })}
