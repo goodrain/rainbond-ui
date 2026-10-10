@@ -15,6 +15,8 @@ import Yun from '../../../public/images/yun.svg'
 import Running from '../../../public/images/running.svg'
 import styles from './Overview.less'
 
+const { isMissingResourceError } = require('../../utils/missingResourceHelpers');
+
 // 提取组件列表为独立组件
 const ComponentList = ({ apps, onComponentClick }) => (
   <Menu className={styles.componentMenu}>
@@ -125,6 +127,15 @@ export default class Overview extends Component {
             apps: data.list || [],
             tableDataLoading: true
           });
+        }
+      },
+      handleError: error => {
+        if (isMissingResourceError(error)) {
+          dispatch(
+            routerRedux.replace(
+              `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
+            )
+          );
         }
       }
     });
