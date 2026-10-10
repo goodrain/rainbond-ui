@@ -153,6 +153,10 @@ class TeamLayout extends PureComponent {
       cookie.set('team_name', teamName);
       cookie.set('region_name', regionName);
       this.load();
+      const appID = globalUtil.getAppID(this.props.location && this.props.location.pathname);
+      if (appID) {
+        this.fetchAppDetail(appID);
+      }
     }
   }
   componentWillUpdate() {
@@ -187,9 +191,18 @@ class TeamLayout extends PureComponent {
     }
 
     // 2) appID 变化时，触发 fetchAppDetail（避免在 render 中触发）
-    const newAppID = globalUtil.getAppID();
+    const newAppID = globalUtil.getAppID(nextProps.location && nextProps.location.pathname);
     const { appID: stateAppID } = this.state;
-    if (newAppID && newAppID !== stateAppID) {
+    if (newAppID !== stateAppID) {
+      if (!newAppID) {
+        this.setState({
+          appID: '',
+          currentApp: false,
+          currentComponent: null,
+          permissionsRefreshing: false
+        });
+        return;
+      }
       this.setState(
         { appID: newAppID, currentApp: false, permissionsRefreshing: true },
         () => {
