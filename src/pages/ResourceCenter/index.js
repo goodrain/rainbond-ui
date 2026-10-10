@@ -771,6 +771,13 @@ class ResourceCenter extends PureComponent {
           this.fetchTabData(activeTab);
           return;
         }
+        const result = this.normalizeYamlCreateResult(res || {});
+        if (Number(result.summary.failure_count || 0) === 0) {
+          notification.success({ message: this.buildYamlResultSummary(result) });
+          this.closeYamlModal();
+          this.fetchTabData(activeTab);
+          return;
+        }
         this.openYamlResult(res || {});
       },
       handleError: yamlModalMode === 'edit' ? null : this.handleYamlCreateError,

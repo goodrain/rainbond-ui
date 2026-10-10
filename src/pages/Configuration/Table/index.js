@@ -334,22 +334,28 @@ export default class ConfigurationTable extends PureComponent {
                   return (
                     <div>
                       {isEdit && (
-                        <a
+                        <Button
+                          type="link"
+                          data-testid="rbd-config-group-edit"
+                          style={{ padding: 0, height: 'auto', marginRight: isDelete ? 8 : 0 }}
                           onClick={() => {
                             this.handleConfigurationOperation(data);
                           }}
                         >
                           {formatMessage({ id: 'appConfiguration.table.btn.edit' })}
-                        </a>
+                        </Button>
                       )}
                       {isDelete && (
-                        <a
+                        <Button
+                          type="link"
+                          data-testid="rbd-config-group-delete"
+                          style={{ padding: 0, height: 'auto' }}
                           onClick={() => {
                             this.handleDelete(data);
                           }}
                         >
                           {formatMessage({ id: 'appConfiguration.table.btn.delete' })}
-                        </a>
+                        </Button>
                       )}
                     </div>
                   );

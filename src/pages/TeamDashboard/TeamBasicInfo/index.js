@@ -266,6 +266,15 @@ export default class index extends Component {
     );
   };
 
+  handleSearchChange = e => {
+    const query = e.target.value;
+    if (query === '' && this.state.query !== '') {
+      this.onSearch('');
+      return;
+    }
+    this.setState({ query });
+  };
+
   // 下拉框选择排序方式
   handleSortChange = (value) => {
     this.setState({
@@ -724,9 +733,7 @@ export default class index extends Component {
                 onSearch={this.onSearch}
                 value={query}
                 allowClear
-                onChange={(e) => {
-                  this.setState({ query: e.target.value });
-                }}
+                onChange={this.handleSearchChange}
                 style={{ width: 180, marginRight: 10 }}
               />
               <Select
