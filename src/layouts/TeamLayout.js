@@ -191,9 +191,9 @@ class TeamLayout extends PureComponent {
     }
 
     // 2) appID 变化时，触发 fetchAppDetail（避免在 render 中触发）
+    const previousAppID = globalUtil.getAppID(this.props.location && this.props.location.pathname);
     const newAppID = globalUtil.getAppID(nextProps.location && nextProps.location.pathname);
-    const { appID: stateAppID } = this.state;
-    if (newAppID !== stateAppID) {
+    if (newAppID !== previousAppID) {
       if (!newAppID) {
         this.setState({
           appID: '',
