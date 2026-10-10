@@ -42,6 +42,8 @@ import EditorTopology from './EditorTopology';
 import color from '../../../config/theme'
 import styles from './Index.less';
 import region from '@/models/region';
+
+const { isMissingResourceError } = require('../../utils/missingResourceHelpers');
 // eslint-disable-next-line react/no-multi-comp
 @connect(({ user, application, teamControl, enterprise, loading, global }) => ({
   buildShapeLoading: loading.effects['global/buildShape'],
@@ -311,9 +313,9 @@ export default class Index extends PureComponent {
         if (!componentTimer) {
           return null;
         }
-        if (res && res.code === 404) {
+        if (isMissingResourceError(res)) {
           dispatch(
-            routerRedux.push(
+            routerRedux.replace(
               `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
             )
           );
