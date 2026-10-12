@@ -23,6 +23,20 @@ function normalizeLanguage(languageType) {
   return (languageType || '').toLowerCase();
 }
 
+function findResourceActionElement(target, boundary) {
+  let current = target;
+  while (current && current !== boundary) {
+    if (
+      typeof current.getAttribute === 'function' &&
+      current.getAttribute('action_type')
+    ) {
+      return current;
+    }
+    current = current.parentNode;
+  }
+  return null;
+}
+
 function supportsPackageBuildConfig(languageType) {
   const normalizedLanguage = normalizeLanguage(languageType);
   return (
@@ -46,6 +60,7 @@ function shouldShowCodeBuildConfig({ buildSource, languageType, runtimeInfo }) {
 }
 
 module.exports = {
+  findResourceActionElement,
   supportsPackageBuildConfig,
   shouldShowCodeBuildConfig
 };

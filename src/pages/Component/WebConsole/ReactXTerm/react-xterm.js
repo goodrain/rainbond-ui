@@ -5,6 +5,20 @@ import { SearchAddon } from 'xterm-addon-search';
 import { WebLinksAddon } from 'xterm-addon-web-links';
 import React from 'react';
 import className from 'classnames';
+import { getSafeTerminalLink } from './linkUtils';
+
+const openTerminalLink = (event, uri) => {
+  if (typeof window === 'undefined' || !window.location) {
+    return;
+  }
+  if (event && typeof event.preventDefault === 'function') {
+    event.preventDefault();
+  }
+  const safeLink = getSafeTerminalLink(uri, window.location.href);
+  if (safeLink) {
+    window.open(safeLink, '_blank', 'noopener,noreferrer');
+  }
+};
 
 class XTerm extends React.Component {
   constructor(props, context) {
@@ -23,7 +37,7 @@ class XTerm extends React.Component {
     const fit = new FitAddon();
     this.xterm.loadAddon(fit);
     this.xterm.loadAddon(new SearchAddon());
-    this.xterm.loadAddon(new WebLinksAddon());
+    this.xterm.loadAddon(new WebLinksAddon(openTerminalLink));
     this.xterm.setOption('fontSize', 16);
     this.xterm.setOption(
       'fontFamily',

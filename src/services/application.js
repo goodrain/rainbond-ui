@@ -356,7 +356,8 @@ export async function getGroupApps(
     page_size,
     sort,
     order
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/service/group`,
@@ -370,7 +371,8 @@ export async function getGroupApps(
         sort: body.sort,
         order: body.order
       },
-      showLoading: false
+      showLoading: false,
+      handleError
     }
   );
 }

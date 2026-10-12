@@ -69,7 +69,8 @@ export default class EnterpriseSetting extends PureComponent {
 
   isShowEnterprisePlugin = () => {
     const { dispatch, cluster_info } = this.props;
-    (cluster_info || []).forEach(item => {
+    const clusters = Array.isArray(cluster_info) ? cluster_info : [];
+    clusters.forEach(item => {
       dispatch({
         type: 'global/getPluginList',
         payload: { enterprise_id: global.getCurrEnterpriseId(), region_name: item.region_name },

@@ -15,6 +15,8 @@ import Yun from '../../../public/images/yun.svg'
 import Running from '../../../public/images/running.svg'
 import styles from './Overview.less'
 
+const { isMissingResourceError } = require('../../utils/missingResourceHelpers');
+
 // 提取组件列表为独立组件
 const ComponentList = ({ apps, onComponentClick }) => (
   <Menu className={styles.componentMenu}>
@@ -58,6 +60,7 @@ export default class Overview extends Component {
   }
 
   componentWillMount() {
+    this.validateApplication();
     this.loadComponents();
   }
 
@@ -108,6 +111,31 @@ export default class Overview extends Component {
   }
 
   // 获取app的组件
+  validateApplication = () => {
+    const { dispatch, match } = this.props;
+    const { teamName, regionName, appID } = match.params;
+    dispatch({
+      type: 'application/fetchGroupDetail',
+      payload: {
+        team_name: teamName,
+        region_name: regionName,
+        group_id: appID
+      },
+      handleError: this.handleMissingApplication
+    });
+  };
+
+  handleMissingApplication = error => {
+    if (isMissingResourceError(error)) {
+      const { dispatch } = this.props;
+      dispatch(
+        routerRedux.replace(
+          `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
+        )
+      );
+    }
+  };
+
   loadComponents = () => {
     const { dispatch } = this.props;
     dispatch({
@@ -126,7 +154,8 @@ export default class Overview extends Component {
             tableDataLoading: true
           });
         }
-      }
+      },
+      handleError: this.handleMissingApplication
     });
   };
 

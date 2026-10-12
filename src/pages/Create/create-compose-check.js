@@ -26,6 +26,7 @@ import rainbondUtil from '../../utils/rainbond';
 import regionUtil from '../../utils/region';
 import userUtil from '../../utils/user';
 import handleAPIError from '../../utils/error';
+import { findCreateCheckActionElement } from './createCheckHelpers';
 
 import 'codemirror/mode/yaml/yaml';
 import 'codemirror/lib/codemirror.css';
@@ -433,18 +434,15 @@ export default class CreateCheck extends PureComponent {
     this.setState({ modifyCompose: false });
   };
   handleClick = e => {
-    let parent = e.target;
-
-    while (parent) {
-      if (parent === document.body) {
-        return;
-      }
-      const actionType = parent.getAttribute('action_type');
-      if (actionType === 'modify_compose') {
-        this.setState({ modifyCompose: true });
-        return;
-      }
-      parent = parent.parentNode;
+    const actionElement = findCreateCheckActionElement(
+      e && e.target,
+      document.body
+    );
+    if (
+      actionElement &&
+      actionElement.getAttribute('action_type') === 'modify_compose'
+    ) {
+      this.setState({ modifyCompose: true });
     }
   };
   handleModifyCompose = vals => {

@@ -1,14 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'dva';
-import {
-    Tabs,
-    Card
-} from 'antd';
+import { Tabs } from 'antd';
+import { formatMessage } from '@/utils/intl';
 import roleUtil from '@/utils/newRole';
-import HttpTable from '../HttpTable';
-import TcpTable from '../TcpTable';
+import GatewayCertificate from '../../pages/NewGateway/GatewayCertificate';
+import GatewayRoute from '../../pages/NewGateway/GatewayRoute';
+import GatewayService from '../../pages/NewGateway/GatewayService';
 import styles from './index.less'
-import app from '@/locales/en-US/app';
 
 const TabPane = Tabs.TabPane;
 @connect(({ teamControl }) => ({
@@ -18,30 +16,74 @@ class Index extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            routePermission: {},
-            argetServicesPermission: {},
-            certificatePermission: {},
+            routePermission: { isAccess: false },
+            argetServicesPermission: { isAccess: false },
+            certificatePermission: { isAccess: false },
+            tabKeys: props.tabKey || 'route',
+            open: props.open || false,
         }
     }
     componentDidMount() {
-        const { currentTeamPermissionsInfo,appID } = this.props
+        this.syncPermissions()
+    }
+    componentDidUpdate(prevProps) {
+        if (
+            prevProps.currentTeamPermissionsInfo !== this.props.currentTeamPermissionsInfo ||
+            prevProps.appID !== this.props.appID ||
+            prevProps.tabKey !== this.props.tabKey ||
+            prevProps.open !== this.props.open
+        ) {
+            this.syncPermissions()
+        }
+    }
+    getInitialTabKey = permissions => {
+        const permissionByTab = {
+            route: permissions.routePermission,
+            service: permissions.argetServicesPermission,
+            certificate: permissions.certificatePermission,
+        };
+        const requestedTab = this.props.tabKey;
+        if (requestedTab && permissionByTab[requestedTab] && permissionByTab[requestedTab].isAccess) {
+            return requestedTab;
+        }
+        if (permissions.routePermission.isAccess) return 'route';
+        if (permissions.argetServicesPermission.isAccess) return 'service';
+        if (permissions.certificatePermission.isAccess) return 'certificate';
+        return 'route';
+    }
+    syncPermissions = () => {
+        const { currentTeamPermissionsInfo, appID } = this.props
+        const teamPermissions = currentTeamPermissionsInfo && currentTeamPermissionsInfo.team;
+        const appPermissionKey = appID ? `app_${appID}` : '';
+        const permissions = {
+            routePermission: roleUtil.queryPermissionsInfo(
+                teamPermissions, appID ? 'app_route_manage' : 'team_route_manage', appPermissionKey
+            ),
+            argetServicesPermission: roleUtil.queryPermissionsInfo(
+                teamPermissions, appID ? 'app_target_services' : 'team_target_services', appPermissionKey
+            ),
+            certificatePermission: roleUtil.queryPermissionsInfo(
+                teamPermissions, appID ? 'app_certificate' : 'team_certificate', appPermissionKey
+            ),
+        };
         this.setState({
-            routePermission: roleUtil.queryPermissionsInfo(currentTeamPermissionsInfo && currentTeamPermissionsInfo.team, appID ?'app_route_manage' : 'team_route_manage', appID ?`app_${appID}`:''),
-            argetServicesPermission: roleUtil.queryPermissionsInfo(currentTeamPermissionsInfo && currentTeamPermissionsInfo.team, appID ?'app_target_services':'team_target_services', appID ?`app_${appID}`:''),
-            certificatePermission: roleUtil.queryPermissionsInfo(currentTeamPermissionsInfo && currentTeamPermissionsInfo.team, appID ?'app_certificate':'team_certificate', appID ?`app_${appID}`:''),
+            ...permissions,
+            tabKeys: this.getInitialTabKey(permissions),
+            open: this.props.open || false,
         })
     }
-    callback = (key) => {
-
+    callback = key => {
+        this.setState({ tabKeys: key })
     }
     render() {
+        const { appID } = this.props
         const {
-            appID,
             routePermission,
             argetServicesPermission,
-            certificatePermission
-        } = this.props
-        const { tabKeys, open } = this.state
+            certificatePermission,
+            tabKeys,
+            open
+        } = this.state
         return (
             <div className={styles.cardContainer}>
                 <Tabs

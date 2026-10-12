@@ -192,7 +192,7 @@ export default class RangeChart extends PureComponent {
           return `sum(rate(container_network_receive_bytes_total{pod=~".*${groupName}-${serviceCname}.*",namespace="${namespace}"}[1m])) by (pod, namespace) / 1024`;
         case 'containerNetT':
           if (isKB) return `sum(rate(container_network_transmit_bytes_total{namespace="${namespace}", pod=~"^${serviceCname}-.*"}[1m])) by (pod, namespace) / 1024`;
-          return `sum(rate(container_network_transmit_bytes_total{pod=~".*${groupName}-${serviceCname}.*",namespace="${namespace}"}[1m]) by (pod, namespace) / 1024`;
+          return `sum(rate(container_network_transmit_bytes_total{pod=~".*${groupName}-${serviceCname}.*",namespace="${namespace}"}[1m])) by (pod, namespace) / 1024`;
         case 'responseTime':
           return `ceil(avg(app_requesttime{mode="avg",service_id="${serviceId}"}))`;
         case 'throughput':

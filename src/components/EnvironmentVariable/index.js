@@ -242,15 +242,19 @@ class EnvironmentVariable extends React.Component {
     );
   };
   save = (form, ID, isCancel) => {
-    const { addVariable, innerEnvsList } = this.state;
+    const { addVariable } = this.state;
     if (isCancel) {
+      form.resetFields();
       if (addVariable) {
-        const newData = [...innerEnvsList];
-        const index = newData.findIndex(item => ID === item.ID);
-        newData.splice(index, 1);
-        this.setState({ innerEnvsList: newData });
+        this.setState(prevState => ({
+          addVariable: false,
+          editingID: '',
+          innerEnvsList: prevState.innerEnvsList.filter(item => item.ID !== ID),
+          total: Math.max(0, prevState.total - 1)
+        }));
+      } else {
+        this.handleCancelAddVariabl();
       }
-      this.handleCancelAddVariabl();
       return null;
     }
 

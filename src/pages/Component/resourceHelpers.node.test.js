@@ -14,6 +14,32 @@ assert.strictEqual(
 );
 
 assert.strictEqual(
+  typeof helpers.findResourceActionElement,
+  'function',
+  'should expose a safe helper for locating resource action elements'
+);
+
+const actionElement = {
+  getAttribute(name) {
+    return name === 'action_type' ? 'modify_url' : null;
+  },
+  parentNode: null
+};
+const textNode = { parentNode: actionElement };
+
+assert.strictEqual(
+  helpers.findResourceActionElement(textNode, null),
+  actionElement,
+  'should climb from a text node without calling getAttribute on it'
+);
+
+assert.strictEqual(
+  helpers.findResourceActionElement({ parentNode: null }, null),
+  null,
+  'should return null when no action element exists'
+);
+
+assert.strictEqual(
   helpers.shouldShowCodeBuildConfig({
     buildSource: { service_source: 'source_code' },
     languageType: 'java-maven',

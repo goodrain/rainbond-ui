@@ -1,10 +1,29 @@
 const assert = require('assert');
 const {
   buildCreatedComponentOverviewTarget,
+  findCreateCheckActionElement,
   resolveCreateCheckGroupId,
   shouldEnterMultiServiceBuild,
   shouldShowMultiModuleBuildChoice
 } = require('./createCheckHelpers');
+
+const actionElement = {
+  parentNode: null,
+  getAttribute(name) {
+    return name === 'action_type' ? 'modify_url' : null;
+  }
+};
+const textNode = { parentNode: actionElement };
+assert.strictEqual(
+  findCreateCheckActionElement(textNode, null),
+  actionElement,
+  'click handling should climb from a non-Element target without calling getAttribute on it'
+);
+assert.strictEqual(
+  findCreateCheckActionElement({ parentNode: null }, null),
+  null,
+  'click handling should return no action for detached nodes'
+);
 
 assert.strictEqual(
   resolveCreateCheckGroupId({

@@ -55,6 +55,7 @@ export default class Index extends PureComponent {
       availableResourcesStatus: 'idle',
       availableResources: null,
       nextLoading: false,
+      configReady: false,
     };
     this.availableResourcesRequested = false;
     this.availableResourcesRequestToken = 0;
@@ -71,6 +72,11 @@ export default class Index extends PureComponent {
   }
   onRef = (ref) => {
     this.child = ref
+  }
+  handleConfigReadyChange = configReady => {
+    if (!this.unmounted && this.state.configReady !== configReady) {
+      this.setState({ configReady });
+    }
   }
   handlePermissions = type => {
     const { currentTeamPermissionsInfo } = this.props;
@@ -334,7 +340,12 @@ export default class Index extends PureComponent {
     return true;
   };
   handleJumpNext = async () => {
-    if (this.nextSubmitting) {
+    if (
+      this.nextSubmitting ||
+      !this.state.configReady ||
+      !this.child ||
+      typeof this.child.childFn !== 'function'
+    ) {
       return;
     }
     this.nextSubmitting = true;
@@ -440,7 +451,8 @@ export default class Index extends PureComponent {
       showDelete,
       handleBuildSwitch,
       showEnterprisePlugin,
-      nextLoading
+      nextLoading,
+      configReady
     } = this.state;
     const appDetail = this.state.appDetail || {};
     if (!appDetail.service) {
@@ -462,6 +474,7 @@ export default class Index extends PureComponent {
             handleEditInfo={this.handleEditInfo}
             handleEditRuntime={this.handleEditRuntime}
             onRef={this.onRef}
+            onReadyChange={this.handleConfigReadyChange}
           />
           <div
             style={{
@@ -489,6 +502,7 @@ export default class Index extends PureComponent {
             </Button>
             <Button
               data-testid="rbd-build-wizard-confirm"
+              disabled={!configReady}
               loading={buildAppsLoading || nextLoading}
               onClick={this.handleJumpNext}
               type="primary"

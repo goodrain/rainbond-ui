@@ -6,7 +6,7 @@ const source = fs.readFileSync(path.join(__dirname, 'index.js'), 'utf8');
 
 assert.match(
   source,
-  /const \{ mergeCreateRuntimeInfo \} = require\('\.\.\/CodeBuildConfig\/buildEnvHelpers'\);/,
+  /import buildEnvHelpers from '\.\.\/CodeBuildConfig\/buildEnvHelpers';[\s\S]*?const \{ mergeCreateRuntimeInfo \} = buildEnvHelpers;/,
   'AppCreateConfigFile should import mergeCreateRuntimeInfo for create-flow runtime hydration'
 );
 

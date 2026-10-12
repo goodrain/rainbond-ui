@@ -61,4 +61,11 @@ assert.ok(
   'resource ECharts line chart should have a stable container size'
 );
 
+assert.ok(
+  rangeChartSource.includes(
+    'container_network_transmit_bytes_total{pod=~".*${groupName}-${serviceCname}.*",namespace="${namespace}"}[1m])) by (pod, namespace) / 1024'
+  ),
+  'component network transmit query should close rate and sum before the by modifier'
+);
+
 console.log('resource monitor ECharts tests passed');

@@ -3,9 +3,30 @@ const {
   buildEditableAttributeFields,
   formatRawJsonAttributeValue,
   isRawJsonAttribute,
+  normalizeKeyValueAttributeValue,
   normalizeBooleanAttributeValue,
   parseRawJsonAttributeValue
 } = require('./kubernetsAttributeHelpers');
+
+assert.deepStrictEqual(
+  normalizeKeyValueAttributeValue({ app: 'demo', tier: 'backend', config: { enabled: true } }),
+  [
+    { key: 'app', value: 'demo' },
+    { key: 'tier', value: 'backend' },
+    { key: 'config', value: '{"enabled":true}' }
+  ],
+  'should normalize object-shaped labels into the key/value rows used by the UI'
+);
+assert.deepStrictEqual(
+  normalizeKeyValueAttributeValue('{"app":"demo"}'),
+  [{ key: 'app', value: 'demo' }],
+  'should normalize persisted JSON strings before rendering'
+);
+assert.deepStrictEqual(
+  normalizeKeyValueAttributeValue('invalid-json'),
+  [],
+  'should render an empty state for malformed key/value JSON instead of calling map on a string'
+);
 
 assert.strictEqual(
   isRawJsonAttribute('vm_gpu_resources', {

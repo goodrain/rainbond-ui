@@ -257,8 +257,8 @@ export default {
         }
       }
     },
-    *fetchApps({ payload, callback }, { call, put }) {
-      const response = yield call(getGroupApps, payload);
+    *fetchApps({ payload, callback, handleError }, { call, put }) {
+      const response = yield call(getGroupApps, payload, handleError);
       if (response) {
         yield put({ type: 'saveApps', payload: response.list });
         if (callback) {

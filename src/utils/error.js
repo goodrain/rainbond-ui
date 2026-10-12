@@ -4,6 +4,26 @@ import { formatMessage } from '@/utils/intl';
 import errorMessage from './errorMessage';
 
 const { getErrorCodeMessage } = errorMessage;
+const WARNING_DEDUP_WINDOW_MS = 2000;
+const recentWarnings = new Map();
+
+export function notifyAPIWarning(message) {
+  if (!message) {
+    return;
+  }
+  const now = Date.now();
+  const lastShownAt = recentWarnings.get(message) || 0;
+  if (now - lastShownAt < WARNING_DEDUP_WINDOW_MS) {
+    return;
+  }
+  recentWarnings.forEach((shownAt, key) => {
+    if (now - shownAt >= WARNING_DEDUP_WINDOW_MS) {
+      recentWarnings.delete(key);
+    }
+  });
+  recentWarnings.set(message, now);
+  notification.warning({ message });
+}
 
 export default function handleAPIError(err) {
   let data = null;
@@ -56,11 +76,11 @@ export default function handleAPIError(err) {
         break;
       default:
         if (!messages && detailMessage) {
-          notification.warning({ message: detailMessage });
+          notifyAPIWarning(detailMessage);
         }
     }
     if (messages) {
-      notification.warning({ message: messages });
+      notifyAPIWarning(messages);
     }
   }
 }

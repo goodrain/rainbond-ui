@@ -37,6 +37,7 @@ import {
 } from '@/components/CodeBuildConfig/nodejs-cnb';
 import {
   buildCreatedComponentOverviewTarget,
+  findCreateCheckActionElement,
   resolveCreateCheckGroupId,
   shouldEnterMultiServiceBuild,
   shouldShowMultiModuleBuildChoice
@@ -886,54 +887,53 @@ export default class CreateCheck extends React.Component {
    *   无
    */
   handleClick = e => {
-    let parent = e.target;
+    const actionElement = findCreateCheckActionElement(
+      e && e.target,
+      document.body
+    );
+    if (!actionElement) {
+      return;
+    }
     const { appDetail } = this.state;
+    const actionType = actionElement.getAttribute('action_type');
 
-    while (parent) {
-      if (parent === document.body) {
+    if (actionType === 'modify_url' || actionType === 'modify_repo') {
+      this.setState({ modifyUrl: actionType });
+      return;
+    }
+
+    if (actionType === 'modify_userpass') {
+      this.setState({ modifyUserpass: true });
+      return;
+    }
+
+    if (actionType === 'get_publickey') {
+      this.setState({ showKey: true });
+      return;
+    }
+
+    if (actionType === 'open_repo') {
+      if ((appDetail.git_url || '').indexOf('@') === -1) {
+        window.open(appDetail.git_url);
+      } else {
+        Modal.info({ title: formatMessage({ id: 'componentCheck.warehouse_address' }), content: appDetail.git_url });
+      }
+      return;
+    }
+
+    // 修改镜像名称或dockerrun命令
+    if (actionType === 'modify_image') {
+      // 指定镜像
+      if (appDetail.service_source === 'docker_image') {
+        this.startCheck(false);
+        this.setState({ modifyImageName: true });
         return;
       }
-      const actionType = parent.getAttribute('action_type');
-      if (actionType === 'modify_url' || actionType === 'modify_repo') {
-        this.setState({ modifyUrl: actionType });
-        return;
+      // docker_run命令
+      if (appDetail.service_source === 'docker_run') {
+        this.startCheck(false);
+        this.setState({ modifyImageCmd: true });
       }
-
-      if (actionType === 'modify_userpass') {
-        this.setState({ modifyUserpass: true });
-        return;
-      }
-
-      if (actionType === 'get_publickey') {
-        this.setState({ showKey: true });
-        return;
-      }
-
-      if (actionType === 'open_repo') {
-        if ((appDetail.git_url || '').indexOf('@') === -1) {
-          window.open(appDetail.git_url);
-        } else {
-          Modal.info({ title: formatMessage({ id: 'componentCheck.warehouse_address' }), content: appDetail.git_url });
-        }
-      }
-
-      // 修改镜像名称或dockerrun命令
-      if (actionType === 'modify_image') {
-        // 指定镜像
-        if (appDetail.service_source === 'docker_image') {
-          this.startCheck(false);
-          this.setState({ modifyImageName: true });
-          return;
-        }
-        // docker_run命令
-        if (appDetail.service_source === 'docker_run') {
-          this.startCheck(false);
-          this.setState({ modifyImageCmd: true });
-          return;
-        }
-      }
-
-      parent = parent.parentNode;
     }
   };
   /**

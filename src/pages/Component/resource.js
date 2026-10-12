@@ -30,7 +30,10 @@ import rainbondUtil from '../../utils/rainbond';
 import { languageObj } from '../../utils/utils';
 import { formatMessage } from '@/utils/intl';
 import styles from './resource.less';
-import { shouldShowCodeBuildConfig } from './resourceHelpers';
+import {
+  findResourceActionElement,
+  shouldShowCodeBuildConfig
+} from './resourceHelpers';
 import AutoDeploy from './setting/auto-deploy';
 import ChangeBuildSource from './setting/edit-buildsource';
 import ModifyUrl from '../Create/modify-url';
@@ -117,24 +120,21 @@ export default class Index extends PureComponent {
   };
 
   handleClick = e => {
-    let parent = e.target;
-    const appDetail = this.props && this.props.appDetail && this.props.appDetail.service;
-    while (parent) {
-      if (parent === document.body) {
-        return;
-      }
-      const actionType = parent.getAttribute('action_type');
-      if (actionType === 'modify_url' || actionType === 'modify_repo') {
-        this.setState({ modifyUrl: actionType });
-        return;
-      }
+    const actionElement = findResourceActionElement(
+      e && e.target,
+      document.body
+    );
+    if (!actionElement) {
+      return;
+    }
+    const actionType = actionElement.getAttribute('action_type');
+    if (actionType === 'modify_url' || actionType === 'modify_repo') {
+      this.setState({ modifyUrl: actionType });
+      return;
+    }
 
-      if (actionType === 'modify_userpass') {
-        this.setState({ modifyUserpass: true });
-        return;
-      }
-
-      parent = parent.parentNode;
+    if (actionType === 'modify_userpass') {
+      this.setState({ modifyUserpass: true });
     }
   };
   time = () => {

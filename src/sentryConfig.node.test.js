@@ -278,6 +278,15 @@ test('classifyHttpError returns correct error class', function() {
 });
 
 test('shouldSuppressRequestError suppresses expected transient errors', function() {
+  const axiosCancel = new Error('canceled');
+  axiosCancel.name = 'CanceledError';
+  axiosCancel.code = 'ERR_CANCELED';
+  assert.strictEqual(
+    shouldSuppressRequestError(axiosCancel, {}),
+    true,
+    'axios cancellations should not be reported as request failures'
+  );
+
   // Network errors WITH a custom handler are suppressed
   assert.strictEqual(
     shouldSuppressRequestError(new Error('timeout'), { handleError: () => {} }),
@@ -303,6 +312,14 @@ test('shouldSuppressRequestError suppresses expected transient errors', function
 });
 
 test('shouldSuppressBrowserError suppresses known browser runtime noise', function() {
+  const abortError = new Error('The operation was aborted.');
+  abortError.name = 'AbortError';
+  assert.strictEqual(
+    shouldSuppressBrowserError(abortError, { errorSource: 'unhandledrejection' }),
+    true,
+    'intentional fetch aborts should not be reported as unhandled rejections'
+  );
+
   assert.strictEqual(
     shouldSuppressBrowserError(
       new Error('ResizeObserver loop completed with undelivered notifications.'),

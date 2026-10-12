@@ -81,7 +81,8 @@ export default class EnterpriseTeams extends PureComponent {
   }
   isShowEnterprisePlugin = () => {
     const { dispatch, cluster_info } = this.props;
-    (cluster_info || []).forEach(item => {
+    const clusters = Array.isArray(cluster_info) ? cluster_info : [];
+    clusters.forEach(item => {
       dispatch({
         type: 'global/getPluginList',
         payload: { enterprise_id: globalUtil.getCurrEnterpriseId(), region_name: item.region_name },
