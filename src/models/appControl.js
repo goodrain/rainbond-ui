@@ -689,8 +689,8 @@ export default {
         callback(response);
       }
     },
-    *createService({ payload, callback }, { call }) {
-      const response = yield call(createService, payload);
+    *createService({ payload, callback, handleError }, { call }) {
+      const response = yield call(createService, payload, handleError);
       if (response && callback) {
         callback(response);
       }

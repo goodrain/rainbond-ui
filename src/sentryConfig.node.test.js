@@ -345,6 +345,15 @@ test('shouldSuppressBrowserError suppresses known browser runtime noise', functi
     shouldSuppressBrowserError(insertBeforeError, { errorSource: 'window_error' }),
     true
   );
+
+  assert.strictEqual(
+    shouldSuppressBrowserError(
+      new Error('Network Error'),
+      { errorSource: 'unhandledrejection', route: '/user/login?[Filtered]' }
+    ),
+    true,
+    'login network interruptions should not create unhandled rejection issues'
+  );
 });
 
 test('shouldSuppressBrowserError keeps app render and api errors reportable', function() {
@@ -367,6 +376,15 @@ test('shouldSuppressBrowserError keeps app render and api errors reportable', fu
   assert.strictEqual(
     shouldSuppressBrowserError(new Error('Request failed'), { errorSource: 'api' }),
     false
+  );
+
+  assert.strictEqual(
+    shouldSuppressBrowserError(
+      new Error('Network Error'),
+      { errorSource: 'unhandledrejection', route: '/team/demo/region/rainbond/index' }
+    ),
+    false,
+    'network failures outside login remain reportable'
   );
 });
 

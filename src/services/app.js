@@ -2758,7 +2758,8 @@ export async function createService(
     team_name,
     app_alias,
     service_infos
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/multi/create`,
@@ -2766,7 +2767,8 @@ export async function createService(
       method: 'post',
       data: {
         service_infos: body.service_infos
-      }
+      },
+      handleError
     }
   );
 }
