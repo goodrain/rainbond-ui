@@ -469,7 +469,7 @@ export default class index extends Component {
                             const status = this.getMTLSStatus(record, domain);
                             return (
                                 <Row key={domain} style={{ marginBottom: 4 }}>
-                                    <Tag color={status.enabled ? 'green' : 'default'}>
+                                    <Tag color={status.enabled ? 'green' : undefined}>
                                         {formatMessage({
                                             id: status.enabled
                                                 ? 'teamGateway.mtls.enabled'
@@ -612,6 +612,7 @@ export default class index extends Component {
                     {mtlsEnabled && (
                         <Form.Item label={formatMessage({ id: 'teamGateway.mtls.clientCA' })} required>
                             <Select
+                                style={{ width: '100%' }}
                                 value={mtlsCASecretName || undefined}
                                 placeholder={formatMessage({ id: 'teamGateway.mtls.clientCA.placeholder' })}
                                 onChange={value => this.setState({ mtlsCASecretName: value })}
