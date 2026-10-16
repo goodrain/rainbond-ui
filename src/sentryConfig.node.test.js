@@ -383,8 +383,17 @@ test('shouldSuppressBrowserError keeps app render and api errors reportable', fu
       new Error('Network Error'),
       { errorSource: 'unhandledrejection', route: '/team/demo/region/rainbond/index' }
     ),
+    true,
+    'request-layer reporting makes bare browser network rejections duplicate noise'
+  );
+
+  assert.strictEqual(
+    shouldSuppressBrowserError(
+      new Error('Network Error'),
+      { errorSource: 'api', route: '/team/demo/region/rainbond/index' }
+    ),
     false,
-    'network failures outside login remain reportable'
+    'structured api network failures remain reportable'
   );
 });
 

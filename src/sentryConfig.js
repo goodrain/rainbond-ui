@@ -767,11 +767,9 @@ function shouldSuppressBrowserError(error, context = {}) {
     return true;
   }
 
-  const route = String(context.route || (context.tags && context.tags.route) || '');
   if (
     source === 'unhandledrejection' &&
-    /^Network Error$/i.test(message) &&
-    /^\/user\/login(?:\?\[Filtered\])?$/.test(route)
+    /^Network Error$/i.test(message)
   ) {
     return true;
   }
