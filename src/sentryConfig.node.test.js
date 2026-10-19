@@ -466,6 +466,30 @@ test('buildSlowRequestRouteTemplate keeps api roots and placeholders every unkno
   );
 });
 
+test('buildSlowRequestRouteTemplate preserves reviewed polling and platform routes', function() {
+  const routes = {
+    '/console/teams/team-private/apps/app-private/pods': '/console/teams/:id/apps/:id/pods',
+    '/console/teams/team-private/apps/app-private/ports': '/console/teams/:id/apps/:id/ports',
+    '/console/teams/team-private/apps/app-private/volume-opts': '/console/teams/:id/apps/:id/volume-opts',
+    '/console/teams/team-private/apps/app-private/monitor/query_range':
+      '/console/teams/:id/apps/:id/monitor/query_range',
+    '/console/teams/team-private/operator-managed': '/console/teams/:id/operator-managed',
+    '/console/enterprise/enterprise-private/platform-overview': '/console/enterprise/:id/platform-overview',
+    '/console/enterprise/enterprise-private/regions/region-private/platform-overview/metrics':
+      '/console/enterprise/:id/regions/:id/platform-overview/metrics'
+  };
+
+  Object.keys(routes).forEach(function(url) {
+    assert.strictEqual(buildSlowRequestRouteTemplate(url), routes[url], url);
+  });
+
+  assert.strictEqual(
+    buildSlowRequestRouteTemplate('/console/private-user-value/custom-action-value'),
+    '/console/:unknown/:unknown',
+    'unreviewed values must remain redacted'
+  );
+});
+
 test('buildSlowRequestRouteTemplate fails closed for non-api malformed and encoded paths', function() {
   const unsafeUrls = [
     '',

@@ -26,6 +26,7 @@ import Instance from './component/Instance/index';
 import styles from './Index.less';
 import { shouldRefreshVMProfileForVNC } from './vmProfileRefreshHelpers';
 import { shouldLoadStorageUsage } from '../../components/SlidePanel/components/componentViewPerformance';
+const { getComponentPollingDelay } = require('./componentPolling');
 
 const ButtonGroup = Button.Group;
 
@@ -392,8 +393,9 @@ export default class Index extends PureComponent {
         unit: 'MB'
       }
     };
-    this.inerval = 5000;
     this.storageUsageRequested = false;
+    this.operationLogPollFailures = 0;
+    this.podsPollFailures = 0;
   }
   static contextTypes = {
     isActionIng: PropTypes.func,
@@ -429,7 +431,13 @@ export default class Index extends PureComponent {
 
     if (newTimers !== timers) {
       this.setState({ componentTimers: newTimers }, () => {
-        newTimers ? this.load() : this.closeTimer();
+        if (newTimers) {
+          this.operationLogPollFailures = 0;
+          this.podsPollFailures = 0;
+          this.load();
+        } else {
+          this.closeTimer();
+        }
       });
     }
   }
@@ -445,10 +453,12 @@ export default class Index extends PureComponent {
   };
   closeTimer = () => {
     if (this.fetchOperationLogTimer) {
-      clearInterval(this.fetchOperationLogTimer);
+      clearTimeout(this.fetchOperationLogTimer);
+      this.fetchOperationLogTimer = null;
     }
     if (this.fetchPodsTimer) {
-      clearInterval(this.fetchPodsTimer);
+      clearTimeout(this.fetchPodsTimer);
+      this.fetchPodsTimer = null;
     }
   };
 
@@ -492,6 +502,7 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
+          this.operationLogPollFailures = 0;
           this.setState(
             {
               isopenLog,
@@ -506,7 +517,9 @@ export default class Index extends PureComponent {
                   () => {
                     this.fetchOperationLog(true);
                   },
-                  5000
+                  getComponentPollingDelay({
+                    status: this.props.status && this.props.status.status
+                  })
                 );
               }
             }
@@ -514,14 +527,17 @@ export default class Index extends PureComponent {
         }
       },
       handleError: err => {
+        this.operationLogPollFailures += 1;
         this.handleError(err);
-        this.handleTimers(
-          'fetchOperationLogTimer',
-          () => {
-            this.fetchOperationLog(true);
-          },
-          10000
-        );
+        if (isCycle) {
+          this.handleTimers(
+            'fetchOperationLogTimer',
+            () => {
+              this.fetchOperationLog(true);
+            },
+            getComponentPollingDelay({ failureCount: this.operationLogPollFailures })
+          );
+        }
       }
     });
   };
@@ -538,7 +554,11 @@ export default class Index extends PureComponent {
     if (!componentTimers) {
       return null;
     }
+    if (this[timerName]) {
+      clearTimeout(this[timerName]);
+    }
     this[timerName] = setTimeout(() => {
+      this[timerName] = null;
       callback();
     }, times);
   };
@@ -673,6 +693,7 @@ export default class Index extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
+          this.podsPollFailures = 0;
           this.setState(
             {
               new_pods: res.list.new_pods,
@@ -686,7 +707,9 @@ export default class Index extends PureComponent {
                   () => {
                     this.fetchPods(true);
                   },
-                  5000
+                  getComponentPollingDelay({
+                    status: this.props.status && this.props.status.status
+                  })
                 );
               }
             }
@@ -694,14 +717,17 @@ export default class Index extends PureComponent {
         }
       },
       handleError: err => {
+        this.podsPollFailures += 1;
         this.handleError(err);
-        this.handleTimers(
-          'fetchPodsTimer',
-          () => {
-            this.fetchPods(true);
-          },
-          10000
-        );
+        if (isCycle) {
+          this.handleTimers(
+            'fetchPodsTimer',
+            () => {
+              this.fetchPods(true);
+            },
+            getComponentPollingDelay({ failureCount: this.podsPollFailures })
+          );
+        }
       }
     });
   };

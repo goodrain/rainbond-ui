@@ -79,6 +79,7 @@ const {
   markComponentGuideHandled,
   suppressAgentGuidesForLogin,
 } = require('../../utils/agentGuideSession');
+const { getComponentPollingDelay } = require('./componentPolling');
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -304,6 +305,7 @@ class Main extends PureComponent {
       isShowThirdParty: false,
       promptModal: null,
       componentTimer: true,
+      pageVisible: typeof document === 'undefined' || !document.hidden,
       tabsShow: false,
       routerSwitch: true,
       deploySubmitting: false,
@@ -312,6 +314,7 @@ class Main extends PureComponent {
     };
     this.deployRequestPending = false;
     this.destroy = false;
+    this.statusPollFailures = 0;
   }
 
   getChildContext() {
@@ -325,12 +328,16 @@ class Main extends PureComponent {
     };
   }
   componentDidMount() {
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', this.handleVisibilityChange);
+    }
     this.loadDetail();
-    setTimeout(() => {
-      this.getStatus(true);
-    }, 5000);
+    this.handleTimers('timer', () => this.getStatus(true), 5000);
   }
   componentWillUnmount() {
+    if (typeof document !== 'undefined') {
+      document.removeEventListener('visibilitychange', this.handleVisibilityChange);
+    }
     this.closeComponentTimer();
     this.props.dispatch({ type: 'appControl/clearPods' });
     this.props.dispatch({ type: 'appControl/clearDetail' });
@@ -355,10 +362,10 @@ class Main extends PureComponent {
 
   getStatus = isCycle => {
     const { dispatch } = this.props;
-    const { componentTimer } = this.state;
+    const { componentTimer, pageVisible } = this.state;
     const { team_name, app_alias } = this.fetchParameter();
 
-    if (!app_alias) {
+    if (!app_alias || !componentTimer || !pageVisible) {
       return;
     }
 
@@ -370,28 +377,30 @@ class Main extends PureComponent {
       },
       callback: res => {
         if (res && res.status_code === 200) {
+          this.statusPollFailures = 0;
           this.setState({ status: res.bean }, () => {
-            if (isCycle && componentTimer) {
+            if (isCycle && this.state.componentTimer && this.state.pageVisible) {
               this.handleTimers(
                 'timer',
                 () => {
                   this.getStatus(true);
                 },
-                5000
+                getComponentPollingDelay({ status: res.bean && res.bean.status })
               );
             }
           });
         }
       },
       handleError: err => {
+        this.statusPollFailures += 1;
         this.handleError(err);
-        if (isCycle && componentTimer && err.status !== 404) {
+        if (isCycle && this.state.componentTimer && this.state.pageVisible && err.status !== 404) {
           this.handleTimers(
             'timer',
             () => {
               this.getStatus(true);
             },
-            10000
+            getComponentPollingDelay({ failureCount: this.statusPollFailures })
           );
         }
       }
@@ -445,13 +454,30 @@ class Main extends PureComponent {
     return null;
   };
   handleTimers = (timerName, callback, times) => {
-    const { componentTimer } = this.state;
-    if (!componentTimer) {
+    const { componentTimer, pageVisible } = this.state;
+    if (!componentTimer || !pageVisible) {
       return null;
     }
+    if (this[timerName]) {
+      clearTimeout(this[timerName]);
+    }
     this[timerName] = setTimeout(() => {
+      this[timerName] = null;
       callback();
     }, times);
+  };
+
+  handleVisibilityChange = () => {
+    const pageVisible = !document.hidden;
+    if (!pageVisible) {
+      this.closeTimer();
+    }
+    this.setState({ pageVisible }, () => {
+      if (pageVisible && this.state.componentTimer) {
+        this.statusPollFailures = 0;
+        this.getStatus(true);
+      }
+    });
   };
 
   handleTabChange = key => {
@@ -515,7 +541,8 @@ class Main extends PureComponent {
 
   closeTimer = () => {
     if (this.timer) {
-      clearInterval(this.timer);
+      clearTimeout(this.timer);
+      this.timer = null;
     }
   };
 
@@ -831,7 +858,9 @@ class Main extends PureComponent {
   };
   openComponentTimer = () => {
     this.setState({ componentTimer: true }, () => {
-      this.getStatus(true);
+      if (this.state.pageVisible) {
+        this.getStatus(true);
+      }
     });
   };
 
@@ -1287,6 +1316,7 @@ class Main extends PureComponent {
     const {
       BuildList,
       componentTimer,
+      pageVisible,
       isShowThirdParty,
       status,
       promptModal,
@@ -1316,6 +1346,7 @@ class Main extends PureComponent {
       deploySubmitting,
     } = this.state;
     const { getFieldDecorator } = form;
+    const pollingEnabled = componentTimer && pageVisible;
     const method = appDetail && appDetail.service && appDetail.service.extend_method
     const CompluginList = getVisibleComponentPlugins(
       PluginUtile.segregatePluginsByHierarchy(pluginList, 'Component'),
@@ -1347,7 +1378,8 @@ class Main extends PureComponent {
     } = this.fetchParameter();
     const visitBtns = (
       <VisitBtn
-        timers={componentTimer}
+        pollingEnabled={pollingEnabled}
+        timers={pollingEnabled}
         btntype="primary"
         app_alias={appAlias}
       />
@@ -1832,7 +1864,8 @@ class Main extends PureComponent {
               groupDetail={groupDetail}
               // appPermissions={appPermissions}
               componentPermissions={componentPermissions}
-              timers={componentTimer}
+              pollingEnabled={pollingEnabled}
+              timers={pollingEnabled}
               status={status}
               ref={this.saveRef}
               {...this.props.match.params}

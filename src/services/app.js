@@ -376,7 +376,8 @@ export function getComponentState(body = {}, handleError) {
     {
       method: 'get',
       handleError,
-      showLoading: false
+      showLoading: false,
+      timeout: 10000
     }
   );
 }
@@ -1997,7 +1998,8 @@ export async function getPods(body = {}, handleError) {
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/pods`,
     {
       method: 'get',
-      handleError
+      handleError,
+      timeout: 12000
     }
   );
 }
@@ -2346,7 +2348,8 @@ export async function fetchOperationLog(body = {}, handleError) {
         targetAlias: body.app_alias ? body.app_alias : '',
         target: body.target ? body.target : 'service'
       },
-      handleError
+      handleError,
+      timeout: 12000
     }
   );
 }
