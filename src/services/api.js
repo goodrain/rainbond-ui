@@ -1140,6 +1140,66 @@ export async function fetchOverviewMonitor(param) {
   );
 }
 
+/* 平台总览：数据库快速摘要 */
+export async function fetchPlatformOverviewShell(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterpriseId}/platform-overview`,
+    {
+      method: 'get',
+      showLoading: false,
+      showMessage: false,
+      noModels: true
+    }
+  );
+}
+
+/* 平台总览：多集群运行态 */
+export async function fetchPlatformOverviewRuntime(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterpriseId}/platform-overview/runtime`,
+    {
+      method: 'get',
+      showLoading: false,
+      showMessage: false,
+      noModels: true
+    }
+  );
+}
+
+/* 平台总览：当前集群快照 */
+export async function fetchPlatformClusterOverview(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterpriseId}/regions/${encodeURIComponent(
+      body.regionName
+    )}/platform-overview`,
+    {
+      method: 'get',
+      showLoading: false,
+      showMessage: false,
+      noModels: true
+    }
+  );
+}
+
+/* 平台总览：服务端白名单监控趋势 */
+export async function fetchPlatformOverviewMetrics(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterpriseId}/regions/${encodeURIComponent(
+      body.regionName
+    )}/platform-overview/metrics`,
+    {
+      method: 'get',
+      params: {
+        metric: body.metric,
+        range: body.range
+      },
+      showLoading: false,
+      showMessage: false,
+      noModels: true
+    }
+  );
+}
+
 /* 设置注册功能 */
 export async function setRegist(body = {}) {
   return request(`${apiconfig.baseUrl}/console/enterprise/registerstatus`, {

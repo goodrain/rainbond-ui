@@ -102,6 +102,7 @@ class EnterpriseLayout extends PureComponent {
   }
 
   componentDidMount() {
+    this.mounted = true;
     // 使用 localStorage 中保存的折叠状态
     const savedCollapsed = window.localStorage.getItem('collapsed');
     if (savedCollapsed !== null) {
@@ -113,21 +114,63 @@ class EnterpriseLayout extends PureComponent {
       this.setState({ showMenu: false });
     }
   }
+
+  componentDidUpdate(previousProps) {
+    const previousLocation = previousProps.location;
+    const { location } = this.props;
+    if (previousLocation.pathname !== location.pathname) {
+      if (this.isOverviewRoute(previousLocation) && !this.isOverviewRoute(location)) {
+        this.handleLoadEnterpriseClusters();
+      }
+    }
+    const previousRegion = previousLocation.query && previousLocation.query.regionName;
+    const regionName = location.query && location.query.regionName;
+    if (this.isOverviewRoute(location) && previousRegion !== regionName && regionName) {
+      this.loadOverviewPlugins(this.state.clusterList || []);
+    }
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  isOverviewRoute = (location = this.props.location) =>
+    /^\/enterprise\/[^/]+\/index\/?$/.test(location.pathname);
+
+  loadOverviewPlugins = clusters => {
+    const { location, currRegion } = this.props;
+    const queryRegion = location.query && location.query.regionName;
+    const selected = clusters.find(item => item.region_name === queryRegion) ||
+      clusters.find(item => item.region_name === currRegion) ||
+      clusters.find(item => item.status === '1') || clusters[0];
+    if (selected && !this.state.pluginList[selected.region_name]) {
+      this.handlePluginList(selected.region_name).catch(() => {});
+    }
+  };
+
   handleLoadEnterpriseClusters = () => {
     const { dispatch } = this.props;
     const eid = globalUtil.getCurrEnterpriseId();
+    const overview = this.isOverviewRoute();
     dispatch({
       type: 'region/fetchEnterpriseClusters',
       payload: {
-        enterprise_id: eid
+        enterprise_id: eid,
+        ...(overview ? { check_status: 'no' } : {})
       },
       callback: res => {
+        if (!this.mounted) return;
         if (res.status_code === 200 && res?.list) {
           this.setState({ clusterList: res.list });
+          if (overview) {
+            this.setState({ key: false });
+            this.loadOverviewPlugins(res.list);
+            return;
+          }
           const promises = res.list.map(item => this.handlePluginList(item.region_name));
           Promise.all(promises)
-            .then(() => this.setState({ key: false }))
-            .catch(() => this.setState({ key: false }));
+            .then(() => this.mounted && this.setState({ key: false }))
+            .catch(() => this.mounted && this.setState({ key: false }));
         }
       }
     });
@@ -143,6 +186,10 @@ class EnterpriseLayout extends PureComponent {
           region_name: regionName,
         },
         callback: res => {
+          if (!this.mounted) {
+            resolve();
+            return;
+          }
           if (res && res.list) {
             dispatch({
               type: 'rbdPlugin/fetchPluginList',
@@ -157,11 +204,12 @@ class EnterpriseLayout extends PureComponent {
               pluginList: { ...prevState.pluginList, [regionName]: res.list }
             }));
             resolve();
+          } else {
+            resolve();
           }
         },
         handleError: err => {
           if (err) {
-            this.setState({ pluginList: {} });
             reject(new Error('Failed to get component language version'));
           }
         }
