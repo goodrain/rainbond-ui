@@ -25,6 +25,20 @@ new Function('require', 'module', 'exports', code)(name => {
   return require(name);
 }, result, result.exports);
 const page = new result.exports.default({ overview: { loading: {}, errors: {} } });
+const runtimeStatus = result.exports.clusterRuntimeStatus;
+const healthySnapshot = () => ({ sections: {
+  nodes: { status: 'ok', data: { status: 'ok', ready: 2, total: 2, disk_stats_status: 'ok', alerts: [] } },
+  components: { status: 'ok', data: [{ status: 'Running', run_pods: 1, all_pods: 1 }] }
+} });
+assert.strictEqual(runtimeStatus(healthySnapshot()), 'normal');
+assert.strictEqual(runtimeStatus(healthySnapshot(), true), 'unknown');
+assert.strictEqual(runtimeStatus(null), 'unknown');
+for (const change of [s => { s.sections.nodes.data.ready = 1; }, s => { s.sections.nodes.data.alerts = [{}]; }, s => { s.sections.components.data[0].status = 'Abnormal'; }, s => { s.sections.components.data[0].run_pods = 0; }]) {
+  const snapshot = healthySnapshot(); change(snapshot); assert.strictEqual(runtimeStatus(snapshot), 'abnormal');
+}
+for (const change of [s => { s.sections.nodes.status = 'unavailable'; }, s => { s.sections.nodes.data.disk_stats_status = 'unavailable'; }, s => { s.sections.nodes.data.ready = null; }, s => { s.sections.components.data = []; }, s => { s.sections.components.data[0].status = 'UNKNOWN'; }, s => { s.sections.nodes.data.total = 0; s.sections.nodes.data.ready = 0; }]) {
+  const snapshot = healthySnapshot(); change(snapshot); assert.strictEqual(runtimeStatus(snapshot), 'unknown');
+}
 const nodes = element => !element || typeof element !== 'object' ? [] : Array.isArray(element)
   ? element.flatMap(nodes) : [element].concat(nodes(element.props && element.props.children));
 page.getCurrentMetrics = () => ({ status: 'ok', series: [{ values: [[100, 20]] }] });

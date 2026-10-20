@@ -39,6 +39,23 @@ function componentIcon(name) {
   return icons[name] || 'cloud-server';
 }
 
+export function clusterRuntimeStatus(snapshot, failed) {
+  if (!snapshot || failed) return 'unknown';
+  const nodeSection = overviewData.sectionEnvelope(snapshot, 'nodes');
+  const componentSection = overviewData.sectionEnvelope(snapshot, 'components');
+  const nodes = nodeSection.data;
+  const components = componentSection.data;
+  const count = value => typeof value === 'number' && Number.isInteger(value) && value >= 0;
+  const validNodes = nodes && count(nodes.total) && count(nodes.ready) && nodes.ready <= nodes.total;
+  if (nodes && Array.isArray(nodes.alerts) && nodes.alerts.length) return 'abnormal';
+  if (validNodes && nodes.ready < nodes.total) return 'abnormal';
+  if (Array.isArray(components) && components.some(item => item && /^(abnormal|failed|error|pending|starting|stopped)$/i.test(item.status))) return 'abnormal';
+  if (nodeSection.status !== 'ok' || componentSection.status !== 'ok' || !validNodes || nodes.total === 0 || nodes.status !== 'ok' || nodes.disk_stats_status !== 'ok' || !Array.isArray(nodes.alerts) || !Array.isArray(components) || !components.length) return 'unknown';
+  if (!components.every(item => item && overviewData.isRunning(item.status) && count(item.run_pods) && count(item.all_pods) && item.run_pods <= item.all_pods)) return 'unknown';
+  if (components.some(item => item.run_pods < item.all_pods)) return 'abnormal';
+  return 'normal';
+}
+
 function formatMemory(value) {
   if (!overviewData.isNumber(value)) return { value: '-', unit: 'GiB' };
   const number = Number(value);
@@ -517,13 +534,14 @@ export default class Enterprise extends PureComponent {
     const clusterInfo = overviewData.sectionData(snapshot, 'cluster') || cluster;
     const alerts = (nodes && nodes.alerts) || [];
     const versions = (resources && resources.versions) || {};
+    const runtimeStatus = clusterRuntimeStatus(snapshot, errors.cluster);
     return (
       <OverviewModule title={t('cluster.title')} description={clusterInfo ? `${clusterInfo.region_alias || clusterInfo.region_name} · ${clusterInfo.provider || '-'}` : ''} loading={!snapshot && !errors.cluster} error={errors.cluster} onRetry={this.loadClusterSnapshot} extra={clusterInfo ? <Button type="link" onClick={this.jumpCluster}>{t('common.details')} <Icon type="arrow-right" /></Button> : null}>
         {snapshot ? (
           <div className={`${styles.clusterOverview} ${alerts.length ? styles.withClusterAlerts : ''}`}>
             <div className={styles.clusterMain}>
               <div className={styles.clusterMeta}>
-                <div><span><Icon type="cloud-server" /></span><strong>{clusterInfo.region_alias || clusterInfo.region_name}</strong><small>{clusterInfo.region_name}{clusterInfo.provider ? ` · ${clusterInfo.provider}` : ''}</small></div>
+                <div><span><Icon type="cloud-server" /></span><strong>{clusterInfo.region_alias || clusterInfo.region_name}</strong><small className={styles.clusterIdentityLine}><span className={`${styles.clusterRuntimeBadge} ${styles[`clusterRuntime${runtimeStatus}`]}`}><i aria-hidden="true" />{t(`common.${runtimeStatus}`)}</span><span>{clusterInfo.region_name}</span>{clusterInfo.provider ? <span>{clusterInfo.provider}</span> : null}</small></div>
                 <div><small>{t('cluster.rainbondVersion')}</small><strong>{overviewData.compactVersion(versions.rainbond)}</strong></div>
                 <div><small>{t('cluster.kubernetesVersion')}</small><strong>{versions.kubernetes || '-'}</strong></div>
               </div>

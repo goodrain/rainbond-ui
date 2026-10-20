@@ -754,6 +754,34 @@
   line-height: @rbd-auxiliary-line-height;
 }
 
+.clusterMeta .clusterIdentityLine {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.clusterIdentityLine > span + span::before {
+  content: '·';
+  margin-right: 6px;
+  color: @rbd-label-color;
+}
+
+.clusterRuntimeBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 1px 8px;
+  border-radius: 12px;
+  color: @text-color-secondary;
+  background: fade(@rbd-label-color, 9%);
+}
+
+.clusterRuntimeBadge > i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.clusterRuntimenormal { color: darken(@success-color, 12%); background: fade(@success-color, 8%); }
+.clusterRuntimeabnormal { color: @error-color; background: fade(@error-color, 8%); }
+.clusterRuntimeunknown { color: @text-color-secondary; }
+
 .clusterResources {
   display: grid;
   grid-template-columns: minmax(180px, 1.2fr) minmax(180px, 1.2fr) minmax(104px, .65fr) minmax(104px, .65fr);
