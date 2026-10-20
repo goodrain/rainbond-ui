@@ -9,6 +9,8 @@ const login = {
     'login.loginComponent.register':'Sign up',
     'login.loginComponent.title':'Sign In',
     'login.loginComponent.subtitle':'Welcome back, please sign in to your account',
+    'login.loginComponent.tab.account':'Account',
+    'login.loginComponent.tab.mobile':'SMS code',
     'login.loginComponent.username.label':'Username',
     'login.loginComponent.password.label':'Password',
     'login.loginComponent.noAccount':'Don\'t have an account?',
