@@ -50,4 +50,8 @@ assert.strictEqual(nodes(plugins).filter(item => item.type === 'button').length,
 assert.ok(/\.module\s*\{[^}]*box-shadow: @rbd-min-card-shadow;/.test(styles));
 assert.ok(/\.pluginList\s*\{[^}]*overflow-y: auto;/.test(styles));
 assert.ok(/\.gatewayMetrics\s*\{[^}]*gap: 8px;[^}]*border: 0;/.test(styles));
+assert.ok(/\.resourceCopy > strong small\s*\{\s*display: inline;/.test(styles), 'capacity stays beside allocation like the approved demo');
+assert.ok(/\.resourceCopy > strong\s*\{[^}]*color: darken\(@heading-color, 10%\);/.test(styles), 'allocation uses dark text, not the node-count accent');
+assert.ok(/\.resourceContent\s*\{[^}]*grid-template-columns: minmax\(82px, 1fr\) 100px;/.test(styles));
+assert.ok(/\.resourceGauge\s*\{[^}]*width: 100px;[^}]*height: 72px;[^}]*justify-self: end;/.test(styles));
 console.log('overview visual parity rendering and interaction checks passed');
