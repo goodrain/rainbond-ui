@@ -21,6 +21,7 @@ import OauthTable from './oauthTable';
   isRegist: global.isRegist,
   oauthLongin: loading.effects['global/creatOauth'],
   imageHubLongin: loading.effects['global/editImageHub'],
+  smsConfigLoading: loading.effects['global/updateSmsConfig'],
   resourceViewUpdating: loading.effects['global/updatePlatformSettings'],
 }))
 class Infrastructure extends PureComponent {
@@ -363,6 +364,7 @@ class Infrastructure extends PureComponent {
       imageHubLongin,
       rainbondInfo,
       enterprise,
+      smsConfigLoading,
       resourceViewUpdating,
       match: {
         params: { eid }
@@ -578,6 +580,7 @@ class Infrastructure extends PureComponent {
             eid={eid}
             onCancel={this.handelCloseSmsConfig}
             data={smsConfig?.sms_config.value}
+            loading={smsConfigLoading}
             onOk={values => {
               this.handelIsOpenSmsConfig(true, values);
             }}
