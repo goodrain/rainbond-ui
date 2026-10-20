@@ -27,7 +27,8 @@ new Function('require', 'module', 'exports', code)(name => {
 const page = new result.exports.default({ overview: { loading: {}, errors: {} } });
 const runtimeStatus = result.exports.clusterRuntimeStatus;
 const healthySnapshot = () => ({ sections: {
-  nodes: { status: 'ok', data: { status: 'ok', ready: 2, total: 2, disk_stats_status: 'ok', alerts: [] } },
+  // Console _normalize_nodes returns no data.status; availability lives on the envelope.
+  nodes: { status: 'ok', data: { ready: 2, total: 2, disk_stats_status: 'ok', alerts: [] } },
   components: { status: 'ok', data: [{ status: 'Running', run_pods: 1, all_pods: 1 }] }
 } });
 assert.strictEqual(runtimeStatus(healthySnapshot()), 'normal');
