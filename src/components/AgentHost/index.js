@@ -493,23 +493,10 @@ const {
 
 const { TextArea } = Input;
 const { confirm } = Modal;
-function formatRelativeTime(iso) {
-  if (!iso) return '';
-  const ts = Date.parse(iso);
-  if (Number.isNaN(ts)) return '';
-  const diffSec = Math.max(1, Math.floor((Date.now() - ts) / 1000));
-  if (diffSec < 60) return '刚刚';
-  if (diffSec < 3600) return `${Math.floor(diffSec / 60)} 分钟前`;
-  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)} 小时前`;
-  if (diffSec < 86400 * 30) return `${Math.floor(diffSec / 86400)} 天前`;
-  return new Date(ts).toLocaleDateString('zh-CN');
-}
-
 export default class AgentHost extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      historyPopoverVisible: false,
       approvalSettingsVisible: false,
       updateBannerDismissed: false,
     };
@@ -964,13 +951,6 @@ export default class AgentHost extends PureComponent {
     return <ErrorMessageRow key={item.id} item={item} />;
   };
 
-  handleHistoryVisibleChange = visible => {
-    this.setState({ historyPopoverVisible: visible });
-    if (visible) {
-      this.props.dispatch({ type: 'agent/loadSessionList' });
-    }
-  };
-
   handleApprovalSettingsVisibleChange = visible => {
     this.setState({ approvalSettingsVisible: visible });
     if (visible) {
@@ -989,69 +969,8 @@ export default class AgentHost extends PureComponent {
     this.props.dispatch({ type: 'agent/clearApprovalPolicies' });
   };
 
-  handleSwitchSession = sessionId => {
-    this.setState({ historyPopoverVisible: false });
-    this.props.dispatch({ type: 'agent/switchSession', payload: { sessionId } });
-  };
-
-  handleDeleteSession = (e, sessionId) => {
-    e.stopPropagation();
-    confirm({
-      title: '删除该会话？',
-      content: '该操作不可恢复。',
-      okType: 'danger',
-      okText: '删除',
-      cancelText: '取消',
-      onOk: () => {
-        this.props.dispatch({ type: 'agent/removeSession', payload: { sessionId } });
-      },
-    });
-  };
-
   handleCancelSessionPending = () => {
     this.props.dispatch({ type: 'agent/cancelSessionPending' });
-  };
-
-  renderHistoryPopover = () => {
-    const { agent } = this.props;
-    const list = (agent && agent.sessionList) || [];
-    const loading = !!(agent && agent.sessionListLoading);
-
-    if (loading) {
-      return <div className={styles.historyEmpty}>加载中…</div>;
-    }
-    if (!list.length) {
-      return <div className={styles.historyEmpty}>暂无历史会话</div>;
-    }
-
-    return (
-      <div className={styles.historyList}>
-        {list.map(item => (
-          <div
-            key={item.session_id}
-            className={styles.historyItem}
-            onClick={() => this.handleSwitchSession(item.session_id)}
-          >
-            <div className={styles.historyItemBody}>
-              <div className={styles.historyItemTitle} title={item.title || '新会话'}>
-                {item.title || '新会话'}
-              </div>
-              <div className={styles.historyItemMeta}>
-                {formatRelativeTime(item.updated_at)}
-              </div>
-            </div>
-            <button
-              type="button"
-              className={styles.historyItemDelete}
-              aria-label="删除会话"
-              onClick={e => this.handleDeleteSession(e, item.session_id)}
-            >
-              <Icon type="delete" />
-            </button>
-          </div>
-        ))}
-      </div>
-    );
   };
 
   renderAutoApprovalSettings = () => {
@@ -1337,18 +1256,6 @@ export default class AgentHost extends PureComponent {
                 </div>
               </div>
               <div className={styles.panelHeaderActions}>
-                <Popover
-                  trigger="click"
-                  placement="bottomRight"
-                  content={this.renderHistoryPopover()}
-                  overlayClassName={styles.historyPopover}
-                  visible={this.state.historyPopoverVisible}
-                  onVisibleChange={this.handleHistoryVisibleChange}
-                >
-                  <button className={styles.headerIconButton} aria-label="历史会话">
-                    <Icon type="history" />
-                  </button>
-                </Popover>
                 <Popover
                   trigger="click"
                   placement="bottomRight"

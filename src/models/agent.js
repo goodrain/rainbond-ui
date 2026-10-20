@@ -6,9 +6,7 @@ import {
   clearAgentSession,
   clearAgentSessionRemote,
   decideAgentApproval,
-  deleteAgentSession,
   hydrateAgentSession,
-  listAgentSessions,
   listAgentApprovalPolicies,
   deleteAgentApprovalPolicy,
   loadAgentSessionMessages,
@@ -199,8 +197,6 @@ const defaultState = {
   lastContextSignature: '',
   workflowState: null,
   structuredResult: null,
-  sessionList: [],
-  sessionListLoading: false,
   sessionPendingApprovals: [],
   approvalPolicies: [],
   approvalPoliciesLoading: false,
@@ -374,8 +370,6 @@ function buildHydratedState(snapshot) {
     lastComponentMutationTeamName: snapshot.lastComponentMutationTeamName || '',
     lastComponentMutationRegionName: snapshot.lastComponentMutationRegionName || '',
     lastComponentMutationTool: snapshot.lastComponentMutationTool || '',
-    sessionList: [],
-    sessionListLoading: false,
     sessionPendingApprovals: [],
     approvalPolicies: [],
     approvalPoliciesLoading: false,
@@ -1051,115 +1045,6 @@ export default {
           },
         });
         yield put({ type: 'loadApprovalPolicies' });
-      }
-    },
-
-    *loadSessionList(_, { call, put }) {
-      yield put({ type: 'saveState', payload: { sessionListLoading: true } });
-      try {
-        const res = yield call(listAgentSessions, { limit: 20 });
-        const list = (res && res.data) || [];
-        yield put({
-          type: 'saveState',
-          payload: { sessionList: list, sessionListLoading: false },
-        });
-      } catch (e) {
-        yield put({
-          type: 'saveState',
-          payload: { sessionListLoading: false, lastError: getErrorMessage(e) || '加载历史失败' },
-        });
-      }
-    },
-
-    *removeSession({ payload }, { call, put, select }) {
-      const sessionId = payload && payload.sessionId;
-      if (!sessionId) return;
-      try {
-        yield call(deleteAgentSession, sessionId);
-      } catch (e) {
-        yield put({ type: 'saveState', payload: { lastError: getErrorMessage(e) || '删除失败' } });
-        return;
-      }
-      const state = yield select(s => s.agent);
-      const nextList = (state.sessionList || []).filter(it => it.session_id !== sessionId);
-      const patch = { sessionList: nextList };
-      if (state.conversationId === sessionId) {
-        patch.conversationId = 'global-default';
-        patch.messages = [];
-        patch.pendingApproval = null;
-        patch.approvalPolicies = [];
-        patch.approvalPoliciesLoading = false;
-        patch.approvalPolicyError = '';
-        patch.activeRunId = '';
-        patch.lastEventSequence = 0;
-        patch.workflowState = null;
-        patch.structuredResult = null;
-        patch.draft = '';
-        patch.lastError = '';
-        patch.pendingMutationTool = '';
-        patch.pendingMutationRoute = '';
-        patch.pendingMutationNavigationKey = '';
-        patch.pendingMutationRefreshKey = '';
-        patch.pendingMutationRefreshMode = '';
-        patch.lastMutationResult = null;
-        patch.lastMutationRunId = '';
-        Object.assign(patch, createClearedComponentMutationTrackingState());
-      }
-      yield put({ type: 'saveState', payload: patch });
-    },
-
-    *switchSession({ payload }, { call, put }) {
-      const sessionId = payload && payload.sessionId;
-      if (!sessionId) return;
-      yield put({
-        type: 'saveState',
-        payload: {
-          conversationId: sessionId,
-          messages: [],
-          draft: '',
-          pendingApproval: null,
-          activeRunId: '',
-          lastEventSequence: 0,
-          lastError: '',
-          workflowState: null,
-          structuredResult: null,
-          sessionPendingApprovals: [],
-          approvalPolicies: [],
-          approvalPoliciesLoading: false,
-          approvalPolicyError: '',
-          pendingMutationTool: '',
-          pendingMutationRoute: '',
-          pendingMutationNavigationKey: '',
-          pendingMutationRefreshKey: '',
-          pendingMutationRefreshMode: '',
-          lastMutationResult: null,
-          lastMutationRunId: '',
-          ...createClearedComponentMutationTrackingState(),
-        },
-      });
-
-      try {
-        const res = yield call(loadAgentSessionMessages, sessionId);
-        const data = (res && res.data) || {};
-        const replayed = chatMessagesToBubbles(data.messages || []);
-        yield put({
-          type: 'saveState',
-          payload: {
-            messages: replayed,
-            sessionPendingApprovals: Array.isArray(data.pending_approvals)
-              ? data.pending_approvals
-              : [],
-          },
-        });
-        yield put({
-          type: 'loadApprovalPolicies',
-          payload: { sessionId },
-        });
-      } catch (e) {
-        yield put({
-          type: 'saveState',
-          payload: { lastError: getErrorMessage(e) || '加载历史消息失败' },
-        });
       }
     },
 
