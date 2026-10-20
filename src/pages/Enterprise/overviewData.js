@@ -70,6 +70,71 @@ function percentageAxisMax(points) {
   return peak <= 100 ? Math.min(100, upper) : upper;
 }
 
+// Match historical measurements exactly; current cluster capacity is never used here.
+function absoluteMetricLookup(metrics, metric) {
+  const result = new Map();
+  const absolute = metrics && metrics.absolute;
+  const unit = metric === 'cpu' ? 'cores' : metric === 'memory' ? 'bytes' : null;
+  if (!unit || !absolute || absolute.unit !== unit || !Array.isArray(absolute.samples)) return result;
+  const finite = value => typeof value === 'number' && Number.isFinite(value);
+  const percentages = new Map();
+  const conflicts = new Set();
+  const firstSeries = Array.isArray(metrics.series) ? metrics.series[0] : null;
+  const values = firstSeries && Array.isArray(firstSeries.values) ? firstSeries.values : [];
+  values.forEach(point => {
+    if (!Array.isArray(point) || typeof point[0] === 'boolean' || typeof point[1] === 'boolean' || !isNumber(point[0]) || !isNumber(point[1])) return;
+    const time = Number(point[0]) * 1000;
+    const percent = Number(point[1]);
+    if (!Number.isFinite(time) || time < 0 || percent < 0) return;
+    if (percentages.has(time) && percentages.get(time) !== percent) conflicts.add(time);
+    percentages.set(time, percent);
+  });
+  const seen = new Map();
+  absolute.samples.forEach(sample => {
+    if (!sample || !finite(sample.timestamp) || sample.timestamp < 0) return;
+    const time = sample.timestamp * 1000;
+    if (!Number.isFinite(time)) return;
+    if (seen.has(time) && (seen.get(time).used !== sample.used || seen.get(time).capacity !== sample.capacity)) conflicts.add(time);
+    seen.set(time, sample);
+    if (!finite(sample.used) || !finite(sample.capacity) || sample.used < 0 || sample.capacity <= 0 || !percentages.has(time)) return;
+    const percent = percentages.get(time);
+    const ratio = sample.used / sample.capacity * 100;
+    if (!Number.isFinite(ratio) || Math.abs(ratio - percent) > Math.max(0.0001, Math.abs(percent) * 0.000001)) return;
+    result.set(time, { used: sample.used, capacity: sample.capacity, unit });
+  });
+  conflicts.forEach(time => result.delete(time));
+  return result;
+}
+
+function formatMetricAmount(value, unit) {
+  if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) return null;
+  if (unit === 'cores') return value > 0 && value < 0.01
+    ? { value: formatNumber(value * 1000, 2), unit: 'mCore' }
+    : { value: formatNumber(value, 2), unit: 'Core' };
+  if (unit !== 'bytes') return null;
+  const amount = formatThroughput(value);
+  return { value: amount.value, unit: amount.unit.replace('/s', '') };
+}
+
+function metricTooltipHtml(point, options) {
+  if (!point || !Array.isArray(point.value) || typeof point.value[0] === 'boolean' || typeof point.value[1] === 'boolean' || !isNumber(point.value[0]) || !isNumber(point.value[1])) return '';
+  const escape = value => String(value == null ? '' : value).replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
+  const { metric, lookup, timeLabel, seriesLabel, unitLabel, usageLabel, unavailableLabel } = options;
+  const percent = Number(point.value[1]);
+  const lines = [escape(timeLabel)];
+  if (metric !== 'network') {
+    const sample = lookup && lookup.get(Number(point.value[0]));
+    const used = sample && formatMetricAmount(sample.used, sample.unit);
+    const capacity = sample && formatMetricAmount(sample.capacity, sample.unit);
+    lines.push(used && capacity
+      ? `${escape(usageLabel)}: ${used.value} ${used.unit} / ${capacity.value} ${capacity.unit}`
+      : escape(unavailableLabel));
+  }
+  const value = metric === 'network' ? formatThroughput(percent) : { value: percent.toFixed(2), unit: unitLabel };
+  lines.push(`${escape(seriesLabel)} ${value.value} ${escape(value.unit)}`);
+  return lines.join('<br/>');
+}
+
 function runtimeSection(runtime, name) {
   if (!runtime) return { status: 'loading', data: null };
   if (runtime.status === 'unavailable' && name !== 'clusters') return { status: 'unavailable', data: null };
@@ -208,6 +273,9 @@ function compactVersion(version) {
 }
 
 module.exports = {
+  absoluteMetricLookup,
+  formatMetricAmount,
+  metricTooltipHtml,
   compactVersion,
   classifyLicenseRequestError,
   isRunning,

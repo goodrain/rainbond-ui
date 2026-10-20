@@ -46,8 +46,9 @@ export default class ResourceTrend extends PureComponent {
 
   updateChart = () => {
     if (!this.chart) return;
-    const { data, metric, emptyText, unitLabel, seriesLabel } = this.props;
+    const { data, metric, emptyText, unitLabel, seriesLabel, usageLabel, unavailableLabel } = this.props;
     const points = overviewData.metricChartPoints(data);
+    const lookup = overviewData.absoluteMetricLookup(data, metric);
     const color = COLORS[metric] || COLORS.cpu;
     this.chart.setOption(
       {
@@ -66,12 +67,10 @@ export default class ResourceTrend extends PureComponent {
           formatter: params => {
             const point = params && params[0];
             if (!point || !overviewData.isNumber(point.value[1])) return '';
-            const value = metric === 'network'
-              ? overviewData.formatThroughput(point.value[1])
-              : { value: Number(point.value[1]).toFixed(2), unit: unitLabel };
-            return `${this.echarts.format.formatTime('yyyy-MM-dd hh:mm', point.value[0])}<br/>${
-              point.marker
-            }${seriesLabel || ''} ${value.value} ${value.unit}`;
+            return overviewData.metricTooltipHtml(point, {
+              metric, lookup, unitLabel, seriesLabel, usageLabel, unavailableLabel,
+              timeLabel: this.echarts.format.formatTime('yyyy-MM-dd hh:mm', point.value[0])
+            });
           }
         },
         xAxis: {
