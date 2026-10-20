@@ -17,7 +17,7 @@ export default class OverviewModule extends PureComponent {
     return (
       <section className={`${styles.module} ${className}`}>
         <header className={styles.moduleHeader}>
-          <div>
+          <div className={styles.moduleTitle}>
             <h2>{title}</h2>
             {description ? <span>{description}</span> : null}
           </div>

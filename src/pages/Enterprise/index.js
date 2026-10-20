@@ -7,10 +7,9 @@ import {
   Empty,
   Icon,
   notification,
-  Progress,
   Select,
   Skeleton,
-  Tag
+  Tooltip
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -22,6 +21,7 @@ import IssueModal from './components/IssueModal';
 import OverviewModule from './components/OverviewModule';
 import PlatformInfoModal from './components/PlatformInfoModal';
 import ResourceTrend from './components/ResourceTrend';
+import ResourceGauge from './components/ResourceGauge';
 import overviewData from './overviewData';
 import styles from './index.less';
 
@@ -31,14 +31,12 @@ const METRICS_REFRESH_INTERVAL = 60000;
 const t = (id, values) => formatMessage({ id: `platformOverview.${id}` }, values);
 
 function displayNumber(value, precision = 1) {
-  const number = Number(value);
-  if (!Number.isFinite(number)) return '-';
-  return parseFloat(number.toFixed(precision));
+  return overviewData.formatNumber(value, precision);
 }
 
 function formatMemory(value) {
+  if (!overviewData.isNumber(value)) return { value: '-', unit: 'GiB' };
   const number = Number(value);
-  if (!Number.isFinite(number)) return { value: '-', unit: 'GiB' };
   return { value: displayNumber(number / 1024, 1), unit: 'GiB' };
 }
 
@@ -243,11 +241,10 @@ export default class Enterprise extends PureComponent {
 
   checkUpgrade = () => {
     this.setState({ upgradeStatus: 'loading' });
-    const currentVersion = overviewData.compactVersion(
+    const currentVersion =
       this.props.rainbondInfo &&
         this.props.rainbondInfo.version &&
-        this.props.rainbondInfo.version.value
-    );
+        this.props.rainbondInfo.version.value;
     this.props.dispatch({
       type: 'global/fetchAllVersion',
       callback: response => {
@@ -255,8 +252,8 @@ export default class Enterprise extends PureComponent {
         const versions = Array.isArray(response && response.response_data)
           ? response.response_data
           : [];
-        const latestVersion = versions[0] ? overviewData.compactVersion(versions[0]) : '';
-        if (!latestVersion || currentVersion === '-') {
+        const latestVersion = overviewData.latestStableVersion(versions);
+        if (!latestVersion || !currentVersion) {
           this.setState({ latestVersion: '', upgradeStatus: 'error', hasNewVersion: false });
           return;
         }
@@ -386,11 +383,11 @@ export default class Enterprise extends PureComponent {
         </button>
         {upgradeAvailable ? (
           <button type="button" className={styles.upgradeAction} onClick={() => this.jump(`/enterprise/${this.getEnterpriseId()}/setting?type=updateVersion`)}>
-            <span>{t('header.newVersion', { version: latestVersion })}</span>
-            <strong>{t('header.upgradeNow')} <Icon type="arrow-right" /></strong>
+            <span className={styles.upgradeIcon}><Icon type="rocket" /></span>
+            <span><small>{t('header.newVersion', { version: overviewData.compactVersion(latestVersion) })}</small><strong>{t('header.upgradeNow')} <Icon type="arrow-right" /></strong></span>
           </button>
         ) : upgradeStatus === 'success' ? (
-          <span className={styles.versionCurrent}><Icon type="check-circle" /> {t('header.latest')}</span>
+          <span className={overviewData.isDevelopmentVersion(rainbondInfo.version && rainbondInfo.version.value) ? styles.versionUnknown : styles.versionCurrent}><Icon type={overviewData.isDevelopmentVersion(rainbondInfo.version && rainbondInfo.version.value) ? 'code' : 'check-circle'} /> {t(overviewData.isDevelopmentVersion(rainbondInfo.version && rainbondInfo.version.value) ? 'header.development' : 'header.latest')}</span>
         ) : (
           <span className={styles.versionUnknown}><Icon type={upgradeStatus === 'loading' ? 'loading' : 'question-circle'} /> {upgradeStatus === 'loading' ? t('header.upgradeChecking') : t('header.upgradeUnavailable')}</span>
         )}
@@ -401,8 +398,9 @@ export default class Enterprise extends PureComponent {
   renderGlobalPosture() {
     const { shell, runtime, loading, errors } = this.props.overview;
     const quick = (shell && shell.global) || {};
-    const globalRuntime = (runtime && runtime.global) || {};
     const alarmState = overviewData.runtimeSection(runtime, 'application_alarms');
+    const nodeState = overviewData.runtimeSection(runtime, 'nodes');
+    const clusterState = overviewData.runtimeSection(runtime, 'clusters');
     const applicationState = overviewData.runtimeSection(runtime, 'applications');
     const componentState = overviewData.runtimeSection(runtime, 'components');
     const alarms = alarmState.data || {};
@@ -410,8 +408,8 @@ export default class Enterprise extends PureComponent {
     const alarmAvailable = alarmState.status === 'ok' || alarmState.status === 'partial';
     const runtimeWarning = errors.runtime || (runtime && runtime.status !== 'ok');
     const metrics = [
-      { icon: 'cluster', label: t('global.clusters'), value: quick.clusters, detail: globalRuntime.clusters ? t('global.healthyCount', { count: globalRuntime.clusters.healthy || 0 }) : '-' },
-      { icon: 'deployment-unit', label: t('global.nodes'), value: runtime ? (globalRuntime.nodes ? globalRuntime.nodes.total : '-') : undefined, detail: globalRuntime.nodes ? t('global.readyCount', { count: globalRuntime.nodes.ready || 0 }) : runtime ? t('global.unavailable') : '-' },
+      { icon: 'cluster', label: t('global.clusters'), value: quick.clusters, detail: clusterState.data && overviewData.isNumber(clusterState.data.healthy) ? `${t('global.healthyCount', { count: clusterState.data.healthy })}${clusterState.data.unavailable ? ` · ${t('global.unknownCount', { count: clusterState.data.unavailable })}` : ''}` : clusterState.status === 'loading' ? '-' : t('global.unavailable') },
+      { icon: 'deployment-unit', label: t('global.nodes'), value: nodeState.status === 'loading' ? undefined : nodeState.status === 'unavailable' ? '-' : nodeState.data && overviewData.isNumber(nodeState.data.total) ? nodeState.data.total : '-', detail: nodeState.status === 'partial' ? t('global.knownReadyCount', { count: nodeState.data && overviewData.isNumber(nodeState.data.ready) ? nodeState.data.ready : '-' }) : nodeState.status === 'ok' && nodeState.data ? t('global.readyCount', { count: displayNumber(nodeState.data.ready, 0) }) : nodeState.status === 'loading' ? '-' : t('global.unavailable') },
       { icon: 'team', label: t('global.teams'), value: quick.teams, detail: t('global.platformScope') },
       { icon: 'user', label: t('global.users'), value: quick.users, detail: t('global.activeUsers') },
       { icon: 'appstore', label: t('global.workloads'), value: workloadsAvailable ? `${applicationState.data.total} / ${componentState.data.total}` : quick.applications !== undefined ? `${quick.applications} / ${quick.components}` : undefined, detail: applicationState.status === 'ok' && componentState.status === 'ok' ? t('global.appsComponents') : t('global.partialData') },
@@ -421,12 +419,13 @@ export default class Enterprise extends PureComponent {
       <OverviewModule title={t('global.title')} description={t('global.description')} loading={loading.shell && !shell} error={errors.shell} onRetry={this.loadPlatformData}>
         {shell ? (
           <div className={styles.globalMetrics}>
-            {metrics.map(item => (
-              <button type="button" key={item.label} className={`${styles.globalMetric} ${item.warning ? styles.warningMetric : ''}`} onClick={item.action} disabled={!item.action}>
-                <span><Icon type={item.icon} /></span>
-                <div><small>{item.label}</small><strong>{item.value === undefined ? <Skeleton active title={{ width: 36 }} paragraph={false} /> : item.value}</strong><em>{item.detail}</em></div>
-              </button>
-            ))}
+            {metrics.map(item => {
+              const MetricElement = item.action ? 'button' : 'article';
+              return <MetricElement type={item.action ? 'button' : undefined} key={item.label} className={`${styles.globalMetric} ${item.action ? styles.metricAction : ''} ${item.warning ? styles.warningMetric : ''}`} onClick={item.action || undefined}>
+                <span className={styles.metricLabel}>{item.label}<Icon type={item.icon} /></span>
+                <strong>{item.value === undefined ? <Skeleton active title={{ width: 36 }} paragraph={false} /> : item.value}</strong><em>{item.detail}{item.action ? <Icon type="right" /> : null}</em>
+              </MetricElement>;
+            })}
           </div>
         ) : null}
         {runtimeWarning && shell ? <Alert className={styles.inlineAlert} type="warning" showIcon message={errors.runtime || t('global.runtimeUnavailable')} /> : null}
@@ -451,13 +450,15 @@ export default class Enterprise extends PureComponent {
     if (!data) return null;
     const allocated = memory ? formatMemory(data.allocated) : { value: displayNumber(data.allocated), unit: 'Core' };
     const capacity = memory ? formatMemory(data.capacity) : { value: displayNumber(data.capacity), unit: 'Core' };
-    const remaining = Math.max(0, Number(data.capacity || 0) - Number(data.allocated || 0));
+    const remaining = overviewData.isNumber(data.capacity) && overviewData.isNumber(data.allocated) ? Math.max(0, Number(data.capacity) - Number(data.allocated)) : null;
     const remainingDisplay = memory ? formatMemory(remaining) : { value: displayNumber(remaining), unit: 'Core' };
-    const percent = Math.max(0, Math.min(100, Number(data.allocation_percent || 0)));
+    const percent = data.allocation_percent;
     return (
       <article className={styles.resourceCard}>
-        <div className={styles.resourceCopy}><span><Icon type={icon} /> {label}</span><strong>{allocated.value}<small> / {capacity.value} {capacity.unit}</small></strong><p>{t('cluster.remaining')} {remainingDisplay.value} {remainingDisplay.unit}</p></div>
-        <Progress type="dashboard" percent={percent} width={92} strokeWidth={9} format={value => `${displayNumber(value, 0)}%`} />
+        <div className={styles.resourceHeading}><Icon type={icon} /> {label}</div>
+        <div className={styles.resourceContent}><div className={styles.resourceCopy}><span>{t('cluster.allocated')}</span><strong>{allocated.value}<small> / {capacity.value} {capacity.unit}</small></strong><p>{t('cluster.remaining')} {remainingDisplay.value} {remainingDisplay.unit}</p></div>
+          <ResourceGauge percent={percent} label={t('cluster.allocationRate')} />
+        </div>
       </article>
     );
   }
@@ -487,11 +488,12 @@ export default class Enterprise extends PureComponent {
                 <div className={styles.clusterResources}>
                   {this.renderResourceCard(t('cluster.cpu'), 'dashboard', resources.cpu, false)}
                   {this.renderResourceCard(t('cluster.memory'), 'database', resources.memory, true)}
-                  <article className={styles.countCard}><span>{t('cluster.readyNodes')}</span><strong>{nodes ? nodes.ready : '-'}<small> / {nodes ? nodes.total : '-'}</small></strong><p>{nodes ? (nodes.ready === nodes.total ? t('cluster.allReady') : t('cluster.hasException')) : t('global.unavailable')}</p></article>
-                  <article className={styles.countCard}><span>{t('cluster.runningPods')}</span><strong>{resources.pods.running !== null ? resources.pods.running : '-'}<small>{resources.pods.total !== null ? ` / ${resources.pods.total}` : ''}</small></strong><p>{t('cluster.podDescription')}</p></article>
+                  <article className={styles.countCard}><span>{t('cluster.readyNodes')}<Icon type="deployment-unit" /></span><strong>{nodes ? displayNumber(nodes.ready, 0) : '-'}<small> / {nodes ? displayNumber(nodes.total, 0) : '-'}</small></strong><p>{nodes ? (nodes.ready === nodes.total ? t('cluster.allReady') : t('cluster.hasException')) : t('global.unavailable')}</p></article>
+                  <article className={styles.countCard}><span>{t(overviewData.isNumber(resources.pods.running) ? 'cluster.runningPods' : 'cluster.workloadPods')}<Icon type="appstore" /></span><strong>{displayNumber(overviewData.isNumber(resources.pods.running) ? resources.pods.running : resources.pods.active, 0)}</strong><p>{t(overviewData.isNumber(resources.pods.running) ? 'cluster.podDescription' : 'cluster.legacyPods')}</p></article>
                 </div>
               ) : resourceStatus === 'loading' ? <Skeleton active paragraph={{ rows: 2 }} /> : <Alert type="warning" showIcon message={t('cluster.resourcesUnavailable')} />}
               {nodeStatus !== 'ok' && nodeStatus !== 'loading' ? <Alert className={styles.sectionWarning} type="warning" showIcon message={t('cluster.nodesUnavailable')} /> : null}
+              {nodes && ['partial', 'unavailable'].indexOf(nodes.disk_stats_status) > -1 ? <p className={styles.diskStatus}><Icon type="info-circle" /> {t('cluster.diskUnavailable')}</p> : null}
             </div>
             {alerts.length ? (
               <aside className={styles.clusterAlerts}>
@@ -520,9 +522,16 @@ export default class Enterprise extends PureComponent {
     const points = metricState.points;
     const lastValue = points.length ? points[points.length - 1][1] : null;
     const units = { cpu: '%', memory: '%', network: 'B/s' };
+    const current = metric === 'network' ? overviewData.formatThroughput(lastValue) : { value: displayNumber(lastValue), unit: '%' };
+    const source = currentMetrics && currentMetrics.source;
+    const sourceLabel = source === 'cadvisor_root' ? t('monitor.sourceCadvisor') : source === 'node_exporter' ? t('monitor.sourceNodeExporter') : t('monitor.sourceUnknown');
+    const hasPoints = data && points.length > 0;
+    const metricLabel = t(metric === 'network' ? 'monitor.networkTotal' : metric === 'memory' && currentMetrics && currentMetrics.semantics === 'host_memory_working_set' ? 'monitor.memoryWorkingSetRatio' : `monitor.${metric}Usage`);
+    const unavailable = metricState.status === 'unavailable' || metricState.status === 'partial';
     return (
-      <OverviewModule title={t('monitor.title')} description={lastValue === null ? t('monitor.description') : t('monitor.current', { value: displayNumber(lastValue, metric === 'network' ? 0 : 1), unit: units[metric] })} className={styles.monitorModule} loading={!errors.metrics && (metricState.status === 'loading' || (loading.metrics && !data))} error={errors.metrics} onRetry={this.loadMetrics} extra={<div className={styles.monitorControls}><Button.Group>{['cpu', 'memory', 'network'].map(key => <Button key={key} type={metric === key ? 'primary' : 'default'} onClick={() => this.handleMetricChange(key)}>{t(`monitor.${key}`)}</Button>)}</Button.Group><Select value={timeRange} onChange={this.handleRangeChange}>{['1h', '6h', '24h'].map(value => <Option key={value} value={value}>{value}</Option>)}</Select></div>}>
-        {data ? <ResourceTrend data={data} metric={metric} unitLabel={units[metric]} emptyText={t('monitor.empty')} /> : metricState.status === 'unavailable' || metricState.status === 'partial' ? <Alert type="warning" showIcon message={t('monitor.unavailable')} /> : null}
+      <OverviewModule title={t('monitor.title')} className={`${styles.monitorModule} ${!hasPoints ? styles.monitorEmpty : ''}`} loading={!errors.metrics && (metricState.status === 'loading' || (loading.metrics && !currentMetrics))} error={errors.metrics} onRetry={this.loadMetrics} extra={<div className={styles.monitorControls}><div className={styles.segmentedControl} role="group" aria-label={t('monitor.metricLabel')}>{['cpu', 'memory', 'network'].map(key => <button type="button" key={key} aria-pressed={metric === key} className={metric === key ? styles.segmentActive : ''} onClick={() => this.handleMetricChange(key)}>{t(`monitor.${key}`)}</button>)}</div><Select size="small" value={timeRange} onChange={this.handleRangeChange}>{['1h', '6h', '24h'].map(value => <Option key={value} value={value}>{value}</Option>)}</Select></div>}>
+        {hasPoints ? <React.Fragment><div className={styles.chartSummary}><strong>{current.value}<small>{current.unit}</small></strong><span>{metricLabel}<small>{t('monitor.latestSample')} · {moment(points[points.length - 1][0]).format('MM-DD HH:mm')}</small></span></div><ResourceTrend data={data} metric={metric} seriesLabel={metricLabel} unitLabel={units[metric]} emptyText={t('monitor.empty')} /><div className={`${styles.chartLegend} ${styles[`legend${metric}`]}`}><i />{metricLabel}{metric === 'network' ? <Tooltip title={t('monitor.networkDescription')}><Icon type="info-circle" /></Tooltip> : null}</div></React.Fragment> : currentMetrics && !errors.metrics ? <div className={styles.monitorEmptyState}><Icon type={unavailable ? 'disconnect' : 'area-chart'} /><strong>{t(unavailable ? 'monitor.unavailableTitle' : 'monitor.empty')}</strong><p>{t(unavailable ? 'monitor.unavailable' : 'monitor.emptyDescription')}</p><Button size="small" onClick={this.loadMetrics}>{t('common.retry')}</Button></div> : null}
+        {currentMetrics ? <div className={styles.metricSource}><span>{sourceLabel}</span><Tooltip title={t('monitor.coverageDescription')}><small><Icon type="info-circle" /> {t(currentMetrics.coverage === 'scrape_targets' ? 'monitor.scrapeCoverage' : 'monitor.unknownCoverage')}</small></Tooltip>{currentMetrics.semantics === 'host_memory_working_set' ? <em>{t('monitor.workingSet')}</em> : null}</div> : null}
       </OverviewModule>
     );
   }
@@ -538,12 +547,12 @@ export default class Enterprise extends PureComponent {
     const componentHealthy = (components || []).filter(item => overviewData.isRunning(item.status)).length;
     const pluginHealthy = (plugins || []).filter(item => overviewData.isRunning(item.status)).length;
     return (
-      <OverviewModule title={t('services.title')} description={components ? t('services.summary', { healthy: componentHealthy, total: components.length }) : ''} className={styles.servicesModule} error={errors.cluster} onRetry={this.loadClusterSnapshot} extra={<Button type="link" onClick={this.jumpCluster}>{t('common.details')} <Icon type="arrow-right" /></Button>}>
+      <OverviewModule title={t('services.title')} className={styles.servicesModule} error={errors.cluster} onRetry={this.loadClusterSnapshot}>
         <div className={styles.servicesBody}>
-          <div className={styles.sectionTitle}><span>{t('services.components')}</span><small>{components ? `${componentHealthy}/${components.length}` : '-'}</small></div>
-          {components ? <div className={styles.componentGrid}>{representative.map(component => { const healthy = overviewData.isRunning(component.status); return <button type="button" key={component.name} onClick={this.jumpCluster}><Badge status={healthy ? 'success' : 'error'} /><span><strong>{component.name}</strong><small>{component.run_pods}/{component.all_pods} {t('services.ready')}</small></span></button>; })}</div> : componentSection.status === 'loading' ? (!errors.cluster ? <Skeleton className={styles.sectionSkeleton} active paragraph={{ rows: 2 }} /> : null) : <Alert type="warning" showIcon message={t('services.componentsUnavailable')} />}
-          <div className={styles.pluginHeader}><div className={styles.sectionTitle}><span>{t('services.plugins')}</span><small>{plugins ? t('services.pluginSummary', { healthy: pluginHealthy, total: plugins.length }) : '-'}</small></div><Button type="link" size="small" onClick={this.jumpExtension}>{t('services.allPlugins')}</Button></div>
-          {plugins ? (plugins.length ? <div className={styles.pluginList} tabIndex="0" role="list" aria-label={t('services.plugins')}>{plugins.map(plugin => { const runtime = overviewData.pluginRuntimeState(plugin.status); return <button type="button" key={plugin.name} onClick={this.jumpExtension}><span className={styles.pluginIcon}><Icon type="api" /></span><span><strong>{plugin.alias || plugin.display_name || plugin.name}</strong><small>{plugin.name}</small></span><Tag className={`${styles.pluginRuntime} ${styles[runtime.className]}`}>{t(runtime.labelId)}</Tag></button>; })}</div> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('services.noPlugins')} />) : pluginSection.status === 'loading' ? (!errors.cluster ? <Skeleton className={styles.sectionSkeleton} active paragraph={{ rows: 2 }} /> : null) : <Alert type="warning" showIcon message={t('services.pluginsUnavailable')} />}
+          <div className={styles.componentPanel}><div className={styles.sectionTitle}><button type="button" onClick={this.jumpCluster}><Icon type="cloud-server" /> {t('services.components')} <Icon type="right" /></button><small className={components && componentHealthy !== components.length ? styles.textWarning : ''}>{components ? t('services.summary', { healthy: componentHealthy, total: components.length }) : '-'}</small></div>
+          {components ? <div className={styles.componentGrid}>{representative.map(component => { const healthy = overviewData.isRunning(component.status); return <button type="button" key={component.name} onClick={this.jumpCluster} className={!healthy ? styles.componentAbnormal : ''}><span className={styles.componentIcon}><Icon type={healthy ? 'check-circle' : 'exclamation-circle'} /></span><span className={styles.componentCopy}><strong>{component.name}</strong><small>{component.run_pods}/{component.all_pods} {t('services.ready')}</small></span><Icon type="right" className={styles.itemChevron} /></button>; })}</div> : componentSection.status === 'loading' ? (!errors.cluster ? <Skeleton className={styles.sectionSkeleton} active paragraph={{ rows: 2 }} /> : null) : <Alert type="warning" showIcon message={t('services.componentsUnavailable')} />}</div>
+          <div className={styles.pluginPanel}><div className={styles.pluginHeader}><div className={styles.sectionTitle}><button type="button" onClick={this.jumpExtension}><Icon type="appstore" /> {t('services.plugins')}</button></div><Button type="link" size="small" onClick={this.jumpExtension}>{plugins ? <span className={styles.pluginCount}>{plugins.length}</span> : null}{t('services.allPlugins')} <Icon type="arrow-right" /></Button></div><p className={styles.pluginSummary}>{plugins ? t('services.pluginSummary', { healthy: pluginHealthy, total: plugins.length }) : t('services.pluginStateDescription')}</p>
+          {plugins ? (plugins.length ? <div className={styles.pluginList} tabIndex="0" role="list" aria-label={t('services.plugins')}>{plugins.map(plugin => { const runtime = overviewData.pluginRuntimeState(plugin.status); return <button type="button" key={plugin.name} onClick={this.jumpExtension} title={plugin.alias || plugin.display_name || plugin.name}><span className={styles.pluginIcon}><Icon type={overviewData.pluginIcon(plugin)} /></span><span className={styles.pluginCopy}><strong>{plugin.alias || plugin.display_name || plugin.name}</strong><small className={`${styles.pluginRuntime} ${styles[runtime.className]}`}><i />{t(runtime.labelId)}</small></span><Icon type="right" className={styles.itemChevron} /></button>; })}</div> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('services.noPlugins')} />) : pluginSection.status === 'loading' ? (!errors.cluster ? <Skeleton className={styles.sectionSkeleton} active paragraph={{ rows: 2 }} /> : null) : <Alert type="warning" showIcon message={t('services.pluginsUnavailable')} />}</div>
         </div>
       </OverviewModule>
     );
@@ -559,9 +568,13 @@ export default class Enterprise extends PureComponent {
     const unit = { cpu: 'Core', memory: 'GiB', applications: t('common.countUnit') }[teamMetric];
     const list = (teams && teams[teamMetric]) || [];
     const max = list.length ? Number(list[0][field] || 0) : 0;
+    const total = list.reduce((sum, team) => sum + (overviewData.isNumber(team[field]) ? Number(team[field]) : 0), 0);
+    const secondaryFields = ['cpu', 'memory', 'applications'].filter(key => key !== teamMetric);
+    const fields = { cpu: 'cpu_cores', memory: 'memory_gib', applications: 'applications' };
+    const units = { cpu: 'Core', memory: 'GiB', applications: t('common.countUnit') };
     return (
-      <OverviewModule title={t('teams.title')} description={t('teams.description')} className={styles.halfModule} error={errors.cluster} onRetry={this.loadClusterSnapshot} extra={<Button.Group>{['cpu', 'memory', 'applications'].map(key => <Button key={key} type={teamMetric === key ? 'primary' : 'default'} onClick={() => this.setState({ teamMetric: key })}>{t(`teams.${key}`)}</Button>)}</Button.Group>}>
-        {teams ? (list.length ? <div className={styles.teamRanking}>{list.map((team, index) => <button type="button" key={team.tenant_id} onClick={() => this.jump(`/team/${team.tenant_name}/region/${this.state.selectedRegion}/index`)}><span className={styles.rank}>{index + 1}</span><span className={styles.teamName}><strong>{team.tenant_alias || team.tenant_name}</strong><span><i style={{ width: `${max ? Number(team[field] || 0) * 100 / max : 0}%` }} /></span></span><span className={styles.teamValue}>{displayNumber(team[field], 2)} <small>{unit}</small></span></button>)}</div> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('teams.empty')} />) : teamSection.status === 'loading' ? (!errors.cluster ? <Skeleton active paragraph={{ rows: 4 }} /> : null) : <Alert type="warning" showIcon message={t('teams.unavailable')} />}
+      <OverviewModule title={t('teams.title')} description={t('teams.description')} className={styles.halfModule} error={errors.cluster} onRetry={this.loadClusterSnapshot}>
+        {teams ? (list.length ? <div className={styles.teamRanking}><div className={styles.rankingToolbar}><span><Icon type="team" /><span><strong>{t('teams.topTotal', { count: list.length })} <em>{displayNumber(total, 2)} {unit}</em></strong><small>{t('teams.configuredDescription')}</small></span></span><div className={styles.segmentedControl} role="group" aria-label={t('teams.metricLabel')}>{['cpu', 'memory', 'applications'].map(key => <button type="button" key={key} aria-pressed={teamMetric === key} className={teamMetric === key ? styles.segmentActive : ''} onClick={() => this.setState({ teamMetric: key })}>{t(`teams.${key}`)}</button>)}</div></div>{list.map((team, index) => <button type="button" key={team.tenant_id} onClick={() => this.jump(`/team/${team.tenant_name}/region/${this.state.selectedRegion}/index`)}><span className={styles.rank}>{index + 1}</span><span className={styles.teamName}><span className={styles.teamLine}><strong>{team.tenant_alias || team.tenant_name}</strong><small>{secondaryFields.map(key => `${t(`teams.${key}`)} ${displayNumber(team[fields[key]], 1)} ${units[key]}`).join(' · ')}</small></span><span className={styles.teamTrack}><i style={{ width: `${max ? Number(team[field] || 0) * 100 / max : 0}%` }} /></span></span><span className={styles.teamValue}><strong>{displayNumber(team[field], 2)} <small>{unit}</small></strong><em>{t('teams.topShare', { count: list.length, percent: total ? displayNumber(Number(team[field] || 0) * 100 / total, 0) : 0 })}</em></span></button>)}</div> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('teams.empty')} />) : teamSection.status === 'loading' ? (!errors.cluster ? <Skeleton active paragraph={{ rows: 4 }} /> : null) : <Alert type="warning" showIcon message={t('teams.unavailable')} />}
       </OverviewModule>
     );
   }
@@ -574,9 +587,10 @@ export default class Enterprise extends PureComponent {
     if (gatewaySection.status === 'empty') return null;
     const issues = (gateway && gateway.issues) || [];
     const expiring = ((gateway && gateway.certificates) || []).filter(item => item.status !== 'normal').length;
+    const StatusElement = issues.length ? 'button' : 'div';
     return (
       <OverviewModule title={t('gateway.title')} description={t('gateway.description')} className={styles.halfModule} error={errors.cluster} onRetry={this.loadClusterSnapshot} extra={gateway && issues.length ? <Button type="link" onClick={() => this.setState({ gatewayModalVisible: true })}>{t('gateway.viewIssues', { count: issues.length })}</Button> : null}>
-        {gateway ? <React.Fragment><div className={styles.gatewayMetrics}><div><span>{t('gateway.httpDomains')}</span><strong>{gateway.http_domains}</strong></div><div><span>{t('gateway.tcpRoutes')}</span><strong>{gateway.tcp_routes}</strong></div><div><span>{t('gateway.certificates')}</span><strong>{(gateway.certificates || []).length}</strong><small>{t('gateway.expiring', { count: expiring })}</small></div></div><button type="button" className={`${styles.gatewayStatus} ${issues.length ? styles.gatewayWarning : ''}`} onClick={() => issues.length && this.setState({ gatewayModalVisible: true })}><Icon type={issues.length ? 'warning' : 'safety-certificate'} /><span><strong>{issues.length ? t('gateway.hasIssues', { count: issues.length }) : t('gateway.healthy')}</strong><small>{issues.length ? t('gateway.issueDescription') : t('gateway.healthyDescription')}</small></span>{issues.length ? <Icon type="right" /> : null}</button></React.Fragment> : gatewaySection.status === 'loading' ? (!errors.cluster ? <Skeleton active paragraph={{ rows: 3 }} /> : null) : <Alert type="warning" showIcon message={t('gateway.unavailable')} />}
+        {gateway ? <React.Fragment><div className={styles.gatewayMetrics}><div><span>{t('gateway.httpDomains')}</span><strong>{displayNumber(gateway.http_domains, 0)}</strong></div><div><span>{t('gateway.tcpRoutes')}</span><strong>{displayNumber(gateway.tcp_routes, 0)}</strong></div><div><span>{t('gateway.certificates')}</span><strong>{(gateway.certificates || []).length}</strong><small>{t('gateway.expiring', { count: expiring })}</small></div></div><StatusElement type={issues.length ? 'button' : undefined} className={`${styles.gatewayStatus} ${issues.length ? styles.gatewayWarning : ''}`} onClick={issues.length ? () => this.setState({ gatewayModalVisible: true }) : undefined}><Icon type={issues.length ? 'warning' : 'info-circle'} /><span><strong>{issues.length ? t('gateway.hasIssues', { count: issues.length }) : t((gateway.certificates || []).length ? 'gateway.healthy' : 'gateway.noBoundCertificates')}</strong><small>{issues.length ? t('gateway.issueDescription') : t('gateway.healthyDescription')}</small></span>{issues.length ? <Icon type="right" /> : null}</StatusElement></React.Fragment> : gatewaySection.status === 'loading' ? (!errors.cluster ? <Skeleton active paragraph={{ rows: 3 }} /> : null) : <Alert type="warning" showIcon message={t('gateway.unavailable')} />}
       </OverviewModule>
     );
   }
@@ -601,6 +615,7 @@ export default class Enterprise extends PureComponent {
 
   render() {
     const { shell, loading, errors } = this.props.overview;
+    const gatewayHidden = overviewData.sectionStatus(this.getCurrentSnapshot(), 'gateway') === 'empty';
     return (
       <main className={styles.page}>
         {this.renderPlatformHeader()}
@@ -610,7 +625,7 @@ export default class Enterprise extends PureComponent {
           <React.Fragment>
             {this.renderGlobalPosture()}
             {this.renderScopeSelector()}
-            {this.state.selectedRegion ? <React.Fragment>{this.renderClusterOverview()}<div className={styles.primaryGrid}>{this.renderMonitoring()}{this.renderServices()}</div><div className={styles.secondaryGrid}>{this.renderTeamRanking()}{this.renderGateway()}</div></React.Fragment> : <Empty description={t('scope.empty')} />}
+            {this.state.selectedRegion ? <React.Fragment>{this.renderClusterOverview()}<div className={styles.primaryGrid}>{this.renderMonitoring()}{this.renderServices()}</div><div className={`${styles.secondaryGrid} ${gatewayHidden ? styles.singleModule : ''}`}>{this.renderTeamRanking()}{this.renderGateway()}</div></React.Fragment> : <Empty description={t('scope.empty')} />}
           </React.Fragment>
         ) : null}
         {this.renderModals()}

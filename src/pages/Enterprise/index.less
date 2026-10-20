@@ -160,11 +160,13 @@
   }
 }
 
+@overview-upgrade-gold: spin(@warning-color, 21deg);
+
 .page {
   min-width: 0;
   min-height: 100%;
-  padding: 18px;
-  color: @text-color;
+  padding: 20px;
+  color: darken(@heading-color, 10%);
   background: @rbd-background-color;
 }
 
@@ -173,12 +175,13 @@
 .scopeBar,
 .pageSkeleton {
   background: lighten(@rbd-background-color, 100%);
-  border: 1px solid fade(@rbd-label-color, 24%);
-  border-radius: 8px;
-  box-shadow: @rbd-min-card-shadow;
+  border: 1px solid fade(@rbd-label-color, 34%);
+  border-radius: 12px;
+  box-shadow: @rbd-card-shadow;
 }
 
 .platformHeader {
+  position: relative;
   min-height: 78px;
   display: flex;
   align-items: stretch;
@@ -189,9 +192,19 @@
 }
 
 .platformHeader.hasUpgrade {
-  border-color: fade(@warning-color, 50%);
-  background: linear-gradient(100deg, fade(@warning-color, 9%), lighten(@rbd-background-color, 100%) 56%);
+  border-color: fade(@overview-upgrade-gold, 56%);
+  background: linear-gradient(110deg, lighten(@overview-upgrade-gold, 33%), mix(@overview-upgrade-gold, lighten(@rbd-background-color, 100%), 5%) 52%, lighten(@overview-upgrade-gold, 25%));
   box-shadow: @rbd-card-shadow;
+}
+
+.hasUpgrade::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  pointer-events: none;
+  background: linear-gradient(110deg, transparent 30%, fade(lighten(@rbd-background-color, 100%), 62%) 48%, transparent 66%);
+  transform: translateX(-120%);
+  animation: upgradeSweep 6s ease-in-out infinite;
 }
 
 .platformIdentity,
@@ -263,31 +276,42 @@
 }
 
 .upgradeAction {
-  min-width: 218px;
+  min-width: 190px;
   display: flex;
-  flex-direction: column;
   justify-content: center;
-  align-items: flex-end;
-  padding: 12px 20px;
-  color: darken(@warning-color, 25%);
-  border-left: 1px solid fade(@warning-color, 30%);
-  background: linear-gradient(115deg, fade(@warning-color, 4%), fade(@warning-color, 17%));
-  transition: background 180ms ease, box-shadow 180ms ease;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  color: darken(@overview-upgrade-gold, 32%);
+  transition: color 180ms ease;
+  z-index: 1;
 }
 
 .upgradeAction:hover {
-  background: fade(@warning-color, 22%);
-  box-shadow: @rbd-card-shadow-hover;
+  color: darken(@overview-upgrade-gold, 39%);
 }
 
-.upgradeAction span {
+.upgradeAction small {
+  display: block;
   font-size: @rbd-auxiliary-size;
 }
 
 .upgradeAction strong {
+  display: block;
   margin-top: 4px;
   font-size: @rbd-sub-title-size;
   line-height: @rbd-sub-title-line-height;
+}
+
+.upgradeIcon {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: fade(@overview-upgrade-gold, 22%);
+  font-size: @rbd-title-size;
+  animation: upgradeBeacon 2.8s ease-in-out infinite;
 }
 
 .versionCurrent {
@@ -310,41 +334,56 @@
   overflow: hidden;
 }
 
+.module:hover {
+  border-color: fade(@rbd-label-color, 52%);
+}
+
 .halfModule {
   min-width: 0;
 }
 
 .moduleHeader {
-  min-height: 56px;
+  min-height: 46px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  padding: 10px 16px;
-  border-bottom: 1px solid fade(@rbd-label-color, 20%);
+  padding: 7px 14px;
+  background: mix(@primary-color, lighten(@rbd-background-color, 100%), 3%);
+  border-bottom: 1px solid fade(@rbd-label-color, 30%);
 }
 
-.moduleHeader > div:first-child {
+.moduleTitle {
   min-width: 0;
-}
-
-.moduleHeader h2,
-.moduleHeader span {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .moduleHeader h2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
   margin: 0;
-  color: @heading-color;
-  font-size: @rbd-sub-title-size;
-  line-height: @rbd-sub-title-line-height;
-  font-weight: 600;
+  color: darken(@heading-color, 10%);
+  font-size: @rbd-content-size;
+  line-height: @rbd-content-line-height;
+  font-weight: 650;
 }
 
-.moduleHeader span {
-  margin-top: 1px;
+.moduleHeader h2::before {
+  width: 3px;
+  height: 14px;
+  flex: 0 0 auto;
+  content: '';
+  background: fade(@primary-color, 76%);
+  border-radius: 2px;
+}
+
+.moduleTitle > span {
   overflow: hidden;
-  color: @rbd-label-color;
+  color: @text-color-secondary;
   font-size: @rbd-auxiliary-size;
   line-height: @rbd-auxiliary-line-height;
   text-overflow: ellipsis;
@@ -353,7 +392,7 @@
 
 .moduleBody {
   min-width: 0;
-  padding: 16px;
+  padding: 14px;
 }
 
 .moduleError,
@@ -384,16 +423,14 @@
 .globalMetrics {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  margin: -16px;
+  margin: -14px;
 }
 
 .globalMetric {
   min-width: 0;
-  min-height: 112px;
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  padding: 16px;
+  min-height: 104px;
+  display: block;
+  padding: 13px 14px;
   color: @text-color;
   border-right: 1px solid fade(@rbd-label-color, 18%);
   cursor: default;
@@ -403,28 +440,28 @@
   border-right: 0;
 }
 
-.globalMetric:not(:disabled) {
+.metricAction {
   cursor: pointer;
 }
 
-.globalMetric:not(:disabled):hover {
+.metricAction:hover {
   background: fade(@primary-color, 3%);
 }
 
-.globalMetric > span {
-  width: 34px;
-  height: 34px;
-  flex: 0 0 auto;
-  display: grid;
-  place-items: center;
-  color: @primary-color;
-  background: fade(@primary-color, 8%);
-  border-radius: 7px;
-  font-size: @rbd-sub-title-size;
+.metricLabel {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
 }
 
-.globalMetric > div {
-  min-width: 0;
+.metricLabel > i {
+  color: @primary-color;
+  font-size: @rbd-sub-title-size;
 }
 
 .globalMetric small,
@@ -445,25 +482,29 @@
 }
 
 .globalMetric strong {
-  margin: 2px 0;
-  color: @heading-color;
-  font-size: @rbd-title-big-size;
-  line-height: @rbd-title-big-line-height;
-  font-weight: 600;
+  margin: 7px 0 5px;
+  color: darken(@heading-color, 10%);
+  font-size: (@rbd-title-big-size + 1px);
+  line-height: 1;
+  font-weight: 650;
   font-variant-numeric: tabular-nums;
 }
 
-.warningMetric > span,
+.warningMetric .metricLabel > i,
 .warningMetric strong {
   color: darken(@warning-color, 17%);
 }
 
-.warningMetric > span {
-  background: fade(@warning-color, 13%);
+.warningMetric em {
+  color: darken(@warning-color, 17%);
+}
+
+.warningMetric em > i {
+  margin-left: 4px;
 }
 
 .inlineAlert {
-  margin-top: 16px;
+  margin-top: 24px;
 }
 
 .sectionWarning,
@@ -473,13 +514,13 @@
 }
 
 .scopeBar {
-  min-height: 64px;
+  min-height: 46px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 14px;
-  padding: 10px 16px;
+  padding: 6px 14px;
 }
 
 .scopeBar > div {
@@ -491,7 +532,11 @@
 
 .scopeBar strong,
 .scopeBar small {
-  display: block;
+  display: inline;
+}
+
+.scopeBar small {
+  margin-left: 10px;
 }
 
 .scopeBar strong {
@@ -504,8 +549,8 @@
 }
 
 .scopeIcon {
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   display: grid;
   place-items: center;
   color: @primary-color;
@@ -521,11 +566,11 @@
 .clusterOverview {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  margin: -16px;
+  margin: -14px;
 }
 
 .clusterOverview.withClusterAlerts {
-  grid-template-columns: minmax(0, 1fr) 310px;
+  grid-template-columns: minmax(0, 1fr) 280px;
 }
 
 .clusterMain {
@@ -538,13 +583,13 @@
   align-items: center;
   justify-content: flex-end;
   gap: 0;
-  padding: 10px 16px;
+  padding: 10px 14px;
   border-bottom: 1px solid fade(@rbd-label-color, 18%);
 }
 
 .clusterMeta > div {
-  min-width: 140px;
-  padding: 3px 18px;
+  min-width: 120px;
+  padding: 3px 14px;
   border-left: 1px solid fade(@rbd-label-color, 20%);
 }
 
@@ -591,23 +636,47 @@
 
 .clusterResources {
   display: grid;
-  grid-template-columns: minmax(220px, 1.35fr) minmax(220px, 1.35fr) minmax(125px, .75fr) minmax(125px, .75fr);
+  grid-template-columns: minmax(180px, 1.2fr) minmax(180px, 1.2fr) minmax(104px, .65fr) minmax(104px, .65fr);
   background: linear-gradient(180deg, fade(@primary-color, 2%), lighten(@rbd-background-color, 100%));
 }
 
 .resourceCard,
 .countCard {
   min-width: 0;
-  min-height: 154px;
-  padding: 16px;
+  min-height: 142px;
+  padding: 12px;
   border-right: 1px solid fade(@rbd-label-color, 18%);
 }
 
 .resourceCard {
+  display: block;
+}
+
+.resourceHeading,
+.countCard > span {
   display: flex;
   align-items: center;
+  gap: 7px;
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  font-weight: 600;
+}
+
+.countCard > span {
   justify-content: space-between;
-  gap: 10px;
+}
+
+.resourceHeading > i,
+.countCard > span > i {
+  color: @primary-color;
+}
+
+.resourceContent {
+  display: grid;
+  grid-template-columns: minmax(78px, 1fr) 94px;
+  align-items: end;
+  gap: 6px;
+  margin-top: 8px;
 }
 
 .resourceCopy {
@@ -621,8 +690,8 @@
 }
 
 .resourceCopy > span,
-.countCard > span {
-  color: @text-color-secondary;
+.resourceCopy > p {
+  color: @rbd-label-color;
   font-size: @rbd-auxiliary-size;
   line-height: @rbd-auxiliary-line-height;
   font-weight: 600;
@@ -634,16 +703,16 @@
 }
 
 .resourceCopy > strong {
-  margin-top: 17px;
-  color: @primary-color;
-  font-size: @rbd-title-big-size;
-  line-height: @rbd-title-big-line-height;
+  margin-top: 5px;
+  color: darken(@heading-color, 10%);
+  font-size: (@rbd-title-big-size - 4px);
+  line-height: 1.1;
   white-space: nowrap;
 }
 
 .resourceCopy > strong small {
   color: @text-color-secondary;
-  font-size: @rbd-auxiliary-size;
+  font-size: (@rbd-auxiliary-size - 2px);
   font-weight: 500;
 }
 
@@ -661,10 +730,10 @@
 
 .countCard > strong {
   display: block;
-  margin-top: 31px;
+  margin-top: 28px;
   color: @primary-color;
-  font-size: @rbd-title-big-size;
-  line-height: @rbd-title-big-line-height;
+  font-size: (@rbd-display-size - 6px);
+  line-height: 1;
 }
 
 .countCard > strong small {
@@ -672,6 +741,32 @@
   font-size: @rbd-content-size;
   font-weight: 500;
 }
+
+.resourceGauge {
+  position: relative;
+  width: 94px;
+  height: 74px;
+}
+
+.resourceGauge svg {
+  width: 94px;
+  height: 64px;
+  overflow: visible;
+}
+
+.resourceGauge path {
+  fill: none;
+  stroke-width: 8;
+  stroke-linecap: round;
+}
+
+.gaugeTrack { stroke: fade(@rbd-label-color, 22%); }
+.gaugeValue { stroke: @primary-color; transition: stroke-dasharray 420ms ease; }
+.gaugeWarning .gaugeValue { stroke: @warning-color; }
+.resourceGauge > span { position: absolute; left: 0; right: 0; bottom: 0; text-align: center; }
+.resourceGauge strong { display: block; color: darken(@heading-color, 10%); font-size: (@rbd-title-size + 1px); line-height: 1; }
+.resourceGauge small { display: block; margin-top: 4px; color: @rbd-label-color; font-size: (@rbd-auxiliary-size - 2px); }
+.diskStatus { margin: 0; padding: 7px 14px; color: @text-color-secondary; background: fade(@rbd-label-color, 4%); border-top: 1px solid fade(@rbd-label-color, 18%); font-size: @rbd-auxiliary-size; }
 
 .clusterAlerts {
   min-width: 0;
@@ -743,22 +838,25 @@
 }
 
 .primaryGrid {
-  grid-template-columns: minmax(0, 7fr) minmax(380px, 5fr);
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
 }
 
 .secondaryGrid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.secondaryGrid.singleModule { grid-template-columns: minmax(0, 1fr); }
+
 .primaryGrid > .module,
 .secondaryGrid > .module {
   height: calc(100% - 14px);
 }
 
-.monitorModule .moduleBody,
-.servicesModule .moduleBody {
-  min-height: 390px;
-}
+.monitorModule .moduleBody { min-height: 480px; }
+.servicesModule .moduleBody { padding: 0; }
+.monitorEmpty .moduleBody { min-height: 0; }
+.monitorEmpty { align-self: start; }
+.primaryGrid > .monitorEmpty { height: auto; }
 
 .monitorControls {
   display: flex;
@@ -767,17 +865,46 @@
 }
 
 .monitorControls :global(.ant-select) {
-  width: 76px;
+  width: 64px;
 }
 
 .trendChart {
   width: 100%;
-  height: 350px;
+  height: 355px;
 }
+
+.segmentedControl { display: inline-flex; align-items: center; gap: 2px; padding: 2px; background: fade(@rbd-label-color, 6%); border: 1px solid fade(@rbd-label-color, 20%); border-radius: 7px; }
+.segmentedControl button { min-width: 38px; height: 25px; padding: 0 7px; color: @text-color-secondary; background: transparent; border: 0; border-radius: 5px; font-size: @rbd-auxiliary-size; cursor: pointer; }
+.segmentedControl button.segmentActive { color: @primary-color; background: lighten(@rbd-background-color, 100%); box-shadow: @rbd-min-card-shadow; font-weight: 600; }
+.chartSummary { display: flex; align-items: center; gap: 12px; margin: 3px 0 4px; }
+.chartSummary > strong { color: darken(@heading-color, 10%); font-size: @rbd-display-size; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.chartSummary > strong small { margin-left: 5px; color: @text-color-secondary; font-size: @rbd-sub-title-size; }
+.chartSummary > span { color: @text-color-secondary; font-size: @rbd-auxiliary-size; }
+.chartSummary > span small { display: block; margin-top: 3px; color: @rbd-label-color; }
+.chartLegend { display: flex; align-items: center; justify-content: center; gap: 6px; color: @text-color-secondary; font-size: @rbd-auxiliary-size; }
+.chartLegend > i { width: 16px; height: 3px; background: @primary-color; border-radius: 2px; }
+.legendmemory > i { background: @success-color; }
+.legendnetwork > i { background: @warning-color; }
+.metricSource { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; margin-top: 13px; padding-top: 10px; border-top: 1px solid fade(@rbd-label-color, 18%); color: @text-color-secondary; font-size: (@rbd-auxiliary-size - 1px); }
+.metricSource small { font-size: inherit; }
+.metricSource em { color: @text-color-secondary; font-size: inherit; font-style: normal; }
+.monitorEmptyState { min-height: 186px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 16px; }
+.monitorEmptyState > i { margin-bottom: 10px; color: @rbd-label-color; font-size: @rbd-title-big-size; }
+.monitorEmptyState strong { font-size: @rbd-content-size; }
+.monitorEmptyState p { max-width: 360px; margin: 6px 0 13px; color: @text-color-secondary; font-size: @rbd-auxiliary-size; }
 
 .servicesBody {
   min-width: 0;
 }
+
+.componentPanel,
+.pluginPanel { min-width: 0; padding: 12px 14px; }
+.pluginPanel { border-top: 1px solid fade(@rbd-label-color, 30%); background: mix(@primary-color, lighten(@rbd-background-color, 100%), 1.5%); }
+.sectionTitle > button { min-width: 0; display: inline-flex; align-items: center; gap: 6px; padding: 0; color: darken(@heading-color, 10%); background: transparent; border: 0; font-size: @rbd-auxiliary-size; font-weight: 650; cursor: pointer; }
+.sectionTitle > button:hover { color: @primary-color; }
+.sectionTitle > button > i:first-child { color: @primary-color; }
+.sectionTitle small { white-space: nowrap; }
+.sectionTitle small.textWarning { color: @error-color; }
 
 .sectionTitle,
 .pluginHeader {
@@ -800,27 +927,34 @@
 .componentGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 7px;
+  gap: 0;
   margin-top: 10px;
+  border-top: 1px solid fade(@rbd-label-color, 22%);
 }
 
 .componentGrid button {
   min-width: 0;
-  min-height: 46px;
+  min-height: 58px;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 7px 10px;
+  padding: 9px 0;
   color: @text-color;
-  background: fade(@primary-color, 3%);
-  border: 1px solid fade(@rbd-label-color, 18%);
-  border-radius: 6px;
+  background: transparent;
+  border-bottom: 1px solid fade(@rbd-label-color, 18%);
 }
 
 .componentGrid button:hover {
-  border-color: fade(@primary-color, 45%);
-  background: fade(@primary-color, 6%);
+  background: fade(@primary-color, 3%);
 }
+
+.componentGrid button:nth-child(odd) { padding-right: 10px; border-right: 1px solid fade(@rbd-label-color, 18%); }
+.componentGrid button:nth-child(even) { padding-left: 10px; }
+.componentGrid button:nth-last-child(-n + 2) { border-bottom: 0; }
+.componentIcon { width: 27px; height: 27px; flex: 0 0 auto; display: grid; place-items: center; color: @success-color; background: fade(@success-color, 8%); border-radius: 7px; }
+.componentAbnormal .componentIcon { color: @error-color; background: fade(@error-color, 8%); }
+.componentCopy { min-width: 0; flex: 1; }
+.itemChevron { color: @rbd-label-color; font-size: (@rbd-auxiliary-size - 2px); }
 
 .componentGrid button > span:last-child {
   min-width: 0;
@@ -845,14 +979,11 @@
 .pluginList small {
   color: @rbd-label-color;
   font-size: @rbd-auxiliary-size;
-  transform: scale(.92);
-  transform-origin: left center;
+  font-size: (@rbd-auxiliary-size - 2px);
 }
 
 .pluginHeader {
-  margin-top: 15px;
-  padding-top: 12px;
-  border-top: 1px solid fade(@rbd-label-color, 18%);
+  min-height: 26px;
 }
 
 .pluginHeader .sectionTitle {
@@ -861,26 +992,29 @@
 }
 
 .pluginList {
-  max-height: 160px;
+  max-height: 166px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 7px;
+  gap: 8px;
   margin-top: 8px;
   padding-right: 3px;
   overflow-y: auto;
   overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: fade(@rbd-label-color, 65%) transparent;
+  scrollbar-gutter: stable;
 }
 
 .pluginList button {
   min-width: 0;
-  min-height: 52px;
+  min-height: 50px;
   display: grid;
-  grid-template-columns: 32px minmax(0, 1fr) auto;
+  grid-template-columns: 28px minmax(0, 1fr) 10px;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   padding: 7px 8px;
   color: @text-color;
-  background: fade(@rbd-label-color, 5%);
+  background: lighten(@rbd-background-color, 100%);
   border: 1px solid fade(@rbd-label-color, 16%);
   border-radius: 6px;
 }
@@ -895,27 +1029,36 @@
 }
 
 .pluginRuntime {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 4px;
+  margin-top: 3px;
+  font-size: (@rbd-auxiliary-size - 2px);
   border: 0;
 }
 
-.pluginHealthy {
-  color: @rbd-success-status;
-  background: fade(@rbd-success-status, 10%);
+.pluginRuntime > i { width: 5px; height: 5px; flex: 0 0 auto; background: currentColor; border-radius: 50%; }
+.pluginCopy { min-width: 0; }
+.pluginSummary { margin: 3px 0 0; color: @text-color-secondary; font-size: (@rbd-auxiliary-size - 2px); }
+.pluginCount { display: inline-grid; min-width: 22px; height: 22px; margin-right: 5px; place-items: center; color: @primary-color; background: fade(@primary-color, 8%); border-radius: 50%; font-size: @rbd-auxiliary-size; }
+
+.pluginRuntime.pluginHealthy {
+  color: darken(@success-color, 12%);
 }
 
-.pluginWarning {
-  color: @rbd-warning-status;
-  background: fade(@rbd-warning-status, 12%);
+.pluginRuntime.pluginWarning {
+  color: @error-color;
 }
 
-.pluginUnknown {
-  color: @rbd-down-status;
-  background: fade(@rbd-down-status, 10%);
+.pluginRuntime.pluginStarting { color: @primary-color; }
+
+.pluginRuntime.pluginUnknown {
+  color: @text-color-secondary;
 }
 
 .pluginIcon {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   display: grid;
   place-items: center;
   color: @primary-color;
@@ -924,12 +1067,12 @@
 }
 
 .teamRanking {
-  margin: -16px;
+  margin: -14px;
 }
 
-.teamRanking button {
+.teamRanking > button {
   width: 100%;
-  min-height: 58px;
+  min-height: 55px;
   display: grid;
   grid-template-columns: 28px minmax(0, 1fr) auto;
   align-items: center;
@@ -939,11 +1082,11 @@
   border-bottom: 1px solid fade(@rbd-label-color, 17%);
 }
 
-.teamRanking button:last-child {
+.teamRanking > button:last-child {
   border-bottom: 0;
 }
 
-.teamRanking button:hover {
+.teamRanking > button:hover {
   background: fade(@primary-color, 3%);
 }
 
@@ -959,7 +1102,7 @@
   font-weight: 600;
 }
 
-.teamRanking button:first-child .rank {
+.teamRanking > button:nth-child(2) .rank {
   color: darken(@warning-color, 25%);
   background: fade(@warning-color, 17%);
 }
@@ -971,12 +1114,12 @@
 .teamName strong {
   display: block;
   overflow: hidden;
-  font-size: @rbd-content-size;
+  font-size: @rbd-auxiliary-size;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.teamName > span {
+.teamTrack {
   height: 5px;
   display: block;
   margin-top: 7px;
@@ -992,6 +1135,16 @@
   border-radius: inherit;
 }
 
+.teamRanking > button:nth-child(2) .teamTrack i { background: @warning-color; }
+.teamLine { min-width: 0; display: flex; align-items: baseline; justify-content: space-between; gap: 9px; }
+.teamLine > small { flex: 0 0 auto; color: @text-color-secondary; font-size: (@rbd-auxiliary-size - 2px); }
+.rankingToolbar { min-height: 58px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 9px 14px; border-bottom: 1px solid fade(@rbd-label-color, 18%); }
+.rankingToolbar > span { display: flex; align-items: center; gap: 9px; }
+.rankingToolbar > span > i { width: 30px; height: 30px; display: grid; place-items: center; color: @primary-color; background: fade(@primary-color, 8%); border-radius: 7px; }
+.rankingToolbar strong { display: block; font-size: @rbd-auxiliary-size; font-weight: 600; }
+.rankingToolbar strong em { color: @primary-color; font-style: normal; }
+.rankingToolbar small { display: block; margin-top: 2px; color: @text-color-secondary; font-size: (@rbd-auxiliary-size - 2px); }
+
 .teamValue {
   color: @heading-color;
   font-size: @rbd-sub-title-size;
@@ -1004,6 +1157,9 @@
   font-size: @rbd-auxiliary-size;
   font-weight: 400;
 }
+
+.teamValue > strong { display: block; font-size: @rbd-sub-title-size; white-space: nowrap; }
+.teamValue em { display: block; margin-top: 2px; color: @text-color-secondary; font-size: (@rbd-auxiliary-size - 2px); font-style: normal; font-weight: 400; white-space: nowrap; }
 
 .gatewayMetrics {
   display: grid;
@@ -1050,9 +1206,9 @@
   gap: 10px;
   margin-top: 12px;
   padding: 10px 13px;
-  color: @success-color;
-  background: fade(@success-color, 6%);
-  border: 1px solid fade(@success-color, 20%);
+  color: @text-color-secondary;
+  background: fade(@rbd-label-color, 5%);
+  border: 1px solid fade(@rbd-label-color, 20%);
   border-radius: 7px;
   cursor: default;
 }
@@ -1182,7 +1338,26 @@
   font-size: @rbd-auxiliary-size;
 }
 
-@media (max-width: 1280px) {
+@keyframes upgradeSweep {
+  0%, 65% { transform: translateX(-120%); }
+  95%, 100% { transform: translateX(120%); }
+}
+
+@keyframes upgradeBeacon {
+  0%, 100% { opacity: .8; }
+  50% { opacity: 1; }
+}
+
+.page button:focus-visible,
+.pluginList:focus-visible { outline: 2px solid fade(@primary-color, 45%); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hasUpgrade::after,
+  .upgradeIcon { animation: none; }
+  .gaugeValue { transition: none; }
+}
+
+@media (max-width: 1100px) {
   .globalMetrics {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -1195,29 +1370,15 @@
     border-bottom: 1px solid fade(@rbd-label-color, 18%);
   }
 
-  .clusterResources {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .resourceCard:nth-child(2),
-  .countCard:last-child {
-    border-right: 0;
-  }
-
-  .resourceCard {
-    border-bottom: 1px solid fade(@rbd-label-color, 18%);
-  }
-}
-
-@media (max-width: 1100px) {
   .primaryGrid,
   .secondaryGrid {
     grid-template-columns: minmax(0, 1fr);
   }
 
   .clusterOverview.withClusterAlerts {
-    grid-template-columns: minmax(0, 1fr) 280px;
+    grid-template-columns: minmax(0, 1fr);
   }
+  .clusterAlerts { border-top: 1px solid fade(@warning-color, 28%); border-left: 0; }
 }
 
 @media (max-width: 850px) {
@@ -1234,7 +1395,7 @@
   .upgradeAction {
     min-width: 0;
     align-items: flex-start;
-    border-top: 1px solid fade(@warning-color, 30%);
+    border-top: 1px solid fade(@overview-upgrade-gold, 30%);
     border-left: 0;
   }
 
@@ -1246,6 +1407,13 @@
   .scopeBar {
     gap: 9px;
   }
+
+  .scopeBar small { display: block; margin-left: 0; }
+
+  .clusterResources { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .resourceCard:nth-child(2),
+  .countCard:last-child { border-right: 0; }
+  .resourceCard { border-bottom: 1px solid fade(@rbd-label-color, 18%); }
 
   .clusterSelect {
     width: 100%;
@@ -1272,9 +1440,12 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .componentGrid button:nth-child(odd),
+  .componentGrid button:nth-child(even) { padding: 9px 0; border-right: 0; }
+  .componentGrid button:nth-last-child(2) { border-bottom: 1px solid fade(@rbd-label-color, 18%); }
+
   .globalMetric {
     min-height: 94px;
-    gap: 8px;
     padding: 12px;
     border-right: 0;
     border-bottom: 0;
@@ -1286,11 +1457,6 @@
 
   .globalMetric:nth-child(-n + 4) {
     border-bottom: 1px solid fade(@rbd-label-color, 18%);
-  }
-
-  .globalMetric > span {
-    width: 28px;
-    height: 28px;
   }
 
   .resourceCard {
@@ -1334,14 +1500,14 @@
   }
 
   .moduleHeader {
-    align-items: flex-start;
-    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 6px;
   }
 
+  .moduleTitle > span { display: none; }
+
   .monitorControls {
-    width: 100%;
-    flex-wrap: wrap;
-    justify-content: flex-end;
+    gap: 5px;
   }
 
   .monitorControls > :global(.ant-btn-group) {
@@ -1357,12 +1523,11 @@
   }
 
   .pluginHeader {
-    flex-wrap: wrap;
-    align-items: flex-start;
+    flex-wrap: nowrap;
   }
 
   .pluginHeader .sectionTitle {
-    flex-basis: 100%;
+    flex-basis: auto;
   }
 
   .pluginHeader .sectionTitle span,
@@ -1377,6 +1542,11 @@
   .trendChart {
     height: 290px;
   }
+
+  .monitorModule .moduleBody { min-height: 0; }
+  .teamLine { display: block; }
+  .teamLine > small { display: block; margin-top: 2px; white-space: normal; }
+  .rankingToolbar > .segmentedControl { margin-left: auto; }
 
   .issueRow {
     grid-template-columns: 32px minmax(0, 1fr);

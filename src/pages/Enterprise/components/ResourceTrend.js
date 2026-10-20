@@ -46,24 +46,32 @@ export default class ResourceTrend extends PureComponent {
 
   updateChart = () => {
     if (!this.chart) return;
-    const { data, metric, emptyText, unitLabel } = this.props;
-    const points = overviewData.metricPoints(data);
+    const { data, metric, emptyText, unitLabel, seriesLabel } = this.props;
+    const points = overviewData.metricChartPoints(data);
     const color = COLORS[metric] || COLORS.cpu;
     this.chart.setOption(
       {
-        animationDuration: 420,
-        grid: { top: 24, right: 18, bottom: 28, left: 52 },
+        animation: !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches),
+        animationDuration: 260,
+        animationDurationUpdate: 160,
+        grid: { top: 22, right: 18, bottom: 32, left: metric === 'network' ? 66 : 46 },
         tooltip: {
           trigger: 'axis',
           confine: true,
+          transitionDuration: 0,
+          axisPointer: { type: 'line', animation: false, lineStyle: { color, type: 'dashed' } },
           backgroundColor: theme['heading-color'],
+          textStyle: { color: theme['rbd-background-color'] },
           borderWidth: 0,
           formatter: params => {
             const point = params && params[0];
-            if (!point) return '';
+            if (!point || !overviewData.isNumber(point.value[1])) return '';
+            const value = metric === 'network'
+              ? overviewData.formatThroughput(point.value[1])
+              : { value: Number(point.value[1]).toFixed(2), unit: unitLabel };
             return `${this.echarts.format.formatTime('yyyy-MM-dd hh:mm', point.value[0])}<br/>${
               point.marker
-            }${Number(point.value[1]).toFixed(metric === 'network' ? 0 : 2)} ${unitLabel}`;
+            }${seriesLabel || ''} ${value.value} ${value.unit}`;
           }
         },
         xAxis: {
@@ -81,15 +89,21 @@ export default class ResourceTrend extends PureComponent {
           axisTick: { show: false },
           axisLabel: {
             color: theme['rbd-label-color'],
-            formatter: value => `${value}${metric === 'network' ? '' : '%'}`
+            formatter: value => {
+              if (metric !== 'network') return `${value}%`;
+              const throughput = overviewData.formatThroughput(value);
+              return `${throughput.value} ${throughput.unit}`;
+            }
           },
           splitLine: { lineStyle: { color: theme['border-color-base'], type: 'dashed' } }
         },
         series: [
           {
             type: 'line',
+            name: seriesLabel,
             data: points,
-            smooth: 0.35,
+            connectNulls: false,
+            smooth: 0.2,
             showSymbol: false,
             symbolSize: 8,
             lineStyle: { width: 3, color },

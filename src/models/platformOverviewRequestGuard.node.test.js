@@ -87,9 +87,11 @@ async function run() {
     className: 'pluginHealthy',
     labelId: 'common.normal'
   });
-  ['abnormal', 'closed', 'starting'].forEach(status => {
+  ['abnormal', 'failed'].forEach(status => {
     assert.strictEqual(overviewData.pluginRuntimeState(status).level, 'warning');
   });
+  assert.strictEqual(overviewData.pluginRuntimeState('closed').level, 'stopped');
+  assert.strictEqual(overviewData.pluginRuntimeState('starting').level, 'starting');
   assert.strictEqual(overviewData.pluginRuntimeState(null).level, 'unknown');
 
   let state = overviewState.createInitialState();
