@@ -51,7 +51,7 @@ export function clusterRuntimeStatus(snapshot, failed) {
   if (nodes && Array.isArray(nodes.alerts) && nodes.alerts.length) return 'abnormal';
   if (validNodes && nodes.ready < nodes.total) return 'abnormal';
   if (Array.isArray(components) && components.some(item => item && /^(abnormal|failed|error|pending|starting|stopped)$/i.test(item.status))) return 'abnormal';
-  if (nodeSection.status !== 'ok' || componentSection.status !== 'ok' || !validNodes || nodes.total === 0 || nodes.disk_stats_status !== 'ok' || !Array.isArray(nodes.alerts) || !Array.isArray(components) || !components.length) return 'unknown';
+  if (nodeSection.status !== 'ok' || componentSection.status !== 'ok' || !validNodes || nodes.total === 0 || nodes.disk_stats_status !== 'ok' || ['ok', 'not_applicable'].indexOf(nodes.certificate_status) === -1 || !Array.isArray(nodes.alerts) || !Array.isArray(components) || !components.length) return 'unknown';
   if (!components.every(item => item && overviewData.isRunning(item.status) && count(item.run_pods) && count(item.all_pods) && item.run_pods <= item.all_pods)) return 'unknown';
   if (components.some(item => item.run_pods < item.all_pods)) return 'abnormal';
   return 'normal';
@@ -560,6 +560,7 @@ export default class Enterprise extends PureComponent {
                 </div>
               ) : resourceStatus === 'loading' ? <Skeleton active paragraph={{ rows: 2 }} /> : <Alert type="warning" showIcon message={t('cluster.resourcesUnavailable')} />}
               {nodeStatus !== 'ok' && nodeStatus !== 'loading' ? <Alert className={styles.sectionWarning} type="warning" showIcon message={t('cluster.nodesUnavailable')} /> : null}
+              {nodes && ['ok', 'not_applicable'].indexOf(nodes.certificate_status) === -1 ? <p className={styles.diskStatus}><Icon type="info-circle" /> {t('cluster.certificatesUnavailable')}</p> : null}
               {nodes && ['partial', 'unavailable'].indexOf(nodes.disk_stats_status) > -1 ? <p className={styles.diskStatus}><Icon type="info-circle" /> {t('cluster.diskUnavailable')}</p> : null}
             </div>
             {alerts.length ? (
@@ -569,8 +570,8 @@ export default class Enterprise extends PureComponent {
                   const translation = overviewData.nodeAlertTranslation(alert);
                   const values = translation.id === 'cluster.diskUsage'
                     ? { filesystem: t(`cluster.filesystem.${translation.values.filesystem}`), percent: translation.values.percent }
-                    : translation.values;
-                  return <button type="button" key={`${alert.type}-${alert.node_name}-${index}`} onClick={() => this.jumpNode(alert)}><Icon type={alert.severity === 'critical' ? 'close-circle' : 'warning'} /><span><strong>{alert.node_name || t('cluster.unknownNode')}</strong><small>{t(translation.id, values)}</small></span><Icon type="right" /></button>;
+                    : { ...translation.values, ...(translation.values.date ? { date: moment(translation.values.date).isValid() ? moment(translation.values.date).format('YYYY-MM-DD HH:mm:ss Z') : translation.values.date } : {}) };
+                  return <button type="button" className={alert.severity === 'critical' ? styles.criticalAlert : undefined} key={`${alert.type}-${alert.node_name}-${index}`} onClick={() => this.jumpNode(alert)}><Icon type={alert.severity === 'critical' ? 'close-circle' : 'warning'} /><span><strong>{alert.node_name || t('cluster.unknownNode')}</strong>{alert.severity === 'critical' ? <em>{t('cluster.severityCritical')}</em> : null}<small>{t(translation.id, values)}</small></span><Icon type="right" /></button>;
                 })}</div>
               </aside>
             ) : null}

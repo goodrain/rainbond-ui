@@ -984,6 +984,31 @@
   font-size: @rbd-auxiliary-size;
 }
 
+.clusterAlerts > div {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.clusterAlerts button small {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.clusterAlerts button.criticalAlert,
+.clusterAlerts button.criticalAlert em {
+  color: @error-color;
+}
+
+.clusterAlerts button.criticalAlert:hover {
+  background: fade(@error-color, 7%);
+}
+
+.clusterAlerts button em {
+  display: block;
+  font-size: @rbd-auxiliary-size;
+  font-style: normal;
+}
+
 .primaryGrid,
 .secondaryGrid {
   display: grid;
