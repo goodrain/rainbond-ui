@@ -26,7 +26,7 @@ import Instance from './component/Instance/index';
 import styles from './Index.less';
 import { shouldRefreshVMProfileForVNC } from './vmProfileRefreshHelpers';
 import { shouldLoadStorageUsage } from '../../components/SlidePanel/components/componentViewPerformance';
-const { getComponentPollingDelay } = require('./componentPolling');
+const { getComponentPollingDelay, createComponentPollingGuard } = require('./componentPolling');
 
 const ButtonGroup = Button.Group;
 
@@ -396,6 +396,11 @@ export default class Index extends PureComponent {
     this.storageUsageRequested = false;
     this.operationLogPollFailures = 0;
     this.podsPollFailures = 0;
+    this.pollingEnabled = false;
+    this.pollingGuard = createComponentPollingGuard(
+      () => this.mounted && this.pollingEnabled,
+      () => this.getPollingIdentity()
+    );
   }
   static contextTypes = {
     isActionIng: PropTypes.func,
@@ -403,6 +408,8 @@ export default class Index extends PureComponent {
   };
   componentDidMount() {
     this.mounted = true;
+    this.pollingEnabled = !!this.props.timers;
+    this.pollingIdentity = this.getPollingIdentity();
     if (this.props.method !== 'vm') {
       this.loadBuildSourceInfo();
       this.getVersionList();
@@ -413,6 +420,7 @@ export default class Index extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
+    this.syncPolling();
     if (prevProps.status !== this.props.status) {
       this.refreshVMProfileForVNC();
     }
@@ -429,23 +437,39 @@ export default class Index extends PureComponent {
       this.setState({ status: newStatus });
     }
 
-    if (newTimers !== timers) {
-      this.setState({ componentTimers: newTimers }, () => {
-        if (newTimers) {
-          this.operationLogPollFailures = 0;
-          this.podsPollFailures = 0;
-          this.load();
-        } else {
-          this.closeTimer();
-        }
-      });
+    if (newTimers !== timers || this.getPollingIdentity(nextProps) !== this.pollingIdentity) {
+      this.resetPolling();
+      this.setState({ componentTimers: !!newTimers });
     }
   }
 
   componentWillUnmount() {
     this.mounted = false;
-    this.closeTimer();
+    this.resetPolling();
   }
+  getPollingIdentity = (props = this.props) => JSON.stringify([
+    globalUtil.getCurrTeamName(), globalUtil.getCurrRegionName(), props.appAlias
+  ]);
+
+  resetPolling = () => {
+    this.pollingEnabled = false;
+    this.pollingGuard.invalidate();
+    this.operationLogRefreshPending = null;
+    this.closeTimer();
+  };
+
+  syncPolling = () => {
+    const identity = this.getPollingIdentity();
+    const enabled = !!this.props.timers;
+    if (identity !== this.pollingIdentity || enabled !== this.pollingEnabled) {
+      this.resetPolling();
+      this.pollingIdentity = identity;
+      this.pollingEnabled = enabled;
+      this.operationLogPollFailures = 0;
+      this.podsPollFailures = 0;
+      if (enabled) this.load();
+    }
+  };
   load = () => {
     this.fetchPods(true);
     this.fetchOperationLog(true);
@@ -491,6 +515,22 @@ export default class Index extends PureComponent {
   };
 
   fetchOperationLog = (isCycle, isopenLog = false) => {
+    if (!this.mounted || !this.pollingEnabled) return;
+    const request = this.pollingGuard.begin('events');
+    if (!request) {
+      if (!isCycle) this.operationLogRefreshPending = { isopenLog };
+      return;
+    }
+    const shouldCycle = isCycle || !!this.fetchOperationLogTimer;
+    clearTimeout(this.fetchOperationLogTimer);
+    this.fetchOperationLogTimer = null;
+    const refreshPending = () => {
+      if (!this.operationLogRefreshPending) return false;
+      const pending = this.operationLogRefreshPending;
+      this.operationLogRefreshPending = null;
+      this.fetchOperationLog(shouldCycle, pending.isopenLog);
+      return true;
+    };
     this.props.dispatch({
       type: 'appControl/fetchOperationLog',
       payload: {
@@ -501,6 +541,7 @@ export default class Index extends PureComponent {
         page_size: this.state.page_size
       },
       callback: res => {
+        if (!request.complete() || refreshPending()) return;
         if (res && res.status_code === 200) {
           this.operationLogPollFailures = 0;
           this.setState(
@@ -511,7 +552,7 @@ export default class Index extends PureComponent {
               recordLoading: false
             },
             () => {
-              if (isCycle) {
+              if (shouldCycle && request.isCurrent()) {
                 this.handleTimers(
                   'fetchOperationLogTimer',
                   () => {
@@ -527,9 +568,10 @@ export default class Index extends PureComponent {
         }
       },
       handleError: err => {
+        if (!request.complete() || refreshPending()) return;
         this.operationLogPollFailures += 1;
         this.handleError(err);
-        if (isCycle) {
+        if (shouldCycle) {
           this.handleTimers(
             'fetchOperationLogTimer',
             () => {
@@ -550,16 +592,16 @@ export default class Index extends PureComponent {
     handleAPIError(err);
   };
   handleTimers = (timerName, callback, times) => {
-    const { componentTimers } = this.state;
-    if (!componentTimers) {
+    if (!this.mounted || !this.pollingEnabled) {
       return null;
     }
     if (this[timerName]) {
       clearTimeout(this[timerName]);
     }
+    const isCurrent = this.pollingGuard.checkpoint();
     this[timerName] = setTimeout(() => {
       this[timerName] = null;
-      callback();
+      if (isCurrent()) callback();
     }, times);
   };
 
@@ -685,13 +727,20 @@ export default class Index extends PureComponent {
 
   fetchPods = isCycle => {
     const { appAlias, dispatch } = this.props;
+    const request = this.pollingGuard.begin('pods');
+    if (!request) return;
+    const shouldCycle = isCycle || !!this.fetchPodsTimer;
+    clearTimeout(this.fetchPodsTimer);
+    this.fetchPodsTimer = null;
     dispatch({
       type: 'appControl/fetchPods',
+      shouldApply: request.isCurrent,
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         app_alias: appAlias
       },
       callback: res => {
+        if (!request.complete()) return;
         if (res && res.status_code === 200) {
           this.podsPollFailures = 0;
           this.setState(
@@ -701,7 +750,7 @@ export default class Index extends PureComponent {
               runLoading: false
             },
             () => {
-              if (isCycle) {
+              if (shouldCycle && request.isCurrent()) {
                 this.handleTimers(
                   'fetchPodsTimer',
                   () => {
@@ -717,9 +766,10 @@ export default class Index extends PureComponent {
         }
       },
       handleError: err => {
+        if (!request.complete()) return;
         this.podsPollFailures += 1;
         this.handleError(err);
-        if (isCycle) {
+        if (shouldCycle) {
           this.handleTimers(
             'fetchPodsTimer',
             () => {

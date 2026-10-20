@@ -609,11 +609,11 @@ export default {
         yield put({ type: 'saveVisitInfo', payload: response.bean });
       }
     },
-    *fetchPods({ payload, callback, handleError }, { call, put }) {
+    *fetchPods({ payload, callback, handleError, shouldApply }, { call, put }) {
       const response = yield call(getPods, payload, handleError);
-      if (response) {
+      if (response && (!shouldApply || shouldApply())) {
         yield put({ type: 'savePods', payload: response.list });
-        if (callback) {
+        if (callback && (!shouldApply || shouldApply())) {
           callback(response);
         }
       }

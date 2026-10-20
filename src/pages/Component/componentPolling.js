@@ -29,9 +29,48 @@ function getComponentPollingDelay({ status = '', failureCount = 0 } = {}) {
     : STABLE_POLL_DELAY;
 }
 
+function isUnavailableComponentStatus(status) {
+  return !status || /^(unknow|unknown)$/i.test(String(status));
+}
+
+// Each flow owns one request per lifecycle generation. Invalidating a generation
+// permits a fresh request without letting a previous network response apply.
+function createComponentPollingGuard(isEnabled, getIdentity) {
+  let generation = 0;
+  let pending = {};
+  const checkpoint = () => {
+    const capturedGeneration = generation;
+    const identity = getIdentity();
+    return () => isEnabled() && capturedGeneration === generation && identity === getIdentity();
+  };
+  return {
+    checkpoint,
+    invalidate() {
+      generation += 1;
+      pending = {};
+    },
+    begin(flow) {
+      if (!isEnabled() || pending[flow]) return null;
+      const isCurrent = checkpoint();
+      const request = {
+        isCurrent,
+        complete() {
+          if (pending[flow] !== request || !isCurrent()) return false;
+          delete pending[flow];
+          return true;
+        }
+      };
+      pending[flow] = request;
+      return request;
+    }
+  };
+}
+
 module.exports = {
   ACTIVE_POLL_DELAY,
   STABLE_POLL_DELAY,
   MAX_FAILURE_POLL_DELAY,
-  getComponentPollingDelay
+  getComponentPollingDelay,
+  isUnavailableComponentStatus,
+  createComponentPollingGuard
 };
