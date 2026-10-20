@@ -171,6 +171,21 @@ class TraceMessageRow extends PureComponent {
           <Icon type="api" className={styles.traceInlineIcon} />
           <span>{traceText}</span>
         </span>
+        {trace.sources && trace.sources.length > 0 ? (
+          <div style={{ marginTop: 4, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {trace.sources.map(source => (
+              <a
+                key={source.url}
+                href={source.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontSize: 12, wordBreak: 'break-all' }}
+              >
+                {source.title || source.url}
+              </a>
+            ))}
+          </div>
+        ) : null}
       </div>
     );
   }
