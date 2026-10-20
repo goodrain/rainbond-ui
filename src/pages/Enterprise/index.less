@@ -332,10 +332,12 @@
   min-width: 0;
   margin-bottom: 14px;
   overflow: hidden;
+  border-color: fade(@rbd-label-color, 28%);
+  box-shadow: @rbd-min-card-shadow;
 }
 
 .module:hover {
-  border-color: fade(@rbd-label-color, 52%);
+  border-color: fade(@rbd-label-color, 40%);
 }
 
 .halfModule {
@@ -484,7 +486,7 @@
 .globalMetric strong {
   margin: 7px 0 5px;
   color: darken(@heading-color, 10%);
-  font-size: (@rbd-title-big-size + 1px);
+  font-size: (@rbd-title-big-size + 2px);
   line-height: 1;
   font-weight: 650;
   font-variant-numeric: tabular-nums;
@@ -747,7 +749,7 @@
   color: @rbd-label-color;
   font-size: @rbd-auxiliary-size;
   line-height: @rbd-auxiliary-line-height;
-  font-weight: 600;
+  font-weight: 400;
 }
 
 .resourceCopy > span i {
@@ -757,15 +759,19 @@
 
 .resourceCopy > strong {
   margin-top: 5px;
-  color: darken(@heading-color, 10%);
-  font-size: (@rbd-title-big-size - 4px);
+  color: @primary-color;
+  font-size: @rbd-title-big-size;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
   line-height: 1.1;
   white-space: nowrap;
 }
 
 .resourceCopy > strong small {
+  display: block;
+  margin-top: 4px;
   color: @text-color-secondary;
-  font-size: (@rbd-auxiliary-size - 2px);
+  font-size: @rbd-auxiliary-size;
   font-weight: 500;
 }
 
@@ -905,7 +911,10 @@
   height: calc(100% - 14px);
 }
 
-.monitorModule .moduleBody { min-height: 480px; }
+.monitorModule { display: flex; flex-direction: column; }
+.monitorModule .moduleHeader { flex: 0 0 auto; }
+.monitorModule .moduleBody { min-height: 440px; flex: 1; display: flex; flex-direction: column; }
+.monitorModule .moduleBody > :not(.trendChart) { flex: 0 0 auto; }
 .servicesModule .moduleBody { padding: 0; }
 .monitorEmpty .moduleBody { min-height: 0; }
 .monitorEmpty { align-self: start; }
@@ -915,7 +924,10 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  flex: 0 0 auto;
 }
+
+.chartToolbar { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 8px; }
 
 .monitorControls :global(.ant-select) {
   width: 64px;
@@ -923,14 +935,16 @@
 
 .trendChart {
   width: 100%;
-  height: 355px;
+  height: 310px;
+  min-height: 310px;
+  flex: 1 0 310px;
 }
 
 .segmentedControl { display: inline-flex; align-items: center; gap: 2px; padding: 2px; background: fade(@rbd-label-color, 6%); border: 1px solid fade(@rbd-label-color, 20%); border-radius: 7px; }
 .segmentedControl button { min-width: 38px; height: 25px; padding: 0 7px; color: @text-color-secondary; background: transparent; border: 0; border-radius: 5px; font-size: @rbd-auxiliary-size; cursor: pointer; }
 .segmentedControl button.segmentActive { color: @primary-color; background: lighten(@rbd-background-color, 100%); box-shadow: @rbd-min-card-shadow; font-weight: 600; }
 .chartSummary { display: flex; align-items: center; gap: 12px; margin: 3px 0 4px; }
-.chartSummary > strong { color: darken(@heading-color, 10%); font-size: @rbd-display-size; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.chartSummary > strong { color: darken(@heading-color, 10%); font-size: (@rbd-title-big-size + 4px); font-variant-numeric: tabular-nums; line-height: 1.2; font-weight: 600; }
 .chartSummary > strong small { margin-left: 5px; color: @text-color-secondary; font-size: @rbd-sub-title-size; }
 .chartSummary > span { color: @text-color-secondary; font-size: @rbd-auxiliary-size; }
 .chartSummary > span small { display: block; margin-top: 3px; color: @rbd-label-color; }
@@ -953,7 +967,7 @@
 
 .componentPanel,
 .pluginPanel { min-width: 0; padding: 12px 14px; }
-.pluginPanel { border-top: 1px solid fade(@rbd-label-color, 30%); background: mix(@primary-color, lighten(@rbd-background-color, 100%), 1.5%); }
+.pluginPanel { border-top: 1px solid fade(@rbd-label-color, 20%); background: mix(@primary-color, lighten(@rbd-background-color, 100%), 1.5%); }
 .sectionTitle > button { min-width: 0; display: inline-flex; align-items: center; gap: 6px; padding: 0; color: darken(@heading-color, 10%); background: transparent; border: 0; font-size: @rbd-auxiliary-size; font-weight: 650; cursor: pointer; }
 .sectionTitle > button:hover { color: @primary-color; }
 .sectionTitle > button > i:first-child { color: @primary-color; }
@@ -981,32 +995,32 @@
 .componentGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0;
+  gap: 6px 12px;
   margin-top: 10px;
-  border-top: 1px solid fade(@rbd-label-color, 22%);
+  border-top: 0;
 }
 
 .componentGrid button {
   min-width: 0;
-  min-height: 58px;
+  min-height: 54px;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 9px 0;
+  padding: 8px;
   color: @text-color;
-  background: transparent;
-  border-bottom: 1px solid fade(@rbd-label-color, 18%);
+  background: fade(@rbd-label-color, 4%);
+  border-radius: 7px;
+  border-bottom: 0;
 }
 
 .componentGrid button:hover {
   background: fade(@primary-color, 3%);
 }
 
-.componentGrid button:nth-child(odd) { padding-right: 10px; border-right: 1px solid fade(@rbd-label-color, 18%); }
-.componentGrid button:nth-child(even) { padding-left: 10px; }
-.componentGrid button:nth-last-child(-n + 2) { border-bottom: 0; }
-.componentIcon { width: 27px; height: 27px; flex: 0 0 auto; display: grid; place-items: center; color: @success-color; background: fade(@success-color, 8%); border-radius: 7px; }
-.componentAbnormal .componentIcon { color: @error-color; background: fade(@error-color, 8%); }
+.componentIcon { width: 29px; height: 29px; flex: 0 0 auto; display: grid; place-items: center; color: @primary-color; background: fade(@primary-color, 8%); border-radius: 7px; }
+.componentState { width: 6px; height: 6px; flex: 0 0 auto; border-radius: 50%; background: @success-color; }
+.componentAbnormal .componentState { background: @error-color; }
+.componentAbnormal { background: fade(@error-color, 4%) !important; }
 .componentCopy { min-width: 0; flex: 1; }
 .itemChevron { color: @rbd-label-color; font-size: (@rbd-auxiliary-size - 2px); }
 
@@ -1027,13 +1041,13 @@
 .componentGrid strong,
 .pluginList strong {
   font-size: @rbd-auxiliary-size;
+  font-weight: 600;
 }
 
 .componentGrid small,
 .pluginList small {
   color: @rbd-label-color;
-  font-size: @rbd-auxiliary-size;
-  font-size: (@rbd-auxiliary-size - 2px);
+  font-size: (@rbd-auxiliary-size - 1px);
 }
 
 .pluginHeader {
@@ -1061,7 +1075,7 @@
 
 .pluginList button {
   min-width: 0;
-  min-height: 50px;
+  min-height: 42px;
   display: grid;
   grid-template-columns: 28px minmax(0, 1fr) 10px;
   align-items: center;
@@ -1069,7 +1083,7 @@
   padding: 7px 8px;
   color: @text-color;
   background: lighten(@rbd-background-color, 100%);
-  border: 1px solid fade(@rbd-label-color, 16%);
+  border: 1px solid transparent;
   border-radius: 6px;
 }
 
@@ -1086,14 +1100,16 @@
   display: inline-flex !important;
   align-items: center;
   gap: 4px;
-  margin-top: 3px;
-  font-size: (@rbd-auxiliary-size - 2px);
+  margin-top: 0;
+  flex: 0 0 auto;
+  font-size: (@rbd-auxiliary-size - 1px);
   border: 0;
 }
 
 .pluginRuntime > i { width: 5px; height: 5px; flex: 0 0 auto; background: currentColor; border-radius: 50%; }
-.pluginCopy { min-width: 0; }
-.pluginSummary { margin: 3px 0 0; color: @text-color-secondary; font-size: (@rbd-auxiliary-size - 2px); }
+.pluginCopy { min-width: 0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px 10px; }
+.pluginCopy > strong { flex: 1 1 auto; min-width: 0; }
+.pluginSummary { margin: 3px 0 0; color: @text-color-secondary; font-size: (@rbd-auxiliary-size - 1px); }
 .pluginCount { display: inline-grid; min-width: 22px; height: 22px; margin-right: 5px; place-items: center; color: @primary-color; background: fade(@primary-color, 8%); border-radius: 50%; font-size: @rbd-auxiliary-size; }
 
 .pluginRuntime.pluginHealthy {
@@ -1169,6 +1185,7 @@
   display: block;
   overflow: hidden;
   font-size: @rbd-auxiliary-size;
+  font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -1212,24 +1229,21 @@
   font-weight: 400;
 }
 
-.teamValue > strong { display: block; font-size: @rbd-sub-title-size; white-space: nowrap; }
+.teamValue > strong { display: block; font-size: @rbd-content-size; font-weight: 600; white-space: nowrap; }
 .teamValue em { display: block; margin-top: 2px; color: @text-color-secondary; font-size: (@rbd-auxiliary-size - 2px); font-style: normal; font-weight: 400; white-space: nowrap; }
 
 .gatewayMetrics {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  border: 1px solid fade(@rbd-label-color, 18%);
-  border-radius: 7px;
+  gap: 8px;
+  border: 0;
 }
 
 .gatewayMetrics > div {
   min-height: 105px;
   padding: 15px;
-  border-right: 1px solid fade(@rbd-label-color, 18%);
-}
-
-.gatewayMetrics > div:last-child {
-  border-right: 0;
+  background: fade(@primary-color, 3%);
+  border-radius: 8px;
 }
 
 .gatewayMetrics span,
@@ -1261,8 +1275,8 @@
   margin-top: 12px;
   padding: 10px 13px;
   color: @text-color-secondary;
-  background: fade(@rbd-label-color, 5%);
-  border: 1px solid fade(@rbd-label-color, 20%);
+  background: fade(@rbd-label-color, 4%);
+  border: 1px solid transparent;
   border-radius: 7px;
   cursor: default;
 }
@@ -1491,9 +1505,7 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .componentGrid button:nth-child(odd),
-  .componentGrid button:nth-child(even) { padding: 9px 0; border-right: 0; }
-  .componentGrid button:nth-last-child(2) { border-bottom: 1px solid fade(@rbd-label-color, 18%); }
+  .componentGrid button { padding: 8px; }
 
   .globalMetric {
     min-height: 94px;
@@ -1592,6 +1604,8 @@
 
   .trendChart {
     height: 290px;
+    min-height: 290px;
+    flex-basis: 290px;
   }
 
   .monitorModule .moduleBody { min-height: 0; }
