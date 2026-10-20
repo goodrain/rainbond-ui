@@ -68,6 +68,7 @@ const enterpriseOverview = {
     'platformOverview.scope.description': '资源、监控与服务随集群切换',
     'platformOverview.scope.empty': '暂无可用集群',
     'platformOverview.cluster.title': '集群概览',
+    'platformOverview.cluster.enterManagement': '进入集群管理',
     'platformOverview.cluster.rainbondVersion': 'Rainbond 版本',
     'platformOverview.cluster.kubernetesVersion': 'Kubernetes 版本',
     'platformOverview.cluster.cpu': 'CPU 资源',

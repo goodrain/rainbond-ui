@@ -542,7 +542,7 @@ export default class Enterprise extends PureComponent {
     const versions = (resources && resources.versions) || {};
     const runtimeStatus = clusterRuntimeStatus(snapshot, errors.cluster);
     return (
-      <OverviewModule title={t('cluster.title')} description={clusterInfo ? `${clusterInfo.region_alias || clusterInfo.region_name} · ${clusterInfo.provider || '-'}` : ''} loading={!snapshot && !errors.cluster} error={errors.cluster} onRetry={this.loadClusterSnapshot} extra={clusterInfo ? <Button type="link" onClick={this.jumpCluster}>{t('common.details')} <Icon type="arrow-right" /></Button> : null}>
+      <OverviewModule title={t('cluster.title')} description={clusterInfo ? `${clusterInfo.region_alias || clusterInfo.region_name} · ${clusterInfo.provider || '-'}` : ''} loading={!snapshot && !errors.cluster} error={errors.cluster} onRetry={this.loadClusterSnapshot} extra={clusterInfo ? <Button type="link" onClick={this.jumpCluster}>{t('cluster.enterManagement')} <Icon type="arrow-right" /></Button> : null}>
         {snapshot ? (
           <div className={`${styles.clusterOverview} ${alerts.length ? styles.withClusterAlerts : ''}`}>
             <div className={styles.clusterMain}>

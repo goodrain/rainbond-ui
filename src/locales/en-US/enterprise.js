@@ -68,6 +68,7 @@ const enterpriseOverview = {
     'platformOverview.scope.description': 'Resources, metrics and services follow this cluster',
     'platformOverview.scope.empty': 'No cluster available',
     'platformOverview.cluster.title': 'Cluster overview',
+    'platformOverview.cluster.enterManagement': 'Go to cluster management',
     'platformOverview.cluster.rainbondVersion': 'Rainbond version',
     'platformOverview.cluster.kubernetesVersion': 'Kubernetes version',
     'platformOverview.cluster.cpu': 'CPU resources',
