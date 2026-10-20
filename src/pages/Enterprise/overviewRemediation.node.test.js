@@ -55,6 +55,10 @@ assert.ok(/monitor\.coverageDescription/.test(monitoringPage), 'hiding the colle
 assert.ok(/host_memory_working_set/.test(monitoringPage), 'memory working set must retain its accurate metric label');
 assert.ok(/metric: 'memory'/.test(page), 'monitoring should default to memory');
 assert.ok(/teamMetric: 'memory'/.test(page), 'team ranking should default to memory');
+const rankingContainer = less.match(/\.teamRanking\s*\{([^}]+)\}/);
+assert.ok(rankingContainer && /margin:\s*0;/.test(rankingContainer[1]), 'team ranking must retain the module body padding instead of cancelling it with negative margins');
+const rankingRow = less.match(/\.teamRanking > button\s*\{([^}]+)\}/);
+assert.ok(rankingRow && /min-height:\s*64px;/.test(rankingRow[1]) && /padding:\s*10px 12px;/.test(rankingRow[1]), 'ranking rows must keep comfortable vertical spacing and inset content');
 assert.ok(/\['memory', 'cpu', 'network'\]\.map/.test(page), 'monitoring tabs should put memory before CPU');
 assert.ok(/\['memory', 'cpu', 'applications'\]\.map/.test(page), 'team ranking tabs should put memory before CPU');
 assert.ok(/const secondaryFields = \['memory', 'cpu', 'applications'\]/.test(page), 'team secondary metrics should use the same memory-first order');
