@@ -28,8 +28,20 @@ function shouldLoadTeamStorage({ billingInstalled, canViewOverview, overview } =
   return Boolean(billingInstalled && canViewOverview && overview && overview.region_health && overview.team_id);
 }
 
+function isTeamOverviewResponse(response) {
+  return Boolean(response && (!response.status_code || response.status_code === 200) &&
+    response.bean && typeof response.bean === 'object' && !Array.isArray(response.bean));
+}
+
+function getTeamOverviewData(snapshot, scope) {
+  return snapshot && snapshot.scope === scope && snapshot.status === 'success' &&
+    isTeamOverviewResponse(snapshot.response) ? snapshot.response.bean : null;
+}
+
 module.exports = {
   buildTeamEventTarget,
   getTeamEventServiceLabel,
   shouldLoadTeamStorage,
+  isTeamOverviewResponse,
+  getTeamOverviewData,
 };

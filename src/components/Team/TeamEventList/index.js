@@ -14,6 +14,8 @@ const {
   buildTeamEventTarget,
   getTeamEventServiceLabel,
   shouldLoadTeamStorage,
+  isTeamOverviewResponse,
+  getTeamOverviewData,
 } = require('./helpers');
 const { createComponentPollingGuard } = require('../../../pages/Component/componentPolling');
 
@@ -43,6 +45,7 @@ export default class EventList extends PureComponent {
       // 团队概览相关
       loadingOverview: true,
       loadedOverview: false,
+      overviewInfo: null,
       teamOverviewPermission: newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'team_overview'),
       storageUsed: 0
     };
@@ -50,6 +53,9 @@ export default class EventList extends PureComponent {
     this.eventRequestGeneration = 0;
     this.storageRetryCount = 0;
     this.scopeGuard = createComponentPollingGuard(() => this._isMounted, () => this.getScope());
+    this.overviewGuard = createComponentPollingGuard(
+      () => this._isMounted && !this.isOverviewShared(), () => this.getScope()
+    );
     this.storageGuard = createComponentPollingGuard(
       () => this._isMounted && this.canLoadStorage(), () => this.getStorageIdentity()
     );
@@ -65,6 +71,7 @@ export default class EventList extends PureComponent {
   componentWillUnmount() {
     this._isMounted = false;
     this.scopeGuard.invalidate();
+    this.overviewGuard.invalidate();
     this.resetStorageRequest();
   }
 
@@ -73,11 +80,14 @@ export default class EventList extends PureComponent {
     if (this.scope !== this.getScope()) {
       this.scope = this.getScope();
       this.scopeGuard.invalidate();
+      this.overviewGuard.invalidate();
+      this.sharedOverviewSnapshot = undefined;
+      this.sharedOverviewScope = null;
       this.resetStorageRequest();
       this.storageOverview = null;
       this.storageLoadedKey = null;
       this.setState({ page: 1, events: [], total: 0, storageUsed: 0, loadingOverview: true,
-        loadedOverview: false, teamOverviewPermission: permission }, () => {
+        loadedOverview: false, overviewInfo: null, teamOverviewPermission: permission }, () => {
         this.loadEvents();
         this.loadOverview();
       });
@@ -86,10 +96,36 @@ export default class EventList extends PureComponent {
     if (Boolean(this.state.teamOverviewPermission.isAccess) !== Boolean(permission.isAccess)) {
       this.setState({ teamOverviewPermission: permission });
     }
+    if (this.isOverviewShared()) {
+      this.syncSharedOverview();
+    } else if (this.overviewShared) {
+      this.overviewShared = false;
+      this.loadOverview();
+    }
     this.syncStorageRequest();
   }
 
   getScope = () => JSON.stringify([globalUtil.getCurrTeamName(), globalUtil.getCurrRegionName()]);
+  isOverviewShared = () => this.props.overviewSnapshot !== undefined;
+  syncSharedOverview = () => {
+    const snapshot = this.props.overviewSnapshot;
+    const scope = this.getScope();
+    if (this.overviewShared && this.sharedOverviewSnapshot === snapshot && this.sharedOverviewScope === scope) return;
+    this.overviewShared = true;
+    this.sharedOverviewSnapshot = snapshot;
+    this.sharedOverviewScope = scope;
+    this.overviewGuard.invalidate();
+    this.resetStorageRequest();
+    this.storageLoadedKey = null;
+    this.storageOverview = getTeamOverviewData(snapshot, scope);
+    const loading = !snapshot || snapshot.scope !== scope || snapshot.status === 'pending';
+    this.setState({
+      overviewInfo: this.storageOverview,
+      storageUsed: 0,
+      loadingOverview: loading,
+      loadedOverview: !loading
+    }, () => this.syncStorageRequest());
+  };
   getOverviewPermission = () => newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'team_overview');
   getStorageIdentity = () => JSON.stringify([this.getScope(), this.storageOverview && this.storageOverview.team_id]);
   canLoadStorage = () => shouldLoadTeamStorage({
@@ -136,10 +172,14 @@ export default class EventList extends PureComponent {
 
   // 获取团队下的基本信息
   loadOverview = () => {
-    const request = this.scopeGuard.begin('overview');
+    if (this.isOverviewShared()) {
+      this.syncSharedOverview();
+      return;
+    }
+    const request = this.overviewGuard.begin('overview');
     if (!request) return;
     const { dispatch } = this.props;
-    dispatch({
+    const pending = dispatch({
       type: 'index/fetchOverview',
       shouldApply: request.isCurrent,
       payload: {
@@ -148,22 +188,18 @@ export default class EventList extends PureComponent {
       },
       callback: res => {
         if (!request.complete()) return;
-        this.storageOverview = res && res.bean;
-        if (res && res.bean && res.bean.region_health) {
-          this.setState(
-            { loadingOverview: false, loadedOverview: true },
-            () => {
-              if (request.isCurrent()) this.syncStorageRequest();
-            }
-          );
-        } else {
-          this.handleCloseLoading();
-          this.syncStorageRequest();
-        }
+        this.storageOverview = isTeamOverviewResponse(res) ? res.bean : null;
+        this.setState(
+          { overviewInfo: this.storageOverview, loadingOverview: false, loadedOverview: true },
+          () => {
+            if (request.isCurrent()) this.syncStorageRequest();
+          }
+        );
       },
       handleError: (err) => {
         if (!request.complete()) return;
         this.storageOverview = null;
+        this.setState({ overviewInfo: null });
         this.syncStorageRequest();
         handleAPIError(err);
         if (this._isMounted) {
@@ -171,6 +207,16 @@ export default class EventList extends PureComponent {
         }
       }
     });
+    if (pending && typeof pending.then === 'function') {
+      const settleEmpty = error => {
+        if (!request.complete()) return;
+        this.storageOverview = null;
+        this.setState({ overviewInfo: null, loadingOverview: false, loadedOverview: true });
+        this.syncStorageRequest();
+        if (error) handleAPIError(error);
+      };
+      pending.then(() => settleEmpty(), settleEmpty);
+    }
   };
 
   // 获取存储实际占用
@@ -353,17 +399,25 @@ export default class EventList extends PureComponent {
   };
 
   render() {
-    const { activitiesLoading, index, pluginsList } = this.props;
+    const { activitiesLoading, pluginsList } = this.props;
     const {
       page,
       pageSize,
       total,
-      loadingOverview,
-      teamOverviewPermission: {
-        isAccess: isTeamOverview
-      },
-      storageUsed
+      loadingOverview: standaloneLoadingOverview,
+      storageUsed: loadedStorageUsed
     } = this.state;
+    // Never render the shared Redux overview from another team/region while a
+    // current page request is still pending or has failed.
+    const snapshot = this.props.overviewSnapshot;
+    const overviewInfo = this.isOverviewShared()
+      ? getTeamOverviewData(snapshot, this.getScope())
+      : this.scope === this.getScope() ? this.state.overviewInfo : null;
+    const loadingOverview = this.isOverviewShared()
+      ? !snapshot || snapshot.scope !== this.getScope() || snapshot.status === 'pending'
+      : standaloneLoadingOverview;
+    const storageUsed = this.storageOverview === overviewInfo ? loadedStorageUsed : 0;
+    const isTeamOverview = this.getOverviewPermission().isAccess;
 
     const showStorageUsed = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
 
@@ -378,14 +432,14 @@ export default class EventList extends PureComponent {
       {
         key: 'app',
         action: '创建',
-        value: isTeamOverview ? index?.overviewInfo?.team_app_num || 0 : '**',
+        value: isTeamOverview ? overviewInfo?.team_app_num || 0 : '**',
         unit: '个',
         object: '应用'
       },
       {
         key: 'service',
         action: '创建',
-        value: isTeamOverview ? index?.overviewInfo?.team_service_num || 0 : '**',
+        value: isTeamOverview ? overviewInfo?.team_service_num || 0 : '**',
         unit: '个',
         object: '组件'
       },
@@ -393,18 +447,18 @@ export default class EventList extends PureComponent {
         key: 'cpu',
         action: '使用',
         value: isTeamOverview
-          ? this.handlUnit('cpu', index?.overviewInfo?.cpu_usage) || 0
+          ? this.handlUnit('cpu', overviewInfo?.cpu_usage) || 0
           : '**',
-        unit: this.handlUnit('cpu', index?.overviewInfo?.cpu_usage, 'm'),
+        unit: this.handlUnit('cpu', overviewInfo?.cpu_usage, 'm'),
         object: 'CPU'
       },
       {
         key: 'memory',
         action: '使用',
         value: isTeamOverview
-          ? this.handlUnit('memory', index?.overviewInfo?.memory_usage) || 0
+          ? this.handlUnit('memory', overviewInfo?.memory_usage) || 0
           : '**',
-        unit: this.handlUnit('memory', index?.overviewInfo?.memory_usage, 'MB'),
+        unit: this.handlUnit('memory', overviewInfo?.memory_usage, 'MB'),
         object: '内存'
       },
       {
@@ -413,7 +467,7 @@ export default class EventList extends PureComponent {
         value: isTeamOverview
           ? showStorageUsed
             ? storageUsed?.value
-            : index?.overviewInfo?.disk_usage
+            : overviewInfo?.disk_usage
           : '**',
         unit: showStorageUsed ? storageUsed?.unit : 'GB',
         object: showStorageUsed ? '存储' : '磁盘'
@@ -423,7 +477,7 @@ export default class EventList extends PureComponent {
     return (
       <div className={styles.teamEventListWrapper}>
         {/* 团队概览部分 */}
-        {(index?.overviewInfo?.region_health || loadingOverview) && (
+        {(overviewInfo?.region_health || loadingOverview) && (
           <div className={styles.teamOverview}>
             <div className={styles.basicInfoRow}>
               {overviewItems.map(item => (
