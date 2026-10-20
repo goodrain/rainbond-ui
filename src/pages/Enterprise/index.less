@@ -1008,7 +1008,7 @@
 
 .monitorModule { display: flex; flex-direction: column; }
 .monitorModule .moduleHeader { flex: 0 0 auto; }
-.monitorModule .moduleBody { min-height: 440px; flex: 1; display: flex; flex-direction: column; }
+.monitorModule .moduleBody { min-height: 360px; flex: 1; display: flex; flex-direction: column; }
 .monitorModule .moduleBody > :not(.trendChart) { flex: 0 0 auto; }
 .servicesModule .moduleBody { padding: 0; }
 .monitorEmpty .moduleBody { min-height: 0; }
@@ -1030,9 +1030,9 @@
 
 .trendChart {
   width: 100%;
-  height: 310px;
-  min-height: 310px;
-  flex: 1 0 310px;
+  height: 260px;
+  min-height: 260px;
+  flex: 1 0 260px;
 }
 
 .segmentedControl { display: inline-flex; align-items: center; gap: 2px; padding: 2px; background: fade(@rbd-label-color, 6%); border: 1px solid fade(@rbd-label-color, 20%); border-radius: 7px; }
@@ -1097,11 +1097,11 @@
 
 .componentGrid button {
   min-width: 0;
-  min-height: 54px;
+  min-height: 46px;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px;
+  padding: 5px 8px;
   color: @text-color;
   background: fade(@rbd-label-color, 4%);
   border-radius: 7px;
@@ -1155,27 +1155,23 @@
 }
 
 .pluginList {
-  max-height: 166px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  gap: 6px;
   margin-top: 8px;
-  padding-right: 3px;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
-  scrollbar-color: fade(@rbd-label-color, 65%) transparent;
-  scrollbar-gutter: stable;
 }
+
+.fullPluginList { max-height: 60vh; overflow-y: auto; padding: 2px 4px 2px 0; }
+.viewAllPlugins { display: block; margin: 7px auto 0; }
 
 .pluginList button {
   min-width: 0;
-  min-height: 42px;
+  min-height: 38px;
   display: grid;
-  grid-template-columns: 28px minmax(0, 1fr) 10px;
+  grid-template-columns: 24px minmax(0, 1fr) 10px;
   align-items: center;
   gap: 7px;
-  padding: 7px 8px;
+  padding: 4px 8px;
   color: @text-color;
   background: lighten(@rbd-background-color, 100%);
   border: 1px solid transparent;
@@ -1185,6 +1181,8 @@
 .pluginList button:hover {
   border-color: fade(@primary-color, 42%);
 }
+
+.fullPluginList button { min-height: 46px; padding-top: 7px; padding-bottom: 7px; }
 
 .pluginList :global(.ant-tag) {
   margin: 0;
@@ -1204,7 +1202,7 @@
 .pluginRuntime > i { width: 5px; height: 5px; flex: 0 0 auto; background: currentColor; border-radius: 50%; }
 .pluginCopy { min-width: 0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px 10px; }
 .pluginCopy > strong { flex: 1 1 auto; min-width: 0; }
-.pluginSummary { margin: 3px 0 0; color: @text-color-secondary; font-size: (@rbd-auxiliary-size - 1px); }
+.pluginSummary { display: flex; flex-wrap: wrap; gap: 5px 12px; margin: 3px 0 0; color: @text-color-secondary; font-size: (@rbd-auxiliary-size - 1px); }
 .pluginCount { display: inline-grid; min-width: 22px; height: 22px; margin-right: 5px; place-items: center; color: @primary-color; background: fade(@primary-color, 8%); border-radius: 50%; font-size: @rbd-auxiliary-size; }
 
 .pluginRuntime.pluginHealthy {
@@ -1222,8 +1220,8 @@
 }
 
 .pluginIcon {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   display: grid;
   place-items: center;
   color: @primary-color;
@@ -1658,6 +1656,8 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .primaryGrid > .module { height: auto; }
+
   .clusterOverview.withClusterAlerts {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -1843,9 +1843,9 @@
   }
 
   .trendChart {
-    height: 290px;
-    min-height: 290px;
-    flex-basis: 290px;
+    height: 260px;
+    min-height: 260px;
+    flex-basis: 260px;
   }
 
   .monitorModule .moduleBody { min-height: 0; }

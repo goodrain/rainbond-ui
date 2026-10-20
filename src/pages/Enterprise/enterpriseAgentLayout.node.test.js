@@ -132,10 +132,10 @@ assert.ok(
 );
 
 assert.ok(
-  /className=\{styles\.pluginList\} tabIndex="0"/.test(jsSource) &&
-    /overviewData\.pluginRuntimeState\(plugin\.status\)/.test(jsSource) &&
-    /max-height:\s*166px;[\s\S]*overflow-y:\s*auto;/.test(lessSource),
-  'all installed plugins should remain available in a keyboard-scrollable list'
+  /presentation\.preview/.test(jsSource) && /pluginModalRegion/.test(jsSource) &&
+    /overviewData\.pluginPresentation\(plugins\)\.ordered/.test(jsSource) &&
+    /\.fullPluginList\s*\{[^}]*overflow-y:\s*auto;/.test(lessSource),
+  'all installed plugins remain available in a complete dialog without scrolling the preview'
 );
 
 assert.ok(

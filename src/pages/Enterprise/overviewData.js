@@ -4,11 +4,7 @@ const REPRESENTATIVE_COMPONENTS = [
   'rbd-api',
   'rbd-gateway',
   'rbd-worker',
-  'rbd-app-ui',
-  'rbd-monitor',
-  'rbd-chaos',
-  'minio',
-  'rbd-db'
+  'rbd-chaos'
 ];
 
 function sectionData(snapshot, name) {
@@ -260,6 +256,19 @@ function isNumber(value) {
   return value !== null && value !== undefined && String(value).trim() !== '' && Number.isFinite(Number(value));
 }
 
+function pluginPresentation(plugins) {
+  const priority = { warning: 0, unknown: 1, starting: 2, healthy: 3, stopped: 4 };
+  const ordered = (Array.isArray(plugins) ? plugins : []).map((plugin, index) => ({
+    plugin, index, runtime: pluginRuntimeState(plugin.status)
+  })).sort((a, b) => priority[a.runtime.level] - priority[b.runtime.level] || a.index - b.index);
+  const summary = Object.keys(priority).map(level => ({
+    level,
+    count: ordered.filter(item => item.runtime.level === level).length,
+    runtime: ordered.find(item => item.runtime.level === level)
+  })).filter(item => item.count).map(item => ({ ...item, runtime: item.runtime.runtime }));
+  return { ordered, preview: ordered.slice(0, 8), summary };
+}
+
 function formatNumber(value, precision = 1) {
   return isNumber(value) ? parseFloat(Number(value).toFixed(precision)) : '-';
 }
@@ -305,7 +314,7 @@ function representativeComponents(components) {
       if (leftPriority !== rightPriority) return leftPriority - rightPriority;
       return String(left.name || '').localeCompare(String(right.name || ''));
     })
-    .slice(0, 8);
+    .slice(0, 4);
 }
 
 function compactVersion(version) {
@@ -314,6 +323,7 @@ function compactVersion(version) {
 }
 
 module.exports = {
+  pluginPresentation,
   absoluteMetricLookup,
   formatMetricAmount,
   metricTooltipHtml,

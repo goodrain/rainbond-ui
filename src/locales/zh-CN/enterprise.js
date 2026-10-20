@@ -126,6 +126,8 @@ const enterpriseOverview = {
     'platformOverview.services.plugins': '已安装插件',
     'platformOverview.services.pluginSummary': '{healthy}/{total} 个运行正常',
     'platformOverview.services.allPlugins': '功能扩展',
+    'platformOverview.services.allPluginStates': '全部插件状态',
+    'platformOverview.services.viewAllPlugins': '查看全部 {count} 个',
     'platformOverview.services.noPlugins': '当前集群未安装插件',
     'platformOverview.services.pluginStateDescription': '插件底层应用运行状态',
     'platformOverview.services.pluginsUnavailable': '插件运行状态暂不可用',

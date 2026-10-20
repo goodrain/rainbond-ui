@@ -6,6 +6,7 @@ import {
   Button,
   Empty,
   Icon,
+  Modal,
   notification,
   Select,
   Skeleton,
@@ -77,6 +78,7 @@ export default class Enterprise extends PureComponent {
     platformModalVisible: false,
     applicationModalVisible: false,
     gatewayModalVisible: false,
+    pluginModalRegion: null,
     license: null,
     licenseStatus: 'idle',
     licenseStatusReason: '',
@@ -320,7 +322,7 @@ export default class Enterprise extends PureComponent {
   };
 
   handleClusterChange = selectedRegion => {
-    this.setState({ selectedRegion }, () => {
+    this.setState({ selectedRegion, pluginModalRegion: null }, () => {
       this.loadClusterData();
       this.props.dispatch(
         routerRedux.replace(
@@ -610,17 +612,22 @@ export default class Enterprise extends PureComponent {
     const plugins = pluginSection.status === 'ok' ? pluginSection.data : null;
     const representative = overviewData.representativeComponents(components);
     const componentHealthy = (components || []).filter(item => overviewData.isRunning(item.status)).length;
-    const pluginHealthy = (plugins || []).filter(item => overviewData.isRunning(item.status)).length;
+    const presentation = overviewData.pluginPresentation(plugins);
     return (
       <OverviewModule title={t('services.title')} className={styles.servicesModule} error={errors.cluster} onRetry={this.loadClusterSnapshot}>
         <div className={styles.servicesBody}>
           <div className={styles.componentPanel}><div className={styles.sectionTitle}><button type="button" onClick={this.jumpCluster}><Icon type="cloud-server" /> {t('services.components')} <Icon type="right" /></button><small className={components && componentHealthy !== components.length ? styles.textWarning : ''}>{components ? t('services.summary', { healthy: componentHealthy, total: components.length }) : '-'}</small></div>
           {components ? <div className={styles.componentGrid}>{representative.map(component => { const healthy = overviewData.isRunning(component.status); return <button type="button" key={component.name} onClick={this.jumpCluster} className={!healthy ? styles.componentAbnormal : ''}><span className={styles.componentIcon}><Icon type={componentIcon(component.name)} /></span><span className={styles.componentCopy}><strong>{component.name}</strong><small>{component.run_pods}/{component.all_pods} {t(healthy ? 'services.ready' : 'common.abnormal')}</small></span><span className={styles.componentState} aria-label={t(healthy ? 'common.normal' : 'common.abnormal')} /><Icon type="right" className={styles.itemChevron} /></button>; })}</div> : componentSection.status === 'loading' ? (!errors.cluster ? <Skeleton className={styles.sectionSkeleton} active paragraph={{ rows: 2 }} /> : null) : <Alert type="warning" showIcon message={t('services.componentsUnavailable')} />}</div>
-          <div className={styles.pluginPanel}><div className={styles.pluginHeader}><div className={styles.sectionTitle}><button type="button" onClick={this.jumpExtension}><Icon type="appstore" /> {t('services.plugins')}</button></div><Button type="link" size="small" onClick={this.jumpExtension}>{plugins ? <span className={styles.pluginCount}>{plugins.length}</span> : null}{t('services.allPlugins')} <Icon type="arrow-right" /></Button></div><p className={styles.pluginSummary}>{plugins ? t('services.pluginSummary', { healthy: pluginHealthy, total: plugins.length }) : t('services.pluginStateDescription')}</p>
-          {plugins ? (plugins.length ? <div className={styles.pluginList} tabIndex="0" role="list" aria-label={t('services.plugins')}>{plugins.map(plugin => { const runtime = overviewData.pluginRuntimeState(plugin.status); return <button type="button" key={plugin.name} onClick={this.jumpExtension} title={plugin.alias || plugin.display_name || plugin.name}><span className={styles.pluginIcon}><Icon type={overviewData.pluginIcon(plugin)} /></span><span className={styles.pluginCopy}><strong>{plugin.alias || plugin.display_name || plugin.name}</strong><small className={`${styles.pluginRuntime} ${styles[runtime.className]}`}><i />{t(runtime.labelId)}</small></span><Icon type="right" className={styles.itemChevron} /></button>; })}</div> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('services.noPlugins')} />) : pluginSection.status === 'loading' ? (!errors.cluster ? <Skeleton className={styles.sectionSkeleton} active paragraph={{ rows: 2 }} /> : null) : <Alert type="warning" showIcon message={t('services.pluginsUnavailable')} />}</div>
+          <div className={styles.pluginPanel}><div className={styles.pluginHeader}><div className={styles.sectionTitle}><button type="button" onClick={this.jumpExtension}><Icon type="appstore" /> {t('services.plugins')}{plugins ? <span className={styles.pluginCount}>{plugins.length}</span> : null}</button></div><Button type="link" size="small" onClick={this.jumpExtension}>{t('services.allPlugins')} <Icon type="arrow-right" /></Button></div>
+          <div className={styles.pluginSummary} aria-label={t('services.allPluginStates')}>{plugins ? presentation.summary.map(({ level, count, runtime }) => <span key={level} className={`${styles.pluginRuntime} ${styles[runtime.className]}`}><i />{t(runtime.labelId)} {count}</span>) : t('services.pluginStateDescription')}</div>
+          {plugins ? (plugins.length ? <React.Fragment>{this.renderPluginList(presentation.preview)}{plugins.length > 8 ? <Button type="link" size="small" className={styles.viewAllPlugins} onClick={() => this.setState({ pluginModalRegion: this.state.selectedRegion })}>{t('services.viewAllPlugins', { count: plugins.length })} <Icon type="right" /></Button> : null}</React.Fragment> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('services.noPlugins')} />) : pluginSection.status === 'loading' ? (!errors.cluster ? <Skeleton className={styles.sectionSkeleton} active paragraph={{ rows: 2 }} /> : null) : <Alert type="warning" showIcon message={t('services.pluginsUnavailable')} />}</div>
         </div>
       </OverviewModule>
     );
+  }
+
+  renderPluginList(items, full = false) {
+    return <div className={`${styles.pluginList}${full ? ` ${styles.fullPluginList}` : ''}`} role="list" aria-label={t('services.plugins')}>{items.map(({ plugin, runtime }) => <button type="button" key={plugin.name} onClick={this.jumpExtension} title={plugin.alias || plugin.display_name || plugin.name}><span className={styles.pluginIcon}><Icon type={overviewData.pluginIcon(plugin)} /></span><span className={styles.pluginCopy}><strong>{plugin.alias || plugin.display_name || plugin.name}</strong><small className={`${styles.pluginRuntime} ${styles[runtime.className]}`}><i />{t(runtime.labelId)}</small></span><Icon type="right" className={styles.itemChevron} /></button>)}</div>;
   }
 
   renderTeamRanking() {
@@ -666,6 +673,7 @@ export default class Enterprise extends PureComponent {
     const { runtime } = this.props.overview;
     const snapshot = this.getCurrentSnapshot();
     const gateway = overviewData.sectionData(snapshot, 'gateway') || {};
+    const plugins = overviewData.sectionData(snapshot, 'plugins');
     const appItems = (((runtime && runtime.global) || {}).application_alarms || {}).items || [];
     const platform = { name: enterprise.enterprise_alias || enterprise.enterprise_name || 'Rainbond', version: overviewData.compactVersion(rainbondInfo.version && rainbondInfo.version.value), createdAt: enterprise.create_time, enterpriseId: this.getEnterpriseId() };
     const runtimeSummary = overviewData.platformClusterSummary(runtime);
@@ -673,6 +681,9 @@ export default class Enterprise extends PureComponent {
     const labels = { basicInfo: t('modal.basicInfo'), close: t('modal.close'), authorizationCode: t('modal.authorizationCode'), newAuthorizationCode: t('modal.newAuthorizationCode'), secureUpdate: t('modal.secureUpdate'), authorizationPrivate: t('modal.authorizationPrivate'), licenseDetailsUnavailable: t('modal.licenseDetailsUnavailable'), pluginAuthorizationUnknown: t('modal.pluginAuthorizationUnknown'), nodeLimit: t('modal.nodeLimit'), pluginCount: count => t('modal.pluginCount', { count }), name: t('modal.name'), version: t('modal.version'), createdAt: t('modal.createdAt'), enterpriseId: t('modal.enterpriseId'), license: t('modal.license'), updateLicense: t('modal.updateLicenseCode'), authorizationPlaceholder: t('modal.authorizationPlaceholder'), authorizationRequired: t('modal.authorizationRequired'), save: t('modal.save'), cancel: t('modal.cancel'), licenseUnavailable: t('modal.licenseUnavailable'), company: t('modal.company'), expireAt: t('modal.expireAt'), clusterLimit: t('modal.clusterLimit'), unlimited: t('modal.unlimited'), notApplicable: t('modal.notApplicable'), validLicense: t('modal.validLicense'), invalidLicense: t('modal.invalidLicense'), invalidReasonUnknown: t('modal.invalidReasonUnknown'), allowedPlugins: t('modal.allowedPlugins'), noPlugins: t('modal.noPlugins'), noLicense: t('modal.noLicense') };
     return (
       <React.Fragment>
+        <Modal visible={Boolean(this.state.pluginModalRegion && this.state.pluginModalRegion === this.state.selectedRegion)} title={t('services.plugins')} footer={null} width={680} destroyOnClose onCancel={() => this.setState({ pluginModalRegion: null })}>
+          {plugins ? this.renderPluginList(overviewData.pluginPresentation(plugins).ordered, true) : <Alert type="warning" showIcon message={t('services.pluginsUnavailable')} />}
+        </Modal>
         <PlatformInfoModal visible={this.state.platformModalVisible} onCancel={() => this.setState({ platformModalVisible: false })} onUpdateLicense={this.handleUpdateLicense} title={t('modal.platformInfo')} labels={labels} platform={platform} runtimeSummary={{ ...runtimeSummary, label: t(runtimeSummary.labelId, runtimeSummary.values) }} licenseLabel={t(licenseSummary.labelId)} license={this.state.license} requestStatus={this.state.licenseStatus} requestError={this.state.licenseStatusReason} updating={this.state.licenseUpdating} />
         <IssueModal visible={this.state.applicationModalVisible} onCancel={() => this.setState({ applicationModalVisible: false })} title={t('issues.appTitle')} labels={{ open: t('issues.openComponent') }} onOpen={this.jumpApplicationIssue} items={appItems.map(item => ({ ...item, key: item.service_id, severity: 'critical', title: item.service_alias || item.service_name, description: t('issues.componentAbnormal'), owner: `${item.tenant_alias || item.tenant_name || '-'} / ${item.application_name || '-'} / ${item.region_name}` }))} />
         <IssueModal visible={this.state.gatewayModalVisible} onCancel={() => this.setState({ gatewayModalVisible: false })} title={t('issues.gatewayTitle')} labels={{ open: t('issues.openApplication') }} onOpen={this.jumpGatewayIssue} items={(gateway.issues || []).map((item, index) => ({ ...item, key: `${item.domain}-${index}`, title: item.domain, description: item.expires_at ? t('issues.certificateExpires', { date: moment(item.expires_at).format('YYYY-MM-DD') }) : t('issues.certificateUnknown'), owner: `${item.tenant_name || '-'} / ${item.service_alias || item.service_name || '-'}` }))} />

@@ -126,6 +126,8 @@ const enterpriseOverview = {
     'platformOverview.services.plugins': 'Installed plugins',
     'platformOverview.services.pluginSummary': '{healthy}/{total} running normally',
     'platformOverview.services.allPlugins': 'Extensions',
+    'platformOverview.services.allPluginStates': 'All plugin states',
+    'platformOverview.services.viewAllPlugins': 'View all {count} plugins',
     'platformOverview.services.noPlugins': 'No installed plugins in this cluster',
     'platformOverview.services.pluginStateDescription': 'Underlying plugin application status',
     'platformOverview.services.pluginsUnavailable': 'Plugin runtime status is unavailable',

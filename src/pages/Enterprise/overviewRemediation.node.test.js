@@ -26,7 +26,7 @@ assert.strictEqual(data.pluginIcon({ alias: '数据库' }), 'database');
 const components = ['rbd-api', 'rbd-gateway', 'rbd-worker', 'rbd-app-ui', 'rbd-monitor', 'rbd-chaos', 'minio', 'rbd-db', 'rbd-mq']
   .map((name, index) => ({ name, status: index === 8 ? 'Abnormal' : 'Running' }));
 assert.strictEqual(data.representativeComponents(components)[0].name, 'rbd-mq');
-assert.strictEqual(data.representativeComponents(components).length, 8);
+assert.strictEqual(data.representativeComponents(components).length, 4);
 assert.deepStrictEqual(data.metricPoints({ series: [{ values: [[1, null], [2, ''], [3, 'NaN'], [4, '0']] }] }), [[4000, 0]]);
 assert.deepStrictEqual(data.metricChartPoints({ range: '1h', series: [{ values: [[1, '5'], [61, '6'], [301, '8']] }] }), [[1000, 5], [61000, 6], [121000, null], [301000, 8]]);
 assert.strictEqual(data.percentageAxisMax([[1, 4.8], [2, 7.2]]), 10, 'low usage should not leave a 100% axis');
