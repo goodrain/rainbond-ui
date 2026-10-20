@@ -3,6 +3,7 @@ import apiconfig from '../../config/api.config';
 import request from '../utils/request';
 import app from '@/locales/en-US/app';
 import { getTeamRegionOverview as getSharedTeamRegionOverview } from './team';
+import { isSuccessfulPluginResponse, notifyEnterprisePluginsChanged } from '../utils/pluginInitialization';
 
 // fetch Permissions
 export async function getPermissions(body) {
@@ -1589,13 +1590,19 @@ export async function getPluginList(body, handleError) {
 }
 // 安装插件
 export async function installPlugin(body, handleError) {
-  return request(
+  const enterpriseId = body.enterprise_id;
+  const regionName = body.region_name;
+  const response = await request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_name}/platform-plugins/${body.plugin_id}/install`,
     {
       method: 'post',
       handleError
     }
   );
+  if (response && response.status_code === 200 && isSuccessfulPluginResponse(response, false)) {
+    notifyEnterprisePluginsChanged({ enterpriseId, regionName });
+  }
+  return response;
 }
 // 获取能力列表
 export async function getAbilitiesList(body) {

@@ -158,6 +158,7 @@ import { clearAgentLlmConfig, getAgentLlmConfig, updateAgentLlmConfig } from '..
 import cookie from '../utils/cookie';
 import rainbondUtil from '../utils/rainbond';
 import { getDvaApp } from 'umi';
+import { isSuccessfulPluginResponse } from '../utils/pluginInitialization';
 
 export default {
   namespace: 'global',
@@ -1038,13 +1039,15 @@ export default {
         callback(response);
       }
     },
-    *getPluginList({ payload, callback, handleError }, { call, put }) {
+    *getPluginList({ payload, callback, handleError, shouldApply }, { call, put }) {
       const response = yield call(getPluginList, payload, handleError);
       if (callback) {
-        yield put({
-          type: 'savePluginList',
-          payload: response
-        });
+        if (isSuccessfulPluginResponse(response) && (!shouldApply || shouldApply())) {
+          yield put({
+            type: 'savePluginList',
+            payload: response
+          });
+        }
         callback(response);
       }
     },

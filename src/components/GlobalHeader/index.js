@@ -28,6 +28,7 @@ import { isRainbondInfoAgentEnabled } from '../../utils/agentVisibility';
 import { buildPortalSsoUrl } from '../../utils/portal';
 import { cacheCopilotPluginNameFromList } from '../../services/agent';
 import * as agentLauncherAction from './agentLauncherAction';
+import { isSuccessfulPluginResponse } from '../../utils/pluginInitialization';
 
 const { resolveAgentLauncherAction, resolveAgentPlatformPolicy } = agentLauncherAction;
 
@@ -150,10 +151,13 @@ class GlobalHeader extends PureComponent {
     this.lastAgentAccessKey = null;
     this.lastAgentPluginFetchKey = null;
     this.agentPluginFetchInFlight = false;
+    this.agentPluginFetchGeneration = 0;
+    this.agentPluginRequest = null;
     this.agentUpdateTimer = null;
   }
 
   componentDidMount() {
+    this.unmounted = false;
     this.syncPluginStatusFromProps();
     this.fetchAgentPluginStatus();
     this.initializeLanguage();
@@ -161,6 +165,10 @@ class GlobalHeader extends PureComponent {
   }
 
   componentWillUnmount() {
+    this.unmounted = true;
+    this.agentPluginFetchGeneration += 1;
+    this.agentPluginRequest = null;
+    this.agentPluginFetchInFlight = false;
     // 清除防抖定时器
     if (this.sliderDebounceTimer) {
       clearTimeout(this.sliderDebounceTimer);
@@ -182,14 +190,27 @@ class GlobalHeader extends PureComponent {
     const eid = enterprise?.enterprise_id;
     const newIsAdmin = !!(currentUser?.is_enterprise_admin && eid);
 
-    if (prevProps.currentUser !== currentUser) {
+    const pluginContextChanged = prevProps.currentUser !== currentUser ||
+      this.getEnterpriseId(prevProps) !== this.getEnterpriseId() ||
+      prevProps.pluginInitializationScope !== this.props.pluginInitializationScope;
+    if (pluginContextChanged) {
       this.lastPluginListKey = null;
       this.lastAgentAccessKey = null;
       this.lastAgentPluginFetchKey = null;
+      this.agentPluginFetchGeneration += 1;
+      this.agentPluginRequest = null;
+      this.agentPluginFetchInFlight = false;
+      if (this.agentUpdateTimer) clearTimeout(this.agentUpdateTimer);
+      this.agentUpdateTimer = null;
+      this.setState({ agentPluginStatus: 'pending', showBill: false, balance: null, balanceStatus: '' });
+      this.props.dispatch({
+        type: 'agent/saveEntryGate',
+        payload: { pluginStatus: 'pending', access: null, accessLoaded: false, accessCacheKey: '' }
+      });
     }
 
-    // 只在从 false 变为 true 时更新一次，避免后续闪烁
-    if (!isAdmin && newIsAdmin) {
+    // 权限变化（包括撤销管理员）后，不保留上一个用户的入口状态。
+    if (isAdmin !== newIsAdmin) {
       this.setState({ isAdmin: newIsAdmin });
     }
 
@@ -204,16 +225,17 @@ class GlobalHeader extends PureComponent {
     // 更新滑块位置
     this.updateSliderPosition();
 
-    if (
+    if (!pluginContextChanged && (
       prevProps.pluginsList !== this.props.pluginsList ||
       prevProps.pluginsLoaded !== this.props.pluginsLoaded ||
       prevProps.currentUser !== this.props.currentUser
-    ) {
+    )) {
       this.syncPluginStatusFromProps();
     }
 
-    if (this.getAgentPluginFetchKey(prevProps) !== this.getAgentPluginFetchKey()) {
-      this.fetchAgentPluginStatus();
+    if (prevProps.currentUser !== currentUser ||
+        this.getAgentPluginFetchKey(prevProps) !== this.getAgentPluginFetchKey()) {
+      this.fetchAgentPluginStatus({ force: pluginContextChanged && this.checkIsTeamView() });
     }
 
     const previousRequestId = prevProps.agentEntryRequest
@@ -297,16 +319,21 @@ class GlobalHeader extends PureComponent {
   getEnterpriseId = (props = this.props) => {
     const { currentUser, enterprise, eid } = props;
     return (
-      currentUser?.enterprise_id ||
+      eid ||
       enterprise?.enterprise_id ||
+      currentUser?.enterprise_id ||
       globalUtil.getCurrEnterpriseId() ||
-      eid
+      ''
     );
   };
 
   getAgentPluginFetchKey = (props = this.props) => {
     const enterpriseId = this.getEnterpriseId(props);
-    return enterpriseId || '';
+    return JSON.stringify([
+      enterpriseId || '',
+      props.pluginInitializationScope || '',
+      props.pluginInitializationVersion || 0
+    ]);
   };
 
   getFallbackPluginRegionName = () => {
@@ -382,6 +409,7 @@ class GlobalHeader extends PureComponent {
   };
 
   syncPluginStatusFromProps = () => {
+    if (this.props.loadEnterprisePlugins) return;
     const { pluginsList, pluginsLoaded } = this.props;
     this.syncPluginStatusFromList(pluginsList, pluginsLoaded);
   };
@@ -403,7 +431,7 @@ class GlobalHeader extends PureComponent {
   };
 
   fetchAgentPluginStatus = ({ force = false, callback } = {}) => {
-    const { dispatch } = this.props;
+    const { dispatch, loadEnterprisePlugins } = this.props;
 
     if (this.checkIsTeamView() && !force) {
       if (callback) {
@@ -422,10 +450,9 @@ class GlobalHeader extends PureComponent {
       return;
     }
 
-    if (this.agentPluginFetchInFlight) {
-      if (callback) {
-        callback(this.state.agentPluginStatus);
-      }
+    const previousRequest = this.agentPluginRequest;
+    if (!force && previousRequest && previousRequest.key === fetchKey) {
+      if (callback) previousRequest.callbacks.push(callback);
       return;
     }
     if (!force && this.lastAgentPluginFetchKey === fetchKey) {
@@ -435,17 +462,41 @@ class GlobalHeader extends PureComponent {
       return;
     }
 
-    this.lastAgentPluginFetchKey = fetchKey;
+    const generation = this.agentPluginFetchGeneration + 1;
+    this.lastAgentPluginFetchKey = null;
+    this.agentPluginFetchGeneration = generation;
+    const request = {
+      key: fetchKey,
+      callbacks: previousRequest && previousRequest.key === fetchKey ? previousRequest.callbacks.slice() : []
+    };
+    if (callback) request.callbacks.push(callback);
+    this.agentPluginRequest = request;
     this.agentPluginFetchInFlight = true;
+    const isCurrent = () => !this.unmounted && generation === this.agentPluginFetchGeneration &&
+      fetchKey === this.getAgentPluginFetchKey();
+    const complete = status => {
+      if (!isCurrent()) return;
+      this.agentPluginFetchInFlight = false;
+      this.agentPluginRequest = null;
+      request.callbacks.forEach(consumer => {
+        if (!isCurrent()) return;
+        try {
+          consumer(status);
+        } catch (error) {
+          // One consumer's UI failure must not strand the remaining callers.
+        }
+      });
+    };
 
-    const loadByRegions = regionNames => {
+    const loadByRegions = (regionNames, canConfirmEmpty = true) => {
+      if (!isCurrent()) return;
       const uniqueRegionNames = Array.from(new Set(regionNames.filter(Boolean)));
       if (!uniqueRegionNames.length) {
-        this.agentPluginFetchInFlight = false;
-        this.syncPluginStatusFromList([], true);
-        if (callback) {
-          callback('missing');
+        if (canConfirmEmpty) {
+          this.lastAgentPluginFetchKey = fetchKey;
+          this.syncPluginStatusFromList([], true);
         }
+        complete(canConfirmEmpty ? 'missing' : this.state.agentPluginStatus);
         return;
       }
 
@@ -454,62 +505,93 @@ class GlobalHeader extends PureComponent {
       let pluginList = [];
 
       const finish = () => {
+        if (!isCurrent()) return;
         pending -= 1;
         if (pending > 0) {
           return;
         }
 
-        this.agentPluginFetchInFlight = false;
         this.scheduleAgentUpdate(enterpriseId, uniqueRegionNames);
-        if (successCount > 0) {
+        const allSucceeded = canConfirmEmpty && successCount === uniqueRegionNames.length;
+        const hasAgentPlugin = pluginList.some(item => this.isInstalledPlugin(item, 'rainbond-agent'));
+        if (allSucceeded || hasAgentPlugin) {
+          if (allSucceeded) this.lastAgentPluginFetchKey = fetchKey;
           cacheCopilotPluginNameFromList(pluginList);
           this.syncPluginStatusFromList(pluginList, true);
-          if (callback) {
-            const nextStatus = pluginList.some(item => this.isInstalledPlugin(item, 'rainbond-agent'))
-              ? 'installed'
-              : 'missing';
-            callback(nextStatus);
-          }
+          const nextStatus = hasAgentPlugin ? 'installed' : 'missing';
+          complete(nextStatus);
           return;
         }
 
-        if (callback) {
-          callback(this.state.agentPluginStatus);
-        }
+        complete(this.state.agentPluginStatus);
       };
 
       uniqueRegionNames.forEach(regionName => {
-        dispatch({
+        let settled = false;
+        const receive = res => {
+          if (settled || !isCurrent()) return;
+          settled = true;
+          if (isSuccessfulPluginResponse(res)) {
+            successCount += 1;
+            pluginList = pluginList.concat(res.list);
+          }
+          finish();
+        };
+        const fail = () => {
+          if (settled || !isCurrent()) return;
+          settled = true;
+          finish();
+        };
+        if (loadEnterprisePlugins) {
+          loadEnterprisePlugins(regionName, { enterpriseId, force }).then(receive, fail);
+          return;
+        }
+        const result = dispatch({
           type: 'global/getPluginList',
           payload: {
             enterprise_id: enterpriseId,
             region_name: regionName
           },
-          callback: res => {
-            successCount += 1;
-            pluginList = pluginList.concat((res && res.list) || []);
-            finish();
-          },
-          handleError: finish
+          shouldApply: isCurrent,
+          callback: receive,
+          handleError: fail
         });
+        if (result && typeof result.then === 'function') result.then(fail, fail);
       });
     };
 
-    dispatch({
+    let regionsSettled = false;
+    const receiveRegions = res => {
+      if (regionsSettled || !isCurrent()) return;
+      regionsSettled = true;
+      const valid = isSuccessfulPluginResponse(res);
+      if (valid && res.list.length === 0) {
+        loadByRegions([], true);
+        return;
+      }
+      const regionNames = (valid ? res.list : [])
+        .map(item => item && item.region_name)
+        .filter(name => typeof name === 'string' && name.trim());
+      const completeDiscovery = valid && regionNames.length === res.list.length;
+      const fallbackRegionName = this.getFallbackPluginRegionName();
+      loadByRegions(regionNames.length ? regionNames : [fallbackRegionName], Boolean(completeDiscovery));
+    };
+    const failRegions = () => {
+      if (regionsSettled || !isCurrent()) return;
+      regionsSettled = true;
+      loadByRegions([this.getFallbackPluginRegionName()], false);
+    };
+    const result = dispatch({
       type: 'region/fetchEnterpriseClusters',
       payload: {
         enterprise_id: enterpriseId,
         check_status: 'no'
       },
-      callback: res => {
-        const regionNames = ((res && res.list) || []).map(item => item.region_name);
-        const fallbackRegionName = this.getFallbackPluginRegionName();
-        loadByRegions(regionNames.length ? regionNames : [fallbackRegionName]);
-      },
-      handleError: () => {
-        loadByRegions([this.getFallbackPluginRegionName()]);
-      }
+      shouldApply: isCurrent,
+      callback: receiveRegions,
+      handleError: failRegions
     });
+    if (result && typeof result.then === 'function') result.then(failRegions, failRegions);
   };
 
   loadAgentAccessState = () => {

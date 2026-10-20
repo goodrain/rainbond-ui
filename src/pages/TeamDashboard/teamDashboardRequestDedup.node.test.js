@@ -56,6 +56,10 @@ function loadRegionService(request) {
       "import request from '../utils/request';",
       'const request = global.__request;'
     )
+    .replace(
+      "import { isSuccessfulPluginResponse, notifyEnterprisePluginsChanged } from '../utils/pluginInitialization';",
+      'const notifyEnterprisePluginsChanged = () => {};'
+    )
     .replace(/export async function/g, 'async function')
     .concat('\nmodule.exports = { fetchEnterpriseClusters };\n');
   const serviceModule = { exports: {} };

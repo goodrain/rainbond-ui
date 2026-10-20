@@ -1,6 +1,7 @@
 /* eslint-disable no-undef */
 import apiconfig from '../../config/api.config';
 import request from '../utils/request';
+import { isSuccessfulPluginResponse, notifyEnterprisePluginsChanged } from '../utils/pluginInitialization';
 
 const enterpriseClusterRequests = {};
 
@@ -532,13 +533,18 @@ export async function getEnterpriseLicense(params, handleError) {
 
 // 更新授权码
 export async function uploadEnterpriseLicense(params, handleError) {
-  return request(`${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/licenses`, {
+  const enterpriseId = params.enterprise_id;
+  const response = await request(`${apiconfig.baseUrl}/console/enterprise/${params.enterprise_id}/licenses`, {
     method: 'post',
     data: {
       authz_code: params.authz_code
     },
     handleError
   });
+  if (response && response.status_code === 200 && isSuccessfulPluginResponse(response, false)) {
+    notifyEnterprisePluginsChanged({ enterpriseId });
+  }
+  return response;
 }
 
 // 可观测性

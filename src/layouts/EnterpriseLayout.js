@@ -34,6 +34,7 @@ import Shell from "../components/Shell"
 import styles from './EnterpriseLayout.less'
 import pluginUtile from '../utils/pulginUtils'
 import CustomFooter from "./CustomFooter"
+import { createPluginInitializationLoader, subscribeEnterprisePluginsChanged } from '../utils/pluginInitialization';
 const { Content } = Layout;
 
 const getBreadcrumbNameMap = memoizeOne(meun => {
@@ -96,13 +97,25 @@ class EnterpriseLayout extends PureComponent {
       ready: false,
       showMenu: true,
       pluginList: {},
+      pluginInitializationVersion: 0,
       key: true,
       showEnterprisePlugin: false
     };
+    this.pluginInitialization = createPluginInitializationLoader(
+      (payload, callback, handleError, shouldApply) => this.props.dispatch({
+        type: 'global/getPluginList', payload, callback, handleError, shouldApply
+      }),
+      (res, { regionName }) => this.applyPluginInitialization(res, regionName),
+      () => !this.unmounted && this.pluginInitializationUser === this.props.currentUser &&
+        this.pluginInitializationScope === this.getPluginInitializationScope()
+    );
+    this.syncPluginInitializationContext();
   }
 
   componentDidMount() {
+    this.unmounted = false;
     this.mounted = true;
+    this.unsubscribePluginChanges = subscribeEnterprisePluginsChanged(this.handleEnterprisePluginsChanged);
     // 使用 localStorage 中保存的折叠状态
     const savedCollapsed = window.localStorage.getItem('collapsed');
     if (savedCollapsed !== null) {
@@ -116,13 +129,20 @@ class EnterpriseLayout extends PureComponent {
   }
 
   componentDidUpdate(previousProps) {
+    const contextChanged = this.getPluginInitializationScope(previousProps) !== this.getPluginInitializationScope();
+    this.syncPluginInitializationContext();
+    const previousEnterpriseId = this.getPluginEnterpriseId(previousProps);
+    const enterpriseChanged = previousEnterpriseId !== this.getPluginEnterpriseId();
+    const userChanged = previousProps.currentUser !== this.props.currentUser;
     const previousLocation = previousProps.location;
     const { location } = this.props;
-    if (previousLocation.pathname !== location.pathname) {
-      if (this.isOverviewRoute(previousLocation) && !this.isOverviewRoute(location)) {
-        this.handleLoadEnterpriseClusters();
-      }
+    const leftOverview = previousLocation.pathname !== location.pathname &&
+      this.isOverviewRoute(previousLocation) && !this.isOverviewRoute(location);
+    if (contextChanged || enterpriseChanged || userChanged) {
+      if (enterpriseChanged || userChanged) this.setState({ clusterList: [] });
+      this.refreshPluginInitialization(false);
     }
+    if (enterpriseChanged || userChanged || leftOverview) this.handleLoadEnterpriseClusters();
     const previousRegion = previousLocation.query && previousLocation.query.regionName;
     const regionName = location.query && location.query.regionName;
     if (this.isOverviewRoute(location) && previousRegion !== regionName && regionName) {
@@ -131,8 +151,70 @@ class EnterpriseLayout extends PureComponent {
   }
 
   componentWillUnmount() {
+    this.unmounted = true;
     this.mounted = false;
+    this.clusterLoadGeneration = (this.clusterLoadGeneration || 0) + 1;
+    if (this.unsubscribePluginChanges) this.unsubscribePluginChanges();
+    this.pluginInitialization.dispose();
   }
+
+  getPluginEnterpriseId = (props = this.props) =>
+    (props.match && props.match.params && props.match.params.eid) ||
+    (props.enterprise && props.enterprise.enterprise_id) || globalUtil.getCurrEnterpriseId();
+
+  getPluginInitializationScope = (props = this.props) => JSON.stringify([
+    this.getPluginEnterpriseId(props),
+    (props.location.query && props.location.query.regionName) || props.currRegion || ''
+  ]);
+
+  syncPluginInitializationContext = () => {
+    const { currentUser } = this.props;
+    const scope = this.getPluginInitializationScope();
+    if (this.pluginInitializationScope === scope && this.pluginInitializationUser === currentUser) return false;
+    this.pluginInitializationScope = scope;
+    this.pluginInitializationUser = currentUser;
+    this.pluginInitialization.invalidate();
+    return true;
+  };
+
+  applyPluginInitialization = (res, regionName) => {
+    if (!this.mounted || this.state.pluginList[regionName] === res.list) return;
+    this.props.dispatch({ type: 'rbdPlugin/fetchPluginList', payload: res.list });
+    this.setState(prevState => {
+      const pluginList = { ...prevState.pluginList, [regionName]: res.list };
+      const showEnterprisePlugin = Object.keys(pluginList)
+        .some(name => pluginUtile.isInstallEnterprisePlugin(pluginList[name]));
+      return { pluginList, showEnterprisePlugin };
+    }, () => window.localStorage.setItem('showEnterprisePlugin', this.state.showEnterprisePlugin || 'false'));
+  };
+
+  refreshPluginInitialization = (invalidate = true, regionName) => {
+    if (!this.mounted) return;
+    if (invalidate) this.pluginInitialization.invalidate(regionName);
+    this.setState(prevState => {
+      const pluginList = { ...prevState.pluginList };
+      if (regionName) delete pluginList[regionName];
+      return {
+        pluginList: regionName ? pluginList : {},
+        showEnterprisePlugin: Object.keys(regionName ? pluginList : {})
+          .some(name => pluginUtile.isInstallEnterprisePlugin(pluginList[name])),
+        pluginInitializationVersion: prevState.pluginInitializationVersion + 1
+      };
+    }, () => {
+      if (!this.mounted) return;
+      window.localStorage.setItem('showEnterprisePlugin', this.state.showEnterprisePlugin || 'false');
+      if (this.isOverviewRoute()) {
+        this.loadOverviewPlugins(this.state.clusterList || []);
+      } else {
+        (this.state.clusterList || []).forEach(item => this.handlePluginList(item.region_name).catch(() => {}));
+      }
+    });
+  };
+
+  handleEnterprisePluginsChanged = ({ enterpriseId, regionName }) => {
+    if (enterpriseId !== this.getPluginEnterpriseId()) return;
+    this.refreshPluginInitialization(true, regionName);
+  };
 
   isOverviewRoute = (location = this.props.location) =>
     /^\/enterprise\/[^/]+\/index\/?$/.test(location.pathname);
@@ -143,14 +225,19 @@ class EnterpriseLayout extends PureComponent {
     const selected = clusters.find(item => item.region_name === queryRegion) ||
       clusters.find(item => item.region_name === currRegion) ||
       clusters.find(item => item.status === '1') || clusters[0];
-    if (selected && !this.state.pluginList[selected.region_name]) {
+    if (selected) {
       this.handlePluginList(selected.region_name).catch(() => {});
     }
   };
 
   handleLoadEnterpriseClusters = () => {
     const { dispatch } = this.props;
-    const eid = globalUtil.getCurrEnterpriseId();
+    const eid = this.getPluginEnterpriseId();
+    const currentUser = this.props.currentUser;
+    const generation = (this.clusterLoadGeneration || 0) + 1;
+    this.clusterLoadGeneration = generation;
+    const isCurrent = () => this.mounted && generation === this.clusterLoadGeneration &&
+      eid === this.getPluginEnterpriseId() && currentUser === this.props.currentUser;
     const overview = this.isOverviewRoute();
     dispatch({
       type: 'region/fetchEnterpriseClusters',
@@ -158,9 +245,10 @@ class EnterpriseLayout extends PureComponent {
         enterprise_id: eid,
         ...(overview ? { check_status: 'no' } : {})
       },
+      shouldApply: isCurrent,
       callback: res => {
-        if (!this.mounted) return;
-        if (res.status_code === 200 && res?.list) {
+        if (!isCurrent()) return;
+        if (res && res.status_code === 200 && Array.isArray(res.list)) {
           this.setState({ clusterList: res.list });
           if (overview) {
             this.setState({ key: false });
@@ -175,47 +263,21 @@ class EnterpriseLayout extends PureComponent {
       }
     });
   };
-  handlePluginList = (regionName) => {
-    return new Promise((resolve, reject) => {
-      const { dispatch } = this.props;
-      const eid = globalUtil.getCurrEnterpriseId();
-      dispatch({
-        type: 'global/getPluginList',
-        payload: {
-          enterprise_id: eid,
-          region_name: regionName,
-        },
-        callback: res => {
-          if (!this.mounted) {
-            resolve();
-            return;
-          }
-          if (res && res.list) {
-            dispatch({
-              type: 'rbdPlugin/fetchPluginList',
-              payload: res.list
-            });
-            const showEnterprisePlugin = pluginUtile.isInstallEnterprisePlugin(res.list);
-            window.localStorage.setItem('showEnterprisePlugin', showEnterprisePlugin || 'false');
-            if (showEnterprisePlugin) {
-              this.setState({ showEnterprisePlugin });
-            }
-            this.setState(prevState => ({
-              pluginList: { ...prevState.pluginList, [regionName]: res.list }
-            }));
-            resolve();
-          } else {
-            resolve();
-          }
-        },
-        handleError: err => {
-          if (err) {
-            reject(new Error('Failed to get component language version'));
-          }
-        }
-      });
+  handlePluginList = (regionName, { enterpriseId = this.getPluginEnterpriseId(), force = false } = {}) => {
+    this.syncPluginInitializationContext();
+    if (enterpriseId !== this.getPluginEnterpriseId()) {
+      return Promise.reject(new Error('Enterprise plugin scope changed'));
+    }
+    const scope = this.pluginInitializationScope;
+    const currentUser = this.props.currentUser;
+    return this.pluginInitialization.load({ enterpriseId, regionName, force }).then(res => {
+      if (this.mounted && scope === this.getPluginInitializationScope() && currentUser === this.props.currentUser &&
+          this.pluginInitialization.isCurrentResponse({ enterpriseId, regionName }, res)) {
+        this.applyPluginInitialization(res, regionName);
+      }
+      return res;
     });
-  }
+  };
 
   // 获取平台公共信息
   handleGetEnterpeiseMsg = (data, eid) => {
@@ -403,7 +465,9 @@ class EnterpriseLayout extends PureComponent {
       showAuthCompany,
       terminalStatus
     } = this.props;
-    const { enterpriseList, enterpriseInfo, ready, pluginList, clusterList } = this.state;
+    const { enterpriseList, enterpriseInfo, ready, clusterList } = this.state;
+    const pluginList = this.pluginInitializationScope === this.getPluginInitializationScope() &&
+      this.pluginInitializationUser === currentUser ? this.state.pluginList : {};
     const BillingFunction = rainbondUtil.isEnableBillingFunction();
     const queryString = stringify({
       redirect: window.location.href
@@ -435,6 +499,9 @@ class EnterpriseLayout extends PureComponent {
               collapsed={collapsed}
               onCollapse={this.handleMenuCollapse}
               isMobile={this.state.isMobile}
+              loadEnterprisePlugins={this.handlePluginList}
+              pluginInitializationVersion={this.state.pluginInitializationVersion}
+              pluginInitializationScope={this.pluginInitializationScope}
             />
             <Layout style={{ flexDirection: 'row' }}>
               <GlobalRouter
