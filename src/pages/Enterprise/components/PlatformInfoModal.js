@@ -1,4 +1,4 @@
-import { Alert, Button, Descriptions, Empty, Input, Modal, Skeleton, Spin, Tag } from 'antd';
+import { Alert, Button, Empty, Icon, Input, Modal, Skeleton } from 'antd';
 import moment from 'moment';
 import React, { PureComponent } from 'react';
 import overviewData from '../overviewData';
@@ -8,152 +8,412 @@ export default class PlatformInfoModal extends PureComponent {
   state = {
     editing: false,
     authorizationCode: '',
-    validationError: ''
+    validationError: '',
+    submitting: false
   };
+
+  submissionPending = false;
 
   componentDidUpdate(prevProps) {
     if (prevProps.visible && !this.props.visible) {
-      this.setState({ editing: false, authorizationCode: '', validationError: '' });
+      this.submissionPending = false;
+      this.setState({
+        editing: false,
+        authorizationCode: '',
+        validationError: '',
+        submitting: false
+      });
     }
   }
 
+  componentWillUnmount() {
+    this.unmounted = true;
+  }
+
+  isUpdating = () => this.props.updating || this.submissionPending;
+
+  handleCancel = () => {
+    if (this.isUpdating()) return;
+    this.setState({
+      editing: false,
+      authorizationCode: '',
+      validationError: ''
+    });
+    this.props.onCancel();
+  };
+
   toggleEditor = () => {
-    this.setState(state => ({
+    if (this.isUpdating()) return;
+    this.setState((state) => ({
       editing: !state.editing,
       authorizationCode: '',
       validationError: ''
     }));
   };
 
-  handleCodeChange = event => {
-    this.setState({ authorizationCode: event.target.value, validationError: '' });
-  };
-
-  submitLicense = () => {
-    const authorizationCode = this.state.authorizationCode.trim();
-    if (!authorizationCode) {
-      this.setState({ validationError: this.props.labels.authorizationRequired });
-      return;
-    }
-    this.props.onUpdateLicense(authorizationCode, succeeded => {
-      if (succeeded) {
-        this.setState({ editing: false, authorizationCode: '', validationError: '' });
-      }
+  handleCodeChange = (event) => {
+    this.setState({
+      authorizationCode: event.target.value,
+      validationError: ''
     });
   };
 
-  renderLicenseContent() {
-    const { labels, license, requestStatus, requestError } = this.props;
-    const plugins = (license && license.plugins) || [];
-    const licenseStatus = overviewData.licenseState(license);
-    if (!license && (requestStatus === 'idle' || requestStatus === 'loading')) {
-      return <Skeleton active paragraph={{ rows: 3 }} />;
+  submitLicense = () => {
+    if (this.isUpdating()) return;
+    const authorizationCode = this.state.authorizationCode.trim();
+    if (!authorizationCode) {
+      this.setState({
+        validationError: this.props.labels.authorizationRequired
+      });
+      return;
     }
-    if (!license && requestStatus === 'error') {
-      return <Alert type="warning" showIcon message={labels.licenseUnavailable} />;
+    this.submissionPending = true;
+    this.setState({ submitting: true });
+    this.props.onUpdateLicense(authorizationCode, (succeeded) => {
+      this.submissionPending = false;
+      if (this.unmounted) return;
+      this.setState(
+        succeeded
+          ? {
+              editing: false,
+              authorizationCode: '',
+              validationError: '',
+              submitting: false
+            }
+          : { submitting: false }
+      );
+    });
+  };
+
+  formatQuota(value) {
+    if (typeof value === 'boolean' || !overviewData.isNumber(value)) return '-';
+    const count = Number(value);
+    if (count === -1) return this.props.labels.unlimited;
+    return Number.isInteger(count) && count > 0 ? count : '-';
+  }
+
+  renderLicenseContent() {
+    const { labels, license, requestStatus } = this.props;
+    const summary = overviewData.platformLicenseSummary(license, requestStatus);
+    if (
+      !requestStatus ||
+      requestStatus === 'idle' ||
+      requestStatus === 'loading'
+    ) {
+      return <Skeleton active paragraph={{ rows: 3 }} title={false} />;
+    }
+    if (requestStatus === 'error') {
+      return (
+        <Alert type="warning" showIcon message={labels.licenseUnavailable} />
+      );
     }
     if (requestStatus === 'empty') {
-      return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={labels.noLicense} />;
+      return (
+        <Empty
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+          description={labels.noLicense}
+        />
+      );
     }
     if (requestStatus === 'invalid') {
       return (
         <Alert
           type="error"
           showIcon
-          message={labels.invalidLicense}
-          description={requestError || labels.invalidReasonUnknown}
+          message={this.props.licenseLabel}
+          description={labels.licenseDetailsUnavailable}
         />
       );
     }
-    if (!license) {
-      return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={labels.noLicense} />;
-    }
-    return (
-      <React.Fragment>
-        {requestStatus === 'error' ? (
-          <Alert
-            className={styles.licenseStatus}
-            type="warning"
-            showIcon
-            message={labels.licenseUnavailable}
-          />
-        ) : null}
+    if (requestStatus !== 'success' || !license || license.valid !== true) {
+      return (
         <Alert
-          className={styles.licenseStatus}
-          type={licenseStatus.valid ? 'success' : 'error'}
+          type={summary.level === 'warning' ? 'warning' : 'info'}
           showIcon
-          message={licenseStatus.valid ? labels.validLicense : labels.invalidLicense}
-          description={licenseStatus.valid ? null : licenseStatus.reason || labels.invalidReasonUnknown}
+          message={this.props.licenseLabel}
+          description={labels.licenseDetailsUnavailable}
         />
-        <Descriptions column={3} size="small">
-          <Descriptions.Item label={labels.company}>{license.company || '-'}</Descriptions.Item>
-          <Descriptions.Item label={labels.expireAt}>
-            {licenseStatus.valid
-              ? licenseStatus.expireAt
-                ? moment.unix(licenseStatus.expireAt).format('YYYY-MM-DD')
-                : labels.unlimited
-              : labels.notApplicable}
-          </Descriptions.Item>
-          <Descriptions.Item label={labels.clusterLimit}>
-            {String(license.cluster_limit) === '-1' ? labels.unlimited : license.cluster_limit}
-          </Descriptions.Item>
-        </Descriptions>
-        <h4 className={styles.allowedPluginTitle}>{labels.allowedPlugins}</h4>
-        <div className={styles.allowedPlugins}>
-          {plugins.length ? (
-            plugins.map(plugin => <Tag key={plugin.plugin_id || plugin.name}>{plugin.name}</Tag>)
-          ) : (
-            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={labels.noPlugins} />
-          )}
+      );
+    }
+    const expiry = summary.expireAt ? moment.unix(summary.expireAt) : null;
+    const fields = [
+      { label: labels.company, value: license.company || '-' },
+      {
+        label: labels.expireAt,
+        value: expiry && expiry.isValid() ? expiry.format('YYYY-MM-DD') : '-'
+      },
+      {
+        label: labels.clusterLimit,
+        value: this.formatQuota(license.cluster_limit)
+      },
+      { label: labels.nodeLimit, value: this.formatQuota(license.node_limit) }
+    ];
+    return (
+      <dl className={styles.platformLicenseMetrics}>
+        {fields.map((field) => (
+          <div key={field.label}>
+            <dt>{field.label}</dt>
+            <dd>{field.value}</dd>
+          </div>
+        ))}
+      </dl>
+    );
+  }
+
+  renderPlugins() {
+    const { labels, license, requestStatus } = this.props;
+    const verified =
+      requestStatus === 'success' && license && license.valid === true;
+    const plugins =
+      verified && Array.isArray(license.plugins)
+        ? license.plugins.filter(
+            (plugin) =>
+              plugin &&
+              typeof plugin === 'object' &&
+              (plugin.name || plugin.plugin_id)
+          )
+        : [];
+    const loading =
+      !requestStatus || requestStatus === 'idle' || requestStatus === 'loading';
+    return (
+      <section
+        className={styles.platformInfoCard}
+        aria-labelledby="platform-info-plugins-title"
+      >
+        <div className={styles.platformInfoCardHeading}>
+          <h3 id="platform-info-plugins-title">
+            <Icon type="appstore" />
+            {labels.allowedPlugins}
+          </h3>
+          {verified ? <span>{labels.pluginCount(plugins.length)}</span> : null}
         </div>
-      </React.Fragment>
+        {loading ? (
+          <Skeleton active title={false} paragraph={{ rows: 2 }} />
+        ) : verified ? (
+          plugins.length ? (
+            <ul className={styles.platformAllowedPluginGrid}>
+              {plugins.map((plugin, index) => (
+                <li key={`${plugin.plugin_id || plugin.name}-${index}`}>
+                  <Icon
+                    type={overviewData.pluginIcon({
+                      ...plugin,
+                      name: plugin.plugin_id || plugin.name,
+                      alias: plugin.name
+                    })}
+                  />
+                  <span>{plugin.name || plugin.plugin_id}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description={labels.noPlugins}
+            />
+          )
+        ) : (
+          <p className={styles.platformInfoHint}>
+            <Icon type="lock" />
+            {labels.pluginAuthorizationUnknown}
+          </p>
+        )}
+      </section>
     );
   }
 
   render() {
     const {
       visible,
-      onCancel,
       title,
       labels,
       platform,
+      runtimeSummary,
+      licenseLabel,
+      license,
       requestStatus,
       updating
     } = this.props;
-    const { editing, authorizationCode, validationError } = this.state;
-    return (
-      <Modal visible={visible} title={title} onCancel={onCancel} footer={null} width={720}>
-        <Descriptions column={2} bordered size="small">
-          <Descriptions.Item label={labels.name}>{platform.name || '-'}</Descriptions.Item>
-          <Descriptions.Item label={labels.version}>{platform.version || '-'}</Descriptions.Item>
-          <Descriptions.Item label={labels.createdAt}>
-            {platform.createdAt ? moment(platform.createdAt).format('YYYY-MM-DD HH:mm') : '-'}
-          </Descriptions.Item>
-          <Descriptions.Item label={labels.enterpriseId}>{platform.enterpriseId}</Descriptions.Item>
-        </Descriptions>
-        <div className={styles.licenseHeader}>
-          <h3>{labels.license}</h3>
-          <Button type="link" onClick={this.toggleEditor} disabled={updating}>
-            {editing ? labels.cancel : labels.updateLicense}
-          </Button>
+    const {
+      editing,
+      authorizationCode,
+      validationError,
+      submitting
+    } = this.state;
+    const busy = updating || submitting;
+    const summary = overviewData.platformLicenseSummary(license, requestStatus);
+    const stateClasses = {
+      healthy: styles.platformInfoHealthy,
+      warning: styles.platformInfoWarning
+    };
+    const createdAt = platform.createdAt ? moment(platform.createdAt) : null;
+    const hero = (
+      <div className={styles.platformInfoHero}>
+        <span className={styles.platformInfoHeroIcon}>
+          <Icon type="cloud" />
+        </span>
+        <div>
+          <span className={styles.platformInfoEyebrow}>{title}</span>
+          <h2>{platform.name || 'Rainbond'}</h2>
+          {runtimeSummary ? (
+            <p
+              className={`${styles.platformInfoRuntime} ${
+                stateClasses[runtimeSummary.level] || ''
+              }`}
+            >
+              <Icon
+                type={
+                  runtimeSummary.level === 'loading'
+                    ? 'loading'
+                    : runtimeSummary.level === 'warning'
+                    ? 'exclamation-circle'
+                    : runtimeSummary.level === 'healthy'
+                    ? 'check-circle'
+                    : 'info-circle'
+                }
+              />
+              {runtimeSummary.label}
+            </p>
+          ) : null}
         </div>
-        {editing ? (
-          <div className={styles.licenseEditor}>
-            <Input
-              type="password"
-              autoComplete="new-password"
-              value={authorizationCode}
-              placeholder={labels.authorizationPlaceholder}
-              onChange={this.handleCodeChange}
-              disabled={updating}
-            />
-            {validationError ? <span>{validationError}</span> : null}
-            <Button type="primary" loading={updating} onClick={this.submitLicense}>
-              {labels.save}
-            </Button>
+      </div>
+    );
+    const footer = (
+      <div className={styles.platformInfoFooter}>
+        <Button
+          disabled={busy}
+          onClick={editing ? this.toggleEditor : this.handleCancel}
+        >
+          {editing ? labels.cancel : labels.close}
+        </Button>
+        <Button
+          type="primary"
+          icon="key"
+          loading={busy}
+          onClick={editing ? this.submitLicense : this.toggleEditor}
+        >
+          {editing ? labels.save : labels.updateLicense}
+        </Button>
+      </div>
+    );
+    return (
+      <Modal
+        className={styles.platformInfoModal}
+        visible={visible}
+        title={hero}
+        onCancel={this.handleCancel}
+        footer={footer}
+        width={900}
+        centered
+        closable={!busy}
+        maskClosable={!busy}
+        keyboard={!busy}
+      >
+        <div className={styles.platformInfoColumns}>
+          <section
+            className={styles.platformInfoCard}
+            aria-labelledby="platform-info-basic-title"
+          >
+            <div className={styles.platformInfoCardHeading}>
+              <h3 id="platform-info-basic-title">
+                <Icon type="info-circle" />
+                {labels.basicInfo}
+              </h3>
+            </div>
+            <dl className={styles.platformInfoDetails}>
+              <div>
+                <dt>{labels.name}</dt>
+                <dd>{platform.name || '-'}</dd>
+              </div>
+              <div>
+                <dt>{labels.version}</dt>
+                <dd>{platform.version || '-'}</dd>
+              </div>
+              <div>
+                <dt>{labels.createdAt}</dt>
+                <dd>
+                  {createdAt && createdAt.isValid()
+                    ? createdAt.format('YYYY-MM-DD HH:mm')
+                    : '-'}
+                </dd>
+              </div>
+            </dl>
+            <div className={styles.platformInfoEnterpriseId}>
+              <span>{labels.enterpriseId}</span>
+              <span>{platform.enterpriseId || '-'}</span>
+            </div>
+          </section>
+          <section
+            className={styles.platformInfoCard}
+            aria-labelledby="platform-info-license-title"
+          >
+            <div className={styles.platformInfoCardHeading}>
+              <h3 id="platform-info-license-title">
+                <Icon type="safety-certificate" />
+                {labels.license}
+              </h3>
+              <span
+                className={`${styles.platformInfoLicenseBadge} ${
+                  stateClasses[summary.level] || ''
+                }`}
+                aria-live="polite"
+              >
+                {summary.level === 'loading' ? <Icon type="loading" /> : null}
+                {licenseLabel}
+              </span>
+            </div>
+            {this.renderLicenseContent()}
+          </section>
+        </div>
+        <section
+          className={styles.platformInfoCard}
+          aria-labelledby="platform-info-authorization-title"
+        >
+          <div className={styles.platformInfoCardHeading}>
+            <h3 id="platform-info-authorization-title">
+              <Icon type="key" />
+              {labels.authorizationCode}
+            </h3>
+            <span>{labels.secureUpdate}</span>
           </div>
-        ) : null}
-        <Spin spinning={requestStatus === 'loading'}>{this.renderLicenseContent()}</Spin>
+          {editing ? (
+            <div className={styles.platformLicenseEditor}>
+              <label htmlFor="platform-info-license-input">
+                {labels.newAuthorizationCode}
+              </label>
+              <Input
+                id="platform-info-license-input"
+                type="password"
+                autoComplete="new-password"
+                autoFocus
+                value={authorizationCode}
+                placeholder={labels.authorizationPlaceholder}
+                onChange={this.handleCodeChange}
+                onPressEnter={this.submitLicense}
+                disabled={busy}
+                aria-invalid={Boolean(validationError)}
+                aria-describedby={
+                  validationError
+                    ? 'platform-info-license-error'
+                    : 'platform-info-license-help'
+                }
+              />
+              <p id="platform-info-license-help">
+                {labels.authorizationPrivate}
+              </p>
+              {validationError ? (
+                <span id="platform-info-license-error" role="alert">
+                  {validationError}
+                </span>
+              ) : null}
+            </div>
+          ) : (
+            <p className={styles.platformAuthorizationNotice}>
+              <Icon type="lock" />
+              <span>{labels.authorizationPrivate}</span>
+            </p>
+          )}
+        </section>
+        {this.renderPlugins()}
       </Modal>
     );
   }

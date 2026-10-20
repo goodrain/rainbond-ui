@@ -170,6 +170,47 @@ function licenseState(license) {
   };
 }
 
+function platformLicenseSummary(license, requestStatus) {
+  const result = (level, labelId, expireAt = null) => ({ level, labelId, expireAt });
+  if (!requestStatus || requestStatus === 'idle' || requestStatus === 'loading') {
+    return result('loading', 'header.licenseChecking');
+  }
+  if (requestStatus === 'error') return result('unknown', 'header.licenseUnavailable');
+  if (requestStatus === 'empty') return result('neutral', 'header.licenseMissing');
+  if (requestStatus === 'invalid') return result('warning', 'header.licenseInvalid');
+  if (requestStatus !== 'success' || !license) return result('unknown', 'header.licenseUnknown');
+  const expireAt = typeof license.expire_at !== 'boolean' && isNumber(license.expire_at) && Number(license.expire_at) > 0 ? Number(license.expire_at) : null;
+  if (license.valid === true) return result('healthy', 'header.licenseValid', expireAt);
+  const reason = String(license.reason || '').toLowerCase();
+  if (license.valid === false && /expired|过期/.test(reason)) {
+    return result('warning', 'header.licenseExpired', expireAt);
+  }
+  if (license.valid === false && /not.?yet.?valid|未生效/.test(reason)) {
+    return result('neutral', 'header.licensePending', expireAt);
+  }
+  return result('unknown', 'header.licenseUnknown');
+}
+
+function platformClusterSummary(runtime) {
+  const clusters = runtime && runtime.global && runtime.global.clusters;
+  const result = (level, labelId, values = {}) => ({ level, labelId, values });
+  if (!clusters) return result(runtime ? 'unknown' : 'loading', runtime ? 'header.runtimeUnknown' : 'header.runtimeChecking');
+  const count = value => typeof value !== 'boolean' && isNumber(value) && Number.isInteger(Number(value)) && Number(value) >= 0 ? Number(value) : null;
+  const warning = count(clusters.warning);
+  const unavailable = count(clusters.unavailable);
+  if (warning !== null && unavailable !== null && warning + unavailable > 0) {
+    return result('warning', 'header.clusterAttention', { count: warning + unavailable });
+  }
+  if (warning === 0 && unavailable === 0 && count(clusters.healthy) > 0) {
+    return result('healthy', 'header.clusterReady', { count: Number(clusters.healthy) });
+  }
+  if (count(clusters.total) === 0) return result('neutral', 'header.clusterEmpty');
+  if (count(clusters.disabled) > 0 && count(clusters.disabled) === count(clusters.total)) {
+    return result('neutral', 'header.clusterDisabled', { count: Number(clusters.disabled) });
+  }
+  return result('unknown', 'header.runtimeUnknown');
+}
+
 function classifyLicenseRequestError(error) {
   const response = (error && error.response) || {};
   const body = response.data || {};
@@ -286,6 +327,8 @@ module.exports = {
   formatNumber,
   formatThroughput,
   licenseState,
+  platformLicenseSummary,
+  platformClusterSummary,
   metricState,
   metricPoints,
   metricChartPoints,

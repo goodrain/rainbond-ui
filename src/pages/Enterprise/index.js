@@ -369,7 +369,19 @@ export default class Enterprise extends PureComponent {
   renderPlatformHeader() {
     const enterprise = this.props.enterprise || {};
     const rainbondInfo = this.props.rainbondInfo || {};
-    const { hasNewVersion, latestVersion, upgradeStatus } = this.state;
+    const { hasNewVersion, latestVersion, upgradeStatus, license, licenseStatus } = this.state;
+    const clusterSummary = overviewData.platformClusterSummary(this.props.overview && this.props.overview.runtime);
+    const licenseSummary = overviewData.platformLicenseSummary(license, licenseStatus);
+    const enterpriseEdition = rainbondInfo.enterprise_edition &&
+      (rainbondInfo.enterprise_edition.value === true || rainbondInfo.enterprise_edition.value === 'true');
+    const licenseLabel = licenseSummary.level === 'healthy' && enterpriseEdition
+      ? 'header.enterpriseLicenseValid'
+      : licenseSummary.labelId;
+    const licenseDate = licenseSummary.expireAt && moment.unix(licenseSummary.expireAt).isValid()
+      ? moment.unix(licenseSummary.expireAt).format('YYYY-MM-DD')
+      : '-';
+    const summaryClasses = { healthy: styles.headerSummaryHealthy, warning: styles.headerSummaryWarning };
+    const summaryIcon = { healthy: 'check-circle', warning: 'exclamation-circle', loading: 'loading' };
     const upgradeAvailable = upgradeStatus === 'success' && hasNewVersion;
     const currentVersion = overviewData.compactVersion(
       rainbondInfo.version && rainbondInfo.version.value
@@ -381,11 +393,18 @@ export default class Enterprise extends PureComponent {
       'Rainbond';
     return (
       <section className={`${styles.platformHeader} ${upgradeAvailable ? styles.hasUpgrade : ''}`}>
-        <button type="button" className={styles.platformIdentity} onClick={() => this.setState({ platformModalVisible: true })}>
+        <button type="button" className={styles.platformIdentity} title={name} aria-label={`${name} · ${t('header.viewDetails')}`} onClick={() => this.setState({ platformModalVisible: true })}>
           <span className={styles.platformLogo}><Icon type="cloud-server" /></span>
-          <span><strong>{name}</strong><small>{currentVersion} · {t('header.viewDetails')}</small></span>
+          <span><strong>{name}</strong><span className={`${styles.platformSummary} ${summaryClasses[clusterSummary.level] || ''}`}><Icon type={summaryIcon[clusterSummary.level] || 'info-circle'} />{t(clusterSummary.labelId, clusterSummary.values)}</span></span>
           <Icon type="right" />
         </button>
+        <div className={styles.platformFacts}>
+          <div className={styles.platformFact}><small>{t('header.platformVersion')}</small><strong title={currentVersion}>{currentVersion}</strong></div>
+          <button type="button" className={styles.platformLicenseFacts} aria-label={t('header.viewLicense')} onClick={() => this.setState({ platformModalVisible: true })}>
+            <span className={styles.platformFact}><small>{t('header.licenseStatus')}</small><strong className={summaryClasses[licenseSummary.level] || ''} title={t(licenseLabel)}>{licenseSummary.level === 'loading' ? <Icon type="loading" /> : null}{t(licenseLabel)}</strong></span>
+            <span className={styles.platformFact}><small>{t('header.licenseExpires')}</small><strong>{licenseDate}</strong></span>
+          </button>
+        </div>
         {upgradeAvailable ? (
           <button type="button" className={styles.upgradeAction} onClick={() => this.jump(`/enterprise/${this.getEnterpriseId()}/setting?type=updateVersion`)}>
             <span className={styles.upgradeIcon}><Icon type="rocket" /></span>
@@ -441,6 +460,7 @@ export default class Enterprise extends PureComponent {
   renderScopeSelector() {
     const { shell } = this.props.overview;
     const clusters = (shell && shell.clusters) || [];
+    if (clusters.length <= 1) return null;
     return (
       <div className={styles.scopeBar}>
         <div className={styles.scopeContext}>
@@ -630,10 +650,12 @@ export default class Enterprise extends PureComponent {
     const gateway = overviewData.sectionData(snapshot, 'gateway') || {};
     const appItems = (((runtime && runtime.global) || {}).application_alarms || {}).items || [];
     const platform = { name: enterprise.enterprise_alias || enterprise.enterprise_name || 'Rainbond', version: overviewData.compactVersion(rainbondInfo.version && rainbondInfo.version.value), createdAt: enterprise.create_time, enterpriseId: this.getEnterpriseId() };
-    const labels = { name: t('modal.name'), version: t('modal.version'), createdAt: t('modal.createdAt'), enterpriseId: t('modal.enterpriseId'), license: t('modal.license'), updateLicense: t('modal.updateLicense'), authorizationPlaceholder: t('modal.authorizationPlaceholder'), authorizationRequired: t('modal.authorizationRequired'), save: t('modal.save'), cancel: t('modal.cancel'), licenseUnavailable: t('modal.licenseUnavailable'), company: t('modal.company'), expireAt: t('modal.expireAt'), clusterLimit: t('modal.clusterLimit'), unlimited: t('modal.unlimited'), notApplicable: t('modal.notApplicable'), validLicense: t('modal.validLicense'), invalidLicense: t('modal.invalidLicense'), invalidReasonUnknown: t('modal.invalidReasonUnknown'), allowedPlugins: t('modal.allowedPlugins'), noPlugins: t('modal.noPlugins'), noLicense: t('modal.noLicense') };
+    const runtimeSummary = overviewData.platformClusterSummary(runtime);
+    const licenseSummary = overviewData.platformLicenseSummary(this.state.license, this.state.licenseStatus);
+    const labels = { basicInfo: t('modal.basicInfo'), close: t('modal.close'), authorizationCode: t('modal.authorizationCode'), newAuthorizationCode: t('modal.newAuthorizationCode'), secureUpdate: t('modal.secureUpdate'), authorizationPrivate: t('modal.authorizationPrivate'), licenseDetailsUnavailable: t('modal.licenseDetailsUnavailable'), pluginAuthorizationUnknown: t('modal.pluginAuthorizationUnknown'), nodeLimit: t('modal.nodeLimit'), pluginCount: count => t('modal.pluginCount', { count }), name: t('modal.name'), version: t('modal.version'), createdAt: t('modal.createdAt'), enterpriseId: t('modal.enterpriseId'), license: t('modal.license'), updateLicense: t('modal.updateLicenseCode'), authorizationPlaceholder: t('modal.authorizationPlaceholder'), authorizationRequired: t('modal.authorizationRequired'), save: t('modal.save'), cancel: t('modal.cancel'), licenseUnavailable: t('modal.licenseUnavailable'), company: t('modal.company'), expireAt: t('modal.expireAt'), clusterLimit: t('modal.clusterLimit'), unlimited: t('modal.unlimited'), notApplicable: t('modal.notApplicable'), validLicense: t('modal.validLicense'), invalidLicense: t('modal.invalidLicense'), invalidReasonUnknown: t('modal.invalidReasonUnknown'), allowedPlugins: t('modal.allowedPlugins'), noPlugins: t('modal.noPlugins'), noLicense: t('modal.noLicense') };
     return (
       <React.Fragment>
-        <PlatformInfoModal visible={this.state.platformModalVisible} onCancel={() => this.setState({ platformModalVisible: false })} onUpdateLicense={this.handleUpdateLicense} title={t('modal.platformInfo')} labels={labels} platform={platform} license={this.state.license} requestStatus={this.state.licenseStatus} requestError={this.state.licenseStatusReason} updating={this.state.licenseUpdating} />
+        <PlatformInfoModal visible={this.state.platformModalVisible} onCancel={() => this.setState({ platformModalVisible: false })} onUpdateLicense={this.handleUpdateLicense} title={t('modal.platformInfo')} labels={labels} platform={platform} runtimeSummary={{ ...runtimeSummary, label: t(runtimeSummary.labelId, runtimeSummary.values) }} licenseLabel={t(licenseSummary.labelId)} license={this.state.license} requestStatus={this.state.licenseStatus} requestError={this.state.licenseStatusReason} updating={this.state.licenseUpdating} />
         <IssueModal visible={this.state.applicationModalVisible} onCancel={() => this.setState({ applicationModalVisible: false })} title={t('issues.appTitle')} labels={{ open: t('issues.openComponent') }} onOpen={this.jumpApplicationIssue} items={appItems.map(item => ({ ...item, key: item.service_id, severity: 'critical', title: item.service_alias || item.service_name, description: t('issues.componentAbnormal'), owner: `${item.tenant_alias || item.tenant_name || '-'} / ${item.application_name || '-'} / ${item.region_name}` }))} />
         <IssueModal visible={this.state.gatewayModalVisible} onCancel={() => this.setState({ gatewayModalVisible: false })} title={t('issues.gatewayTitle')} labels={{ open: t('issues.openApplication') }} onOpen={this.jumpGatewayIssue} items={(gateway.issues || []).map((item, index) => ({ ...item, key: `${item.domain}-${index}`, title: item.domain, description: item.expires_at ? t('issues.certificateExpires', { date: moment(item.expires_at).format('YYYY-MM-DD') }) : t('issues.certificateUnknown'), owner: `${item.tenant_name || '-'} / ${item.service_alias || item.service_name || '-'}` }))} />
       </React.Fragment>
