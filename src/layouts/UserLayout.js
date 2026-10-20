@@ -175,7 +175,6 @@ class UserLayout extends React.PureComponent {
       return null;
     }
     const loginSlogan = rainbondInfo && rainbondInfo.login_slogan && rainbondInfo.login_slogan.value || '';
-    const loginTitle = rainbondInfo && rainbondInfo.login_title && rainbondInfo.login_title.value || '';
     const serviceAgreementUrl = rainbondInfo && rainbondInfo.service_agreement_url && rainbondInfo.service_agreement_url.value || '';
     const privacyPolicyUrl = rainbondInfo && rainbondInfo.privacy_policy_url && rainbondInfo.privacy_policy_url.value || '';
     return (
@@ -209,8 +208,6 @@ class UserLayout extends React.PureComponent {
             </div>
             <div className={styles.saasRight}>
               <div className={styles.saasLoginBox}>
-                <h2>{loginTitle || 'Rainbond Cloud'}</h2>
-                <p><FormattedMessage id="layout.userLayout.saas.welcomeText" defaultMessage="开启平台之旅" /></p>
                 <div className={styles.loginForm}>
                   {children}
                 </div>
