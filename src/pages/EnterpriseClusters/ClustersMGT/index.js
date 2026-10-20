@@ -22,6 +22,7 @@ import pluginUtils from '../../../utils/pulginUtils';
 import global from '@/utils/global';
 import { normalizeNodeDiskUsage } from '@/utils/nodeDisk';
 import styles from "./index.less";
+const { createComponentPollingGuard, getComponentPollingDelay } = require('../../Component/componentPolling');
 
 @connect(({ global }) => ({
   pluginsList: global.pluginsList,
@@ -47,28 +48,79 @@ class Index extends Component {
       diskAlerts: [],
     }
     this.timer = null
+    this.nodePollFailures = 0;
+    this.nodeRefreshPending = false;
+    this.pageVisible = typeof document === 'undefined' || !document.hidden;
+    this.pollingGuard = createComponentPollingGuard(
+      () => this.mounted && this.pageVisible,
+      () => this.getPollingIdentity()
+    );
   }
   componentDidMount() {
+    this.mounted = true;
+    this.pollingIdentity = this.getPollingIdentity();
+    if (typeof document !== 'undefined') document.addEventListener('visibilitychange', this.handleVisibilityChange);
     this.loadClusters();
     this.setState({
       showGpuBtn: pluginUtils.isInstallPlugin(this.props.pluginsList, 'rainbond-gpu')
     });
   }
   componentWillUnmount() {
-    clearTimeout(this.timer)
+    this.mounted = false;
+    this.resetNodePolling();
+    if (typeof document !== 'undefined') document.removeEventListener('visibilitychange', this.handleVisibilityChange);
   }
-  fetchClusterInfoList = () => {
-    const { dispatch } = this.props;
-    const { eventId, clusterID, rowCluster } = this.state
-    dispatch({
-      type: 'region/fetchClusterInfoList',
-      payload: {
-        cluster_id: rowCluster.region_name
-      },
-    });
+  componentDidUpdate() {
+    const identity = this.getPollingIdentity();
+    if (identity !== this.pollingIdentity) {
+      this.pollingIdentity = identity;
+      this.resetNodePolling();
+      this.setState({ rowCluster: [], nodeList: [], diskAlerts: [], eventId: '', showInfo: false,
+        showListInfo: false, dashboardList: [], dashboardShow: false }, this.loadClusters);
+    }
+  }
+  getPollingIdentity = () => {
+    const { eid, regionID } = this.props.match.params;
+    return JSON.stringify([eid, regionID]);
+  };
+  isCurrentRegion = item => item && String(item.region_id) === String(this.props.match.params.regionID);
+  resetNodePolling = () => {
+    this.pollingGuard.invalidate();
+    this.nodeRefreshPending = false;
+    this.nodePollFailures = 0;
+    clearTimeout(this.timer);
+    this.timer = null;
+  };
+  handleVisibilityChange = () => {
+    this.pageVisible = !document.hidden;
+    this.resetNodePolling();
+    if (this.pageVisible) {
+      const { rowCluster } = this.state;
+      if (this.isCurrentRegion(rowCluster)) {
+        this.fetClusterNodeList(rowCluster, false);
+        if (!this.state.dashboardShow) this.fetDashboardList(rowCluster);
+      } else {
+        this.loadClusters();
+      }
+    }
+  };
+  scheduleNodeRefresh = (item, delay = 5000) => {
+    clearTimeout(this.timer);
+    this.timer = null;
+    const isCurrent = this.pollingGuard.checkpoint();
+    if (!isCurrent()) return;
+    this.timer = setTimeout(() => {
+      this.timer = null;
+      if (isCurrent()) {
+        if (item) this.fetClusterNodeList(item, false);
+        else this.loadClusters();
+      }
+    }, delay);
   };
   // 获取集群信息
   loadClusters = () => {
+    const request = this.pollingGuard.begin('clusters');
+    if (!request) return;
     const {
       dispatch,
       match: {
@@ -77,10 +129,12 @@ class Index extends Component {
     } = this.props;
     dispatch({
       type: 'region/fetchEnterpriseClusters',
+      shouldApply: request.isCurrent,
       payload: {
         enterprise_id: eid
       },
       callback: res => {
+        if (!request.complete()) return;
         if (res && res.list) {
           const clusters = [];
           res.list.map((item, index) => {
@@ -95,11 +149,9 @@ class Index extends Component {
                 rowCluster: item,
                 showInfo: true
               }, () => {
+                if (!request.isCurrent()) return;
                 this.fetClusterNodeList(item);
                 this.fetDashboardList(item)
-                if (item.provider == 'rke') {
-                  this.fetchClusterInfoList()
-                }
               });
           })
         } else {
@@ -108,6 +160,11 @@ class Index extends Component {
             showInfo: false
           });
         }
+      },
+      handleError: () => {
+        if (!request.complete()) return;
+        this.nodePollFailures += 1;
+        this.scheduleNodeRefresh(null, getComponentPollingDelay({ failureCount: this.nodePollFailures }));
       }
     });
   };
@@ -149,23 +206,43 @@ class Index extends Component {
   };
   // 获取添加节点的参数event_id
   getNodeEventID = (region_name) => {
+    if (region_name !== this.state.rowCluster.region_name) return;
+    const request = this.pollingGuard.begin('event-id');
+    if (!request) return;
     const { dispatch } = this.props;
     dispatch({
       type: 'region/fetchClusterInfo',
+      shouldApply: request.isCurrent,
       payload: {
         cluster_id: region_name
       },
       callback: res => {
+        if (!request.complete()) return;
         if (res && res.status_code === 200) {
           this.setState({
             eventId: res?.bean?.event_id || ''
           })
         }
-      }
+      },
+      handleError: () => { request.complete(); }
     });
   };
   // 获取节点列表
   fetClusterNodeList = (item, isLoading = true) => {
+    if (!this.mounted || !this.pageVisible || !this.isCurrentRegion(item)) return;
+    const request = this.pollingGuard.begin('nodes');
+    if (!request) {
+      if (isLoading) this.nodeRefreshPending = true;
+      return;
+    }
+    clearTimeout(this.timer);
+    this.timer = null;
+    const refreshPending = () => {
+      if (!this.nodeRefreshPending) return false;
+      this.nodeRefreshPending = false;
+      this.fetClusterNodeList(this.state.rowCluster);
+      return true;
+    };
     const {
       dispatch,
       match: {
@@ -185,31 +262,32 @@ class Index extends Component {
         region_name: item && item.region_name,
       },
       callback: res => {
+        if (!request.complete() || refreshPending()) return;
         if (res && res.status_code == 200) {
+          this.nodePollFailures = 0;
           this.setState({
             nodeList: res.list,
             diskAlerts: normalizeNodeDiskUsage(res.list, item),
             showListInfo: true,
             nodeType: res.bean
           }, () => {
-            this.timer = setTimeout(() => {
-              this.fetClusterNodeList(item, false)
-              if (item.provider == 'rke') {
-                this.fetchClusterInfoList()
-              }
-            }, 5000)
+            if (request.isCurrent()) this.scheduleNodeRefresh(item);
           })
         }
       },
       handleError: () => {
+        if (!request.complete() || refreshPending()) return;
+        this.nodePollFailures += 1;
         this.setState({
           nodeList: [],
           diskAlerts: [],
           showListInfo: true
         }, () => {
+          if (!request.isCurrent()) return;
           notification.error({
             message: formatMessage({ id: 'enterpriseColony.mgt.cluster.errorList' })
           });
+          this.scheduleNodeRefresh(item, getComponentPollingDelay({ failureCount: this.nodePollFailures }));
         })
       }
     });
@@ -217,6 +295,7 @@ class Index extends Component {
 
   // 节点状态操作 上线调度排空等
   editClusterNodeActive = (editActive, name, region_name) => {
+    const isCurrent = this.pollingGuard.checkpoint();
     const {
       dispatch,
       match: {
@@ -233,6 +312,7 @@ class Index extends Component {
         node_id: name
       },
       callback: res => {
+        if (!isCurrent()) return;
         if (res && res.status_code == 200) {
           notification.success({
             message: formatMessage({ id: 'enterpriseColony.mgt.cluster.editSuccess' })
@@ -241,6 +321,7 @@ class Index extends Component {
         }
       },
       handleError: () => {
+        if (!isCurrent()) return;
         notification.error({
           message: formatMessage({ id: 'enterpriseColony.mgt.cluster.editDefeated' })
         });
@@ -265,6 +346,9 @@ class Index extends Component {
   };
   // 获取 k8s dashboard
   fetDashboardList = (val) => {
+    if (!this.isCurrentRegion(val)) return;
+    const request = this.pollingGuard.begin('dashboard');
+    if (!request) return;
     const {
       dispatch,
       match: {
@@ -282,16 +366,19 @@ class Index extends Component {
         region_name: val.region_name,
       },
       callback: res => {
+        if (!request.complete()) return;
         this.setState({
           dashboardList: res.list,
           dashboardShow: true
         })
       },
       handleError: () => {
+        if (!request.complete()) return;
         this.setState({
           dashboardList: [],
           dashboardShow: true
         }, () => {
+          if (!request.isCurrent()) return;
           notification.error({
             message: formatMessage({ id: 'enterpriseColony.mgt.cluster.getRainbondList' })
           });

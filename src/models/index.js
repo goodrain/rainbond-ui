@@ -49,14 +49,14 @@ export default {
         }
       }
     },
-    *fetchOverview({ payload, callback, handleError }, { call, put }) {
+    *fetchOverview({ payload, callback, handleError, shouldApply }, { call, put }) {
       const response = yield call(getTeamRegionOverview, payload, handleError);
-      if (response) {
+      if (response && (!shouldApply || shouldApply())) {
         yield put({
           type: 'saveOverviewInfo',
           payload: response.bean,
         });
-        if (callback) {
+        if (callback && (!shouldApply || shouldApply())) {
           callback(response);
         }
       }

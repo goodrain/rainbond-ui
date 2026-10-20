@@ -13,7 +13,9 @@ import styles from './index.less';
 const {
   buildTeamEventTarget,
   getTeamEventServiceLabel,
+  shouldLoadTeamStorage,
 } = require('./helpers');
+const { createComponentPollingGuard } = require('../../../pages/Component/componentPolling');
 
 @connect(({ user, index, loading, global, teamControl, enterprise }) => ({
   currentUser: user.currentUser,
@@ -45,41 +47,124 @@ export default class EventList extends PureComponent {
       storageUsed: 0
     };
     this._isMounted = false;
+    this.eventRequestGeneration = 0;
+    this.storageRetryCount = 0;
+    this.scopeGuard = createComponentPollingGuard(() => this._isMounted, () => this.getScope());
+    this.storageGuard = createComponentPollingGuard(
+      () => this._isMounted && this.canLoadStorage(), () => this.getStorageIdentity()
+    );
   }
 
   componentDidMount() {
     this._isMounted = true;
+    this.scope = this.getScope();
     this.loadEvents();
     this.loadOverview();
   }
 
   componentWillUnmount() {
     this._isMounted = false;
+    this.scopeGuard.invalidate();
+    this.resetStorageRequest();
   }
+
+  componentDidUpdate() {
+    const permission = this.getOverviewPermission();
+    if (this.scope !== this.getScope()) {
+      this.scope = this.getScope();
+      this.scopeGuard.invalidate();
+      this.resetStorageRequest();
+      this.storageOverview = null;
+      this.storageLoadedKey = null;
+      this.setState({ page: 1, events: [], total: 0, storageUsed: 0, loadingOverview: true,
+        loadedOverview: false, teamOverviewPermission: permission }, () => {
+        this.loadEvents();
+        this.loadOverview();
+      });
+      return;
+    }
+    if (Boolean(this.state.teamOverviewPermission.isAccess) !== Boolean(permission.isAccess)) {
+      this.setState({ teamOverviewPermission: permission });
+    }
+    this.syncStorageRequest();
+  }
+
+  getScope = () => JSON.stringify([globalUtil.getCurrTeamName(), globalUtil.getCurrRegionName()]);
+  getOverviewPermission = () => newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'team_overview');
+  getStorageIdentity = () => JSON.stringify([this.getScope(), this.storageOverview && this.storageOverview.team_id]);
+  canLoadStorage = () => shouldLoadTeamStorage({
+    billingInstalled: PluginUtil.isInstallPlugin(this.props.pluginsList, 'rainbond-bill'),
+    canViewOverview: this.getOverviewPermission().isAccess,
+    overview: this.storageOverview
+  });
+  resetStorageRequest = () => {
+    this.storageGuard.invalidate();
+    clearTimeout(this.storageRetryTimer);
+    this.storageRetryTimer = null;
+    this.storageFailedKey = null;
+    this.storageRetryCount = 0;
+    this.storageEligible = false;
+    this.storageIdentity = null;
+  };
+  syncStorageRequest = () => {
+    if (!this._isMounted) return;
+    const identity = this.getStorageIdentity();
+    const eligible = this.canLoadStorage();
+    if (this.storageIdentity !== identity || this.storageEligible !== eligible) {
+      this.resetStorageRequest();
+      this.storageIdentity = identity;
+      this.storageEligible = eligible;
+    }
+    if (eligible && this.storageLoadedKey !== identity && this.storageFailedKey !== identity) {
+      this.getStorageUsed(this.storageOverview.team_id);
+    }
+  };
+  retryStorageRequest = request => {
+    this.storageFailedKey = this.getStorageIdentity();
+    this.storageRetryCount += 1;
+    // One delayed retry per eligibility/scope change. Re-renders do not retry a
+    // persistent failure or create an unbounded background request loop.
+    if (this.storageRetryCount === 1) {
+      this.storageRetryTimer = setTimeout(() => {
+        this.storageRetryTimer = null;
+        if (!request.isCurrent()) return;
+        this.storageFailedKey = null;
+        this.syncStorageRequest();
+      }, 10000);
+    }
+  };
 
   // 获取团队下的基本信息
   loadOverview = () => {
+    const request = this.scopeGuard.begin('overview');
+    if (!request) return;
     const { dispatch } = this.props;
     dispatch({
       type: 'index/fetchOverview',
+      shouldApply: request.isCurrent,
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         region_name: globalUtil.getCurrRegionName()
       },
       callback: res => {
-        if (!this._isMounted) return;
+        if (!request.complete()) return;
+        this.storageOverview = res && res.bean;
         if (res && res.bean && res.bean.region_health) {
           this.setState(
             { loadingOverview: false, loadedOverview: true },
             () => {
-              this.getStorageUsed(res.bean.team_id);
+              if (request.isCurrent()) this.syncStorageRequest();
             }
           );
         } else {
           this.handleCloseLoading();
+          this.syncStorageRequest();
         }
       },
       handleError: (err) => {
+        if (!request.complete()) return;
+        this.storageOverview = null;
+        this.syncStorageRequest();
         handleAPIError(err);
         if (this._isMounted) {
           this.handleCloseLoading();
@@ -90,22 +175,32 @@ export default class EventList extends PureComponent {
 
   // 获取存储实际占用
   getStorageUsed = (teamId) => {
+    if (!this.canLoadStorage() || teamId !== this.storageOverview.team_id) return;
+    const request = this.storageGuard.begin('storage');
+    if (!request) return;
+    const identity = this.getStorageIdentity();
     const { dispatch } = this.props;
     dispatch({
       type: 'global/fetchStorageUsed',
       payload: {
-        tenant_id: teamId
+        tenant_id: teamId,
+        region_name: globalUtil.getCurrRegionName()
       },
       callback: res => {
-        if (!this._isMounted) return;
+        if (!request.complete()) return;
         if (res && res.bean) {
+          this.storageLoadedKey = identity;
           this.setState({
             storageUsed: res.bean.used_storage
           });
+        } else {
+          this.retryStorageRequest(request);
         }
       },
       handleError: (err) => {
+        if (!request.complete()) return;
         handleAPIError(err);
+        this.retryStorageRequest(request);
       }
     });
   };
@@ -147,6 +242,9 @@ export default class EventList extends PureComponent {
 
   // 加载团队事件列表
   loadEvents = () => {
+    if (!this._isMounted) return;
+    const isCurrent = this.scopeGuard.checkpoint();
+    const generation = ++this.eventRequestGeneration;
     const { dispatch } = this.props;
     const { page, pageSize } = this.state;
 
@@ -158,6 +256,7 @@ export default class EventList extends PureComponent {
         page
       },
       callback: data => {
+        if (!isCurrent() || generation !== this.eventRequestGeneration) return;
         if (data) {
           this.setState({
             events: data.list || [],
@@ -166,6 +265,7 @@ export default class EventList extends PureComponent {
         }
       },
       handleError: err => {
+        if (!isCurrent() || generation !== this.eventRequestGeneration) return;
         handleAPIError(err);
       }
     });

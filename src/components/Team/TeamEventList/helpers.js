@@ -24,7 +24,12 @@ function getTeamEventServiceLabel(event) {
   return event.service_name || event.service_alias || event.message || '';
 }
 
+function shouldLoadTeamStorage({ billingInstalled, canViewOverview, overview } = {}) {
+  return Boolean(billingInstalled && canViewOverview && overview && overview.region_health && overview.team_id);
+}
+
 module.exports = {
   buildTeamEventTarget,
   getTeamEventServiceLabel,
+  shouldLoadTeamStorage,
 };
