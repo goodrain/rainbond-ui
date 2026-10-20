@@ -3,6 +3,7 @@ import { Button, Card, Col, Form, Input, Modal, notification, Row, Select, Spin,
 import { connect } from 'dva';
 import React, { PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
+import WebSearchConfig from './WebSearchConfig';
 
 const { Option } = Select;
 const FormItem = Form.Item;
@@ -281,6 +282,7 @@ class AgentConfig extends PureComponent {
             </div>
           </Form>
         </Card>
+        <WebSearchConfig match={this.props.match} dispatch={this.props.dispatch} />
       </Spin>
     );
   }
