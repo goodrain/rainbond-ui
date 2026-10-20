@@ -104,7 +104,7 @@ const normal = make();
 const normalTree = normal.render();
 assert.strictEqual(normalTree.type, antd.Modal);
 assert.strictEqual(normalTree.props.centered, true);
-assert.strictEqual(normalTree.props.width, 900);
+assert.strictEqual(normalTree.props.width, 780);
 assert.strictEqual(contentWithClass(normalTree, 'platformInfoCard').length, 4);
 assert.strictEqual(
   contentWithClass(normalTree, 'platformAllowedPluginGrid')[0].props.children
@@ -295,8 +295,11 @@ unmounted.setState = () => {
 finishUpdate(true);
 assert.strictEqual(lateStateUpdates, 0);
 const styles = fs.readFileSync(path.join(__dirname, 'index.less'), 'utf8');
+assert.ok(/\.platformInfoHeroIcon\s*\{\s*width: 42px;\s*height: 42px;/.test(styles));
+assert.ok(styles.includes('padding: 18px 60px 18px 20px;'));
+assert.ok(/\.platformInfoFooter :global\(\.ant-btn\) \{ height: 34px;/.test(styles));
 assert.ok(
-  /\.platformInfoModal[\s\S]*:global\(\.ant-modal-body\)[\s\S]*max-height: calc\(100vh - 250px\);[\s\S]*overflow-y: auto;/.test(
+  /\.platformInfoModal[\s\S]*:global\(\.ant-modal-body\)[\s\S]*max-height: min\(556px, calc\(100vh - 204px\)\);[\s\S]*overflow-y: auto;/.test(
     styles
   )
 );

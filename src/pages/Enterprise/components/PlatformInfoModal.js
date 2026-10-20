@@ -302,7 +302,7 @@ export default class PlatformInfoModal extends PureComponent {
         title={hero}
         onCancel={this.handleCancel}
         footer={footer}
-        width={900}
+        width={780}
         centered
         closable={!busy}
         maskClosable={!busy}
