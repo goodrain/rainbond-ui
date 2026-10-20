@@ -46,7 +46,7 @@ const enterpriseOverview = {
     'platformOverview.global.partialData': 'Incomplete data',
     'platformOverview.global.unavailable': 'Status unavailable',
     'platformOverview.scope.title': 'Current cluster',
-    'platformOverview.scope.description': 'Resources, metrics and services below belong to the selected cluster',
+    'platformOverview.scope.description': 'Resources, metrics and services follow this cluster',
     'platformOverview.scope.empty': 'No cluster available',
     'platformOverview.cluster.title': 'Cluster overview',
     'platformOverview.cluster.rainbondVersion': 'Rainbond version',

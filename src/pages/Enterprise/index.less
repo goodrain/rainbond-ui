@@ -514,43 +514,51 @@
 }
 
 .scopeBar {
-  min-height: 46px;
+  min-height: 56px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 14px;
-  padding: 6px 14px;
+  padding: 8px 14px;
+  border-color: fade(@primary-color, 16%);
+  box-shadow: @rbd-min-card-shadow;
 }
 
-.scopeBar > div {
+.scopeContext {
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
-.scopeBar strong,
-.scopeBar small {
-  display: inline;
+.scopeLabel {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
 }
 
-.scopeBar small {
-  margin-left: 10px;
+.scopeLabel strong {
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  font-weight: 500;
 }
 
-.scopeBar strong {
-  font-size: @rbd-content-size;
-}
-
-.scopeBar small {
-  color: @rbd-label-color;
+.scopeHint {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  color: @text-color-secondary;
   font-size: @rbd-auxiliary-size;
 }
 
 .scopeIcon {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
   display: grid;
   place-items: center;
   color: @primary-color;
@@ -559,9 +567,54 @@
 }
 
 .clusterSelect {
-  width: 240px;
-  flex: 0 0 auto;
+  width: 280px;
+  min-width: 0;
+  flex: 0 1 280px;
 }
+
+.clusterSelect :global(.ant-select-selection--single) {
+  height: 36px;
+  border-color: fade(@primary-color, 24%);
+  border-radius: 8px;
+  background: fade(@primary-color, 4%);
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+
+.clusterSelect :global(.ant-select-selection__rendered) {
+  margin-right: 32px;
+  margin-left: 12px;
+  line-height: 34px;
+}
+
+.clusterSelect :global(.ant-select-selection-selected-value) {
+  max-width: 100%;
+  color: @primary-color;
+  font-size: @rbd-content-size;
+  font-weight: 600;
+}
+
+.clusterSelect :global(.ant-select-arrow) { color: @primary-color; }
+.clusterSelect:hover :global(.ant-select-selection),
+.clusterSelect:global(.ant-select-focused) :global(.ant-select-selection) { border-color: @primary-color; }
+.clusterSelect:global(.ant-select-disabled) :global(.ant-select-selection) { border-color: @border-color-base; background: @rbd-background-color; }
+
+.clusterDropdown :global(.ant-select-dropdown-menu-item) { padding: 10px 12px; }
+.clusterDropdown :global(.ant-select-dropdown-menu-item-selected) { background: fade(@primary-color, 7%); }
+.clusterDropdown :global(.ant-select-dropdown-menu-item-active) { background: fade(@primary-color, 4%); }
+
+.clusterOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.clusterOption > :global(.anticon) { flex: 0 0 auto; color: @primary-color; }
+.clusterOption > span { min-width: 0; }
+.clusterOption strong,
+.clusterOption small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.clusterOption strong { color: @heading-color; font-size: @rbd-content-size; font-weight: 500; line-height: 20px; }
+.clusterOption small { margin-top: 2px; color: @text-color-secondary; font-size: @rbd-auxiliary-size; line-height: 18px; }
 
 .clusterOverview {
   display: grid;
@@ -881,10 +934,11 @@
 .chartSummary > strong small { margin-left: 5px; color: @text-color-secondary; font-size: @rbd-sub-title-size; }
 .chartSummary > span { color: @text-color-secondary; font-size: @rbd-auxiliary-size; }
 .chartSummary > span small { display: block; margin-top: 3px; color: @rbd-label-color; }
-.chartLegend { display: flex; align-items: center; justify-content: center; gap: 6px; color: @text-color-secondary; font-size: @rbd-auxiliary-size; }
-.chartLegend > i { width: 16px; height: 3px; background: @primary-color; border-radius: 2px; }
-.legendmemory > i { background: @success-color; }
-.legendnetwork > i { background: @warning-color; }
+.chartLegend { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px; color: @text-color-secondary; font-size: @rbd-auxiliary-size; }
+.chartLegend > .legendSwatch { flex: 0 0 16px; width: 16px; height: 3px; background: @primary-color; border-radius: 2px; }
+.chartLegend > :global(.anticon) { flex-shrink: 0; }
+.legendmemory > .legendSwatch { background: @success-color; }
+.legendnetwork > .legendSwatch { background: @warning-color; }
 .metricSource { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; margin-top: 13px; padding-top: 10px; border-top: 1px solid fade(@rbd-label-color, 18%); color: @text-color-secondary; font-size: (@rbd-auxiliary-size - 1px); }
 .metricSource small { font-size: inherit; }
 .metricSource em { color: @text-color-secondary; font-size: inherit; font-style: normal; }
@@ -1386,8 +1440,7 @@
     padding: 12px;
   }
 
-  .platformHeader,
-  .scopeBar {
+  .platformHeader {
     align-items: stretch;
     flex-direction: column;
   }
@@ -1404,11 +1457,8 @@
     margin: 0 18px 14px;
   }
 
-  .scopeBar {
-    gap: 9px;
-  }
-
-  .scopeBar small { display: block; margin-left: 0; }
+  .scopeContext { width: 100%; }
+  .scopeHint { display: none; }
 
   .clusterResources { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .resourceCard:nth-child(2),
@@ -1416,7 +1466,8 @@
   .resourceCard { border-bottom: 1px solid fade(@rbd-label-color, 18%); }
 
   .clusterSelect {
-    width: 100%;
+    width: auto;
+    flex: 1 1 0;
   }
 
   .clusterOverview.withClusterAlerts {

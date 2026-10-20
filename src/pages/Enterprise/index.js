@@ -49,9 +49,9 @@ function formatMemory(value) {
 export default class Enterprise extends PureComponent {
   state = {
     selectedRegion: '',
-    metric: 'cpu',
+    metric: 'memory',
     timeRange: '6h',
-    teamMetric: 'cpu',
+    teamMetric: 'memory',
     platformModalVisible: false,
     applicationModalVisible: false,
     gatewayModalVisible: false,
@@ -438,10 +438,28 @@ export default class Enterprise extends PureComponent {
     const clusters = (shell && shell.clusters) || [];
     return (
       <div className={styles.scopeBar}>
-        <div><span className={styles.scopeIcon}><Icon type="cluster" /></span><span><strong>{t('scope.title')}</strong><small>{t('scope.description')}</small></span></div>
-        <Select value={this.state.selectedRegion || undefined} placeholder={t('scope.empty')} onChange={this.handleClusterChange} disabled={!clusters.length} className={styles.clusterSelect}>
-          {clusters.map(cluster => <Option key={cluster.region_name} value={cluster.region_name}>{cluster.region_alias || cluster.region_name}</Option>)}
-        </Select>
+        <div className={styles.scopeContext}>
+          <span className={styles.scopeLabel}><span className={styles.scopeIcon}><Icon type="cluster" /></span><strong>{t('scope.title')}</strong></span>
+          <Select
+            aria-label={t('scope.title')}
+            value={this.state.selectedRegion || undefined}
+            placeholder={t('scope.empty')}
+            onChange={this.handleClusterChange}
+            disabled={!clusters.length}
+            showSearch={clusters.length > 5}
+            optionLabelProp="label"
+            optionFilterProp="searchText"
+            dropdownClassName={styles.clusterDropdown}
+            className={styles.clusterSelect}
+          >
+            {clusters.map(cluster => (
+              <Option key={cluster.region_name} value={cluster.region_name} label={cluster.region_alias || cluster.region_name} title={cluster.region_alias || cluster.region_name} searchText={`${cluster.region_alias || ''} ${cluster.region_name}`}>
+                <span className={styles.clusterOption}><Icon type="cluster" /><span><strong>{cluster.region_alias || cluster.region_name}</strong>{cluster.region_alias && cluster.region_alias !== cluster.region_name ? <small>{cluster.region_name}</small> : null}</span></span>
+              </Option>
+            ))}
+          </Select>
+        </div>
+        <small className={styles.scopeHint}><Icon type="info-circle" />{t('scope.description')}</small>
       </div>
     );
   }
@@ -523,15 +541,13 @@ export default class Enterprise extends PureComponent {
     const lastValue = points.length ? points[points.length - 1][1] : null;
     const units = { cpu: '%', memory: '%', network: 'B/s' };
     const current = metric === 'network' ? overviewData.formatThroughput(lastValue) : { value: displayNumber(lastValue), unit: '%' };
-    const source = currentMetrics && currentMetrics.source;
-    const sourceLabel = source === 'cadvisor_root' ? t('monitor.sourceCadvisor') : source === 'node_exporter' ? t('monitor.sourceNodeExporter') : t('monitor.sourceUnknown');
     const hasPoints = data && points.length > 0;
     const metricLabel = t(metric === 'network' ? 'monitor.networkTotal' : metric === 'memory' && currentMetrics && currentMetrics.semantics === 'host_memory_working_set' ? 'monitor.memoryWorkingSetRatio' : `monitor.${metric}Usage`);
     const unavailable = metricState.status === 'unavailable' || metricState.status === 'partial';
     return (
-      <OverviewModule title={t('monitor.title')} className={`${styles.monitorModule} ${!hasPoints ? styles.monitorEmpty : ''}`} loading={!errors.metrics && (metricState.status === 'loading' || (loading.metrics && !currentMetrics))} error={errors.metrics} onRetry={this.loadMetrics} extra={<div className={styles.monitorControls}><div className={styles.segmentedControl} role="group" aria-label={t('monitor.metricLabel')}>{['cpu', 'memory', 'network'].map(key => <button type="button" key={key} aria-pressed={metric === key} className={metric === key ? styles.segmentActive : ''} onClick={() => this.handleMetricChange(key)}>{t(`monitor.${key}`)}</button>)}</div><Select size="small" value={timeRange} onChange={this.handleRangeChange}>{['1h', '6h', '24h'].map(value => <Option key={value} value={value}>{value}</Option>)}</Select></div>}>
-        {hasPoints ? <React.Fragment><div className={styles.chartSummary}><strong>{current.value}<small>{current.unit}</small></strong><span>{metricLabel}<small>{t('monitor.latestSample')} · {moment(points[points.length - 1][0]).format('MM-DD HH:mm')}</small></span></div><ResourceTrend data={data} metric={metric} seriesLabel={metricLabel} unitLabel={units[metric]} emptyText={t('monitor.empty')} /><div className={`${styles.chartLegend} ${styles[`legend${metric}`]}`}><i />{metricLabel}{metric === 'network' ? <Tooltip title={t('monitor.networkDescription')}><Icon type="info-circle" /></Tooltip> : null}</div></React.Fragment> : currentMetrics && !errors.metrics ? <div className={styles.monitorEmptyState}><Icon type={unavailable ? 'disconnect' : 'area-chart'} /><strong>{t(unavailable ? 'monitor.unavailableTitle' : 'monitor.empty')}</strong><p>{t(unavailable ? 'monitor.unavailable' : 'monitor.emptyDescription')}</p><Button size="small" onClick={this.loadMetrics}>{t('common.retry')}</Button></div> : null}
-        {currentMetrics ? <div className={styles.metricSource}><span>{sourceLabel}</span><Tooltip title={t('monitor.coverageDescription')}><small><Icon type="info-circle" /> {t(currentMetrics.coverage === 'scrape_targets' ? 'monitor.scrapeCoverage' : 'monitor.unknownCoverage')}</small></Tooltip>{currentMetrics.semantics === 'host_memory_working_set' ? <em>{t('monitor.workingSet')}</em> : null}</div> : null}
+      <OverviewModule title={t('monitor.title')} className={`${styles.monitorModule} ${!hasPoints ? styles.monitorEmpty : ''}`} loading={!errors.metrics && (metricState.status === 'loading' || (loading.metrics && !currentMetrics))} error={errors.metrics} onRetry={this.loadMetrics} extra={<div className={styles.monitorControls}><div className={styles.segmentedControl} role="group" aria-label={t('monitor.metricLabel')}>{['memory', 'cpu', 'network'].map(key => <button type="button" key={key} aria-pressed={metric === key} className={metric === key ? styles.segmentActive : ''} onClick={() => this.handleMetricChange(key)}>{t(`monitor.${key}`)}</button>)}</div><Select size="small" value={timeRange} onChange={this.handleRangeChange}>{['1h', '6h', '24h'].map(value => <Option key={value} value={value}>{value}</Option>)}</Select></div>}>
+        {hasPoints ? <React.Fragment><div className={styles.chartSummary}><strong>{current.value}<small>{current.unit}</small></strong><span>{metricLabel}<small>{t('monitor.latestSample')} · {moment(points[points.length - 1][0]).format('MM-DD HH:mm')}</small></span></div><ResourceTrend data={data} metric={metric} seriesLabel={metricLabel} unitLabel={units[metric]} emptyText={t('monitor.empty')} /><div className={`${styles.chartLegend} ${styles[`legend${metric}`]}`}><span className={styles.legendSwatch} aria-hidden="true" />{metricLabel}{metric === 'network' ? <Tooltip title={t('monitor.networkDescription')}><Icon type="info-circle" /></Tooltip> : null}</div></React.Fragment> : currentMetrics && !errors.metrics ? <div className={styles.monitorEmptyState}><Icon type={unavailable ? 'disconnect' : 'area-chart'} /><strong>{t(unavailable ? 'monitor.unavailableTitle' : 'monitor.empty')}</strong><p>{t(unavailable ? 'monitor.unavailable' : 'monitor.emptyDescription')}</p><Button size="small" onClick={this.loadMetrics}>{t('common.retry')}</Button></div> : null}
+        {currentMetrics ? <div className={styles.metricSource}><Tooltip title={t('monitor.coverageDescription')}><small><Icon type="info-circle" /> {t(currentMetrics.coverage === 'scrape_targets' ? 'monitor.scrapeCoverage' : 'monitor.unknownCoverage')}</small></Tooltip>{currentMetrics.semantics === 'host_memory_working_set' ? <em>{t('monitor.workingSet')}</em> : null}</div> : null}
       </OverviewModule>
     );
   }
@@ -569,12 +585,12 @@ export default class Enterprise extends PureComponent {
     const list = (teams && teams[teamMetric]) || [];
     const max = list.length ? Number(list[0][field] || 0) : 0;
     const total = list.reduce((sum, team) => sum + (overviewData.isNumber(team[field]) ? Number(team[field]) : 0), 0);
-    const secondaryFields = ['cpu', 'memory', 'applications'].filter(key => key !== teamMetric);
+    const secondaryFields = ['memory', 'cpu', 'applications'].filter(key => key !== teamMetric);
     const fields = { cpu: 'cpu_cores', memory: 'memory_gib', applications: 'applications' };
     const units = { cpu: 'Core', memory: 'GiB', applications: t('common.countUnit') };
     return (
       <OverviewModule title={t('teams.title')} description={t('teams.description')} className={styles.halfModule} error={errors.cluster} onRetry={this.loadClusterSnapshot}>
-        {teams ? (list.length ? <div className={styles.teamRanking}><div className={styles.rankingToolbar}><span><Icon type="team" /><span><strong>{t('teams.topTotal', { count: list.length })} <em>{displayNumber(total, 2)} {unit}</em></strong><small>{t('teams.configuredDescription')}</small></span></span><div className={styles.segmentedControl} role="group" aria-label={t('teams.metricLabel')}>{['cpu', 'memory', 'applications'].map(key => <button type="button" key={key} aria-pressed={teamMetric === key} className={teamMetric === key ? styles.segmentActive : ''} onClick={() => this.setState({ teamMetric: key })}>{t(`teams.${key}`)}</button>)}</div></div>{list.map((team, index) => <button type="button" key={team.tenant_id} onClick={() => this.jump(`/team/${team.tenant_name}/region/${this.state.selectedRegion}/index`)}><span className={styles.rank}>{index + 1}</span><span className={styles.teamName}><span className={styles.teamLine}><strong>{team.tenant_alias || team.tenant_name}</strong><small>{secondaryFields.map(key => `${t(`teams.${key}`)} ${displayNumber(team[fields[key]], 1)} ${units[key]}`).join(' · ')}</small></span><span className={styles.teamTrack}><i style={{ width: `${max ? Number(team[field] || 0) * 100 / max : 0}%` }} /></span></span><span className={styles.teamValue}><strong>{displayNumber(team[field], 2)} <small>{unit}</small></strong><em>{t('teams.topShare', { count: list.length, percent: total ? displayNumber(Number(team[field] || 0) * 100 / total, 0) : 0 })}</em></span></button>)}</div> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('teams.empty')} />) : teamSection.status === 'loading' ? (!errors.cluster ? <Skeleton active paragraph={{ rows: 4 }} /> : null) : <Alert type="warning" showIcon message={t('teams.unavailable')} />}
+        {teams ? (list.length ? <div className={styles.teamRanking}><div className={styles.rankingToolbar}><span><Icon type="team" /><span><strong>{t('teams.topTotal', { count: list.length })} <em>{displayNumber(total, 2)} {unit}</em></strong><small>{t('teams.configuredDescription')}</small></span></span><div className={styles.segmentedControl} role="group" aria-label={t('teams.metricLabel')}>{['memory', 'cpu', 'applications'].map(key => <button type="button" key={key} aria-pressed={teamMetric === key} className={teamMetric === key ? styles.segmentActive : ''} onClick={() => this.setState({ teamMetric: key })}>{t(`teams.${key}`)}</button>)}</div></div>{list.map((team, index) => <button type="button" key={team.tenant_id} onClick={() => this.jump(`/team/${team.tenant_name}/region/${this.state.selectedRegion}/index`)}><span className={styles.rank}>{index + 1}</span><span className={styles.teamName}><span className={styles.teamLine}><strong>{team.tenant_alias || team.tenant_name}</strong><small>{secondaryFields.map(key => `${t(`teams.${key}`)} ${displayNumber(team[fields[key]], 1)} ${units[key]}`).join(' · ')}</small></span><span className={styles.teamTrack}><i style={{ width: `${max ? Number(team[field] || 0) * 100 / max : 0}%` }} /></span></span><span className={styles.teamValue}><strong>{displayNumber(team[field], 2)} <small>{unit}</small></strong><em>{t('teams.topShare', { count: list.length, percent: total ? displayNumber(Number(team[field] || 0) * 100 / total, 0) : 0 })}</em></span></button>)}</div> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('teams.empty')} />) : teamSection.status === 'loading' ? (!errors.cluster ? <Skeleton active paragraph={{ rows: 4 }} /> : null) : <Alert type="warning" showIcon message={t('teams.unavailable')} />}
       </OverviewModule>
     );
   }

@@ -46,7 +46,7 @@ const enterpriseOverview = {
     'platformOverview.global.partialData': '数据不完整',
     'platformOverview.global.unavailable': '状态不可用',
     'platformOverview.scope.title': '当前集群',
-    'platformOverview.scope.description': '以下资源、监控与服务数据均属于所选集群',
+    'platformOverview.scope.description': '资源、监控与服务随集群切换',
     'platformOverview.scope.empty': '暂无可用集群',
     'platformOverview.cluster.title': '集群概览',
     'platformOverview.cluster.rainbondVersion': 'Rainbond 版本',

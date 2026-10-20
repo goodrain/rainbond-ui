@@ -59,6 +59,17 @@ function metricChartPoints(metrics) {
   }, []);
 }
 
+function percentageAxisMax(points) {
+  const peak = (Array.isArray(points) ? points : []).reduce(
+    (maximum, point) => Array.isArray(point) && isNumber(point[1])
+      ? Math.max(maximum, Number(point[1]))
+      : maximum,
+    0
+  );
+  const upper = Math.max(10, Math.ceil(peak * 1.2 / 10) * 10);
+  return peak <= 100 ? Math.min(100, upper) : upper;
+}
+
 function runtimeSection(runtime, name) {
   if (!runtime) return { status: 'loading', data: null };
   if (runtime.status === 'unavailable' && name !== 'clusters') return { status: 'unavailable', data: null };
@@ -210,6 +221,7 @@ module.exports = {
   metricState,
   metricPoints,
   metricChartPoints,
+  percentageAxisMax,
   nodeAlertTranslation,
   pluginRuntimeState,
   pluginIcon,

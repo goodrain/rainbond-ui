@@ -84,7 +84,7 @@ export default class ResourceTrend extends PureComponent {
         yAxis: {
           type: 'value',
           min: 0,
-          max: metric === 'network' ? null : 100,
+          max: metric === 'network' ? null : overviewData.percentageAxisMax(points),
           axisLine: { show: false },
           axisTick: { show: false },
           axisLabel: {
