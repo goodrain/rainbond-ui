@@ -131,7 +131,9 @@ export default class EventList extends PureComponent {
   canLoadStorage = () => shouldLoadTeamStorage({
     billingInstalled: PluginUtil.isInstallPlugin(this.props.pluginsList, 'rainbond-bill'),
     canViewOverview: this.getOverviewPermission().isAccess,
-    overview: this.storageOverview
+    overview: !this.isOverviewShared() ||
+      getTeamOverviewData(this.props.overviewSnapshot, this.getScope()) === this.storageOverview
+      ? this.storageOverview : null
   });
   resetStorageRequest = () => {
     this.storageGuard.invalidate();

@@ -9,6 +9,7 @@ import ConfirmModal from '../../components/ConfirmModal';
 import TeamEventList from '../../components/Team/TeamEventList';
 import TeamMemberList from '../../components/Team/TeamMemberList';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import MenuContext from '../../layouts/MenuContext';
 import EnterprisePluginsPage from '../../components/EnterprisePluginsPage';
 import PluginListContent from '../Plugin/components/PluginListContent';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
@@ -22,6 +23,7 @@ import styles from './index.less';
 import MoveTeam from './move_team';
 
 const { isTeamOverviewResponse, getTeamOverviewData } = require('../../components/Team/TeamEventList/helpers');
+const { createTeamOverviewScope } = require('../../utils/teamOverviewBootstrap');
 
 @connect(({ user, teamControl, loading, enterprise }) => ({
   currUser: user.currentUser,
@@ -35,6 +37,8 @@ const { isTeamOverviewResponse, getTeamOverviewData } = require('../../component
   pluginsList: teamControl.pluginsList
 }))
 export default class Index extends PureComponent {
+  static contextType = MenuContext;
+
   constructor(arg) {
     super(arg);
     this.state = {
@@ -55,6 +59,7 @@ export default class Index extends PureComponent {
     this._isMounted = false;
     this.overviewGeneration = 0;
     this.overviewScope = null;
+    this.overviewIdentity = createTeamOverviewScope();
   }
 
   componentWillMount() {
@@ -84,7 +89,9 @@ export default class Index extends PureComponent {
   componentDidMount() {
     this._isMounted = true;
     this.props.dispatch({ type: 'teamControl/fetchAllPerm' });
-    this.loadOverview();
+    const loader = this.context && this.context.teamOverviewLoader;
+    const force = Boolean(loader && loader.beginVisit && loader.beginVisit());
+    this.loadOverview({ force });
   }
 
   componentDidUpdate(prevProps) {
@@ -98,8 +105,14 @@ export default class Index extends PureComponent {
     if (locationChanged || permissionsChanged || pluginListChanged) {
       this.syncViewState({ refreshOverview: locationChanged });
     }
-    if (this.overviewScope !== this.getOverviewScope()) {
-      this.loadOverview();
+    const identity = this.getOverviewIdentity();
+    if (this.overviewScope !== this.getOverviewScope() || this.activeOverviewIdentity !== identity) {
+      // A router can preserve this page instance while moving to another team.
+      // Register that visit too, so a later real remount is a refresh rather
+      // than being mistaken for the new team's first late bootstrap consumer.
+      const loader = this.context && this.context.teamOverviewLoader;
+      if (identity && loader && loader.beginVisit) loader.beginVisit();
+      this.loadOverview({ force: false });
     }
   }
 
@@ -214,29 +227,55 @@ export default class Index extends PureComponent {
   // 获取团队基本信息
   getOverviewScope = () => JSON.stringify([globalUtil.getCurrTeamName(), globalUtil.getCurrRegionName()]);
 
-  loadOverview = () => {
+  getOverviewIdentity = () => {
+    const { currUser, currentTeam, currentTeamPermissionsInfo } = this.props;
+    const identity = this.overviewIdentity({
+      teamName: globalUtil.getCurrTeamName(),
+      regionName: globalUtil.getCurrRegionName(),
+      userId: currUser && currUser.user_id,
+      enterpriseId: currUser && currUser.enterprise_id,
+      isEnterpriseAdmin: currUser && currUser.is_enterprise_admin,
+      userRoles: currUser && currUser.roles,
+      // Standalone pages retain their existing permission-hydration behavior;
+      // the layout-owned path additionally rejects true known-scope changes.
+      permissions: this.context && this.context.teamOverviewLoader &&
+        (!currentTeam || currentTeam.team_name === globalUtil.getCurrTeamName()) &&
+        currentTeamPermissionsInfo ? currentTeamPermissionsInfo.team : null
+    });
+    if (this.context && this.context.teamOverviewLoader &&
+      (!currUser || currUser.user_id === undefined || currUser.user_id === null || currUser.user_id === '')) return '';
+    return identity;
+  };
+
+  loadOverview = ({ force = true } = {}) => {
     if (!this._isMounted) return;
     const { dispatch } = this.props;
     const scope = this.getOverviewScope();
+    const identity = this.getOverviewIdentity();
+    const overviewLoader = this.context && this.context.teamOverviewLoader;
     const generation = ++this.overviewGeneration;
     this.overviewScope = scope;
+    this.activeOverviewIdentity = identity;
     const isCurrent = () => this._isMounted && generation === this.overviewGeneration &&
-      scope === this.getOverviewScope();
+      scope === this.getOverviewScope() && identity === this.getOverviewIdentity();
     let settled = false;
     const finish = (response, error) => {
       if (settled || !isCurrent()) return;
       settled = true;
       const success = isTeamOverviewResponse(response);
       this.setState({
-        overviewSnapshot: { scope, generation, status: success ? 'success' : 'error', response: success ? response : null }
+        overviewSnapshot: { scope, generation, isCurrent, status: success ? 'success' : 'error', response: success ? response : null }
       });
-      if (error) handleAPIError(error);
+      // The layout is the sole error-notification owner for shared reads.
+      if (error && !overviewLoader) handleAPIError(error);
     };
     this.setState({
-      overviewSnapshot: { scope, generation, status: 'pending', response: null }
+      overviewSnapshot: { scope, generation, isCurrent, status: 'pending', response: null }
     });
     const pending = dispatch({
       type: 'index/fetchOverview',
+      overviewLoader,
+      forceOverview: force,
       shouldApply: () => !settled && isCurrent(),
       payload: {
         team_name: globalUtil.getCurrTeamName(),
@@ -302,7 +341,9 @@ export default class Index extends PureComponent {
   handleEditName = data => {
     const { dispatch } = this.props;
     const scope = this.getOverviewScope();
-    const isCurrent = () => this._isMounted && scope === this.getOverviewScope();
+    const identity = this.getOverviewIdentity();
+    const isCurrent = () => this._isMounted && scope === this.getOverviewScope() &&
+      identity === this.getOverviewIdentity();
     dispatch({
       type: 'teamControl/editTeamAlias',
       payload: {

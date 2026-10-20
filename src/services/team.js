@@ -308,8 +308,21 @@ export async function getTeamRegionOverview(
     team_name,
     region_name
   },
-  handleError
+  handleError,
+  { skipDedup = false } = {}
 ) {
+  // A mounted TeamLayout already shares its bootstrap. Its explicit refresh
+  // or changed principal must never inherit another generation's HTTP Promise.
+  if (skipDedup) {
+    return request(
+      `${apiconfig.baseUrl}/console/teams/${body.team_name}/overview`,
+      {
+        showLoading: false,
+        params: { region_name: body.region_name },
+        ...(handleError ? { handleError } : {})
+      }
+    );
+  }
   const hasHandleError = Boolean(handleError);
   const requestKey = JSON.stringify([
     body.team_name,

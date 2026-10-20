@@ -40,6 +40,21 @@ const getTeamOverviewEffectSource = sourceBetween(
   '    *getTeamOverview(',
   '    *syncMarketAppDetail('
 );
+const teamLayoutDidUpdateSource = sourceBetween(
+  teamLayoutSource,
+  '  componentDidUpdate(prevProps) {',
+  '  componentWillUnmount() {'
+);
+const sharedTeamOverviewSource = sourceBetween(
+  teamLayoutSource,
+  '  loadSharedTeamOverview =',
+  '  getTeamOverview ='
+);
+const teamOverviewIdentitySource = sourceBetween(
+  teamLayoutSource,
+  '  getTeamOverviewIdentity =',
+  '  loadSharedTeamOverview ='
+);
 
 assert.ok(
   /componentDidMount\(\)\s*\{\s*this\._isMounted\s*=\s*true;\s*this\.loadHotApp\(\);/.test(teamBasicInfoSource),
@@ -124,28 +139,32 @@ assert.ok(
 );
 
 assert.ok(
-  /this\.teamOverviewRequestKeys\s*=\s*new Set\(\);/.test(teamLayoutSource) &&
+  /this\.teamOverviewBootstrap\s*=\s*createTeamOverviewBootstrap\(/.test(teamLayoutSource) &&
+    /this\.teamOverviewScope\s*=\s*createTeamOverviewScope\(\)/.test(teamLayoutSource) &&
     /this\.lastInitializedTeamOverviewKey\s*=\s*'';/.test(teamLayoutSource) &&
     /this\._isUnmounted\s*=\s*false;/.test(teamLayoutSource),
-  'TeamLayout should track in-flight and last-successful overview request keys'
+  'TeamLayout should own the shared bootstrap, identity scope and one-time successful initialization'
 );
 
 assert.ok(
-  /getTeamOverviewRequestKey\s*=\s*params\s*=>/.test(teamLayoutSource) &&
-    /isCurrentTeamOverviewRequest\s*=\s*key\s*=>/.test(teamLayoutSource),
-  'TeamLayout should expose request-key and current-route helpers'
+  /identity\s*=>\s*!this\._isUnmounted\s*&&\s*identity\s*===\s*this\.getTeamOverviewIdentity\(\)/.test(teamLayoutSource) &&
+    /userId:[\s\S]*?enterpriseId:[\s\S]*?isEnterpriseAdmin:[\s\S]*?userRoles:[\s\S]*?permissions:/.test(teamOverviewIdentitySource),
+  'the mounted owner should validate user, enterprise, permissions and route identity before accepting shared results'
 );
 
 assert.ok(
-  /this\.getTeamOverview\(nextParams\);/.test(teamLayoutReceivePropsSource),
-  'route changes should start the next team overview with captured next params'
+  !/this\.load\(|this\.getTeamOverview\(/.test(teamLayoutReceivePropsSource) &&
+    /if\s*\(routeChanged\)\s*this\.load\(\);/.test(teamLayoutDidUpdateSource) &&
+    /identity\s*&&\s*\(this\.activeTeamOverviewIdentity\s*!==\s*identity\s*\|\|\s*routeChanged\)/.test(teamLayoutDidUpdateSource) &&
+    /this\.getTeamOverview\(\);/.test(teamLayoutDidUpdateSource),
+  'route and known identity changes should read only after this.props belongs to the updated owner'
 );
 
 assert.ok(
-  /getTeamOverview\s*=\s*params\s*=>/.test(getTeamOverviewSource) &&
-    /const overviewParams\s*=\s*params\s*\|\|\s*\(this\.props\.match\s*&&\s*this\.props\.match\.params\)\s*\|\|\s*\{\};/.test(getTeamOverviewSource) &&
-    /const \{ teamName, regionName \}\s*=\s*overviewParams;[\s\S]*?const requestKey\s*=\s*this\.getTeamOverviewRequestKey\(overviewParams\);/.test(getTeamOverviewSource),
-  'getTeamOverview should accept optional captured params and default to current props'
+  /payload\.team_name\s*!==\s*params\.teamName\s*\|\|\s*payload\.region_name\s*!==\s*params\.regionName/.test(sharedTeamOverviewSource) &&
+    /this\.teamOverviewBootstrap\.load\(identity,\s*payload,\s*\{\s*force\s*\}\)/.test(sharedTeamOverviewSource) &&
+    /this\.loadSharedTeamOverview\(\{\s*team_name:\s*params\.teamName,\s*region_name:\s*params\.regionName/.test(getTeamOverviewSource),
+  'layout reads should use the current route and share its exact bootstrap while rejecting mismatched consumers'
 );
 
 assert.ok(
@@ -154,44 +173,50 @@ assert.ok(
 );
 
 assert.ok(
-  /if \(\s*!requestKey\s*\|\|\s*this\.teamOverviewRequestKeys\.has\(requestKey\)\s*\|\|\s*this\.lastInitializedTeamOverviewKey\s*===\s*requestKey\s*\)\s*\{\s*return;\s*\}/.test(teamLayoutSource) &&
-    /this\.teamOverviewRequestKeys\.add\(requestKey\);[\s\S]*?if\s*\(isSaas\)\s*\{\s*this\.fetchTeamDetails\(\);/.test(getTeamOverviewSource),
-  'TeamLayout should deduplicate before SaaS details and overview dispatches'
+  /this\.requestSharedTeamOverview,/.test(teamLayoutSource) &&
+    /if\s*\(isSaas\s*&&\s*this\.saasTeamOverviewIdentity\s*!==\s*identity\)\s*\{\s*this\.saasTeamOverviewIdentity\s*=\s*identity;\s*this\.fetchTeamDetails\(\);/.test(getTeamOverviewSource) &&
+    /teamOverviewLoader:\s*this\.loadSharedTeamOverview/.test(teamLayoutSource),
+  'the shared owner should deduplicate before the SaaS side effect and expose its loader through the page context'
 );
 
 assert.ok(
-  /const finalizeRequest\s*=\s*\(\)\s*=>\s*\{\s*this\.teamOverviewRequestKeys\.delete\(requestKey\);\s*\};/.test(getTeamOverviewSource) &&
-    /const dispatchResult\s*=\s*dispatch\(/.test(getTeamOverviewSource) &&
-    /dispatchResult\.then\(finalizeRequest,\s*finalizeRequest\);/.test(getTeamOverviewSource),
-  'TeamLayout should unconditionally finalize its own key when the dispatch task settles'
+  /let settled\s*=\s*false;/.test(getTeamOverviewSource) &&
+    /const fail\s*=\s*error\s*=>\s*\{\s*if\s*\(settled\)\s*return;\s*settled\s*=\s*true;\s*reject\(/.test(getTeamOverviewSource) &&
+    /dispatchResult\.then\(\(\)\s*=>\s*\{\s*if\s*\(!settled\)\s*fail\(\);\s*\},\s*fail\);/.test(getTeamOverviewSource),
+  'each owned transport should settle consumers once, including dispatches that finish without callbacks'
 );
 
 assert.ok(
-  /shouldSave:\s*\(\)\s*=>\s*!this\._isUnmounted\s*&&\s*this\.isCurrentTeamOverviewRequest\(requestKey\)/.test(getTeamOverviewSource),
-  'TeamLayout should prevent stale and unmounted overview responses from updating shared state'
+  /shouldSave:\s*response\s*=>\s*isCurrent\(\)\s*&&\s*isTeamOverviewResponse\(response\)/.test(getTeamOverviewSource) &&
+    /skipOverviewDedup:\s*true/.test(getTeamOverviewSource),
+  'owned requests should gate shared store writes and isolate refreshed transport from the old service pending pool'
 );
 
 assert.ok(
-  /\{\s*payload,\s*callback,\s*handleError,\s*shouldSave\s*\}/.test(getTeamOverviewEffectSource) &&
-    /const data\s*=\s*yield call\(getTeamOverview,\s*payload,\s*handleError\);[\s\S]*?if\s*\(data\s*&&\s*\(!shouldSave\s*\|\|\s*shouldSave\(data\)\)\)\s*\{\s*yield put\(\{\s*type:\s*'saveTeamOverview',\s*payload:\s*data\.bean\s*\}\);\s*\}[\s\S]*?if\s*\(data\s*&&\s*callback\)\s*\{\s*callback\(data\);\s*\}/.test(getTeamOverviewEffectSource),
-  'global getTeamOverview should gate reducer writes before put while always retaining data callbacks'
+  /\{\s*payload,\s*callback,\s*handleError,\s*shouldSave,\s*skipOverviewDedup\s*\}/.test(getTeamOverviewEffectSource) &&
+    /yield call\(getTeamOverview,\s*payload,\s*handleError,\s*\{\s*skipDedup:\s*true\s*\}\)/.test(getTeamOverviewEffectSource) &&
+    /yield call\(getTeamOverview,\s*payload,\s*handleError\)/.test(getTeamOverviewEffectSource) &&
+    /if\s*\(data\s*&&\s*\(!shouldSave\s*\|\|\s*shouldSave\(data\)\)\)\s*\{\s*yield put\(\{\s*type:\s*'saveTeamOverview',\s*payload:\s*data\.bean\s*\}\);\s*\}[\s\S]*?if\s*\(data\s*&&\s*callback\)\s*\{\s*callback\(data\);\s*\}/.test(getTeamOverviewEffectSource),
+  'global overview should preserve legacy calls and callbacks, isolate owned transport, and gate reducer writes before put'
 );
 
 assert.ok(
-  /callback:\s*res\s*=>\s*\{\s*finalizeRequest\(\);\s*if\s*\(this\._isUnmounted\s*\|\|\s*!this\.isCurrentTeamOverviewRequest\(requestKey\)\)\s*\{\s*return;\s*\}[\s\S]*?status_code\s*===\s*200[\s\S]*?this\.lastInitializedTeamOverviewKey\s*=\s*requestKey;[\s\S]*?sessionStorage\.setItem[\s\S]*?this\.fetchPipePipeline\(res\.bean\.eid\)[\s\S]*?this\.fetchEnterpriseInfo\(res\.bean\.eid\)/.test(getTeamOverviewSource),
-  'TeamLayout should clean its own key and suppress stale-success side effects before initializing the current route'
+  /callback:\s*res\s*=>\s*\{\s*if\s*\(settled\)\s*return;[\s\S]*?!isTeamOverviewResponse\(res\)[\s\S]*?settled\s*=\s*true;\s*succeed\(res\);\s*if\s*\(!isCurrent\(\)\)\s*return;[\s\S]*?sessionStorage\.setItem[\s\S]*?lastInitializedTeamOverviewKey\s*===\s*identity[\s\S]*?lastInitializedTeamOverviewKey\s*=\s*identity[\s\S]*?if\s*\(!isCurrent\(\)\)\s*return;\s*this\.fetchPipePipeline\(res\.bean\.eid\);\s*this\.fetchEnterpriseInfo\(res\.bean\.eid\)/.test(getTeamOverviewSource),
+  'valid current successes should retain session/plugin/enterprise initialization while suppressing stale or repeated side effects'
 );
 
 assert.ok(
-  /handleError:\s*err\s*=>\s*\{\s*finalizeRequest\(\);\s*if\s*\(this\._isUnmounted\s*\|\|\s*!this\.isCurrentTeamOverviewRequest\(requestKey\)\)\s*\{\s*return;\s*\}[\s\S]*?notification\.warning/.test(getTeamOverviewSource),
-  'TeamLayout should clean its own key and suppress stale-error warnings and redirects'
+  /const fail\s*=\s*error\s*=>\s*\{[\s\S]*?reject\([\s\S]*?if\s*\(!isCurrent\(\)\)\s*return;[\s\S]*?10411[\s\S]*?10412[\s\S]*?notification\.warning[\s\S]*?routerRedux\.push/.test(getTeamOverviewSource) &&
+    /handleError:\s*fail/.test(getTeamOverviewSource),
+  'the single owner should suppress stale errors while preserving current 10411/10412 warnings and redirects'
 );
 
 assert.ok(
-  /componentWillUnmount\(\)\s*\{\s*this\._isUnmounted\s*=\s*true;\s*this\.teamOverviewRequestKeys\.clear\(\);\s*\}/.test(teamLayoutSource) &&
+  /componentWillUnmount\(\)\s*\{\s*this\._isUnmounted\s*=\s*true;\s*this\.teamOverviewBootstrap\.dispose\(\);\s*\}/.test(teamLayoutSource) &&
     /componentDidMount\(\)\s*\{\s*this\._isUnmounted\s*=\s*false;/.test(teamLayoutSource) &&
-    !/handleError:[\s\S]{0,600}lastInitializedTeamOverviewKey\s*=/.test(getTeamOverviewSource),
-  'TeamLayout should clear requests on unmount while leaving current-route failures retryable'
+    /\{\s*force\s*=\s*false\s*\}/.test(sharedTeamOverviewSource) &&
+    !/const fail[\s\S]*?lastInitializedTeamOverviewKey\s*=/.test(sourceBetween(getTeamOverviewSource, '    const fail =', '    const dispatchResult =')),
+  'unmount should dispose the shared owner; explicit force remains available and failures never mark successful initialization'
 );
 
 console.log('team basic info request chain tests passed');

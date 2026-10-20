@@ -49,14 +49,24 @@ export default {
         }
       }
     },
-    *fetchOverview({ payload, callback, handleError, shouldApply }, { call, put }) {
-      const response = yield call(getTeamRegionOverview, payload, handleError);
-      if (response && (!shouldApply || shouldApply())) {
+    *fetchOverview({ payload, callback, handleError, shouldApply, overviewLoader, forceOverview }, { call, put }) {
+      let response;
+      try {
+        response = overviewLoader
+          ? yield call(overviewLoader, payload, { force: Boolean(forceOverview) })
+          : yield call(getTeamRegionOverview, payload, handleError);
+      } catch (error) {
+        if (handleError && (!shouldApply || shouldApply())) handleError(error);
+        return;
+      }
+      const canApply = () => (!shouldApply || shouldApply()) &&
+        (!overviewLoader || !overviewLoader.isCurrent || overviewLoader.isCurrent(response));
+      if (response && canApply()) {
         yield put({
           type: 'saveOverviewInfo',
           payload: response.bean,
         });
-        if (callback && (!shouldApply || shouldApply())) {
+        if (callback && canApply()) {
           callback(response);
         }
       }

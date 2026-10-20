@@ -440,8 +440,10 @@ export async function authEnterprise(body = {}, handleError) {
 }
 
 /* 获取当前团队的企业ID */
-export async function getTeamOverview(body = {}, handleError) {
-  return getSharedTeamRegionOverview(body, handleError);
+export async function getTeamOverview(body = {}, handleError, options) {
+  return options
+    ? getSharedTeamRegionOverview(body, handleError, options)
+    : getSharedTeamRegionOverview(body, handleError);
 }
 
 /* 创建升级任务 */

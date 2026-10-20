@@ -5,6 +5,7 @@ const test = require('node:test');
 const parser = require('@babel/parser');
 const helpers = require('../../components/Team/TeamEventList/helpers');
 const pollingHelpers = require('../Component/componentPolling');
+const bootstrapHelpers = require('../../utils/teamOverviewBootstrap');
 
 function productionMethods(file) {
   const source = fs.readFileSync(file, 'utf8');
@@ -54,7 +55,7 @@ function harness({ standalone = false, billing = false, permission = false, even
     isAccess: type === 'team_overview' ? !!team?.allowed : type === 'team_dynamic' ? team?.dynamic !== false : true
   });
   const dependencies = {
-    PureComponent, ...helpers, ...pollingHelpers,
+    PureComponent, ...helpers, ...pollingHelpers, ...bootstrapHelpers, MenuContext: {},
     TeamImg: 'default-team-logo',
     roleUtil: { queryPermissionsInfo },
     newRole: { queryPermissionsInfo },

@@ -445,8 +445,10 @@ export default {
         callback(data);
       }
     },
-    *getTeamOverview({ payload, callback, handleError, shouldSave }, { call, put }) {
-      const data = yield call(getTeamOverview, payload, handleError);
+    *getTeamOverview({ payload, callback, handleError, shouldSave, skipOverviewDedup }, { call, put }) {
+      const data = skipOverviewDedup
+        ? yield call(getTeamOverview, payload, handleError, { skipDedup: true })
+        : yield call(getTeamOverview, payload, handleError);
       if (data && (!shouldSave || shouldSave(data))) {
         yield put({ type: 'saveTeamOverview', payload: data.bean });
       }
