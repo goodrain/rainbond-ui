@@ -59,6 +59,11 @@ const BASE_LABELS = {
   rainbond_query_regions: '查询集群列表',
   rainbond_query_teams: '查询团队列表',
 
+  // Web / skills
+  web_search: '联网搜索',
+  web_fetch: '抓取网页',
+  read_skill_module: '读取技能模块',
+
   // Creation
   rainbond_create_app: '创建应用',
   rainbond_create_app_from_snapshot_version: '从快照创建应用',
@@ -272,6 +277,9 @@ function humanizeUnknownTool(toolName) {
 function formatToolLabel(toolName, input) {
   if (!toolName) {
     return '工具调用';
+  }
+  if (toolName.startsWith('select_skill_')) {
+    return `选择技能 ${toolName.slice('select_skill_'.length)}`;
   }
   const refined = refineByOperation(toolName, input);
   if (refined) {
