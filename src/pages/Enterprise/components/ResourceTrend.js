@@ -52,9 +52,7 @@ export default class ResourceTrend extends PureComponent {
     const color = COLORS[metric] || COLORS.cpu;
     this.chart.setOption(
       {
-        animation: !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches),
-        animationDuration: 260,
-        animationDurationUpdate: 160,
+        animation: false,
         grid: { top: 22, right: 18, bottom: 32, left: metric === 'network' ? 66 : 46 },
         tooltip: {
           trigger: 'axis',
@@ -98,6 +96,7 @@ export default class ResourceTrend extends PureComponent {
         },
         series: [
           {
+            id: 'overview-resource',
             type: 'line',
             name: seriesLabel,
             data: points,
@@ -130,7 +129,7 @@ export default class ResourceTrend extends PureComponent {
               }
             ]
       },
-      true
+      false
     );
   };
 

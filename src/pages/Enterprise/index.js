@@ -147,7 +147,11 @@ export default class Enterprise extends PureComponent {
   getCurrentMetrics = () => {
     const { metrics, contexts } = this.props.overview;
     const { selectedRegion, metric, timeRange } = this.state;
-    return contexts.metrics === `${selectedRegion}|${metric}|${timeRange}` ? metrics : null;
+    const context = `${selectedRegion}|${metric}|${timeRange}`;
+    if (contexts.metrics === context) return metrics;
+    // Keep the displayed range until its replacement arrives; never reuse another cluster or metric.
+    const sameMetric = typeof contexts.metrics === 'string' && contexts.metrics.startsWith(`${selectedRegion}|${metric}|`);
+    return sameMetric && overviewData.metricState(metrics).points.length ? metrics : null;
   };
 
   loadPlatformData = () => {

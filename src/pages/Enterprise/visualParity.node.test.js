@@ -25,6 +25,39 @@ new Function('require', 'module', 'exports', code)(name => {
   return require(name);
 }, result, result.exports);
 const page = new result.exports.default({ overview: { loading: {}, errors: {} } });
+const oldMetrics = { status: 'ok', series: [{ values: [[100, 20]] }] };
+const switching = new result.exports.default({ overview: { metrics: oldMetrics, contexts: { metrics: 'cluster-a|memory|6h' }, loading: { metrics: true }, errors: {} } });
+switching.state = { ...switching.state, selectedRegion: 'cluster-a', metric: 'memory', timeRange: '24h' };
+assert.strictEqual(switching.getCurrentMetrics(), oldMetrics, 'range switch keeps existing curve until the replacement is available');
+switching.state.metric = 'cpu';
+assert.strictEqual(switching.getCurrentMetrics(), null, 'another metric must not borrow the old curve');
+switching.state.metric = 'memory'; switching.state.selectedRegion = 'cluster-b';
+assert.strictEqual(switching.getCurrentMetrics(), null, 'another cluster must not borrow the old curve');
+switching.state.selectedRegion = 'cluster-a';
+const replacement = { status: 'ok', series: [{ values: [[200, 40]] }] };
+switching.props = { overview: { ...switching.props.overview, metrics: replacement, contexts: { metrics: 'cluster-a|memory|24h' }, loading: { metrics: false } } };
+assert.strictEqual(switching.getCurrentMetrics(), replacement);
+switching.props = { overview: { ...switching.props.overview, metrics: { status: 'unavailable', series: [] } } };
+assert.strictEqual(switching.getCurrentMetrics().status, 'unavailable', 'an unavailable response replaces the old graph honestly');
+const chartModule = { exports: {} };
+const chartSource = fs.readFileSync(path.join(__dirname, 'components/ResourceTrend.js'), 'utf8');
+const chartCode = esbuild.transformSync(chartSource, { loader: 'jsx', format: 'cjs', target: 'es2017' }).code;
+new Function('require', 'module', 'exports', chartCode)(name => {
+  if (name === '../overviewData') return data;
+  if (name === '../index.less') return {};
+  if (name === '../../../../config/theme') return require('../../../config/theme');
+  return require(name);
+}, chartModule, chartModule.exports);
+const trend = new chartModule.exports.default({ data: oldMetrics, metric: 'memory' });
+const updates = [];
+trend.chart = { setOption: (option, notMerge) => updates.push({ option, notMerge }) };
+trend.echarts = { graphic: { LinearGradient: function Gradient() {} } };
+trend.updateChart();
+trend.props = { ...trend.props, data: replacement };
+trend.updateChart();
+assert.ok(updates.every(update => update.notMerge === false && update.option.animation === false));
+assert.strictEqual(updates[0].option.series[0].id, updates[1].option.series[0].id);
+assert.deepStrictEqual(updates[1].option.series[0].data, [[200000, 40]]);
 const runtimeStatus = result.exports.clusterRuntimeStatus;
 const healthySnapshot = () => ({ sections: {
   // Console _normalize_nodes returns no data.status; availability lives on the envelope.
