@@ -158,6 +158,7 @@ import {
   disableSourceCodeScan
 } from '../services/app';
 import { getGroupApps } from '../services/application';
+import { captureTopologyOperation } from '../utils/topologyRefresh';
 import { addCertificate, getCertificates } from '../services/team';
 import {
   captureAppOperation,
@@ -331,8 +332,10 @@ export default {
       }
     },
     *putDeploy({ payload, callback, handleError }, { call }) {
+      const refreshTopology = captureTopologyOperation(payload);
       captureAppOperation('deploy', 'started', buildAppControlProperties(payload));
       const response = yield call(deploy, payload, handleError);
+      refreshTopology(response);
       if (response) {
         trackOperationSucceeded('deploy', payload, response);
       }
@@ -341,8 +344,10 @@ export default {
       }
     },
     *putUpgrade({ payload, callback, handleError }, { call }) {
+      const refreshTopology = captureTopologyOperation(payload);
       captureAppOperation('upgrade', 'started', buildAppControlProperties(payload));
       const response = yield call(upgrade, payload, handleError);
+      refreshTopology(response);
       if (response) {
         trackOperationSucceeded('upgrade', payload, response);
       }
@@ -361,13 +366,17 @@ export default {
       }
     },
     *putBatchStart({ payload, callback, handleError }, { call }) {
+      const refreshTopology = captureTopologyOperation(payload);
       const response = yield call(batchStart, payload, handleError);
+      refreshTopology(response);
       if (response && callback) {
         callback(response);
       }
     },
     *putBbatchStop({ payload, callback, handleError }, { call }) {
+      const refreshTopology = captureTopologyOperation(payload);
       const response = yield call(batchStop, payload, handleError);
+      refreshTopology(response);
       if (response && callback) {
         callback(response);
       }
@@ -379,8 +388,10 @@ export default {
       }
     },
     *putReStart({ payload, callback, handleError }, { call }) {
+      const refreshTopology = captureTopologyOperation(payload);
       captureAppOperation('restart', 'started', buildAppControlProperties(payload));
       const response = yield call(restart, payload, handleError);
+      refreshTopology(response);
       if (response) {
         trackOperationSucceeded('restart', payload, response);
       }
@@ -389,8 +400,10 @@ export default {
       }
     },
     *putStart({ payload, callback, handleError }, { call }) {
+      const refreshTopology = captureTopologyOperation(payload);
       captureAppOperation('start', 'started', buildAppControlProperties(payload));
       const response = yield call(start, payload, handleError);
+      refreshTopology(response);
       if (response) {
         trackOperationSucceeded('start', payload, response);
       }
@@ -399,8 +412,10 @@ export default {
       }
     },
     *putStop({ payload, callback, handleError }, { call }) {
+      const refreshTopology = captureTopologyOperation(payload);
       captureAppOperation('stop', 'started', buildAppControlProperties(payload));
       const response = yield call(stop, payload, handleError);
+      refreshTopology(response);
       if (response) {
         trackOperationSucceeded('stop', payload, response);
       }
@@ -1379,8 +1394,10 @@ export default {
     },
     // 组件批量操作
     *batchOperation({ payload, callback, handleError }, { call }) {
+      const refreshTopology = captureTopologyOperation(payload);
       captureAppOperation(payload && payload.action ? payload.action : 'batch_operation', 'started', buildAppControlProperties(payload));
       const response = yield call(batchOperation, payload, handleError);
+      refreshTopology(response);
       if (response) {
         trackOperationSucceeded(payload && payload.action ? payload.action : 'batch_operation', payload, response);
       }
