@@ -8,6 +8,8 @@ const login = {
     'login.loginComponent.register':'注册账户',
     'login.loginComponent.title':'登录',
     'login.loginComponent.subtitle':'欢迎回来，请登录您的账户',
+    'login.loginComponent.tab.account':'账号密码',
+    'login.loginComponent.tab.mobile':'手机验证码',
     'login.loginComponent.username.label':'用户名',
     'login.loginComponent.password.label':'密码',
     'login.loginComponent.noAccount':'还没有账户？',

@@ -6,103 +6,176 @@ import styles from '../CreateTeam/index.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
+const ALIYUN_ROLE_ARN_PATTERN = /^acs:ram::[0-9]+:role\/[A-Za-z0-9._-]+$/;
+const VOLCANO_ROLE_TRN_PATTERN = /^trn:iam::[0-9]+:role\/[A-Za-z0-9._-]+$/;
+
 @Form.create()
-export default class ImageHubForm extends PureComponent {
-  constructor(props){
+export default class SmsConfigForm extends PureComponent {
+  constructor(props) {
     super(props);
-    this.state= {
-      language: cookie.get('language') === 'zh-CN' ? true : false,
-      selectedProvider: props?.data?.provider || 'volcano'
-    }
-    
+    const { data = {} } = props;
+    this.state = {
+      language: cookie.get('language') === 'zh-CN',
+      selectedProvider: data.provider || 'aliyun',
+      selectedAuthType: data.auth_type || 'access_key'
+    };
   }
-  onOk = e => {
-    e.preventDefault();
+
+  onOk = event => {
+    event.preventDefault();
     const { onOk, form } = this.props;
-    form.validateFields({ force: true }, (err, values) => {
-      if (!err && onOk) {
-        onOk(values);
+    const { selectedProvider, selectedAuthType } = this.state;
+    form.validateFields({ force: true }, (error, values) => {
+      if (!error && onOk) {
+        onOk({
+          ...values,
+          auth_type: selectedAuthType,
+          role_arn:
+            selectedProvider === 'aliyun' && selectedAuthType === 'role'
+              ? values.role_arn
+              : '',
+          role_trn:
+            selectedProvider === 'volcano' && selectedAuthType === 'role'
+              ? values.role_trn
+              : '',
+          sms_account:
+            selectedProvider === 'volcano' ? values.sms_account : ''
+        });
       }
     });
   };
 
-  // 处理短信服务提供商变化
-  handleProviderChange = (value) => {
-    this.setState({ selectedProvider: value });
-  }
-  
+  handleProviderChange = selectedProvider => {
+    this.setState({ selectedProvider });
+  };
+
+  handleAuthTypeChange = selectedAuthType => {
+    this.setState({ selectedAuthType });
+  };
+
+  requiredRule = fieldId => ({
+    required: true,
+    whitespace: true,
+    message: formatMessage(
+      { id: 'enterpriseSetting.basicsSetting.smsConfig.required' },
+      { field: formatMessage({ id: fieldId }) }
+    )
+  });
+
   render() {
-    const { title, onCancel, data = {}, form, loading = false } = this.props;
+    const { onCancel, data = {}, form, loading = false } = this.props;
     const { getFieldDecorator } = form;
-    const { language, selectedProvider } = this.state;
+    const { language, selectedProvider, selectedAuthType } = this.state;
     const formItemLayout = {
       labelCol: {
         xs: { span: 24 },
-        sm: { span: 6 }
+        sm: { span: language ? 6 : 8 }
       },
       wrapperCol: {
         xs: { span: 24 },
-        sm: { span: 15 }
+        sm: { span: language ? 15 : 16 }
       }
     };
-    const formItemLayouts = {
-      labelCol: {
-        xs: { span: 24 },
-        sm: { span: 8 }
-      },
-      wrapperCol: {
-        xs: { span: 24 },
-        sm: { span: 16 }
-      }
-    };
-    const is_language = language ? formItemLayout : formItemLayouts
+    const fieldIdPrefix = 'enterpriseSetting.basicsSetting.smsConfig';
+
     return (
       <Modal
-        title={'登录注册短信配置'}
+        title={formatMessage({ id: `${fieldIdPrefix}.title` })}
         confirmLoading={loading}
         visible
         className={styles.TelescopicModal}
         onCancel={onCancel}
         onOk={this.onOk}
+        destroyOnClose
       >
         <Form onSubmit={this.onOk}>
-          <Form.Item {...is_language} label={'AccessKey'}>
+          <FormItem {...formItemLayout} label={formatMessage({ id: `${fieldIdPrefix}.provider` })}>
             {getFieldDecorator('provider', {
-              initialValue: data.provider || '',
+              initialValue: selectedProvider,
+              rules: [this.requiredRule(`${fieldIdPrefix}.provider`)]
             })(
-              <Select onChange={this.handleProviderChange} >
-                <Option value='volcano'>火山云</Option>
-                <Option value='aliyun'>阿里云</Option>
+              <Select onChange={this.handleProviderChange}>
+                <Option value='aliyun'>{formatMessage({ id: `${fieldIdPrefix}.provider.aliyun` })}</Option>
+                <Option value='volcano'>{formatMessage({ id: `${fieldIdPrefix}.provider.volcano` })}</Option>
               </Select>
             )}
-          </Form.Item>
+          </FormItem>
+          <FormItem {...formItemLayout} label={formatMessage({ id: `${fieldIdPrefix}.authType` })}>
+            {getFieldDecorator('auth_type', {
+              initialValue: selectedAuthType,
+              rules: [this.requiredRule(`${fieldIdPrefix}.authType`)]
+            })(
+              <Select onChange={this.handleAuthTypeChange}>
+                <Option value='access_key'>{formatMessage({ id: `${fieldIdPrefix}.authType.accessKey` })}</Option>
+                <Option value='role'>{formatMessage({ id: `${fieldIdPrefix}.authType.role` })}</Option>
+              </Select>
+            )}
+          </FormItem>
           {selectedProvider === 'volcano' && (
-            <Form.Item {...is_language} label={'消息组ID'}>
+            <FormItem {...formItemLayout} label={formatMessage({ id: `${fieldIdPrefix}.smsAccount` })}>
               {getFieldDecorator('sms_account', {
                 initialValue: data.sms_account || '',
-              })(<Input placeholder='请输入消息组ID'/>)}
-            </Form.Item>
+                rules: [this.requiredRule(`${fieldIdPrefix}.smsAccount`)]
+              })(<Input placeholder={formatMessage({ id: `${fieldIdPrefix}.smsAccount.placeholder` })} />)}
+            </FormItem>
           )}
-          <Form.Item {...is_language} label={'AccessKey'}>
+          <FormItem {...formItemLayout} label={formatMessage({ id: `${fieldIdPrefix}.accessKey` })}>
             {getFieldDecorator('access_key', {
               initialValue: data.access_key || '',
-            })(<Input placeholder='请输入AccessKey'/>)}
-          </Form.Item>
-          <Form.Item {...is_language} label={'AccessSecret'}>
+              rules: [this.requiredRule(`${fieldIdPrefix}.accessKey`)]
+            })(<Input placeholder={formatMessage({ id: `${fieldIdPrefix}.accessKey.placeholder` })} />)}
+          </FormItem>
+          <FormItem {...formItemLayout} label={formatMessage({ id: `${fieldIdPrefix}.accessSecret` })}>
             {getFieldDecorator('access_secret', {
               initialValue: data.access_secret || '',
-            })(<Input placeholder='请输入AccessSecret'/>)}
-          </Form.Item>
-          <Form.Item {...is_language} label={'SignName'}>
+              rules: [this.requiredRule(`${fieldIdPrefix}.accessSecret`)]
+            })(
+              <Input.Password
+                autoComplete='new-password'
+                placeholder={formatMessage({ id: `${fieldIdPrefix}.accessSecret.placeholder` })}
+              />
+            )}
+          </FormItem>
+          {selectedProvider === 'aliyun' && selectedAuthType === 'role' && (
+            <FormItem {...formItemLayout} label={formatMessage({ id: `${fieldIdPrefix}.roleArn` })}>
+              {getFieldDecorator('role_arn', {
+                initialValue: data.role_arn || '',
+                rules: [
+                  this.requiredRule(`${fieldIdPrefix}.roleArn`),
+                  {
+                    pattern: ALIYUN_ROLE_ARN_PATTERN,
+                    message: formatMessage({ id: `${fieldIdPrefix}.roleArn.invalid` })
+                  }
+                ]
+              })(<Input placeholder={formatMessage({ id: `${fieldIdPrefix}.roleArn.placeholder` })} />)}
+            </FormItem>
+          )}
+          {selectedProvider === 'volcano' && selectedAuthType === 'role' && (
+            <FormItem {...formItemLayout} label={formatMessage({ id: `${fieldIdPrefix}.roleTrn` })}>
+              {getFieldDecorator('role_trn', {
+                initialValue: data.role_trn || '',
+                rules: [
+                  this.requiredRule(`${fieldIdPrefix}.roleTrn`),
+                  {
+                    pattern: VOLCANO_ROLE_TRN_PATTERN,
+                    message: formatMessage({ id: `${fieldIdPrefix}.roleTrn.invalid` })
+                  }
+                ]
+              })(<Input placeholder={formatMessage({ id: `${fieldIdPrefix}.roleTrn.placeholder` })} />)}
+            </FormItem>
+          )}
+          <FormItem {...formItemLayout} label={formatMessage({ id: `${fieldIdPrefix}.signName` })}>
             {getFieldDecorator('sign_name', {
               initialValue: data.sign_name || '',
-            })(<Input placeholder='请输入SignName'/>)}
-          </Form.Item>
-          <Form.Item {...is_language} label={'TemplateCode'}>
+              rules: [this.requiredRule(`${fieldIdPrefix}.signName`)]
+            })(<Input placeholder={formatMessage({ id: `${fieldIdPrefix}.signName.placeholder` })} />)}
+          </FormItem>
+          <FormItem {...formItemLayout} label={formatMessage({ id: `${fieldIdPrefix}.templateCode` })}>
             {getFieldDecorator('template_code', {
               initialValue: data.template_code || '',
-            })(<Input placeholder='请输入TemplateCode'/>)}
-          </Form.Item>
+              rules: [this.requiredRule(`${fieldIdPrefix}.templateCode`)]
+            })(<Input placeholder={formatMessage({ id: `${fieldIdPrefix}.templateCode.placeholder` })} />)}
+          </FormItem>
         </Form>
       </Modal>
     );
