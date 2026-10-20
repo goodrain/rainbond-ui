@@ -180,33 +180,33 @@ class UserLayout extends React.PureComponent {
     const privacyPolicyUrl = rainbondInfo && rainbondInfo.privacy_policy_url && rainbondInfo.privacy_policy_url.value || '';
     return (
       <div style={{ height:'100%' }}>
-        <div className={isSaas ? styles.saasContainer : styles.normalContainer}>
-          <div className={styles.normalLeft}>
-            <div className={styles.normalLeftContent}>
-              <div className={styles.logoSection}>
-                <span className={styles.logoText}>{titleValue}</span>
-              </div>
-              <div className={styles.mainSection}>
-                <div className={styles.titleSection}>
-                  {loginTitleValue ? (
-                    <h1>{loginTitleValue}</h1>
-                  ) : (
-                    <>
-                      <h1><FormattedMessage id="layout.userLayout.normal.title1" defaultMessage="无需学习 Kubernetes" /></h1>
-                      <h1><FormattedMessage id="layout.userLayout.normal.title2" defaultMessage="的容器平台" /></h1>
-                    </>
-                  )}
+        {isSaas ? (
+          <div className={styles.saasContainer}>
+            <div className={styles.normalLeft}>
+              <div className={styles.normalLeftContent}>
+                <div className={styles.logoSection}>
+                  <span className={styles.logoText}>{titleValue}</span>
                 </div>
-                <p className={styles.description}>
-                  {loginSloganValue || <FormattedMessage id="layout.userLayout.normal.description" defaultMessage="在 Kubernetes 上构建、部署、组装和管理应用，无需 K8s 专业知识，全流程图形化管理" />}
-                </p>
-              </div>
-              <div className={styles.companyInfo}>
-                {footerValue || <FormattedMessage id="layout.userLayout.normal.companyInfo" defaultMessage="北京好雨科技有限公司出品" />}
+                <div className={styles.mainSection}>
+                  <div className={styles.titleSection}>
+                    {loginTitleValue ? (
+                      <h1>{loginTitleValue}</h1>
+                    ) : (
+                      <>
+                        <h1><FormattedMessage id="layout.userLayout.normal.title1" defaultMessage="无需学习 Kubernetes" /></h1>
+                        <h1><FormattedMessage id="layout.userLayout.normal.title2" defaultMessage="的容器平台" /></h1>
+                      </>
+                    )}
+                  </div>
+                  <p className={styles.description}>
+                    {loginSloganValue || <FormattedMessage id="layout.userLayout.normal.description" defaultMessage="在 Kubernetes 上构建、部署、组装和管理应用，无需 K8s 专业知识，全流程图形化管理" />}
+                  </p>
+                </div>
+                <div className={styles.companyInfo}>
+                  {footerValue || <FormattedMessage id="layout.userLayout.normal.companyInfo" defaultMessage="北京好雨科技有限公司出品" />}
+                </div>
               </div>
             </div>
-          </div>
-          {isSaas ? (
             <div className={styles.saasRight}>
               <div className={styles.saasLoginBox}>
                 <h2>{loginTitle || 'Rainbond Cloud'}</h2>
@@ -219,14 +219,42 @@ class UserLayout extends React.PureComponent {
                 </div>
               </div>
             </div>
-          ) : (
+          </div>
+        ) : (
+          <div className={styles.normalContainer}>
+            <div className={styles.normalLeft}>
+              <div className={styles.normalLeftContent}>
+                <div className={styles.logoSection}>
+                  <span className={styles.logoText}>{titleValue}</span>
+                </div>
+                <div className={styles.mainSection}>
+                  <div className={styles.titleSection}>
+                    {loginTitleValue ? (
+                      <h1>{loginTitleValue}</h1>
+                    ) : (
+                      <>
+                        <h1><FormattedMessage id="layout.userLayout.normal.title1" defaultMessage="无需学习 Kubernetes" /></h1>
+                        <h1><FormattedMessage id="layout.userLayout.normal.title2" defaultMessage="的容器平台" /></h1>
+                      </>
+                    )}
+                  </div>
+                  <p className={styles.description}>
+                    {loginSloganValue || <FormattedMessage id="layout.userLayout.normal.description" defaultMessage="在 Kubernetes 上构建、部署、组装和管理应用，无需 K8s 专业知识，全流程图形化管理" />}
+                  </p>
+                </div>
+                <div className={styles.companyInfo}>
+                  {footerValue || <FormattedMessage id="layout.userLayout.normal.companyInfo" defaultMessage="北京好雨科技有限公司出品" />}
+                </div>
+              </div>
+            </div>
             <div className={styles.normalRight}>
               <div className={styles.normalLoginBox}>
                 {children}
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )
+        }
       </div>
 
     );

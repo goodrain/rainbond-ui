@@ -9,8 +9,10 @@ import rainbondUtil from '../../utils/rainbond';
 import { setLocale, getLocale, FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
 import cookie from '../../utils/cookie';
+import logo from '../../../public/logoLogin.png';
 import styles from './Login.less';
 import LoginComponent from './loginComponent';
+import LoginSmsComponent from './loginSmsComponent';
 import { getSafeRedirect } from '../../utils/authorizationRedirect';
 @connect(({ global }) => ({
   isRegist: global.isRegist,
@@ -126,51 +128,92 @@ export default class LoginPage extends Component {
       oauthServicesList = rainbondInfo.oauth_services.value;
     }
     const inlineBlock = { display: 'inline-block' };
+    const { language } = this.state;
     const isSaas = rainbondInfo?.is_saas || false;
     return (
       <div className={styles.main}>
-        <LoginComponent
-          onSubmit={this.handleSubmit}
-          onSmsSubmit={this.handleSmsSubmit}
-          enableSmsLogin={isSaas}
-          type="login"
-        />
-        {rainbondUtil.OauthbEnable(rainbondInfo) &&
-          (oauthInfo ||
-            (oauthServicesList && oauthServicesList.length > 0)) && (
-            <div className={styles.thirdBox}>
-              <Divider>
-                <div className={styles.thirdLoadingTitle}><FormattedMessage id="login.Login.three" /></div>
-              </Divider>
-              <Row className={styles.third}>
-                {oauthInfo && (
-                  <div className={styles.thirdCol} key={oauthInfo.client_id}>
-                    <Tooltip placement="top" title={oauthInfo.name}>
-                      <a style={inlineBlock} href={url} title={oauthInfo.name}>
-                        {icon}
-                      </a>
-                    </Tooltip>
-                  </div>
-                )}
-                {oauthServicesList.map(item => {
-                  const { name, service_id } = item;
-                  return (
-                    <div className={styles.thirdCol} key={service_id}>
-                      <Tooltip placement="top" title={name}>
-                        <a
-                          style={inlineBlock}
-                          href={oauthUtil.getAuthredictURL(item)}
-                          title={name}
-                        >
-                          {oauthUtil.getIcon(item)}
-                        </a>
-                      </Tooltip>
-                    </div>
-                  );
-                })}
-              </Row>
-            </div>
-          )}
+        {isSaas ? (
+          <>
+            <LoginSmsComponent onSubmit={this.handleSmsSubmit} type="login" />
+            {rainbondUtil.OauthbEnable(rainbondInfo) &&
+              (oauthInfo ||
+                (oauthServicesList && oauthServicesList.length > 0)) && (
+                <div className={styles.thirdBox}>
+                  <Divider>
+                    <div className={styles.thirdLoadingTitle}><FormattedMessage id="login.Login.three" /></div>
+                  </Divider>
+                  <Row className={styles.third}>
+                    {oauthInfo && (
+                      <div className={styles.thirdCol} key={oauthInfo.client_id}>
+                        <Tooltip placement="top" title={oauthInfo.name}>
+                          <a style={inlineBlock} href={url} title={oauthInfo.name}>
+                            {icon}
+                          </a>
+                        </Tooltip>
+                      </div>
+                    )}
+                    {oauthServicesList.map(item => {
+                      const { name, service_id } = item;
+                      return (
+                        <div className={styles.thirdCol} key={service_id}>
+                          <Tooltip placement="top" title={name}>
+                            <a
+                              style={inlineBlock}
+                              href={oauthUtil.getAuthredictURL(item)}
+                              title={name}
+                            >
+                              {oauthUtil.getIcon(item)}
+                            </a>
+                          </Tooltip>
+                        </div>
+                      );
+                    })}
+                  </Row>
+                </div>
+              )}
+          </>
+        ) : (
+          <>
+            <LoginComponent onSubmit={this.handleSubmit} type="login" />
+            {rainbondUtil.OauthbEnable(rainbondInfo) &&
+              (oauthInfo ||
+                (oauthServicesList && oauthServicesList.length > 0)) && (
+                <div className={styles.thirdBox}>
+                  <Divider>
+                    <div className={styles.thirdLoadingTitle}><FormattedMessage id="login.Login.three" /></div>
+                  </Divider>
+                  <Row className={styles.third}>
+                    {oauthInfo && (
+                      <div className={styles.thirdCol} key={oauthInfo.client_id}>
+                        <Tooltip placement="top" title={oauthInfo.name}>
+                          <a style={inlineBlock} href={url} title={oauthInfo.name}>
+                            {icon}
+                          </a>
+                        </Tooltip>
+                      </div>
+                    )}
+                    {oauthServicesList.map(item => {
+                      const { name, service_id } = item;
+                      return (
+                        <div className={styles.thirdCol} key={service_id}>
+                          <Tooltip placement="top" title={name}>
+                            <a
+                              style={inlineBlock}
+                              href={oauthUtil.getAuthredictURL(item)}
+                              title={name}
+                            >
+                              {oauthUtil.getIcon(item)}
+                            </a>
+                          </Tooltip>
+                        </div>
+                      );
+                    })}
+                  </Row>
+                </div>
+              )}
+          </>
+        )}
+
       </div>
     );
   }
