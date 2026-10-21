@@ -193,7 +193,7 @@ class TraceMessageRow extends PureComponent {
 
 class ApprovalMessageCard extends PureComponent {
   renderHighRiskActions() {
-    const { isSending, onDecision } = this.props;
+    const { isDeciding, onDecision } = this.props;
 
     return (
       <React.Fragment>
@@ -202,7 +202,7 @@ class ApprovalMessageCard extends PureComponent {
             <Button
               type="primary"
               className={styles.approvalApproveButton}
-              loading={isSending}
+              loading={isDeciding}
               onClick={() => onDecision('approved')}
             >
               授权并执行
@@ -211,7 +211,7 @@ class ApprovalMessageCard extends PureComponent {
           <div className={styles.approvalActionHalf}>
             <Button
               className={styles.approvalRejectButton}
-              disabled={isSending}
+              disabled={isDeciding}
               onClick={() => onDecision('rejected')}
             >
               取消
@@ -224,7 +224,7 @@ class ApprovalMessageCard extends PureComponent {
   }
 
   renderNormalRiskActions() {
-    const { approval, isSending, onDecision } = this.props;
+    const { approval, isDeciding, onDecision } = this.props;
     const targetRef = approval.targetRef || null;
     const targetKey = autoApprovalPolicy.targetRefToKey(targetRef);
     const targetLabel = targetRef
@@ -280,7 +280,7 @@ class ApprovalMessageCard extends PureComponent {
             <Button
               type="primary"
               className={styles.approvalApproveButton}
-              loading={isSending}
+              loading={isDeciding}
               onClick={() => onDecision('approved')}
             >
               授权并执行
@@ -289,7 +289,7 @@ class ApprovalMessageCard extends PureComponent {
               <Button
                 type="primary"
                 className={styles.approvalPolicyButton}
-                disabled={isSending}
+                disabled={isDeciding}
                 aria-label="选择自动批准策略"
               >
                 <Icon type="more" />
@@ -300,7 +300,7 @@ class ApprovalMessageCard extends PureComponent {
         <div className={styles.approvalActionHalf}>
           <Button
             className={styles.approvalRejectButton}
-            disabled={isSending}
+            disabled={isDeciding}
             onClick={() => onDecision('rejected')}
           >
             取消
@@ -363,6 +363,14 @@ class ApprovalMessageCard extends PureComponent {
             <span className={styles.approvalContentLabel}>操作内容：</span>
             <span className={styles.approvalContentText}>{item.content}</span>
           </div>
+          {formatApprovalInput(approval.input) ? (
+            <div className={styles.approvalContent}>
+              <span className={styles.approvalContentLabel}>实际参数：</span>
+              <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all', fontSize: 12 }}>
+                {formatApprovalInput(approval.input)}
+              </pre>
+            </div>
+          ) : null}
           {wasAutoApproved ? (
             <div className={styles.approvalAutoNote}>已根据会话策略自动批准</div>
           ) : null}
@@ -508,6 +516,23 @@ const {
 
 const { TextArea } = Input;
 const { confirm } = Modal;
+
+function formatApprovalInput(input) {
+  if (input === undefined || input === null || input === '') return '';
+  if (typeof input === 'string') {
+    try {
+      return JSON.stringify(JSON.parse(input), null, 2);
+    } catch {
+      return input;
+    }
+  }
+  try {
+    return JSON.stringify(input, null, 2);
+  } catch {
+    return String(input);
+  }
+}
+
 export default class AgentHost extends PureComponent {
   constructor(props) {
     super(props);
@@ -930,7 +955,9 @@ export default class AgentHost extends PureComponent {
       <ApprovalMessageCard
         item={item}
         approval={item.approval || {}}
-        isSending={!!(agent && agent.sending)}
+        isDeciding={
+          !!agent && agent.decidingApprovalId === (item.approval && item.approval.approvalId)
+        }
         onDecision={this.handleApprovalDecision}
       />
     );
@@ -942,7 +969,10 @@ export default class AgentHost extends PureComponent {
         key={item.id}
         item={item}
         approval={item.approval || {}}
-        isSending={!!(this.props.agent && this.props.agent.sending)}
+        isDeciding={
+          !!this.props.agent &&
+          this.props.agent.decidingApprovalId === (item.approval && item.approval.approvalId)
+        }
         onDecision={this.handleApprovalDecision}
       />
     );

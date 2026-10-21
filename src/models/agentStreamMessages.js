@@ -4,6 +4,14 @@ function findStreamMessageIndex(messages, messageId) {
   );
 }
 
+function stopOtherReasoningStreams(messages, keepMessageId) {
+  return messages.map(item => {
+    if (!item || item.streamMessageId === keepMessageId) return item;
+    if (!item.reasoningStreaming) return item;
+    return { ...item, reasoningStreaming: false };
+  });
+}
+
 function applyStreamingAssistantEvent(messages, event, createMessage, contextSnapshot) {
   const nextMessages = Array.isArray(messages) ? messages.slice() : [];
   const data = (event && event.data) || {};
@@ -84,6 +92,7 @@ function applyStreamingAssistantEvent(messages, event, createMessage, contextSna
       ...nextMessages[index],
       content: data.content || nextMessages[index].content || '',
       streaming: false,
+      reasoningStreaming: false,
     };
     return nextMessages;
   }
@@ -94,6 +103,17 @@ function applyStreamingAssistantEvent(messages, event, createMessage, contextSna
       content: data.content || nextMessages[index].content || '',
       streaming: false,
     };
+  }
+
+  if (
+    event.type === 'chat.message.reasoning.started' ||
+    event.type === 'chat.message.reasoning.delta'
+  ) {
+    for (let i = 0; i < nextMessages.length; i += 1) {
+      if (nextMessages[i] && nextMessages[i].streamMessageId !== messageId) {
+        nextMessages[i] = { ...nextMessages[i], reasoningStreaming: false };
+      }
+    }
   }
 
   if (event.type === 'chat.message.reasoning.started') {

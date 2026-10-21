@@ -178,6 +178,7 @@ const defaultState = {
   interactionLocked: false,
   lastError: '',
   pendingApproval: null,
+  decidingApprovalId: '',
   activeRunId: '',
   lastEventSequence: 0,
   context: {
@@ -323,6 +324,7 @@ function normalizePendingApproval(pendingApproval) {
   return {
     approvalId: pendingApproval.approvalId || '',
     description: pendingApproval.description || '',
+    input: pendingApproval.input,
     risk: pendingApproval.risk || 'medium',
     scope: pendingApproval.scope || '',
     scopeLabel: pendingApproval.scopeLabel || '',
@@ -351,6 +353,7 @@ function buildHydratedState(snapshot) {
     messages: Array.isArray(snapshot.messages) ? snapshot.messages : [],
     context: snapshot.context || defaultState.context,
     pendingApproval: normalizePendingApproval(snapshot.pendingApproval),
+    decidingApprovalId: '',
     activeRunId: snapshot.activeRunId || '',
     lastEventSequence: snapshot.lastEventSequence || 0,
     lastContextSignature:
@@ -605,6 +608,7 @@ function applyAgentEvents({
         pendingApproval = {
           approvalId: adaptedEvent.approvalId || '',
           description: adaptedEvent.description || '',
+          input: adaptedEvent.input,
           risk: adaptedEvent.risk || 'medium',
           scope: adaptedEvent.scope || '',
           scopeLabel: adaptedEvent.scopeLabel || '',
@@ -1478,6 +1482,7 @@ export default {
         type: 'saveState',
         payload: {
           sending: true,
+          decidingApprovalId: pendingApproval.approvalId,
           interactionLocked: true,
           lastError: '',
         },
@@ -1513,6 +1518,7 @@ export default {
           type: 'saveState',
           payload: {
             sending: false,
+            decidingApprovalId: '',
             lastError: '',
             updatedAt: Date.now(),
           },
@@ -1531,6 +1537,7 @@ export default {
           type: 'saveState',
           payload: {
             sending: false,
+            decidingApprovalId: '',
             interactionLocked: false,
             lastError: getErrorMessage(error),
             updatedAt: Date.now(),
@@ -2013,6 +2020,7 @@ export default {
         lastContextSignature: state.lastContextSignature,
         interactionLocked: false,
         pendingApproval: null,
+        decidingApprovalId: '',
         activeRunId: '',
         lastEventSequence: 0,
         workflowState: null,
