@@ -563,6 +563,21 @@ function applyAgentEvents({
             break;
           }
         }
+        const lastAssistantIndex = findLatestAssistantNormalMessageIndex(nextMessages);
+        if (
+          lastAssistantIndex > -1 &&
+          (nextMessages[lastAssistantIndex].streamMessageId ||
+            nextMessages[lastAssistantIndex].streaming)
+        ) {
+          const mutableMessages = ensureMutableMessages();
+          mutableMessages[lastAssistantIndex] = {
+            ...mutableMessages[lastAssistantIndex],
+            content: adaptedEvent.content || mutableMessages[lastAssistantIndex].content || '',
+            streaming: false,
+            eventSequence,
+          };
+          break;
+        }
         ensureMutableMessages().push(
           createMessage(
             adaptedEvent.role === 'user' ? 'user' : 'assistant',
