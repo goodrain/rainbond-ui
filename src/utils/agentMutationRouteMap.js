@@ -174,7 +174,7 @@ const MUTATION_ROUTE_POLICIES = {
   },
   rainbond_manage_component_envs: {
     pre: { routeKind: 'component', tab: 'environmentConfiguration' },
-    post: { routeKind: 'component-refresh', tab: 'environmentConfiguration' },
+    post: { routeKind: 'component', tab: 'environmentConfiguration' },
   },
   rainbond_manage_component_connection_envs: {
     pre: { routeKind: 'component', tab: 'connectionInformation' },
