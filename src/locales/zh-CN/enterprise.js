@@ -12,7 +12,7 @@ const enterpriseOverview = {
     'platformOverview.header.newVersion': '新版本 {version}',
     'platformOverview.header.upgradeNow': '立即升级',
     'platformOverview.header.latest': '已是最新版本',
-    'platformOverview.header.development': '开发构建 · 未发现更高正式版本',
+    'platformOverview.header.development': '未发现更高正式版本',
     'platformOverview.header.upgradeChecking': '正在检查版本',
     'platformOverview.header.upgradeUnavailable': '版本状态暂不可用',
     'platformOverview.header.platformVersion': '平台版本',

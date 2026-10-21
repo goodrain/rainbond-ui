@@ -12,7 +12,7 @@ const enterpriseOverview = {
     'platformOverview.header.newVersion': 'New version {version}',
     'platformOverview.header.upgradeNow': 'Upgrade now',
     'platformOverview.header.latest': 'Up to date',
-    'platformOverview.header.development': 'Development build · no newer stable release found',
+    'platformOverview.header.development': 'No newer stable release found',
     'platformOverview.header.upgradeChecking': 'Checking for updates',
     'platformOverview.header.upgradeUnavailable': 'Version status unavailable',
     'platformOverview.header.platformVersion': 'Version',

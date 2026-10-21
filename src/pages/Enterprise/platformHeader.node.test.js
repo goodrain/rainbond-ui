@@ -3,6 +3,15 @@ const fs = require('fs');
 const path = require('path');
 const data = require('./overviewData');
 
+function developmentStatusCopy(locale) {
+  const source = fs.readFileSync(path.join(__dirname, '../../locales', locale, 'enterprise.js'), 'utf8');
+  const entry = source.match(/'platformOverview\.header\.development':\s*'([^']+)'/);
+  assert.ok(entry, `${locale} must provide the version status message`);
+  return entry[1];
+}
+assert.strictEqual(developmentStatusCopy('zh-CN'), '未发现更高正式版本');
+assert.strictEqual(developmentStatusCopy('en-US'), 'No newer stable release found');
+
 const valid = { valid: true, expire_at: 1893456000 };
 ['idle', 'loading', 'error', 'empty', 'invalid'].forEach(status => {
   const result = data.platformLicenseSummary(valid, status);
