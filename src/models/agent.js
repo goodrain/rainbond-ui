@@ -1569,7 +1569,18 @@ export default {
       );
       const incomingRunId =
         (payload && payload.event && payload.event.runId) || '';
+      const incomingEventType =
+        (payload && payload.event && payload.event.type) || '';
+      // Final assistant/status events are idempotent and may arrive after a
+      // terminal event when a replay stream and the live stream race. Do not
+      // drop them with the high-water mark, or the streaming row keeps the raw
+      // RB_SUGGESTED_ACTIONS text and the UI appears stuck.
+      const replaySafeEvent =
+        incomingEventType === 'chat.message' ||
+        incomingEventType === 'chat.suggested_actions' ||
+        incomingEventType === 'run.status';
       if (
+        !replaySafeEvent &&
         incomingSequence > 0 &&
         incomingRunId &&
         prevState.activeRunId &&
