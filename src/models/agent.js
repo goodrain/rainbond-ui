@@ -1542,6 +1542,20 @@ export default {
     *applyStreamEvent({ payload }, { put, select }) {
       const rootState = yield select(store => store);
       const prevState = rootState.agent;
+      const incomingSequence = Number(
+        (payload && payload.event && payload.event.sequence) || 0
+      );
+      const incomingRunId =
+        (payload && payload.event && payload.event.runId) || '';
+      if (
+        incomingSequence > 0 &&
+        incomingRunId &&
+        prevState.activeRunId &&
+        incomingRunId === prevState.activeRunId &&
+        incomingSequence <= Number(prevState.lastEventSequence || 0)
+      ) {
+        return;
+      }
       const prevApprovalId =
         (prevState.pendingApproval && prevState.pendingApproval.approvalId) || '';
       const adaptedEvent = adaptAgentEvent(payload && payload.event);
