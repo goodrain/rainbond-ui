@@ -363,14 +363,6 @@ class ApprovalMessageCard extends PureComponent {
             <span className={styles.approvalContentLabel}>操作内容：</span>
             <span className={styles.approvalContentText}>{item.content}</span>
           </div>
-          {formatApprovalInput(approval.input) ? (
-            <div className={styles.approvalContent}>
-              <span className={styles.approvalContentLabel}>实际参数：</span>
-              <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all', fontSize: 12 }}>
-                {formatApprovalInput(approval.input)}
-              </pre>
-            </div>
-          ) : null}
           {wasAutoApproved ? (
             <div className={styles.approvalAutoNote}>已根据会话策略自动批准</div>
           ) : null}
@@ -516,22 +508,6 @@ const {
 
 const { TextArea } = Input;
 const { confirm } = Modal;
-
-function formatApprovalInput(input) {
-  if (input === undefined || input === null || input === '') return '';
-  if (typeof input === 'string') {
-    try {
-      return JSON.stringify(JSON.parse(input), null, 2);
-    } catch {
-      return input;
-    }
-  }
-  try {
-    return JSON.stringify(input, null, 2);
-  } catch {
-    return String(input);
-  }
-}
 
 export default class AgentHost extends PureComponent {
   constructor(props) {

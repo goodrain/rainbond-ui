@@ -79,9 +79,6 @@ export function extractWebSources(data = {}) {
 }
 
 function buildTraceDisplayTitle(friendlyTitle, toolName) {
-  if (friendlyTitle && toolName && friendlyTitle !== toolName) {
-    return `${friendlyTitle}（${toolName}）`;
-  }
   return friendlyTitle || toolName || '工具调用';
 }
 
