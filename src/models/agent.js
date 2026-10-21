@@ -1578,7 +1578,9 @@ export default {
       const replaySafeEvent =
         incomingEventType === 'chat.message' ||
         incomingEventType === 'chat.suggested_actions' ||
-        incomingEventType === 'run.status';
+        incomingEventType === 'run.status' ||
+        incomingEventType === 'approval.requested' ||
+        incomingEventType === 'approval.resolved';
       if (
         !replaySafeEvent &&
         incomingSequence > 0 &&
