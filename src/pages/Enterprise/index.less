@@ -1097,7 +1097,7 @@
 
 .monitorModule { display: flex; flex-direction: column; }
 .monitorModule .moduleHeader { flex: 0 0 auto; }
-.monitorModule .moduleBody { min-height: 466px; flex: 1; display: flex; flex-direction: column; padding: 16px; }
+.monitorModule .moduleBody { min-height: 360px; flex: 1; display: flex; flex-direction: column; padding: 16px; }
 .monitorModule .moduleBody > :not(.trendChart) { flex: 0 0 auto; }
 .servicesModule .moduleBody { padding: 0; }
 .monitorEmpty .moduleBody { min-height: 0; }
@@ -1119,9 +1119,9 @@
 
 .trendChart {
   width: 100%;
-  height: 350px;
-  min-height: 350px;
-  flex: 1 0 350px;
+  height: 260px;
+  min-height: 260px;
+  flex: 1 0 260px;
 }
 
 .segmentedControl { display: inline-flex; align-items: center; gap: 2px; padding: 3px; background: @rbd-overview-soft-surface-color; border: 1px solid @rbd-overview-divider-color; border-radius: 8px; }
@@ -1151,7 +1151,7 @@
 }
 
 .componentPanel,
-.pluginPanel { min-width: 0; padding: 16px; }
+.pluginPanel { min-width: 0; padding: 12px 14px; }
 .pluginPanel { border-top: 1px solid @rbd-overview-divider-color; background: @rbd-overview-soft-surface-color; }
 .sectionTitle > button { min-width: 0; display: inline-flex; align-items: center; gap: 6px; padding: 0; color: @rbd-overview-heading-color; background: transparent; border: 0; font-size: @rbd-auxiliary-size; font-weight: 650; cursor: pointer; }
 .sectionTitle > button:hover { color: @primary-color; }
@@ -1180,18 +1180,18 @@
 .componentGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0 12px;
-  margin-top: 14px;
+  gap: 6px 12px;
+  margin-top: 10px;
   border-top: 1px solid @rbd-overview-divider-color;
 }
 
 .componentGrid button {
   min-width: 0;
-  min-height: 62px;
+  min-height: 46px;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 4px;
+  padding: 5px 8px;
   color: @rbd-overview-heading-color;
   background: @rbd-overview-surface-color;
   border-radius: 0;
@@ -1204,7 +1204,7 @@
   background: fade(@primary-color, 3%);
 }
 
-.componentIcon { width: 30px; height: 30px; flex: 0 0 auto; display: grid; place-items: center; color: darken(@success-color, 12%); background: fade(@success-color, 7%); border-radius: 8px; font-size: @rbd-sub-title-size; }
+.componentIcon { width: 24px; height: 24px; flex: 0 0 auto; display: grid; place-items: center; color: darken(@success-color, 12%); background: fade(@success-color, 7%); border-radius: 8px; font-size: @rbd-sub-title-size; }
 .componentState { width: 6px; height: 6px; flex: 0 0 auto; border-radius: 50%; background: @success-color; }
 .componentAbnormal .componentState { background: @error-color; }
 .componentAbnormal { background: fade(@error-color, 4%) !important; }
@@ -1252,8 +1252,8 @@
 .pluginList {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 12px;
+  gap: 6px;
+  margin-top: 8px;
 }
 
 .fullPluginList { max-height: 60vh; overflow-y: auto; padding: 2px 4px 2px 0; }
@@ -1261,12 +1261,12 @@
 
 .pluginList button {
   min-width: 0;
-  min-height: 48px;
+  min-height: 38px;
   display: grid;
-  grid-template-columns: 28px minmax(0, 1fr) 10px;
+  grid-template-columns: 24px minmax(0, 1fr) 10px;
   align-items: center;
   gap: 7px;
-  padding: 8px;
+  padding: 4px 8px;
   color: @rbd-overview-heading-color;
   background: @rbd-overview-surface-color;
   border: 1px solid @rbd-overview-divider-color;
@@ -1316,8 +1316,8 @@
 }
 
 .pluginIcon {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   display: grid;
   place-items: center;
   color: @primary-color;
