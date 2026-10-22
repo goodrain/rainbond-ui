@@ -56,7 +56,15 @@ function createTeamOverviewBootstrap(request, isOwnerCurrent) {
 }
 
 function permissionFingerprint(value) {
-  if (Array.isArray(value)) return value.map(permissionFingerprint).sort();
+  if (Array.isArray(value)) {
+    return value.map(permissionFingerprint).sort((left, right) => {
+      // Canonical objects have no prototype; compare their JSON instead of
+      // asking Array.sort to coerce role/permission objects to primitives.
+      const leftKey = JSON.stringify(left);
+      const rightKey = JSON.stringify(right);
+      return leftKey < rightKey ? -1 : leftKey > rightKey ? 1 : 0;
+    });
+  }
   if (value && typeof value === 'object') {
     return Object.keys(value).sort().reduce((result, key) => {
       result[key] = permissionFingerprint(value[key]);

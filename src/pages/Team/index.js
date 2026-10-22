@@ -25,6 +25,21 @@ import MoveTeam from './move_team';
 const { isTeamOverviewResponse, getTeamOverviewData } = require('../../components/Team/TeamEventList/helpers');
 const { createTeamOverviewScope } = require('../../utils/teamOverviewBootstrap');
 
+// Keep modern context outside connect: DVA's React Redux 5 wrapper needs its
+// legacy store context and must not inherit a wrapped component's contextType.
+function withTeamOverviewLoader(Component) {
+  return class TeamOverviewLoader extends PureComponent {
+    render() {
+      return (
+        <MenuContext.Consumer>
+          {context => <Component {...this.props} teamOverviewLoader={context && context.teamOverviewLoader} />}
+        </MenuContext.Consumer>
+      );
+    }
+  };
+}
+
+@withTeamOverviewLoader
 @connect(({ user, teamControl, loading, enterprise }) => ({
   currUser: user.currentUser,
   teamControl,
@@ -37,8 +52,6 @@ const { createTeamOverviewScope } = require('../../utils/teamOverviewBootstrap')
   pluginsList: teamControl.pluginsList
 }))
 export default class Index extends PureComponent {
-  static contextType = MenuContext;
-
   constructor(arg) {
     super(arg);
     this.state = {
@@ -89,7 +102,7 @@ export default class Index extends PureComponent {
   componentDidMount() {
     this._isMounted = true;
     this.props.dispatch({ type: 'teamControl/fetchAllPerm' });
-    const loader = this.context && this.context.teamOverviewLoader;
+    const loader = this.props.teamOverviewLoader;
     const force = Boolean(loader && loader.beginVisit && loader.beginVisit());
     this.loadOverview({ force });
   }
@@ -110,7 +123,7 @@ export default class Index extends PureComponent {
       // A router can preserve this page instance while moving to another team.
       // Register that visit too, so a later real remount is a refresh rather
       // than being mistaken for the new team's first late bootstrap consumer.
-      const loader = this.context && this.context.teamOverviewLoader;
+      const loader = this.props.teamOverviewLoader;
       if (identity && loader && loader.beginVisit) loader.beginVisit();
       this.loadOverview({ force: false });
     }
@@ -238,11 +251,11 @@ export default class Index extends PureComponent {
       userRoles: currUser && currUser.roles,
       // Standalone pages retain their existing permission-hydration behavior;
       // the layout-owned path additionally rejects true known-scope changes.
-      permissions: this.context && this.context.teamOverviewLoader &&
+      permissions: this.props.teamOverviewLoader &&
         (!currentTeam || currentTeam.team_name === globalUtil.getCurrTeamName()) &&
         currentTeamPermissionsInfo ? currentTeamPermissionsInfo.team : null
     });
-    if (this.context && this.context.teamOverviewLoader &&
+    if (this.props.teamOverviewLoader &&
       (!currUser || currUser.user_id === undefined || currUser.user_id === null || currUser.user_id === '')) return '';
     return identity;
   };
@@ -252,7 +265,7 @@ export default class Index extends PureComponent {
     const { dispatch } = this.props;
     const scope = this.getOverviewScope();
     const identity = this.getOverviewIdentity();
-    const overviewLoader = this.context && this.context.teamOverviewLoader;
+    const overviewLoader = this.props.teamOverviewLoader;
     const generation = ++this.overviewGeneration;
     this.overviewScope = scope;
     this.activeOverviewIdentity = identity;

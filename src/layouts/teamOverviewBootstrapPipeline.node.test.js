@@ -79,6 +79,7 @@ function prepareSources(raw) {
     services: [fn(raw.team, 'getTeamRegionOverview'), fn(raw.team, 'getNewestEvent'),
       fn(raw.api, 'getTeamOverview'), fn(raw.api, 'fetchStorageUsed'), fn(raw.userService, 'getDetail')].join('\n'),
     helper: raw.helper, cards: raw.cards, polling: raw.polling,
+    pageModule: raw.page,
     // This is checked as well as the methods: fixture provider must mirror the
     // production provider rather than invent an otherwise-unused channel.
     providerWired: /<Context.Provider value=\{this.getContext\(\)\}>/.test(raw.layout)
@@ -112,7 +113,7 @@ function createPipeline(sources, options = {}) {
   const permissions = { team: { team_overview: true, team_dynamic: true, team_member: true, revision: 1 } };
   const makeTeam = name => ({ team_name: name, tenant_actions: JSON.parse(JSON.stringify(permissions)), region: [{ team_region_name: scope.region }] });
   const user = { user_id: 'user-a', enterprise_id: 'enterprise-a', is_enterprise_admin: false,
-    roles: ['admin'], teams: [makeTeam('team-a'), makeTeam('team-b')] };
+    roles: options.userRoles || ['admin'], teams: [makeTeam('team-a'), makeTeam('team-b')] };
   const storage = new Map();
   const windowFixture = React ? window : {
     localStorage: { getItem: key => storage.get(`local:${key}`) || null },
@@ -238,6 +239,7 @@ function createPipeline(sources, options = {}) {
     if (!instance) return;
     const previous = instance.props;
     const nextProps = { ...previous, ...next };
+    if (instance === page && layout) nextProps.teamOverviewLoader = layout.getContext().teamOverviewLoader;
     if (instance.componentWillReceiveProps) instance.componentWillReceiveProps(nextProps);
     instance.props = nextProps;
     if (instance === page) instance.context = layout ? layout.getContext() : {};
@@ -262,7 +264,8 @@ function createPipeline(sources, options = {}) {
   if (React) {
     Layout.prototype.render = function renderFixtureLayout() {
       return React.createElement(MenuContext.Provider, { value: this.getContext() }, this.props.fixtureShowPage
-        ? React.createElement(Page, { ...this.props, ref: value => { page = value; } }) : null);
+        ? React.createElement(Page, { ...this.props, teamOverviewLoader: this.getContext().teamOverviewLoader,
+          ref: value => { page = value; } }) : null);
     };
     Page.prototype.render = function renderFixturePage() {
       return this.state.scope === 'event' ? React.createElement(Child, {
@@ -302,7 +305,7 @@ function createPipeline(sources, options = {}) {
     mountPage({ standalone = false } = {}) {
       pageWanted = true;
       if (React) { rerender(); return; }
-      page = new Page(props);
+      page = new Page({ ...props, teamOverviewLoader: standalone || !layout ? undefined : layout.getContext().teamOverviewLoader });
       page.context = standalone || !layout ? {} : layout.getContext();
       page.componentWillMount();
       syncTree();
@@ -394,6 +397,121 @@ if (!process.env.RAINBOND_PIPELINE_FIXTURE_ONLY) {
     success(h); h.unmount();
   };
 
+  const withConnectedPage = async (standalone, verify) => {
+    const { JSDOM } = require('jsdom');
+    const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: 'http://127.0.0.1/' });
+    const globals = { window: dom.window, document: dom.window.document, navigator: dom.window.navigator,
+      requestAnimationFrame: callback => setTimeout(callback, 0), cancelAnimationFrame: clearTimeout, MessageChannel: undefined };
+    Object.assign(dom.window, { requestAnimationFrame: globals.requestAnimationFrame, cancelAnimationFrame: globals.cancelAnimationFrame });
+    const previous = Object.fromEntries(Object.keys(globals).map(key => [key, Object.getOwnPropertyDescriptor(global, key)]));
+    Object.entries(globals).forEach(([key, value]) => Object.defineProperty(global, key, { configurable: true, writable: true, value }));
+    const h = harness({ auto: false, userRoles: [{ role_id: 1 }, { role_id: 2 }] });
+    let ReactDOM;
+    try {
+      const React = require('react');
+      ReactDOM = require('react-dom');
+      // DVA uses nested react-redux 5, not the top-level react-redux 7.
+      const dva = require('dva');
+      const redux5 = require(require.resolve('react-redux', { paths: [require.resolve('dva')] }));
+      assert.equal(dva.connect, redux5.connect);
+      const { createStore, applyMiddleware } = require('redux');
+      const MenuContext = React.createContext();
+      const box = ({ children }) => React.createElement('div', null, children);
+      let RawPage;
+      const fixtures = {
+        react: React, dva: { ...dva, connect: (...args) => Component => {
+          RawPage = Component;
+          return dva.connect(...args)(Component);
+        } },
+        'dva/router': { routerRedux: { push: payload => ({ type: 'router/push', payload }) } },
+        antd: { Avatar: box, Button: box, Icon: box }, moment: require('moment'),
+        '@/utils/intl': { formatMessage: value => value.id },
+        '../../layouts/MenuContext': MenuContext,
+        '../../utils/breadcrumb': { createTeam: value => value, createEnterprise: value => value },
+        '../../utils/global': { getCurrTeamName: () => h.scope.team, getCurrRegionName: () => h.scope.region, withoutPermission() {} },
+        '../../utils/pulginUtils': { isInstallEnterprisePlugin: () => false },
+        '../../utils/newRole': { queryPermissionsInfo: (team, type) => ({ isAccess: !!team?.[type] }) },
+        '../../utils/team': { canDeleteTeam: () => false, canEditTeamName: () => false },
+        '../../utils/error': error => h.errors.push(error),
+        '../../utils/user': { getTeamByTeamName: user => user.teams[0] },
+        '../../utils/teamOverviewBootstrap': require('../utils/teamOverviewBootstrap'),
+        '../../components/Team/TeamEventList/helpers': require('../components/Team/TeamEventList/helpers')
+      };
+      const babel = require('@umijs/deps/compiled/babel/core');
+      const code = babel.transformSync(current().pageModule, {
+        filename: path.join(repo, paths.page), babelrc: false, configFile: false,
+        presets: [[require('@umijs/deps/compiled/babel/preset-env').default, { targets: { node: 'current' } }],
+          require('@umijs/deps/compiled/babel/preset-react').default],
+        plugins: [[require('@umijs/deps/compiled/babel/plugin-proposal-decorators').default, { legacy: true }],
+          [require('@umijs/deps/compiled/babel/plugin-proposal-class-properties').default, { loose: true }]]
+      }).code;
+      const module = { exports: {} };
+      new Function('module', 'exports', 'require', code)(module, module.exports, name => fixtures[name] ||
+        (name.endsWith('.less') ? {} : name.endsWith('.png') ? 'team-logo' : box));
+      let page;
+      const didMount = RawPage.prototype.componentDidMount;
+      RawPage.prototype.componentDidMount = function trackMountedPage() { page = this; return didMount.call(this); };
+      const state = () => ({ user: { currentUser: h.props.currUser }, teamControl: {
+        currentTeam: h.props.currentTeam, currentRegionName: h.props.currentRegionName,
+        currentTeamPermissionsInfo: h.props.currentTeamPermissionsInfo, pluginsList: h.props.pluginsList
+      }, enterprise: { currentEnterprise: h.props.currentEnterprise }, loading: { effects: {} } });
+      const store = createStore((value = state(), action) => action.type === 'fixture/hydrate' ? state() : value,
+        applyMiddleware(() => next => action => action.type === 'fixture/hydrate' ? next(action) : h.dispatch(action)));
+      const container = dom.window.document.getElementById('root');
+      const mount = () => {
+        let child = React.createElement(module.exports.default, { location: h.props.location });
+        if (!standalone) child = React.createElement(MenuContext.Provider, { value: h.layout.getContext() }, child);
+        ReactDOM.render(React.createElement(redux5.Provider, { store }, child), container);
+      };
+      if (!standalone) { h.mountLayout(); await h.flush(); }
+      mount(); await h.flush();
+      await verify({ h, store, mount, get page() { return page; }, unmount: () => ReactDOM.unmountComponentAtNode(container) });
+    } finally {
+      if (ReactDOM) ReactDOM.unmountComponentAtNode(dom.window.document.getElementById('root'));
+      h.unmount(); await h.flush(); dom.window.close();
+      Object.keys(globals).forEach(key => { if (previous[key]) Object.defineProperty(global, key, previous[key]); else delete global[key]; });
+    }
+  };
+
+  test('actual connected default export keeps DVA Redux 5 store and shares layout bootstrap across real remounts',
+    () => withConnectedPage(false, async view => {
+      const { h } = view;
+      assert.equal(h.count('/overview'), 1);
+      h.backend.complete(); await h.flush();
+      assert.equal(view.page.state.overviewSnapshot.status, 'success');
+      view.unmount(); view.mount(); await h.flush();
+      assert.equal(h.count('/overview'), 2, 'real same-layout page remount must refresh once');
+      h.backend.complete(); await h.flush();
+      assert.equal(view.page.state.overviewSnapshot.status, 'success');
+      view.page.handleTabChange('member'); view.page.handleTabChange('event'); await h.flush();
+      assert.equal(h.count('/overview'), 3);
+      h.backend.complete(); await h.flush();
+      view.page.handleEditName({ team_alias: 'connected-new-name' }); await h.flush();
+      assert.equal(h.count('/overview'), 4, 'successful edit must refresh once through the shared loader');
+      const nextUser = { ...h.props.currUser, user_id: 'connected-user-b' };
+      h.update({ currentUser: nextUser, currUser: nextUser });
+      view.store.dispatch({ type: 'fixture/hydrate' }); await h.flush();
+      assert.equal(h.count('/overview'), 5, 'a new principal must use one new layout initialization');
+      h.backend.complete(0, { status_code: 200, bean: { team_id: 'obsolete', eid: 'old-enterprise' } });
+      await h.flush();
+      assert.equal(h.saved.some(entry => entry.payload?.team_id === 'obsolete'), false);
+      assert.equal(view.page.state.overviewSnapshot.status, 'pending');
+      h.backend.complete(); await h.flush();
+      assert.equal(view.page.state.overviewSnapshot.status, 'success');
+      view.page.loadOverview(); await h.flush();
+      assert.equal(h.count('/overview'), 6, 'explicit force must reach the owner');
+      h.backend.complete(); await h.flush();
+      assert.deepEqual(h.errors, []);
+    }));
+
+  test('actual connected default export retains standalone overview service fallback without MenuContext',
+    () => withConnectedPage(true, async view => {
+      assert.equal(view.h.count('/overview'), 1);
+      view.h.backend.complete(); await view.h.flush();
+      assert.equal(view.page.state.overviewSnapshot.status, 'success');
+      assert.deepEqual(view.h.errors, []);
+    }));
+
   test('current full production chain: settled layout + page mounted 450ms later sends 1 request',
     () => verifyLatePageCount(null, 1));
 
@@ -476,6 +594,44 @@ if (!process.env.RAINBOND_PIPELINE_FIXTURE_ONLY) {
     assert.equal(h.child.state.overviewInfo, null);
     h.backend.complete(); await h.flush(); success(h); h.unmount();
   });
+
+  test('object role arrays initialize once; equal reorder shares work and real changes reject old writes', async () => {
+    const roles = [
+      { role_id: 2, role_name: 'developer', permissions: [{ name: 'write' }, { name: 'read' }] },
+      { role_id: 1, role_name: 'viewer' }
+    ];
+    const h = await create({ auto: false, userRoles: roles });
+    try {
+      h.mountPage(); await h.flush();
+      assert.equal(h.count('/overview'), 1);
+      const reordered = [roles[1], { permissions: [...roles[0].permissions].reverse(), role_name: 'developer', role_id: 2 }];
+      h.update({ currentUser: { ...h.props.currentUser, roles: reordered }, currUser: { ...h.props.currUser, roles: reordered } });
+      await h.flush(); assert.equal(h.count('/overview'), 1);
+      const changed = [{ ...roles[1], role_name: 'operator' }, roles[0]];
+      h.update({ currentUser: { ...h.props.currentUser, roles: changed }, currUser: { ...h.props.currUser, roles: changed } });
+      await h.flush(); assert.equal(h.count('/overview'), 2);
+      h.backend.complete(0, { status_code: 200, bean: { team_id: 'obsolete', eid: 'old-enterprise' } });
+      await h.flush();
+      assert.equal(h.saved.some(entry => entry.payload?.team_id === 'obsolete'), false);
+      assert.notEqual(h.child.state.overviewInfo?.team_id, 'obsolete');
+      h.backend.complete(); await h.flush(); success(h);
+      assert.deepEqual(h.errors, []);
+    } finally { h.unmount(); }
+  });
+
+  test('real React commit: multiple object roles render without crashing or duplicating overview requests',
+    () => withReactPipeline({ hydrate: true, userRoles: [
+      { role_id: 2, role_name: 'developer', permissions: [{ name: 'write' }, { name: 'read' }] },
+      { role_id: 1, role_name: 'viewer' }
+    ] }, async h => {
+      success(h);
+      assert.equal(h.count('/overview'), 1);
+      const currentUser = JSON.parse(JSON.stringify(h.props.currentUser));
+      currentUser.roles.reverse(); currentUser.roles[1].permissions.reverse();
+      h.dispatch({ type: 'user/saveCurrentUser', payload: currentUser }); await h.flush();
+      assert.equal(h.count('/overview'), 1, 'equal object metadata must preserve the layout bootstrap');
+      success(h); assert.deepEqual(h.errors, []);
+    }));
 
   // These joint hydration/commit cases deliberately use real React DOM. The
   // synchronous manual lifecycle harness above is not a React batching model.

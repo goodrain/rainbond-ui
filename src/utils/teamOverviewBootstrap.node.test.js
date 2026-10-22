@@ -99,3 +99,66 @@ test('same-user admin/role changes invalidate while first metadata hydration doe
   assert.notEqual(admin, first);
   assert.notEqual(scope({ ...hydrated, isEnterpriseAdmin: true, userRoles: ['admin'] }), admin);
 });
+
+test('object role arrays and nested permission arrays have an order-independent scope', () => {
+  const scope = createTeamOverviewScope();
+  const base = { teamName: 't', regionName: 'r', userId: 1 };
+  const first = scope(base);
+  const userRoles = [
+    { role_id: 2, role_name: 'developer', permissions: [{ name: 'write', enabled: true }, { name: 'read', enabled: true }] },
+    { role_id: 1, role_name: 'viewer' }
+  ];
+  const permissions = { team: { sub_models: [
+    { name: 'overview', actions: [{ name: 'read', enabled: true }, { name: 'edit', enabled: false }] },
+    { name: 'member', actions: [{ name: 'read', enabled: true }] }
+  ] } };
+  const hydrated = { ...base, userRoles, permissions };
+  assert.equal(scope(hydrated), first, 'first real metadata hydration must not restart initialization');
+  assert.equal(scope({ ...base,
+    userRoles: [userRoles[1], { permissions: [...userRoles[0].permissions].reverse(), role_name: 'developer', role_id: 2 }],
+    permissions: { team: { sub_models: [permissions.team.sub_models[1], {
+      actions: [...permissions.team.sub_models[0].actions].reverse(), name: 'overview'
+    }] } }
+  }), first, 'reordering objects, keys and nested permission sets must preserve the scope');
+  const changedPermissions = JSON.parse(JSON.stringify(permissions));
+  changedPermissions.team.sub_models[0].actions[1].enabled = true;
+  const changed = scope({ ...hydrated, permissions: changedPermissions });
+  assert.notEqual(changed, first, 'an actual nested permission change must invalidate the scope');
+  const changedRoles = JSON.parse(JSON.stringify(userRoles));
+  changedRoles[0].role_id = 3;
+  assert.notEqual(scope({ ...hydrated, permissions: changedPermissions, userRoles: changedRoles }), changed);
+});
+
+test('canonicalizing mixed JSON permission values preserves types and never mutates frozen input', () => {
+  const freeze = value => {
+    if (value && typeof value === 'object') {
+      Object.values(value).forEach(freeze);
+      Object.freeze(value);
+    }
+    return value;
+  };
+  const permissions = freeze({ entries: [
+    { key: 'b', nested: [[{ action: 'write' }, { action: 'read' }], [{ action: 'view' }]] },
+    null, false, 2, '2', { key: 'a' }
+  ] });
+  const before = JSON.stringify(permissions);
+  const scope = createTeamOverviewScope();
+  const base = { teamName: 't', regionName: 'r', userId: 1, permissions };
+  const first = scope(base);
+  assert.equal(scope({ ...base, permissions: { entries: [...permissions.entries].reverse() } }), first);
+  assert.equal(JSON.stringify(permissions), before);
+  assert.notEqual(scope({ ...base, permissions: { entries: permissions.entries.filter(value => value !== 2) } }), first,
+    'number and string permission values must remain distinct');
+});
+
+test('permission object keys cannot pollute prototypes or trigger object coercion during sorting', () => {
+  const scope = createTeamOverviewScope();
+  const permissions = JSON.parse('{"items":[{"__proto__":{"allowed":true},"toString":"data","valueOf":"data"},{"constructor":{"prototype":{"allowed":false}}}]}');
+  const base = { teamName: 't', regionName: 'r', userId: 1, permissions };
+  const first = scope(base);
+  assert.equal(scope({ ...base, permissions: { items: [...permissions.items].reverse() } }), first);
+  assert.equal(Object.prototype.allowed, undefined);
+  const changed = JSON.parse(JSON.stringify(permissions));
+  changed.items[0].__proto__.allowed = false;
+  assert.notEqual(scope({ ...base, permissions: changed }), first);
+});
