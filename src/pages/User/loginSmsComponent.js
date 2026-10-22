@@ -7,9 +7,9 @@ import userUtil from '../../utils/global';
 import Login from '../../components/Login';
 import styles from './Login.less';
 import { message } from 'antd';
+import LoginHeader from './loginHeader';
 
-const { UserName, Password, Submit } = Login;
-const { Mobile, Captcha } = Login;
+const { Mobile, Captcha, Submit } = Login;
 
 @connect(({ loading, global }) => ({
   isRegist: global.isRegist,
@@ -80,7 +80,7 @@ export default class LoginComponent extends Component {
     const { mobile } = this.state;
     return (
       <div className={styles.loginWrapper}>
-
+        <LoginHeader />
         <Login defaultActiveKey="account" onSubmit={this.handleSubmit}>
           <div className={styles.formItem}>
             <label><FormattedMessage id="login.loginSmsComponent.phone.label" defaultMessage="手机号" /></label>

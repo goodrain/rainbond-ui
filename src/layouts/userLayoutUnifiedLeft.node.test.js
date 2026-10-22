@@ -28,5 +28,4 @@ assert.ok(
   loginPage.includes("import LoginSmsComponent") && loginPage.includes('{isSaas ? ('),
   'the right-side login form should preserve the original SaaS/non-SaaS switch'
 );
-
 console.log('unified login left-side layout tests passed');
