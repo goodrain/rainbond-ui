@@ -51,7 +51,7 @@ export function clusterRuntimeStatus(snapshot, failed) {
   if (nodes && Array.isArray(nodes.alerts) && nodes.alerts.length) return 'abnormal';
   if (validNodes && nodes.ready < nodes.total) return 'abnormal';
   if (Array.isArray(components) && components.some(item => item && /^(abnormal|failed|error|pending|starting|stopped)$/i.test(item.status))) return 'abnormal';
-  if (nodeSection.status !== 'ok' || componentSection.status !== 'ok' || !validNodes || nodes.total === 0 || nodes.disk_stats_status !== 'ok' || ['ok', 'not_applicable'].indexOf(nodes.certificate_status) === -1 || !Array.isArray(nodes.alerts) || !Array.isArray(components) || !components.length) return 'unknown';
+  if (nodeSection.status !== 'ok' || componentSection.status !== 'ok' || !validNodes || nodes.total === 0 || nodes.disk_stats_status !== 'ok' || !Array.isArray(nodes.alerts) || !Array.isArray(components) || !components.length) return 'unknown';
   if (!components.every(item => item && overviewData.isRunning(item.status) && count(item.run_pods) && count(item.all_pods) && item.run_pods <= item.all_pods)) return 'unknown';
   if (components.some(item => item.run_pods < item.all_pods)) return 'abnormal';
   return 'normal';

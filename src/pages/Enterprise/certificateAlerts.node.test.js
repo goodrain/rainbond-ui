@@ -66,7 +66,7 @@ for (const type of ['certificate_expiring', 'certificate_expired']) {
 }
 for (const status of ['partial', 'unavailable', undefined]) {
   const current = snapshot(); current.sections.nodes.data.certificate_status = status;
-  assert.strictEqual(runtimeStatus(current), 'unknown');
+  assert.strictEqual(runtimeStatus(current), 'normal', 'optional certificate coverage must not override runtime health');
   assert.ok(text(render(current)).includes('certificate validity is unknown'));
 }
 for (const status of ['ok', 'not_applicable']) {
