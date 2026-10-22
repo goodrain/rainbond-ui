@@ -52,7 +52,7 @@ export default class Overview extends Component {
       addComponentOrAppDetail: '',
       type: 'AppShape',
       isExiting: false,
-      refresh: false,
+      refresh: globalUtil.getRefresh(),
       tableDataLoading: false,
       guideVisible: false,
       guideAutoOpened: false

@@ -120,6 +120,7 @@ export default class app extends Component {
         group_id: globalUtil.getAppID()
       },
       callback: res => {
+        if (!this.componentMounted) return;
         const info = (res && res.bean) || {};
         this.setState({
           upgradableNumLoading: false,
@@ -137,6 +138,7 @@ export default class app extends Component {
         group_id: globalUtil.getAppID()
       },
       callback: res => {
+        if (!this.componentMounted) return;
         this.setState({
           resourceList: res.bean
         })
@@ -153,6 +155,7 @@ export default class app extends Component {
         group_id: globalUtil.getAppID()
       },
       callback: res => {
+        if (!this.componentMounted) return;
         if (res && res.status_code === 200) {
           this.setState({
             currApp: res.bean
@@ -160,6 +163,7 @@ export default class app extends Component {
         }
       },
       handleError: res => {
+        if (!this.componentMounted) return;
         const { componentTimer } = this.state;
         if (!componentTimer) {
           return null;
@@ -365,6 +369,7 @@ export default class app extends Component {
         region_name: globalUtil.getCurrRegionName(),
       },
       callback: res => {
+        if (!this.componentMounted) return;
         if (res) {
           this.setState({
             storageUsed: res.bean.used_storage
@@ -403,6 +408,7 @@ export default class app extends Component {
         team_name: globalUtil.getCurrTeamName()
       },
       callback: res => {
+        if (!this.componentMounted) return;
         if (res && res.status_code === 200) {
           this.setState({
             linkList: res.list || []
@@ -410,6 +416,7 @@ export default class app extends Component {
         }
       },
       handleError: err => {
+        if (!this.componentMounted) return;
         this.handleError(err);
       }
     });
