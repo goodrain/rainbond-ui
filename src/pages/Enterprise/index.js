@@ -539,6 +539,9 @@ export default class Enterprise extends PureComponent {
     const nodeStatus = overviewData.sectionStatus(snapshot, 'nodes');
     const clusterInfo = overviewData.sectionData(snapshot, 'cluster') || cluster;
     const alerts = (nodes && nodes.alerts) || [];
+    const certificateNote = nodes && nodes.certificate_status === 'not_observed'
+      ? (alerts.some(item => item && ['certificate_expiring', 'certificate_expired', 'certificate_warning'].indexOf(item.type) > -1) ? null : 'cluster.certificatesNotObserved')
+      : (nodes && ['ok', 'not_applicable'].indexOf(nodes.certificate_status) === -1 ? 'cluster.certificatesUnavailable' : null);
     const versions = (resources && resources.versions) || {};
     const runtimeStatus = clusterRuntimeStatus(snapshot, errors.cluster);
     return (
@@ -560,7 +563,7 @@ export default class Enterprise extends PureComponent {
                 </div>
               ) : resourceStatus === 'loading' ? <Skeleton active paragraph={{ rows: 2 }} /> : <Alert type="warning" showIcon message={t('cluster.resourcesUnavailable')} />}
               {nodeStatus !== 'ok' && nodeStatus !== 'loading' ? <Alert className={styles.sectionWarning} type="warning" showIcon message={t('cluster.nodesUnavailable')} /> : null}
-              {nodes && ['ok', 'not_applicable'].indexOf(nodes.certificate_status) === -1 ? <p className={styles.diskStatus}><Icon type="info-circle" /> {t('cluster.certificatesUnavailable')}</p> : null}
+              {certificateNote ? <p className={styles.diskStatus}><Icon type="info-circle" /> {t(certificateNote)}</p> : null}
               {nodes && ['partial', 'unavailable'].indexOf(nodes.disk_stats_status) > -1 ? <p className={styles.diskStatus}><Icon type="info-circle" /> {t('cluster.diskUnavailable')}</p> : null}
             </div>
             {alerts.length ? (

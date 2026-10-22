@@ -158,6 +158,12 @@ function nodeAlertTranslation(alert) {
       values: { certificate: alert.certificate_name || '-', date: alert.expires_at || '-', days: alert.remaining_days }
     };
   }
+  if (alert && alert.type === 'certificate_warning') {
+    return {
+      id: alert.reason === 'CACertificateExpirationWarning' ? 'cluster.caCertificateWarning' : 'cluster.certificateWarning',
+      values: {}
+    };
+  }
   return { id: alert && alert.type === 'node_not_ready' ? 'cluster.nodeNotReady' : 'cluster.unknownAlert', values: {} };
 }
 
