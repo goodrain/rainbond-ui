@@ -920,6 +920,45 @@
 .resourceGauge > span { position: absolute; left: 0; right: 0; bottom: 0; text-align: center; }
 .resourceGauge strong { display: block; color: darken(@heading-color, 10%); font-size: (@rbd-title-size + 1px); line-height: 1; }
 .resourceGauge small { display: block; margin-top: 4px; color: @rbd-label-color; font-size: (@rbd-auxiliary-size - 2px); }
+.certificateExpiries {
+  padding: 10px 14px;
+  border-top: 1px solid fade(@rbd-label-color, 18%);
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+}
+
+.certificateExpiries h3 {
+  margin: 0 0 6px;
+  color: @heading-color;
+  font-size: @rbd-content-size;
+  font-weight: 500;
+}
+
+.certificateExpiries ul {
+  max-height: 180px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.certificateExpiries li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px 14px;
+  padding: 7px 0;
+  border-bottom: 1px solid fade(@rbd-label-color, 12%);
+}
+
+.certificateExpiries li > span { min-width: 0; overflow-wrap: anywhere; }
+.certificateExpiries strong,
+.certificateExpiries small,
+.certificateExpiries time { display: block; }
+.certificateExpiries strong { font-weight: 500; }
+.certificateExpiries p { margin: 6px 0 0; }
+.certificateExpiries .certificateExpiryCritical { color: @error-color; }
+
 .diskStatus { margin: 0; padding: 7px 14px; color: @text-color-secondary; background: fade(@rbd-label-color, 4%); border-top: 1px solid fade(@rbd-label-color, 18%); font-size: @rbd-auxiliary-size; }
 
 .clusterAlerts {

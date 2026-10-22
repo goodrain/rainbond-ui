@@ -40,6 +40,43 @@ function componentIcon(name) {
   return icons[name] || 'cloud-server';
 }
 
+function certificateTimestampMillis(value) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)$/.test(value)) return null;
+  const parsed = moment.parseZone(value, moment.ISO_8601, true);
+  return parsed.isValid() ? parsed.valueOf() : null;
+}
+
+export function nodeCertificateExpiries(nodes, nowMs = Date.now()) {
+  const entries = new Map();
+  const reference = Number.isFinite(nowMs) ? nowMs : Date.now();
+  const validName = value => typeof value === 'string' && value.trim() && !/[\u0000-\u001f\u007f]/.test(value);
+  const items = nodes && Array.isArray(nodes.items) ? nodes.items : [];
+  items.forEach(node => {
+    if (!node || !validName(node.name) || !Array.isArray(node.certificates) || node.certificate_status === 'not_applicable') return;
+    node.certificates.forEach(certificate => {
+      if (!certificate || !validName(certificate.name)) return;
+      const expiryMs = certificateTimestampMillis(certificate.expires_at);
+      if (expiryMs === null) return;
+      const nodeName = node.name.trim();
+      const certificateName = certificate.name.trim();
+      const key = JSON.stringify([nodeName, certificateName]);
+      const previous = entries.get(key);
+      if (previous && previous.expires_at_ms <= expiryMs) return;
+      const remainingMs = expiryMs - reference;
+      entries.set(key, {
+        key,
+        node_name: nodeName,
+        certificate_name: certificateName,
+        expires_at: moment.utc(expiryMs).toISOString(),
+        expires_at_ms: expiryMs,
+        remaining_days: Math.ceil(remainingMs / 86400000) || 0,
+        status: remainingMs <= 0 ? 'expired' : remainingMs <= 30 * 86400000 ? 'critical' : 'normal'
+      });
+    });
+  });
+  return Array.from(entries.values()).sort((left, right) => left.expires_at_ms - right.expires_at_ms || left.node_name.localeCompare(right.node_name) || left.certificate_name.localeCompare(right.certificate_name));
+}
+
 export function clusterRuntimeStatus(snapshot, failed) {
   if (!snapshot || failed) return 'unknown';
   const nodeSection = overviewData.sectionEnvelope(snapshot, 'nodes');
@@ -539,6 +576,7 @@ export default class Enterprise extends PureComponent {
     const nodeStatus = overviewData.sectionStatus(snapshot, 'nodes');
     const clusterInfo = overviewData.sectionData(snapshot, 'cluster') || cluster;
     const alerts = (nodes && nodes.alerts) || [];
+    const certificateExpiries = nodeCertificateExpiries(nodes, certificateTimestampMillis(snapshot && snapshot.generated_at));
     const certificateNote = nodes && nodes.certificate_status === 'not_observed'
       ? (alerts.some(item => item && ['certificate_expiring', 'certificate_expired', 'certificate_warning'].indexOf(item.type) > -1) ? null : 'cluster.certificatesNotObserved')
       : (nodes && ['ok', 'not_applicable'].indexOf(nodes.certificate_status) === -1 ? 'cluster.certificatesUnavailable' : null);
@@ -563,6 +601,22 @@ export default class Enterprise extends PureComponent {
                 </div>
               ) : resourceStatus === 'loading' ? <Skeleton active paragraph={{ rows: 2 }} /> : <Alert type="warning" showIcon message={t('cluster.resourcesUnavailable')} />}
               {nodeStatus !== 'ok' && nodeStatus !== 'loading' ? <Alert className={styles.sectionWarning} type="warning" showIcon message={t('cluster.nodesUnavailable')} /> : null}
+              {nodes && nodes.certificate_status !== 'not_applicable' ? (
+                <section className={styles.certificateExpiries} aria-label={t('cluster.certificateExpiryTitle')}>
+                  <h3><Icon type="safety-certificate" /> {t('cluster.certificateExpiryTitle')}</h3>
+                  {certificateExpiries.length ? (
+                    <ul aria-label={t('cluster.certificateExpiryTitle')}>
+                      {certificateExpiries.map(certificate => (
+                        <li key={certificate.key} className={certificate.status !== 'normal' ? styles.certificateExpiryCritical : undefined}>
+                          <span><strong>{certificate.node_name}</strong><small>{certificate.certificate_name}</small></span>
+                          <span><time dateTime={certificate.expires_at}>{moment(certificate.expires_at).format('YYYY-MM-DD HH:mm:ss Z')}</time><small>{t(certificate.status === 'expired' ? 'cluster.certificateAlreadyExpired' : 'cluster.certificateRemainingDays', { days: certificate.remaining_days })}</small></span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : <p>{t('cluster.certificateExpiryUnknown')}</p>}
+                  <p>{t('cluster.certificateExpiryCoverage')}</p>
+                </section>
+              ) : null}
               {certificateNote ? <p className={styles.diskStatus}><Icon type="info-circle" /> {t(certificateNote)}</p> : null}
               {nodes && ['partial', 'unavailable'].indexOf(nodes.disk_stats_status) > -1 ? <p className={styles.diskStatus}><Icon type="info-circle" /> {t('cluster.diskUnavailable')}</p> : null}
             </div>
