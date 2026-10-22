@@ -165,28 +165,40 @@
 .page {
   min-width: 0;
   min-height: 100%;
-  padding: 20px;
-  color: darken(@heading-color, 10%);
+  padding: 18px 20px 28px;
+  color: @rbd-overview-heading-color;
   background: @rbd-background-color;
+  font-family: @rbd-overview-font-family;
+  font-size: @rbd-content-size;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page :global(.ant-btn),
+.page :global(.ant-select),
+.page :global(.ant-alert),
+.platformInfoModal,
+.clusterDropdown {
+  font-family: @rbd-overview-font-family;
 }
 
 .platformHeader,
 .module,
 .scopeBar,
 .pageSkeleton {
-  background: lighten(@rbd-background-color, 100%);
-  border: 1px solid fade(@rbd-label-color, 34%);
+  background: @rbd-overview-surface-color;
+  border: 1px solid @rbd-overview-border-color;
   border-radius: 12px;
-  box-shadow: @rbd-card-shadow;
+  box-shadow: @rbd-overview-card-shadow;
 }
 
 .platformHeader {
   position: relative;
-  min-height: 96px;
+  min-height: 80px;
   display: flex;
   align-items: stretch;
   justify-content: space-between;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
   overflow: hidden;
   transition: border-color 180ms ease, box-shadow 180ms ease;
 }
@@ -227,9 +239,9 @@
   flex: 1 1 240px;
   display: flex;
   align-items: center;
-  gap: 13px;
-  padding: 14px 18px;
-  color: @text-color;
+  gap: 11px;
+  padding: 13px 16px;
+  color: @rbd-overview-heading-color;
 }
 
 .platformIdentity:hover strong,
@@ -248,11 +260,12 @@
 
 .platformIdentity strong {
   overflow: hidden;
-  font-size: @rbd-title-size;
-  line-height: @rbd-title-line-height;
+  font-size: @rbd-sub-title-size;
+  line-height: @rbd-sub-title-line-height;
+  font-weight: 650;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: @primary-color;
+  color: @rbd-overview-heading-color;
 }
 
 .platformSummary {
@@ -271,7 +284,7 @@
 
 .platformFacts {
   display: grid;
-  grid-template-columns: 100px 220px;
+  grid-template-columns: 100px 250px;
   flex: 0 0 auto;
   align-items: center;
 }
@@ -285,8 +298,8 @@
 
 .platformFact small,
 .platformFact strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.platformFact small { color: @text-color-secondary; font-size: @rbd-auxiliary-size; line-height: 20px; }
-.platformFact strong { margin-top: 3px; color: @heading-color; font-size: @rbd-content-size; line-height: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.platformFact small { color: @rbd-overview-muted-color; font-size: (@rbd-auxiliary-size - 1px); line-height: 20px; }
+.platformFact strong { margin-top: 2px; color: @rbd-overview-heading-color; font-size: (@rbd-content-size - 1px); line-height: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .platformFact strong.headerSummaryHealthy { color: @primary-color; }
 .platformFact strong.headerSummaryWarning { color: darken(@warning-color, 22%); }
 .platformFact strong > :global(.anticon) { margin-right: 4px; }
@@ -311,15 +324,15 @@
 }
 
 .platformLogo {
-  width: 42px;
-  height: 42px;
+  width: 40px;
+  height: 40px;
   flex: 0 0 auto;
   display: grid;
   place-items: center;
   color: @primary-color;
-  background: fade(@primary-color, 10%);
-  border-radius: 8px;
-  font-size: @rbd-title-big-size;
+  background: fade(@primary-color, 7%);
+  border-radius: 11px;
+  font-size: (@rbd-title-big-size - 3px);
 }
 
 .upgradeAction {
@@ -395,14 +408,16 @@
 
 .module {
   min-width: 0;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
   overflow: hidden;
-  border-color: fade(@rbd-label-color, 28%);
-  box-shadow: @rbd-min-card-shadow;
+  border-color: @rbd-overview-border-color;
+  box-shadow: @rbd-overview-card-shadow;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
 }
 
 .module:hover {
-  border-color: fade(@rbd-label-color, 40%);
+  border-color: mix(@primary-color, @rbd-overview-border-color, 10%);
+  box-shadow: @rbd-overview-card-shadow-hover;
 }
 
 .halfModule {
@@ -415,9 +430,9 @@
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  padding: 7px 14px;
-  background: mix(@primary-color, lighten(@rbd-background-color, 100%), 3%);
-  border-bottom: 1px solid fade(@rbd-label-color, 30%);
+  padding: 11px 14px;
+  background: @rbd-overview-soft-surface-color;
+  border-bottom: 1px solid @rbd-overview-border-color;
 }
 
 .moduleTitle {
@@ -433,7 +448,7 @@
   gap: 8px;
   flex: 0 0 auto;
   margin: 0;
-  color: darken(@heading-color, 10%);
+  color: @rbd-overview-heading-color;
   font-size: @rbd-content-size;
   line-height: @rbd-content-line-height;
   font-weight: 650;
@@ -448,10 +463,18 @@
   border-radius: 2px;
 }
 
+.moduleHeader > :global(.ant-btn-link) {
+  height: auto;
+  padding: 0;
+  color: @primary-color;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+}
+
 .moduleTitle > span {
   overflow: hidden;
-  color: @text-color-secondary;
-  font-size: @rbd-auxiliary-size;
+  color: @rbd-label-color;
+  font-size: (@rbd-auxiliary-size - 1px);
   line-height: @rbd-auxiliary-line-height;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -498,8 +521,8 @@
   min-height: 104px;
   display: block;
   padding: 13px 14px;
-  color: @text-color;
-  border-right: 1px solid fade(@rbd-label-color, 18%);
+  color: @rbd-overview-heading-color;
+  border-right: 1px solid @rbd-overview-divider-color;
   cursor: default;
 }
 
@@ -521,7 +544,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  color: @text-color-secondary;
+  color: @rbd-overview-muted-color;
   font-size: @rbd-auxiliary-size;
   line-height: @rbd-auxiliary-line-height;
 }
@@ -550,7 +573,7 @@
 
 .globalMetric strong {
   margin: 7px 0 5px;
-  color: darken(@heading-color, 10%);
+  color: @rbd-overview-heading-color;
   font-size: (@rbd-title-big-size + 2px);
   line-height: 1;
   font-weight: 650;
@@ -703,8 +726,8 @@
   align-items: center;
   justify-content: flex-end;
   gap: 0;
-  padding: 10px 14px;
-  border-bottom: 1px solid fade(@rbd-label-color, 18%);
+  padding: 12px 16px;
+  border-bottom: 1px solid @rbd-overview-border-color;
 }
 
 .clusterMeta > div {
@@ -742,7 +765,9 @@
 
 .clusterMeta strong {
   overflow: hidden;
+  color: @rbd-overview-heading-color;
   font-size: @rbd-content-size;
+  font-weight: 650;
   line-height: @rbd-content-line-height;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -785,7 +810,7 @@
 .clusterResources {
   display: grid;
   grid-template-columns: minmax(180px, 1.2fr) minmax(180px, 1.2fr) minmax(104px, .65fr) minmax(104px, .65fr);
-  background: linear-gradient(180deg, fade(@primary-color, 2%), lighten(@rbd-background-color, 100%));
+  background: linear-gradient(180deg, mix(@primary-color, @rbd-overview-surface-color, 1.5%), @rbd-overview-surface-color);
 }
 
 .resourceCard,
@@ -793,7 +818,7 @@
   min-width: 0;
   min-height: 142px;
   padding: 14px 12px;
-  border-right: 1px solid fade(@rbd-label-color, 18%);
+  border-right: 1px solid @rbd-overview-border-color;
 }
 
 .resourceCard {
@@ -853,7 +878,7 @@
 
 .resourceCopy > strong {
   margin-top: 4px;
-  color: darken(@heading-color, 10%);
+  color: @rbd-overview-heading-color;
   font-size: (@rbd-title-big-size - 4px);
   font-weight: 650;
   font-variant-numeric: tabular-nums;
@@ -918,7 +943,7 @@
 .gaugeValue { stroke: @primary-color; transition: stroke-dasharray 420ms ease; }
 .gaugeWarning .gaugeValue { stroke: @warning-color; }
 .resourceGauge > span { position: absolute; left: 0; right: 0; bottom: 0; text-align: center; }
-.resourceGauge strong { display: block; color: darken(@heading-color, 10%); font-size: (@rbd-title-size + 1px); line-height: 1; }
+.resourceGauge strong { display: block; color: @rbd-overview-heading-color; font-size: (@rbd-title-size + 1px); line-height: 1; font-weight: 700; font-variant-numeric: tabular-nums; }
 .resourceGauge small { display: block; margin-top: 4px; color: @rbd-label-color; font-size: (@rbd-auxiliary-size - 2px); }
 .certificateExpiries {
   padding: 10px 14px;
@@ -1051,7 +1076,7 @@
 .primaryGrid,
 .secondaryGrid {
   display: grid;
-  gap: 14px;
+  gap: 16px;
   align-items: stretch;
 }
 
@@ -1067,12 +1092,12 @@
 
 .primaryGrid > .module,
 .secondaryGrid > .module {
-  height: calc(100% - 14px);
+  height: calc(100% - 16px);
 }
 
 .monitorModule { display: flex; flex-direction: column; }
 .monitorModule .moduleHeader { flex: 0 0 auto; }
-.monitorModule .moduleBody { min-height: 360px; flex: 1; display: flex; flex-direction: column; }
+.monitorModule .moduleBody { min-height: 466px; flex: 1; display: flex; flex-direction: column; padding: 16px; }
 .monitorModule .moduleBody > :not(.trendChart) { flex: 0 0 auto; }
 .servicesModule .moduleBody { padding: 0; }
 .monitorEmpty .moduleBody { min-height: 0; }
@@ -1094,16 +1119,17 @@
 
 .trendChart {
   width: 100%;
-  height: 260px;
-  min-height: 260px;
-  flex: 1 0 260px;
+  height: 350px;
+  min-height: 350px;
+  flex: 1 0 350px;
 }
 
-.segmentedControl { display: inline-flex; align-items: center; gap: 2px; padding: 2px; background: fade(@rbd-label-color, 6%); border: 1px solid fade(@rbd-label-color, 20%); border-radius: 7px; }
-.segmentedControl button { min-width: 38px; height: 25px; padding: 0 7px; color: @text-color-secondary; background: transparent; border: 0; border-radius: 5px; font-size: @rbd-auxiliary-size; cursor: pointer; }
-.segmentedControl button.segmentActive { color: @primary-color; background: lighten(@rbd-background-color, 100%); box-shadow: @rbd-min-card-shadow; font-weight: 600; }
+.segmentedControl { display: inline-flex; align-items: center; gap: 2px; padding: 3px; background: @rbd-overview-soft-surface-color; border: 1px solid @rbd-overview-divider-color; border-radius: 8px; }
+.segmentedControl button { min-width: 38px; height: 25px; padding: 0 7px; color: @rbd-overview-muted-color; background: transparent; border: 0; border-radius: 5px; font-size: @rbd-auxiliary-size; cursor: pointer; transition: color 160ms ease, background-color 160ms ease, box-shadow 160ms ease; }
+.segmentedControl button:hover { color: @primary-color; }
+.segmentedControl button.segmentActive { color: @primary-color; background: @rbd-overview-surface-color; box-shadow: @rbd-min-card-shadow; font-weight: 600; }
 .chartSummary { display: flex; align-items: center; gap: 12px; margin: 3px 0 4px; }
-.chartSummary > strong { color: darken(@heading-color, 10%); font-size: (@rbd-title-big-size + 4px); font-variant-numeric: tabular-nums; line-height: 1.2; font-weight: 600; }
+.chartSummary > strong { color: @rbd-overview-heading-color; font-size: (@rbd-title-big-size + 4px); font-variant-numeric: tabular-nums; line-height: 1.2; font-weight: 650; }
 .chartSummary > strong small { margin-left: 5px; color: @text-color-secondary; font-size: @rbd-sub-title-size; }
 .chartSummary > span { color: @text-color-secondary; font-size: @rbd-auxiliary-size; }
 .chartSummary > span small { display: block; margin-top: 3px; color: @rbd-label-color; }
@@ -1125,9 +1151,9 @@
 }
 
 .componentPanel,
-.pluginPanel { min-width: 0; padding: 12px 14px; }
-.pluginPanel { border-top: 1px solid fade(@rbd-label-color, 20%); background: mix(@primary-color, lighten(@rbd-background-color, 100%), 1.5%); }
-.sectionTitle > button { min-width: 0; display: inline-flex; align-items: center; gap: 6px; padding: 0; color: darken(@heading-color, 10%); background: transparent; border: 0; font-size: @rbd-auxiliary-size; font-weight: 650; cursor: pointer; }
+.pluginPanel { min-width: 0; padding: 16px; }
+.pluginPanel { border-top: 1px solid @rbd-overview-divider-color; background: @rbd-overview-soft-surface-color; }
+.sectionTitle > button { min-width: 0; display: inline-flex; align-items: center; gap: 6px; padding: 0; color: @rbd-overview-heading-color; background: transparent; border: 0; font-size: @rbd-auxiliary-size; font-weight: 650; cursor: pointer; }
 .sectionTitle > button:hover { color: @primary-color; }
 .sectionTitle > button > i:first-child { color: @primary-color; }
 .sectionTitle small { white-space: nowrap; }
@@ -1154,32 +1180,35 @@
 .componentGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px 12px;
-  margin-top: 10px;
-  border-top: 0;
+  gap: 0 12px;
+  margin-top: 14px;
+  border-top: 1px solid @rbd-overview-divider-color;
 }
 
 .componentGrid button {
   min-width: 0;
-  min-height: 46px;
+  min-height: 62px;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 5px 8px;
-  color: @text-color;
-  background: fade(@rbd-label-color, 4%);
-  border-radius: 7px;
-  border-bottom: 0;
+  padding: 10px 4px;
+  color: @rbd-overview-heading-color;
+  background: @rbd-overview-surface-color;
+  border-radius: 0;
+  border-bottom: 1px solid @rbd-overview-divider-color;
+  transition: background-color 180ms ease;
 }
 
+.componentGrid button:nth-last-child(-n + 2) { border-bottom-color: transparent; }
 .componentGrid button:hover {
   background: fade(@primary-color, 3%);
 }
 
-.componentIcon { width: 29px; height: 29px; flex: 0 0 auto; display: grid; place-items: center; color: @primary-color; background: fade(@primary-color, 8%); border-radius: 7px; }
+.componentIcon { width: 30px; height: 30px; flex: 0 0 auto; display: grid; place-items: center; color: darken(@success-color, 12%); background: fade(@success-color, 7%); border-radius: 8px; font-size: @rbd-sub-title-size; }
 .componentState { width: 6px; height: 6px; flex: 0 0 auto; border-radius: 50%; background: @success-color; }
 .componentAbnormal .componentState { background: @error-color; }
 .componentAbnormal { background: fade(@error-color, 4%) !important; }
+.componentAbnormal .componentIcon { color: @error-color; background: fade(@error-color, 8%); }
 .componentCopy { min-width: 0; flex: 1; }
 .itemChevron { color: @rbd-label-color; font-size: (@rbd-auxiliary-size - 2px); }
 
@@ -1199,8 +1228,10 @@
 
 .componentGrid strong,
 .pluginList strong {
+  color: @rbd-overview-heading-color;
   font-size: @rbd-auxiliary-size;
   font-weight: 600;
+  line-height: 18px;
 }
 
 .componentGrid small,
@@ -1221,8 +1252,8 @@
 .pluginList {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
-  margin-top: 8px;
+  gap: 8px;
+  margin-top: 12px;
 }
 
 .fullPluginList { max-height: 60vh; overflow-y: auto; padding: 2px 4px 2px 0; }
@@ -1230,16 +1261,17 @@
 
 .pluginList button {
   min-width: 0;
-  min-height: 38px;
+  min-height: 48px;
   display: grid;
-  grid-template-columns: 24px minmax(0, 1fr) 10px;
+  grid-template-columns: 28px minmax(0, 1fr) 10px;
   align-items: center;
   gap: 7px;
-  padding: 4px 8px;
-  color: @text-color;
-  background: lighten(@rbd-background-color, 100%);
-  border: 1px solid transparent;
-  border-radius: 6px;
+  padding: 8px;
+  color: @rbd-overview-heading-color;
+  background: @rbd-overview-surface-color;
+  border: 1px solid @rbd-overview-divider-color;
+  border-radius: 8px;
+  transition: border-color 180ms ease, background-color 180ms ease;
 }
 
 .pluginList button:hover {
@@ -1284,13 +1316,14 @@
 }
 
 .pluginIcon {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   display: grid;
   place-items: center;
   color: @primary-color;
   background: fade(@primary-color, 9%);
   border-radius: 6px;
+  font-size: @rbd-sub-title-size;
 }
 
 .teamRanking {
@@ -1305,8 +1338,8 @@
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
-  color: @text-color;
-  border-bottom: 1px solid fade(@rbd-label-color, 17%);
+  color: @rbd-overview-heading-color;
+  border-bottom: 1px solid @rbd-overview-divider-color;
   border-radius: 6px;
 }
 
@@ -1375,7 +1408,7 @@
 .rankingToolbar small { display: block; margin-top: 2px; color: @text-color-secondary; font-size: (@rbd-auxiliary-size - 2px); }
 
 .teamValue {
-  color: @heading-color;
+  color: @rbd-overview-heading-color;
   font-size: @rbd-sub-title-size;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
@@ -1400,7 +1433,7 @@
 .gatewayMetrics > div {
   min-height: 105px;
   padding: 15px;
-  background: fade(@primary-color, 3%);
+  background: @rbd-overview-soft-surface-color;
   border-radius: 8px;
 }
 
@@ -1473,12 +1506,13 @@
   max-width: calc(100vw - 40px);
   padding-bottom: 0;
   font-size: @rbd-auxiliary-size;
+  color: @rbd-overview-heading-color;
 
   :global(.ant-modal-content) {
     overflow: hidden;
     border: 1px solid fade(@primary-color, 10%);
     border-radius: 14px;
-    box-shadow: @rbd-card-shadow-hover;
+    box-shadow: @rbd-overview-card-shadow-hover;
   }
 
   :global(.ant-modal-header) {
@@ -1513,7 +1547,7 @@
   min-width: 0;
 
   > div { min-width: 0; }
-  h2 { margin: 2px 0 4px; color: @heading-color; font-size: (@rbd-title-size + 1px); line-height: @rbd-title-line-height; font-weight: 650; overflow-wrap: anywhere; }
+  h2 { margin: 2px 0 4px; color: @rbd-overview-heading-color; font-size: (@rbd-title-size + 1px); line-height: @rbd-title-line-height; font-weight: 650; overflow-wrap: anywhere; }
 }
 
 .platformInfoHeroIcon {
@@ -1811,6 +1845,7 @@
   }
 
   .componentGrid button { padding: 8px; }
+  .componentGrid button:nth-last-child(2) { border-bottom-color: @rbd-overview-divider-color; }
 
   .globalMetric {
     min-height: 94px;

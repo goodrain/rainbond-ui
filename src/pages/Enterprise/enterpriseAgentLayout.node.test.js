@@ -149,8 +149,8 @@ const boxShadows = Array.from(lessSource.matchAll(/box-shadow:\s*([^;]+);/g)).ma
 );
 assert.ok(
   boxShadows.length > 0 &&
-    boxShadows.every(value => /^@rbd-(?:min-)?card-shadow(?:-hover)?$/.test(value)),
-  'overview box shadows should exclusively use the existing Rainbond shadow variables'
+    boxShadows.every(value => /^@rbd-(?:overview-|min-)?card-shadow(?:-hover)?$/.test(value)),
+  'overview box shadows should exclusively use Rainbond theme variables, including scoped overview tokens'
 );
 
 assert.ok(

@@ -84,7 +84,19 @@ const gauge = fs.readFileSync(path.join(__dirname, 'components/ResourceGauge.js'
 const trend = fs.readFileSync(path.join(__dirname, 'components/ResourceTrend.js'), 'utf8');
 assert.ok(/min: 0/.test(trend), 'adaptive percentage axes must keep the zero baseline');
 assert.ok(/max: metric === 'network' \? null : overviewData\.percentageAxisMax\(points\)/.test(trend), 'CPU and memory use sampled peaks while network keeps its own units and auto scale');
-assert.ok(/backgroundColor: theme\['heading-color'\],[\s\S]{0,100}textStyle: \{ color: theme\['rbd-background-color'\] \}/.test(trend), 'dark tooltips must set readable theme-derived light text');
+const theme = require('../../../config/theme');
+const tooltipColors = trend.match(/backgroundColor: theme\['([^']+)'\],[\s\S]*?textStyle: \{ color: theme\['([^']+)'\]/);
+assert.ok(tooltipColors, 'tooltip colors must come from the theme');
+const luminance = hex => {
+  const channels = hex.slice(1).match(/.{2}/g).map(channel => {
+    const value = parseInt(channel, 16) / 255;
+    return value <= 0.04045 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
+  });
+  return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+};
+const tooltipLuminance = tooltipColors.slice(1).map(key => luminance(theme[key]));
+assert.ok((Math.max(...tooltipLuminance) + 0.05) / (Math.min(...tooltipLuminance) + 0.05) >= 4.5,
+  'tooltip text must remain readable on both light and dark backgrounds');
 assert.ok(/Math\.max\(0, Math\.min\(100, Number\(percent\)\)\)/.test(gauge));
 assert.ok(/formatNumber\(percent, 1\)/.test(gauge), 'the text must retain values above 100%');
 console.log('overview remediation adapter and layout checks passed');

@@ -53,15 +53,19 @@ export default class ResourceTrend extends PureComponent {
     this.chart.setOption(
       {
         animation: false,
+        textStyle: { fontFamily: theme['rbd-overview-font-family'], fontSize: AUXILIARY_FONT_SIZE },
         grid: { top: 22, right: 18, bottom: 32, left: metric === 'network' ? 66 : 46 },
         tooltip: {
           trigger: 'axis',
           confine: true,
           transitionDuration: 0,
           axisPointer: { type: 'line', animation: false, lineStyle: { color, type: 'dashed' } },
-          backgroundColor: theme['heading-color'],
-          textStyle: { color: theme['rbd-background-color'] },
-          borderWidth: 0,
+          backgroundColor: theme['rbd-overview-surface-color'],
+          textStyle: { color: theme['rbd-overview-heading-color'], fontFamily: theme['rbd-overview-font-family'], lineHeight: 22 },
+          borderWidth: 1,
+          borderColor: theme['rbd-overview-divider-color'],
+          padding: [10, 14],
+          extraCssText: `border-radius:10px;box-shadow:${theme['rbd-overview-card-shadow-hover']};`,
           formatter: params => {
             const point = params && params[0];
             if (!point || !overviewData.isNumber(point.value[1])) return '';
@@ -74,7 +78,7 @@ export default class ResourceTrend extends PureComponent {
         xAxis: {
           type: 'time',
           boundaryGap: false,
-          axisLine: { lineStyle: { color: theme['border-color-base'] } },
+          axisLine: { lineStyle: { color: theme['rbd-overview-divider-color'] } },
           axisTick: { show: false },
           axisLabel: { color: theme['rbd-label-color'], hideOverlap: true }
         },
@@ -92,7 +96,7 @@ export default class ResourceTrend extends PureComponent {
               return `${throughput.value} ${throughput.unit}`;
             }
           },
-          splitLine: { lineStyle: { color: theme['border-color-base'], type: 'dashed' } }
+          splitLine: { lineStyle: { color: theme['rbd-overview-divider-color'], type: 'dashed' } }
         },
         series: [
           {
@@ -104,7 +108,7 @@ export default class ResourceTrend extends PureComponent {
             smooth: 0.2,
             showSymbol: false,
             symbolSize: 8,
-            lineStyle: { width: 3, color },
+            lineStyle: { width: 2.5, color },
             itemStyle: { color },
             areaStyle: {
               color: new this.echarts.graphic.LinearGradient(0, 0, 0, 1, [
