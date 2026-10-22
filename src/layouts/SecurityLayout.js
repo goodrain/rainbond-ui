@@ -129,7 +129,7 @@ class SecurityLayout extends React.PureComponent {
   };
 
   render() {
-    const { children, currentUser, needLogin } = this.props;
+    const { children, currentUser, needLogin, location } = this.props;
     const { isReady } = this.state;
     // You can replace it to your authentication rule (such as check token exists)
     const token = cookie.get('token');
@@ -149,7 +149,8 @@ class SecurityLayout extends React.PureComponent {
       return <Redirect to={`/user/login?${queryString}`} />;
     }
 
-    return <ErrorBoundary children={children} />;
+    const resetKey = location && `${location.pathname}${location.search || ''}`;
+    return <ErrorBoundary resetKey={resetKey} children={children} />;
   }
 }
 
