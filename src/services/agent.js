@@ -597,3 +597,36 @@ export async function decideAgentApproval(payload = {}) {
     events
   };
 }
+
+// ==================== 用户级记忆（P0） ====================
+// 记忆按登录用户隔离，接口挂在同一个 copilot base 下。
+
+export async function listAgentMemories({ limit = 50, offset = 0, kind } = {}) {
+  const params = new URLSearchParams();
+  params.set('limit', String(limit));
+  params.set('offset', String(offset));
+  if (kind) params.set('kind', kind);
+  return requestJson(`${await copilotApiBase()}/memory?${params.toString()}`, {
+    method: 'GET',
+    headers: buildRequestHeaders(),
+  });
+}
+
+export async function createAgentMemory({ content, kind } = {}) {
+  const headers = buildRequestHeaders();
+  headers['Content-Type'] = 'application/json';
+  return requestJson(`${await copilotApiBase()}/memory`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ content, kind }),
+  });
+}
+
+export async function deleteAgentMemory(memoryId) {
+  if (!memoryId) throw new Error('memoryId is required');
+  return requestJsonAcceptStatuses(
+    `${await copilotApiBase()}/memory/${encodeURIComponent(memoryId)}`,
+    { method: 'DELETE', headers: buildRequestHeaders() },
+    [204]
+  );
+}

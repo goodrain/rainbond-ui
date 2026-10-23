@@ -10,6 +10,7 @@ import * as closeBehavior from './closeBehavior';
 import * as displayFilters from './displayFilters';
 import * as markdownHelpers from './markdownHelpers';
 import * as scrollBehavior from './scrollBehavior';
+import MemorySettings from './MemorySettings';
 
 function ReasoningBlock({ reasoning, streaming }) {
   // Default open while reasoning is still streaming so the user can watch the
@@ -514,6 +515,7 @@ export default class AgentHost extends PureComponent {
     super(props);
     this.state = {
       approvalSettingsVisible: false,
+      memorySettingsVisible: false,
       updateBannerDismissed: false,
     };
     this.messagesRef = null;
@@ -1277,6 +1279,20 @@ export default class AgentHost extends PureComponent {
                 </div>
               </div>
               <div className={styles.panelHeaderActions}>
+                <Popover
+                  trigger="click"
+                  placement="bottomRight"
+                  content={<MemorySettings />}
+                  overlayClassName={styles.autoApprovalPopover}
+                  visible={this.state.memorySettingsVisible}
+                  onVisibleChange={visible =>
+                    this.setState({ memorySettingsVisible: visible })
+                  }
+                >
+                  <button className={styles.headerIconButton} aria-label="我的记忆">
+                    <Icon type="bulb" />
+                  </button>
+                </Popover>
                 <Popover
                   trigger="click"
                   placement="bottomRight"
