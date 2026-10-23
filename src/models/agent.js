@@ -1188,6 +1188,10 @@ export default {
                     ? { conversationId: startedSessionId }
                     : {}),
                   activeRunId: startedRunId,
+                  // Event sequences are per run, not per session. A new run
+                  // starts at sequence 1; carrying the previous run's high
+                  // water mark would drop its traces/tool events.
+                  lastEventSequence: 0,
                 },
               });
             }
@@ -1581,8 +1585,14 @@ export default {
         incomingEventType === 'run.status' ||
         incomingEventType === 'approval.requested' ||
         incomingEventType === 'approval.resolved';
+      const runChanged = !!(
+        incomingRunId &&
+        prevState.activeRunId &&
+        incomingRunId !== prevState.activeRunId
+      );
       if (
         !replaySafeEvent &&
+        !runChanged &&
         incomingSequence > 0 &&
         incomingRunId &&
         prevState.activeRunId &&
@@ -1608,7 +1618,10 @@ export default {
 
       yield put({
         type: 'applyStreamEventReducer',
-        payload,
+        payload: {
+          ...payload,
+          resetSequence: runChanged,
+        },
       });
 
       // Detect run-terminal status from this event so we can flush a pending
@@ -2022,7 +2035,10 @@ export default {
     },
 
     applyStreamEventReducer(state, { payload }) {
-      const merged = applyAgentStreamEvent(state, payload);
+      const baseState = payload && payload.resetSequence
+        ? { ...state, lastEventSequence: 0 }
+        : state;
+      const merged = applyAgentStreamEvent(baseState, payload);
       return {
         ...state,
         interactionLocked: merged.interactionLocked,
