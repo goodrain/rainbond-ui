@@ -545,6 +545,7 @@ function applyAgentEvents({
             nextMessages,
             {
               type: 'chat.message',
+              runId: adaptedEvent.runId || (event && event.runId) || '',
               data: {
                 message_id: adaptedEvent.messageId,
                 role: adaptedEvent.role,
@@ -564,10 +565,18 @@ function applyAgentEvents({
           }
         }
         const lastAssistantIndex = findLatestAssistantNormalMessageIndex(nextMessages);
+        const lastAssistant = lastAssistantIndex > -1
+          ? nextMessages[lastAssistantIndex]
+          : null;
+        const lastAssistantRunMatches =
+          !adaptedEvent.runId ||
+          !lastAssistant ||
+          !lastAssistant.streamRunId ||
+          lastAssistant.streamRunId === adaptedEvent.runId;
         if (
           lastAssistantIndex > -1 &&
-          (nextMessages[lastAssistantIndex].streamMessageId ||
-            nextMessages[lastAssistantIndex].streaming)
+          lastAssistantRunMatches &&
+          (lastAssistant.streamMessageId || lastAssistant.streaming)
         ) {
           const mutableMessages = ensureMutableMessages();
           mutableMessages[lastAssistantIndex] = {
@@ -1671,9 +1680,15 @@ export default {
             type: 'saveState',
             payload: { cancellingRun: false },
           });
-        } else if (flushedState.sending) {
+        } else if (
+          flushedState.sending &&
+          (!incomingEvent.runId ||
+            !flushedState.activeRunId ||
+            incomingEvent.runId === flushedState.activeRunId)
+        ) {
           // Run terminated after a page-refresh reattach: clear the sending
-          // lock and activeRunId that hydrateSession set.
+          // lock and activeRunId that hydrateSession set. Never let a late
+          // status from an older run clear a newer run's thinking state.
           yield put({
             type: 'saveState',
             payload: { sending: false, activeRunId: '' },
