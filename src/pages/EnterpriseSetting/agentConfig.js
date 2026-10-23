@@ -8,6 +8,24 @@ import WebSearchConfig from './WebSearchConfig';
 const { Option } = Select;
 const FormItem = Form.Item;
 
+const PROVIDER_PRESETS = {
+  deepseek: { label: 'DeepSeek', baseURL: 'https://api.deepseek.com', model: 'deepseek-flash' },
+  qwen: {
+    label: 'Qwen（阿里云百炼）',
+    baseURL: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+    model: 'qwen3.8-max'
+  },
+  kimi: { label: 'Kimi（Moonshot）', baseURL: 'https://api.moonshot.cn/v1', model: 'kimi-k2.6' },
+  glm: { label: 'GLM（智谱）', baseURL: 'https://open.bigmodel.cn/api/paas/v4', model: 'glm-4.6' },
+  doubao: {
+    label: '豆包（火山方舟）',
+    baseURL: 'https://ark.cn-beijing.volces.com/api/v3',
+    model: 'doubao-seed-2-1-pro-260915'
+  },
+  mimo: { label: 'MiMo（小米）', baseURL: 'https://api.xiaomimimo.com/v1', model: 'mimo-v2.6-pro' },
+  'openai-compatible': { label: '自定义 / 自建（OpenAI 兼容）', baseURL: '', model: '' }
+};
+
 @Form.create()
 @connect(({ loading }) => ({
   loadingConfig: loading.effects['global/fetchAgentLlmConfig'],
@@ -32,6 +50,7 @@ class AgentConfig extends PureComponent {
       openai_api_key: '',
       openai_model: config.openai_model || '',
       openai_base_url: config.openai_base_url || '',
+      llm_provider: config.llm_provider || 'deepseek',
       llm_thinking_enabled: !!config.llm_thinking_enabled,
       llm_reasoning_effort: config.llm_reasoning_effort || 'medium'
     });
@@ -43,6 +62,7 @@ class AgentConfig extends PureComponent {
       openai_api_key: '',
       openai_model: '',
       openai_base_url: '',
+      llm_provider: 'deepseek',
       llm_thinking_enabled: false,
       llm_reasoning_effort: 'medium'
     });
@@ -86,6 +106,7 @@ class AgentConfig extends PureComponent {
         openai_api_key: values.openai_api_key,
         openai_model: values.openai_model,
         openai_base_url: values.openai_base_url,
+        llm_provider: values.llm_provider,
         llm_thinking_enabled: !!values.llm_thinking_enabled,
         llm_reasoning_effort: values.llm_reasoning_effort
       };
@@ -171,6 +192,23 @@ class AgentConfig extends PureComponent {
       <Spin spinning={!!loadingConfig}>
         <Card style={{padding:24}}>
           <Form>
+            <Row gutter={24}>
+              <Col span={12}>
+                <FormItem {...formItemLayout} label="模型厂商">
+                  {getFieldDecorator('llm_provider', {
+                    initialValue: 'deepseek'
+                  })(
+                    <Select onChange={this.handleProviderChange}>
+                      {Object.entries(PROVIDER_PRESETS).map(([value, preset]) => (
+                        <Option key={value} value={value}>
+                          {preset.label}
+                        </Option>
+                      ))}
+                    </Select>
+                  )}
+                </FormItem>
+              </Col>
+            </Row>
             <Row gutter={24}>
               <Col span={12}>
                 <FormItem
