@@ -1,22 +1,17 @@
 import React, { PureComponent } from 'react';
-import { Button, Input, Popconfirm, Select, message } from 'antd';
+import { Button, Popconfirm, message } from 'antd';
 import {
-  createAgentMemory,
   deleteAgentMemory,
+  getAgentMemoryStatus,
   listAgentMemories
 } from '../../services/agent';
 import styles from './index.less';
 
-const KIND_OPTIONS = [
-  { label: '偏好', value: 'preference' },
-  { label: '约定', value: 'convention' },
-  { label: '事实', value: 'fact' }
-];
-
 const KIND_LABELS = {
   preference: '偏好',
   convention: '约定',
-  fact: '事实'
+  fact: '事实',
+  habit: '习惯'
 };
 
 function formatTime(value) {
@@ -27,19 +22,19 @@ function formatTime(value) {
 }
 
 /**
- * 用户级记忆管理（P0）。
+ * 我的习惯（自动记忆）。
  *
- * 放在聊天面板里而不是插件配置页：配置页只有企业管理员能进，而偏好是
- * 每个登录用户自己的东西。这里只管理"表达方式"类记忆，涉及审批/流程的
- * 内容在后端就被拒收。
+ * 记忆由对话自动学习：从你说话的措辞、格式、称呼里提炼稳定偏好，不需要手写。
+ * 这里只做两件事：让你看见它学到了什么，以及删掉学错的。
  */
 export default class MemorySettings extends PureComponent {
   state = {
     items: [],
     loading: false,
-    submitting: false,
-    content: '',
-    kind: 'preference'
+    ready: true,
+    storage: '',
+    enabled: true,
+    learnEnabled: true
   };
 
   componentDidMount() {
@@ -48,10 +43,15 @@ export default class MemorySettings extends PureComponent {
 
   load = () => {
     this.setState({ loading: true });
-    listAgentMemories()
-      .then(payload => {
-        const items = (payload && payload.items) || [];
-        this.setState({ items });
+    Promise.all([listAgentMemories(), getAgentMemoryStatus()])
+      .then(([listPayload, status]) => {
+        this.setState({
+          items: (listPayload && listPayload.items) || [],
+          ready: !status || status.ready !== false,
+          storage: (status && status.storage) || '',
+          enabled: !status || status.enabled !== false,
+          learnEnabled: !status || status.learnEnabled !== false
+        });
       })
       .catch(error => {
         message.error((error && error.message) || '加载记忆失败');
@@ -59,73 +59,55 @@ export default class MemorySettings extends PureComponent {
       .finally(() => this.setState({ loading: false }));
   };
 
-  handleAdd = () => {
-    const content = (this.state.content || '').trim();
-    if (!content) {
-      message.warning('请先输入要记住的内容');
-      return;
-    }
-    this.setState({ submitting: true });
-    createAgentMemory({ content, kind: this.state.kind })
-      .then(payload => {
-        message.success(payload && payload.deduped ? '这条记忆已存在' : '已记住');
-        this.setState({ content: '' });
-        this.load();
-      })
-      .catch(error => {
-        message.error((error && error.message) || '没有写入记忆');
-      })
-      .finally(() => this.setState({ submitting: false }));
-  };
-
   handleRemove = memoryId => {
     deleteAgentMemory(memoryId)
-      .then(() => {
-        this.load();
-      })
+      .then(() => this.load())
       .catch(error => {
         message.error((error && error.message) || '删除失败');
       });
   };
 
-  render() {
-    const { items, loading, submitting, content, kind } = this.state;
-    return (
-      <div className={styles.autoApprovalList} style={{ width: 360 }}>
+  renderNotice() {
+    const { ready, storage, enabled, learnEnabled } = this.state;
+    if (!ready) {
+      return (
+        <div className={styles.autoApprovalError}>
+          记忆存储不可用（{storage || '未知存储'}）。请管理员确认数据库迁移
+          028/029 是否已执行。
+        </div>
+      );
+    }
+    if (!enabled) {
+      return (
+        <div className={styles.autoApprovalHint}>记忆功能当前已关闭。</div>
+      );
+    }
+    if (!learnEnabled) {
+      return (
         <div className={styles.autoApprovalHint}>
-          只影响表达方式（长度、称呼、术语），不改变工具选择和审批行为。
+          自动学习已关闭，只保留已有记忆。可以在删除后不再积累。
+        </div>
+      );
+    }
+    return null;
+  }
+
+  render() {
+    const { items, loading } = this.state;
+    return (
+      <div className={styles.autoApprovalList} style={{ width: 340 }}>
+        <div className={styles.autoApprovalHint}>
+          这些习惯从你的对话里自动学到，只影响表达方式（长度、语气、称呼、格式），
+          不会改变工具选择和审批行为。学错了可以直接删掉。
         </div>
 
-        <Input.TextArea
-          rows={2}
-          maxLength={500}
-          value={content}
-          placeholder="例如：回答先给结论，细节折叠起来"
-          onChange={event => this.setState({ content: event.target.value })}
-        />
-        <div className={styles.autoApprovalActions} style={{ marginTop: 8 }}>
-          <Select
-            size="small"
-            value={kind}
-            style={{ width: 88 }}
-            onChange={value => this.setState({ kind: value })}
-          >
-            {KIND_OPTIONS.map(option => (
-              <Select.Option key={option.value} value={option.value}>
-                {option.label}
-              </Select.Option>
-            ))}
-          </Select>
-          <Button size="small" type="primary" loading={submitting} onClick={this.handleAdd}>
-            记住
-          </Button>
-        </div>
+        {this.renderNotice()}
 
         {loading ? (
           <div className={styles.autoApprovalEmpty}>加载中…</div>
         ) : null}
         {!loading && !items.length ? (
-          <div className={styles.autoApprovalEmpty}>还没有记忆</div>
+          <div className={styles.autoApprovalEmpty}>还没有学到习惯</div>
         ) : null}
         {!loading &&
           items.map(item => (
@@ -140,7 +122,7 @@ export default class MemorySettings extends PureComponent {
                 </span>
               </span>
               <Popconfirm
-                title="删除这条记忆？"
+                title="删掉这条记忆？"
                 okText="删除"
                 cancelText="取消"
                 onConfirm={() => this.handleRemove(item.id)}

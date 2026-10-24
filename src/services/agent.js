@@ -612,6 +612,13 @@ export async function listAgentMemories({ limit = 50, offset = 0, kind } = {}) {
   });
 }
 
+export async function getAgentMemoryStatus() {
+  return requestJson(`${await copilotApiBase()}/memory/config`, {
+    method: 'GET',
+    headers: buildRequestHeaders(),
+  });
+}
+
 export async function createAgentMemory({ content, kind } = {}) {
   const headers = buildRequestHeaders();
   headers['Content-Type'] = 'application/json';
