@@ -152,18 +152,6 @@ function nodeAlertTranslation(alert) {
       }
     };
   }
-  if (alert && ['certificate_expiring', 'certificate_expired'].indexOf(alert.type) > -1) {
-    return {
-      id: alert.type === 'certificate_expired' ? 'cluster.certificateExpired' : 'cluster.certificateExpiring',
-      values: { certificate: alert.certificate_name || '-', date: alert.expires_at || '-', days: alert.remaining_days }
-    };
-  }
-  if (alert && alert.type === 'certificate_warning') {
-    return {
-      id: alert.reason === 'CACertificateExpirationWarning' ? 'cluster.caCertificateWarning' : 'cluster.certificateWarning',
-      values: {}
-    };
-  }
   return { id: alert && alert.type === 'node_not_ready' ? 'cluster.nodeNotReady' : 'cluster.unknownAlert', values: {} };
 }
 

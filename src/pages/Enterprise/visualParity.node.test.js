@@ -61,7 +61,7 @@ assert.deepStrictEqual(updates[1].option.series[0].data, [[200000, 40]]);
 const runtimeStatus = result.exports.clusterRuntimeStatus;
 const healthySnapshot = () => ({ sections: {
   // Console _normalize_nodes returns no data.status; availability lives on the envelope.
-  nodes: { status: 'ok', data: { ready: 2, total: 2, disk_stats_status: 'ok', certificate_status: 'ok', alerts: [] } },
+  nodes: { status: 'ok', data: { ready: 2, total: 2, disk_stats_status: 'ok', alerts: [] } },
   components: { status: 'ok', data: [{ status: 'Running', run_pods: 1, all_pods: 1 }] }
 } });
 assert.strictEqual(runtimeStatus(healthySnapshot()), 'normal');
