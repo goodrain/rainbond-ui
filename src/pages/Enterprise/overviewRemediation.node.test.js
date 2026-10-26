@@ -38,6 +38,30 @@ assert.strictEqual(data.percentageAxisMax([[1, 0], [2, 0]]), 10, 'zero samples s
 assert.strictEqual(data.percentageAxisMax([[1, null], [2, ''], [3, NaN], [4, Infinity], [5, '20']]), 30, 'gaps and invalid values must not affect the axis');
 assert.strictEqual(data.percentageAxisMax([]), 10);
 assert.strictEqual(data.percentageAxisMax(null), 10);
+const rankingSnapshot = { sections: {
+  resources: { status: 'ok', data: { cpu: { capacity: 64, allocated: 8 }, memory: { capacity: 131072, allocated: 16384 } } },
+  teams: { status: 'ok', data: { totals: { cpu_cores: 45, memory_gib: 85, applications: 40 } } }
+} };
+assert.strictEqual(data.teamRankingTotal(rankingSnapshot, 'memory'), 128, 'team GiB must be compared with cluster MiB converted to GiB');
+assert.strictEqual(data.teamRankingShare(32, data.teamRankingTotal(rankingSnapshot, 'memory')), 25);
+assert.strictEqual(data.teamRankingTotal(rankingSnapshot, 'cpu'), 64, 'resource denominator is cluster capacity, not allocations or team totals');
+assert.strictEqual(data.teamRankingShare(8, data.teamRankingTotal(rankingSnapshot, 'cpu')), 12.5);
+assert.strictEqual(data.teamRankingTotal(rankingSnapshot, 'applications'), 40, 'apps include every team rather than just the displayed top five');
+assert.strictEqual(data.teamRankingShare(10, data.teamRankingTotal(rankingSnapshot, 'applications')), 25);
+assert.strictEqual(data.teamRankingShare(0, 128), 0, 'known zero configuration remains zero');
+assert.strictEqual(data.teamRankingShare(160, 128), 125, 'configured resources may exceed capacity and the label must retain the true percentage');
+for (const total of [null, undefined, '', ' ', true, false, -1, 0, Infinity]) {
+  assert.strictEqual(data.teamRankingShare(4, total), null, 'missing or unusable denominators must not become 0%');
+}
+for (const value of [null, undefined, '', true, false, -1, Infinity]) {
+  assert.strictEqual(data.teamRankingShare(value, 128), null);
+}
+assert.strictEqual(data.teamRankingTotal(null, 'memory'), null);
+rankingSnapshot.sections.resources.status = 'unavailable';
+assert.strictEqual(data.teamRankingTotal(rankingSnapshot, 'memory'), null, 'failed resource responses cannot fall back to top-five totals');
+assert.strictEqual(data.teamRankingTotal(rankingSnapshot, 'applications'), 40, 'application shares do not depend on the resource service');
+rankingSnapshot.sections.teams.status = 'unavailable';
+assert.strictEqual(data.teamRankingTotal(rankingSnapshot, 'applications'), null);
 const axisSamples = [[1, 20], [2, 4.8]];
 data.percentageAxisMax(axisSamples);
 assert.deepStrictEqual(axisSamples, [[1, 20], [2, 4.8]], 'axis scaling must not modify actual samples');

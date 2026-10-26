@@ -16,6 +16,22 @@ function sectionStatus(snapshot, name) {
   return sectionEnvelope(snapshot, name).status;
 }
 
+function teamRankingTotal(snapshot, metric) {
+  const resources = sectionData(snapshot, 'resources');
+  const teams = sectionData(snapshot, 'teams');
+  const total = metric === 'applications' ? teams && teams.totals && teams.totals.applications :
+    resources && resources[metric] && resources[metric].capacity;
+  if (typeof total === 'boolean' || !isNumber(total) || Number(total) < 0) return null;
+  // Cluster memory capacity is MiB; team configuration is GiB.
+  return Number(total) / (metric === 'memory' ? 1024 : 1);
+}
+
+function teamRankingShare(value, total) {
+  if ([value, total].some(number => typeof number === 'boolean' || !isNumber(number)) || Number(value) < 0 || Number(total) <= 0) return null;
+  const percent = Number(value) / Number(total) * 100;
+  return Number.isFinite(percent) ? percent : null;
+}
+
 function sectionEnvelope(snapshot, name) {
   if (!snapshot) return { status: 'loading', data: null };
   const section = snapshot.sections && snapshot.sections[name];
@@ -382,6 +398,8 @@ function compactVersion(version) {
 }
 
 module.exports = {
+  teamRankingTotal,
+  teamRankingShare,
   runtimeAvailability,
   componentVisualState,
   componentRestarts,

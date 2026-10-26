@@ -196,4 +196,28 @@ assert.ok(partialRestartServices.some(item => item.props.className === 'componen
   textOf(item).includes('platformOverview.services.restartCountAtLeast')));
 assert.equal(partialRestartServices.filter(item => item.props.className === 'componentAbnormal').length, 0,
   'past restart records alone must not mark a currently ready component unhealthy');
+
+const rankingSnapshot = { sections: {
+  resources: { status: 'ok', data: { cpu: { capacity: 64 }, memory: { capacity: 131072 } } },
+  teams: { status: 'ok', data: {
+    memory: [{ tenant_id: 'a', tenant_name: 'a', memory_gib: 32 }, { tenant_id: 'b', tenant_name: 'b', memory_gib: 16 }],
+    cpu: [{ tenant_id: 'a', tenant_name: 'a', cpu_cores: 8 }],
+    applications: [{ tenant_id: 'a', tenant_name: 'a', applications: 10 }],
+    totals: { cpu_cores: 8, memory_gib: 48, applications: 40 }
+  } }
+} };
+displayPage.getCurrentSnapshot = () => rankingSnapshot;
+displayPage.state.teamMetric = 'memory';
+const rankingBars = () => nodes(displayPage.renderTeamRanking()).filter(item => item.props.className === 'teamTrack')
+  .map(item => item.props.children.props.style.width);
+assert.deepStrictEqual(rankingBars(), ['25%', '12.5%'], 'bars represent cluster capacity, not the highest-ranked team or top-five sum');
+displayPage.state.teamMetric = 'cpu';
+assert.deepStrictEqual(rankingBars(), ['12.5%']);
+displayPage.state.teamMetric = 'applications';
+assert.deepStrictEqual(rankingBars(), ['25%']);
+displayPage.state.teamMetric = 'memory';
+rankingSnapshot.sections.resources.data.memory.capacity = 16384;
+assert.deepStrictEqual(rankingBars(), ['100%', '100%'], 'overcommitted resource bars stay inside their track');
+rankingSnapshot.sections.resources.status = 'unavailable';
+assert.ok(textOf(displayPage.renderTeamRanking()).includes('platformOverview.teams.shareUnavailable'));
 console.log('overview visual parity rendering and interaction checks passed');
