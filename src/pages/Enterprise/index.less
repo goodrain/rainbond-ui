@@ -843,19 +843,19 @@
 }
 
 .clusterCounts {
-  flex: 1 1 184px;
+  flex: 1.6 1 320px;
   min-width: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
   gap: 1px;
 }
 
 .countCard {
-  min-height: 104px;
+  min-height: 124px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 14px 16px;
+  padding: 18px 20px;
 }
 
 .resourceHeading,
@@ -881,8 +881,8 @@
   display: grid;
   grid-template-columns: minmax(0, max-content) 120px;
   align-items: center;
-  justify-content: center;
-  gap: 16px;
+  justify-content: start;
+  gap: 12px;
   margin-top: 14px;
 }
 
@@ -945,9 +945,9 @@
 
 .countCard > strong {
   display: block;
-  margin-top: 10px;
+  margin-top: 14px;
   color: @primary-color;
-  font-size: (@rbd-display-size - 6px);
+  font-size: @rbd-display-size;
   line-height: 1;
 }
 
