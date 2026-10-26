@@ -146,4 +146,34 @@ assert.ok(/\.gatewayMetrics\s*\{[^}]*gap: 8px;[^}]*border: 0;/.test(styles));
 assert.ok(/\.resourceCopy > strong small\s*\{\s*display: inline;/.test(styles), 'capacity stays beside allocation like the approved demo');
 assert.ok(/\.resourceContent\s*\{[^}]*grid-template-columns: minmax\(82px, 1fr\) 100px;/.test(styles));
 assert.ok(/\.resourceGauge\s*\{[^}]*width: 100px;[^}]*height: 72px;[^}]*justify-self: end;/.test(styles));
+
+// Rendering must preserve the distinction between a failed request and a known fault.
+const textOf = element => element == null ? '' : Array.isArray(element) ? element.map(textOf).join('') :
+  typeof element === 'object' ? textOf(element.props && element.props.children) : String(element);
+const displayPage = new result.exports.default({
+  match: { params: { eid: 'test' } }, dispatch: () => {},
+  overview: { loading: {}, errors: {}, updatedAt: {}, shell: { global: { clusters: 1 } } }
+});
+let reloads = [];
+displayPage.props.dispatch = action => reloads.push(action.type);
+const runtimeNotice = displayPage.renderRuntimeNotice(data.runtimeAvailability(null, 'private transport details'));
+assert.ok(textOf(runtimeNotice.props.message).includes('platformOverview.global.runtimeFailed'));
+assert.ok(!textOf(runtimeNotice.props.message).includes('private transport details'));
+nodes(runtimeNotice.props.message).find(item => item.type === antd.Button).props.onClick();
+assert.deepStrictEqual(reloads, ['platformOverview/fetchRuntime'], 'retry is explicit and fetches only runtime status');
+
+displayPage.getCurrentCluster = () => ({ region_name: 'test' });
+displayPage.getCurrentSnapshot = () => ({ sections: {
+  resources: { status: 'ok', data: { cpu: {}, memory: {}, pods: {}, versions: {} } },
+  nodes: { status: 'ok', data: { total: 1, ready: null, alerts: [] } }
+} });
+assert.ok(!textOf(displayPage.renderClusterOverview()).includes('platformOverview.cluster.allReady'),
+  'unknown node readiness must not render all nodes ready');
+displayPage.props.overview.errors.cluster = 'refresh failed';
+displayPage.getCurrentSnapshot = () => ({ sections: {
+  components: { status: 'ok', data: [{ name: 'rbd-api', status: 'RUNNING', run_pods: 1, all_pods: 1 }] },
+  plugins: { status: 'ok', data: [] }
+} });
+assert.ok(textOf(displayPage.renderServices()).includes('platformOverview.services.previousState'),
+  'a failed cluster refresh identifies retained component data as last known status');
 console.log('overview visual parity rendering and interaction checks passed');

@@ -142,6 +142,29 @@ function runtimeSection(runtime, name) {
   };
 }
 
+// Describe gaps in existing responses without inferring an outage or its cause.
+function runtimeAvailability(runtime, error) {
+  if (error) return { kind: runtime ? 'stale' : 'unavailable', missing: [], regions: [] };
+  if (!runtime) return { kind: 'loading', missing: [], regions: [] };
+  const missing = [];
+  const clusters = runtime.global && runtime.global.clusters;
+  if (!clusters || runtime.status === 'unavailable' || Number(clusters.unavailable) > 0) missing.push('clusters');
+  if (runtimeSection(runtime, 'nodes').status !== 'ok') missing.push('nodes');
+  if (['applications', 'components'].some(name => runtimeSection(runtime, name).status !== 'ok')) missing.push('workloads');
+  if (runtimeSection(runtime, 'application_alarms').status !== 'ok') missing.push('appAlarms');
+  const regions = [];
+  const seen = new Set();
+  (Array.isArray(runtime.regions) ? runtime.regions : []).forEach(region => {
+    if (!region || !['unavailable', 'unknown'].includes(region.status)) return;
+    const alias = typeof region.region_alias === 'string' ? region.region_alias.trim() : '';
+    const id = typeof region.region_name === 'string' ? region.region_name.trim() : '';
+    const identity = id || alias;
+    const name = alias && id && alias !== id ? `${alias} (${id})` : identity;
+    if (identity && !seen.has(identity)) { regions.push(name); seen.add(identity); }
+  });
+  return { kind: missing.length || regions.length || runtime.status !== 'ok' ? 'partial' : 'ok', missing, regions };
+}
+
 function nodeAlertTranslation(alert) {
   if (alert && alert.type === 'disk_usage') {
     return {
@@ -187,16 +210,17 @@ function platformLicenseSummary(license, requestStatus) {
   return result('unknown', 'header.licenseUnknown');
 }
 
-function platformClusterSummary(runtime) {
+function platformClusterSummary(runtime, error) {
   const clusters = runtime && runtime.global && runtime.global.clusters;
   const result = (level, labelId, values = {}) => ({ level, labelId, values });
+  if (error) return result('unknown', 'header.runtimeUnknown');
   if (!clusters) return result(runtime ? 'unknown' : 'loading', runtime ? 'header.runtimeUnknown' : 'header.runtimeChecking');
   const count = value => typeof value !== 'boolean' && isNumber(value) && Number.isInteger(Number(value)) && Number(value) >= 0 ? Number(value) : null;
   const warning = count(clusters.warning);
   const unavailable = count(clusters.unavailable);
-  if (warning !== null && unavailable !== null && warning + unavailable > 0) {
-    return result('warning', 'header.clusterAttention', { count: warning + unavailable });
-  }
+  if (warning > 0 && unavailable > 0) return result('warning', 'header.clusterMixed', { warning, unknown: unavailable });
+  if (warning > 0) return result('warning', 'header.clusterAttention', { count: warning });
+  if (unavailable > 0) return result('unknown', 'header.clusterUnknown', { count: unavailable });
   if (warning === 0 && unavailable === 0 && count(clusters.healthy) > 0) {
     return result('healthy', 'header.clusterReady', { count: Number(clusters.healthy) });
   }
@@ -252,6 +276,24 @@ function pluginRuntimeState(status) {
   return { level: 'unknown', className: 'pluginUnknown', labelId: 'common.unknown' };
 }
 
+function componentVisualState(component) {
+  const state = pluginRuntimeState(component && component.status);
+  const countsKnown = component && [component.run_pods, component.all_pods].every(value =>
+    typeof value !== 'boolean' && isNumber(value) && Number(value) >= 0);
+  if (state.level === 'healthy' && countsKnown && Number(component.all_pods) === 0) {
+    return { level: 'unknown', className: 'componentUnknown', labelId: 'common.unknown' };
+  }
+  if (state.level === 'warning' || state.level === 'stopped' ||
+    (state.level === 'healthy' && countsKnown && Number(component.run_pods) < Number(component.all_pods))) {
+    return { level: 'warning', className: 'componentAbnormal', labelId: 'common.abnormal' };
+  }
+  return {
+    level: state.level,
+    className: { healthy: '', unknown: 'componentUnknown', starting: 'componentStarting' }[state.level],
+    labelId: state.labelId
+  };
+}
+
 function isNumber(value) {
   return value !== null && value !== undefined && String(value).trim() !== '' && Number.isFinite(Number(value));
 }
@@ -300,10 +342,11 @@ function representativeComponents(components) {
   REPRESENTATIVE_COMPONENTS.forEach((name, index) => {
     priority[name] = index;
   });
+  const order = { warning: 0, unknown: 1, starting: 2, healthy: 3 };
   return list
     .slice()
     .sort((left, right) => {
-      const healthDifference = Number(isRunning(left.status)) - Number(isRunning(right.status));
+      const healthDifference = order[componentVisualState(left).level] - order[componentVisualState(right).level];
       if (healthDifference) return healthDifference;
       const leftPriority = Object.prototype.hasOwnProperty.call(priority, left.name)
         ? priority[left.name]
@@ -323,6 +366,8 @@ function compactVersion(version) {
 }
 
 module.exports = {
+  runtimeAvailability,
+  componentVisualState,
   pluginPresentation,
   absoluteMetricLookup,
   formatMetricAmount,

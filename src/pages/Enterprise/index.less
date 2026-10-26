@@ -279,8 +279,10 @@
 }
 
 .platformSummary > :global(.anticon) { flex: 0 0 auto; }
+.platformSummary > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .headerSummaryHealthy { color: darken(@success-color, 14%); }
 .headerSummaryWarning { color: darken(@warning-color, 22%); }
+.headerSummaryUnknown { color: @rbd-overview-muted-color; }
 
 .platformFacts {
   display: grid;
@@ -585,6 +587,10 @@
   color: darken(@warning-color, 17%);
 }
 
+.warningMetric { background: fade(@warning-color, 4%); }
+.metricRisk { color: darken(@warning-color, 22%); font-weight: 600; }
+.metricUnknown { color: @rbd-overview-muted-color; }
+
 .warningMetric em {
   color: darken(@warning-color, 17%);
 }
@@ -596,6 +602,12 @@
 .inlineAlert {
   margin-top: 24px;
 }
+
+.runtimeNotice { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.runtimeNotice > span { min-width: 0; display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; }
+.runtimeNotice strong { flex-shrink: 0; font-weight: 600; }
+.runtimeNotice > span > :global(.anticon) { flex-shrink: 0; color: @text-color-secondary; }
+.runtimeNotice > :global(.ant-btn) { flex-shrink: 0; height: 22px; padding: 0; line-height: 22px; }
 
 .sectionWarning,
 .sectionSkeleton,
@@ -920,6 +932,10 @@
   font-weight: 500;
 }
 
+.countWarning > strong,
+.countWarning > p { color: darken(@warning-color, 22%); }
+.countUnavailable > strong { color: @rbd-overview-muted-color; }
+
 .resourceGauge {
   position: relative;
   width: 100px;
@@ -1138,6 +1154,12 @@
   font-size: @rbd-auxiliary-size;
 }
 
+.sectionTitle small.serviceStatus { display: inline-flex; align-items: center; gap: 5px; padding: 1px 7px; border-radius: 12px; font-size: (@rbd-auxiliary-size - 1px); line-height: (@rbd-auxiliary-line-height - 4px); }
+.serviceStatus > i { width: 5px; height: 5px; flex-shrink: 0; border-radius: 50%; background: currentColor; }
+.sectionTitle small.serviceHealthy { color: darken(@success-color, 14%); background: fade(@success-color, 7%); }
+.sectionTitle small.serviceWarning { color: @error-color; background: fade(@error-color, 7%); font-weight: 600; }
+.sectionTitle small.serviceUnknown { color: @rbd-overview-muted-color; background: fade(@rbd-label-color, 8%); }
+
 .componentGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1170,6 +1192,10 @@
 .componentAbnormal .componentState { background: @error-color; }
 .componentAbnormal { background: fade(@error-color, 4%) !important; }
 .componentAbnormal .componentIcon { color: @error-color; background: fade(@error-color, 8%); }
+.componentUnknown .componentState { background: @rbd-label-color; }
+.componentUnknown .componentIcon { color: @rbd-overview-muted-color; background: fade(@rbd-label-color, 8%); }
+.componentStarting .componentState { background: @primary-color; }
+.componentStarting .componentIcon { color: @primary-color; background: fade(@primary-color, 7%); }
 .componentCopy { min-width: 0; flex: 1; }
 .itemChevron { color: @rbd-label-color; font-size: (@rbd-auxiliary-size - 2px); }
 

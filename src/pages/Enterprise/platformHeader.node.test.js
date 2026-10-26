@@ -35,7 +35,7 @@ const runtime = clusters => ({ status: 'ok', global: { clusters } });
 assert.strictEqual(data.platformClusterSummary(null).level, 'loading');
 assert.strictEqual(data.platformClusterSummary({ status: 'unavailable' }).level, 'unknown');
 assert.deepStrictEqual(data.platformClusterSummary(runtime({ total: 3, healthy: 1, warning: 1, unavailable: 1 })), {
-  level: 'warning', labelId: 'header.clusterAttention', values: { count: 2 }
+  level: 'warning', labelId: 'header.clusterMixed', values: { warning: 1, unknown: 1 }
 });
 assert.strictEqual(data.platformClusterSummary(runtime({ total: 1, healthy: 1, warning: 0, unavailable: 0 })).level, 'healthy');
 assert.strictEqual(data.platformClusterSummary(runtime({ total: 1, healthy: 1 })).level, 'unknown', 'missing status counts must not imply health');
