@@ -165,9 +165,30 @@ async function testGroupDetailAsyncContract() {
   await assert.rejects(result, error => error === requestError);
 }
 
+async function testLayoutOwnerDoesNotReuseLegacyPendingOrForcedGeneration() {
+  const requests = [];
+  const { getGroupDetail } = loadApplicationService((url, options) => {
+    const pending = deferred();
+    requests.push({ url, options, pending });
+    return pending.promise;
+  });
+  const payload = { team_name: 'team-owner', region_name: 'region-owner', group_id: '35' };
+  const handleError = () => {};
+  const legacy = getGroupDetail(payload, handleError);
+  const initial = getGroupDetail(payload, handleError, { skipDedup: true });
+  const forced = getGroupDetail(payload, handleError, { skipDedup: true });
+  assert.strictEqual(requests.length, 3, 'each owner generation must create its own HTTP request');
+  assert.deepStrictEqual(requests[1].options, { params: { region_name: 'region-owner' }, handleError });
+  requests.forEach((request, index) => request.pending.resolve({ generation: index }));
+  assert.deepStrictEqual(await Promise.all([legacy, initial, forced]), [
+    { generation: 0 }, { generation: 1 }, { generation: 2 }
+  ]);
+}
+
 Promise.all([
   testGroupDetailRequestDedup(),
-  testGroupDetailAsyncContract()
+  testGroupDetailAsyncContract(),
+  testLayoutOwnerDoesNotReuseLegacyPendingOrForcedGeneration()
 ])
   .then(() => console.log('application request dedup tests passed'))
   .catch(error => {

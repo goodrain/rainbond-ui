@@ -78,6 +78,7 @@ async function withOverview(initialSearch, verify, { holdReads = false } = {}) {
       '@/utils/newRole': roleUtil, '@/utils/rainbond': { handleNewbie: () => false },
       '@/utils/pageHeaderSvg': { getSvg: () => null },
       moment: require('moment'),
+      '../../layouts/MenuContext': React.createContext(),
       '../../utils/missingResourceHelpers': require('../../utils/missingResourceHelpers'),
       './componentViewPerformance': require('../../components/SlidePanel/components/componentViewPerformance')
     };
@@ -171,6 +172,8 @@ for (const search of ['', '?refresh=', '?refresh=false', '?refresh=first-token']
   test(`cold Group overview ${search || '(no query)'} initializes one AppHeader request set`,
     () => withOverview(search, async h => {
       assert.deepEqual(h.counts(), expected(1));
+      assert.equal(h.requests.filter(record => /\/groups\/35$/.test(record.url)).length, 1,
+        'standalone Overview and its header retain one in-flight detail request');
       assert.equal(h.topologies.filter(event => event.event === 'mount').length, 1);
       h.complete(); await h.flush();
       assert.deepEqual(h.counts(), expected(1));
@@ -187,6 +190,8 @@ test('drawer query changes retain the header; an explicit refresh token remounts
     assert.deepEqual(h.topologies, [{ event: 'mount', app: '35' }]);
     await h.navigate('?refresh=operation-success');
     assert.deepEqual(h.counts(), expected(2));
+    assert.equal(h.requests.filter(record => /\/groups\/35$/.test(record.url)).length, 2,
+      'standalone explicit refresh still requests fresh application detail');
     await h.navigate('?refresh=operation-success&type=components&componentID=fixture-component');
     assert.deepEqual(h.counts(), expected(2));
     await h.navigate('?refresh=another-operation');

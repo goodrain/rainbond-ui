@@ -522,17 +522,26 @@ export default {
       const count = yield select(state => state.global.notices.length);
       yield put({ type: 'user/changeNotifyCount', payload: count });
     },
-    *fetchGroups({ payload, callback, handleError }, { put, call }) {
-      const response = yield call(getTeamRegionGroups, payload, handleError);
-      if (response) {
-        yield put({
-          type: 'saveGroups',
-          payload: response.list || []
-        });
+    *fetchGroups({ payload, callback, handleError, initialGroupsLoader,
+      forceGroups, shouldApply, onResponse }, { put, call }) {
+      let response;
+      if (initialGroupsLoader) {
+        try {
+          response = yield call(initialGroupsLoader, payload, { force: Boolean(forceGroups) });
+        } catch (error) {
+          if (handleError && (!shouldApply || shouldApply())) handleError(error);
+          return;
+        }
+      } else {
+        response = yield call(getTeamRegionGroups, payload, handleError);
+      }
+      const canApply = () => (!shouldApply || shouldApply()) &&
+        (!initialGroupsLoader || initialGroupsLoader.isCurrent(response));
+      if (response && canApply()) {
+        yield put({ type: 'saveGroups', payload: response.list || [] });
+        if (onResponse && canApply()) onResponse(response);
         if (callback) {
-          setTimeout(() => {
-            callback(response.list);
-          });
+          setTimeout(() => { if (canApply()) callback(response.list); });
         }
       }
     },

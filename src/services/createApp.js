@@ -420,6 +420,7 @@ export function buildApp(body = {}, handleError) {
         is_deploy: body.is_deploy,
         nodejs_type: body.nodejs_type,
         nodejs_dependency: body.nodejs_dependency,
+        ...(body.region_name ? { team_name: body.team_name, region_name: body.region_name } : {}),
       },
       handleError
     }

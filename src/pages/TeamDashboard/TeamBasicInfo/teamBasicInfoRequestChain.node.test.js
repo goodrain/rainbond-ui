@@ -212,7 +212,7 @@ assert.ok(
 );
 
 assert.ok(
-  /componentWillUnmount\(\)\s*\{\s*this\._isUnmounted\s*=\s*true;\s*this\.teamOverviewBootstrap\.dispose\(\);\s*\}/.test(teamLayoutSource) &&
+  /componentWillUnmount\(\)\s*\{\s*this\._isUnmounted\s*=\s*true;\s*this\.teamOverviewBootstrap\.dispose\(\);\s*this\.initialDetailBootstrap\.dispose\(\);\s*this\.initialGroupsBootstrap\.dispose\(\);\s*\}/.test(teamLayoutSource) &&
     /componentDidMount\(\)\s*\{\s*this\._isUnmounted\s*=\s*false;/.test(teamLayoutSource) &&
     /\{\s*force\s*=\s*false\s*\}/.test(sharedTeamOverviewSource) &&
     !/const fail[\s\S]*?lastInitializedTeamOverviewKey\s*=/.test(sourceBetween(getTeamOverviewSource, '    const fail =', '    const dispatchResult =')),
