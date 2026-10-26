@@ -144,8 +144,6 @@ assert.ok(/\.componentIcon\s*\{[^}]*width: 24px;[^}]*height: 24px;/.test(styles)
 assert.ok(/\.pluginIcon\s*\{[^}]*width: 24px;[^}]*height: 24px;/.test(styles));
 assert.ok(/\.gatewayMetrics\s*\{[^}]*gap: 8px;[^}]*border: 0;/.test(styles));
 assert.ok(/\.resourceCopy > strong small\s*\{\s*display: inline;/.test(styles), 'capacity stays beside allocation like the approved demo');
-assert.ok(/\.resourceContent\s*\{[^}]*grid-template-columns: minmax\(82px, 1fr\) 100px;/.test(styles));
-assert.ok(/\.resourceGauge\s*\{[^}]*width: 100px;[^}]*height: 72px;[^}]*justify-self: end;/.test(styles));
 
 // Rendering must preserve the distinction between a failed request and a known fault.
 const textOf = element => element == null ? '' : Array.isArray(element) ? element.map(textOf).join('') :

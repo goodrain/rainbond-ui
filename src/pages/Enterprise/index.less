@@ -725,7 +725,7 @@
 }
 
 .clusterOverview.withClusterAlerts {
-  grid-template-columns: minmax(0, 1fr) 280px;
+  grid-template-columns: minmax(0, 1fr) 300px;
 }
 
 .clusterMain {
@@ -733,12 +733,12 @@
 }
 
 .clusterMeta {
-  min-height: 72px;
+  min-height: 84px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: 0;
-  padding: 12px 16px;
+  padding: 16px 22px;
   border-bottom: 1px solid @rbd-overview-border-color;
 }
 
@@ -778,7 +778,7 @@
 .clusterMeta strong {
   overflow: hidden;
   color: @rbd-overview-heading-color;
-  font-size: @rbd-content-size;
+  font-size: @rbd-sub-title-size;
   font-weight: 650;
   line-height: @rbd-content-line-height;
   text-overflow: ellipsis;
@@ -820,21 +820,41 @@
 .clusterRuntimeunknown { color: @text-color-secondary; }
 
 .clusterResources {
-  display: grid;
-  grid-template-columns: minmax(180px, 1.2fr) minmax(180px, 1.2fr) minmax(104px, .65fr) minmax(104px, .65fr);
-  background: linear-gradient(180deg, mix(@primary-color, @rbd-overview-surface-color, 1.5%), @rbd-overview-surface-color);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  background: @rbd-overview-divider-color;
 }
 
 .resourceCard,
 .countCard {
   min-width: 0;
-  min-height: 142px;
-  padding: 14px 12px;
-  border-right: 1px solid @rbd-overview-border-color;
+  background: linear-gradient(180deg, mix(@primary-color, @rbd-overview-surface-color, 1.5%), @rbd-overview-surface-color);
 }
 
 .resourceCard {
-  display: block;
+  flex: 1 1 280px;
+  min-height: 196px;
+  padding: 20px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.clusterCounts {
+  flex: 1 1 184px;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 1px;
+}
+
+.countCard {
+  min-height: 104px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 14px 16px;
 }
 
 .resourceHeading,
@@ -843,7 +863,7 @@
   align-items: center;
   gap: 7px;
   color: @text-color-secondary;
-  font-size: @rbd-auxiliary-size;
+  font-size: @rbd-content-size;
   font-weight: 600;
 }
 
@@ -858,15 +878,15 @@
 
 .resourceContent {
   display: grid;
-  grid-template-columns: minmax(82px, 1fr) 100px;
-  align-items: end;
-  gap: 6px;
-  margin-top: 8px;
+  grid-template-columns: minmax(0, max-content) 120px;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 14px;
 }
 
 .resourceCopy {
   min-width: 0;
-  padding-bottom: 5px;
 }
 
 .resourceCopy > span,
@@ -889,12 +909,20 @@
 }
 
 .resourceCopy > strong {
-  margin-top: 4px;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-top: 6px;
   color: @rbd-overview-heading-color;
-  font-size: (@rbd-title-big-size - 4px);
+  font-size: (@rbd-display-size - 8px);
   font-weight: 650;
   font-variant-numeric: tabular-nums;
   line-height: 1.1;
+}
+
+.resourceCopy > strong > span,
+.resourceCopy > strong small {
   white-space: nowrap;
 }
 
@@ -902,7 +930,7 @@
   display: inline;
   margin-top: 0;
   color: @text-color-secondary;
-  font-size: (@rbd-auxiliary-size - 3px);
+  font-size: @rbd-auxiliary-size;
   font-weight: 500;
 }
 
@@ -914,13 +942,9 @@
   line-height: @rbd-auxiliary-line-height;
 }
 
-.countCard:last-child {
-  border-right: 0;
-}
-
 .countCard > strong {
   display: block;
-  margin-top: 28px;
+  margin-top: 10px;
   color: @primary-color;
   font-size: (@rbd-display-size - 6px);
   line-height: 1;
@@ -938,14 +962,13 @@
 
 .resourceGauge {
   position: relative;
-  width: 100px;
-  height: 72px;
-  justify-self: end;
+  width: 120px;
+  height: 92px;
 }
 
 .resourceGauge svg {
-  width: 100px;
-  height: 66px;
+  width: 120px;
+  height: 80px;
   overflow: visible;
 }
 
@@ -959,26 +982,31 @@
 .gaugeValue { stroke: @primary-color; transition: stroke-dasharray 420ms ease; }
 .gaugeWarning .gaugeValue { stroke: @warning-color; }
 .resourceGauge > span { position: absolute; left: 0; right: 0; bottom: 0; text-align: center; }
-.resourceGauge strong { display: block; color: @rbd-overview-heading-color; font-size: (@rbd-title-size + 1px); line-height: 1; font-weight: 700; font-variant-numeric: tabular-nums; }
-.resourceGauge small { display: block; margin-top: 4px; color: @rbd-label-color; font-size: (@rbd-auxiliary-size - 2px); }
+.resourceGauge strong { display: block; color: @rbd-overview-heading-color; font-size: @rbd-title-big-size; line-height: 1; font-weight: 700; font-variant-numeric: tabular-nums; }
+.resourceGauge small { display: block; margin-top: 5px; color: @rbd-label-color; font-size: @rbd-auxiliary-size; }
 .diskStatus { margin: 0; padding: 7px 14px; color: @text-color-secondary; background: fade(@rbd-label-color, 4%); border-top: 1px solid fade(@rbd-label-color, 18%); font-size: @rbd-auxiliary-size; }
 
 .clusterAlerts {
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  // Let the resource area determine the row height; long alert lists scroll.
+  contain: size;
   border-left: 1px solid fade(@warning-color, 28%);
   background: fade(@warning-color, 4%);
 }
 
 .clusterAlerts header {
-  min-height: 46px;
+  flex: 0 0 auto;
+  min-height: 58px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 9px 13px;
+  padding: 14px 18px;
   color: darken(@warning-color, 24%);
   border-bottom: 1px solid fade(@warning-color, 25%);
   box-shadow: @rbd-min-card-shadow;
-  font-size: @rbd-auxiliary-size;
+  font-size: @rbd-content-size;
   font-weight: 600;
 }
 
@@ -993,7 +1021,7 @@
   grid-template-columns: 24px minmax(0, 1fr) 16px;
   align-items: center;
   gap: 8px;
-  padding: 10px 13px;
+  padding: 12px 18px;
   color: @warning-color;
   border-bottom: 1px solid fade(@rbd-label-color, 16%);
 }
@@ -1026,7 +1054,8 @@
 }
 
 .clusterAlerts > div {
-  max-height: 320px;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
 }
 
@@ -1747,7 +1776,8 @@
   .clusterOverview.withClusterAlerts {
     grid-template-columns: minmax(0, 1fr);
   }
-  .clusterAlerts { border-top: 1px solid fade(@warning-color, 28%); border-left: 0; }
+  .clusterAlerts { contain: none; border-top: 1px solid fade(@warning-color, 28%); border-left: 0; }
+  .clusterAlerts > div { flex: 0 1 auto; max-height: 264px; }
 }
 
 @media (max-width: 1000px) {
@@ -1798,11 +1828,6 @@
   .scopeContext { width: 100%; }
   .scopeHint { display: none; }
 
-  .clusterResources { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .resourceCard:nth-child(2),
-  .countCard:last-child { border-right: 0; }
-  .resourceCard { border-bottom: 1px solid fade(@rbd-label-color, 18%); }
-
   .clusterSelect {
     width: auto;
     flex: 1 1 0;
@@ -1821,8 +1846,7 @@
 @media (max-width: 620px) {
   .platformFact { padding-right: 8px; padding-left: 8px; }
   .platformFact strong { font-size: @rbd-auxiliary-size; }
-  .globalMetrics,
-  .clusterResources {
+  .globalMetrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -1849,19 +1873,8 @@
     border-bottom: 1px solid fade(@rbd-label-color, 18%);
   }
 
-  .resourceCard {
-    grid-column-start: 1;
-    grid-column-end: -1;
-    border-right: 0;
-  }
-
-  .countCard {
-    min-height: 116px;
-  }
-
-  .countCard > strong {
-    margin-top: 14px;
-  }
+  .resourceCard { flex-basis: 100%; min-height: 184px; }
+  .clusterCounts { flex-basis: 100%; }
 
   .gatewayMetrics > div {
     min-height: 94px;
@@ -1873,8 +1886,10 @@
   }
 
   .clusterMeta {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: stretch;
-    flex-direction: column;
+    padding: 14px 18px;
   }
 
   .clusterMeta > div,
@@ -1886,8 +1901,12 @@
   }
 
   .clusterMeta > div:first-child {
+    grid-column-start: 1;
+    grid-column-end: -1;
     border-top: 0;
   }
+
+  .clusterMeta > div:last-child { padding-left: 14px; }
 
   .moduleHeader {
     flex-wrap: wrap;

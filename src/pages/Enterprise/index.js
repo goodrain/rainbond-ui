@@ -555,7 +555,7 @@ export default class Enterprise extends PureComponent {
     return (
       <article className={styles.resourceCard}>
         <div className={styles.resourceHeading}><Icon type={icon} /> {label}</div>
-        <div className={styles.resourceContent}><div className={styles.resourceCopy}><span>{t('cluster.allocated')}</span><strong>{allocated.value}<small> / {capacity.value} {capacity.unit}</small></strong><p>{t('cluster.remaining')} {remainingDisplay.value} {remainingDisplay.unit}</p></div>
+        <div className={styles.resourceContent}><div className={styles.resourceCopy}><span>{t('cluster.allocated')}</span><strong><span>{allocated.value}</span><small> / {capacity.value} {capacity.unit}</small></strong><p>{t('cluster.remaining')} {remainingDisplay.value} {remainingDisplay.unit}</p></div>
           <ResourceGauge percent={percent} label={t('cluster.allocationRate')} />
         </div>
       </article>
@@ -590,8 +590,10 @@ export default class Enterprise extends PureComponent {
                 <div className={styles.clusterResources}>
                   {this.renderResourceCard(t('cluster.cpu'), 'dashboard', resources.cpu, false)}
                   {this.renderResourceCard(t('cluster.memory'), 'database', resources.memory, true)}
+                  <div className={styles.clusterCounts}>
                   <article className={`${styles.countCard} ${nodesNotReady > 0 ? styles.countWarning : !nodeCountsKnown || !Number(nodes.total) ? styles.countUnavailable : ''}`}><span>{t('cluster.readyNodes')}<Icon type="deployment-unit" /></span><strong>{nodes ? displayNumber(nodes.ready, 0) : '-'}<small> / {nodes ? displayNumber(nodes.total, 0) : '-'}</small></strong><p>{!nodeCountsKnown ? t('global.unavailable') : !Number(nodes.total) ? t('cluster.noNodes') : nodesNotReady > 0 ? t('global.notReadyCount', { count: nodesNotReady }) : t('cluster.allReady')}</p></article>
                   <article className={styles.countCard}><span>{t(overviewData.isNumber(resources.pods.running) ? 'cluster.runningPods' : 'cluster.workloadPods')}<Icon type="appstore" /></span><strong>{displayNumber(overviewData.isNumber(resources.pods.running) ? resources.pods.running : resources.pods.active, 0)}</strong><p>{t(overviewData.isNumber(resources.pods.running) ? 'cluster.podDescription' : 'cluster.legacyPods')}</p></article>
+                  </div>
                 </div>
               ) : resourceStatus === 'loading' ? <Skeleton active paragraph={{ rows: 2 }} /> : <Alert type="warning" showIcon message={t('cluster.resourcesUnavailable')} />}
               {nodeStatus !== 'ok' && nodeStatus !== 'loading' ? <Alert className={styles.sectionWarning} type="warning" showIcon message={t('cluster.nodesUnavailable')} /> : null}

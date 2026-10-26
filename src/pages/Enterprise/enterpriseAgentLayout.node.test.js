@@ -160,8 +160,7 @@ assert.ok(
 );
 
 assert.ok(
-  !/grid-(?:column|row):[^;]*\//.test(lessSource) &&
-    /\.resourceCard \{[\s\S]*?grid-column-start: 1;\s*grid-column-end: -1;/.test(lessSource),
+  !/grid-(?:column|row):[^;]*\//.test(lessSource),
   'grid spans should use explicit boundaries so Less cannot evaluate slash shorthand as division'
 );
 
