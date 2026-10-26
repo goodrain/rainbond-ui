@@ -142,6 +142,9 @@ function normalizeMessages(messages) {
       trace: item.trace || null,
       approval: item.approval || null,
       streamMessageId: item.streamMessageId || '',
+      streamRunId: item.streamRunId || '',
+      reasoning: item.reasoning || '',
+      reasoningStreaming: !!item.reasoningStreaming,
       streaming: !!item.streaming
     }));
 }

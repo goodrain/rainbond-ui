@@ -571,8 +571,9 @@ function applyAgentEvents({
         const lastAssistantRunMatches =
           !adaptedEvent.runId ||
           !lastAssistant ||
-          !lastAssistant.streamRunId ||
-          lastAssistant.streamRunId === adaptedEvent.runId;
+          (lastAssistant.streamRunId
+            ? lastAssistant.streamRunId === adaptedEvent.runId
+            : lastAssistant.streaming === true);
         if (
           lastAssistantIndex > -1 &&
           lastAssistantRunMatches &&

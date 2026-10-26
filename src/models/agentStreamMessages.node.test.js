@@ -139,3 +139,34 @@ assert.strictEqual(reused[1].content, 'B', 'new run bubble must receive the new 
 assert.strictEqual(reused[1].streamRunId, 'run-b');
 
 console.log('agent stream run isolation tests passed');
+
+// Hydrated legacy messages may have streamMessageId but no streamRunId.
+// A completed legacy bubble must not be reused by a new run.
+let legacyHydrated = applyStreamingAssistantEvent(
+  [
+    {
+      id: 'legacy-old',
+      role: 'assistant',
+      kind: 'normal',
+      content: 'old answer',
+      streamMessageId: 'msg_legacy',
+      streaming: false,
+    },
+  ],
+  {
+    type: 'chat.message.started',
+    runId: 'run-new',
+    data: { message_id: 'msg_legacy', role: 'assistant' },
+  },
+  createMessage,
+  { appId: 'app-new' }
+);
+assert.strictEqual(
+  legacyHydrated.length,
+  2,
+  'completed legacy bubble without streamRunId must not capture the new run'
+);
+assert.strictEqual(legacyHydrated[0].content, 'old answer');
+assert.strictEqual(legacyHydrated[1].streamRunId, 'run-new');
+
+console.log('agent stream legacy hydration tests passed');

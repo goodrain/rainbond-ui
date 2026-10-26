@@ -1,8 +1,10 @@
 function sameStreamRun(item, runId) {
   if (!runId) return true;
-  // Messages created before streamRunId existed are treated as belonging to
-  // the incoming run only when they have no run marker.
-  return !item.streamRunId || item.streamRunId === runId;
+  if (item.streamRunId) return item.streamRunId === runId;
+  // Legacy hydrated messages have a streamMessageId but no streamRunId. They
+  // only belong to the incoming run if they were still streaming; a completed
+  // legacy bubble must never be overwritten by a new run that reuses the id.
+  return item.streaming === true;
 }
 
 function findStreamMessageIndex(messages, messageId, runId) {
