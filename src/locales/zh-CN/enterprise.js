@@ -73,7 +73,6 @@ const enterpriseOverview = {
     'platformOverview.global.viewAlarms': '查看异常组件',
     'platformOverview.global.listSeparator': '、',
     'platformOverview.global.runtimeStaleTitle': '刷新未完成',
-    'platformOverview.global.runtimePartialTitle': '状态未完整获取',
     'platformOverview.global.runtimeStale': '当前运行状态为上次成功获取的结果',
     'platformOverview.global.runtimeFailed': '暂未获取实时状态，基础统计仍可查看',
     'platformOverview.global.runtimeMissing': '未完整获取：{sections}',

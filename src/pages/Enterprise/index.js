@@ -447,7 +447,6 @@ export default class Enterprise extends PureComponent {
     if (availability.kind === 'ok' || availability.kind === 'loading') return null;
     const { loading, updatedAt } = this.props.overview;
     const sections = availability.missing.map(name => t(`global.section.${name}`)).join(t('global.listSeparator'));
-    const title = t(availability.kind === 'stale' ? 'global.runtimeStaleTitle' : 'global.runtimePartialTitle');
     const description = availability.kind === 'stale' ? t('global.runtimeStale') :
       availability.kind === 'unavailable' ? t('global.runtimeFailed') :
         sections ? t('global.runtimeMissing', { sections }) : t('global.runtimePartialUnknown');
@@ -458,7 +457,7 @@ export default class Enterprise extends PureComponent {
       availability.kind === 'stale' && previousTime ? t('global.lastSuccess', { time: previousTime }) : null
     ].filter(Boolean);
     return <Alert className={styles.inlineAlert} type="warning" showIcon message={
-      <div className={styles.runtimeNotice}><span><strong>{title}</strong><span>{description}</span>
+      <div className={styles.runtimeNotice}><span><strong>{availability.kind === 'stale' ? t('global.runtimeStaleTitle') : description}</strong>{availability.kind === 'stale' ? <span>{description}</span> : null}
         {details.length ? <Tooltip title={<div>{details.map(detail => <p key={detail}>{detail}</p>)}</div>}><Icon type="info-circle" tabIndex={0} aria-label={details.join(' ')} /></Tooltip> : null}
       </span><Button type="link" size="small" aria-label={t('common.retry')} loading={loading.runtime} onClick={this.loadRuntime}>{t('common.retry')}</Button></div>
     } />;

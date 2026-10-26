@@ -73,7 +73,6 @@ const enterpriseOverview = {
     'platformOverview.global.viewAlarms': 'View abnormal components',
     'platformOverview.global.listSeparator': ', ',
     'platformOverview.global.runtimeStaleTitle': 'Refresh incomplete',
-    'platformOverview.global.runtimePartialTitle': 'Incomplete status',
     'platformOverview.global.runtimeStale': 'Runtime status is from the last successful update',
     'platformOverview.global.runtimeFailed': 'Runtime status is unavailable; basic counts remain visible',
     'platformOverview.global.runtimeMissing': 'Incomplete: {sections}',
