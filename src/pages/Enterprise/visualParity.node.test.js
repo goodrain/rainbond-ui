@@ -13,11 +13,12 @@ const antd = {};
 antd.Select.Option = function Option() {};
 antd.Empty.PRESENTED_IMAGE_SIMPLE = 'empty';
 const result = { exports: {} };
+const translations = [];
 new Function('require', 'module', 'exports', code)(name => {
   if (name === 'antd') return antd;
   if (name === 'dva') return { connect: () => Component => Component };
   if (name === 'dva/router') return { routerRedux: { replace: route => ({ route }) } };
-  if (name === '@/utils/intl') return { formatMessage: ({ id }) => id };
+  if (name === '@/utils/intl') return { formatMessage: ({ id }, values) => { translations.push({ id, values }); return id; } };
   if (name === '@/utils/user') return {};
   if (name === './overviewData') return data;
   if (name === './index.less') return new Proxy({}, { get: (target, key) => key });
@@ -218,4 +219,49 @@ rankingSnapshot.sections.resources.data.memory.capacity = 16384;
 assert.deepStrictEqual(rankingBars(), ['100%', '100%'], 'overcommitted resource bars stay inside their track');
 rankingSnapshot.sections.resources.status = 'unavailable';
 assert.ok(textOf(displayPage.renderTeamRanking()).includes('platformOverview.teams.shareUnavailable'));
+
+const postureRuntime = { status: 'ok', global: {
+  clusters: { total: 1, healthy: 1, warning: 0, unavailable: 0 },
+  nodes: { status: 'ok', total: 2, ready: 2 },
+  applications: { status: 'ok', total: 13, running: 11 },
+  components: { status: 'ok', total: 39, running: 34 },
+  application_alarms: { status: 'ok', total: 1, items: [] }
+} };
+displayPage.props.overview.shell = { global: { clusters: 1, teams: 4, users: 2, applications: 13, components: 39 } };
+displayPage.props.overview.runtime = postureRuntime;
+const postureMetrics = () => nodes(displayPage.renderGlobalPosture()).filter(item =>
+  typeof item.props.className === 'string' && item.props.className.startsWith('globalMetric '));
+const completeMetrics = postureMetrics();
+assert.equal(nodes(completeMetrics[2]).filter(item => item.type === 'em').length, 0, 'team counts do not need a platform-scope filler');
+assert.equal(nodes(completeMetrics[3]).filter(item => item.type === 'em').length, 0, 'user counts do not need an unexplained active-user label');
+assert.ok(textOf(completeMetrics[4]).includes('13 / 39'));
+assert.deepStrictEqual(translations.filter(item => item.id === 'platformOverview.global.runningCounts').pop().values,
+  { applications: 11, components: 34 }, 'workload detail reports actual runtime counts rather than repeating the heading');
+displayPage.setState = update => { displayPage.state = { ...displayPage.state, ...update }; };
+completeMetrics[5].props.onClick();
+assert.equal(displayPage.state.applicationModalVisible, true, 'retrieved application alarms keep their existing modal action');
+postureRuntime.global.applications.status = 'partial';
+postureRuntime.global.components.status = 'partial';
+assert.ok(textOf(postureMetrics()[4]).includes('platformOverview.global.runningPartial'));
+postureRuntime.global.application_alarms.status = 'partial';
+postureRuntime.global.application_alarms.total = 0;
+const partialAlarm = postureMetrics()[5];
+assert.ok(textOf(partialAlarm).includes('platformOverview.global.alarmPartial'));
+assert.ok(!textOf(partialAlarm).includes('platformOverview.global.none'), 'partial zero is not an all-clear');
+delete postureRuntime.global.application_alarms.total;
+assert.ok(textOf(postureMetrics()[5]).includes('-'), 'a missing alarm count remains unknown');
+postureRuntime.global.applications.status = 'ok';
+postureRuntime.global.components.status = 'ok';
+postureRuntime.global.applications.running = 0;
+postureRuntime.global.components.running = 0;
+postureMetrics();
+assert.deepStrictEqual(translations.filter(item => item.id === 'platformOverview.global.runningCounts').pop().values,
+  { applications: 0, components: 0 }, 'known zero running counts are preserved');
+displayPage.props.overview.errors.runtime = 'failed';
+assert.ok(textOf(postureMetrics()[4]).includes('platformOverview.global.previousRunningCounts'));
+displayPage.props.overview.runtime = null;
+delete displayPage.props.overview.shell.global.components;
+const unavailableWorkload = textOf(postureMetrics()[4]);
+assert.ok(unavailableWorkload.includes('13 / -') && unavailableWorkload.includes('platformOverview.global.runningUnavailable'));
+assert.ok(!unavailableWorkload.includes('undefined') && !unavailableWorkload.includes('null'));
 console.log('overview visual parity rendering and interaction checks passed');

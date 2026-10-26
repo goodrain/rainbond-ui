@@ -472,8 +472,19 @@ export default class Enterprise extends PureComponent {
     const applicationState = overviewData.runtimeSection(runtime, 'applications');
     const componentState = overviewData.runtimeSection(runtime, 'components');
     const alarms = alarmState.data || {};
-    const workloadsAvailable = applicationState.data && componentState.data;
+    const workloadStates = [applicationState, componentState];
+    const workloadTotals = workloadStates.map((state, index) => {
+      const total = state.data && state.data.total;
+      return displayNumber(overviewData.isNumber(total) ? total : quick[index ? 'components' : 'applications'], 0);
+    });
+    const runningCountsKnown = workloadStates.every(state => state.status === 'ok' && state.data &&
+      typeof state.data.running !== 'boolean' && overviewData.isNumber(state.data.running) && Number(state.data.running) >= 0);
+    const workloadDetail = runningCountsKnown ? t(errors.runtime ? 'global.previousRunningCounts' : 'global.runningCounts', {
+      applications: displayNumber(applicationState.data.running, 0), components: displayNumber(componentState.data.running, 0)
+    }) : workloadStates.every(state => state.status === 'loading') && !errors.runtime ? null :
+      t(workloadStates.some(state => state.status === 'partial') ? 'global.runningPartial' : 'global.runningUnavailable');
     const alarmAvailable = alarmState.status === 'ok' || alarmState.status === 'partial';
+    const alarmCountKnown = alarmAvailable && typeof alarms.total !== 'boolean' && overviewData.isNumber(alarms.total) && Number(alarms.total) >= 0;
     const availability = overviewData.runtimeAvailability(runtime, errors.runtime);
     const clusterCounts = clusterState.data || {};
     const clusterDetails = [
@@ -490,10 +501,10 @@ export default class Enterprise extends PureComponent {
     const metrics = [
       { icon: 'cluster', label: t('global.clusters'), value: quick.clusters, detail: clusterDetail },
       { icon: 'deployment-unit', label: t('global.nodes'), value: nodeState.status === 'loading' ? undefined : nodeState.status === 'unavailable' ? '-' : nodeState.data && overviewData.isNumber(nodeState.data.total) ? nodeState.data.total : '-', detail: nodeDetail },
-      { icon: 'team', label: t('global.teams'), value: quick.teams, detail: t('global.platformScope') },
-      { icon: 'user', label: t('global.users'), value: quick.users, detail: t('global.activeUsers') },
-      { icon: 'appstore', label: t('global.workloads'), value: workloadsAvailable ? `${applicationState.data.total} / ${componentState.data.total}` : quick.applications !== undefined ? `${quick.applications} / ${quick.components}` : undefined, detail: applicationState.status === 'ok' && componentState.status === 'ok' ? t('global.workloadCounts') : t('global.partialData') },
-      { icon: 'alert', label: t('global.appAlarms'), value: alarmState.status === 'loading' ? undefined : alarmAvailable ? alarms.total : '-', detail: alarmState.status === 'loading' ? '-' : alarmState.status === 'ok' ? (alarms.total ? t('global.viewAlarms') : t('global.none')) : alarmState.status === 'partial' ? t('global.partialData') : t('global.unavailable'), warning: alarmAvailable && alarms.total > 0, action: alarmAvailable && alarms.total > 0 ? () => this.setState({ applicationModalVisible: true }) : null }
+      { icon: 'team', label: t('global.teams'), value: quick.teams },
+      { icon: 'user', label: t('global.users'), value: quick.users },
+      { icon: 'appstore', label: t('global.workloads'), value: workloadTotals.join(' / '), detail: workloadDetail },
+      { icon: 'alert', label: t('global.appAlarms'), value: alarmState.status === 'loading' ? undefined : alarmCountKnown ? alarms.total : '-', detail: alarmState.status === 'loading' ? null : !alarmCountKnown ? t('global.unavailable') : alarmState.status === 'ok' ? (alarms.total > 0 ? t('global.viewAlarms') : t('global.none')) : t(alarms.total > 0 ? 'global.viewKnownAlarms' : 'global.alarmPartial'), warning: alarmCountKnown && alarms.total > 0, action: alarmCountKnown && alarms.total > 0 ? () => this.setState({ applicationModalVisible: true }) : null }
     ];
     return (
       <OverviewModule title={t('global.title')} loading={loading.shell && !shell} error={errors.shell} onRetry={this.loadPlatformData}>
@@ -503,7 +514,7 @@ export default class Enterprise extends PureComponent {
               const MetricElement = item.action ? 'button' : 'article';
               return <MetricElement type={item.action ? 'button' : undefined} key={item.label} className={`${styles.globalMetric} ${item.action ? styles.metricAction : ''} ${item.warning ? styles.warningMetric : ''}`} onClick={item.action || undefined}>
                 <span className={styles.metricLabel}>{item.label}<Icon type={item.icon} /></span>
-                <strong>{item.value === undefined ? <Skeleton active title={{ width: 36 }} paragraph={false} /> : item.value}</strong><em>{item.detail}{item.action ? <Icon type="right" /> : null}</em>
+                <strong>{item.value === undefined ? <Skeleton active title={{ width: 36 }} paragraph={false} /> : item.value}</strong>{item.detail ? <em>{item.detail}{item.action ? <Icon type="right" /> : null}</em> : null}
               </MetricElement>;
             })}
           </div>
