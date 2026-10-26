@@ -294,6 +294,22 @@ function componentVisualState(component) {
   };
 }
 
+// Console already aggregates container restart counts for each current Pod.
+// Missing counts stay unknown; these are not a time-window or failure counter.
+function componentRestarts(component) {
+  const pods = component && component.pods;
+  if (!Array.isArray(pods) || !pods.length) return { count: null, complete: false };
+  let known = 0;
+  let count = 0;
+  pods.forEach(pod => {
+    if (!pod || !Number.isSafeInteger(pod.restart_count) || pod.restart_count < 0) return;
+    known += 1;
+    count += pod.restart_count;
+  });
+  if (!Number.isSafeInteger(count)) return { count: null, complete: false };
+  return { count: known ? count : null, complete: known === pods.length };
+}
+
 function isNumber(value) {
   return value !== null && value !== undefined && String(value).trim() !== '' && Number.isFinite(Number(value));
 }
@@ -368,6 +384,7 @@ function compactVersion(version) {
 module.exports = {
   runtimeAvailability,
   componentVisualState,
+  componentRestarts,
   pluginPresentation,
   absoluteMetricLookup,
   formatMetricAmount,

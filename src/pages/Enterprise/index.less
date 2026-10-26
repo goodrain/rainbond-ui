@@ -1196,6 +1196,12 @@
 .componentUnknown .componentIcon { color: @rbd-overview-muted-color; background: fade(@rbd-label-color, 8%); }
 .componentStarting .componentState { background: @primary-color; }
 .componentStarting .componentIcon { color: @primary-color; background: fade(@primary-color, 7%); }
+.sectionTitle > .componentStatusGroup { min-width: 0; display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 4px 6px; }
+.sectionTitle small.componentRestartSummary { display: inline-flex; align-items: center; gap: 4px; padding: 1px 6px; color: darken(@warning-color, 22%); background: fade(@warning-color, 8%); border-radius: 12px; font-size: (@rbd-auxiliary-size - 1px); line-height: (@rbd-auxiliary-line-height - 4px); cursor: help; }
+.componentGrid small.componentMeta { display: flex; align-items: center; gap: 5px; }
+.componentMeta > span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.componentMeta .componentRestartCount { flex-shrink: 0; color: darken(@warning-color, 22%); font-size: inherit; cursor: help; }
+.componentAbnormal .componentRestartCount { color: @error-color; }
 .componentCopy { min-width: 0; flex: 1; }
 .itemChevron { color: @rbd-label-color; font-size: (@rbd-auxiliary-size - 2px); }
 

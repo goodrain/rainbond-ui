@@ -176,4 +176,24 @@ displayPage.getCurrentSnapshot = () => ({ sections: {
 } });
 assert.ok(textOf(displayPage.renderServices()).includes('platformOverview.services.previousState'),
   'a failed cluster refresh identifies retained component data as last known status');
+
+displayPage.props.overview.errors.cluster = null;
+const restartComponents = ['rbd-api', 'rbd-gateway', 'rbd-worker', 'rbd-chaos', 'minio'].map(name => ({
+  name, status: 'RUNNING', run_pods: 1, all_pods: 1, pods: [{ restart_count: name === 'minio' ? 3 : 0 }]
+}));
+displayPage.getCurrentSnapshot = () => ({ sections: {
+  components: { status: 'ok', data: restartComponents }, plugins: { status: 'ok', data: [] }
+} });
+const restartServices = nodes(displayPage.renderServices());
+assert.equal(restartServices.filter(item => item.props.className === 'componentRestartSummary').length, 1,
+  'restart records cover every component, including those outside the four preview positions');
+assert.ok(restartServices.filter(item => item.type === antd.Tooltip).some(item => textOf(item.props.title).includes('minio')));
+assert.equal(restartServices.filter(item => item.props.className === 'componentRestartCount').length, 0,
+  'stable representative rows remain uncluttered when another component has a restart record');
+restartComponents[0].pods = [{ restart_count: 2 }, {}];
+const partialRestartServices = nodes(displayPage.renderServices());
+assert.ok(partialRestartServices.some(item => item.props.className === 'componentRestartCount' &&
+  textOf(item).includes('platformOverview.services.restartCountAtLeast')));
+assert.equal(partialRestartServices.filter(item => item.props.className === 'componentAbnormal').length, 0,
+  'past restart records alone must not mark a currently ready component unhealthy');
 console.log('overview visual parity rendering and interaction checks passed');
