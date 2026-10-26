@@ -9,6 +9,7 @@ import ConfirmModal from '../../components/ConfirmModal';
 import TeamEventList from '../../components/Team/TeamEventList';
 import TeamMemberList from '../../components/Team/TeamMemberList';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
+import MenuContext from '../../layouts/MenuContext';
 import EnterprisePluginsPage from '../../components/EnterprisePluginsPage';
 import PluginListContent from '../Plugin/components/PluginListContent';
 import { createEnterprise, createTeam } from '../../utils/breadcrumb';
@@ -21,6 +22,24 @@ import userUtil from '../../utils/user';
 import styles from './index.less';
 import MoveTeam from './move_team';
 
+const { isTeamOverviewResponse, getTeamOverviewData } = require('../../components/Team/TeamEventList/helpers');
+const { createTeamOverviewScope } = require('../../utils/teamOverviewBootstrap');
+
+// Keep modern context outside connect: DVA's React Redux 5 wrapper needs its
+// legacy store context and must not inherit a wrapped component's contextType.
+function withTeamOverviewLoader(Component) {
+  return class TeamOverviewLoader extends PureComponent {
+    render() {
+      return (
+        <MenuContext.Consumer>
+          {context => <Component {...this.props} teamOverviewLoader={context && context.teamOverviewLoader} />}
+        </MenuContext.Consumer>
+      );
+    }
+  };
+}
+
+@withTeamOverviewLoader
 @connect(({ user, teamControl, loading, enterprise }) => ({
   currUser: user.currentUser,
   teamControl,
@@ -40,7 +59,7 @@ export default class Index extends PureComponent {
       showDelTeam: false,
       showExitTeam: false,
       scope: '',
-      logoInfo: TeamImg,
+      overviewSnapshot: null,
       teamsUrl: this.props.currentEnterprise
         ? this.getLoginRole(this.props.currUser)
         : '/',
@@ -50,6 +69,10 @@ export default class Index extends PureComponent {
       rolePermissions: this.handlePermissions('team_role'),
       pluginPermissions: this.handlePermissions('team_plugin_manage')
     };
+    this._isMounted = false;
+    this.overviewGeneration = 0;
+    this.overviewScope = null;
+    this.overviewIdentity = createTeamOverviewScope();
   }
 
   componentWillMount() {
@@ -77,8 +100,11 @@ export default class Index extends PureComponent {
   }
 
   componentDidMount() {
+    this._isMounted = true;
     this.props.dispatch({ type: 'teamControl/fetchAllPerm' });
-    this.loadOverview();
+    const loader = this.props.teamOverviewLoader;
+    const force = Boolean(loader && loader.beginVisit && loader.beginVisit());
+    this.loadOverview({ force });
   }
 
   componentDidUpdate(prevProps) {
@@ -90,8 +116,22 @@ export default class Index extends PureComponent {
     const pluginListChanged = prevProps.pluginsList !== this.props.pluginsList;
 
     if (locationChanged || permissionsChanged || pluginListChanged) {
-      this.syncViewState();
+      this.syncViewState({ refreshOverview: locationChanged });
     }
+    const identity = this.getOverviewIdentity();
+    if (this.overviewScope !== this.getOverviewScope() || this.activeOverviewIdentity !== identity) {
+      // A router can preserve this page instance while moving to another team.
+      // Register that visit too, so a later real remount is a refresh rather
+      // than being mistaken for the new team's first late bootstrap consumer.
+      const loader = this.props.teamOverviewLoader;
+      if (identity && loader && loader.beginVisit) loader.beginVisit();
+      this.loadOverview({ force: false });
+    }
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
+    this.overviewGeneration += 1;
   }
 
   // 获取登录后的默认跳转URL
@@ -171,11 +211,16 @@ export default class Index extends PureComponent {
     return this.getDefaultScope(permissions, showEnterprisePlugin);
   };
 
-  syncViewState = () => {
+  syncViewState = ({ refreshOverview = false } = {}) => {
     const permissions = this.getPermissionsFromProps();
     const showEnterprisePlugin = pluginUtile.isInstallEnterprisePlugin(this.props.pluginsList);
     const nextScope = this.getResolvedScope(this.props.location, permissions, showEnterprisePlugin);
 
+    // Automatic permission/plugin hydration shares this page initialization.
+    // Only an explicit navigation back to activities requires another read.
+    if (refreshOverview && nextScope === 'event' && this.state.scope !== 'event') {
+      this.loadOverview();
+    }
     this.setState(prevState => {
       const updates = {};
       ['eventPermissions', 'memberPermissions', 'datecenterPermissions', 'rolePermissions', 'pluginPermissions'].forEach(
@@ -193,25 +238,70 @@ export default class Index extends PureComponent {
   };
 
   // 获取团队基本信息
-  loadOverview = () => {
+  getOverviewScope = () => JSON.stringify([globalUtil.getCurrTeamName(), globalUtil.getCurrRegionName()]);
+
+  getOverviewIdentity = () => {
+    const { currUser, currentTeam, currentTeamPermissionsInfo } = this.props;
+    const identity = this.overviewIdentity({
+      teamName: globalUtil.getCurrTeamName(),
+      regionName: globalUtil.getCurrRegionName(),
+      userId: currUser && currUser.user_id,
+      enterpriseId: currUser && currUser.enterprise_id,
+      isEnterpriseAdmin: currUser && currUser.is_enterprise_admin,
+      userRoles: currUser && currUser.roles,
+      // Standalone pages retain their existing permission-hydration behavior;
+      // the layout-owned path additionally rejects true known-scope changes.
+      permissions: this.props.teamOverviewLoader &&
+        (!currentTeam || currentTeam.team_name === globalUtil.getCurrTeamName()) &&
+        currentTeamPermissionsInfo ? currentTeamPermissionsInfo.team : null
+    });
+    if (this.props.teamOverviewLoader &&
+      (!currUser || currUser.user_id === undefined || currUser.user_id === null || currUser.user_id === '')) return '';
+    return identity;
+  };
+
+  loadOverview = ({ force = true } = {}) => {
+    if (!this._isMounted) return;
     const { dispatch } = this.props;
-    dispatch({
+    const scope = this.getOverviewScope();
+    const identity = this.getOverviewIdentity();
+    const overviewLoader = this.props.teamOverviewLoader;
+    const generation = ++this.overviewGeneration;
+    this.overviewScope = scope;
+    this.activeOverviewIdentity = identity;
+    const isCurrent = () => this._isMounted && generation === this.overviewGeneration &&
+      scope === this.getOverviewScope() && identity === this.getOverviewIdentity();
+    let settled = false;
+    const finish = (response, error) => {
+      if (settled || !isCurrent()) return;
+      settled = true;
+      const success = isTeamOverviewResponse(response);
+      this.setState({
+        overviewSnapshot: { scope, generation, isCurrent, status: success ? 'success' : 'error', response: success ? response : null }
+      });
+      // The layout is the sole error-notification owner for shared reads.
+      if (error && !overviewLoader) handleAPIError(error);
+    };
+    this.setState({
+      overviewSnapshot: { scope, generation, isCurrent, status: 'pending', response: null }
+    });
+    const pending = dispatch({
       type: 'index/fetchOverview',
+      overviewLoader,
+      forceOverview: force,
+      shouldApply: () => !settled && isCurrent(),
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         region_name: globalUtil.getCurrRegionName()
       },
-      callback: res => {
-        if (res && res.bean) {
-          this.setState({
-            logoInfo: res.bean.logo || TeamImg
-          });
-        }
-      },
-      handleError: err => {
-        handleAPIError(err);
-      }
+      callback: res => finish(res),
+      handleError: err => finish(null, err)
     });
+    // DVA dispatch settles even when a handled API error produces no response.
+    // End the shared pending state without silently starting another request.
+    if (pending && typeof pending.then === 'function') {
+      pending.then(() => finish(null), error => finish(null, error));
+    }
   };
 
   // 显示/隐藏编辑名称弹窗
@@ -263,6 +353,10 @@ export default class Index extends PureComponent {
   // 编辑团队名称
   handleEditName = data => {
     const { dispatch } = this.props;
+    const scope = this.getOverviewScope();
+    const identity = this.getOverviewIdentity();
+    const isCurrent = () => this._isMounted && scope === this.getOverviewScope() &&
+      identity === this.getOverviewIdentity();
     dispatch({
       type: 'teamControl/editTeamAlias',
       payload: {
@@ -270,6 +364,7 @@ export default class Index extends PureComponent {
         ...data
       },
       callback: () => {
+        if (!isCurrent()) return;
         this.handleUpDataHeader();
         dispatch({
           type: 'user/fetchCurrent',
@@ -277,6 +372,7 @@ export default class Index extends PureComponent {
             team_name: globalUtil.getCurrTeamName()
           },
           callback: res => {
+            if (!isCurrent()) return;
                         dispatch({
               type: 'global/IsUpDataHeader',
               payload: { isUpData: false }
@@ -295,7 +391,7 @@ export default class Index extends PureComponent {
         this.hideEditName();
       },
       handleError: err => {
-        handleAPIError(err);
+        if (isCurrent()) handleAPIError(err);
       }
     });
   };
@@ -332,6 +428,7 @@ export default class Index extends PureComponent {
   // Tab切换
   handleTabChange = key => {
     const { dispatch } = this.props;
+    if (key === 'event' && this.state.scope !== 'event') this.loadOverview();
     this.setState({ scope: key });
     dispatch(
       routerRedux.push({
@@ -369,8 +466,11 @@ export default class Index extends PureComponent {
       memberPermissions,
       rolePermissions,
       pluginPermissions,
-      logoInfo
+      overviewSnapshot
     } = this.state;
+
+    const overview = getTeamOverviewData(overviewSnapshot, this.getOverviewScope());
+    const logoInfo = (overview && overview.logo) || TeamImg;
 
     const dynamicAccess = eventPermissions?.isAccess;
     const memberAccess = memberPermissions?.isAccess;
@@ -488,7 +588,7 @@ export default class Index extends PureComponent {
         )}
 
         {scope === 'event' && dynamicAccess && (
-          <TeamEventList memberPermissions={memberPermissions} />
+          <TeamEventList memberPermissions={memberPermissions} overviewSnapshot={overviewSnapshot} />
         )}
 
         {scope === 'plugin' && pluginAccess && <PluginListContent />}

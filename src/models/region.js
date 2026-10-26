@@ -128,11 +128,11 @@ export default {
         callback(response);
       }
     },
-    *fetchEnterpriseClusters({ payload, callback, handleError }, { call, put }) {
+    *fetchEnterpriseClusters({ payload, callback, handleError, shouldApply }, { call, put }) {
       const response = yield call(fetchEnterpriseClusters, payload, handleError);
-      if (response && callback) {
+      if (response && callback && (!shouldApply || shouldApply())) {
         yield put({ type: 'saveClusterInfo', payload: response.list });
-        callback(response);
+        if (!shouldApply || shouldApply()) callback(response);
       }
     },
     *fetchHelmToken({ payload, callback }, { call }) {
@@ -313,11 +313,11 @@ export default {
         callback(response);
       }
     },
-    *fetchClusterInfo({ payload, callback, handleError }, { call, put }) {
+    *fetchClusterInfo({ payload, callback, handleError, shouldApply }, { call, put }) {
       const response = yield call(fetchClusterInfo, payload, handleError);
-      if (response && callback) {
+      if (response && callback && (!shouldApply || shouldApply())) {
         yield put({ type: 'saveClusterInfoAddCluster', payload: response.bean });
-        callback(response);
+        if (!shouldApply || shouldApply()) callback(response);
       }
     },
     *fetchClusterNodeInfo({ payload, callback, handleError }, { call }) {

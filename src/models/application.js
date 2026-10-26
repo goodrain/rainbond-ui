@@ -208,11 +208,26 @@ export default {
         callback(response);
       }
     },
-    *fetchGroupDetail({ payload, callback, handleError }, { call, put }) {
-      const response = yield call(getGroupDetail, payload, handleError);
-      if (response) {
+    *fetchGroupDetail({ payload, callback, handleError, initialDetailLoader,
+      forceDetail, shouldApply, skipDetailDedup }, { call, put }) {
+      let response;
+      if (initialDetailLoader) {
+        try {
+          response = yield call(initialDetailLoader, payload, { force: Boolean(forceDetail) });
+        } catch (error) {
+          // Shared failures and stale generations have one layout error owner.
+          return;
+        }
+      } else {
+        response = skipDetailDedup
+          ? yield call(getGroupDetail, payload, handleError, { skipDedup: true })
+          : yield call(getGroupDetail, payload, handleError);
+      }
+      const canApply = () => (!shouldApply || shouldApply()) &&
+        (!initialDetailLoader || initialDetailLoader.isCurrent(response));
+      if (response && canApply()) {
         yield put({ type: 'saveGroupDetail', payload: response.bean });
-        if (callback) {
+        if (callback && canApply()) {
           callback(response);
         }
       }
@@ -257,11 +272,12 @@ export default {
         }
       }
     },
-    *fetchApps({ payload, callback, handleError }, { call, put }) {
+    *fetchApps({ payload, callback, handleError, shouldApply }, { call, put }) {
       const response = yield call(getGroupApps, payload, handleError);
-      if (response) {
+      const canApply = () => !shouldApply || shouldApply();
+      if (response && canApply()) {
         yield put({ type: 'saveApps', payload: response.list });
-        if (callback) {
+        if (callback && canApply()) {
           callback(response);
         }
       }

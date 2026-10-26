@@ -18,7 +18,10 @@ export default function AppHeader(props) {
     nobleIcon,
     upDataHeader,
     handleClick,
-    changeTeam
+    changeTeam,
+    regionName,
+    initialGroupsLoader,
+    initialGroupsScope
   } = props;  
   // 获取地址栏 hash 中的 apps 参数
   const hash = window.location.hash;
@@ -50,6 +53,10 @@ export default function AppHeader(props) {
           </div>
           <SelectApp
             handleClick={handleClick}
+            regionName={regionName}
+            initialGroupsLoader={initialGroupsLoader}
+            {...(Object.prototype.hasOwnProperty.call(props, 'initialGroupsScope')
+              ? { initialGroupsScope } : {})}
             active={currentComponent == undefined}
             className={headerStype.select}
             teamName={teamName}

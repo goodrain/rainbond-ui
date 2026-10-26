@@ -237,7 +237,17 @@ export async function editAppCreateCompose(
 /*
 	获取某个应用组的信息
 */
-export async function getGroupDetail(body = {}, handleError) {
+export async function getGroupDetail(body = {}, handleError, { skipDedup = false } = {}) {
+  if (skipDedup) {
+    // The mounted layout owns sharing. A force or identity change needs new HTTP.
+    return request(
+      `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}`,
+      {
+        params: { region_name: body.region_name },
+        ...(handleError ? { handleError } : {})
+      }
+    );
+  }
   const hasHandleError = Boolean(handleError);
   const requestKey = JSON.stringify([
     body.team_name,

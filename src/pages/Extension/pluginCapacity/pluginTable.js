@@ -10,6 +10,7 @@ import AppState from '../../../components/ApplicationState';
 import { renderPlatformPluginIcon } from '../../../utils/platformPluginIcon';
 import { getOfflinePlatformPluginMetadata } from '../../../utils/offlinePlatformPluginMetadata';
 import { getPluginBaseId } from '../../../utils/pluginArchUtils';
+import { isSuccessfulPluginResponse, notifyEnterprisePluginsChanged } from '../../../utils/pluginInitialization';
 import { runMarketInstallPreflight } from '../../../utils/marketInstallPreflight';
 import styles from './index.less'
 import enterpriseStyles from '../../Enterprise/index.less'
@@ -239,6 +240,7 @@ class Index extends PureComponent {
 
     changePluginStatus = (val) => {
         const { dispatch, regionName } = this.props
+        const enterpriseId = this.getEid();
         dispatch({
             type: 'global/editPluginsStatus',
             payload: {
@@ -246,7 +248,10 @@ class Index extends PureComponent {
                 plugin_name: val.plugin_id,
                 action: val.status === 'Running' ? 'disable' : 'enable'
             },
-            callback: () => {
+            callback: res => {
+                if (res && res.status_code === 200 && isSuccessfulPluginResponse(res, false)) {
+                    notifyEnterprisePluginsChanged({ enterpriseId, regionName });
+                }
                 this.handlePluginList()
                 notification.success({ message: formatMessage({ id: 'notification.success.succeeded' }) })
             },
@@ -596,10 +601,13 @@ class Index extends PureComponent {
         });
     }
 
-    completeInstallIfRunning = (pluginId, plugins) => {
+    completeInstallIfRunning = (pluginId, plugins, scope) => {
         const target = plugins.find(p => p.plugin_id === pluginId);
         const status = target && `${target.status || ''}`.toUpperCase();
         if (target && status === 'RUNNING') {
+            if (this.state.installingPlugins[pluginId] && scope) {
+                notifyEnterprisePluginsChanged(scope);
+            }
             this.stopInstallPolling();
             this.stopElapsedTimer();
             const { confirmInstallPlugin, installingPluginInfo } = this.state;
@@ -635,6 +643,7 @@ class Index extends PureComponent {
             const eid = (enterprise && enterprise.enterprise_id)
                 || (currentUser && currentUser.enterprise_id)
                 || global.getCurrEnterpriseId();
+            const scope = { enterpriseId: eid, regionName };
             dispatch({
                 type: 'global/getEnterprisePluginList',
                 payload: {
@@ -644,16 +653,16 @@ class Index extends PureComponent {
                 callback: res => {
                     if (res && Array.isArray(res.list) && res.list.length > 0) {
                         this.setState({ pluginList: res.list });
-                        this.completeInstallIfRunning(pluginId, res.list);
+                        this.completeInstallIfRunning(pluginId, res.list, scope);
                     } else {
                         this.handleInstalledPluginList(eid, plugins => {
-                            this.completeInstallIfRunning(pluginId, plugins);
+                            this.completeInstallIfRunning(pluginId, plugins, scope);
                         });
                     }
                 },
                 handleError: () => {
                     this.handleInstalledPluginList(eid, plugins => {
-                        this.completeInstallIfRunning(pluginId, plugins);
+                        this.completeInstallIfRunning(pluginId, plugins, scope);
                     });
                 },
             });

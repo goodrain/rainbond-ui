@@ -48,13 +48,19 @@ const SLOW_REQUEST_STATIC_SEGMENTS = {
   health: true,
   logs: true,
   metrics: true,
+  monitor: true,
   namespaces: true,
   nodes: true,
   openapi: true,
+  'operator-managed': true,
   overview: true,
   permissions: true,
   plugins: true,
+  pods: true,
+  ports: true,
   posthog: true,
+  'platform-overview': true,
+  query_range: true,
   regions: true,
   restart: true,
   roles: true,
@@ -66,6 +72,8 @@ const SLOW_REQUEST_STATIC_SEGMENTS = {
   stop: true,
   teams: true,
   users: true,
+  'volume-opts': true,
+  volumes: true,
   v1: true,
   v2: true,
   v3: true
@@ -764,6 +772,13 @@ function shouldSuppressBrowserError(error, context = {}) {
   const errorName = error.name || context.exceptionType || '';
 
   if (isCancellationError(error)) {
+    return true;
+  }
+
+  if (
+    source === 'unhandledrejection' &&
+    /^Network Error$/i.test(message)
+  ) {
     return true;
   }
 

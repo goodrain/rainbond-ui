@@ -40,7 +40,7 @@ import Context from './MenuContext';
 import Overdue from '../pages/Overdue';
 import styles from './EnterpriseLayout.less'
 import PluginUtil from '../utils/pulginUtils';
-import { notifyAPIWarning } from '../utils/error';
+import handleAPIError, { notifyAPIWarning } from '../utils/error';
 import * as customerServiceFloatVisibility from './customerServiceFloatVisibility';
 import * as teamMenuEnterprise from './teamMenuEnterprise';
 
@@ -48,6 +48,8 @@ const {
   getFallbackRoute,
   isMissingResourceError,
 } = require('../utils/missingResourceHelpers');
+const { createTeamOverviewBootstrap, createTeamOverviewScope } = require('../utils/teamOverviewBootstrap');
+const { isTeamOverviewResponse } = require('../components/Team/TeamEventList/helpers');
 
 const {
   shouldShowCustomerServiceFloat,
@@ -93,9 +95,36 @@ class TeamLayout extends PureComponent {
   constructor(props) {
     super(props);
     this.lastPluginUrlKey = '';
-    this.teamOverviewRequestKeys = new Set();
     this.lastInitializedTeamOverviewKey = '';
     this._isUnmounted = false;
+    this.teamOverviewScope = createTeamOverviewScope();
+    this.teamOverviewBootstrap = createTeamOverviewBootstrap(
+      this.requestSharedTeamOverview,
+      identity => !this._isUnmounted && identity === this.getTeamOverviewIdentity()
+    );
+    this.loadSharedTeamOverview.isCurrent = response => this.teamOverviewBootstrap.isCurrentResponse(response);
+    this.activeInitialAppDetailIdentity = '';
+    this.initialDetailBootstrap = createTeamOverviewBootstrap(
+      this.requestInitialAppDetail,
+      identity => !this._isUnmounted && identity === this.getInitialAppDetailIdentity()
+    );
+    this.loadInitialAppDetail.isCurrent = response => this.initialDetailBootstrap.isCurrentResponse(response);
+    this.activeInitialTeamGroupsIdentity = '';
+    this.initialGroupsBootstrap = createTeamOverviewBootstrap(
+      this.requestInitialTeamGroups,
+      identity => !this._isUnmounted && identity === this.getInitialTeamGroupsIdentity()
+    );
+    this.loadInitialTeamGroups.isCurrent = response => this.initialGroupsBootstrap.isCurrentResponse(response);
+    this.loadInitialTeamGroups.invalidate = () => this.initialGroupsBootstrap.invalidate();
+    this.loadSharedTeamOverview.beginVisit = () => {
+      const identity = this.getTeamOverviewIdentity();
+      if (this.teamOverviewVisitIdentity !== identity) {
+        this.teamOverviewVisitIdentity = identity;
+        this.teamOverviewVisits = 0;
+      }
+      this.teamOverviewVisits += 1;
+      return this.teamOverviewVisits > 1;
+    };
     this.missingResourceRedirected = false;
     this.state = {
       isMobile,
@@ -178,16 +207,8 @@ class TeamLayout extends PureComponent {
       // 设置 cookie 仅在参数变化时
       cookie.set('team_name', nextParams.teamName);
       cookie.set('region_name', nextParams.regionName);
-      this.load();
-      this.getTeamOverview(nextParams);
-      // 若已有 eid 或 enterprise 可用，兜底刷新官方插件 url
-      const enterpriseId = this.state.eid
-        || (this.state.currentEnterprise && this.state.currentEnterprise.enterprise_id)
-        || (this.props.enterprise && this.props.enterprise.enterprise_id)
-        || (this.props.currentUser && this.props.currentUser.enterprise_id);
-      if (enterpriseId) {
-        setTimeout(() => this.fetchPipePipeline(enterpriseId), 10);
-      }
+      // Loading is deferred to componentDidUpdate, where this.props already
+      // belongs to the new route (the old owner must never start its request).
     }
 
     // 2) appID 变化时，触发 fetchAppDetail（避免在 render 中触发）
@@ -211,7 +232,6 @@ class TeamLayout extends PureComponent {
               this.setState({ permissionsRefreshing: false });
             }
           });
-          this.fetchAppDetail(newAppID);
         }
       );
     }
@@ -225,6 +245,27 @@ class TeamLayout extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
+    const previousParams = prevProps.match && prevProps.match.params || {};
+    const currentParams = this.props.match && this.props.match.params || {};
+    const routeChanged = previousParams.teamName !== currentParams.teamName ||
+      previousParams.regionName !== currentParams.regionName;
+    const identity = this.getTeamOverviewIdentity();
+    if (routeChanged) this.load();
+    if (identity && (this.activeTeamOverviewIdentity !== identity || routeChanged)) {
+      this.getTeamOverview();
+    }
+    const previousAppID = globalUtil.getAppID(prevProps.location && prevProps.location.pathname);
+    const currentAppID = globalUtil.getAppID(this.props.location && this.props.location.pathname);
+    const nextDetailIdentity = this.getInitialAppDetailIdentity();
+    const detailScopeChanged = this.activeInitialAppDetailIdentity !== nextDetailIdentity;
+    if (detailScopeChanged) {
+      this.activeInitialAppDetailIdentity = nextDetailIdentity;
+      this.initialDetailBootstrap.invalidate();
+    }
+    if (currentAppID && (previousAppID !== currentAppID || (detailScopeChanged && nextDetailIdentity))) {
+      this.fetchAppDetail(currentAppID);
+    }
+    this.syncInitialTeamGroupsScope();
     // 仅当路由变化时，根据 URL 统一计算展示状态，避免每次更新都 setState
     const prevPath = prevProps.location && prevProps.location.pathname;
     const currPath = this.props.location && this.props.location.pathname;
@@ -261,7 +302,9 @@ class TeamLayout extends PureComponent {
 
   componentWillUnmount() {
     this._isUnmounted = true;
-    this.teamOverviewRequestKeys.clear();
+    this.teamOverviewBootstrap.dispose();
+    this.initialDetailBootstrap.dispose();
+    this.initialGroupsBootstrap.dispose();
   }
 
   fetchLicenses = () => {
@@ -488,95 +531,104 @@ class TeamLayout extends PureComponent {
     return null;
   };
 
-  getTeamOverviewRequestKey = params => {
-    const { teamName, regionName } = params || {};
-    if (!teamName || !regionName) {
-      return '';
+  getTeamOverviewIdentity = () => {
+    const { currentUser, currentTeam, currentTeamPermissionsInfo } = this.props;
+    const params = this.props.match && this.props.match.params || {};
+    // SecurityLayout normally guarantees this. Do not start an unknown
+    // principal's request when a partially hydrated tree is mounted directly.
+    const identity = this.teamOverviewScope({
+      ...params,
+      userId: currentUser && currentUser.user_id,
+      enterpriseId: currentUser && currentUser.enterprise_id,
+      isEnterpriseAdmin: currentUser && currentUser.is_enterprise_admin,
+      userRoles: currentUser && currentUser.roles,
+      permissions: (!currentTeam || currentTeam.team_name === params.teamName) &&
+        currentTeamPermissionsInfo ? currentTeamPermissionsInfo.team : null
+    });
+    return currentUser && currentUser.user_id !== undefined && currentUser.user_id !== null &&
+      currentUser.user_id !== '' ? identity : '';
+  };
+
+  loadSharedTeamOverview = (payload, { force = false } = {}) => {
+    const params = this.props.match && this.props.match.params || {};
+    if (!payload || payload.team_name !== params.teamName || payload.region_name !== params.regionName) {
+      const error = new Error('Team overview bootstrap is stale');
+      error.code = 'TEAM_OVERVIEW_STALE';
+      return Promise.reject(error);
     }
-    return `${teamName}:${regionName}`;
+    const identity = this.getTeamOverviewIdentity();
+    this.activeTeamOverviewIdentity = identity;
+    return this.teamOverviewBootstrap.load(identity, payload, { force });
   };
 
-  isCurrentTeamOverviewRequest = key => {
-    const params = this.props.match && this.props.match.params;
-    return key === this.getTeamOverviewRequestKey(params);
+  getTeamOverview = () => {
+    const params = this.props.match && this.props.match.params || {};
+    if (!params.teamName || !params.regionName) return Promise.resolve();
+    // The owner reports failures once. Late page consumers share the settled
+    // rejection rather than restarting a failing initialization.
+    return this.loadSharedTeamOverview({
+      team_name: params.teamName,
+      region_name: params.regionName
+    }).catch(() => undefined);
   };
 
-  getTeamOverview = params => {
-    // 避免在此处再次触发 load，统一在参数变化生命周期中触发
+  requestSharedTeamOverview = (payload, succeed, reject, isCurrent) => {
     const { dispatch, currentUser, rainbondInfo } = this.props;
     const isSaas = rainbondInfo && rainbondInfo.is_saas || false;
-    const { enterpriseList, teamOverviewPermission: { isAccess } } = this.state;
-    const overviewParams = params || (this.props.match && this.props.match.params) || {};
-    const { teamName, regionName } = overviewParams;
-    const requestKey = this.getTeamOverviewRequestKey(overviewParams);
-    if (
-      !requestKey ||
-      this.teamOverviewRequestKeys.has(requestKey) ||
-      this.lastInitializedTeamOverviewKey === requestKey
-    ) {
-      return;
-    }
-    this.teamOverviewRequestKeys.add(requestKey);
-    cookie.set('team_name', teamName);
-    cookie.set('region_name', regionName);
-    if(isSaas){
+    const identity = this.getTeamOverviewIdentity();
+    cookie.set('team_name', payload.team_name);
+    cookie.set('region_name', payload.region_name);
+    if (isSaas && this.saasTeamOverviewIdentity !== identity) {
+      this.saasTeamOverviewIdentity = identity;
       this.fetchTeamDetails();
     }
-    const finalizeRequest = () => {
-      this.teamOverviewRequestKeys.delete(requestKey);
+    let settled = false;
+    const fail = error => {
+      if (settled) return;
+      settled = true;
+      reject(error || new Error('Team overview unavailable'));
+      if (!isCurrent()) return;
+      const code = error && ((error.data && error.data.code) ||
+        (error.response && error.response.data && error.response.data.code));
+      if (!code) return;
+      const errtext = code === 10411 ? '当前集群不可用' : code === 10412 ? '当前集群不存在' : false;
+      if (errtext && this.state.enterpriseList.length > 0) {
+        notification.warning({ message: errtext });
+        dispatch(routerRedux.push(this.getLoginRole(currentUser)));
+      } else {
+        notification.warning({ message: formatMessage({ id: 'notification.warn.error' }) });
+      }
     };
     const dispatchResult = dispatch({
       type: 'global/getTeamOverview',
-      payload: {
-        team_name: teamName,
-        region_name: regionName
-      },
-      shouldSave: () => !this._isUnmounted && this.isCurrentTeamOverviewRequest(requestKey),
+      payload,
+      skipOverviewDedup: true,
+      shouldSave: response => isCurrent() && isTeamOverviewResponse(response),
       callback: res => {
-        finalizeRequest();
-        if (this._isUnmounted || !this.isCurrentTeamOverviewRequest(requestKey)) {
+        if (settled) return;
+        if (!isTeamOverviewResponse(res)) {
+          fail({ data: { code: res && (res.business_code || res._condition || res.status_code) } });
           return;
         }
-        if (res && res.status_code === 200) {
-          this.lastInitializedTeamOverviewKey = requestKey;
-          window.sessionStorage.setItem("team_id", res.bean.team_id)
-          this.setState(
-            {
-              eid: res.bean.eid
-            }, () => {
-              this.fetchPipePipeline(res.bean.eid)
-              this.fetchEnterpriseInfo(res.bean.eid);
-            }
-          );
+        settled = true;
+        succeed(res);
+        if (!isCurrent()) return;
+        if (res.bean.team_id) window.sessionStorage.setItem('team_id', res.bean.team_id);
+        if (this.lastInitializedTeamOverviewKey === identity) return;
+        this.lastInitializedTeamOverviewKey = identity;
+        if (res.bean.eid) {
+          this.setState({ eid: res.bean.eid }, () => {
+            if (!isCurrent()) return;
+            this.fetchPipePipeline(res.bean.eid);
+            this.fetchEnterpriseInfo(res.bean.eid);
+          });
         }
       },
-      handleError: err => {
-        finalizeRequest();
-        if (this._isUnmounted || !this.isCurrentTeamOverviewRequest(requestKey)) {
-          return;
-        }
-        const link = this.getLoginRole(currentUser)
-        if (err && err.data && err.data.code) {
-          const errtext =
-            err.data.code === 10411
-              ? '当前集群不可用'
-              : err.data.code === 10412
-                ? '当前集群不存在'
-                : false;
-          if (errtext && enterpriseList.length > 0) {
-            notification.warning({ message: errtext });
-            dispatch(
-              routerRedux.push(
-                link
-              )
-            );
-          } else {
-            notification.warning({ message: formatMessage({ id: 'notification.warn.error' }) });
-          }
-        }
-      }
+      handleError: fail
     });
-    dispatchResult.then(finalizeRequest, finalizeRequest);
+    if (dispatchResult && typeof dispatchResult.then === 'function') {
+      dispatchResult.then(() => { if (!settled) fail(); }, fail);
+    }
   };
   getLoginRole = (currUser) => {
     const { dispatch } = this.props;
@@ -729,6 +781,11 @@ class TeamLayout extends PureComponent {
 
   fetchTeamApps = () => {
     const { teamName, regionName } = this.props.match.params;
+    if (this.isAppOverviewPath(this.props.location && this.props.location.pathname)) {
+      if (!this.getInitialTeamGroupsIdentity()) return Promise.resolve();
+      return this.loadInitialTeamGroups({ team_name: teamName, region_name: regionName,
+        query: '' }).catch(() => undefined);
+    }
     this.props.dispatch({
       type: 'global/fetchGroups',
       payload: {
@@ -783,7 +840,13 @@ class TeamLayout extends PureComponent {
     const { location } = this.props;
     return {
       location,
-      breadcrumbNameMap: this.breadcrumbNameMap
+      breadcrumbNameMap: this.breadcrumbNameMap,
+      teamOverviewLoader: this.loadSharedTeamOverview,
+      initialDetailLoader: this.loadInitialAppDetail,
+      initialDetailScope: this.getInitialAppDetailIdentity(),
+      initialGroupsLoader: this.isAppOverviewPath(this.props.location && this.props.location.pathname)
+        ? this.loadInitialTeamGroups : undefined,
+      initialGroupsScope: this.getInitialTeamGroupsScope()
     };
   }
   getMode(appID) {
@@ -792,11 +855,134 @@ class TeamLayout extends PureComponent {
     }
     return 'team';
   }
+  isAppOverviewPath = (pathname = '') => /\/apps\/[^/]+\/overview\/?$/.test(pathname);
+
+  getInitialTeamGroupsScope = () => {
+    const teamIdentity = this.getTeamOverviewIdentity();
+    const location = this.props.location || {};
+    const match = (location.search || '').match(/(?:^|[?&])refresh=([^&]+)/);
+    return teamIdentity
+      ? JSON.stringify([teamIdentity, location.pathname || '', match ? match[1] : '']) : '';
+  };
+
+  getInitialTeamGroupsIdentity = () => this.isAppOverviewPath(
+    this.props.location && this.props.location.pathname) ? this.getInitialTeamGroupsScope() : '';
+
+  loadInitialTeamGroups = (payload, { force = false } = {}) => {
+    const params = this.props.match && this.props.match.params || {};
+    const query = payload && payload.query != null ? String(payload.query) : '';
+    if (!payload || payload.team_name !== params.teamName || payload.region_name !== params.regionName || query !== '') {
+      const error = new Error('Initial application list is stale');
+      error.code = 'TEAM_OVERVIEW_STALE';
+      return Promise.reject(error);
+    }
+    const identity = this.getInitialTeamGroupsIdentity();
+    this.activeInitialTeamGroupsIdentity = identity;
+    return this.initialGroupsBootstrap.load(identity, { ...payload, query: '' }, { force });
+  };
+
+  requestInitialTeamGroups = (payload, succeed, reject, isCurrent) => {
+    let settled = false;
+    const fail = error => {
+      if (settled) return;
+      settled = true;
+      reject(error || new Error('Application list unavailable'));
+      if (isCurrent() && error) handleAPIError(error);
+    };
+    const pending = this.props.dispatch({
+      type: 'global/fetchGroups', payload,
+      shouldApply: () => isCurrent(),
+      onResponse: response => {
+        if (settled) return;
+        if (!response || response.status_code !== 200 || !Array.isArray(response.list)) { fail(); return; }
+        settled = true;
+        succeed(response);
+      },
+      handleError: fail
+    });
+    if (pending && typeof pending.then === 'function') {
+      pending.then(() => { if (!settled) fail(); }, fail);
+    }
+  };
+
+  syncInitialTeamGroupsScope = () => {
+    const identity = this.getInitialTeamGroupsIdentity();
+    if (this.activeInitialTeamGroupsIdentity === identity) return;
+    this.activeInitialTeamGroupsIdentity = identity;
+    this.initialGroupsBootstrap.invalidate();
+    if (identity) this.fetchTeamApps();
+  };
+
+  getInitialAppDetailIdentity = () => {
+    const location = this.props.location || {};
+    if (!this.isAppOverviewPath(location.pathname)) return '';
+    const teamIdentity = this.getTeamOverviewIdentity();
+    const id = globalUtil.getAppID(location.pathname);
+    const match = (location.search || '').match(/(?:^|[?&])refresh=([^&]+)/);
+    return teamIdentity && id
+      ? JSON.stringify([teamIdentity, location.pathname, String(id), match ? match[1] : '']) : '';
+  };
+
+  loadInitialAppDetail = (payload, { force = false } = {}) => {
+    const params = this.props.match && this.props.match.params || {};
+    const id = globalUtil.getAppID(this.props.location && this.props.location.pathname);
+    if (!payload || payload.team_name !== params.teamName || payload.region_name !== params.regionName ||
+        String(payload.group_id) !== String(id)) {
+      const error = new Error('Application initial read is stale');
+      error.code = 'TEAM_OVERVIEW_STALE';
+      return Promise.reject(error);
+    }
+    const identity = this.getInitialAppDetailIdentity();
+    this.activeInitialAppDetailIdentity = identity;
+    return this.initialDetailBootstrap.load(identity, payload, { force });
+  };
+
+  requestInitialAppDetail = (payload, succeed, reject, isCurrent) => {
+    let settled = false;
+    const fail = error => {
+      if (settled) return;
+      settled = true;
+      reject(error || new Error('Application detail unavailable'));
+      if (!isCurrent()) return;
+      this.setState({ currentApp: false });
+      if (isMissingResourceError(error)) {
+        this.redirectMissingResource('app', `/team/${payload.team_name}/region/${payload.region_name}/index`);
+      }
+    };
+    const pending = this.props.dispatch({
+      type: 'application/fetchGroupDetail',
+      payload,
+      skipDetailDedup: true,
+      shouldApply: () => isCurrent(),
+      callback: response => {
+        if (settled) return;
+        if (!response || response.status_code !== 200 || !response.bean) {
+          fail();
+          return;
+        }
+        settled = true;
+        succeed(response);
+        if (isCurrent()) {
+          this.missingResourceRedirected = false;
+          this.setState({ currentApp: response.bean, GroupShow: true });
+        }
+      },
+      handleError: fail
+    });
+    if (pending && typeof pending.then === 'function') {
+      pending.then(() => { if (!settled) fail(); }, fail);
+    }
+  };
+
   fetchAppDetail = appID => {
     const { dispatch } = this.props;
     const { teamName, regionName } = this.props.match.params;
     if (!appID) {
       return false;
+    }
+    if (this.isAppOverviewPath(this.props.location && this.props.location.pathname)) {
+      return this.loadInitialAppDetail({ team_name: teamName, region_name: regionName,
+        group_id: appID }).catch(() => undefined);
     }
     // 避免重复请求：当 appID 与当前相同且已有 currentApp 时跳过
     if (this.state.currentApp && this.state.currentApp.group_id === appID) {
@@ -1037,6 +1223,9 @@ class TeamLayout extends PureComponent {
         return (
           <AppHeader
             handleClick={this.GroupShow}
+            initialGroupsLoader={this.isAppOverviewPath(this.props.location && this.props.location.pathname)
+              ? this.loadInitialTeamGroups : undefined}
+            initialGroupsScope={this.getInitialTeamGroupsScope()}
             teamName={teamName}
             currentEnterprise={currentEnterprise}
             currentTeam={currentTeam}
@@ -1299,6 +1488,7 @@ export default connect(
     groupDetail: application.groupDetail,
     // enterpriseServiceInfo: order.enterpriseServiceInfo,
     upDataHeader: global.upDataHeader,
-    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
+    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
+    currentTeam: teamControl.currentTeam
   })
 )(TeamLayout);

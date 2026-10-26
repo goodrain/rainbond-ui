@@ -158,6 +158,7 @@ import { clearAgentLlmConfig, getAgentLlmConfig, updateAgentLlmConfig } from '..
 import cookie from '../utils/cookie';
 import rainbondUtil from '../utils/rainbond';
 import { getDvaApp } from 'umi';
+import { isSuccessfulPluginResponse } from '../utils/pluginInitialization';
 
 export default {
   namespace: 'global',
@@ -444,8 +445,10 @@ export default {
         callback(data);
       }
     },
-    *getTeamOverview({ payload, callback, handleError, shouldSave }, { call, put }) {
-      const data = yield call(getTeamOverview, payload, handleError);
+    *getTeamOverview({ payload, callback, handleError, shouldSave, skipOverviewDedup }, { call, put }) {
+      const data = skipOverviewDedup
+        ? yield call(getTeamOverview, payload, handleError, { skipDedup: true })
+        : yield call(getTeamOverview, payload, handleError);
       if (data && (!shouldSave || shouldSave(data))) {
         yield put({ type: 'saveTeamOverview', payload: data.bean });
       }
@@ -519,17 +522,26 @@ export default {
       const count = yield select(state => state.global.notices.length);
       yield put({ type: 'user/changeNotifyCount', payload: count });
     },
-    *fetchGroups({ payload, callback, handleError }, { put, call }) {
-      const response = yield call(getTeamRegionGroups, payload, handleError);
-      if (response) {
-        yield put({
-          type: 'saveGroups',
-          payload: response.list || []
-        });
+    *fetchGroups({ payload, callback, handleError, initialGroupsLoader,
+      forceGroups, shouldApply, onResponse }, { put, call }) {
+      let response;
+      if (initialGroupsLoader) {
+        try {
+          response = yield call(initialGroupsLoader, payload, { force: Boolean(forceGroups) });
+        } catch (error) {
+          if (handleError && (!shouldApply || shouldApply())) handleError(error);
+          return;
+        }
+      } else {
+        response = yield call(getTeamRegionGroups, payload, handleError);
+      }
+      const canApply = () => (!shouldApply || shouldApply()) &&
+        (!initialGroupsLoader || initialGroupsLoader.isCurrent(response));
+      if (response && canApply()) {
+        yield put({ type: 'saveGroups', payload: response.list || [] });
+        if (onResponse && canApply()) onResponse(response);
         if (callback) {
-          setTimeout(() => {
-            callback(response.list);
-          });
+          setTimeout(() => { if (canApply()) callback(response.list); });
         }
       }
     },
@@ -1038,13 +1050,15 @@ export default {
         callback(response);
       }
     },
-    *getPluginList({ payload, callback, handleError }, { call, put }) {
+    *getPluginList({ payload, callback, handleError, shouldApply }, { call, put }) {
       const response = yield call(getPluginList, payload, handleError);
       if (callback) {
-        yield put({
-          type: 'savePluginList',
-          payload: response
-        });
+        if (isSuccessfulPluginResponse(response) && (!shouldApply || shouldApply())) {
+          yield put({
+            type: 'savePluginList',
+            payload: response
+          });
+        }
         callback(response);
       }
     },

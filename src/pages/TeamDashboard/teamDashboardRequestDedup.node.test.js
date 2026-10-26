@@ -1,6 +1,7 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
+const parser = require('@babel/parser');
 
 const uiRoot = path.resolve(__dirname, '..', '..');
 const globalHeaderSource = fs.readFileSync(
@@ -55,6 +56,10 @@ function loadRegionService(request) {
     .replace(
       "import request from '../utils/request';",
       'const request = global.__request;'
+    )
+    .replace(
+      "import { isSuccessfulPluginResponse, notifyEnterprisePluginsChanged } from '../utils/pluginInitialization';",
+      'const notifyEnterprisePluginsChanged = () => {};'
     )
     .replace(/export async function/g, 'async function')
     .concat('\nmodule.exports = { fetchEnterpriseClusters };\n');
@@ -226,9 +231,8 @@ assert.ok(
 );
 
 assert.ok(
-  /getTeamRegionOverview as getSharedTeamRegionOverview/.test(apiServiceSource) &&
-    /return getSharedTeamRegionOverview\(body, handleError\)/.test(apiServiceSource),
-  'legacy and dashboard overview services should use the same request coalescer'
+  /getTeamRegionOverview as getSharedTeamRegionOverview/.test(apiServiceSource),
+  'legacy and layout-owned overview services should use the same team service adapter'
 );
 
 assert.ok(
@@ -632,11 +636,31 @@ async function testTeamOverviewAsyncContract() {
   await assert.rejects(result, error => error === requestError);
 }
 
+async function testTeamOverviewApiAdapterContract() {
+  const ast = parser.parse(apiServiceSource, { sourceType: 'module' });
+  const declaration = ast.program.body.find(node => node.type === 'ExportNamedDeclaration' &&
+    node.declaration && node.declaration.id && node.declaration.id.name === 'getTeamOverview').declaration;
+  const calls = [];
+  const getTeamOverview = new Function('getSharedTeamRegionOverview',
+    `${apiServiceSource.slice(declaration.start, declaration.end)}; return getTeamOverview;`)
+    ((...args) => { calls.push(args); return Promise.resolve({ bean: {} }); });
+  const payload = { team_name: 'team-a', region_name: 'region-a' };
+  const handleError = () => {};
+  await getTeamOverview(payload, handleError);
+  assert.deepStrictEqual(calls[0], [payload, handleError],
+    'unmarked callers should retain the exact legacy service/error-handler contract');
+  const options = { skipDedup: true };
+  await getTeamOverview(payload, handleError, options);
+  assert.deepStrictEqual(calls[1], [payload, handleError, options],
+    'layout-owned bootstrap should forward its transport-isolation metadata through the shared service adapter');
+}
+
 Promise.all([
   testEnterpriseClusterRequestDedup(),
   testTeamOverviewRequestDedup(),
   testUserDetailRequestDedup(),
-  testTeamOverviewAsyncContract()
+  testTeamOverviewAsyncContract(),
+  testTeamOverviewApiAdapterContract()
 ])
   .then(() => console.log('team dashboard request dedup tests passed'))
   .catch(error => {

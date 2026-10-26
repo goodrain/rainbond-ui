@@ -7,6 +7,7 @@ import React, { PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
 import globalUtil from '../../utils/global';
 import userUtil from '../../utils/user';
+import platformVersion from '../../utils/platformVersion';
 import styles from './index.less';
 
 const { isSourceRoute } = require('./permission');
@@ -143,9 +144,7 @@ export default class GlobalRouter extends PureComponent {
   fetchPlatformUpdateStatus = () => {
     const { dispatch, currentUser, rainbondInfo } = this.props;
     const enterpriseId = this.getEnterpriseId();
-    const currentVersion = rainbondInfo?.version?.value
-      ? rainbondInfo.version.value.split('-')[0]
-      : '';
+    const currentVersion = rainbondInfo?.version?.value || '';
 
     if (!currentUser?.is_enterprise_admin || !enterpriseId || !currentVersion) {
       if (this.state.hasUpgradeVersion) {
@@ -158,9 +157,8 @@ export default class GlobalRouter extends PureComponent {
       type: 'global/fetchAllVersion',
       callback: res => {
         const list = Array.isArray(res && res.response_data) ? res.response_data : [];
-        const latestVersion = list[0];
-        const hasUpgradeVersion =
-          !!latestVersion && latestVersion.split('-')[0] !== currentVersion;
+        const latestVersion = platformVersion.latestStableVersion(list);
+        const hasUpgradeVersion = platformVersion.isVersionNewer(latestVersion, currentVersion);
         this.setState({ hasUpgradeVersion });
       },
       handleError: () => {

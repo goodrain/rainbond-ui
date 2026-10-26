@@ -1,0 +1,126 @@
+const assert = require('assert');
+const fs = require('fs');
+const path = require('path');
+const data = require('./overviewData');
+const version = require('../../utils/platformVersion');
+
+assert.strictEqual(version.isVersionNewer('v6.9.11', 'v6.9.12-dev-abcdef-2026-10-19-15'), false);
+assert.strictEqual(version.isVersionNewer('v6.9.12-release-build', 'v6.9.12-dev-build'), true);
+assert.strictEqual(version.isVersionNewer('v6.10.0', 'v6.9.12'), true);
+assert.strictEqual(version.isVersionNewer('invalid', 'v6.9.12'), false);
+assert.strictEqual(version.latestStableVersion(['v6.9.11', 'v6.10.0', 'v6.11.0-dev-build']), 'v6.10.0');
+assert.strictEqual(version.isDevelopmentVersion('v6.9.12-dev-abcdef'), true);
+assert.strictEqual(version.isDevelopmentVersion('v6.9.12-release-abcdef'), false);
+assert.strictEqual(data.compactVersion('v6.9.12-dev-abcdef'), 'v6.9.12');
+[null, undefined, '', ' ', NaN, Infinity].forEach(value => assert.strictEqual(data.formatNumber(value), '-'));
+assert.strictEqual(data.formatNumber(0), 0);
+assert.strictEqual(data.formatNumber(123.4), 123.4);
+assert.deepStrictEqual(data.formatThroughput(1536), { value: 1.5, unit: 'KiB/s' });
+assert.deepStrictEqual(data.formatThroughput(null), { value: '-', unit: 'B/s' });
+assert.strictEqual(data.pluginRuntimeState('CLOSED').labelId, 'common.stopped');
+assert.strictEqual(data.pluginRuntimeState('STARTING').labelId, 'common.starting');
+assert.strictEqual(data.pluginRuntimeState('ABNORMAL').labelId, 'common.abnormal');
+assert.strictEqual(data.pluginRuntimeState('UNRECOGNIZED').labelId, 'common.unknown');
+assert.strictEqual(data.pluginIcon({ alias: '监控中心' }), 'area-chart');
+assert.strictEqual(data.pluginIcon({ alias: '数据库' }), 'database');
+const components = ['rbd-api', 'rbd-gateway', 'rbd-worker', 'rbd-app-ui', 'rbd-monitor', 'rbd-chaos', 'minio', 'rbd-db', 'rbd-mq']
+  .map((name, index) => ({ name, status: index === 8 ? 'Abnormal' : 'Running' }));
+assert.strictEqual(data.representativeComponents(components)[0].name, 'rbd-mq');
+assert.strictEqual(data.representativeComponents(components).length, 4);
+assert.deepStrictEqual(data.metricPoints({ series: [{ values: [[1, null], [2, ''], [3, 'NaN'], [4, '0']] }] }), [[4000, 0]]);
+assert.deepStrictEqual(data.metricChartPoints({ range: '1h', series: [{ values: [[1, '5'], [61, '6'], [301, '8']] }] }), [[1000, 5], [61000, 6], [121000, null], [301000, 8]]);
+assert.strictEqual(data.percentageAxisMax([[1, 4.8], [2, 7.2]]), 10, 'low usage should not leave a 100% axis');
+assert.strictEqual(data.percentageAxisMax([[1, 20], [2, 19.8]]), 30, '20% usage should use a 30% axis');
+assert.strictEqual(data.percentageAxisMax([[1, 20], [2, 80], [3, 20]]), 100, 'the whole time window peak must remain visible');
+assert.strictEqual(data.percentageAxisMax([[1, 95], [2, 100]]), 100, 'normal percentages should stop at the natural 100% limit');
+assert.strictEqual(data.percentageAxisMax([[1, 120]]), 150, 'out-of-range samples must not be clipped at 100%');
+assert.strictEqual(data.percentageAxisMax([[1, 0], [2, 0]]), 10, 'zero samples should retain a readable axis');
+assert.strictEqual(data.percentageAxisMax([[1, null], [2, ''], [3, NaN], [4, Infinity], [5, '20']]), 30, 'gaps and invalid values must not affect the axis');
+assert.strictEqual(data.percentageAxisMax([]), 10);
+assert.strictEqual(data.percentageAxisMax(null), 10);
+const rankingSnapshot = { sections: {
+  resources: { status: 'ok', data: { cpu: { capacity: 64, allocated: 8 }, memory: { capacity: 131072, allocated: 16384 } } },
+  teams: { status: 'ok', data: { totals: { cpu_cores: 45, memory_gib: 85, applications: 40 } } }
+} };
+assert.strictEqual(data.teamRankingTotal(rankingSnapshot, 'memory'), 128, 'team GiB must be compared with cluster MiB converted to GiB');
+assert.strictEqual(data.teamRankingShare(32, data.teamRankingTotal(rankingSnapshot, 'memory')), 25);
+assert.strictEqual(data.teamRankingTotal(rankingSnapshot, 'cpu'), 64, 'resource denominator is cluster capacity, not allocations or team totals');
+assert.strictEqual(data.teamRankingShare(8, data.teamRankingTotal(rankingSnapshot, 'cpu')), 12.5);
+assert.strictEqual(data.teamRankingTotal(rankingSnapshot, 'applications'), 40, 'apps include every team rather than just the displayed top five');
+assert.strictEqual(data.teamRankingShare(10, data.teamRankingTotal(rankingSnapshot, 'applications')), 25);
+assert.strictEqual(data.teamRankingShare(0, 128), 0, 'known zero configuration remains zero');
+assert.strictEqual(data.teamRankingShare(160, 128), 125, 'configured resources may exceed capacity and the label must retain the true percentage');
+for (const total of [null, undefined, '', ' ', true, false, -1, 0, Infinity]) {
+  assert.strictEqual(data.teamRankingShare(4, total), null, 'missing or unusable denominators must not become 0%');
+}
+for (const value of [null, undefined, '', true, false, -1, Infinity]) {
+  assert.strictEqual(data.teamRankingShare(value, 128), null);
+}
+assert.strictEqual(data.teamRankingTotal(null, 'memory'), null);
+rankingSnapshot.sections.resources.status = 'unavailable';
+assert.strictEqual(data.teamRankingTotal(rankingSnapshot, 'memory'), null, 'failed resource responses cannot fall back to top-five totals');
+assert.strictEqual(data.teamRankingTotal(rankingSnapshot, 'applications'), 40, 'application shares do not depend on the resource service');
+rankingSnapshot.sections.teams.status = 'unavailable';
+assert.strictEqual(data.teamRankingTotal(rankingSnapshot, 'applications'), null);
+const axisSamples = [[1, 20], [2, 4.8]];
+data.percentageAxisMax(axisSamples);
+assert.deepStrictEqual(axisSamples, [[1, 20], [2, 4.8]], 'axis scaling must not modify actual samples');
+assert.strictEqual(data.runtimeSection({ status: 'partial', global: { nodes: { status: 'unavailable', total: null, ready: null } } }, 'nodes').status, 'unavailable');
+const unavailableRuntime = { status: 'unavailable', global: { clusters: { total: 2, healthy: 0, warning: 0, unavailable: 2 }, nodes: { status: 'unavailable', total: null, ready: null } } };
+assert.strictEqual(data.runtimeSection(unavailableRuntime, 'clusters').data.unavailable, 2);
+assert.strictEqual(data.runtimeSection(unavailableRuntime, 'clusters').status, 'unavailable');
+assert.deepStrictEqual(data.runtimeSection(unavailableRuntime, 'nodes'), { status: 'unavailable', data: null });
+const page = fs.readFileSync(path.join(__dirname, 'index.js'), 'utf8');
+const less = fs.readFileSync(path.join(__dirname, 'index.less'), 'utf8');
+const router = fs.readFileSync(path.join(__dirname, '../../components/GlobalRouter/index.js'), 'utf8');
+const monitoringPage = page.slice(page.indexOf('  renderMonitoring() {'), page.indexOf('  renderServices() {'));
+assert.ok(!/currentMetrics\.source|sourceLabel|monitor\.source(?:Cadvisor|NodeExporter|Unknown)/.test(monitoringPage), 'monitoring must not expose collector implementation names to users');
+assert.ok(/monitor\.coverageDescription/.test(monitoringPage), 'hiding the collector must not hide monitoring coverage limitations');
+assert.ok(/host_memory_working_set/.test(monitoringPage), 'memory working set must retain its accurate metric label');
+assert.ok(/metric: 'memory'/.test(page), 'monitoring should default to memory');
+assert.ok(/teamMetric: 'memory'/.test(page), 'team ranking should default to memory');
+const rankingContainer = less.match(/\.teamRanking\s*\{([^}]+)\}/);
+assert.ok(rankingContainer && /margin:\s*0;/.test(rankingContainer[1]), 'team ranking must retain the module body padding instead of cancelling it with negative margins');
+const rankingRow = less.match(/\.teamRanking > button\s*\{([^}]+)\}/);
+assert.ok(rankingRow && /min-height:\s*64px;/.test(rankingRow[1]) && /padding:\s*10px 12px;/.test(rankingRow[1]), 'ranking rows must keep comfortable vertical spacing and inset content');
+assert.ok(/\['memory', 'cpu', 'network'\]\.map/.test(page), 'monitoring tabs should put memory before CPU');
+assert.ok(/\['memory', 'cpu', 'applications'\]\.map/.test(page), 'team ranking tabs should put memory before CPU');
+assert.ok(/const secondaryFields = \['memory', 'cpu', 'applications'\]/.test(page), 'team secondary metrics should use the same memory-first order');
+assert.ok(/<span className=\{styles.legendSwatch\} aria-hidden="true" \/>/.test(page), 'legend swatches must use a dedicated decorative element');
+assert.ok(/\.chartLegend > \.legendSwatch/.test(less), 'legend swatch styles must target only the swatch class');
+assert.ok(/\.legendnetwork > \.legendSwatch/.test(less), 'network orange color must apply only to the swatch');
+assert.ok(!/\.(?:chartLegend|legendmemory|legendnetwork)\s*>\s*i\b/.test(less), 'Ant Design 3 tooltip icons must not inherit swatch height and background');
+assert.ok(/className=\{styles\.scopeContext\}/.test(page) && !/\.scopeBar\s*>\s*div\s*\{/.test(less), 'scope layout must not override the Ant Design select root');
+assert.ok(/optionLabelProp="label"/.test(page), 'selected cluster should remain single-line when dropdown rows contain two lines');
+assert.ok(/optionFilterProp="searchText"/.test(page) && /showSearch=\{clusters\.length > 5\}/.test(page), 'large cluster lists should search locally by explicit text');
+assert.ok(/dropdownClassName=\{styles\.clusterDropdown\}/.test(page), 'dropdown styling must be isolated from other selects');
+assert.ok(/platformVersion\.isVersionNewer\(latestVersion, currentVersion\)/.test(router));
+assert.ok(!/from ['"].*pages\/Enterprise/.test(router), 'navigation must not import the whole page');
+assert.ok(/const MetricElement = item\.action \? 'button' : 'article'/.test(page));
+assert.ok(!/disabled=\{!item\.action\}/.test(page));
+assert.ok(!/@media \(max-width: 1280px\)/.test(less));
+assert.ok(/@media \(max-width: 1100px\)/.test(less));
+assert.ok(/\.secondaryGrid\.singleModule/.test(less));
+assert.ok(/teams\.configuredDescription/.test(page));
+assert.ok(/monitor\.latestSample/.test(page));
+assert.ok(/prefers-reduced-motion/.test(less));
+const gauge = fs.readFileSync(path.join(__dirname, 'components/ResourceGauge.js'), 'utf8');
+const trend = fs.readFileSync(path.join(__dirname, 'components/ResourceTrend.js'), 'utf8');
+assert.ok(/min: 0/.test(trend), 'adaptive percentage axes must keep the zero baseline');
+assert.ok(/max: metric === 'network' \? null : overviewData\.percentageAxisMax\(points\)/.test(trend), 'CPU and memory use sampled peaks while network keeps its own units and auto scale');
+const theme = require('../../../config/theme');
+const tooltipColors = trend.match(/backgroundColor: theme\['([^']+)'\],[\s\S]*?textStyle: \{ color: theme\['([^']+)'\]/);
+assert.ok(tooltipColors, 'tooltip colors must come from the theme');
+const luminance = hex => {
+  const channels = hex.slice(1).match(/.{2}/g).map(channel => {
+    const value = parseInt(channel, 16) / 255;
+    return value <= 0.04045 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
+  });
+  return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+};
+const tooltipLuminance = tooltipColors.slice(1).map(key => luminance(theme[key]));
+assert.ok((Math.max(...tooltipLuminance) + 0.05) / (Math.min(...tooltipLuminance) + 0.05) >= 4.5,
+  'tooltip text must remain readable on both light and dark backgrounds');
+assert.ok(/Math\.max\(0, Math\.min\(100, Number\(percent\)\)\)/.test(gauge));
+assert.ok(/formatNumber\(percent, 1\)/.test(gauge), 'the text must retain values above 100%');
+console.log('overview remediation adapter and layout checks passed');

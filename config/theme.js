@@ -18,6 +18,17 @@ module.exports = {
 'rbd-card-shadow-hover': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(16, 24, 40, 0.03) 0px 4px 6px -2px, rgba(16, 24, 40, 0.08) 0px 12px 16px -4px',
 'rbd-card-shadow-hover-min': 'rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(16, 24, 40, 0.03) 0px 2px 4px -1px, rgba(16, 24, 40, 0.08) 0px 6px 8px -2px',
 
+// 平台总览的视觉层次；仅由总览组件消费，不修改宿主全局样式。
+'rbd-overview-font-family': 'Inter, "PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+'rbd-overview-heading-color': '#263247',
+'rbd-overview-muted-color': '#68758b',
+'rbd-overview-border-color': '#d7dfeb',
+'rbd-overview-divider-color': '#e5eaf2',
+'rbd-overview-surface-color': '#ffffff',
+'rbd-overview-soft-surface-color': '#f8faff',
+'rbd-overview-card-shadow': '0 2px 5px rgba(34, 55, 91, 0.055), 0 9px 22px rgba(34, 55, 91, 0.045)',
+'rbd-overview-card-shadow-hover': '0 4px 9px rgba(34, 55, 91, 0.07), 0 13px 30px rgba(34, 55, 91, 0.065)',
+
 // 特大号醒目文字
 'rbd-display-size': '36px',
 'rbd-display-color': '#495464',

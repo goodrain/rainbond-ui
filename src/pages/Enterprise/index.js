@@ -1,1525 +1,791 @@
-/* eslint-disable react/jsx-no-target-blank */
-/* eslint-disable no-param-reassign */
-/* eslint-disable react/sort-comp */
-/* eslint-disable no-underscore-dangle */
 /* eslint-disable camelcase */
-/* eslint-disable no-unused-expressions */
+/* eslint-disable react/no-array-index-key */
 import {
   Alert,
-  Card,
+  Badge,
+  Button,
   Empty,
   Icon,
-  notification,
-  Spin,
-  Badge,
-  Tooltip,
   Modal,
-  Button,
-  Form,
-  Input,
-  Tag
+  notification,
+  Select,
+  Skeleton,
+  Tooltip
 } from 'antd';
 import { connect } from 'dva';
-import { Link, routerRedux } from 'dva/router';
-import React, { Fragment, PureComponent } from 'react';
-import { FormattedMessage } from 'umi';
-import { formatMessage } from '@/utils/intl';
-import ScrollerX from '@/components/ScrollerX';
+import { routerRedux } from 'dva/router';
 import moment from 'moment';
-import ConfirmModal from '../../components/ConfirmModal';
-import Consulting from '../../components/Consulting';
-import Convenient from '../../components/Convenient';
-import globalUtil from '../../utils/global';
-import rainbondUtil from '../../utils/rainbond';
-import SVG from '../../utils/pageHeaderSvg'
-import userUtil from '../../utils/user';
-import cookie from '../../utils/cookie';
-import K3s from '../../../public/images/k3s.png'
-import Charts from '../../components/ClusterEcharts/Echarts'
-import CodeMirrorForm from '../../components/CodeMirrorForm';
-import DiskAlertBar from '../../components/DiskAlertBar';
-import { normalizeNodeDiskUsage } from '../../utils/nodeDisk';
-import enterpriseStyles from './index.less'
+import React, { PureComponent } from 'react';
+import { formatMessage } from '@/utils/intl';
+import userUtil from '@/utils/user';
+import IssueModal from './components/IssueModal';
+import OverviewModule from './components/OverviewModule';
+import PlatformInfoModal from './components/PlatformInfoModal';
+import ResourceTrend from './components/ResourceTrend';
+import ResourceGauge from './components/ResourceGauge';
+import overviewData from './overviewData';
+import styles from './index.less';
 
+const { Option } = Select;
+const SNAPSHOT_REFRESH_INTERVAL = 30000;
+const METRICS_REFRESH_INTERVAL = 60000;
+const t = (id, values) => formatMessage({ id: `platformOverview.${id}` }, values);
 
-@Form.create()
-@connect(({ user, global, index, region }) => ({
+function displayNumber(value, precision = 1) {
+  return overviewData.formatNumber(value, precision);
+}
+
+function componentIcon(name) {
+  const icons = { 'rbd-api': 'api', 'rbd-gateway': 'global', 'rbd-worker': 'deployment-unit', 'rbd-app-ui': 'layout', 'rbd-monitor': 'area-chart', 'rbd-chaos': 'build', minio: 'database', 'rbd-db': 'database', 'rbd-mq': 'swap' };
+  return icons[name] || 'cloud-server';
+}
+
+export function clusterRuntimeStatus(snapshot, failed) {
+  if (!snapshot || failed) return 'unknown';
+  const nodeSection = overviewData.sectionEnvelope(snapshot, 'nodes');
+  const componentSection = overviewData.sectionEnvelope(snapshot, 'components');
+  const nodes = nodeSection.data;
+  const components = componentSection.data;
+  const count = value => typeof value === 'number' && Number.isInteger(value) && value >= 0;
+  const validNodes = nodes && count(nodes.total) && count(nodes.ready) && nodes.ready <= nodes.total;
+  if (nodes && Array.isArray(nodes.alerts) && nodes.alerts.length) return 'abnormal';
+  if (validNodes && nodes.ready < nodes.total) return 'abnormal';
+  if (Array.isArray(components) && components.some(item => item && /^(abnormal|failed|error|pending|starting|stopped)$/i.test(item.status))) return 'abnormal';
+  if (nodeSection.status !== 'ok' || componentSection.status !== 'ok' || !validNodes || nodes.total === 0 || nodes.disk_stats_status !== 'ok' || !Array.isArray(nodes.alerts) || !Array.isArray(components) || !components.length) return 'unknown';
+  if (!components.every(item => item && overviewData.isRunning(item.status) && count(item.run_pods) && count(item.all_pods) && item.run_pods <= item.all_pods)) return 'unknown';
+  if (components.some(item => item.run_pods < item.all_pods)) return 'abnormal';
+  return 'normal';
+}
+
+function formatMemory(value) {
+  if (!overviewData.isNumber(value)) return { value: '-', unit: 'GiB' };
+  const number = Number(value);
+  return { value: displayNumber(number / 1024, 1), unit: 'GiB' };
+}
+
+@connect(({ user, global, platformOverview }) => ({
   user: user.currentUser,
   rainbondInfo: global.rainbondInfo,
-  overviewInfo: index.overviewInfo,
-  navigation_status: region.navigation_status
+  enterprise: global.enterprise,
+  overview: platformOverview
 }))
 export default class Enterprise extends PureComponent {
-  constructor(props) {
-    super(props);
-    const { user } = this.props;
-    const params = this.getParam();
-    const adminer = userUtil.isCompanyAdmin(user);
-    this.state = {
-      consulting: false,
-      eid: params ? params.eid : '',
-      adminer,
-      enterpriseInfo: false,
-      enterpriseInfoLoading: true,
-      overviewAppInfo: false,
-      overviewInfo: false,
-      overviewAppInfoLoading: true,
-      collectionList: [],
-      convenientVisible: false,
-      delcollectionVisible: false,
-      collectionInfo: false,
-      clusters: [],
-      diskAlerts: [],
-      appAlertList: [],
-      appAlertLoding: true,
-      language: cookie.get('language') === 'zh-CN' ? true : false,
-      isAuthorizationCode: false,
-      enterpriseAuthorization: null,
-      isAuthorizationLoading: true,
-      isNeedAuthz: false,
-      authorizationCode: '',
-      authorizationCodeExpanded: false,
-      hasNewVs: true,
-      typeStatusCpu: false,
-      typeStatusMemory: false,
-    };
-  }
-  componentWillMount() {
-    const { adminer } = this.state;
-    const { dispatch } = this.props;
-    if (!adminer) {
-      dispatch(routerRedux.push(`/`));
-    }
-    this.fetchAllVersion()
-  }
+  state = {
+    selectedRegion: '',
+    metric: 'memory',
+    timeRange: '6h',
+    teamMetric: 'memory',
+    platformModalVisible: false,
+    applicationModalVisible: false,
+    gatewayModalVisible: false,
+    pluginModalRegion: null,
+    license: null,
+    licenseStatus: 'idle',
+    licenseStatusReason: '',
+    licenseUpdating: false,
+    upgradeStatus: 'idle',
+    hasNewVersion: false,
+    latestVersion: ''
+  };
+
   componentDidMount() {
-    this.loading();
-    this.handleGetEnterpriseAuthorization();
-    this.interval = setInterval(() => this.handleAppAlertInfo(), 5000);
-    this.diskAlertTimer = window.setInterval(this.loadDiskAlerts, 60000);
+    this.mounted = true;
+    const { dispatch, user } = this.props;
+    if (!userUtil.isCompanyAdmin(user)) {
+      dispatch(routerRedux.replace('/'));
+      return;
+    }
+    dispatch({ type: 'platformOverview/reset' });
+    this.loadPlatformData();
+    document.addEventListener('visibilitychange', this.handleVisibilityChange);
+    this.startRefreshTimers();
+    this.deferSecondaryRequests();
   }
-  // 组件销毁停止计时器
+
+  componentDidUpdate(prevProps) {
+    const previousShell = prevProps.overview && prevProps.overview.shell;
+    const shell = this.props.overview && this.props.overview.shell;
+    if (shell && shell !== previousShell && !this.state.selectedRegion) {
+      const clusters = shell.clusters || [];
+      const queryRegion =
+        this.props.location && this.props.location.query && this.props.location.query.regionName;
+      const selected =
+        clusters.find(item => item.region_name === queryRegion) ||
+        clusters.find(item => item.status === '1') ||
+        clusters[0];
+      if (selected) {
+        this.setState({ selectedRegion: selected.region_name }, this.loadClusterData);
+      }
+    }
+  }
+
   componentWillUnmount() {
-    // 组件销毁  清除定时器
-    clearInterval(this.interval)
-    if (this.diskAlertTimer) {
-      window.clearInterval(this.diskAlertTimer);
+    this.mounted = false;
+    this.clearRefreshTimers();
+    document.removeEventListener('visibilitychange', this.handleVisibilityChange);
+    if (this.deferredRequest) {
+      if (window.cancelIdleCallback) window.cancelIdleCallback(this.deferredRequest);
+      else window.clearTimeout(this.deferredRequest);
     }
+    this.props.dispatch({ type: 'platformOverview/reset' });
   }
-  fetchAllVersion = () => {
-    const { rainbondInfo , dispatch} = this.props
-    const currentVersion = rainbondInfo && rainbondInfo.version && rainbondInfo.version.value
-      ? rainbondInfo.version.value.split('-')[0]
-      : ''
-    dispatch({
-      type: 'global/fetchAllVersion',
-      callback: res => {
-        const list = Array.isArray(res && res.response_data) ? res.response_data : [];
-        const latestVersion = list[0];
-        this.setState({
-          hasNewVs:
-            !currentVersion ||
-            !latestVersion ||
-            latestVersion.split('-')[0] === currentVersion
-        })
-      },
-      handleError: () => {
-        this.setState({
-          hasNewVs: true
-        })
-      }
-    })
-  }
-  // 获取企业授权信息
-  handleGetEnterpriseAuthorization = () => {
-    const { dispatch } = this.props;
-    const { eid } = this.state;
-    dispatch({
-      type: 'region/getEnterpriseLicense',
-      payload: {
-        enterprise_id: eid
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          this.setState({
-            isAuthorizationLoading: false,
-            enterpriseAuthorization: res.bean,
-            authorizationCode: res.bean.authz_code
-          });
-        }
-      },
-      handleError: error => {
-        if (error?.response?.data?.code === 400) {
-          this.setState({
-            authorizationCode:null,
-            enterpriseAuthorization: null,
-            isAuthorizationLoading: false,
-          });
-        }
-      }
-    });
-  };
-  // 更新企业授权码
-  handleUpdateEnterpriseAuthorization = (code) => {
-    const { dispatch } = this.props;
-    const { eid } = this.state;
-    dispatch({
-      type: 'region/uploadEnterpriseLicense',
-      payload: {
-        enterprise_id: eid,
-        authz_code: code
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          this.handleGetEnterpriseAuthorization();
-          notification.success({ message: '授权码更新成功' });
-          this.handleCanceAuthorization();
-        }
-      }
-    });
-  }
-  // 获取企业的集群信息
-  handleLoadEnterpriseClusters = eid => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'region/fetchEnterpriseClusters',
-      payload: {
-        enterprise_id: eid
-      },
-      callback: res => {
-        if (res && res.list) {
-          const clusters = [];
-          res.list.map((item, indexs) => {
-            const { region_name, enterprise_id } = item
-            dispatch({
-              type: 'teamControl/fetchPluginUrl',
-              payload: {
-                enterprise_id: enterprise_id,
-                region_name: region_name
-              },
-              callback: data => {
-                // if (data && data.bean) {
-                //   if(data?.bean?.need_authz){
-                //     this.setState({
-                //       isNeedAuthz: data?.bean?.need_authz
-                //     })
-                //   }
-                // }
-              }
-            })
-            dispatch({
-              type: 'global/fetchClusterUsed',
-              payload: {
-                  query: `(sum(node_memory_MemTotal_bytes) - sum(node_memory_MemAvailable_bytes)) / 1024 / 1024 /1024`,
-                  regionName: region_name,
-              },
-              callback: res => {
-                item.memory_used = res?.result[0]?.value[1]
-              }
-            })
-            dispatch({
-              type: 'global/fetchClusterUsed',
-              payload: {
-                  query: `(1 - avg(irate(node_cpu_seconds_total{mode="idle"}[5m]))) * sum(machine_cpu_cores)`,
-                  regionName: region_name,
-              },
-              callback: res => {
-                item.cpu_used = res?.result[0]?.value[1]
-              }
-            })
-            item.key = `cluster${indexs}`;
-            clusters.push(item);
-            return item;
-          });
-          this.setState({ clusters, diskAlerts: [] }, this.loadDiskAlerts);
-          globalUtil.putClusterInfoLog(eid, res.list);
-        }
-      }
-    });
-  };
 
-  loadDiskAlerts = () => {
-    const { dispatch } = this.props;
-    const { clusters = [], eid } = this.state;
-    if (!clusters.length) {
-      this.setState({ diskAlerts: [] });
-      return;
-    }
+  getEnterpriseId = () => this.props.match.params.eid;
 
-    clusters.forEach(cluster => {
-      const updateClusterAlerts = alerts => {
-        this.setState(prevState => ({
-          diskAlerts: [
-            ...prevState.diskAlerts.filter(
-              alert => alert.regionName !== cluster.region_name
-            ),
-            ...alerts
-          ]
-        }));
-      };
-      dispatch({
-        type: 'region/fetClusterNodeList',
-        payload: {
-          enterprise_id: eid,
-          region_name: cluster.region_name
-        },
-        callback: res => {
-          updateClusterAlerts(
-            normalizeNodeDiskUsage((res && res.list) || [], cluster)
-          );
-        },
-        handleError: () => updateClusterAlerts([])
-      });
-    });
-  };
-
-  handleViewDiskAlert = alert => {
-    const { dispatch } = this.props;
-    const { clusters = [], eid } = this.state;
-    const cluster = clusters.find(item => item.region_name === alert.regionName) || {};
-    const regionId = alert.regionId || cluster.region_id;
-    if (!regionId) {
-      dispatch(routerRedux.push(`/enterprise/${eid}/clusters`));
-      return;
-    }
-    if (!alert.node || alert.node === '-') {
-      dispatch(routerRedux.push(`/enterprise/${eid}/clusters/clustersmgt/${regionId}`));
-      return;
-    }
-    dispatch(
-      routerRedux.push(
-        `/enterprise/${eid}/clusters/nodemgt/${regionId}?name=${encodeURIComponent(alert.node)}`
-      )
+  getCurrentCluster = () => {
+    const { shell } = this.props.overview;
+    return ((shell && shell.clusters) || []).find(
+      item => item.region_name === this.state.selectedRegion
     );
   };
-  getParam() {
-    return this.props.match.params;
-  }
 
-  getOverviewMonitor = () => {
+  getCurrentSnapshot = () => {
+    const { cluster, contexts } = this.props.overview;
+    return contexts.cluster === this.state.selectedRegion ? cluster : null;
+  };
+
+  getCurrentMetrics = () => {
+    const { metrics, contexts } = this.props.overview;
+    const { selectedRegion, metric, timeRange } = this.state;
+    const context = `${selectedRegion}|${metric}|${timeRange}`;
+    if (contexts.metrics === context) return metrics;
+    // Keep the displayed range until its replacement arrives; never reuse another cluster or metric.
+    const sameMetric = typeof contexts.metrics === 'string' && contexts.metrics.startsWith(`${selectedRegion}|${metric}|`);
+    return sameMetric && overviewData.metricState(metrics).points.length ? metrics : null;
+  };
+
+  loadPlatformData = () => {
+    const enterpriseId = this.getEnterpriseId();
     const { dispatch } = this.props;
-    const { eid } = this.state;
+    dispatch({ type: 'platformOverview/fetchShell', payload: { enterpriseId } });
+    dispatch({ type: 'platformOverview/fetchRuntime', payload: { enterpriseId } });
+  };
 
-    dispatch({
-      type: 'global/fetchOverviewMonitor',
+  loadRuntime = () => {
+    this.props.dispatch({
+      type: 'platformOverview/fetchRuntime',
+      payload: { enterpriseId: this.getEnterpriseId() }
+    });
+  };
+
+  loadClusterSnapshot = (force = false) => {
+    const { selectedRegion } = this.state;
+    if (!selectedRegion) return;
+    this.props.dispatch({
+      type: 'platformOverview/fetchCluster',
+      payload: { enterpriseId: this.getEnterpriseId(), regionName: selectedRegion, force }
+    });
+  };
+
+  loadMetrics = (force = false) => {
+    const { selectedRegion, metric, timeRange } = this.state;
+    if (!selectedRegion) return;
+    this.props.dispatch({
+      type: 'platformOverview/fetchMetrics',
       payload: {
-        enterprise_id: eid
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          this.setState({
-            overviewMonitorInfo: res.bean
-          });
-        }
+        enterpriseId: this.getEnterpriseId(),
+        regionName: selectedRegion,
+        metric,
+        range: timeRange,
+        force
       }
     });
   };
 
-  getOverview = () => {
-    const { dispatch } = this.props;
-    const { eid } = this.state;
-
-    dispatch({
-      type: 'global/fetchOverview',
-      payload: {
-        enterprise_id: eid
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          this.setState({
-            overviewInfo: res.bean
-          });
-        }
-      }
-    });
+  loadClusterData = () => {
+    this.loadClusterSnapshot();
+    this.loadMetrics();
   };
 
-  getOverviewApp = () => {
-    const { dispatch } = this.props;
-    const { eid } = this.state;
-
-    dispatch({
-      type: 'global/fetchOverviewApp',
-      payload: {
-        enterprise_id: eid
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          this.setState({
-            overviewAppInfo:
-              res.bean && JSON.stringify(res.bean) !== '{}' ? res.bean : false,
-            overviewAppInfoLoading: false
-          });
-        }
-      }
-    });
+  startRefreshTimers = () => {
+    this.clearRefreshTimers();
+    if (document.visibilityState === 'hidden') return;
+    this.snapshotTimer = window.setInterval(() => {
+      this.loadRuntime();
+      this.loadClusterSnapshot(true);
+    }, SNAPSHOT_REFRESH_INTERVAL);
+    this.metricsTimer = window.setInterval(() => this.loadMetrics(true), METRICS_REFRESH_INTERVAL);
   };
 
-  getEnterpriseInfo = () => {
-    const { dispatch } = this.props;
-    const { eid } = this.state;
-
-    dispatch({
-      type: 'global/fetchEnterpriseInfo',
-      payload: {
-        enterprise_id: eid
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          this.setState({
-            enterpriseInfo: res.bean,
-            enterpriseInfoLoading: false
-          });
-        }
-      }
-    });
+  clearRefreshTimers = () => {
+    if (this.snapshotTimer) window.clearInterval(this.snapshotTimer);
+    if (this.metricsTimer) window.clearInterval(this.metricsTimer);
+    this.snapshotTimer = null;
+    this.metricsTimer = null;
   };
 
-
-  loading = () => {
-    const { adminer, eid } = this.state;
-    if (eid) {
-      this.getEnterpriseInfo();
-      this.handleLoadEnterpriseClusters(eid);
-      this.handleAppAlertInfo();
-      // this.fetchPlatformHealth();
-      if (adminer) {
-        this.getOverviewApp();
-        this.getOverview();
-        this.getOverviewMonitor();
-      } else {
-        this.fetchCollectionViewInfo();
-      }
+  handleVisibilityChange = () => {
+    if (document.visibilityState === 'hidden') {
+      this.clearRefreshTimers();
+      return;
     }
-  };
-
-  fetchCollectionViewInfo = () => {
-    const { dispatch } = this.props;
-    const { eid } = this.state;
-    dispatch({
-      type: 'user/fetchCollectionViewInfo',
-      payload: {
-        enterprise_id: eid
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          this.setState({
-            collectionList: res.list
-          });
-        }
-      }
-    });
-  };
-
-  handelConsulting = () => {
-    this.setState({
-      consulting: true
-    });
-  };
-  cancelConsulting = () => {
-    this.setState({
-      consulting: false
-    });
-  };
-
-  handlUnit = (num, unit) => {
-    if (num) {
-      let nums = num;
-      let units = unit;
-      if (nums >= 1024) {
-        nums = num / 1024;
-        units = 'GB';
-      }
-      return unit ? units : nums.toFixed(2) / 1;
+    const { updatedAt } = this.props.overview;
+    const now = Date.now();
+    if (!updatedAt.runtime || now - updatedAt.runtime >= SNAPSHOT_REFRESH_INTERVAL) {
+      this.loadRuntime();
     }
-    return null;
+    if (!updatedAt.cluster || now - updatedAt.cluster >= SNAPSHOT_REFRESH_INTERVAL) {
+      this.loadClusterSnapshot(true);
+    }
+    if (!updatedAt.metrics || now - updatedAt.metrics >= METRICS_REFRESH_INTERVAL) {
+      this.loadMetrics(true);
+    }
+    this.startRefreshTimers();
   };
 
-
-  handleConvenientEntrance = () => {
-    notification.success({ message: formatMessage({ id: 'notification.success.add' }) });
-    this.fetchCollectionViewInfo();
-    this.cancelConvenientEntrance();
-  };
-  cancelConvenientEntrance = () => {
-    this.setState({ convenientVisible: false });
-  };
-  onConvenientEntrance = () => {
-    this.setState({ convenientVisible: true });
+  deferSecondaryRequests = () => {
+    const task = () => {
+      this.loadLicense();
+      this.checkUpgrade();
+    };
+    this.deferredRequest = window.requestIdleCallback
+      ? window.requestIdleCallback(task, { timeout: 1800 })
+      : window.setTimeout(task, 800);
   };
 
-  deleteConvenient = collectionInfo => {
-    this.setState({
-      delcollectionVisible: true,
-      collectionInfo
-    });
-  };
-
-  deleteCollectionViewInfo = () => {
-    const { dispatch } = this.props;
-    const { collectionInfo, eid } = this.state;
-    dispatch({
-      type: 'user/deleteCollectionViewInfo',
-      payload: {
-        favorite_id: collectionInfo && collectionInfo.favorite_id,
-        enterprise_id: eid
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          notification.success({ message: formatMessage({ id: 'notification.success.delete' }) });
-          this.fetchCollectionViewInfo();
-          this.handleCloseDelCollectionVisible();
-        }
-      }
-    });
-  };
-  handleCloseDelCollectionVisible = () => {
-    this.setState({
-      delcollectionVisible: false,
-      collectionInfo: false
-    });
-  };
-  // 应用报警信息
-  handleAppAlertInfo = () => {
-    const {
-      dispatch,
-      match: {
-        params: { eid }
-      }
-    } = this.props;
-    dispatch({
-      type: 'global/fetchAppAlertInfo',
-      payload: {
-        enterprise_id: eid,
-      },
-      callback: res => {
-        if (res && res.status_code === 200) {
-          this.setState({
-            appAlertList: res.list,
-            appAlertLoding: false
-          });
-        } else {
-          this.handleCloseLoading()
-        }
-      },
-      handleError: (log) => {
+  loadLicense = () => {
+    this.setState({ licenseStatus: 'loading', licenseStatusReason: '' });
+    this.props.dispatch({
+      type: 'region/getEnterpriseLicense',
+      payload: { enterprise_id: this.getEnterpriseId() },
+      callback: response => {
+        if (!this.mounted) return;
         this.setState({
-          appAlertList: [],
-          appAlertLoding: false
+          license: response && response.bean,
+          licenseStatus: 'success',
+          licenseStatusReason: ''
+        });
+      },
+      handleError: error => {
+        if (!this.mounted) return;
+        const classification = overviewData.classifyLicenseRequestError(error);
+        this.setState({
+          licenseStatus: classification.status,
+          licenseStatusReason: classification.reason
         });
       }
     });
   };
-  // loding
-  handleCloseLoading = () => {
-    const { appAlertLoding } = this.state
-    this.setState({
-      appAlertLoding: false
-    })
-  }
-  // 应用报警跳转
-  onJumpAlert = (key, team, region, group, component) => {
-    const { dispatch } = this.props;
-    if (key == 'component') {
-      dispatch(routerRedux.push(`/team/${team}/region/${region}/apps/${group}/overview?type=components&componentID=${component}&tab=overview`));
-    } else if (key == 'team') {
-      dispatch(routerRedux.push(`/team/${team}/region/${region}/index`));
-    } else {
-      dispatch(routerRedux.push(`/team/${team}/region/${region}/apps/${group}/overview`));
-    }
-  }
-  //集群状态
-  clusterStatus = (status, health_status) => {
-    if (health_status === 'failure') {
-      return <span style={{ color: 'red' }}>
-        {/* 通信异常 */}
-        <FormattedMessage id='enterpriseColony.table.state.err' />
-      </span>;
-    }
-    switch (status) {
-      case '0':
-        return (
-          <div>
-            <Badge color="#1890ff" />
-            {/* 编辑中 */}
-            <FormattedMessage id='enterpriseColony.table.state.edit' />
-          </div>
-        );
-      case '1':
-        return (
-          <div>
-            <Badge color="#52c41a" />
-            {/* 运行中 */}
-            <FormattedMessage id='enterpriseColony.table.state.run' />
-          </div>
-        );
-      case '2':
-        return (
-          <div>
-            <Badge color="#b7b7b7" />
-            {/* 已下线 */}
-            <FormattedMessage id='enterpriseColony.table.state.down' />
-          </div>
-        );
 
-      case '3':
-        return (
-          <div>
-            <Badge color="#1890ff" />
-            {/* 维护中 */}
-            <FormattedMessage id='enterpriseColony.table.state.maintain' />
-          </div>
-        );
-      case '5':
-        return (
-          <div>
-            <Badge color="#fff" />
-            {/* 异常 */}
-            <FormattedMessage id='enterpriseColony.table.state.abnormal' />
-          </div>
-        );
-      default:
-        return (
-          <div>
-            <Badge color="#fff" />
-            {/* 未知 */}
-            <FormattedMessage id='enterpriseColony.table.state.unknown' />
-          </div>
-        );
-    }
-  }
-  // 集群展示图标
-  clusterIcon = (provider, region_type) => {
-    switch (provider) {
-      case 'ack':
-        return (
-          <span className={enterpriseStyles.clusterIconSymbol} key={provider}>
-            {globalUtil.fetchSvg('Ack')}
-          </span>
-        );
-      case 'tke':
-        return (
-          <span className={enterpriseStyles.clusterIconSymbol} key={provider}>
-            {globalUtil.fetchSvg('Tke')}
-          </span>
-        );
-      case 'K3s':
-        return (
-          <span className={enterpriseStyles.clusterIconSymbol} key={provider}>
-            <img src={K3s} alt="" />
-          </span>
-        );
-      case 'helm':
-        return (
-          <span className={enterpriseStyles.clusterIconSymbol} key={provider}>
-            {globalUtil.fetchSvg(
-              region_type == 'aliyun'
-                ? 'Ack'
-                : region_type == 'huawei'
-                  ? 'Cce'
-                  : region_type == 'tencent'
-                    ? 'Tke'
-                    : 'K8s'
-            )}
-          </span>
-        );
-      default:
-        return (
-          <span className={enterpriseStyles.clusterIconSymbol} key={provider}>
-            {globalUtil.fetchSvg('K8s')}
-          </span>
-        );
-    }
-  }
-  handleAuthorization = () => {
-    this.setState({
-      isAuthorizationCode: true
-    })
-  }
-  handleCanceAuthorization = () => {
-    this.setState({
-      isAuthorizationCode: false
-    })
-  }
-  handleCopyEid = () => {
-    const { eid } = this.state;
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(eid).then(() => {
-        notification.success({ message: formatMessage({ id: 'platformUpgrade.index.authModal.copySuccess' }) });
-      });
-    } else {
-      const input = document.createElement('input');
-      input.value = eid;
-      document.body.appendChild(input);
-      input.select();
-      document.execCommand('copy');
-      document.body.removeChild(input);
-      notification.success({ message: formatMessage({ id: 'platformUpgrade.index.authModal.copySuccess' }) });
-    }
-  }
-  handleCopyAuthCode = () => {
-    const { authorizationCode } = this.state;
-    if (!authorizationCode) return;
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(authorizationCode).then(() => {
-        notification.success({ message: formatMessage({ id: 'platformUpgrade.index.authModal.copySuccess' }) });
-      });
-    } else {
-      const textarea = document.createElement('textarea');
-      textarea.value = authorizationCode;
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textarea);
-      notification.success({ message: formatMessage({ id: 'platformUpgrade.index.authModal.copySuccess' }) });
-    }
-  }
-  handleToggleAuthCode = () => {
-    this.setState(({ authorizationCodeExpanded }) => ({
-      authorizationCodeExpanded: !authorizationCodeExpanded
-    }));
-  }
-  handleSubmit = () => {
-    const { form } = this.props;
-    const { validateFields } = form;
-    validateFields((err, values) => {
-      if (!err) {
-        this.handleUpdateEnterpriseAuthorization(values.authorization_code)
+  checkUpgrade = () => {
+    this.setState({ upgradeStatus: 'loading' });
+    const currentVersion =
+      this.props.rainbondInfo &&
+        this.props.rainbondInfo.version &&
+        this.props.rainbondInfo.version.value;
+    this.props.dispatch({
+      type: 'global/fetchAllVersion',
+      callback: response => {
+        if (!this.mounted) return;
+        const versions = Array.isArray(response && response.response_data)
+          ? response.response_data
+          : [];
+        const latestVersion = overviewData.latestStableVersion(versions);
+        if (!latestVersion || !currentVersion) {
+          this.setState({ latestVersion: '', upgradeStatus: 'error', hasNewVersion: false });
+          return;
+        }
+        this.setState({
+          latestVersion,
+          upgradeStatus: 'success',
+          hasNewVersion: overviewData.isVersionNewer(latestVersion, currentVersion)
+        });
+      },
+      handleError: () => {
+        if (this.mounted) this.setState({ upgradeStatus: 'error', hasNewVersion: false });
       }
     });
   };
-  downloadClusterInfo = () => {
-    const {
-      dispatch,
-      match: {
-        params: { eid }
-      }
-    } = this.props;
-    this.download(`/console/enterprise/${eid}/platform-info`)
-  }
 
-  download = downloadPath => {
-    let aEle = document.querySelector('#down-a-element');
-    if (!aEle) {
-      aEle = document.createElement('a');
-      aEle.setAttribute('download', '');
-      document.body.appendChild(aEle);
-    }
-    aEle.href = downloadPath;
-    if (document.all) {
-      aEle.click();
-    } else {
-      const e = document.createEvent('MouseEvents');
-      e.initEvent('click', true, true);
-      aEle.dispatchEvent(e);
+  handleUpdateLicense = (authorizationCode, done) => {
+    this.setState({ licenseUpdating: true });
+    this.props.dispatch({
+      type: 'region/uploadEnterpriseLicense',
+      payload: {
+        enterprise_id: this.getEnterpriseId(),
+        authz_code: authorizationCode
+      },
+      callback: response => {
+        if (!this.mounted) return;
+        this.setState({ licenseUpdating: false });
+        if (response && response.status_code === 200) {
+          notification.success({ message: t('modal.updateSuccess') });
+          this.loadLicense();
+          if (done) done(true);
+        } else if (done) {
+          done(false);
+        }
+      },
+      handleError: () => {
+        if (!this.mounted) return;
+        this.setState({ licenseUpdating: false });
+        notification.error({ message: t('modal.updateFailed') });
+        if (done) done(false);
+      }
+    });
+  };
+
+  handleClusterChange = selectedRegion => {
+    this.setState({ selectedRegion, pluginModalRegion: null }, () => {
+      this.loadClusterData();
+      this.props.dispatch(
+        routerRedux.replace(
+          `/enterprise/${this.getEnterpriseId()}/index?regionName=${encodeURIComponent(
+            selectedRegion
+          )}`
+        )
+      );
+    });
+  };
+
+  handleMetricChange = metric => this.setState({ metric }, this.loadMetrics);
+
+  handleRangeChange = timeRange => this.setState({ timeRange }, this.loadMetrics);
+
+  jump = path => this.props.dispatch(routerRedux.push(path));
+
+  jumpCluster = () => {
+    const cluster = this.getCurrentCluster();
+    if (cluster && cluster.region_id) {
+      this.jump(`/enterprise/${this.getEnterpriseId()}/clusters/ClustersMGT/${cluster.region_id}`);
     }
   };
-  handleRouteupdate = () => {
-    const { dispatch } = this.props
-    const { eid } = this.state;
-    dispatch(routerRedux.push(`/enterprise/${eid}/setting?type=updateVersion`));
-  }
 
-  handleClickStatus = type => {
-    if (type === 'cpu') {
-      this.setState(({ typeStatusCpu }) => ({
-        typeStatusCpu: !typeStatusCpu
-      }));
-    } else {
-      this.setState(({ typeStatusMemory }) => ({
-        typeStatusMemory: !typeStatusMemory
-      }));
-    }
-  }
-
-  renderContent = () => {
-    const { rainbondInfo, form } = this.props;
-    const {
-      enterpriseInfo,
-      overviewInfo,
-      overviewMonitorInfo,
-      overviewAppInfo,
-      enterpriseInfoLoading,
-      overviewAppInfoLoading,
-      collectionList,
-      convenientVisible,
-      delcollectionVisible,
-      eid,
-      language,
-      clusters,
-      diskAlerts,
-      appAlertList,
-      appAlertLoding,
-      isAuthorizationCode,
-      enterpriseAuthorization,
-      isAuthorizationLoading,
-      isNeedAuthz,
-      authorizationCode,
-      authorizationCodeExpanded,
-      hasNewVs,
-      typeStatusCpu,
-      typeStatusMemory,
-      // platformHealth,
-      // platformHealthLoading,
-      // healthDetailVisible,
-      // currentHealthIssue,
-    } = this.state;
-    const end = enterpriseAuthorization && enterpriseAuthorization.expire_at ? moment.unix(enterpriseAuthorization.expire_at).valueOf() : null;
-    const current = moment().valueOf();
-    const isServiceExpired = enterpriseAuthorization && enterpriseAuthorization.subscribe_until
-      ? moment.unix(enterpriseAuthorization.subscribe_until).valueOf() < current
-      : false;
-    const { getFieldDecorator, setFieldsValue } = form;
-    const timestamp = Date.parse(new Date());
-    const enterpriseVersion =
-      rainbondInfo && rainbondInfo.version && rainbondInfo.version.enable
-        ? rainbondInfo.version.value
-        : '';
-    const enterpriseEdition = rainbondUtil.isEnterpriseEdition(rainbondInfo);
-    const cloudSvg = globalUtil.fetchSvg('cloudSvg');
-    const updataSvg = globalUtil.fetchSvg('updataSvg');
-    const errorSvg = globalUtil.fetchSvg('errorSvg');
-    const enterpriseDataSvg = globalUtil.fetchSvg('enterpriseDataSvg');
-    const clustersInfoSvg = globalUtil.fetchSvg('clustersInfoSvg');
-    const appErrorSvg = globalUtil.fetchSvg('appErrorSvg');
-    const switchSvg = globalUtil.fetchSvg('switchSvg');
-    // const healthSvg = globalUtil.fetchSvg('healthSvg');
-    const formatMetricValue = (value, precision = 2) => {
-      const number = Number(value);
-      if (!Number.isFinite(number) || number <= 0) {
-        return 0;
-      }
-      return parseFloat(number.toFixed(precision));
-    };
-    const formatMetricPercent = value => {
-      const number = Number(value);
-      if (!Number.isFinite(number) || number <= 0) {
-        return 0;
-      }
-      return number > 100 ? 100 : parseFloat(number.toFixed(2));
-    };
-    const formItemLayout = {
-      labelCol: {
-        xs: { span: 24 },
-        sm: { span: 24 }
-      },
-      wrapperCol: {
-        xs: { span: 24 },
-        sm: { span: 24 }
-      }
-    };
-    return (
-      <div style={{padding:18}}>
-        {!isAuthorizationLoading && !authorizationCode && (
-          <div className={enterpriseStyles.authBanner}>
-            <div className={enterpriseStyles.authBannerLeft}>
-              <span className={enterpriseStyles.authBannerIcon}>
-                <Icon type="unlock" />
-              </span>
-              <span className={enterpriseStyles.authBannerText}>
-                {formatMessage({id:'platformUpgrade.index.getEnterpriseAuth'})}
-                <a onClick={this.handleAuthorization}>
-                  {formatMessage({id:'platformUpgrade.index.getEnterpriseAuthLink'})}
-                </a>
-              </span>
-            </div>
-          </div>
-        )}
-        {convenientVisible && (
-          <Convenient
-            {...this.props}
-            title={<FormattedMessage id="enterpriseOverview.Convenient.title" />}
-            onOk={this.handleConvenientEntrance}
-            onCancel={this.cancelConvenientEntrance}
-          />
-        )}
-
-        {delcollectionVisible && (
-          <ConfirmModal
-            title={formatMessage({ id: 'confirmModal.fast_entrance.delete.title' })}
-            subDesc={formatMessage({ id: 'confirmModal.delete.strategy.subDesc' })}
-            desc={formatMessage({ id: 'confirmModal.delete.fast_entrance.desc' })}
-            onOk={this.deleteCollectionViewInfo}
-            onCancel={this.handleCloseDelCollectionVisible}
-          />
-        )}
-        {/* 企业信息、数据总览板块 */}
-        <Spin spinning={enterpriseInfoLoading}>
-          <div className={enterpriseStyles.dualCardContainer}>
-            {/* 企业信息卡片 */}
-            <div className={`${enterpriseStyles.cardContainer} ${enterpriseStyles.platformInfoCard}`}>
-              <div className={enterpriseStyles.platformInfoInner}>
-                <div className={enterpriseStyles.platformInfoMain}>
-                  <div className={enterpriseStyles.overviewCardHeader}>
-                    <span className={enterpriseStyles.overviewCardHeaderIcon}>
-                      <Icon type="home" />
-                    </span>
-                    <h2>{formatMessage({ id: 'enterpriseOverview.information.message' })}</h2>
-                  </div>
-                  {enterpriseInfo && (
-                    <div className={enterpriseStyles.platformInfoContent}>
-                      <div className={enterpriseStyles.platformCompanyBlock}>
-                        <div className={enterpriseStyles.platformLabel}>
-                          <FormattedMessage id="enterpriseOverview.information.name" />
-                        </div>
-                        <div className={enterpriseStyles.platformCompanyName}>
-                          <span>{enterpriseInfo.enterprise_alias}</span>
-                          {!enterpriseEdition && enterpriseVersion !== 'cloud' && (
-                            <a
-                              href="https://p5yh4rek1e.feishu.cn/share/base/shrcnDhEE6HkYddzjY4XRKuXikb"
-                              target="_blank"
-                            >
-                              {formatMessage({id:'platformUpgrade.index.consulting'})}
-                            </a>
-                          )}
-                        </div>
-                      </div>
-                      <div className={enterpriseStyles.platformDivider} />
-                      <div className={enterpriseStyles.platformMetaList}>
-                        <div className={enterpriseStyles.platformMetaItem}>
-                          <span className={enterpriseStyles.platformMetaLabel}><FormattedMessage id="enterpriseOverview.information.unite" /></span>
-                          <Tooltip title={enterpriseInfo.enterprise_id}>
-                            <span className={enterpriseStyles.platformMetaValue}>{enterpriseInfo.enterprise_id}</span>
-                          </Tooltip>
-                        </div>
-                        <div className={enterpriseStyles.platformMetaItem}>
-                          <span className={enterpriseStyles.platformMetaLabel}><FormattedMessage id="enterpriseOverview.information.versions" /></span>
-                          <Tooltip title={enterpriseVersion}>
-                            <span className={enterpriseStyles.platformMetaValue}>{enterpriseVersion || '-'}</span>
-                          </Tooltip>
-                        </div>
-                        <div className={enterpriseStyles.platformMetaItem}>
-                          <span className={enterpriseStyles.platformMetaLabel}><FormattedMessage id="enterpriseOverview.information.time" /></span>
-                          <Tooltip title={enterpriseInfo.create_time}>
-                            <span className={enterpriseStyles.platformMetaValue}>{enterpriseInfo.create_time}</span>
-                          </Tooltip>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                <div className={enterpriseStyles.platformInfoIllustration}>
-                  {!hasNewVs ? (
-                    <div onClick={this.handleRouteupdate}>
-                      <Tooltip placement="top" title={formatMessage({id:'platformUpgrade.index.clicktoupload'})}>
-                        {updataSvg}
-                        <div className={enterpriseStyles.jumpText}>
-                          <span className={`${enterpriseStyles.jump} ${enterpriseStyles.char1}`}>{formatMessage({id:'platformUpgrade.index.have'})}&nbsp;</span>
-                          <span className={`${enterpriseStyles.jump} ${enterpriseStyles.char2}`}>{formatMessage({id:'platformUpgrade.index.new'})}&nbsp;</span>
-                          <span className={`${enterpriseStyles.jump} ${enterpriseStyles.char3}`}>{formatMessage({id:'platformUpgrade.index.ban'})}&nbsp;</span>
-                          <span className={`${enterpriseStyles.jump} ${enterpriseStyles.char4}`}>{formatMessage({id:'platformUpgrade.index.ben'})}&nbsp;</span>
-                        </div>
-                      </Tooltip>
-                    </div>
-                  ) : (
-                    cloudSvg
-                  )}
-                </div>
-              </div>
-            </div>
-            {/* 数据总览卡片 */}
-            <div className={`${enterpriseStyles.cardContainer} ${enterpriseStyles.dataOverviewCard}`}>
-              <div className={enterpriseStyles.dataOverviewInner}>
-                <div className={enterpriseStyles.overviewCardHeader}>
-                  <span className={enterpriseStyles.overviewCardHeaderIcon}>{enterpriseDataSvg}</span>
-                  <h2>{formatMessage({ id: 'enterpriseOverview.information.dataScreen' })}</h2>
-                </div>
-                <div className={enterpriseStyles.enterpriseDataContent}>
-                  <div className={enterpriseStyles.piece}>
-                    <p className={enterpriseStyles.dataOverviewTitle}>{formatMessage({ id: 'enterpriseOverview.overview.colonyAction' })}</p>
-                    <p className={enterpriseStyles.dataOverviewValue}>
-                      <Link to={`/enterprise/${eid}/clusters`}>
-                        {overviewMonitorInfo && overviewMonitorInfo.total_regions || 0}
-                      </Link>
-                    </p>
-                    <p className={enterpriseStyles.dataOverviewDesc}>{formatMessage({ id: 'enterpriseOverview.overview.colonyDesc' })}</p>
-                  </div>
-                  <div className={enterpriseStyles.piece}>
-                    <p className={enterpriseStyles.dataOverviewTitle}>{formatMessage({ id: 'enterpriseOverview.overview.teamAction' })}</p>
-                    <p className={enterpriseStyles.dataOverviewValue}>
-                      <Link to={`/enterprise/${eid}/teams`}>
-                        {overviewInfo && overviewInfo.total_teams}
-                      </Link>
-                    </p>
-                    <p className={enterpriseStyles.dataOverviewDesc}>{formatMessage({ id: 'enterpriseOverview.overview.teamDesc' })}</p>
-                  </div>
-                  <div className={enterpriseStyles.piece}>
-                    <p className={enterpriseStyles.dataOverviewTitle}>{formatMessage({ id: 'enterpriseOverview.overview.userAction' })}</p>
-                    <p className={enterpriseStyles.dataOverviewValue}>
-                      <Link to={`/enterprise/${eid}/users`}>
-                        {overviewInfo && overviewInfo.total_users}
-                      </Link>
-                    </p>
-                    <p className={enterpriseStyles.dataOverviewDesc}>{formatMessage({ id: 'enterpriseOverview.overview.userDesc' })}</p>
-                  </div>
-                  <div className={enterpriseStyles.piece}>
-                    <p className={enterpriseStyles.dataOverviewTitle}>{formatMessage({ id: 'enterpriseOverview.overview.templateAction' })}</p>
-                    <p className={enterpriseStyles.dataOverviewValue}>
-                      <Link to={`/enterprise/${eid}/shared/local`}>
-                        {overviewInfo && overviewInfo.shared_apps}
-                      </Link>
-                    </p>
-                    <p className={enterpriseStyles.dataOverviewDesc}>{formatMessage({ id: 'enterpriseOverview.overview.templateDesc' })}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Spin>
-        {/* 企业授权信息 */}
-        {authorizationCode &&!isAuthorizationLoading && (
-          <div className={`${enterpriseStyles.cardContainer} ${enterpriseStyles.licenseCard}`}>
-            <div className={enterpriseStyles.licenseContent}>
-              {enterpriseAuthorization ? (
-                <Fragment>
-                  <div className={enterpriseStyles.licenseSummary}>
-                    <div className={enterpriseStyles.licenseMain}>
-                      <div className={enterpriseStyles.overviewCardHeader}>
-                        <span className={enterpriseStyles.overviewCardHeaderIcon}>
-                          <Icon type="safety" />
-                        </span>
-                        <h2>{formatMessage({id:'platformUpgrade.index.info'})}</h2>
-                      </div>
-                      <div className={enterpriseStyles.licenseCompanyBlock}>
-                        <span className={enterpriseStyles.licenseCompanyLabel}>
-                          {formatMessage({id:'platformUpgrade.index.Authorizationenterprise'})}
-                        </span>
-                        <div className={enterpriseStyles.licenseCompanyRow}>
-                          <span className={enterpriseStyles.licenseCompany}>
-                            {enterpriseAuthorization.company || '-'}
-                          </span>
-                        </div>
-                        {end && end < current ? (
-                          <Button size="small" type="primary" className={enterpriseStyles.renewBtn} onClick={this.handleAuthorization}>
-                            {formatMessage({id:'platformUpgrade.index.updataAuthorization'})}
-                          </Button>
-                        ) : null}
-                      </div>
-                    </div>
-                    <div className={enterpriseStyles.licenseLimitPanel}>
-                      <div className={enterpriseStyles.licenseLimitItem}>
-                        <span>{formatMessage({id:'platformUpgrade.index.expireAt'})}</span>
-                        <strong>
-                          {enterpriseAuthorization.expire_at
-                            ? moment.unix(enterpriseAuthorization.expire_at).format('YYYY-MM-DD')
-                            : formatMessage({id:'platformUpgrade.index.nilimit'})}
-                        </strong>
-                      </div>
-                      <div className={enterpriseStyles.licenseLimitItem}>
-                        <span>{formatMessage({id:'platformUpgrade.index.clusterAuthorization'})}</span>
-                        <strong>
-                          {enterpriseAuthorization.cluster_limit == '-1' ? formatMessage({id:'platformUpgrade.index.nilimit'}) : `${enterpriseAuthorization.cluster_limit} 个`}
-                        </strong>
-                      </div>
-                      <div className={enterpriseStyles.licenseLimitItem}>
-                        <span>{formatMessage({id:'platformUpgrade.index.Authorizationnode'})}</span>
-                        <strong>
-                          {enterpriseAuthorization.node_limit == '-1' ? formatMessage({id:'platformUpgrade.index.nilimit'}) : `${enterpriseAuthorization.node_limit} 个`}
-                        </strong>
-                      </div>
-                      <div className={enterpriseStyles.licenseLimitItem}>
-                        <span>{formatMessage({id:'platformUpgrade.index.Authorizationmemory'})}</span>
-                        <strong>
-                          {enterpriseAuthorization.memory_limit == '-1' ? formatMessage({id:'platformUpgrade.index.nilimit'}) : `${enterpriseAuthorization.memory_limit} GB`}
-                        </strong>
-                      </div>
-                    </div>
-                  </div>
-                  {isServiceExpired && (
-                    <div className={enterpriseStyles.licenseServiceExpired}>
-                      <Tooltip title="服务已过期，无法安装和更新插件，已安装插件不受影响">
-                        <span>
-                          {formatMessage({id:'platformUpgrade.index.tel'})}
-                          {enterpriseAuthorization.subscribe_until ? moment.unix(enterpriseAuthorization.subscribe_until).format('YYYY-MM-DD') : '-'}
-                        </span>
-                      </Tooltip>
-                      <Button size="small" type="primary" className={enterpriseStyles.renewBtn} onClick={this.handleAuthorization}>
-                        {formatMessage({id:'platformUpgrade.index.updataAuthorization'})}
-                      </Button>
-                    </div>
-                  )}
-                  <div className={enterpriseStyles.licenseDivider} />
-                  <div className={enterpriseStyles.licenseCodeBlock}>
-                    <div className={enterpriseStyles.licenseCodeHeader}>
-                      <span>{formatMessage({id:'platformUpgrade.index.AuthorizationCode'})}</span>
-                      <div className={enterpriseStyles.licenseCodeActions}>
-                        <Tooltip title={formatMessage({id:'platformUpgrade.index.authModal.copy'})}>
-                          <button type="button" onClick={this.handleCopyAuthCode}>
-                            <Icon type="copy" />
-                          </button>
-                        </Tooltip>
-                        <Tooltip title={authorizationCodeExpanded
-                          ? formatMessage({id:'platformUpgrade.index.collapse'})
-                          : formatMessage({id:'platformUpgrade.index.view'})}
-                        >
-                          <button type="button" onClick={this.handleToggleAuthCode}>
-                            <Icon type={authorizationCodeExpanded ? 'eye-invisible' : 'eye'} />
-                          </button>
-                        </Tooltip>
-                        <Tooltip title={formatMessage({id:'platformUpgrade.index.updataAuthorization'})}>
-                          <button type="button" onClick={this.handleAuthorization}>
-                            <Icon type="edit" />
-                          </button>
-                        </Tooltip>
-                      </div>
-                    </div>
-                    <div
-                      className={`${enterpriseStyles.licenseCodeContent} ${
-                        authorizationCodeExpanded ? enterpriseStyles.licenseCodeExpanded : ''
-                      }`}
-                    >
-                      {authorizationCode || '-'}
-                    </div>
-                  </div>
-                  <div className={enterpriseStyles.authorization_plugins}>
-                    <div className={enterpriseStyles.licenseCodeHeader}>
-                      <span>{formatMessage({id:'platformUpgrade.index.availablePlugins'})}</span>
-                    </div>
-                    <div className={enterpriseStyles.authorization_plugins_list}>
-                      {enterpriseAuthorization.plugins && enterpriseAuthorization.plugins.length > 0 ? (
-                        enterpriseAuthorization.plugins.map(plugin => (
-                          <Tag key={plugin.plugin_id} className={enterpriseStyles.authorization_plugin_tag}>
-                            {plugin.name}
-                          </Tag>
-                        ))
-                      ) : (
-                        <span className={enterpriseStyles.authorization_plugins_empty}>
-                          {formatMessage({id:'platformUpgrade.index.noPlugins'})}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </Fragment>
-              ) : (
-                <div className={enterpriseStyles.authorization_error}>
-                  <div className={enterpriseStyles.authorization_invalid}>
-                    <div className={enterpriseStyles.authorization_svg}>
-                      {errorSvg}
-                    </div>
-                    <div>{formatMessage({id:'platformUpgrade.index.noAuthorization'})}</div>
-                  </div>
-                  <p>{formatMessage({id:'platformUpgrade.index.connection'})}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-        {/* 集群信息 */}
-        <div className={enterpriseStyles.clusterOverviewCard}>
-          <div className={enterpriseStyles.clusterOverviewInner}>
-            <div className={enterpriseStyles.overviewCardHeader}>
-              <span className={enterpriseStyles.overviewCardHeaderIcon}>{clustersInfoSvg}</span>
-              <h2>{formatMessage({ id: 'enterpriseOverview.information.colonyInfo' })}</h2>
-            </div>
-          <Spin spinning={overviewAppInfoLoading}>
-            <div className={enterpriseStyles.clusterOverviewBody}>
-              {clusters.length > 0 ?
-                (clusters.map(item => {
-                const {
-                  region_alias,
-                  region_name,
-                  rbd_version,
-                  health_status,
-                  provider,
-                  status,
-                  total_cpu,
-                  used_cpu,
-                  used_memory,
-                  total_memory,
-                  region_type,
-                  k8s_version,
-                  create_time,
-                  all_nodes,
-                  node_ready,
-                  region_id,
-                  run_pod_number,
-                  memory_used,
-                  cpu_used
-                } = item
-                const cpuTotal = formatMetricValue(total_cpu, 0);
-                const cpuAllocated = formatMetricValue(used_cpu);
-                const cpuAllocatedPercent = formatMetricPercent((Number(used_cpu) / Number(total_cpu)) * 100);
-                const cpuRemaining = formatMetricValue(Number(total_cpu) - Number(used_cpu));
-                const cpuActualUsed = formatMetricValue(cpu_used);
-                const cpuActualPercent = formatMetricPercent((Number(cpu_used) / Number(total_cpu)) * 100);
-                const cpuActualRemaining = formatMetricValue(Number(total_cpu) - Number(cpu_used));
-                const cpuDisplayValue = typeStatusCpu ? cpuActualUsed : cpuAllocated;
-                const cpuDisplayPercent = typeStatusCpu ? cpuActualPercent : cpuAllocatedPercent;
-                const cpuDisplayRemaining = typeStatusCpu ? cpuActualRemaining : cpuRemaining;
-                const memoryTotalGb = formatMetricValue(Number(total_memory) / 1024);
-                const memoryAllocatedGb = formatMetricValue(Number(used_memory) / 1024);
-                const memoryAllocatedPercent = formatMetricPercent((Number(used_memory) / Number(total_memory)) * 100);
-                const memoryRemainingGb = formatMetricValue((Number(total_memory) - Number(used_memory)) / 1024);
-                const memoryActualUsedGb = formatMetricValue(memory_used);
-                const memoryActualPercent = formatMetricPercent((Number(memory_used) / (Number(total_memory) / 1024)) * 100);
-                const memoryActualRemainingGb = formatMetricValue((Number(total_memory) / 1024) - Number(memory_used));
-                const memoryDisplayValue = typeStatusMemory ? memoryActualUsedGb : memoryAllocatedGb;
-                const memoryDisplayPercent = typeStatusMemory ? memoryActualPercent : memoryAllocatedPercent;
-                const memoryDisplayRemaining = typeStatusMemory ? memoryActualRemainingGb : memoryRemainingGb;
-                const clusterType = region_type && region_type[0];
-                const clusterDiskAlerts = diskAlerts.filter(
-                  alert => alert.regionName === region_name
-                );
-                return (
-                  <div className={enterpriseStyles.clusterInfo} key={region_id || region_alias}>
-                    <div className={enterpriseStyles.clusterSummary}>
-                      <div className={enterpriseStyles.clusterSummaryMain}>
-                        <div className={enterpriseStyles.clusterIconBox}>
-                          {this.clusterIcon(provider, clusterType)}
-                        </div>
-                        <div className={enterpriseStyles.clusterSummaryContent}>
-                          <div className={enterpriseStyles.clusterNameRow}>
-                            <span className={enterpriseStyles.clusterName}>{region_alias}</span>
-                            <div className={`${enterpriseStyles.clusterStatus} ${health_status === 'failure' ? enterpriseStyles.clusterStatusError : ''}`}>
-                              {this.clusterStatus(status, health_status)}
-                            </div>
-                          </div>
-                          <div className={enterpriseStyles.clusterMetaList}>
-                            <div className={enterpriseStyles.clusterMetaItem}>
-                              <span className={enterpriseStyles.clusterMetaLabel}>{formatMessage({ id: 'enterpriseOverview.overview.colonyVersion' })}</span>
-                              <Tooltip title={rbd_version}>
-                                <span className={enterpriseStyles.clusterMetaValue}>{rbd_version || '-'}</span>
-                              </Tooltip>
-                            </div>
-                            <div className={enterpriseStyles.clusterMetaItem}>
-                              <span className={enterpriseStyles.clusterMetaLabel}>Kubernetes</span>
-                              <span className={enterpriseStyles.clusterMetaValue}>{k8s_version || '-'}</span>
-                            </div>
-                            <div className={enterpriseStyles.clusterMetaItem}>
-                              <span className={enterpriseStyles.clusterMetaLabel}>{formatMessage({ id: 'enterpriseOverview.overview.createTime' })}</span>
-                              <span className={enterpriseStyles.clusterMetaValue}>{globalUtil.fetchdayTime(create_time)}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <Link className={enterpriseStyles.clusterSetting} to={`/enterprise/${eid}/clusters/ClustersMGT/${region_id}`} >
-                        <Tooltip title={formatMessage({ id: 'enterpriseOverview.overview.edit' })}>
-                          {SVG.getSvg("settingSvg", 18)}
-                        </Tooltip>
-                      </Link>
-                    </div>
-                    {clusterDiskAlerts.length > 0 && (
-                      <div className={enterpriseStyles.clusterDiskAlerts}>
-                        <DiskAlertBar
-                          alerts={clusterDiskAlerts}
-                          onView={this.handleViewDiskAlert}
-                        />
-                      </div>
-                    )}
-                    <div className={enterpriseStyles.clusterDivider} />
-                    {health_status !== 'failure' ? (
-                      <div className={enterpriseStyles.clusterMetrics}>
-                        <div className={enterpriseStyles.clusterMetricItem}>
-                          <div className={enterpriseStyles.clusterMetricTitleRow}>
-                            <span className={enterpriseStyles.clusterMetricTitle}>
-                              {formatMessage({ id: typeStatusCpu ? 'enterpriseOverview.overview.cpu_used' : 'enterpriseOverview.overview.cpu_allocated' })}
-                            </span>
-                            <Tooltip title={formatMessage({ id: typeStatusCpu ? 'enterpriseColony.mgt.cluster.assigned' : 'enterpriseColony.mgt.cluster.used' })}>
-                              <button
-                                className={enterpriseStyles.clusterMetricSwitch}
-                                type="button"
-                                onClick={() => this.handleClickStatus('cpu')}
-                              >
-                                {switchSvg}
-                              </button>
-                            </Tooltip>
-                          </div>
-                          <div className={enterpriseStyles.clusterMetricValue}>
-                            <span>{cpuDisplayValue}</span>
-                            <em>/{cpuTotal} Core</em>
-                          </div>
-                          <div className={enterpriseStyles.clusterMetricDesc}>
-                            {formatMessage({ id: 'enterpriseOverview.overview.remaining' })}
-                            <span>{cpuDisplayRemaining}</span>
-                            Core
-                          </div>
-                          <div className={enterpriseStyles.clusterGaugeFloat}>
-                            <Charts
-                              chartType="progressGauge"
-                              keys={`enterpriseCpuGauge${region_id || region_alias}`}
-                              unit="%"
-                              usedValue={cpuDisplayPercent}
-                              svalue={cpuDisplayPercent}
-                              swidth="140px"
-                              sheight="140px"
-                            />
-                          </div>
-                        </div>
-                        <div className={enterpriseStyles.clusterMetricItem}>
-                          <div className={enterpriseStyles.clusterMetricTitleRow}>
-                            <span className={enterpriseStyles.clusterMetricTitle}>
-                              {formatMessage({ id: typeStatusMemory ? 'enterpriseOverview.overview.memory_used' : 'enterpriseOverview.overview.memory_allocated' })}
-                            </span>
-                            <Tooltip title={formatMessage({ id: typeStatusMemory ? 'enterpriseColony.mgt.cluster.assigned' : 'enterpriseColony.mgt.cluster.used' })}>
-                              <button
-                                className={enterpriseStyles.clusterMetricSwitch}
-                                type="button"
-                                onClick={() => this.handleClickStatus('memory')}
-                              >
-                                {switchSvg}
-                              </button>
-                            </Tooltip>
-                          </div>
-                          <div className={enterpriseStyles.clusterMetricValue}>
-                            <span>{memoryDisplayValue}</span>
-                            <em>/{memoryTotalGb} GB</em>
-                          </div>
-                          <div className={enterpriseStyles.clusterMetricDesc}>
-                            {formatMessage({ id: 'enterpriseOverview.overview.remaining' })}
-                            <span>{memoryDisplayRemaining}</span>
-                            GB
-                          </div>
-                          <div className={enterpriseStyles.clusterGaugeFloat}>
-                            <Charts
-                              chartType="progressGauge"
-                              keys={`enterpriseMemoryGauge${region_id || region_alias}`}
-                              unit="%"
-                              usedValue={memoryDisplayPercent}
-                              svalue={memoryDisplayPercent}
-                              swidth="140px"
-                              sheight="140px"
-                            />
-                          </div>
-                        </div>
-                        <div className={enterpriseStyles.clusterMetricItem}>
-                          <div className={enterpriseStyles.clusterMetricTitle}>{formatMessage({ id: 'enterpriseOverview.overview.node_normal' })}</div>
-                          <div className={enterpriseStyles.clusterMetricValue}>
-                            <span>{node_ready == {} ? 0 : node_ready || 0}</span>
-                            <em>/{all_nodes || 0}</em>
-                            <small>{formatMessage({ id: 'enterpriseOverview.overview.unit.count' })}</small>
-                          </div>
-                          <div className={enterpriseStyles.clusterMetricDesc}>Node</div>
-                        </div>
-                        <div className={enterpriseStyles.clusterMetricItem}>
-                          <div className={enterpriseStyles.clusterMetricTitle}>{formatMessage({ id: 'enterpriseOverview.overview.running_components' })}</div>
-                          <div className={enterpriseStyles.clusterMetricValue}>
-                            <span>{run_pod_number && run_pod_number || 0}</span>
-                            <small>{formatMessage({ id: 'enterpriseOverview.overview.unit.count' })}</small>
-                          </div>
-                          <div className={enterpriseStyles.clusterMetricDesc}>Pod</div>
-                        </div>
-                      </div>) : (
-                      <div className={enterpriseStyles.clusterFailureContent}>
-                        <div className={enterpriseStyles.error_troubleshoot_left}>
-                          <Empty
-                            image={errorSvg}
-                            description={
-                              <span style={{ color: globalUtil.getPublicColor('rbd-error-status'), fontSize: '18px' }}>
-                                {formatMessage({ id: 'enterpriseOverview.overview.Abnormal' })}
-                              </span>
-                            } />
-                        </div>
-                        <div className={enterpriseStyles.error_troubleshoot_right}>
-                          <ul className={enterpriseStyles.ulStyle}>
-                            <div>{formatMessage({ id: 'enterpriseOverview.overview.troubleshoot.title1' })}</div>
-                            <li>
-                              {formatMessage({ id: 'enterpriseOverview.overview.troubleshoot.li1' })}
-                            </li>
-                            <li style={{ marginTop: '10px' }}>
-                              {formatMessage({ id: 'enterpriseOverview.overview.troubleshoot.li2' })}
-                            </li>
-                            <li>
-                              {formatMessage({ id: 'enterpriseOverview.overview.troubleshoot.li3' })}
-                            </li>
-                            <li>
-                              {formatMessage({ id: 'enterpriseOverview.overview.troubleshoot.li4' })}
-                            </li>
-                          </ul>
-                          <ul className={enterpriseStyles.ulStyle}>
-                            <div>{formatMessage({ id: 'enterpriseOverview.overview.troubleshoot.title2' })}</div>
-                            <li>
-                              1、
-                              <Link to={`/enterprise/${eid}/logs`} >
-                                {formatMessage({ id: 'enterpriseOverview.overview.troubleshoot.li5' })}
-                              </Link>
-                              {formatMessage({ id: 'enterpriseOverview.overview.troubleshoot.li6' })}
-                            </li>
-                            <li>
-                              {formatMessage({ id: 'enterpriseOverview.overview.troubleshoot.li7' })}
-                            </li>
-                            <li>
-                              {formatMessage({ id: 'enterpriseOverview.overview.troubleshoot.li8' })}
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )
-                })) : (
-                  <div className={enterpriseStyles.clusterInfo_Empty}>
-                    <Empty description={formatMessage({ id: 'enterpriseOverview.overview.no_cluster' })} />
-                  </div>
-                )}
-            </div>
-          </Spin>
-          </div>
-        </div>
-        {/* 应用报警 */}
-        {!appAlertLoding && appAlertList.length > 0 && (
-          <div className={enterpriseStyles.appAlertCard}>
-            <div className={enterpriseStyles.cardHeader}>
-              <span>{appErrorSvg}</span>
-              <h2>{formatMessage({ id: 'enterpriseOverview.information.appAlert' })}</h2>
-            </div>
-            <div className={enterpriseStyles.cardBody}>
-              <div className={enterpriseStyles.appAlertContent}>
-                <div className={enterpriseStyles.appAlertList}>
-                  {appAlertList.map(item => {
-                    const { group_id, group_name, region_name, service_alias, service_cname, tenant_name, tenant_alias, alert_date } = item
-                    return (
-                      <div className={enterpriseStyles.appAlertItem} key={`${tenant_name}-${group_id}-${service_alias}`}>
-                        <div className={enterpriseStyles.appAlertIcon}>
-                          <Icon type="warning" />
-                        </div>
-                        <div className={enterpriseStyles.appAlertInfo}>
-                          <div className={enterpriseStyles.appAlertColumn}>
-                            <span className={enterpriseStyles.appAlertLabel}>{formatMessage({ id: 'enterpriseOverview.overview.source' })}</span>
-                            <button
-                              className={enterpriseStyles.appAlertValueLink}
-                              type="button"
-                              onClick={() => {
-                                this.onJumpAlert('team', tenant_name, region_name, group_id, service_alias)
-                              }}
-                            >
-                              {tenant_alias}
-                            </button>
-                          </div>
-                          <div className={enterpriseStyles.appAlertColumn}>
-                            <span className={enterpriseStyles.appAlertLabel}>{formatMessage({ id: 'enterpriseOverview.overview.team' })}</span>
-                            <button
-                              className={enterpriseStyles.appAlertValueLink}
-                              type="button"
-                              onClick={() => {
-                                this.onJumpAlert('app', tenant_name, region_name, group_id, service_alias)
-                              }}
-                            >
-                              {group_name}
-                            </button>
-                          </div>
-                          <div className={enterpriseStyles.appAlertColumn}>
-                            <span className={enterpriseStyles.appAlertLabel}>{formatMessage({ id: 'enterpriseOverview.overview.component' })}</span>
-                            <button
-                              className={enterpriseStyles.appAlertValueLink}
-                              type="button"
-                              onClick={() => {
-                                this.onJumpAlert('component', tenant_name, region_name, group_id, service_alias)
-                              }}
-                            >
-                              {service_cname}
-                            </button>
-                          </div>
-                          <div className={enterpriseStyles.appAlertColumn}>
-                            <span className={enterpriseStyles.appAlertLabel}>{formatMessage({ id: 'enterpriseOverview.overview.status' })}</span>
-                            <span className={enterpriseStyles.appAlertStatus}>{formatMessage({ id: 'enterpriseOverview.overview.error' })}</span>
-                          </div>
-                        </div>
-                        <div className={enterpriseStyles.appAlertDate}>
-                          {alert_date || moment(timestamp).locale('zh-cn').format('YYYY-MM-DD')}
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-
-        {isAuthorizationCode &&
-          <Modal
-            visible
-            onCancel={this.handleCanceAuthorization}
-            footer={null}
-            closable={false}
-            width={520}
-            bodyStyle={{ padding: 0 }}
-            centered
-          >
-            <div className={enterpriseStyles.authModal}>
-              <div className={enterpriseStyles.authModalBody}>
-                <div className={enterpriseStyles.authModalIcon}>
-                  <Icon type="lock" />
-                </div>
-                <div className={enterpriseStyles.authModalTitle}>
-                  {formatMessage({id:'platformUpgrade.index.authModal.title'})}
-                </div>
-                <div className={enterpriseStyles.authModalSubtitle}>
-                  {formatMessage({id:'platformUpgrade.index.authModal.subtitle'})}
-                </div>
-                <div className={enterpriseStyles.authModalActions}>
-                  <a href="https://www.rainbond.com" target="_blank" className={enterpriseStyles.authModalActionCard}>
-                    <Icon type="global" className={enterpriseStyles.authModalActionIcon} />
-                    <span>{formatMessage({id:'platformUpgrade.index.authModal.website'})}</span>
-                    <Icon type="right" className={enterpriseStyles.authModalActionArrow} />
-                  </a>
-                  <a href="https://www.rainbond.com/enterprise_server" target="_blank" className={enterpriseStyles.authModalActionCard}>
-                    <Icon type="solution" className={enterpriseStyles.authModalActionIcon} />
-                    <span>{formatMessage({id:'platformUpgrade.index.authModal.getCommercial'})}</span>
-                    <Icon type="right" className={enterpriseStyles.authModalActionArrow} />
-                  </a>
-                </div>
-                <div className={enterpriseStyles.authModalEid}>
-                  <span className={enterpriseStyles.authModalEidLabel}>
-                    {formatMessage({id:'platformUpgrade.index.authModal.enterpriseId'})}
-                  </span>
-                  <span className={enterpriseStyles.authModalEidValue}>{eid}</span>
-                  <a onClick={this.handleCopyEid} className={enterpriseStyles.authModalCopyBtn}>
-                    <Icon type="copy" style={{ marginRight: 4 }} />
-                    {formatMessage({id:'platformUpgrade.index.authModal.copy'})}
-                  </a>
-                </div>
-                <div className={enterpriseStyles.authModalEidTip}>
-                  {formatMessage({id:'platformUpgrade.index.authModal.idTip'})}
-                </div>
-                <div className={enterpriseStyles.authModalCodeSection}>
-                  <div className={enterpriseStyles.authModalCodeLabel}>
-                    {formatMessage({id:'platformUpgrade.index.authModal.hasCode'})}
-                  </div>
-                  <div className={enterpriseStyles.authModalCodeInput}>
-                    {getFieldDecorator('authorization_code', {
-                      initialValue: authorizationCode || '',
-                    })(
-                      <Input.TextArea
-                        rows={3}
-                        placeholder={formatMessage({id:'platformUpgrade.index.authModal.inputPlaceholder'})}
-                      />
-                    )}
-                  </div>
-                  <Button type="primary" block onClick={this.handleSubmit} style={{ marginTop: 12, borderRadius: 6 }}>
-                    {formatMessage({id:'platformUpgrade.index.authModal.activate'})}
-                  </Button>
-                </div>
-                <div className={enterpriseStyles.authModalLater}>
-                  <a onClick={this.handleCanceAuthorization}>
-                    {formatMessage({id:'platformUpgrade.index.authModal.later'})}
-                  </a>
-                </div>
-              </div>
-            </div>
-          </Modal>
-        }
-      </div>
+  jumpNode = alert => {
+    const cluster = this.getCurrentCluster();
+    if (!cluster || !cluster.region_id) return;
+    this.jump(
+      `/enterprise/${this.getEnterpriseId()}/clusters/NodeMGT/${cluster.region_id}?name=${encodeURIComponent(
+        alert.node_name || ''
+      )}`
     );
   };
 
-  render() {
-    const {
-      consulting,
-      enterpriseInfo,
-    } = this.state;
+  jumpExtension = () => {
+    this.jump(
+      `/enterprise/${this.getEnterpriseId()}/extension?regionName=${encodeURIComponent(
+        this.state.selectedRegion
+      )}`
+    );
+  };
+
+  jumpApplicationIssue = item => {
+    if (!item.application_id) {
+      this.jump(`/team/${item.tenant_name}/region/${item.region_name}/index`);
+      return;
+    }
+    this.jump(
+      `/team/${item.tenant_name}/region/${item.region_name}/apps/${item.application_id}/overview?type=components&componentID=${item.service_alias}&tab=overview`
+    );
+  };
+
+  jumpGatewayIssue = item => {
+    if (!item.application_id) {
+      this.jump(`/team/${item.tenant_name}/region/${this.state.selectedRegion}/index`);
+      return;
+    }
+    this.jump(
+      `/team/${item.tenant_name}/region/${this.state.selectedRegion}/apps/${item.application_id}/gateway`
+    );
+  };
+
+  renderPlatformHeader() {
+    const enterprise = this.props.enterprise || {};
+    const rainbondInfo = this.props.rainbondInfo || {};
+    const { hasNewVersion, latestVersion, upgradeStatus, license, licenseStatus } = this.state;
+    const overview = this.props.overview || {};
+    const clusterSummary = overviewData.platformClusterSummary(overview.runtime, overview.errors && overview.errors.runtime);
+    const licenseSummary = overviewData.platformLicenseSummary(license, licenseStatus);
+    const enterpriseEdition = rainbondInfo.enterprise_edition &&
+      (rainbondInfo.enterprise_edition.value === true || rainbondInfo.enterprise_edition.value === 'true');
+    const licenseLabel = licenseSummary.level === 'healthy' && enterpriseEdition
+      ? 'header.enterpriseLicenseValid'
+      : licenseSummary.labelId;
+    const licenseDate = licenseSummary.expireAt && moment.unix(licenseSummary.expireAt).isValid()
+      ? moment.unix(licenseSummary.expireAt).format('YYYY-MM-DD')
+      : '-';
+    const summaryClasses = { healthy: styles.headerSummaryHealthy, warning: styles.headerSummaryWarning, unknown: styles.headerSummaryUnknown };
+    const summaryIcon = { healthy: 'check-circle', warning: 'exclamation-circle', loading: 'loading' };
+    const upgradeAvailable = upgradeStatus === 'success' && hasNewVersion;
+    const currentVersion = overviewData.compactVersion(
+      rainbondInfo.version && rainbondInfo.version.value
+    );
+    const name =
+      enterprise.enterprise_alias ||
+      enterprise.enterprise_name ||
+      (rainbondInfo.title && rainbondInfo.title.value) ||
+      'Rainbond';
     return (
-      <ScrollerX sm={`calc(1100px - var(--agent-panel-width, 0px))`}>
-        {this.renderContent()}
-        {consulting && (
-          <Consulting
-            name={enterpriseInfo && enterpriseInfo.enterprise_alias}
-            onOk={this.cancelConsulting}
-            onCancel={this.cancelConsulting}
-          />
+      <section className={`${styles.platformHeader} ${upgradeAvailable ? styles.hasUpgrade : ''}`}>
+        <button type="button" className={styles.platformIdentity} title={name} aria-label={`${name} · ${t('header.viewDetails')}`} onClick={() => this.setState({ platformModalVisible: true })}>
+          <span className={styles.platformLogo}><Icon type="cloud-server" /></span>
+          <span><strong>{name}</strong><span className={`${styles.platformSummary} ${summaryClasses[clusterSummary.level] || ''}`} title={t(clusterSummary.labelId, clusterSummary.values)}><Icon type={summaryIcon[clusterSummary.level] || 'info-circle'} /><span>{t(clusterSummary.labelId, clusterSummary.values)}</span></span></span>
+          <Icon type="right" />
+        </button>
+        <div className={styles.platformFacts}>
+          <div className={styles.platformFact}><small>{t('header.platformVersion')}</small><strong title={currentVersion}>{currentVersion}</strong></div>
+          <button type="button" className={styles.platformLicenseFacts} aria-label={t('header.viewLicense')} onClick={() => this.setState({ platformModalVisible: true })}>
+            <span className={styles.platformFact}><small>{t('header.licenseStatus')}</small><strong className={summaryClasses[licenseSummary.level] || ''} title={t(licenseLabel)}>{licenseSummary.level === 'loading' ? <Icon type="loading" /> : null}{t(licenseLabel)}</strong></span>
+            <span className={styles.platformFact}><small>{t('header.licenseExpires')}</small><strong>{licenseDate}</strong></span>
+          </button>
+        </div>
+        {upgradeAvailable ? (
+          <button type="button" className={styles.upgradeAction} onClick={() => this.jump(`/enterprise/${this.getEnterpriseId()}/setting?type=updateVersion`)}>
+            <span className={styles.upgradeIcon}><Icon type="rocket" /></span>
+            <span><small>{t('header.newVersion', { version: overviewData.compactVersion(latestVersion) })}</small><strong>{t('header.upgradeNow')} <Icon type="arrow-right" /></strong></span>
+          </button>
+        ) : upgradeStatus === 'success' ? (
+          <span className={overviewData.isDevelopmentVersion(rainbondInfo.version && rainbondInfo.version.value) ? styles.versionUnknown : styles.versionCurrent}><Icon type={overviewData.isDevelopmentVersion(rainbondInfo.version && rainbondInfo.version.value) ? 'code' : 'check-circle'} /> {t(overviewData.isDevelopmentVersion(rainbondInfo.version && rainbondInfo.version.value) ? 'header.development' : 'header.latest')}</span>
+        ) : (
+          <span className={styles.versionUnknown}><Icon type={upgradeStatus === 'loading' ? 'loading' : 'question-circle'} /> {upgradeStatus === 'loading' ? t('header.upgradeChecking') : t('header.upgradeUnavailable')}</span>
         )}
-      </ScrollerX>
+      </section>
+    );
+  }
+
+  renderRuntimeNotice(availability) {
+    if (availability.kind === 'ok' || availability.kind === 'loading') return null;
+    const { loading, updatedAt } = this.props.overview;
+    const sections = availability.missing.map(name => t(`global.section.${name}`)).join(t('global.listSeparator'));
+    const description = availability.kind === 'stale' ? t('global.runtimeStale') :
+      availability.kind === 'unavailable' ? t('global.runtimeFailed') :
+        sections ? t('global.runtimeMissing', { sections }) : t('global.runtimePartialUnknown');
+    const previousTime = updatedAt && updatedAt.runtime && moment(updatedAt.runtime).isValid()
+      ? moment(updatedAt.runtime).format('MM-DD HH:mm:ss') : null;
+    const details = [
+      availability.regions.length ? t('global.affectedClusters', { names: availability.regions.join(t('global.listSeparator')) }) : null,
+      availability.kind === 'stale' && previousTime ? t('global.lastSuccess', { time: previousTime }) : null
+    ].filter(Boolean);
+    return <Alert className={styles.inlineAlert} type="warning" showIcon message={
+      <div className={styles.runtimeNotice}><span><strong>{availability.kind === 'stale' ? t('global.runtimeStaleTitle') : description}</strong>{availability.kind === 'stale' ? <span>{description}</span> : null}
+        {details.length ? <Tooltip title={<div>{details.map(detail => <p key={detail}>{detail}</p>)}</div>}><Icon type="info-circle" tabIndex={0} aria-label={details.join(' ')} /></Tooltip> : null}
+      </span><Button type="link" size="small" aria-label={t('common.retry')} loading={loading.runtime} onClick={this.loadRuntime}>{t('common.retry')}</Button></div>
+    } />;
+  }
+
+  renderGlobalPosture() {
+    const { shell, runtime, loading, errors } = this.props.overview;
+    const quick = (shell && shell.global) || {};
+    const alarmState = overviewData.runtimeSection(runtime, 'application_alarms');
+    const nodeState = overviewData.runtimeSection(runtime, 'nodes');
+    const clusterState = overviewData.runtimeSection(runtime, 'clusters');
+    const applicationState = overviewData.runtimeSection(runtime, 'applications');
+    const componentState = overviewData.runtimeSection(runtime, 'components');
+    const alarms = alarmState.data || {};
+    const workloadStates = [applicationState, componentState];
+    const workloadTotals = workloadStates.map((state, index) => {
+      const total = state.data && state.data.total;
+      return displayNumber(overviewData.isNumber(total) ? total : quick[index ? 'components' : 'applications'], 0);
+    });
+    const runningCountsKnown = workloadStates.every(state => state.status === 'ok' && state.data &&
+      typeof state.data.running !== 'boolean' && overviewData.isNumber(state.data.running) && Number(state.data.running) >= 0);
+    const workloadDetail = runningCountsKnown ? t(errors.runtime ? 'global.previousRunningCounts' : 'global.runningCounts', {
+      applications: displayNumber(applicationState.data.running, 0), components: displayNumber(componentState.data.running, 0)
+    }) : workloadStates.every(state => state.status === 'loading') && !errors.runtime ? null :
+      t(workloadStates.some(state => state.status === 'partial') ? 'global.runningPartial' : 'global.runningUnavailable');
+    const alarmAvailable = alarmState.status === 'ok' || alarmState.status === 'partial';
+    const alarmCountKnown = alarmAvailable && typeof alarms.total !== 'boolean' && overviewData.isNumber(alarms.total) && Number(alarms.total) >= 0;
+    const availability = overviewData.runtimeAvailability(runtime, errors.runtime);
+    const clusterCounts = clusterState.data || {};
+    const clusterDetails = [
+      overviewData.isNumber(clusterCounts.healthy) ? { key: 'healthy', label: t('global.healthyCount', { count: clusterCounts.healthy }) } : null,
+      Number(clusterCounts.warning) > 0 ? { key: 'warning', label: t('global.abnormalCount', { count: clusterCounts.warning }), className: styles.metricRisk } : null,
+      Number(clusterCounts.unavailable) > 0 ? { key: 'unknown', label: t('global.unknownCount', { count: clusterCounts.unavailable }), className: styles.metricUnknown } : null
+    ].filter(Boolean);
+    const clusterDetail = clusterDetails.length ? clusterDetails.map((item, index) => <React.Fragment key={item.key}>{index ? ' · ' : ''}<span className={item.className}>{item.label}</span></React.Fragment>) : clusterState.status === 'loading' ? '-' : t('global.unavailable');
+    const notReady = nodeState.data && overviewData.isNumber(nodeState.data.total) && overviewData.isNumber(nodeState.data.ready)
+      ? Math.max(0, Number(nodeState.data.total) - Number(nodeState.data.ready)) : null;
+    const nodeDetail = notReady > 0 ? <span className={styles.metricRisk}>{t(nodeState.status === 'partial' ? 'global.knownNotReadyCount' : 'global.notReadyCount', { count: notReady })}</span> :
+      nodeState.status === 'partial' ? t('global.knownReadyCount', { count: nodeState.data && overviewData.isNumber(nodeState.data.ready) ? nodeState.data.ready : '-' }) :
+        nodeState.status === 'ok' && nodeState.data ? t('global.readyCount', { count: displayNumber(nodeState.data.ready, 0) }) : nodeState.status === 'loading' ? '-' : t('global.unavailable');
+    const metrics = [
+      { icon: 'cluster', label: t('global.clusters'), value: quick.clusters, detail: clusterDetail },
+      { icon: 'deployment-unit', label: t('global.nodes'), value: nodeState.status === 'loading' ? undefined : nodeState.status === 'unavailable' ? '-' : nodeState.data && overviewData.isNumber(nodeState.data.total) ? nodeState.data.total : '-', detail: nodeDetail },
+      { icon: 'team', label: t('global.teams'), value: quick.teams },
+      { icon: 'user', label: t('global.users'), value: quick.users },
+      { icon: 'appstore', label: t('global.workloads'), value: workloadTotals.join(' / '), detail: workloadDetail },
+      { icon: 'alert', label: t('global.appAlarms'), value: alarmState.status === 'loading' ? undefined : alarmCountKnown ? alarms.total : '-', detail: alarmState.status === 'loading' ? null : !alarmCountKnown ? t('global.unavailable') : alarmState.status === 'ok' ? (alarms.total > 0 ? t('global.viewAlarms') : t('global.none')) : t(alarms.total > 0 ? 'global.viewKnownAlarms' : 'global.alarmPartial'), warning: alarmCountKnown && alarms.total > 0, action: alarmCountKnown && alarms.total > 0 ? () => this.setState({ applicationModalVisible: true }) : null }
+    ];
+    return (
+      <OverviewModule title={t('global.title')} loading={loading.shell && !shell} error={errors.shell} onRetry={this.loadPlatformData}>
+        {shell ? (
+          <div className={styles.globalMetrics}>
+            {metrics.map(item => {
+              const MetricElement = item.action ? 'button' : 'article';
+              return <MetricElement type={item.action ? 'button' : undefined} key={item.label} className={`${styles.globalMetric} ${item.action ? styles.metricAction : ''} ${item.warning ? styles.warningMetric : ''}`} onClick={item.action || undefined}>
+                <span className={styles.metricLabel}>{item.label}<Icon type={item.icon} /></span>
+                <strong>{item.value === undefined ? <Skeleton active title={{ width: 36 }} paragraph={false} /> : item.value}</strong>{item.detail ? <em>{item.detail}{item.action ? <Icon type="right" /> : null}</em> : null}
+              </MetricElement>;
+            })}
+          </div>
+        ) : null}
+        {shell ? this.renderRuntimeNotice(availability) : null}
+      </OverviewModule>
+    );
+  }
+
+  renderScopeSelector() {
+    const { shell } = this.props.overview;
+    const clusters = (shell && shell.clusters) || [];
+    if (clusters.length <= 1) return null;
+    return (
+      <div className={styles.scopeBar}>
+        <div className={styles.scopeContext}>
+          <span className={styles.scopeLabel}><span className={styles.scopeIcon}><Icon type="cluster" /></span><strong>{t('scope.title')}</strong></span>
+          <Select
+            aria-label={t('scope.title')}
+            value={this.state.selectedRegion || undefined}
+            placeholder={t('scope.empty')}
+            onChange={this.handleClusterChange}
+            disabled={!clusters.length}
+            showSearch={clusters.length > 5}
+            optionLabelProp="label"
+            optionFilterProp="searchText"
+            dropdownClassName={styles.clusterDropdown}
+            className={styles.clusterSelect}
+          >
+            {clusters.map(cluster => (
+              <Option key={cluster.region_name} value={cluster.region_name} label={cluster.region_alias || cluster.region_name} title={cluster.region_alias || cluster.region_name} searchText={`${cluster.region_alias || ''} ${cluster.region_name}`}>
+                <span className={styles.clusterOption}><Icon type="cluster" /><span><strong>{cluster.region_alias || cluster.region_name}</strong>{cluster.region_alias && cluster.region_alias !== cluster.region_name ? <small>{cluster.region_name}</small> : null}</span></span>
+              </Option>
+            ))}
+          </Select>
+        </div>
+        <small className={styles.scopeHint}><Icon type="info-circle" />{t('scope.description')}</small>
+      </div>
+    );
+  }
+
+  renderResourceCard(label, icon, data, memory) {
+    if (!data) return null;
+    const allocated = memory ? formatMemory(data.allocated) : { value: displayNumber(data.allocated), unit: 'Core' };
+    const capacity = memory ? formatMemory(data.capacity) : { value: displayNumber(data.capacity), unit: 'Core' };
+    const remaining = overviewData.isNumber(data.capacity) && overviewData.isNumber(data.allocated) ? Math.max(0, Number(data.capacity) - Number(data.allocated)) : null;
+    const remainingDisplay = memory ? formatMemory(remaining) : { value: displayNumber(remaining), unit: 'Core' };
+    const percent = data.allocation_percent;
+    return (
+      <article className={styles.resourceCard}>
+        <div className={styles.resourceHeading}><Icon type={icon} /> {label}</div>
+        <div className={styles.resourceContent}><div className={styles.resourceCopy}><span>{t('cluster.allocated')}</span><strong><span>{allocated.value}</span><small> / {capacity.value} {capacity.unit}</small></strong><p>{t('cluster.remaining')} {remainingDisplay.value} {remainingDisplay.unit}</p></div>
+          <ResourceGauge percent={percent} label={t('cluster.allocationRate')} />
+        </div>
+      </article>
+    );
+  }
+
+  renderClusterOverview() {
+    const { errors } = this.props.overview;
+    const snapshot = this.getCurrentSnapshot();
+    const cluster = this.getCurrentCluster();
+    const resources = overviewData.sectionData(snapshot, 'resources');
+    const nodes = overviewData.sectionData(snapshot, 'nodes');
+    const nodeCountsKnown = nodes && overviewData.isNumber(nodes.ready) && overviewData.isNumber(nodes.total);
+    const nodesNotReady = nodeCountsKnown ? Math.max(0, Number(nodes.total) - Number(nodes.ready)) : null;
+    const resourceStatus = overviewData.sectionStatus(snapshot, 'resources');
+    const nodeStatus = overviewData.sectionStatus(snapshot, 'nodes');
+    const clusterInfo = overviewData.sectionData(snapshot, 'cluster') || cluster;
+    const alerts = (nodes && nodes.alerts) || [];
+    const versions = (resources && resources.versions) || {};
+    const runtimeStatus = clusterRuntimeStatus(snapshot, errors.cluster);
+    return (
+      <OverviewModule title={t('cluster.title')} loading={!snapshot && !errors.cluster} error={errors.cluster} onRetry={this.loadClusterSnapshot} extra={clusterInfo ? <Button type="link" onClick={this.jumpCluster}>{t('cluster.enterManagement')} <Icon type="arrow-right" /></Button> : null}>
+        {snapshot ? (
+          <div className={`${styles.clusterOverview} ${alerts.length ? styles.withClusterAlerts : ''}`}>
+            <div className={styles.clusterMain}>
+              <div className={styles.clusterMeta}>
+                <div><span><Icon type="cloud-server" /></span><strong>{clusterInfo.region_alias || clusterInfo.region_name}</strong><small className={styles.clusterIdentityLine}><span className={`${styles.clusterRuntimeBadge} ${styles[`clusterRuntime${runtimeStatus}`]}`}><i aria-hidden="true" />{t(`common.${runtimeStatus}`)}</span><span>{clusterInfo.region_name}</span>{clusterInfo.provider ? <span>{clusterInfo.provider}</span> : null}</small></div>
+                <div><small>{t('cluster.rainbondVersion')}</small><strong>{overviewData.compactVersion(versions.rainbond)}</strong></div>
+                <div><small>{t('cluster.kubernetesVersion')}</small><strong>{versions.kubernetes || '-'}</strong></div>
+              </div>
+              {resources ? (
+                <div className={styles.clusterResources}>
+                  {this.renderResourceCard(t('cluster.cpu'), 'dashboard', resources.cpu, false)}
+                  {this.renderResourceCard(t('cluster.memory'), 'database', resources.memory, true)}
+                  <div className={styles.clusterCounts}>
+                  <article className={`${styles.countCard} ${nodesNotReady > 0 ? styles.countWarning : !nodeCountsKnown || !Number(nodes.total) ? styles.countUnavailable : ''}`}><span>{t('cluster.readyNodes')}<Icon type="deployment-unit" /></span><strong>{nodes ? displayNumber(nodes.ready, 0) : '-'}<small> / {nodes ? displayNumber(nodes.total, 0) : '-'}</small></strong><p>{!nodeCountsKnown ? t('global.unavailable') : !Number(nodes.total) ? t('cluster.noNodes') : nodesNotReady > 0 ? t('global.notReadyCount', { count: nodesNotReady }) : t('cluster.allReady')}</p></article>
+                  <article className={styles.countCard}><span>{t(overviewData.isNumber(resources.pods.running) ? 'cluster.runningPods' : 'cluster.workloadPods')}<Icon type="appstore" /></span><strong>{displayNumber(overviewData.isNumber(resources.pods.running) ? resources.pods.running : resources.pods.active, 0)}</strong><p>{t(overviewData.isNumber(resources.pods.running) ? 'cluster.podDescription' : 'cluster.legacyPods')}</p></article>
+                  </div>
+                </div>
+              ) : resourceStatus === 'loading' ? <Skeleton active paragraph={{ rows: 2 }} /> : <Alert type="warning" showIcon message={t('cluster.resourcesUnavailable')} />}
+              {nodeStatus !== 'ok' && nodeStatus !== 'loading' ? <Alert className={styles.sectionWarning} type="warning" showIcon message={t('cluster.nodesUnavailable')} /> : null}
+              {nodes && ['partial', 'unavailable'].indexOf(nodes.disk_stats_status) > -1 ? <p className={styles.diskStatus}><Icon type="info-circle" /> {t('cluster.diskUnavailable')}</p> : null}
+            </div>
+            {alerts.length ? (
+              <aside className={styles.clusterAlerts}>
+                <header><span><Icon type="alert" /> {t('cluster.alerts')}</span><Badge count={alerts.length} /></header>
+                <div>{alerts.map((alert, index) => {
+                  const translation = overviewData.nodeAlertTranslation(alert);
+                  const values = translation.id === 'cluster.diskUsage'
+                    ? { filesystem: t(`cluster.filesystem.${translation.values.filesystem}`), percent: translation.values.percent }
+                    : { ...translation.values, ...(translation.values.date ? { date: moment(translation.values.date).isValid() ? moment(translation.values.date).format('YYYY-MM-DD HH:mm:ss Z') : translation.values.date } : {}) };
+                  return <button type="button" className={alert.severity === 'critical' ? styles.criticalAlert : undefined} key={`${alert.type}-${alert.node_name}-${index}`} onClick={() => this.jumpNode(alert)}><Icon type={alert.severity === 'critical' ? 'close-circle' : 'warning'} /><span><strong>{alert.node_name || t('cluster.unknownNode')}</strong>{alert.severity === 'critical' ? <em>{t('cluster.severityCritical')}</em> : null}<small>{t(translation.id, values)}</small></span><Icon type="right" /></button>;
+                })}</div>
+              </aside>
+            ) : null}
+          </div>
+        ) : null}
+      </OverviewModule>
+    );
+  }
+
+  renderMonitoring() {
+    const { metric, timeRange } = this.state;
+    const { loading, errors } = this.props.overview;
+    const currentMetrics = this.getCurrentMetrics();
+    const metricState = overviewData.metricState(currentMetrics);
+    const data = metricState.data;
+    const points = metricState.points;
+    const lastValue = points.length ? points[points.length - 1][1] : null;
+    const units = { cpu: '%', memory: '%', network: 'B/s' };
+    const current = metric === 'network' ? overviewData.formatThroughput(lastValue) : { value: displayNumber(lastValue), unit: '%' };
+    const hasPoints = data && points.length > 0;
+    const metricLabel = t(metric === 'network' ? 'monitor.networkTotal' : metric === 'memory' && currentMetrics && currentMetrics.semantics === 'host_memory_working_set' ? 'monitor.memoryWorkingSetRatio' : `monitor.${metric}Usage`);
+    const usageLabel = t(metric === 'memory' && currentMetrics && currentMetrics.semantics === 'host_memory_working_set' ? 'monitor.workingSetUsage' : 'monitor.actualUsage');
+    const trendLabels = { usageLabel, unavailableLabel: t('monitor.absoluteUnavailable') };
+    const unavailable = metricState.status === 'unavailable' || metricState.status === 'partial';
+    return (
+      <OverviewModule title={t('monitor.title')} className={`${styles.monitorModule} ${!hasPoints ? styles.monitorEmpty : ''}`} loading={!errors.metrics && (metricState.status === 'loading' || (loading.metrics && !currentMetrics))} error={errors.metrics} onRetry={this.loadMetrics}>
+        <div className={styles.chartToolbar}>
+          {hasPoints ? <div className={styles.chartSummary}><strong>{current.value}<small>{current.unit}</small></strong><span>{metricLabel}<small>{t('monitor.latestSample')} · {moment(points[points.length - 1][0]).format('MM-DD HH:mm')}</small></span></div> : null}
+          <div className={styles.monitorControls}><div className={styles.segmentedControl} role="group" aria-label={t('monitor.metricLabel')}>{['memory', 'cpu', 'network'].map(key => <button type="button" key={key} aria-pressed={metric === key} className={metric === key ? styles.segmentActive : ''} onClick={() => this.handleMetricChange(key)}>{t(`monitor.${key}`)}</button>)}</div><Select size="small" value={timeRange} onChange={this.handleRangeChange}>{['1h', '6h', '24h'].map(value => <Option key={value} value={value}>{value}</Option>)}</Select></div>
+        </div>
+        {hasPoints ? <React.Fragment><ResourceTrend {...trendLabels} data={data} metric={metric} seriesLabel={metricLabel} unitLabel={units[metric]} emptyText={t('monitor.empty')} /><div className={`${styles.chartLegend} ${styles[`legend${metric}`]}`}><span className={styles.legendSwatch} aria-hidden="true" />{metricLabel}{metric === 'network' ? <Tooltip title={t('monitor.networkDescription')}><Icon type="info-circle" /></Tooltip> : null}</div></React.Fragment> : currentMetrics && !errors.metrics ? <div className={styles.monitorEmptyState}><Icon type={unavailable ? 'disconnect' : 'area-chart'} /><strong>{t(unavailable ? 'monitor.unavailableTitle' : 'monitor.empty')}</strong><p>{t(unavailable ? 'monitor.unavailable' : 'monitor.emptyDescription')}</p><Button size="small" onClick={this.loadMetrics}>{t('common.retry')}</Button></div> : null}
+        {currentMetrics ? <div className={styles.metricSource}><Tooltip title={<span>{t('monitor.coverageDescription')}{currentMetrics.semantics === 'host_memory_working_set' ? <React.Fragment><br />{t('monitor.workingSet')}</React.Fragment> : null}</span>}><small tabIndex={0}><Icon type="info-circle" /> {t(currentMetrics.coverage === 'scrape_targets' ? 'monitor.scrapeCoverage' : 'monitor.unknownCoverage')}</small></Tooltip></div> : null}
+      </OverviewModule>
+    );
+  }
+
+  renderServices() {
+    const snapshot = this.getCurrentSnapshot();
+    const { errors } = this.props.overview;
+    const componentSection = overviewData.sectionEnvelope(snapshot, 'components');
+    const pluginSection = overviewData.sectionEnvelope(snapshot, 'plugins');
+    const components = componentSection.status === 'ok' ? componentSection.data : null;
+    const plugins = pluginSection.status === 'ok' ? pluginSection.data : null;
+    const representative = overviewData.representativeComponents(components);
+    const componentStates = (components || []).map(overviewData.componentVisualState);
+    const componentHealthy = componentStates.filter(item => item.level === 'healthy').length;
+    const componentAbnormal = componentStates.filter(item => item.level === 'warning').length;
+    const componentUnknown = componentStates.filter(item => item.level === 'unknown').length;
+    const componentStarting = componentStates.filter(item => item.level === 'starting').length;
+    const restartRecords = (components || []).map(component => ({ component, restarts: overviewData.componentRestarts(component) }))
+      .filter(item => item.restarts.count > 0);
+    const restartDetails = restartRecords.length ? <div><p>{t('services.restartAffected', { count: restartRecords.length })}</p>
+      {restartRecords.map(({ component, restarts }) => <div key={component.name}>{component.name} · {t(restarts.complete ? 'services.restartCount' : 'services.restartCountAtLeast', { count: restarts.count })}</div>)}
+      {restartRecords.some(item => !item.restarts.complete) ? <p>{t('services.restartPartial')}</p> : null}
+      <p>{t('services.restartScope')}</p><p>{t('services.restartMeaning')}</p>
+    </div> : null;
+    const componentSummary = errors.cluster && components ? t('services.previousState') : !components ? t('services.statusUnknown') : !components.length ? t('services.noComponents') :
+      componentAbnormal ? t('services.abnormalCount', { count: componentAbnormal }) : componentUnknown ? t('services.unknownCount', { count: componentUnknown }) :
+        componentStarting ? t('services.startingCount', { count: componentStarting }) : t('services.summary', { healthy: componentHealthy, total: components.length });
+    const summaryClass = errors.cluster ? styles.serviceUnknown : componentAbnormal ? styles.serviceWarning : components && components.length && componentHealthy === components.length ? styles.serviceHealthy : styles.serviceUnknown;
+    const presentation = overviewData.pluginPresentation(plugins);
+    return (
+      <OverviewModule title={t('services.title')} className={styles.servicesModule} error={errors.cluster} onRetry={this.loadClusterSnapshot}>
+        <div className={styles.servicesBody}>
+          <div className={styles.componentPanel}><div className={styles.sectionTitle}><button type="button" onClick={this.jumpCluster}><Icon type="cloud-server" /> {t('services.components')} <Icon type="right" /></button><span className={styles.componentStatusGroup}><Tooltip title={components && components.length ? t('services.summary', { healthy: componentHealthy, total: components.length }) : componentSummary}><small className={`${styles.serviceStatus} ${summaryClass}`} tabIndex={0}><i aria-hidden="true" />{componentSummary}</small></Tooltip>
+            {restartRecords.length ? <Tooltip trigger={['hover', 'focus']} title={restartDetails}><small className={styles.componentRestartSummary} tabIndex={0} aria-label={t('services.restartAffected', { count: restartRecords.length })}><Icon type="reload" />{t('services.restartGroups', { count: restartRecords.length })}</small></Tooltip> : null}
+          </span></div>
+          {components ? <div className={styles.componentGrid}>{representative.map(component => {
+            const state = overviewData.componentVisualState(component);
+            const restarts = overviewData.componentRestarts(component);
+            const hasRestarts = restarts.count > 0;
+            return <button type="button" key={component.name} onClick={this.jumpCluster} className={styles[state.className] || ''}><span className={styles.componentIcon}><Icon type={componentIcon(component.name)} /></span><span className={styles.componentCopy}><strong>{component.name}</strong><small className={styles.componentMeta}><span>{displayNumber(component.run_pods, 0)}/{displayNumber(component.all_pods, 0)} {t(state.level === 'healthy' ? hasRestarts ? 'services.readyShort' : 'services.ready' : state.labelId)}</span>
+              {hasRestarts ? <Tooltip title={<span>{!restarts.complete ? <React.Fragment>{t('services.restartPartial')}<br /></React.Fragment> : null}{t('services.restartScope')}<br />{t('services.restartMeaning')}</span>}><span className={styles.componentRestartCount}>{t(restarts.complete ? 'services.restartCount' : 'services.restartCountAtLeast', { count: restarts.count })}</span></Tooltip> : null}
+            </small></span><span className={styles.componentState} aria-label={t(state.labelId)} /><Icon type="right" className={styles.itemChevron} /></button>;
+          })}</div> : componentSection.status === 'loading' ? (!errors.cluster ? <Skeleton className={styles.sectionSkeleton} active paragraph={{ rows: 2 }} /> : null) : <Alert type="warning" showIcon message={t('services.componentsUnavailable')} />}</div>
+          <div className={styles.pluginPanel}><div className={styles.pluginHeader}><div className={styles.sectionTitle}><button type="button" onClick={this.jumpExtension}><Icon type="appstore" /> {t('services.plugins')}{plugins ? <span className={styles.pluginCount}>{plugins.length}</span> : null}</button></div><Button type="link" size="small" onClick={this.jumpExtension}>{t('services.allPlugins')} <Icon type="arrow-right" /></Button></div>
+          <div className={styles.pluginSummary} aria-label={t('services.allPluginStates')}>{plugins ? presentation.summary.map(({ level, count, runtime }) => <span key={level} className={`${styles.pluginRuntime} ${styles[runtime.className]}`}><i />{t(runtime.labelId)} {count}</span>) : t('services.pluginStateDescription')}</div>
+          {plugins ? (plugins.length ? <React.Fragment>{this.renderPluginList(presentation.preview)}{plugins.length > 8 ? <Button type="link" size="small" className={styles.viewAllPlugins} onClick={() => this.setState({ pluginModalRegion: this.state.selectedRegion })}>{t('services.viewAllPlugins', { count: plugins.length })} <Icon type="right" /></Button> : null}</React.Fragment> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('services.noPlugins')} />) : pluginSection.status === 'loading' ? (!errors.cluster ? <Skeleton className={styles.sectionSkeleton} active paragraph={{ rows: 2 }} /> : null) : <Alert type="warning" showIcon message={t('services.pluginsUnavailable')} />}</div>
+        </div>
+      </OverviewModule>
+    );
+  }
+
+  renderPluginList(items, full = false) {
+    return <div className={`${styles.pluginList}${full ? ` ${styles.fullPluginList}` : ''}`} role="list" aria-label={t('services.plugins')}>{items.map(({ plugin, runtime }) => <button type="button" key={plugin.name} onClick={this.jumpExtension} title={plugin.alias || plugin.display_name || plugin.name}><span className={styles.pluginIcon}><Icon type={overviewData.pluginIcon(plugin)} /></span><span className={styles.pluginCopy}><strong>{plugin.alias || plugin.display_name || plugin.name}</strong><small className={`${styles.pluginRuntime} ${styles[runtime.className]}`}><i />{t(runtime.labelId)}</small></span><Icon type="right" className={styles.itemChevron} /></button>)}</div>;
+  }
+
+  renderTeamRanking() {
+    const snapshot = this.getCurrentSnapshot();
+    const { errors } = this.props.overview;
+    const teamSection = overviewData.sectionEnvelope(snapshot, 'teams');
+    const teams = teamSection.status === 'ok' ? teamSection.data : null;
+    const { teamMetric } = this.state;
+    const field = { cpu: 'cpu_cores', memory: 'memory_gib', applications: 'applications' }[teamMetric];
+    const unit = { cpu: 'Core', memory: 'GiB', applications: t('common.countUnit') }[teamMetric];
+    const list = (teams && teams[teamMetric]) || [];
+    const total = overviewData.teamRankingTotal(snapshot, teamMetric);
+    const secondaryFields = ['memory', 'cpu', 'applications'].filter(key => key !== teamMetric);
+    const fields = { cpu: 'cpu_cores', memory: 'memory_gib', applications: 'applications' };
+    const units = { cpu: 'Core', memory: 'GiB', applications: t('common.countUnit') };
+    return (
+      <OverviewModule title={t('teams.title')} className={styles.halfModule} error={errors.cluster} onRetry={this.loadClusterSnapshot}>
+        {teams ? (list.length ? <div className={styles.teamRanking}><div className={styles.rankingToolbar}><span><Icon type="team" /><span><strong>{t('teams.clusterTotal')} <em>{displayNumber(total, 2)} {unit}</em></strong><Tooltip title={t(teamMetric === 'applications' ? 'teams.applicationDescription' : 'teams.configuredDescription')}><small tabIndex={0}>{t(teamMetric === 'applications' ? 'teams.applicationSort' : 'teams.configuredSort')} <Icon type="info-circle" /></small></Tooltip></span></span><div className={styles.segmentedControl} role="group" aria-label={t('teams.metricLabel')}>{['memory', 'cpu', 'applications'].map(key => <button type="button" key={key} aria-pressed={teamMetric === key} className={teamMetric === key ? styles.segmentActive : ''} onClick={() => this.setState({ teamMetric: key })}>{t(`teams.${key}`)}</button>)}</div></div>{list.map((team, index) => {
+          const percent = overviewData.teamRankingShare(team[field], total);
+          return <button type="button" key={team.tenant_id} onClick={() => this.jump(`/team/${team.tenant_name}/region/${this.state.selectedRegion}/index`)}><span className={styles.rank}>{index + 1}</span><span className={styles.teamName}><span className={styles.teamLine}><strong>{team.tenant_alias || team.tenant_name}</strong><small>{secondaryFields.map(key => `${t(`teams.${key}`)} ${displayNumber(team[fields[key]], 1)} ${units[key]}`).join(' · ')}</small></span><span className={styles.teamTrack}><i style={{ width: `${percent === null ? 0 : Math.min(100, percent)}%` }} /></span></span><span className={styles.teamValue}><strong>{displayNumber(team[field], 2)} <small>{unit}</small></strong><em>{percent === null ? t('teams.shareUnavailable') : t(teamMetric === 'applications' ? 'teams.applicationShare' : 'teams.capacityShare', { percent: displayNumber(percent, 1) })}</em></span></button>;
+        })}</div> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('teams.empty')} />) : teamSection.status === 'loading' ? (!errors.cluster ? <Skeleton active paragraph={{ rows: 4 }} /> : null) : <Alert type="warning" showIcon message={t('teams.unavailable')} />}
+      </OverviewModule>
+    );
+  }
+
+  renderGateway() {
+    const snapshot = this.getCurrentSnapshot();
+    const { errors } = this.props.overview;
+    const gatewaySection = overviewData.sectionEnvelope(snapshot, 'gateway');
+    const gateway = gatewaySection.status === 'ok' ? gatewaySection.data : null;
+    if (gatewaySection.status === 'empty') return null;
+    const issues = (gateway && gateway.issues) || [];
+    const expiring = ((gateway && gateway.certificates) || []).filter(item => item.status !== 'normal').length;
+    const StatusElement = issues.length ? 'button' : 'div';
+    return (
+      <OverviewModule title={t('gateway.title')} className={styles.halfModule} error={errors.cluster} onRetry={this.loadClusterSnapshot} extra={gateway && issues.length ? <Button type="link" onClick={() => this.setState({ gatewayModalVisible: true })}>{t('gateway.viewIssues', { count: issues.length })}</Button> : null}>
+        {gateway ? <React.Fragment><div className={styles.gatewayMetrics}><div><span>{t('gateway.httpDomains')}</span><strong>{displayNumber(gateway.http_domains, 0)}</strong></div><div><span>{t('gateway.tcpRoutes')}</span><strong>{displayNumber(gateway.tcp_routes, 0)}</strong></div><div><span>{t('gateway.certificates')}</span><strong>{(gateway.certificates || []).length}</strong><small>{t('gateway.expiring', { count: expiring })}</small></div></div><StatusElement type={issues.length ? 'button' : undefined} className={`${styles.gatewayStatus} ${issues.length ? styles.gatewayWarning : ''}`} onClick={issues.length ? () => this.setState({ gatewayModalVisible: true }) : undefined}><Tooltip title={<span>{t('gateway.description')}<br />{t('gateway.healthyDescription')}</span>}><Icon type={issues.length ? 'warning' : 'info-circle'} tabIndex={0} aria-label={t('gateway.healthyDescription')} /></Tooltip><span><strong>{issues.length ? t('gateway.hasIssues', { count: issues.length }) : t((gateway.certificates || []).length ? 'gateway.healthy' : 'gateway.noBoundCertificates')}</strong>{issues.length ? <small>{t('gateway.issueDescription')}</small> : null}</span>{issues.length ? <Icon type="right" /> : null}</StatusElement></React.Fragment> : gatewaySection.status === 'loading' ? (!errors.cluster ? <Skeleton active paragraph={{ rows: 3 }} /> : null) : <Alert type="warning" showIcon message={t('gateway.unavailable')} />}
+      </OverviewModule>
+    );
+  }
+
+  renderModals() {
+    const enterprise = this.props.enterprise || {};
+    const rainbondInfo = this.props.rainbondInfo || {};
+    const { runtime } = this.props.overview;
+    const snapshot = this.getCurrentSnapshot();
+    const gateway = overviewData.sectionData(snapshot, 'gateway') || {};
+    const plugins = overviewData.sectionData(snapshot, 'plugins');
+    const appItems = (((runtime && runtime.global) || {}).application_alarms || {}).items || [];
+    const platform = { name: enterprise.enterprise_alias || enterprise.enterprise_name || 'Rainbond', version: overviewData.compactVersion(rainbondInfo.version && rainbondInfo.version.value), createdAt: enterprise.create_time, enterpriseId: this.getEnterpriseId() };
+    const runtimeSummary = overviewData.platformClusterSummary(runtime, this.props.overview.errors.runtime);
+    const licenseSummary = overviewData.platformLicenseSummary(this.state.license, this.state.licenseStatus);
+    const labels = { basicInfo: t('modal.basicInfo'), close: t('modal.close'), authorizationCode: t('modal.authorizationCode'), newAuthorizationCode: t('modal.newAuthorizationCode'), secureUpdate: t('modal.secureUpdate'), authorizationPrivate: t('modal.authorizationPrivate'), licenseDetailsUnavailable: t('modal.licenseDetailsUnavailable'), pluginAuthorizationUnknown: t('modal.pluginAuthorizationUnknown'), nodeLimit: t('modal.nodeLimit'), pluginCount: count => t('modal.pluginCount', { count }), name: t('modal.name'), version: t('modal.version'), createdAt: t('modal.createdAt'), enterpriseId: t('modal.enterpriseId'), license: t('modal.license'), updateLicense: t('modal.updateLicenseCode'), authorizationPlaceholder: t('modal.authorizationPlaceholder'), authorizationRequired: t('modal.authorizationRequired'), save: t('modal.save'), cancel: t('modal.cancel'), licenseUnavailable: t('modal.licenseUnavailable'), company: t('modal.company'), expireAt: t('modal.expireAt'), clusterLimit: t('modal.clusterLimit'), unlimited: t('modal.unlimited'), notApplicable: t('modal.notApplicable'), validLicense: t('modal.validLicense'), invalidLicense: t('modal.invalidLicense'), invalidReasonUnknown: t('modal.invalidReasonUnknown'), allowedPlugins: t('modal.allowedPlugins'), noPlugins: t('modal.noPlugins'), noLicense: t('modal.noLicense') };
+    return (
+      <React.Fragment>
+        <Modal visible={Boolean(this.state.pluginModalRegion && this.state.pluginModalRegion === this.state.selectedRegion)} title={t('services.plugins')} footer={null} width={680} destroyOnClose onCancel={() => this.setState({ pluginModalRegion: null })}>
+          {plugins ? this.renderPluginList(overviewData.pluginPresentation(plugins).ordered, true) : <Alert type="warning" showIcon message={t('services.pluginsUnavailable')} />}
+        </Modal>
+        <PlatformInfoModal visible={this.state.platformModalVisible} onCancel={() => this.setState({ platformModalVisible: false })} onUpdateLicense={this.handleUpdateLicense} title={t('modal.platformInfo')} labels={labels} platform={platform} runtimeSummary={{ ...runtimeSummary, label: t(runtimeSummary.labelId, runtimeSummary.values) }} licenseLabel={t(licenseSummary.labelId)} license={this.state.license} requestStatus={this.state.licenseStatus} requestError={this.state.licenseStatusReason} updating={this.state.licenseUpdating} />
+        <IssueModal visible={this.state.applicationModalVisible} onCancel={() => this.setState({ applicationModalVisible: false })} title={t('issues.appTitle')} labels={{ open: t('issues.openComponent') }} onOpen={this.jumpApplicationIssue} items={appItems.map(item => ({ ...item, key: item.service_id, severity: 'critical', title: item.service_alias || item.service_name, description: t('issues.componentAbnormal'), owner: `${item.tenant_alias || item.tenant_name || '-'} / ${item.application_name || '-'} / ${item.region_name}` }))} />
+        <IssueModal visible={this.state.gatewayModalVisible} onCancel={() => this.setState({ gatewayModalVisible: false })} title={t('issues.gatewayTitle')} labels={{ open: t('issues.openApplication') }} onOpen={this.jumpGatewayIssue} items={(gateway.issues || []).map((item, index) => ({ ...item, key: `${item.domain}-${index}`, title: item.domain, description: item.expires_at ? t('issues.certificateExpires', { date: moment(item.expires_at).format('YYYY-MM-DD') }) : t('issues.certificateUnknown'), owner: `${item.tenant_name || '-'} / ${item.service_alias || item.service_name || '-'}` }))} />
+      </React.Fragment>
+    );
+  }
+
+  render() {
+    const { shell, loading, errors } = this.props.overview;
+    const gatewayHidden = overviewData.sectionStatus(this.getCurrentSnapshot(), 'gateway') === 'empty';
+    return (
+      <main className={styles.page}>
+        {this.renderPlatformHeader()}
+        {errors.shell && !shell ? <div className={styles.shellError}><Alert type="error" showIcon message={t('shell.failed')} /><Button onClick={this.loadPlatformData}>{t('common.retry')}</Button></div> : null}
+        {loading.shell && !shell ? <div className={styles.pageSkeleton}><Skeleton active paragraph={{ rows: 8 }} /></div> : null}
+        {shell ? (
+          <React.Fragment>
+            {this.renderGlobalPosture()}
+            {this.renderScopeSelector()}
+            {this.state.selectedRegion ? <React.Fragment>{this.renderClusterOverview()}<div className={styles.primaryGrid}>{this.renderMonitoring()}{this.renderServices()}</div><div className={`${styles.secondaryGrid} ${gatewayHidden ? styles.singleModule : ''}`}>{this.renderTeamRanking()}{this.renderGateway()}</div></React.Fragment> : <Empty description={t('scope.empty')} />}
+          </React.Fragment>
+        ) : null}
+        {this.renderModals()}
+      </main>
     );
   }
 }

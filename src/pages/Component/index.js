@@ -79,6 +79,11 @@ const {
   markComponentGuideHandled,
   suppressAgentGuidesForLogin,
 } = require('../../utils/agentGuideSession');
+const {
+  getComponentPollingDelay,
+  isUnavailableComponentStatus,
+  createComponentPollingGuard
+} = require('./componentPolling');
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -304,6 +309,7 @@ class Main extends PureComponent {
       isShowThirdParty: false,
       promptModal: null,
       componentTimer: true,
+      pageVisible: typeof document === 'undefined' || !document.hidden,
       tabsShow: false,
       routerSwitch: true,
       deploySubmitting: false,
@@ -312,6 +318,12 @@ class Main extends PureComponent {
     };
     this.deployRequestPending = false;
     this.destroy = false;
+    this.statusPollFailures = 0;
+    this.pollingEnabled = this.state.pageVisible;
+    this.pollingGuard = createComponentPollingGuard(
+      () => this.mounted && !this.destroy && this.pollingEnabled,
+      () => this.getPollingIdentity()
+    );
   }
 
   getChildContext() {
@@ -325,12 +337,30 @@ class Main extends PureComponent {
     };
   }
   componentDidMount() {
+    this.mounted = true;
+    this.pollingIdentity = this.getPollingIdentity();
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', this.handleVisibilityChange);
+    }
     this.loadDetail();
-    setTimeout(() => {
-      this.getStatus(true);
-    }, 5000);
+    this.handleTimers('timer', () => this.getStatus(true), 5000);
+  }
+  componentDidUpdate() {
+    const identity = this.getPollingIdentity();
+    if (identity !== this.pollingIdentity) {
+      this.pollingIdentity = identity;
+      this.pollingGuard.invalidate();
+      this.closeTimer();
+      this.statusPollFailures = 0;
+      this.loadDetail();
+    }
   }
   componentWillUnmount() {
+    this.destroy = true;
+    this.mounted = false;
+    if (typeof document !== 'undefined') {
+      document.removeEventListener('visibilitychange', this.handleVisibilityChange);
+    }
     this.closeComponentTimer();
     this.props.dispatch({ type: 'appControl/clearPods' });
     this.props.dispatch({ type: 'appControl/clearDetail' });
@@ -355,12 +385,16 @@ class Main extends PureComponent {
 
   getStatus = isCycle => {
     const { dispatch } = this.props;
-    const { componentTimer } = this.state;
+    const { componentTimer, pageVisible } = this.state;
     const { team_name, app_alias } = this.fetchParameter();
 
-    if (!app_alias) {
+    if (!app_alias || !componentTimer || !pageVisible) {
       return;
     }
+    const request = this.pollingGuard.begin('status');
+    if (!request) return;
+    const shouldCycle = isCycle || componentTimer;
+    this.closeTimer();
 
     dispatch({
       type: 'appControl/fetchComponentState',
@@ -369,29 +403,37 @@ class Main extends PureComponent {
         app_alias
       },
       callback: res => {
+        if (!request.complete()) return;
         if (res && res.status_code === 200) {
+          this.statusPollFailures = isUnavailableComponentStatus(res.bean && res.bean.status)
+            ? this.statusPollFailures + 1 : 0;
           this.setState({ status: res.bean }, () => {
-            if (isCycle && componentTimer) {
+            if (shouldCycle && request.isCurrent()) {
               this.handleTimers(
                 'timer',
                 () => {
                   this.getStatus(true);
                 },
-                5000
+                getComponentPollingDelay({
+                  status: res.bean && res.bean.status,
+                  failureCount: this.statusPollFailures
+                })
               );
             }
           });
         }
       },
       handleError: err => {
+        if (!request.complete()) return;
+        this.statusPollFailures += 1;
         this.handleError(err);
-        if (isCycle && componentTimer && err.status !== 404) {
+        if (shouldCycle && err.status !== 404) {
           this.handleTimers(
             'timer',
             () => {
               this.getStatus(true);
             },
-            10000
+            getComponentPollingDelay({ failureCount: this.statusPollFailures })
           );
         }
       }
@@ -445,13 +487,35 @@ class Main extends PureComponent {
     return null;
   };
   handleTimers = (timerName, callback, times) => {
-    const { componentTimer } = this.state;
-    if (!componentTimer) {
+    if (!this.mounted || !this.pollingEnabled) {
       return null;
     }
+    if (this[timerName]) {
+      clearTimeout(this[timerName]);
+    }
+    const isCurrent = this.pollingGuard.checkpoint();
     this[timerName] = setTimeout(() => {
-      callback();
+      this[timerName] = null;
+      if (isCurrent()) callback();
     }, times);
+  };
+
+  handleVisibilityChange = () => {
+    const pageVisible = !document.hidden;
+    this.pollingEnabled = pageVisible && this.state.componentTimer;
+    this.pollingGuard.invalidate();
+    this.closeTimer();
+    this.setState({ pageVisible }, () => {
+      if (pageVisible && this.state.componentTimer) {
+        this.statusPollFailures = 0;
+        this.getStatus(true);
+      }
+    });
+  };
+
+  getPollingIdentity = () => {
+    const { team_name, app_alias } = this.fetchParameter();
+    return JSON.stringify([team_name, globalUtil.getCurrRegionName(), app_alias]);
   };
 
   handleTabChange = key => {
@@ -515,7 +579,8 @@ class Main extends PureComponent {
 
   closeTimer = () => {
     if (this.timer) {
-      clearInterval(this.timer);
+      clearTimeout(this.timer);
+      this.timer = null;
     }
   };
 
@@ -826,12 +891,19 @@ class Main extends PureComponent {
     }
   };
   closeComponentTimer = () => {
-    this.setState({ componentTimer: false });
+    this.pollingEnabled = false;
+    this.pollingGuard.invalidate();
+    if (!this.destroy) this.setState({ componentTimer: false });
     this.closeTimer();
   };
   openComponentTimer = () => {
+    this.pollingGuard.invalidate();
+    this.statusPollFailures = 0;
+    this.pollingEnabled = this.state.pageVisible;
     this.setState({ componentTimer: true }, () => {
-      this.getStatus(true);
+      if (this.state.pageVisible) {
+        this.getStatus(true);
+      }
     });
   };
 
@@ -1287,6 +1359,7 @@ class Main extends PureComponent {
     const {
       BuildList,
       componentTimer,
+      pageVisible,
       isShowThirdParty,
       status,
       promptModal,
@@ -1316,6 +1389,7 @@ class Main extends PureComponent {
       deploySubmitting,
     } = this.state;
     const { getFieldDecorator } = form;
+    const pollingEnabled = componentTimer && pageVisible;
     const method = appDetail && appDetail.service && appDetail.service.extend_method
     const CompluginList = getVisibleComponentPlugins(
       PluginUtile.segregatePluginsByHierarchy(pluginList, 'Component'),
@@ -1347,7 +1421,8 @@ class Main extends PureComponent {
     } = this.fetchParameter();
     const visitBtns = (
       <VisitBtn
-        timers={componentTimer}
+        pollingEnabled={pollingEnabled}
+        timers={pollingEnabled}
         btntype="primary"
         app_alias={appAlias}
       />
@@ -1832,11 +1907,12 @@ class Main extends PureComponent {
               groupDetail={groupDetail}
               // appPermissions={appPermissions}
               componentPermissions={componentPermissions}
-              timers={componentTimer}
               status={status}
               ref={this.saveRef}
               {...this.props.match.params}
               {...this.props}
+              pollingEnabled={pollingEnabled}
+              timers={pollingEnabled}
               onshowDeployTips={msg => {
                 this.handleshowDeployTips(msg);
               }}

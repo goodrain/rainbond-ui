@@ -107,16 +107,16 @@ export default {
             if (callback) callback(response);
         },
 
-        *getClusterDetail({ payload, callback, handleError }, { call, put }) {
+        *getClusterDetail({ payload, callback, handleError, shouldApply }, { call, put }) {
             const response = yield call(getClusterDetail, payload, handleError);
-            if (response && response.status_code === 200) {
+            if (response && response.status_code === 200 && (!shouldApply || shouldApply())) {
                 // 保存集群详情信息
                 yield put({
                     type: 'saveClusterDetail',
                     payload: response.bean || null
                 });
             }
-            if (callback) {
+            if (callback && (!shouldApply || shouldApply())) {
                 callback(response);
             }
         },

@@ -175,63 +175,39 @@ class UserLayout extends React.PureComponent {
       return null;
     }
     const loginSlogan = rainbondInfo && rainbondInfo.login_slogan && rainbondInfo.login_slogan.value || '';
-    const loginTitle = rainbondInfo && rainbondInfo.login_title && rainbondInfo.login_title.value || '';
     const serviceAgreementUrl = rainbondInfo && rainbondInfo.service_agreement_url && rainbondInfo.service_agreement_url.value || '';
     const privacyPolicyUrl = rainbondInfo && rainbondInfo.privacy_policy_url && rainbondInfo.privacy_policy_url.value || '';
     return (
       <div style={{ height:'100%' }}>
         {isSaas ? (
           <div className={styles.saasContainer}>
-
-            <div className={styles.saasLeft}>
-              <div className={styles.saasLeftContent}>
-                <div className={styles.introSection}>
-                  <p className={styles.subTitle}><FormattedMessage id="layout.userLayout.saas.subtitle" defaultMessage="无门槛免费试用，一键部署任意应用" /></p>
+            <div className={styles.normalLeft}>
+              <div className={styles.normalLeftContent}>
+                <div className={styles.logoSection}>
+                  <span className={styles.logoText}>{titleValue}</span>
                 </div>
-                <div className={styles.featureList}>
-                  <div className={styles.featureItem}>
-                    <div className={styles.iconWrapper}>
-                      {globalUtil.fetchSvg('loginCloud1')}
-                    </div>
-                    <div className={styles.featureContent}>
-                      <h3><FormattedMessage id="layout.userLayout.saas.feature1.title" defaultMessage="高可用性" /></h3>
-                      <p><FormattedMessage id="layout.userLayout.saas.feature1.desc" defaultMessage="SLA 99.95% 可用性承诺，技术支持" /></p>
-                    </div>
+                <div className={styles.mainSection}>
+                  <div className={styles.titleSection}>
+                    {loginTitleValue ? (
+                      <h1>{loginTitleValue}</h1>
+                    ) : (
+                      <>
+                        <h1><FormattedMessage id="layout.userLayout.normal.title1" defaultMessage="无需学习 Kubernetes" /></h1>
+                        <h1><FormattedMessage id="layout.userLayout.normal.title2" defaultMessage="的容器平台" /></h1>
+                      </>
+                    )}
                   </div>
-                  <div className={styles.featureItem}>
-                    <div className={styles.iconWrapper}>
-                      {globalUtil.fetchSvg('loginCloud2')}
-                    </div>
-                    <div className={styles.featureContent}>
-                      <h3><FormattedMessage id="layout.userLayout.saas.feature2.title" defaultMessage="按需计费" /></h3>
-                      <p><FormattedMessage id="layout.userLayout.saas.feature2.desc" defaultMessage="业务实际使用量，分钟级按需付费" /></p>
-                    </div>
-                  </div>
-                  <div className={styles.featureItem}>
-                    <div className={styles.iconWrapper}>
-                      {globalUtil.fetchSvg('loginCloud3')}
-                    </div>
-                    <div className={styles.featureContent}>
-                      <h3><FormattedMessage id="layout.userLayout.saas.feature3.title" defaultMessage="开箱即用" /></h3>
-                      <p><FormattedMessage id="layout.userLayout.saas.feature3.desc" defaultMessage="整合资源，无需运维，专注业务开发" /></p>
-                    </div>
-                  </div>
-                  <div className={styles.featureItem}>
-                    <div className={styles.iconWrapper}>
-                      {globalUtil.fetchSvg('loginCloud4')}
-                    </div>
-                    <div className={styles.featureContent}>
-                      <h3><FormattedMessage id="layout.userLayout.saas.feature4.title" defaultMessage="应用市场" /></h3>
-                      <p><FormattedMessage id="layout.userLayout.saas.feature4.desc" defaultMessage="上百款应用即点即用，涵盖AI、博客、低代码等类型" /></p>
-                    </div>
-                  </div>
+                  <p className={styles.description}>
+                    {loginSloganValue || <FormattedMessage id="layout.userLayout.normal.description" defaultMessage="在 Kubernetes 上构建、部署、组装和管理应用，无需 K8s 专业知识，全流程图形化管理" />}
+                  </p>
+                </div>
+                <div className={styles.companyInfo}>
+                  {footerValue || <FormattedMessage id="layout.userLayout.normal.companyInfo" defaultMessage="北京好雨科技有限公司出品" />}
                 </div>
               </div>
             </div>
             <div className={styles.saasRight}>
               <div className={styles.saasLoginBox}>
-                <h2>{loginTitle || 'Rainbond Cloud'}</h2>
-                <p><FormattedMessage id="layout.userLayout.saas.welcomeText" defaultMessage="开启平台之旅" /></p>
                 <div className={styles.loginForm}>
                   {children}
                 </div>

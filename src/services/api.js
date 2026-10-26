@@ -3,6 +3,7 @@ import apiconfig from '../../config/api.config';
 import request from '../utils/request';
 import app from '@/locales/en-US/app';
 import { getTeamRegionOverview as getSharedTeamRegionOverview } from './team';
+import { isSuccessfulPluginResponse, notifyEnterprisePluginsChanged } from '../utils/pluginInitialization';
 
 // fetch Permissions
 export async function getPermissions(body) {
@@ -439,8 +440,10 @@ export async function authEnterprise(body = {}, handleError) {
 }
 
 /* 获取当前团队的企业ID */
-export async function getTeamOverview(body = {}, handleError) {
-  return getSharedTeamRegionOverview(body, handleError);
+export async function getTeamOverview(body = {}, handleError, options) {
+  return options
+    ? getSharedTeamRegionOverview(body, handleError, options)
+    : getSharedTeamRegionOverview(body, handleError);
 }
 
 /* 创建升级任务 */
@@ -1140,6 +1143,66 @@ export async function fetchOverviewMonitor(param) {
   );
 }
 
+/* 平台总览：数据库快速摘要 */
+export async function fetchPlatformOverviewShell(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterpriseId}/platform-overview`,
+    {
+      method: 'get',
+      showLoading: false,
+      showMessage: false,
+      noModels: true
+    }
+  );
+}
+
+/* 平台总览：多集群运行态 */
+export async function fetchPlatformOverviewRuntime(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterpriseId}/platform-overview/runtime`,
+    {
+      method: 'get',
+      showLoading: false,
+      showMessage: false,
+      noModels: true
+    }
+  );
+}
+
+/* 平台总览：当前集群快照 */
+export async function fetchPlatformClusterOverview(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterpriseId}/regions/${encodeURIComponent(
+      body.regionName
+    )}/platform-overview`,
+    {
+      method: 'get',
+      showLoading: false,
+      showMessage: false,
+      noModels: true
+    }
+  );
+}
+
+/* 平台总览：服务端白名单监控趋势 */
+export async function fetchPlatformOverviewMetrics(body = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/enterprise/${body.enterpriseId}/regions/${encodeURIComponent(
+      body.regionName
+    )}/platform-overview/metrics`,
+    {
+      method: 'get',
+      params: {
+        metric: body.metric,
+        range: body.range
+      },
+      showLoading: false,
+      showMessage: false,
+      noModels: true
+    }
+  );
+}
+
 /* 设置注册功能 */
 export async function setRegist(body = {}) {
   return request(`${apiconfig.baseUrl}/console/enterprise/registerstatus`, {
@@ -1529,13 +1592,19 @@ export async function getPluginList(body, handleError) {
 }
 // 安装插件
 export async function installPlugin(body, handleError) {
-  return request(
+  const enterpriseId = body.enterprise_id;
+  const regionName = body.region_name;
+  const response = await request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/regions/${body.region_name}/platform-plugins/${body.plugin_id}/install`,
     {
       method: 'post',
       handleError
     }
   );
+  if (response && response.status_code === 200 && isSuccessfulPluginResponse(response, false)) {
+    notifyEnterprisePluginsChanged({ enterpriseId, regionName });
+  }
+  return response;
 }
 // 获取能力列表
 export async function getAbilitiesList(body) {

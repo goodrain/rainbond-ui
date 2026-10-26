@@ -76,18 +76,44 @@ export default class app extends Component {
     this.statusRequestInFlight = false;
     this.operatorRequestInFlight = false;
     this.componentMounted = false;
+    this.detailReadGeneration = 0;
+    this.statusReadGeneration = 0;
+    this.operatorReadGeneration = 0;
+    this.detailReadyIdentity = '';
+    this.initializedReadIdentity = '';
   }
   componentDidMount() {
     if (!globalUtil.getAppID()) {
       return;
     }
     this.componentMounted = true;
-    this.loading();
-    this.handleWaitLevel();
-    this.loadStorageUsageIfNeeded(this.props.pluginsList);
+    this.headerReadIdentity = JSON.stringify(this.getApplicationReadSnapshot());
+    this.loading(false);
+    if (!this.props.initialDetailLoader) {
+      this.handleWaitLevel();
+      this.loadStorageUsageIfNeeded(this.props.pluginsList);
+    }
     document.addEventListener('visibilitychange', this.handleVisibilityChange);
   }
   componentDidUpdate(prevProps) {
+    const identity = JSON.stringify(this.getApplicationReadSnapshot());
+    if (this.headerReadIdentity !== identity) {
+      this.headerReadIdentity = identity;
+      this.closeTimer();
+      this.statusReadGeneration += 1;
+      this.operatorReadGeneration += 1;
+      this.statusRequestInFlight = false;
+      this.operatorRequestInFlight = false;
+      this.detailReadyIdentity = '';
+      this.initializedReadIdentity = '';
+      this.storageUsageRequested = false;
+      if (this.props.initialDetailLoader) this.loading(false);
+      else {
+        this.loading(false);
+        this.handleWaitLevel();
+        this.loadStorageUsageIfNeeded(this.props.pluginsList);
+      }
+    }
     if (prevProps.permissions !== this.props.permissions) {
       this.setState({
         permissions: this.props.permissions,
@@ -100,26 +126,75 @@ export default class app extends Component {
       this.syncComponentSummary(this.getComponents());
     }
   }
-  loading = () => {
-    this.fetchAppDetail();
+  loading = (force = true) => {
+    if (this.props.initialDetailLoader) {
+      return this.fetchAppDetail(force, this.startApplicationReads);
+    }
+    this.fetchAppDetail(force);
     this.syncComponentSummary(this.getComponents());
     this.fetchAppDetailState(true);
     this.getOperator(true);
   };
   componentWillUnmount() {
     this.componentMounted = false;
+    this.detailReadGeneration += 1;
+    this.statusReadGeneration += 1;
+    this.operatorReadGeneration += 1;
     this.closeTimer();
     document.removeEventListener('visibilitychange', this.handleVisibilityChange);
   };
+  getApplicationReadSnapshot = () => {
+    const route = this.props.applicationRoute;
+    return {
+      team: route ? route.teamName : globalUtil.getCurrTeamName(),
+      region: route ? route.regionName : globalUtil.getCurrRegionName(),
+      id: String(route ? route.appID : globalUtil.getAppID()),
+      scope: this.props.initialDetailScope,
+      ...(this.props.initialDetailLoader && route && route.pathname
+        ? { pathname: route.pathname, refresh: route.refresh || '' } : {})
+    };
+  };
+  isApplicationReadCurrent = (snapshot, requireDetail = true) => {
+    const current = this.getApplicationReadSnapshot();
+    let isRouteCurrent = true;
+    if (snapshot.pathname) {
+      const liveRoute = (window.location.hash || `${window.location.pathname}${window.location.search}`).replace(/^#/, '');
+      const liveRefresh = liveRoute.match(/(?:^|[?&])refresh=([^&]+)/);
+      // Native popstate can remount this Header before Router/context props catch up.
+      isRouteCurrent = snapshot.pathname === current.pathname && snapshot.refresh === current.refresh &&
+        snapshot.pathname === liveRoute.split('?')[0] && snapshot.refresh === (liveRefresh ? liveRefresh[1] : '');
+    }
+    return this.componentMounted && snapshot.team === current.team && snapshot.region === current.region &&
+      snapshot.id === current.id && snapshot.scope === current.scope && isRouteCurrent &&
+      snapshot.team === globalUtil.getCurrTeamName() && snapshot.region === globalUtil.getCurrRegionName() &&
+      snapshot.id === String(globalUtil.getAppID()) &&
+      (!this.props.initialDetailLoader || (Boolean(snapshot.scope) &&
+        (!requireDetail || this.detailReadyIdentity === JSON.stringify(snapshot))));
+  };
+  startApplicationReads = () => {
+    const snapshot = this.getApplicationReadSnapshot();
+    if (!this.isApplicationReadCurrent(snapshot)) return;
+    const identity = JSON.stringify(snapshot);
+    const first = this.initializedReadIdentity !== identity;
+    this.initializedReadIdentity = identity;
+    this.syncComponentSummary(this.getComponents());
+    this.fetchAppDetailState(true);
+    this.getOperator(true);
+    if (first) this.handleWaitLevel();
+    this.loadStorageUsageIfNeeded(this.props.pluginsList);
+  };
   handleWaitLevel = () => {
+    const snapshot = this.getApplicationReadSnapshot();
+    if (!this.isApplicationReadCurrent(snapshot)) return;
     const { dispatch } = this.props;
     dispatch({
       type: 'application/fetchToupgrade',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        group_id: globalUtil.getAppID()
+        team_name: snapshot.team,
+        group_id: snapshot.id
       },
       callback: res => {
+        if (!this.isApplicationReadCurrent(snapshot)) return;
         const info = (res && res.bean) || {};
         this.setState({
           upgradableNumLoading: false,
@@ -137,29 +212,44 @@ export default class app extends Component {
         group_id: globalUtil.getAppID()
       },
       callback: res => {
+        if (!this.componentMounted) return;
         this.setState({
           resourceList: res.bean
         })
       }
     })
   }
-  fetchAppDetail = () => {
-    const { dispatch } = this.props;
-    dispatch({
+  fetchAppDetail = (force = true, onReady) => {
+    const { dispatch, initialDetailLoader } = this.props;
+    const snapshot = this.getApplicationReadSnapshot();
+    const generation = ++this.detailReadGeneration;
+    const isCurrent = () => generation === this.detailReadGeneration && this.isApplicationReadCurrent(snapshot, false);
+    if (!isCurrent()) return;
+    return dispatch({
       type: 'application/fetchGroupDetail',
+      initialDetailLoader,
+      forceDetail: Boolean(force),
+      shouldApply: isCurrent,
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        region_name: globalUtil.getCurrRegionName(),
-        group_id: globalUtil.getAppID()
+        team_name: snapshot.team,
+        region_name: snapshot.region,
+        group_id: snapshot.id
       },
       callback: res => {
+        if (!isCurrent()) return;
         if (res && res.status_code === 200) {
+          this.detailReadyIdentity = JSON.stringify(snapshot);
           this.setState({
             currApp: res.bean
           });
+          if (isCurrent()) {
+            if (typeof onReady === 'function') onReady();
+            else if (initialDetailLoader && this.initializedReadIdentity !== this.detailReadyIdentity) this.startApplicationReads();
+          }
         }
       },
       handleError: res => {
+        if (!isCurrent()) return;
         const { componentTimer } = this.state;
         if (!componentTimer) {
           return null;
@@ -175,20 +265,23 @@ export default class app extends Component {
     });
   };
   fetchAppDetailState = (isCycle = false) => {
-    if (this.statusRequestInFlight) {
+    const snapshot = this.getApplicationReadSnapshot();
+    if (!this.isApplicationReadCurrent(snapshot) || this.statusRequestInFlight) {
       return;
     }
+    const generation = ++this.statusReadGeneration;
     this.statusRequestInFlight = true;
     const { dispatch } = this.props;
     dispatch({
       type: 'application/fetchAppDetailState',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        group_id: globalUtil.getAppID()
+        team_name: snapshot.team,
+        group_id: snapshot.id
       },
       callback: res => {
+        if (generation !== this.statusReadGeneration) return;
         this.statusRequestInFlight = false;
-        if (!this.componentMounted) {
+        if (!this.isApplicationReadCurrent(snapshot)) {
           return;
         }
         this.setState({
@@ -200,8 +293,9 @@ export default class app extends Component {
         }
       },
       handleError: err => {
+        if (generation !== this.statusReadGeneration) return;
         this.statusRequestInFlight = false;
-        if (!this.componentMounted) {
+        if (!this.isApplicationReadCurrent(snapshot)) {
           return;
         }
         this.handleError(err);
@@ -215,7 +309,7 @@ export default class app extends Component {
     if (this.statusTimer) {
       clearTimeout(this.statusTimer);
     }
-    if (!this.componentMounted || !this.state.componentTimer) {
+    if (!this.isApplicationReadCurrent(this.getApplicationReadSnapshot()) || !this.state.componentTimer) {
       return;
     }
     this.statusTimer = setTimeout(() => {
@@ -227,7 +321,7 @@ export default class app extends Component {
     }, delay);
   };
   handleVisibilityChange = () => {
-    if (!this.componentMounted || !this.state.componentTimer) {
+    if (!this.isApplicationReadCurrent(this.getApplicationReadSnapshot()) || !this.state.componentTimer) {
       return;
     }
     if (document.hidden) {
@@ -243,20 +337,23 @@ export default class app extends Component {
     this.getOperator(true);
   };
   getOperator = (isCycle = false) => {
-    if (this.operatorRequestInFlight) {
+    const snapshot = this.getApplicationReadSnapshot();
+    if (!this.isApplicationReadCurrent(snapshot) || this.operatorRequestInFlight) {
       return;
     }
+    const generation = ++this.operatorReadGeneration;
     this.operatorRequestInFlight = true;
     const { dispatch } = this.props;
     dispatch({
       type: 'application/getOperator',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        group_id: globalUtil.getAppID(),
+        team_name: snapshot.team,
+        group_id: snapshot.id,
       },
       callback: data => {
+        if (generation !== this.operatorReadGeneration) return;
         this.operatorRequestInFlight = false;
-        if (!this.componentMounted) {
+        if (!this.isApplicationReadCurrent(snapshot)) {
           return;
         }
         if (data && data.status_code == 200) {
@@ -267,19 +364,22 @@ export default class app extends Component {
                 dispatch({
                   type: 'createApp/createThirdPartyServices',
                   payload: {
-                    team_name: globalUtil.getCurrTeamName(),
-                    group_id: globalUtil.getAppID(),
+                    team_name: snapshot.team,
+                    region_name: snapshot.region,
+                    group_id: snapshot.id,
                     service_cname: item.name,
                     endpoints_type: "static",
                     k8s_component_name: item.name,
                     static: item.address
                   },
                   callback: res => {
+                    // This command already started while current; finish in its captured region.
                     if (res && res.status_code == 200) {
                       const appAlias = res.bean.service_alias;
                       if (appAlias.length > 0) {
                         buildApp({
-                          team_name: globalUtil.getCurrTeamName(),
+                          team_name: snapshot.team,
+                          region_name: snapshot.region,
                           app_alias: appAlias,
                           is_deploy: true,
                         })
@@ -291,8 +391,9 @@ export default class app extends Component {
                 dispatch({
                   type: 'createApp/createThirdPartyServices',
                   payload: {
-                    team_name: globalUtil.getCurrTeamName(),
-                    group_id: globalUtil.getAppID(),
+                    team_name: snapshot.team,
+                    region_name: snapshot.region,
+                    group_id: snapshot.id,
                     service_cname: item.name,
                     endpoints_type: "kubernetes",
                     k8s_component_name: item.name,
@@ -300,11 +401,13 @@ export default class app extends Component {
                     serviceName: item.service,
                   },
                   callback: res => {
+                    // UI departure must not truncate a create -> build command.
                     if (res && res.status_code == 200) {
                       const appAlias = res.bean.service_alias;
                       if (appAlias) {
                         buildApp({
-                          team_name: globalUtil.getCurrTeamName(),
+                          team_name: snapshot.team,
+                          region_name: snapshot.region,
                           app_alias: appAlias,
                           is_deploy: true,
                         })
@@ -321,8 +424,9 @@ export default class app extends Component {
         }
       },
       handleError: err => {
+        if (generation !== this.operatorReadGeneration) return;
         this.operatorRequestInFlight = false;
-        if (!this.componentMounted) {
+        if (!this.isApplicationReadCurrent(snapshot)) {
           return;
         }
         this.handleError(err);
@@ -336,7 +440,7 @@ export default class app extends Component {
     if (this.operatorTimer) {
       clearTimeout(this.operatorTimer);
     }
-    if (!this.componentMounted || !this.state.componentTimer) {
+    if (!this.isApplicationReadCurrent(this.getApplicationReadSnapshot()) || !this.state.componentTimer) {
       return;
     }
     this.operatorTimer = setTimeout(() => {
@@ -349,7 +453,8 @@ export default class app extends Component {
   };
   // 获取存储实际占用
   loadStorageUsageIfNeeded = pluginsList => {
-    if (this.storageUsageRequested || !shouldLoadStorageUsage(pluginsList)) {
+    if (!this.isApplicationReadCurrent(this.getApplicationReadSnapshot()) ||
+        this.storageUsageRequested || !shouldLoadStorageUsage(pluginsList)) {
       return;
     }
     this.storageUsageRequested = true;
@@ -357,14 +462,17 @@ export default class app extends Component {
   };
 
   getStorageUsed = () => {
+    const snapshot = this.getApplicationReadSnapshot();
+    if (!this.isApplicationReadCurrent(snapshot)) return;
     const { dispatch } = this.props;
     dispatch({
       type: 'global/fetchStorageUsed',
       payload: {
-        app_id: globalUtil.getAppID(),
-        region_name: globalUtil.getCurrRegionName(),
+        app_id: snapshot.id,
+        region_name: snapshot.region,
       },
       callback: res => {
+        if (!this.isApplicationReadCurrent(snapshot)) return;
         if (res) {
           this.setState({
             storageUsed: res.bean.used_storage
@@ -375,6 +483,7 @@ export default class app extends Component {
   }
   getComponents = () => this.props.apps || this.props.storeApps || [];
   syncComponentSummary = (apps = []) => {
+    if (!this.isApplicationReadCurrent(this.getApplicationReadSnapshot())) return;
     const components = apps || [];
     const serviceIds = components
       .map(component => component && component.service_id)
@@ -395,14 +504,17 @@ export default class app extends Component {
     }
   };
   loadLinks(serviceAlias) {
+    const snapshot = this.getApplicationReadSnapshot();
+    if (!this.isApplicationReadCurrent(snapshot)) return;
     const { dispatch } = this.props;
     dispatch({
       type: 'global/queryLinks',
       payload: {
         service_alias: serviceAlias,
-        team_name: globalUtil.getCurrTeamName()
+        team_name: snapshot.team
       },
       callback: res => {
+        if (!this.isApplicationReadCurrent(snapshot)) return;
         if (res && res.status_code === 200) {
           this.setState({
             linkList: res.list || []
@@ -410,6 +522,7 @@ export default class app extends Component {
         }
       },
       handleError: err => {
+        if (!this.isApplicationReadCurrent(snapshot)) return;
         this.handleError(err);
       }
     });

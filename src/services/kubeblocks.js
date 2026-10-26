@@ -124,7 +124,8 @@ export async function getClusterDetail(params, handleError) {
         `${apiconfig.baseUrl}/console/teams/${params.team_name}/apps/${params.service_alias}/kubeblocks/detail`,
         {
             method: 'get',
-            handleError
+            handleError,
+            ...(params.polling ? { params: { polling: 'true' }, timeout: 12000 } : {})
         }
     );
 }

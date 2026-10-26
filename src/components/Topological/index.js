@@ -39,6 +39,15 @@ import {
 import styles from './index.less'
 
 const { buildTopologyWebConsolePath } = require('./topologyRouteHelpers');
+const { topologyScope, subscribeTopologyRefresh, postTopologyRefresh } = require('../../utils/topologyRefresh');
+
+const frameCallbackNames = [
+  'iframeGetNodeUrl', 'iframeGetTopologyScope', 'iframeGetMonitor', 'getServiceAlias',
+  'clickBackground', 'clickNode', 'iframeGetTenantName', 'iframeGetRegion', 'iframeGetGroupId',
+  'handleClickService', 'handleClickRelation', 'handleClickTerminal', 'handleClickBuild',
+  'handleClickUpdate', 'handleClickCloses', 'handleClickStart', 'handleClickDelete',
+  'onEdgeCreated', 'onEdgeDeleted'
+];
 
 const getDefaultDependencyConfigState = () => ({
   dependencyConfigVisible: false,
@@ -99,18 +108,52 @@ class Index extends React.Component {
   }
 
   componentWillMount() {
+    this.installFrameCallbacks();
+  }
+
+  componentDidMount() {
+    this.bindTopologyRefresh();
+  }
+
+  componentDidUpdate() {
+    const nextScope = topologyScope(globalUtil.getCurrTeamName(), globalUtil.getCurrRegionName(), this.props.group_id);
+    if (nextScope !== this.frameScope) {
+      if (this.unsubscribeTopologyRefresh) this.unsubscribeTopologyRefresh();
+      this.installFrameCallbacks();
+      this.bindTopologyRefresh();
+      // A different application owns a different graph store and transport lifecycle.
+      this.setState(({ keyes }) => ({ keyes: !keyes }));
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.unsubscribeTopologyRefresh) this.unsubscribeTopologyRefresh();
+    postTopologyRefresh(this.topologyFrame, this.frameScope, 'rainbond:topology-stop');
+    frameCallbackNames.forEach(name => {
+      if (this.ownedFrameCallbacks && window[name] === this.ownedFrameCallbacks[name]) delete window[name];
+    });
+    this.topologyFrame = null;
+  }
+
+  bindTopologyRefresh = () => {
+    this.unsubscribeTopologyRefresh = subscribeTopologyRefresh(this.frameScope, this.refreshFrame, () => this.props.apps || []);
+  };
+
+  installFrameCallbacks = () => {
     const that = this
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
     const { group_id: groupId, dispatch } = this.props;
     const appID = globalUtil.getAppID();
     const componentID = globalUtil.getSlidePanelComponentID();
+    this.frameScope = topologyScope(teamName, regionName, groupId);
     const timestamp = new Date().getTime();
     const topologicalAddress = `${apiconfig.baseUrl}/console/teams/${teamName}/regions/${regionName}/topological?group_id=${groupId}`;
     try {
       window.iframeGetNodeUrl = function () {
         return topologicalAddress;
       };
+      window.iframeGetTopologyScope = () => this.frameScope;
       window.iframeGetMonitor = function (fn, errcallback) {
         dispatch({
           type: 'application/groupMonitorData',
@@ -466,25 +509,19 @@ class Index extends React.Component {
         });
       };
 
+      this.ownedFrameCallbacks = {};
+      frameCallbackNames.forEach(name => { this.ownedFrameCallbacks[name] = window[name]; });
     } catch (e) {
     }
-  }
+  };
 
   // 确保 refreshFrame 方法存在
   refreshFrame = () => {
-    const iframe = document.getElementById('myframe');
-    if (iframe && iframe.contentWindow) {
-      iframe.contentWindow.location.reload(true);
-    }
+    postTopologyRefresh(this.topologyFrame, this.frameScope);
   }
 
   triggerTopologyRefresh = () => {
-    const iframe = document.getElementById('myframe');  // 请确认 iframe 的实际 ID
-    if (iframe && iframe.contentWindow) {
-      iframe.contentWindow.postMessage({
-        type: 'TRIGGER_DATA_REFRESH'
-      }, '*');
-    }
+    this.refreshFrame();
   }
 
   getTargetAppDetail = (targetServiceId, targetServiceAlias) => {
@@ -669,6 +706,7 @@ class Index extends React.Component {
   };
 
   refreshTopologyOverview = () => {
+    this.refreshFrame();
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
     const { dispatch, group_id: groupId } = this.props;
@@ -1064,6 +1102,7 @@ class Index extends React.Component {
           <Link id="links" to={terminalPath} target="_blank" />
         )}
         <iframe
+          ref={frame => { this.topologyFrame = frame; }}
           src={`${apiconfig.baseUrl}${srcUrl}`}
           style={{
             width: '100%',

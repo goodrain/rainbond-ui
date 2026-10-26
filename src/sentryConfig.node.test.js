@@ -345,6 +345,15 @@ test('shouldSuppressBrowserError suppresses known browser runtime noise', functi
     shouldSuppressBrowserError(insertBeforeError, { errorSource: 'window_error' }),
     true
   );
+
+  assert.strictEqual(
+    shouldSuppressBrowserError(
+      new Error('Network Error'),
+      { errorSource: 'unhandledrejection', route: '/user/login?[Filtered]' }
+    ),
+    true,
+    'login network interruptions should not create unhandled rejection issues'
+  );
 });
 
 test('shouldSuppressBrowserError keeps app render and api errors reportable', function() {
@@ -367,6 +376,24 @@ test('shouldSuppressBrowserError keeps app render and api errors reportable', fu
   assert.strictEqual(
     shouldSuppressBrowserError(new Error('Request failed'), { errorSource: 'api' }),
     false
+  );
+
+  assert.strictEqual(
+    shouldSuppressBrowserError(
+      new Error('Network Error'),
+      { errorSource: 'unhandledrejection', route: '/team/demo/region/rainbond/index' }
+    ),
+    true,
+    'request-layer reporting makes bare browser network rejections duplicate noise'
+  );
+
+  assert.strictEqual(
+    shouldSuppressBrowserError(
+      new Error('Network Error'),
+      { errorSource: 'api', route: '/team/demo/region/rainbond/index' }
+    ),
+    false,
+    'structured api network failures remain reportable'
   );
 });
 
@@ -436,6 +463,30 @@ test('buildSlowRequestRouteTemplate keeps api roots and placeholders every unkno
   assert.strictEqual(
     buildSlowRequestRouteTemplate('/console/private-user-value/custom-action-value'),
     '/console/:unknown/:unknown'
+  );
+});
+
+test('buildSlowRequestRouteTemplate preserves reviewed polling and platform routes', function() {
+  const routes = {
+    '/console/teams/team-private/apps/app-private/pods': '/console/teams/:id/apps/:id/pods',
+    '/console/teams/team-private/apps/app-private/ports': '/console/teams/:id/apps/:id/ports',
+    '/console/teams/team-private/apps/app-private/volume-opts': '/console/teams/:id/apps/:id/volume-opts',
+    '/console/teams/team-private/apps/app-private/monitor/query_range':
+      '/console/teams/:id/apps/:id/monitor/query_range',
+    '/console/teams/team-private/operator-managed': '/console/teams/:id/operator-managed',
+    '/console/enterprise/enterprise-private/platform-overview': '/console/enterprise/:id/platform-overview',
+    '/console/enterprise/enterprise-private/regions/region-private/platform-overview/metrics':
+      '/console/enterprise/:id/regions/:id/platform-overview/metrics'
+  };
+
+  Object.keys(routes).forEach(function(url) {
+    assert.strictEqual(buildSlowRequestRouteTemplate(url), routes[url], url);
+  });
+
+  assert.strictEqual(
+    buildSlowRequestRouteTemplate('/console/private-user-value/custom-action-value'),
+    '/console/:unknown/:unknown',
+    'unreviewed values must remain redacted'
   );
 });
 

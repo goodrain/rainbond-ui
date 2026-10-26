@@ -5,6 +5,7 @@ import React, { PureComponent } from 'react';
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
 import roleUtil from '../../utils/role';
+import handleAPIError from '../../utils/error';
 import EditGroupName from '../AddOrEditGroup';
 import style from './index.less';
 
@@ -15,6 +16,10 @@ import style from './index.less';
 export default class SelectApp extends PureComponent {
   constructor(props) {
     super(props);
+    this.componentMounted = false;
+    this.groupsRequestGeneration = 0;
+    this.activeGroupsScope = '';
+    this.createAppVisit = null;
     this.state = {
       teamApps: [],
       loading: true,
@@ -24,49 +29,132 @@ export default class SelectApp extends PureComponent {
     };
   }
   componentDidMount() {
-    this.loadTeamApps();
+    this.componentMounted = true;
+    this.activeGroupsScope = this.getGroupsScope();
+    this.loadTeamApps(false);
   }
+  componentDidUpdate(prevProps) {
+    const scope = this.getGroupsScope();
+    if (scope !== this.activeGroupsScope) {
+      this.activeGroupsScope = scope;
+      const generation = ++this.groupsRequestGeneration;
+      this.createAppVisit = null;
+      this.setState(() => generation === this.groupsRequestGeneration && scope === this.getGroupsScope()
+        ? { queryName: '', teamApps: [], currentApp: {}, loading: Boolean(scope), showCreateApp: false, visible: false }
+        : null, () => {
+        if (this.componentMounted && generation === this.groupsRequestGeneration && scope === this.getGroupsScope() && scope) {
+          this.loadTeamApps(false);
+        }
+      });
+      return;
+    }
+    if (String(prevProps.currentAppID) !== String(this.props.currentAppID)) this.syncCurrentApp();
+  }
+  componentWillUnmount() {
+    this.componentMounted = false;
+    this.groupsRequestGeneration += 1;
+    this.createAppVisit = null;
+  }
+  getGroupsParams = () => ({
+    team_name: this.props.teamName || this.props.currentTeam && this.props.currentTeam.team_name,
+    region_name: this.props.regionName || this.props.currentRegion && this.props.currentRegion.team_region_name
+  });
+  getGroupsScope = () => {
+    const { currentUser, initialGroupsScope, currentTeamPermissionsInfo } = this.props;
+    const { team_name: team, region_name: region } = this.getGroupsParams();
+    if (!currentUser || currentUser.user_id === undefined || currentUser.user_id === null ||
+        currentUser.user_id === '' || !team || !region) return '';
+    if (Object.prototype.hasOwnProperty.call(this.props, 'initialGroupsScope')) return initialGroupsScope || '';
+    return JSON.stringify([team, region, String(currentUser.user_id), currentUser.enterprise_id || '',
+      currentUser.is_enterprise_admin, currentUser.roles, currentTeamPermissionsInfo,
+      this.props.currentAppID == null ? '' : String(this.props.currentAppID)]);
+  };
+  invalidateInitialGroups = () => {
+    const loader = this.props.initialGroupsLoader;
+    if (loader && typeof loader.invalidate === 'function') loader.invalidate();
+  };
+  syncCurrentApp = () => {
+    if (!this.componentMounted) return;
+    const scope = this.getGroupsScope();
+    const generation = this.groupsRequestGeneration;
+    this.setState(previous => this.componentMounted && scope === this.getGroupsScope() &&
+      generation === this.groupsRequestGeneration ? {
+        currentApp: previous.teamApps.find(item => String(item.group_id) === String(this.props.currentAppID)) || {}
+      } : null);
+  };
   queryApps = query => {
-    this.setState({ queryName: query }, () => {
-      this.loadTeamApps();
+    const scope = this.getGroupsScope();
+    if (!this.componentMounted || !scope) return;
+    const generation = ++this.groupsRequestGeneration;
+    this.invalidateInitialGroups();
+    this.setState(() => this.componentMounted && scope === this.getGroupsScope() &&
+      generation === this.groupsRequestGeneration ? { queryName: query == null ? '' : String(query) } : null, () => {
+      if (this.componentMounted && scope === this.getGroupsScope() && generation === this.groupsRequestGeneration) this.loadTeamApps(true);
     });
   };
-  loadTeamApps = () => {
-    const { currentTeam, currentAppID } = this.props;
-    const { queryName } = this.state;
-    this.props.dispatch({
+  handleQueryChange = event => {
+    if (event && event.target && event.target.value === '') this.queryApps('');
+  };
+  loadTeamApps = (force = true) => {
+    if (!this.componentMounted) return;
+    const scope = this.getGroupsScope();
+    const generation = ++this.groupsRequestGeneration;
+    if (!scope) {
+      this.setState(() => this.componentMounted && generation === this.groupsRequestGeneration && !this.getGroupsScope()
+        ? { teamApps: [], currentApp: {}, loading: false } : null);
+      return;
+    }
+    const query = this.state.queryName;
+    const initialGroupsLoader = !force && query === '' ? this.props.initialGroupsLoader : undefined;
+    if (force) this.invalidateInitialGroups();
+    const isCurrent = () => this.componentMounted && generation === this.groupsRequestGeneration &&
+      scope === this.getGroupsScope();
+    this.setState(() => isCurrent() ? { loading: true } : null);
+    return this.props.dispatch({
       type: 'global/fetchGroups',
-      payload: {
-        team_name: currentTeam.team_name,
-        query: queryName
-      },
+      payload: { ...this.getGroupsParams(), query },
+      initialGroupsLoader,
+      shouldApply: isCurrent,
       callback: list => {
-        if (list && list.length > 0) {
-          const currentList = list.filter(
-            item => item.group_id == currentAppID
-          );
-          if (currentList && currentList.length > 0) {
-            this.setState({ currentApp: currentList[0] });
-          }
-          this.setState({ teamApps: list.reverse(), loading: false });
-        } else {
-          this.setState({ loading: false });
-        }
+        if (!isCurrent()) return;
+        const apps = Array.isArray(list) ? list : [];
+        this.setState(previous => {
+          if (!isCurrent()) return null;
+          const selected = apps.find(item => String(item.group_id) === String(this.props.currentAppID));
+          return { teamApps: apps.slice().reverse(), loading: false,
+            currentApp: selected || (String(previous.currentApp.group_id) === String(this.props.currentAppID)
+              ? previous.currentApp : {}) };
+        });
+      },
+      handleError: error => {
+        if (!isCurrent()) return;
+        this.setState(() => isCurrent() ? { loading: false } : null);
+        if (!initialGroupsLoader && error) handleAPIError(error);
       }
     });
   };
+  isCreateAppVisitCurrent = visit => this.componentMounted && visit && visit === this.createAppVisit &&
+    visit.scope === this.getGroupsScope();
   showCreateApp = () => {
-    this.handleOut();
-    this.setState({ showCreateApp: true });
+    const scope = this.getGroupsScope();
+    if (!this.componentMounted || !scope) return;
+    const visit = { scope };
+    this.createAppVisit = visit;
+    this.setState(() => this.isCreateAppVisitCurrent(visit) ? { visible: false, showCreateApp: true } : null);
   };
-  handleCreateApp = () => {
+  handleCreateApp = (visit = this.createAppVisit) => {
+    if (!this.isCreateAppVisitCurrent(visit)) return;
+    this.invalidateInitialGroups();
     notification.success({ message: formatMessage({ id: 'notification.success.add' }) });
-    this.cancelCreateApp();
-    this.loadTeamApps();
+    this.cancelCreateApp(visit);
+    this.loadTeamApps(true);
   };
-  cancelCreateApp = () => {
-    this.handleOut();
-    this.setState({ showCreateApp: false });
+  cancelCreateApp = (visit = this.createAppVisit) => {
+    if (!this.isCreateAppVisitCurrent(visit)) return;
+    const { scope } = visit;
+    this.createAppVisit = null;
+    this.setState(() => this.componentMounted && scope === this.getGroupsScope() && !this.createAppVisit
+      ? { visible: false, showCreateApp: false } : null);
   };
 
   handleEnter = () => {
@@ -95,14 +183,17 @@ export default class SelectApp extends PureComponent {
       currentApp,
       visible
     } = this.state;
-    const teamName = currentTeam?.team_name;
-    const regionName = currentRegion?.team_region_name;
+    const teamName = this.props.teamName || currentTeam?.team_name;
+    const regionName = this.props.regionName || currentRegion?.team_region_name;
+    const createAppVisit = this.createAppVisit;
     const isCreateApp = true;
     const currentAPPLink = `/team/${teamName}/region/${regionName}/apps/${currentAppID}/overview`;
     const dropdown = (
       <div className={style.dropBox}>
         <div className={style.dropBoxSearch}>
           <Input.Search
+            key={this.getGroupsScope()}
+            onChange={this.handleQueryChange}
             onSearch={this.queryApps}
             className={style.dropBoxSearchInputContrl}
             placeholder={formatMessage({ id: 'header.app.search' })}
@@ -210,8 +301,8 @@ export default class SelectApp extends PureComponent {
             teamName={teamName}
             isGetGroups={false}
             title={formatMessage({ id: 'header.app.create' })}
-            onCancel={this.cancelCreateApp}
-            onOk={this.handleCreateApp}
+            onCancel={() => this.cancelCreateApp(createAppVisit)}
+            onOk={() => this.handleCreateApp(createAppVisit)}
           />
         )}
       </div>

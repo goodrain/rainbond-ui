@@ -85,6 +85,11 @@ const {
   markComponentGuideHandled,
   suppressAgentGuidesForLogin,
 } = require('../../../utils/agentGuideSession');
+const {
+  getComponentPollingDelay,
+  isUnavailableComponentStatus,
+  createComponentPollingGuard
+} = require('../../../pages/Component/componentPolling');
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -313,6 +318,7 @@ class Main extends PureComponent {
       isShowThirdParty: false,
       promptModal: null,
       componentTimer: true,
+      pageVisible: typeof document === 'undefined' || !document.hidden,
       tabsShow: false,
       routerSwitch: true,
       componentPermissions: this.props?.permissions || {},
@@ -325,6 +331,12 @@ class Main extends PureComponent {
     this.deployRequestPending = false;
     this.destroy = false;
     this.statusPollingGeneration = 0;
+    this.statusPollFailures = 0;
+    this.pollingEnabled = this.state.pageVisible;
+    this.pollingGuard = createComponentPollingGuard(
+      () => this.mounted && !this.destroy && this.pollingEnabled,
+      () => this.getPollingIdentity()
+    );
   }
 
   getChildContext() {
@@ -338,10 +350,21 @@ class Main extends PureComponent {
     };
   }
   componentDidMount() {
+    this.mounted = true;
+    this.pollingIdentity = this.getPollingIdentity();
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', this.handleVisibilityChange);
+    }
     this.loadDetail();
   }
 
   componentDidUpdate(prevProps) {
+    const pollingIdentity = this.getPollingIdentity();
+    const identityChanged = pollingIdentity !== this.pollingIdentity;
+    if (identityChanged) {
+      this.pollingIdentity = pollingIdentity;
+      this.resetStatusPolling();
+    }
     const { location } = this.props;
     const prevLocation = prevProps.location;
 
@@ -386,10 +409,15 @@ class Main extends PureComponent {
         this.setState({ activeTab: normalizedTab });
       }
     }
+    if (identityChanged) this.loadDetail();
   }
 
   componentWillUnmount() {
     this.destroy = true;
+    this.mounted = false;
+    if (typeof document !== 'undefined') {
+      document.removeEventListener('visibilitychange', this.handleVisibilityChange);
+    }
     this.closeComponentTimer();
     this.props.dispatch({ type: 'appControl/clearPods' });
     this.props.dispatch({ type: 'appControl/clearDetail' });
@@ -412,6 +440,10 @@ class Main extends PureComponent {
     if (!app_alias) {
       return;
     }
+    const request = this.pollingGuard.begin('status');
+    if (!request) return;
+    const shouldCycle = isCycle || this.state.componentTimer;
+    this.closeTimer();
     const pollingGeneration = this.statusPollingGeneration;
 
     dispatch({
@@ -421,40 +453,47 @@ class Main extends PureComponent {
         app_alias
       },
       callback: res => {
-        if (pollingGeneration !== this.statusPollingGeneration || this.destroy) {
+        if (pollingGeneration !== this.statusPollingGeneration || !request.complete()) {
           return;
         }
         if (res && res.status_code === 200) {
+          this.statusPollFailures = isUnavailableComponentStatus(res.bean && res.bean.status)
+            ? this.statusPollFailures + 1 : 0;
           this.setState({ status: res.bean }, () => {
+            if (!request.isCurrent()) return;
             // 如果是 KubeBlocks 组件，同时刷新 KubeBlocks 相关数据
             if (isShowKubeBlocksComponent) {
               this.getKubeBlocksStatus();
             }
 
-            if (isCycle && this.state.componentTimer) {
+            if (shouldCycle) {
               this.handleTimers(
                 'timer',
                 () => {
                   this.getStatus(true);
                 },
-                5000
+                getComponentPollingDelay({
+                  status: res.bean && res.bean.status,
+                  failureCount: this.statusPollFailures
+                })
               );
             }
           });
         }
       },
       handleError: err => {
-        if (pollingGeneration !== this.statusPollingGeneration || this.destroy) {
+        if (pollingGeneration !== this.statusPollingGeneration || !request.complete()) {
           return;
         }
+        this.statusPollFailures += 1;
         this.handleError(err);
-        if (isCycle && this.state.componentTimer && err.status !== 404) {
+        if (shouldCycle && err.status !== 404) {
           this.handleTimers(
             'timer',
             () => {
               this.getStatus(true);
             },
-            10000
+            getComponentPollingDelay({ failureCount: this.statusPollFailures })
           );
         }
       }
@@ -462,20 +501,30 @@ class Main extends PureComponent {
   };
 
   // 获取 KubeBlocks 组件状态信息
-  getKubeBlocksStatus = () => {
-    const { dispatch, appDetail } = this.props;
-    const { team_name } = this.fetchParameter();
+  getKubeBlocksStatus = (serviceAlias = this.props.appDetail?.service?.service_alias) => {
+    const { dispatch } = this.props;
+    const { team_name, app_alias } = this.fetchParameter();
 
-    if (!appDetail?.service?.service_alias) {
+    if (!serviceAlias || serviceAlias !== app_alias) {
       return;
     }
+    const request = this.pollingGuard.begin('kb-detail');
+    if (!request) return;
 
     // 获取 KubeBlocks Cluster 详情
     dispatch({
       type: 'kubeblocks/getClusterDetail',
+      shouldApply: request.isCurrent,
       payload: {
         team_name,
-        service_alias: appDetail.service.service_alias
+        service_alias: app_alias,
+        polling: true
+      },
+      callback: () => {
+        request.complete();
+      },
+      handleError: err => {
+        if (request.complete()) this.handleError(err);
       }
     });
   };
@@ -527,16 +576,16 @@ class Main extends PureComponent {
     return null;
   };
   handleTimers = (timerName, callback, times) => {
-    const { componentTimer } = this.state;
-    if (!componentTimer) {
+    if (!this.mounted || !this.pollingEnabled) {
       return null;
     }
     if (this[timerName]) {
       clearTimeout(this[timerName]);
     }
+    const isCurrent = this.pollingGuard.checkpoint();
     this[timerName] = setTimeout(() => {
       this[timerName] = null;
-      callback();
+      if (isCurrent()) callback();
     }, times);
   };
 
@@ -601,7 +650,29 @@ class Main extends PureComponent {
 
   resetStatusPolling = () => {
     this.statusPollingGeneration += 1;
+    this.statusPollFailures = 0;
+    this.pollingGuard.invalidate();
     this.closeTimer();
+  };
+
+  getPollingIdentity = () => {
+    const { team_name, app_alias } = this.fetchParameter();
+    return JSON.stringify([team_name, globalUtil.getCurrRegionName(), app_alias]);
+  };
+
+  handleVisibilityChange = () => {
+    const pageVisible = !document.hidden;
+    this.pollingEnabled = pageVisible && this.state.componentTimer;
+    // Detail loading uses statusPollingGeneration too; hiding only invalidates
+    // polling responses so an in-flight initial detail can still finish.
+    this.pollingGuard.invalidate();
+    this.closeTimer();
+    this.setState({ pageVisible }, () => {
+      if (this.pollingEnabled) {
+        this.statusPollFailures = 0;
+        this.getStatus(true);
+      }
+    });
   };
 
   loadBuildState = (appDetail, val) => {
@@ -717,13 +788,7 @@ class Main extends PureComponent {
             }
 
             if (isKBComponent) {
-              dispatch({
-                type: 'kubeblocks/getClusterDetail',
-                payload: {
-                  team_name,
-                  service_alias: appDetail.service.service_alias
-                }
-              });
+              this.getKubeBlocksStatus(appDetail.service.service_alias);
             }
           });
         }
@@ -960,6 +1025,7 @@ class Main extends PureComponent {
     }
   };
   closeComponentTimer = () => {
+    this.pollingEnabled = false;
     this.resetStatusPolling();
     if (!this.destroy) {
       this.setState({ componentTimer: false });
@@ -967,6 +1033,7 @@ class Main extends PureComponent {
   };
   openComponentTimer = () => {
     this.resetStatusPolling();
+    this.pollingEnabled = this.state.pageVisible;
     this.setState({ componentTimer: true }, () => {
       this.getStatus(true);
     });
@@ -1379,7 +1446,7 @@ class Main extends PureComponent {
       <FormattedMessage id='componentOverview.header.right.update.roll' />;
     const visitBtns = (
       <VisitBtn
-        timers={this.state.componentTimer}
+        timers={this.state.componentTimer && this.state.pageVisible}
         btntype="primary"
         app_alias={globalUtil.getSlidePanelComponentID()}
       />
@@ -1656,6 +1723,7 @@ class Main extends PureComponent {
     const {
       BuildList,
       componentTimer,
+      pageVisible,
       isShowThirdParty,
       status,
       promptModal,
@@ -1670,6 +1738,7 @@ class Main extends PureComponent {
       deploySubmitting
     } = this.state;
     const { getFieldDecorator } = form;
+    const pollingEnabled = componentTimer && pageVisible;
     const method = appDetail && appDetail.service && appDetail.service.extend_method
     const isShowUpdate = canUpdateComponent(isUpdate, status);
     const CompluginList = getVisibleComponentPlugins(
@@ -1721,7 +1790,7 @@ class Main extends PureComponent {
     } = this.fetchParameter();
     const visitBtns = (
       <VisitBtn
-        timers={componentTimer}
+        timers={pollingEnabled}
         btntype="primary"
         app_alias={appAlias}
       />
@@ -2122,11 +2191,12 @@ class Main extends PureComponent {
                   method={method}
                   groupDetail={groupDetail}
                   componentPermissions={permissions}
-                  timers={componentTimer}
                   status={status}
                   ref={this.saveRef}
                   {...data}
                   {...this.props}
+                  pollingEnabled={pollingEnabled}
+                  timers={pollingEnabled}
                   isShowKubeBlocksComponent={this.state.isShowKubeBlocksComponent}
                   onshowDeployTips={msg => {
                     this.handleshowDeployTips(msg);

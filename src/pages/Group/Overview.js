@@ -14,6 +14,7 @@ import { formatMessage } from '@/utils/intl'
 import Yun from '../../../public/images/yun.svg'
 import Running from '../../../public/images/running.svg'
 import styles from './Overview.less'
+import MenuContext from '../../layouts/MenuContext';
 
 const { isMissingResourceError } = require('../../utils/missingResourceHelpers');
 
@@ -32,6 +33,22 @@ const ComponentList = ({ apps, onComponentClick }) => (
 );
 
 
+// Keep modern context outside DVA's React Redux 5 legacy store context.
+function withInitialAppDetail(Component) {
+  return class InitialAppDetail extends React.PureComponent {
+    render() {
+      return (
+        <MenuContext.Consumer>
+          {context => <Component {...this.props}
+            initialDetailLoader={context && context.initialDetailLoader}
+            initialDetailScope={context && context.initialDetailScope} />}
+        </MenuContext.Consumer>
+      );
+    }
+  };
+}
+
+@withInitialAppDetail
 @connect(({ teamControl, global }) => ({
   currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
   collapsed: global.collapsed,
@@ -41,6 +58,8 @@ const ComponentList = ({ apps, onComponentClick }) => (
 export default class Overview extends Component {
   constructor(props) {
     super(props)
+    this.detailGeneration = 0;
+    this._isMounted = false;
     this.state = {
       isVisible: false,
       isDev: process.env.NODE_ENV === 'development',  // 直接在初始化时判断环境
@@ -52,7 +71,7 @@ export default class Overview extends Component {
       addComponentOrAppDetail: '',
       type: 'AppShape',
       isExiting: false,
-      refresh: false,
+      refresh: globalUtil.getRefresh(),
       tableDataLoading: false,
       guideVisible: false,
       guideAutoOpened: false
@@ -65,6 +84,7 @@ export default class Overview extends Component {
   }
 
   componentDidMount() {
+    this._isMounted = true;
     this.getPermissionInfo();
     this.handleUrlParams();
     this.addPopStateListener();
@@ -72,10 +92,16 @@ export default class Overview extends Component {
   }
 
   componentWillUnmount() {
+    this._isMounted = false;
+    this.detailGeneration += 1;
     this.removePopStateListener();
   }
 
   componentDidUpdate(prevProps) {
+    if (prevProps.initialDetailScope !== this.props.initialDetailScope) {
+      this.validateApplication();
+      this.loadComponents();
+    }
     // 通过比较location变化来处理参数更新
     if (this.props.location !== prevProps.location) {
       this.handleUrlParams();
@@ -112,10 +138,14 @@ export default class Overview extends Component {
 
   // 获取app的组件
   validateApplication = () => {
-    const { dispatch, match } = this.props;
+    const { dispatch, match, initialDetailLoader, initialDetailScope } = this.props;
     const { teamName, regionName, appID } = match.params;
+    const generation = ++this.detailGeneration;
     dispatch({
       type: 'application/fetchGroupDetail',
+      initialDetailLoader,
+      shouldApply: () => this._isMounted && generation === this.detailGeneration &&
+        initialDetailScope === this.props.initialDetailScope,
       payload: {
         team_name: teamName,
         region_name: regionName,
@@ -126,6 +156,9 @@ export default class Overview extends Component {
   };
 
   handleMissingApplication = error => {
+    const { teamName, regionName, appID } = this.props.match.params;
+    if (!this._isMounted || teamName !== globalUtil.getCurrTeamName() ||
+        regionName !== globalUtil.getCurrRegionName() || String(appID) !== String(globalUtil.getAppID())) return;
     if (isMissingResourceError(error)) {
       const { dispatch } = this.props;
       dispatch(
@@ -137,17 +170,28 @@ export default class Overview extends Component {
   };
 
   loadComponents = () => {
-    const { dispatch } = this.props;
+    const { dispatch, initialDetailLoader, initialDetailScope, match } = this.props;
+    if (initialDetailLoader && !initialDetailScope) return;
+    const { teamName, regionName, appID } = match.params;
+    // During the exit animation an old instance may still be mounted with old props.
+    const isCurrentRoute = () => teamName === globalUtil.getCurrTeamName() &&
+      regionName === globalUtil.getCurrRegionName() && String(appID) === String(globalUtil.getAppID());
+    if (!isCurrentRoute()) return;
+    const canApply = () => this._isMounted && initialDetailScope === this.props.initialDetailScope &&
+      teamName === this.props.match.params.teamName && regionName === this.props.match.params.regionName &&
+      String(appID) === String(this.props.match.params.appID) && isCurrentRoute();
     dispatch({
       type: 'application/fetchApps',
+      shouldApply: canApply,
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        region_name: globalUtil.getCurrRegionName(),
-        group_id: globalUtil.getAppID(),
+        team_name: teamName,
+        region_name: regionName,
+        group_id: appID,
         page: 1,
         page_size: 10000,
       },
       callback: data => {
+        if (!canApply()) return;
         if (data && data.status_code === 200) {
           this.setState({
             apps: data.list || [],
@@ -155,7 +199,7 @@ export default class Overview extends Component {
           });
         }
       },
-      handleError: this.handleMissingApplication
+      handleError: error => { if (canApply()) this.handleMissingApplication(error); }
     });
   };
 
@@ -341,11 +385,21 @@ export default class Overview extends Component {
   // 渲染头部图标区域
   renderAppHeader = () => {
     const { appPermissions, componentPermissions, isVisible } = this.state;
-
+    const location = this.props.location || {};
+    const refresh = (location.search || '').match(/(?:^|[?&])refresh=([^&]+)/);
 
     return (
       <div className={`${styles.headerWrapper} ${!isVisible ? styles.headerShow : styles.headerHide}`}>
         <AppHeader
+          initialDetailLoader={this.props.initialDetailLoader}
+          initialDetailScope={this.props.initialDetailScope}
+          applicationRoute={{
+            teamName: this.props.match.params.teamName,
+            regionName: this.props.match.params.regionName,
+            appID: this.props.match.params.appID,
+            pathname: location.pathname,
+            refresh: refresh ? refresh[1] : ''
+          }}
           apps={this.state.apps}
           addComponentOrAppDetail={this.state.addComponentOrAppDetail}
           handleAddComponentOrAppDetail={this.handleAddComponentOrAppDetail}

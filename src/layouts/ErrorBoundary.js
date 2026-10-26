@@ -11,7 +11,14 @@ import { captureException } from '../sentry';
 export default class ErrorBoundary extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { hasError: false, resetKey: props.resetKey };
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    if (props.resetKey !== state.resetKey) {
+      return { hasError: false, resetKey: props.resetKey };
+    }
+    return null;
   }
 
   static getDerivedStateFromError() {

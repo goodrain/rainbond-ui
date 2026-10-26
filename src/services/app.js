@@ -2,6 +2,7 @@
 /* eslint-disable no-undef */
 import apiconfig from '../../config/api.config';
 import request from '../utils/request';
+import { captureTopologyOperation } from '../utils/topologyRefresh';
 
 /* 删除应用的某个版本 */
 export function delAppVersion(body = { team_name, service_alias, version_id }) {
@@ -179,12 +180,13 @@ export function updateRolling(
     app_alias
   }
 ) {
+  const refreshTopology = captureTopologyOperation(body);
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/upgrade`,
     {
       method: 'post'
     }
-  );
+  ).then(response => { refreshTopology(response); return response; });
 }
 /*
   批量部署应用
@@ -376,7 +378,8 @@ export function getComponentState(body = {}, handleError) {
     {
       method: 'get',
       handleError,
-      showLoading: false
+      showLoading: false,
+      timeout: 10000
     }
   );
 }
@@ -604,6 +607,7 @@ export function addRelationedApp(
     open_inner
   }
 ) {
+  const refreshTopology = captureTopologyOperation(body);
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/dependency`,
     {
@@ -614,7 +618,7 @@ export function addRelationedApp(
         open_inner: body.open_inner ? body.open_inner : ''
       }
     }
-  );
+  ).then(response => { refreshTopology(response); return response; });
 }
 
 /*
@@ -648,10 +652,11 @@ export function removeRelationedApp(
     dep_service_id
   }
 ) {
+  const refreshTopology = captureTopologyOperation(body);
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/dependency/${body.dep_service_id}`,
     { method: 'delete' }
-  );
+  ).then(response => { refreshTopology(response); return response; });
 }
 
 /*
@@ -1997,7 +2002,8 @@ export async function getPods(body = {}, handleError) {
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/pods`,
     {
       method: 'get',
-      handleError
+      handleError,
+      timeout: 12000
     }
   );
 }
@@ -2346,7 +2352,8 @@ export async function fetchOperationLog(body = {}, handleError) {
         targetAlias: body.app_alias ? body.app_alias : '',
         target: body.target ? body.target : 'service'
       },
-      handleError
+      handleError,
+      timeout: 12000
     }
   );
 }
@@ -2758,7 +2765,8 @@ export async function createService(
     team_name,
     app_alias,
     service_infos
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/multi/create`,
@@ -2766,7 +2774,8 @@ export async function createService(
       method: 'post',
       data: {
         service_infos: body.service_infos
-      }
+      },
+      handleError
     }
   );
 }

@@ -363,6 +363,7 @@ function installGlobalHandlers() {
     const reason = event.reason instanceof Error ? event.reason : new Error(String(event.reason));
     captureException(reason, {
       errorSource: 'unhandledrejection',
+      route: getCurrentRoute(),
       tags: {
         source: 'unhandledrejection'
       }
