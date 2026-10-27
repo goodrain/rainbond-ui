@@ -1,6 +1,6 @@
 /* eslint-disable consistent-return */
 /* eslint-disable react/react-in-jsx-scope */
-import axios from 'axios';
+import sendUsageLog from './usageLog';
 import { routerRedux } from 'dva/router';
 import moment from 'moment';
 import cookie from './cookie';
@@ -56,11 +56,6 @@ const global = {
     ) {
       return null;
     }
-    const defaultOptions = {
-      credentials: 'same-origin',
-      url: 'https://log.rainbond.com/log',
-      method: 'post'
-    };
     const stateMap = {
       initial: 'start',
       success: 'complete',
@@ -72,24 +67,18 @@ const global = {
       obj.status = stateMap[obj.status] || obj.status;
     }
     try {
-      defaultOptions.data = JSON.stringify({
+      const data = JSON.stringify({
         e_name: rainbondInfo.enterprise_alias,
         version: rainbondInfo.version && rainbondInfo.version.value,
         ...obj
       });
-      defaultOptions.data = JSON.parse(defaultOptions.data);
-      axios(defaultOptions);
+      sendUsageLog(JSON.parse(data));
     } catch (e) {
     }
   },
   putClusterInfoLog(eid, clusters) {
-    const defaultOptions = {
-      credentials: 'same-origin',
-      url: 'https://log.rainbond.com/log',
-      method: 'post'
-    };
     try {
-      defaultOptions.data = JSON.stringify({
+      const data = JSON.stringify({
         eid,
         cluster_sizes: clusters.length,
         cluster_types: clusters.map(cluster => {
@@ -99,19 +88,13 @@ const global = {
           .locale('zh-cn')
           .format('YYYYMMDD')
       });
-      defaultOptions.data = JSON.parse(defaultOptions.data);
-      axios(defaultOptions);
+      sendUsageLog(JSON.parse(data));
     } catch (e) {
     }
   },
   putRegistLog(info) {
-    const defaultOptions = {
-      credentials: 'same-origin',
-      url: 'https://log.rainbond.com/log',
-      method: 'post'
-    };
     try {
-      defaultOptions.data = JSON.stringify({
+      const data = JSON.stringify({
         eid: info.enterprise_id,
         e_name: info.enterprise_alias,
         real_name: info.real_name,
@@ -122,8 +105,7 @@ const global = {
           .locale('zh-cn')
           .format('YYYYMMDD')
       });
-      defaultOptions.data = JSON.parse(defaultOptions.data);
-      axios(defaultOptions);
+      sendUsageLog(JSON.parse(data));
     } catch (e) {
     }
   },
@@ -131,14 +113,9 @@ const global = {
     if (!info || (info && !info.enterprise_id)) {
       return null;
     }
-    const defaultOptions = {
-      credentials: 'same-origin',
-      url: 'https://log.rainbond.com/log',
-      method: 'post'
-    };
     try {
       const { title, version } = info;
-      defaultOptions.data = JSON.stringify({
+      const data = JSON.stringify({
         url: window.location.href,
         eid: info.enterprise_id,
         e_name: info.enterprise_alias,
@@ -148,8 +125,7 @@ const global = {
           .locale('zh-cn')
           .format('YYYYMMDD')
       });
-      defaultOptions.data = JSON.parse(defaultOptions.data);
-      axios(defaultOptions);
+      sendUsageLog(JSON.parse(data));
     } catch (e) {
     }
   },
@@ -157,13 +133,8 @@ const global = {
     if (!eid) {
       return null;
     }
-    const defaultOptions = {
-      credentials: 'same-origin',
-      url: 'https://log.rainbond.com/log',
-      method: 'post'
-    };
     try {
-      defaultOptions.data = JSON.stringify({
+      const data = JSON.stringify({
         cluster_sizes: 1,
         cluster_types: ['dind'],
         eid: eid,
@@ -171,8 +142,7 @@ const global = {
           .locale('zh-cn')
           .format('YYYYMMDD')
       });
-      defaultOptions.data = JSON.parse(defaultOptions.data);
-      axios(defaultOptions);
+      sendUsageLog(JSON.parse(data));
     } catch (e) {
     }
   },
