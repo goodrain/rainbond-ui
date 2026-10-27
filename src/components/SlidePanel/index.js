@@ -4,9 +4,12 @@ import pageheaderSvg from '@/utils/pageHeaderSvg';
 import globalUtil from '@/utils/global';
 import roleUtil from '@/utils/newRole';
 import { connect } from 'dva';
-import Components from './components/components';
-import Gateway from './components/gateway';
+import { routerRedux } from 'dva/router';
+import deferredComponent from '../DeferredComponent';
 import styles from './index.less';
+
+const Components = deferredComponent(() => import('./components/components'));
+const Gateway = deferredComponent(() => import('./components/gateway'));
 
 @connect(({ teamControl }) => ({
   currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
@@ -82,6 +85,17 @@ class SlidePanel extends PureComponent {
       });
     });
   }
+
+  handleLoadingCancel = () => {
+    this.props.dispatch(
+      routerRedux.push(
+        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview`
+      )
+    );
+    const iframe = document.querySelector('#myframe');
+    iframe?.contentWindow?.postMessage({ type: 'TRIGGER_CLICK_BACKGROUND' }, '*');
+  };
+
   render() {
     const { isVisible } = this.props;
     const {
@@ -105,6 +119,7 @@ class SlidePanel extends PureComponent {
                 pageHeader={pageHeader}
                 permissions={componentPermissions}
                 location={this.props.location}
+                onLoadingCancel={this.handleLoadingCancel}
               />
             )}
             {isVisible && type === 'gateway' && (
@@ -115,6 +130,7 @@ class SlidePanel extends PureComponent {
                   argetServicesPermission,
                   certificatePermission
                 }}
+                onLoadingCancel={this.handleLoadingCancel}
               />
             )}
           </>

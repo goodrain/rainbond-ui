@@ -15,13 +15,16 @@ import RapidCopy from '../../../components/RapidCopy';
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
-import AddServiceComponent from '../../../pages/Group/AddServiceComponent';
+import deferredComponent from '../../DeferredComponent';
 import sourceUtil from '../../../utils/source-unit';
 import moment from 'moment';
 import styles from './app.less';
 import ComponentListModal from '../../../pages/Group/ComponentListModal';
-import CreateComponentModal from '@/components/CreateComponentModal';
 import { shouldLoadStorageUsage } from './componentViewPerformance';
+
+const AddServiceComponent = deferredComponent(() => import('../../../pages/Group/AddServiceComponent'));
+const CreateComponentModal = deferredComponent(() => import('../../CreateComponentModal'), { modal: true });
+
 @connect(({ user, application, teamControl, enterprise, loading, global }) => ({
   buildShapeLoading: loading.effects['global/buildShape'],
   editGroupLoading: loading.effects['application/editGroup'],

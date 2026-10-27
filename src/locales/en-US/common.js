@@ -932,4 +932,6 @@
         'tooltip.visit':'Go to the domain address corresponding to the component external access port',
     }
 
-export default Object.assign({}, unit, popover, button, notification, placeholder, tooltip, confirmModal, status);
+export default Object.assign({}, unit, popover, button, notification, placeholder, tooltip, confirmModal, status, {
+    'asyncChunk.loadFailed': 'Unable to load this feature. Please retry.'
+});

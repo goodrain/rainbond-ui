@@ -941,4 +941,6 @@
         'tooltip.visit':'跳转到组件对外访问端口对应的域名地址',
     }
 
-export default Object.assign({}, unit, popover, button, notification, placeholder, tooltip, confirmModal, status);
+export default Object.assign({}, unit, popover, button, notification, placeholder, tooltip, confirmModal, status, {
+    'asyncChunk.loadFailed': '功能加载失败，请重试。'
+});
