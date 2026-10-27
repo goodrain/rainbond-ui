@@ -172,6 +172,23 @@ displayPage.getCurrentSnapshot = () => ({ sections: {
 } });
 assert.ok(!textOf(displayPage.renderClusterOverview()).includes('platformOverview.cluster.allReady'),
   'unknown node readiness must not render all nodes ready');
+const versionSnapshot = { sections: {
+  cluster: { status: 'ok', data: { region_name: 'test', region_alias: 'Production cluster' } },
+  resources: { status: 'ok', data: { cpu: {}, memory: {}, pods: {}, versions: {
+    rainbond: 'v6.9.12-dev-8c21e52-2026-10-27-08', kubernetes: 'v1.30.4+rke2r1'
+  } } },
+  nodes: { status: 'ok', data: { total: 1, ready: 1, alerts: [] } }
+} };
+displayPage.getCurrentSnapshot = () => versionSnapshot;
+const versionRows = () => nodes(displayPage.renderClusterOverview()).filter(item => item.props.className === 'clusterVersion');
+assert.equal(versionRows().length, 2, 'version metadata has its own typography without resizing the cluster name');
+assert.deepStrictEqual(versionRows().map(row => nodes(row).find(item => item.type === 'strong').props.children),
+  ['v6.9.12', 'v1.30.4+rke2r1'], 'Rainbond stays compact while the Kubernetes distribution suffix is preserved');
+assert.deepStrictEqual(versionRows().map(row => nodes(row).find(item => item.type === 'strong').props.title),
+  ['v6.9.12-dev-8c21e52-2026-10-27-08', 'v1.30.4+rke2r1'], 'full raw versions remain available on hover');
+versionSnapshot.sections.resources.data.versions = {};
+assert.ok(versionRows().every(row => textOf(row).endsWith('-')), 'missing versions remain unknown rather than inventing a value');
+assert.ok(versionRows().every(row => nodes(row).find(item => item.type === 'strong').props.title === undefined));
 displayPage.props.overview.errors.cluster = 'refresh failed';
 displayPage.getCurrentSnapshot = () => ({ sections: {
   components: { status: 'ok', data: [{ name: 'rbd-api', status: 'RUNNING', run_pods: 1, all_pods: 1 }] },

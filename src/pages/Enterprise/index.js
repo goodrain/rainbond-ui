@@ -594,8 +594,8 @@ export default class Enterprise extends PureComponent {
             <div className={styles.clusterMain}>
               <div className={styles.clusterMeta}>
                 <div><span><Icon type="cloud-server" /></span><strong>{clusterInfo.region_alias || clusterInfo.region_name}</strong><small className={styles.clusterIdentityLine}><span className={`${styles.clusterRuntimeBadge} ${styles[`clusterRuntime${runtimeStatus}`]}`}><i aria-hidden="true" />{t(`common.${runtimeStatus}`)}</span><span>{clusterInfo.region_name}</span>{clusterInfo.provider ? <span>{clusterInfo.provider}</span> : null}</small></div>
-                <div><small>{t('cluster.rainbondVersion')}</small><strong>{overviewData.compactVersion(versions.rainbond)}</strong></div>
-                <div><small>{t('cluster.kubernetesVersion')}</small><strong>{versions.kubernetes || '-'}</strong></div>
+                <div className={styles.clusterVersion}><small>{t('cluster.rainbondVersion')}</small><strong title={versions.rainbond || undefined}>{overviewData.compactVersion(versions.rainbond)}</strong></div>
+                <div className={styles.clusterVersion}><small>{t('cluster.kubernetesVersion')}</small><strong title={versions.kubernetes || undefined}>{versions.kubernetes || '-'}</strong></div>
               </div>
               {resources ? (
                 <div className={styles.clusterResources}>
