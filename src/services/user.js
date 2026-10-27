@@ -191,7 +191,8 @@ export async function queryThirdLoginBinding(
     method: 'post',
     data: {
       service_id: body.service_id,
-      code: body.code
+      code: body.code,
+      state: body.state
     },
     handleError
   });

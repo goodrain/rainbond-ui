@@ -49,17 +49,18 @@ export default class ThirdLogin extends Component {
           type: 'user/fetchThirdLoginBinding',
           payload: {
             code,
-            service_id
+            service_id,
+            state
           },
           callback: res => {
             if (res) {
               const status = res.response_data && res.response_data.status;
-              if (status && status === 400) {
+              if (status && status >= 400) {
                 this.setState(
                   {
                     resultState: 'error',
                     title: formatMessage({ id: 'login.Third.Failed' }),
-                    desc: formatMessage({ id: 'login.Third.Authentication' })
+                    desc: res.msg_show || formatMessage({ id: 'login.Third.Authentication' })
                   },
                   () => {
                     setTimeout(() => {

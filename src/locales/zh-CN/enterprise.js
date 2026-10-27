@@ -1672,7 +1672,10 @@ const otherEnterprise = {
     'otherEnterprise.SiderMenu.imput_max': '请输入收藏名称，最大长度10位',
     'otherEnterprise.SiderMenu.title': '收藏标签页方便快速访问',
 
+    'otherEnterprise.BindingView.ReauthorizeHint': '如需更换账号，请先在 GitLab 等代码仓库退出当前账号，再重新授权。换绑后将使用新账号权限访问仓库。',
+    'otherEnterprise.BindingView.Reauthorize': '重新授权',
     'otherEnterprise.BindingView.Certified': '已认证',
+    'otherEnterprise.BindingView.Expired': '已过期，重新认证',
     'otherEnterprise.BindingView.Expired ': '已过期重新认证',
     'otherEnterprise.BindingView.De_certification': '去认证',
     'otherEnterprise.BindingView.Not_certified': '未认证',
