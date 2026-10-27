@@ -503,7 +503,7 @@ export default class Enterprise extends PureComponent {
       { icon: 'deployment-unit', label: t('global.nodes'), value: nodeState.status === 'loading' ? undefined : nodeState.status === 'unavailable' ? '-' : nodeState.data && overviewData.isNumber(nodeState.data.total) ? nodeState.data.total : '-', detail: nodeDetail },
       { icon: 'team', label: t('global.teams'), value: quick.teams },
       { icon: 'user', label: t('global.users'), value: quick.users },
-      { icon: 'appstore', label: t('global.workloads'), value: workloadTotals.join(' / '), detail: workloadDetail },
+      { icon: 'appstore', label: t('global.workloads'), value: workloadTotals.join(' / '), detail: workloadDetail, detailClassName: styles.workloadDetail },
       { icon: 'alert', label: t('global.appAlarms'), value: alarmState.status === 'loading' ? undefined : alarmCountKnown ? alarms.total : '-', detail: alarmState.status === 'loading' ? null : !alarmCountKnown ? t('global.unavailable') : alarmState.status === 'ok' ? (alarms.total > 0 ? t('global.viewAlarms') : t('global.none')) : t(alarms.total > 0 ? 'global.viewKnownAlarms' : 'global.alarmPartial'), warning: alarmCountKnown && alarms.total > 0, action: alarmCountKnown && alarms.total > 0 ? () => this.setState({ applicationModalVisible: true }) : null }
     ];
     return (
@@ -514,7 +514,7 @@ export default class Enterprise extends PureComponent {
               const MetricElement = item.action ? 'button' : 'article';
               return <MetricElement type={item.action ? 'button' : undefined} key={item.label} className={`${styles.globalMetric} ${item.action ? styles.metricAction : ''} ${item.warning ? styles.warningMetric : ''}`} onClick={item.action || undefined}>
                 <span className={styles.metricLabel}>{item.label}<Icon type={item.icon} /></span>
-                <strong>{item.value === undefined ? <Skeleton active title={{ width: 36 }} paragraph={false} /> : item.value}</strong>{item.detail ? <em>{item.detail}{item.action ? <Icon type="right" /> : null}</em> : null}
+                <strong>{item.value === undefined ? <Skeleton active title={{ width: 36 }} paragraph={false} /> : item.value}</strong>{item.detail ? <em className={item.detailClassName}>{item.detail}{item.action ? <Icon type="right" /> : null}</em> : null}
               </MetricElement>;
             })}
           </div>
@@ -684,7 +684,7 @@ export default class Enterprise extends PureComponent {
       <OverviewModule title={t('services.title')} className={styles.servicesModule} error={errors.cluster} onRetry={this.loadClusterSnapshot}>
         <div className={styles.servicesBody}>
           <div className={styles.componentPanel}><div className={styles.sectionTitle}><button type="button" onClick={this.jumpCluster}><Icon type="cloud-server" /> {t('services.components')} <Icon type="right" /></button><span className={styles.componentStatusGroup}><Tooltip title={components && components.length ? t('services.summary', { healthy: componentHealthy, total: components.length }) : componentSummary}><small className={`${styles.serviceStatus} ${summaryClass}`} tabIndex={0}><i aria-hidden="true" />{componentSummary}</small></Tooltip>
-            {restartRecords.length ? <Tooltip trigger={['hover', 'focus']} title={restartDetails}><small className={styles.componentRestartSummary} tabIndex={0} aria-label={t('services.restartAffected', { count: restartRecords.length })}><Icon type="reload" />{t('services.restartGroups', { count: restartRecords.length })}</small></Tooltip> : null}
+            {restartRecords.length ? <Tooltip trigger={['hover', 'focus']} title={restartDetails}><small className={styles.componentRestartSummary} tabIndex={0} aria-label={t('services.restartAffected', { count: restartRecords.length })}><Icon type="history" />{t('services.restartGroups', { count: restartRecords.length })}</small></Tooltip> : null}
           </span></div>
           {components ? <div className={styles.componentGrid}>{representative.map(component => {
             const state = overviewData.componentVisualState(component);
@@ -739,7 +739,7 @@ export default class Enterprise extends PureComponent {
     const expiring = ((gateway && gateway.certificates) || []).filter(item => item.status !== 'normal').length;
     const StatusElement = issues.length ? 'button' : 'div';
     return (
-      <OverviewModule title={t('gateway.title')} className={styles.halfModule} error={errors.cluster} onRetry={this.loadClusterSnapshot} extra={gateway && issues.length ? <Button type="link" onClick={() => this.setState({ gatewayModalVisible: true })}>{t('gateway.viewIssues', { count: issues.length })}</Button> : null}>
+      <OverviewModule title={t('gateway.title')} className={`${styles.halfModule} ${styles.gatewayModule}`} error={errors.cluster} onRetry={this.loadClusterSnapshot} extra={gateway && issues.length ? <Button type="link" onClick={() => this.setState({ gatewayModalVisible: true })}>{t('gateway.viewIssues', { count: issues.length })}</Button> : null}>
         {gateway ? <React.Fragment><div className={styles.gatewayMetrics}><div><span>{t('gateway.httpDomains')}</span><strong>{displayNumber(gateway.http_domains, 0)}</strong></div><div><span>{t('gateway.tcpRoutes')}</span><strong>{displayNumber(gateway.tcp_routes, 0)}</strong></div><div><span>{t('gateway.certificates')}</span><strong>{(gateway.certificates || []).length}</strong><small>{t('gateway.expiring', { count: expiring })}</small></div></div><StatusElement type={issues.length ? 'button' : undefined} className={`${styles.gatewayStatus} ${issues.length ? styles.gatewayWarning : ''}`} onClick={issues.length ? () => this.setState({ gatewayModalVisible: true }) : undefined}><Tooltip title={<span>{t('gateway.description')}<br />{t('gateway.healthyDescription')}</span>}><Icon type={issues.length ? 'warning' : 'info-circle'} tabIndex={0} aria-label={t('gateway.healthyDescription')} /></Tooltip><span><strong>{issues.length ? t('gateway.hasIssues', { count: issues.length }) : t((gateway.certificates || []).length ? 'gateway.healthy' : 'gateway.noBoundCertificates')}</strong>{issues.length ? <small>{t('gateway.issueDescription')}</small> : null}</span>{issues.length ? <Icon type="right" /> : null}</StatusElement></React.Fragment> : gatewaySection.status === 'loading' ? (!errors.cluster ? <Skeleton active paragraph={{ rows: 3 }} /> : null) : <Alert type="warning" showIcon message={t('gateway.unavailable')} />}
       </OverviewModule>
     );

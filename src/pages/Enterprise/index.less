@@ -583,6 +583,9 @@
   font-variant-numeric: tabular-nums;
 }
 
+.globalMetric em { color: @text-color-secondary; }
+.globalMetric em.workloadDetail { white-space: normal; }
+
 .warningMetric .metricLabel > i,
 .warningMetric strong {
   color: darken(@warning-color, 17%);
@@ -1102,6 +1105,8 @@
   height: calc(100% - 16px);
 }
 
+.gatewayModule { display: block; }
+
 .monitorModule { display: flex; flex-direction: column; }
 .monitorModule .moduleHeader { flex: 0 0 auto; }
 .monitorModule .moduleBody { min-height: 360px; flex: 1; display: flex; flex-direction: column; padding: 16px; }
@@ -1139,13 +1144,13 @@
 .chartSummary > strong { color: @rbd-overview-heading-color; font-size: (@rbd-title-big-size + 4px); font-variant-numeric: tabular-nums; line-height: 1.2; font-weight: 650; }
 .chartSummary > strong small { margin-left: 5px; color: @text-color-secondary; font-size: @rbd-sub-title-size; }
 .chartSummary > span { color: @text-color-secondary; font-size: @rbd-auxiliary-size; }
-.chartSummary > span small { display: block; margin-top: 3px; color: @rbd-label-color; }
+.chartSummary > span small { display: block; margin-top: 3px; color: @text-color-secondary; font-size: @rbd-auxiliary-size; line-height: @rbd-auxiliary-line-height; }
 .chartLegend { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px; color: @text-color-secondary; font-size: @rbd-auxiliary-size; }
 .chartLegend > .legendSwatch { flex: 0 0 16px; width: 16px; height: 3px; background: @primary-color; border-radius: 2px; }
 .chartLegend > :global(.anticon) { flex-shrink: 0; }
 .legendmemory > .legendSwatch { background: @success-color; }
 .legendnetwork > .legendSwatch { background: @warning-color; }
-.metricSource { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; margin-top: 13px; padding-top: 10px; border-top: 1px solid fade(@rbd-label-color, 18%); color: @text-color-secondary; font-size: (@rbd-auxiliary-size - 1px); }
+.metricSource { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; margin-top: 13px; padding-top: 10px; border-top: 1px solid fade(@rbd-label-color, 18%); color: @text-color-secondary; font-size: @rbd-auxiliary-size; }
 .metricSource small { font-size: inherit; }
 .metricSource em { color: @text-color-secondary; font-size: inherit; font-style: normal; }
 .monitorEmptyState { min-height: 186px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 16px; }
@@ -1227,10 +1232,10 @@
 .componentStarting .componentState { background: @primary-color; }
 .componentStarting .componentIcon { color: @primary-color; background: fade(@primary-color, 7%); }
 .sectionTitle > .componentStatusGroup { min-width: 0; display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 4px 6px; }
-.sectionTitle small.componentRestartSummary { display: inline-flex; align-items: center; gap: 4px; padding: 1px 6px; color: darken(@warning-color, 22%); background: fade(@warning-color, 8%); border-radius: 12px; font-size: (@rbd-auxiliary-size - 1px); line-height: (@rbd-auxiliary-line-height - 4px); cursor: help; }
-.componentGrid small.componentMeta { display: flex; align-items: center; gap: 5px; }
+.sectionTitle small.componentRestartSummary { display: inline-flex; align-items: center; gap: 4px; padding: 1px 6px; color: @text-color-secondary; background: fade(@rbd-label-color, 8%); border-radius: 12px; font-size: @rbd-auxiliary-size; line-height: (@rbd-auxiliary-line-height - 4px); cursor: help; }
+.componentGrid small.componentMeta { display: flex; align-items: center; flex-wrap: wrap; gap: 0 6px; }
 .componentMeta > span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.componentMeta .componentRestartCount { flex-shrink: 0; color: darken(@warning-color, 22%); font-size: inherit; cursor: help; }
+.componentMeta .componentRestartCount { flex-shrink: 0; color: @text-color-secondary; font-size: inherit; cursor: help; }
 .componentAbnormal .componentRestartCount { color: @error-color; }
 .componentCopy { min-width: 0; flex: 1; }
 .itemChevron { color: @rbd-label-color; font-size: (@rbd-auxiliary-size - 2px); }
@@ -1415,14 +1420,14 @@
   border-radius: inherit;
 }
 
-.teamLine { min-width: 0; display: flex; align-items: baseline; justify-content: space-between; gap: 9px; }
-.teamLine > small { flex: 0 0 auto; color: @text-color-secondary; font-size: (@rbd-auxiliary-size - 2px); }
+.teamLine { min-width: 0; display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 2px 9px; }
+.teamLine > small { min-width: 0; max-width: 100%; flex: 0 1 auto; color: @text-color-secondary; font-size: @rbd-auxiliary-size; }
 .rankingToolbar { min-height: 58px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 9px 14px; border-bottom: 1px solid fade(@rbd-label-color, 18%); }
 .rankingToolbar > span { display: flex; align-items: center; gap: 9px; }
 .rankingToolbar > span > i { width: 30px; height: 30px; display: grid; place-items: center; color: @primary-color; background: fade(@primary-color, 8%); border-radius: 7px; }
 .rankingToolbar strong { display: block; font-size: @rbd-auxiliary-size; font-weight: 600; }
 .rankingToolbar strong em { color: @primary-color; font-style: normal; }
-.rankingToolbar small { display: block; margin-top: 2px; color: @text-color-secondary; font-size: (@rbd-auxiliary-size - 2px); }
+.rankingToolbar small { display: block; margin-top: 2px; color: @text-color-secondary; font-size: @rbd-auxiliary-size; }
 
 .teamValue {
   color: @rbd-overview-heading-color;
@@ -1432,13 +1437,13 @@
 }
 
 .teamValue small {
-  color: @rbd-label-color;
+  color: @text-color-secondary;
   font-size: @rbd-auxiliary-size;
   font-weight: 400;
 }
 
 .teamValue > strong { display: block; font-size: @rbd-content-size; font-weight: 600; white-space: nowrap; }
-.teamValue em { display: block; margin-top: 2px; color: @text-color-secondary; font-size: (@rbd-auxiliary-size - 2px); font-style: normal; font-weight: 400; white-space: nowrap; }
+.teamValue em { display: block; margin-top: 2px; color: @text-color-secondary; font-size: @rbd-auxiliary-size; font-style: normal; font-weight: 400; white-space: nowrap; }
 
 .gatewayMetrics {
   display: grid;
@@ -1462,7 +1467,7 @@
 
 .gatewayMetrics span,
 .gatewayMetrics small {
-  color: @rbd-label-color;
+  color: @text-color-secondary;
   font-size: @rbd-auxiliary-size;
 }
 
@@ -1504,7 +1509,7 @@
 }
 
 .gatewayStatus small {
-  color: @rbd-label-color;
+  color: @text-color-secondary;
   font-size: @rbd-auxiliary-size;
 }
 

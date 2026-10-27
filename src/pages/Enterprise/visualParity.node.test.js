@@ -59,6 +59,10 @@ trend.updateChart();
 assert.ok(updates.every(update => update.notMerge === false && update.option.animation === false));
 assert.strictEqual(updates[0].option.series[0].id, updates[1].option.series[0].id);
 assert.deepStrictEqual(updates[1].option.series[0].data, [[200000, 40]]);
+assert.equal(updates[1].option.xAxis.axisLabel.color, require('../../../config/theme')['text-color-secondary']);
+assert.equal(updates[1].option.yAxis.axisLabel.color, require('../../../config/theme')['text-color-secondary']);
+assert.equal(updates[1].option.xAxis.axisLabel.fontSize, 12);
+assert.equal(updates[1].option.yAxis.axisLabel.fontSize, 12);
 const runtimeStatus = result.exports.clusterRuntimeStatus;
 const healthySnapshot = () => ({ sections: {
   // Console _normalize_nodes returns no data.status; availability lives on the envelope.
@@ -264,4 +268,32 @@ delete displayPage.props.overview.shell.global.components;
 const unavailableWorkload = textOf(postureMetrics()[4]);
 assert.ok(unavailableWorkload.includes('13 / -') && unavailableWorkload.includes('platformOverview.global.runningUnavailable'));
 assert.ok(!unavailableWorkload.includes('undefined') && !unavailableWorkload.includes('null'));
+
+// Copy must preserve the difference between current activity and cumulative history.
+const localeMessages = language => {
+  const locale = { exports: {} };
+  const localeCode = esbuild.transformSync(fs.readFileSync(path.join(__dirname, `../../locales/${language}/enterprise.js`), 'utf8'), { format: 'cjs' }).code;
+  new Function('module', 'exports', localeCode)(locale, locale.exports);
+  return locale.exports.default;
+};
+for (const language of ['zh-CN', 'en-US']) {
+  const messages = localeMessages(language);
+  const running = messages['platformOverview.global.runningCounts'];
+  assert.ok(running.includes('{applications}') && running.includes('{components}') && !running.includes(' / '));
+  assert.match(running, language === 'zh-CN' ? /应用.*组件/ : /apps.*components/);
+  assert.match(messages['platformOverview.services.restartCount'], language === 'zh-CN' ? /累计/ : /cumulative/);
+  assert.match(messages['platformOverview.services.restartGroups'], language === 'zh-CN' ? /记录/ : /records/);
+}
+const gatewaySnapshot = { sections: { gateway: { status: 'ok', data: { http_domains: 7, tcp_routes: 2, certificates: [], issues: [] } } } };
+displayPage.getCurrentSnapshot = () => gatewaySnapshot;
+const clearGateway = displayPage.renderGateway();
+assert.ok(clearGateway.props.className.includes('gatewayModule'));
+assert.ok(!nodes(clearGateway).some(item => item.type === 'button'), 'normal gateway state does not invent an action');
+gatewaySnapshot.sections.gateway.data.issues = [{ domain: 'expired.example.com' }];
+const gatewayAction = nodes(displayPage.renderGateway()).find(item => item.type === 'button');
+assert.ok(gatewayAction);
+gatewayAction.props.onClick();
+assert.equal(displayPage.state.gatewayModalVisible, true, 'certificate issues retain their existing modal entry');
+gatewaySnapshot.sections.gateway.status = 'empty';
+assert.equal(displayPage.renderGateway(), null, 'an empty gateway section remains hidden');
 console.log('overview visual parity rendering and interaction checks passed');
