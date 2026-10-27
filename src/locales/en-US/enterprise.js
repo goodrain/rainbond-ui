@@ -1666,7 +1666,10 @@ const otherEnterprise = {
     'otherEnterprise.SiderMenu.imput_max': 'Enter the collection name, with a maximum length of 10 digits',
     'otherEnterprise.SiderMenu.title': 'Favorites tab for easy and quick access',
 
+    'otherEnterprise.BindingView.ReauthorizeHint': 'To switch accounts, sign out of your code hosting account first, then reauthorize. Repository access will use the new account permissions.',
+    'otherEnterprise.BindingView.Reauthorize': 'Reauthorize',
     'otherEnterprise.BindingView.Certified': 'Certified',
+    'otherEnterprise.BindingView.Expired': 'Expired, reauthorize',
     'otherEnterprise.BindingView.Expired ': 'Expired recertification',
     'otherEnterprise.BindingView.De_certification': 'Authenticate',
     'otherEnterprise.BindingView.Not_certified': ' unauthenticated ',

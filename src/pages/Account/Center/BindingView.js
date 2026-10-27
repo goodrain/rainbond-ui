@@ -28,6 +28,11 @@ class BindingView extends Component {
 
   componentDidMount() {
     this.fetchOauthInfo();
+    window.addEventListener('focus', this.fetchOauthInfo);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('focus', this.fetchOauthInfo);
   }
 
   fetchOauthInfo = () => {
@@ -208,56 +213,32 @@ class BindingView extends Component {
 
           const authURL = oauthUtil.getAuthredictURL(record);
 
-          // 提取公共的认证文本
-          const getCertificationText = () => {
-            if (isAuthenticated) {
-              return formatMessage({ id: 'otherEnterprise.BindingView.Certified' });
-            }
-            if (isExpired) {
-              return formatMessage({ id: 'otherEnterprise.BindingView.Expired' });
-            }
-            return formatMessage({ id: 'otherEnterprise.BindingView.De_certification' });
-          };
+          const certificationText = isExpired
+            ? formatMessage({ id: 'otherEnterprise.BindingView.Expired' })
+            : isAuthenticated
+              ? formatMessage({ id: 'otherEnterprise.BindingView.Reauthorize' })
+              : formatMessage({ id: 'otherEnterprise.BindingView.De_certification' });
 
-          // 统一的认证链接处理
-          const AuthLink = () => (
-            <>
-              {!isSystem &&
-                <a onClick={() => this.handleDelete(record)} style={{marginRight:10}}>
+          return (
+            <span>
+              {!isSystem && (
+                <a onClick={() => this.handleDelete(record)} style={{ marginRight: 10 }}>
                   删除
                 </a>
-              }
-              <a
-                onClick={() => window.open(`${authURL}&type=certification`, '_blank')}
-                href={`${authURL}&type=certification`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                {getCertificationText()}
-              </a>
-
-            </>
-
-          );
-
-          if (isAuthenticated) {
-            return (
-              <>
-                {!isSystem &&
-                  <a onClick={() => this.handleDelete(record)} style={{marginRight:10}}>
-                    删除
-                  </a>
-                }
-              </>
-
-            );
-          }
-
-          return authURL ? (
-            <span style={{ color: '#4d73b1' }}>
-              <AuthLink />
+              )}
+              {authURL && (!isAuthenticated || isExpired || record.is_git) && (
+                <a
+                  onClick={() => window.localStorage.setItem('redirect', window.location.href)}
+                  title={record.is_git ? formatMessage({ id: 'otherEnterprise.BindingView.ReauthorizeHint' }) : undefined}
+                  href={`${authURL}&type=certification`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {certificationText}
+                </a>
+              )}
             </span>
-          ) : null;
+          );
         },
       },
     ]
