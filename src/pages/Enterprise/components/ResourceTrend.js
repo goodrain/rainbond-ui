@@ -80,7 +80,7 @@ export default class ResourceTrend extends PureComponent {
           boundaryGap: false,
           axisLine: { lineStyle: { color: theme['rbd-overview-divider-color'] } },
           axisTick: { show: false },
-          axisLabel: { color: theme['rbd-label-color'], hideOverlap: true }
+          axisLabel: { color: theme['text-color-secondary'], fontSize: AUXILIARY_FONT_SIZE, hideOverlap: true }
         },
         yAxis: {
           type: 'value',
@@ -89,7 +89,8 @@ export default class ResourceTrend extends PureComponent {
           axisLine: { show: false },
           axisTick: { show: false },
           axisLabel: {
-            color: theme['rbd-label-color'],
+            color: theme['text-color-secondary'],
+            fontSize: AUXILIARY_FONT_SIZE,
             formatter: value => {
               if (metric !== 'network') return `${value}%`;
               const throughput = overviewData.formatThroughput(value);
