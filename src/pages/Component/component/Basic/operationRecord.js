@@ -26,6 +26,7 @@ class Index extends PureComponent {
   constructor(arg) {
     super(arg);
     this.state = {
+      activeLogTooltipEventID: null,
       logVisible: false,
       selectEventID: '',
       showEventStream: false,
@@ -126,6 +127,17 @@ class Index extends PureComponent {
       logVisible: true,
       selectEventID: event_id,
       showEventStream
+    });
+  };
+
+  handleLogTooltipVisibleChange = (eventID, visible) => {
+    this.setState(({ activeLogTooltipEventID }) => {
+      if (visible) {
+        return { activeLogTooltipEventID: eventID };
+      }
+      return activeLogTooltipEventID === eventID
+        ? { activeLogTooltipEventID: null }
+        : null;
     });
   };
 
@@ -265,9 +277,8 @@ class Index extends PureComponent {
 
   render() {
     const { logList, has_next, recordLoading, isopenLog } = this.props;
-    const { logVisible, selectEventID, showEventStream, showModalArr, showModal, isLoadingMore } = this.state;
+    const { logVisible, selectEventID, showEventStream, showModalArr, showModal, isLoadingMore, activeLogTooltipEventID } = this.state;
     let showLogEvent = '';
-    let hasShownFailureLogTip = false;
     return (
       <Card
         title={<FormattedMessage id='componentOverview.body.tab.overview.handle.operationRecord' />}
@@ -320,7 +331,13 @@ class Index extends PureComponent {
                   canShowLog,
                   isLatestRecord: index === 0
                 });
-                const logTooltipVisible = getOperationLogTooltipVisible(final_status, showFailureLogTip);
+                const logTooltipVisible = getOperationLogTooltipVisible({
+                  eventID: event_id,
+                  activeEventID: activeLogTooltipEventID,
+                  isLatestRecord: index === 0,
+                  finalStatus: final_status,
+                  showByDefault: showFailureLogTip
+                });
                 const showVMRestoreStage =
                   opt_type === 'vm-disk-restore' &&
                   final_status === '' &&
@@ -402,14 +419,12 @@ class Index extends PureComponent {
                     <div style={{ position: 'static' }} className="table-wrap">
                       {canShowLog && (
                           <Tooltip
-                            visible={logTooltipVisible}
+                            visible={logTooltipVisible && !logVisible}
+                            onVisibleChange={visible => this.handleLogTooltipVisibleChange(event_id, visible)}
                             placement="top"
                             arrowPointAtCenter
                             autoAdjustOverflow={false}
                             title={logTooltipTitle}
-                            getPopupContainer={() =>
-                              document.querySelector('.table-wrap')
-                            }
                           >
                             <div
                               style={{
