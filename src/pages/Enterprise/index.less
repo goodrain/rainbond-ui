@@ -795,6 +795,22 @@
   line-height: @rbd-auxiliary-line-height;
 }
 
+// Versions are supporting metadata, not another cluster name.
+.clusterVersion {
+  small {
+    color: @rbd-overview-muted-color;
+    font-size: (@rbd-auxiliary-size - 1px);
+    line-height: (@rbd-auxiliary-line-height - 2px);
+  }
+
+  strong {
+    margin-top: 3px;
+    font-size: (@rbd-content-size - 1px);
+    font-weight: 650;
+    line-height: @rbd-auxiliary-line-height;
+  }
+}
+
 .clusterMeta .clusterIdentityLine {
   display: flex;
   align-items: center;
@@ -867,7 +883,7 @@
   align-items: center;
   gap: 7px;
   color: @text-color-secondary;
-  font-size: @rbd-content-size;
+  font-size: (@rbd-content-size - 1px);
   font-weight: 600;
 }
 
@@ -919,7 +935,7 @@
   gap: 3px;
   margin-top: 6px;
   color: @rbd-overview-heading-color;
-  font-size: (@rbd-display-size - 8px);
+  font-size: @rbd-title-big-size;
   font-weight: 650;
   font-variant-numeric: tabular-nums;
   line-height: 1.1;
@@ -950,7 +966,7 @@
   display: block;
   margin-top: 14px;
   color: @primary-color;
-  font-size: @rbd-display-size;
+  font-size: (@rbd-display-size - 4px);
   line-height: 1;
 }
 
@@ -986,7 +1002,7 @@
 .gaugeValue { stroke: @primary-color; transition: stroke-dasharray 420ms ease; }
 .gaugeWarning .gaugeValue { stroke: @warning-color; }
 .resourceGauge > span { position: absolute; left: 0; right: 0; bottom: 0; text-align: center; }
-.resourceGauge strong { display: block; color: @rbd-overview-heading-color; font-size: @rbd-title-big-size; line-height: 1; font-weight: 700; font-variant-numeric: tabular-nums; }
+.resourceGauge strong { display: block; color: @rbd-overview-heading-color; font-size: (@rbd-title-big-size - 2px); line-height: 1; font-weight: 700; font-variant-numeric: tabular-nums; }
 .resourceGauge small { display: block; margin-top: 5px; color: @rbd-label-color; font-size: @rbd-auxiliary-size; }
 .diskStatus { margin: 0; padding: 7px 14px; color: @text-color-secondary; background: fade(@rbd-label-color, 4%); border-top: 1px solid fade(@rbd-label-color, 18%); font-size: @rbd-auxiliary-size; }
 
@@ -1141,8 +1157,8 @@
 .segmentedControl button:hover { color: @primary-color; }
 .segmentedControl button.segmentActive { color: @primary-color; background: @rbd-overview-surface-color; box-shadow: @rbd-min-card-shadow; font-weight: 600; }
 .chartSummary { display: flex; align-items: center; gap: 12px; margin: 3px 0 4px; }
-.chartSummary > strong { color: @rbd-overview-heading-color; font-size: (@rbd-title-big-size + 4px); font-variant-numeric: tabular-nums; line-height: 1.2; font-weight: 650; }
-.chartSummary > strong small { margin-left: 5px; color: @text-color-secondary; font-size: @rbd-sub-title-size; }
+.chartSummary > strong { color: @rbd-overview-heading-color; font-size: @rbd-title-big-size; font-variant-numeric: tabular-nums; line-height: 1.2; font-weight: 650; }
+.chartSummary > strong small { margin-left: 5px; color: @text-color-secondary; font-size: @rbd-content-size; }
 .chartSummary > span { color: @text-color-secondary; font-size: @rbd-auxiliary-size; }
 .chartSummary > span small { display: block; margin-top: 3px; color: @text-color-secondary; font-size: @rbd-auxiliary-size; line-height: @rbd-auxiliary-line-height; }
 .chartLegend { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px; color: @text-color-secondary; font-size: @rbd-auxiliary-size; }
@@ -1258,7 +1274,7 @@
 .pluginList strong {
   color: @rbd-overview-heading-color;
   font-size: @rbd-auxiliary-size;
-  font-weight: 600;
+  font-weight: 650;
   line-height: 18px;
 }
 
@@ -1399,7 +1415,7 @@
   display: block;
   overflow: hidden;
   font-size: @rbd-auxiliary-size;
-  font-weight: 600;
+  font-weight: 650;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -1442,7 +1458,7 @@
   font-weight: 400;
 }
 
-.teamValue > strong { display: block; font-size: @rbd-content-size; font-weight: 600; white-space: nowrap; }
+.teamValue > strong { display: block; font-size: @rbd-content-size; font-weight: 650; white-space: nowrap; }
 .teamValue em { display: block; margin-top: 2px; color: @text-color-secondary; font-size: @rbd-auxiliary-size; font-style: normal; font-weight: 400; white-space: nowrap; }
 
 .gatewayMetrics {
