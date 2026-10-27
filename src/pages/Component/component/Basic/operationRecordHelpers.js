@@ -40,11 +40,17 @@ function getOperationLogTooltipTitle({ defaultTitle, detail }) {
   return defaultTitle;
 }
 
-function getOperationLogTooltipVisible(finalStatus, showByDefault = false) {
-  if (finalStatus === '' || finalStatus === 'running' || showByDefault) {
-    return true;
+function getOperationLogTooltipVisible({
+  eventID,
+  activeEventID,
+  isLatestRecord,
+  finalStatus,
+  showByDefault = false
+}) {
+  if (activeEventID !== null) {
+    return activeEventID === eventID;
   }
-  return undefined;
+  return isLatestRecord && (isOperationLogRunning(finalStatus) || showByDefault);
 }
 
 function isOperationLogRunning(finalStatus) {

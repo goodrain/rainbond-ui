@@ -69,41 +69,28 @@ assert.strictEqual(
   'should keep the default log icon tooltip when no detail is available'
 );
 
-assert.strictEqual(
-  getOperationLogTooltipVisible(''),
-  true,
-  'should keep in-progress operation log tips visible'
-);
-
-assert.strictEqual(
-  getOperationLogTooltipVisible('running'),
-  true,
-  'should keep running health-check operation log tips visible'
-);
-
-assert.strictEqual(
-  isOperationLogRunning('running'),
-  true,
-  'should treat running health-check operation logs as dynamic'
-);
-
-assert.strictEqual(
-  isOperationLogRunning('empty'),
-  false,
-  'should not treat finished health-check operation logs as dynamic'
-);
-
-assert.strictEqual(
-  getOperationLogTooltipVisible('complete'),
-  undefined,
-  'should leave completed operation log tips uncontrolled so hover can show them'
-);
-
-assert.strictEqual(
-  getOperationLogTooltipVisible('complete', true),
-  true,
-  'should show selected completed operation log tips by default'
-);
+// Multiple running records must never create multiple default tooltips.
+const records = [
+  { eventID: 'latest', finalStatus: 'running', isLatestRecord: true },
+  { eventID: 'older', finalStatus: '', isLatestRecord: false },
+  { eventID: 'finished', finalStatus: 'complete', isLatestRecord: false }
+];
+const visibleEvents = (activeEventID, showByDefault = false) => records
+  .filter(record => getOperationLogTooltipVisible({ ...record, activeEventID, showByDefault }))
+  .map(record => record.eventID);
+assert.deepStrictEqual(visibleEvents(null), ['latest']);
+assert.deepStrictEqual(visibleEvents('older'), ['older']);
+assert.deepStrictEqual(visibleEvents('finished'), ['finished']);
+assert.deepStrictEqual(visibleEvents(null, true), ['latest']);
+assert.strictEqual(getOperationLogTooltipVisible({
+  eventID: 'latest', activeEventID: null, isLatestRecord: true, finalStatus: 'complete'
+}), false);
+assert.strictEqual(getOperationLogTooltipVisible({
+  eventID: 'latest', activeEventID: null, isLatestRecord: true,
+  finalStatus: 'complete', showByDefault: true
+}), true);
+assert.strictEqual(isOperationLogRunning('running'), true);
+assert.strictEqual(isOperationLogRunning('empty'), false);
 
 assert.strictEqual(
   shouldShowOperationLogTooltipByDefault({
