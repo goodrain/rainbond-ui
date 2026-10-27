@@ -110,7 +110,12 @@ async function withApplication(verify, options = {}) {
       '../common/appMenu': { getAppMenuData: () => [] }, '../common/teamMenu': { getMenuData: () => [] },
       '../common/helmMenu': { getHelmMenuData: () => [] },
       '@/components/ApplicationGovernance': props => { viewCallbacks.governance = props.onOk; return null; },
-      '../../../pages/Group/AddServiceComponent': props => { viewCallbacks.componentCreated = props.refreshCurrent; return null; },
+      // This integration observes creation callbacks, not chunk-loading behavior.
+      // The DeferredComponent suite exercises the real UMI import boundary.
+      '../../DeferredComponent': () => props => {
+        if (props.refreshCurrent) viewCallbacks.componentCreated = props.refreshCurrent;
+        return null;
+      },
       './componentViewPerformance': require('../components/SlidePanel/components/componentViewPerformance')
     };
     const evaluate = (key, imports = {}) => {
