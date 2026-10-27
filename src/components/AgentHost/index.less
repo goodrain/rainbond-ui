@@ -1354,6 +1354,8 @@
 
 // ==================== 我的记忆（弹窗） ====================
 // 挂在 antd Modal 的 wrapClassName 上：弹窗渲染在 body 里，样式走 CSS Modules。
+// 注意：弹窗 z-index 1300 高于 antd 浮层默认值（1000~1060），所以内部一律不用
+// Popconfirm / Dropdown / Tooltip / message —— 走 portal 的组件会被压在弹窗下面。
 
 .memoryModal {
   :global(.ant-modal-content) {
@@ -1411,34 +1413,12 @@
   font-size: 12px;
 }
 
-.memoryToolbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  padding: 12px 24px;
-  border-bottom: 1px solid #f0f2f5;
-}
-
-.memorySearch {
-  width: 200px;
-  margin-left: auto;
-}
-
-.memoryScopeSelect {
-  width: 132px;
-}
-
-.memoryRefresh {
-  flex: 0 0 auto;
-}
-
 .memoryList {
   flex: 1 1 auto;
   min-height: 200px;
-  max-height: 48vh;
+  max-height: 56vh;
   overflow-y: auto;
-  padding: 4px 16px 8px;
+  padding: 8px 16px;
   background: #fafbfd;
 }
 
@@ -1535,28 +1515,36 @@
   display: flex;
   align-items: center;
   flex: 0 0 auto;
-  gap: 10px;
   align-self: center;
+  gap: 10px;
+  font-size: 12px;
+  white-space: nowrap;
 }
 
-.memoryFeedback {
-  font-size: 12px;
+.memoryAction {
   color: #8c8c8c;
+  cursor: pointer;
 
   &:hover {
     color: #1b5dfb;
   }
 }
 
-.memoryDelete {
-  flex: 0 0 auto;
-  align-self: center;
-  padding: 2px 4px;
-  font-size: 12px;
+.memoryActionDanger {
   color: #ff4d4f;
+  cursor: pointer;
 
   &:hover {
     color: #ff7875;
+  }
+}
+
+.memoryActionMuted {
+  color: #bfbfbf;
+  cursor: pointer;
+
+  &:hover {
+    color: #8c8c8c;
   }
 }
 
@@ -1571,6 +1559,16 @@
 .memoryCount {
   font-size: 12px;
   color: #8c8c8c;
+}
+
+.memoryNotice {
+  margin-left: 12px;
+  color: #52c41a;
+}
+
+.memoryFooterActions {
+  display: flex;
+  gap: 8px;
 }
 
 .memoryClose {

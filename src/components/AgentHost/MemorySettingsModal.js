@@ -1,21 +1,5 @@
 import React, { PureComponent } from 'react';
-import {
-  Alert,
-  Button,
-  Dropdown,
-  Empty,
-  Icon,
-  Input,
-  Menu,
-  Modal,
-  Popconfirm,
-  Radio,
-  Select,
-  Spin,
-  Tag,
-  Tooltip,
-  message
-} from 'antd';
+import { Alert, Button, Empty, Icon, Modal, Spin, Tag } from 'antd';
 import {
   deleteAgentMemory,
   getAgentMemoryStatus,
@@ -27,11 +11,12 @@ import styles from './index.less';
 /**
  * 我的记忆（弹窗）。
  *
- * 入口在聊天面板头部的灯泡按钮；记忆本身由对话自动沉淀，这里只做三件事：
- * 看见它学到了什么、按类型/作用域筛出来、把学错的删掉。
+ * 入口在聊天面板头部的灯泡按钮；记忆由对话自动沉淀，这里只做三件事：
+ * 看见它学到了什么、把学错的删掉、对单条给一次反馈。
  *
- * 刻意不提供“手写一条”：偏好是从对话里流露出来的，让人专门去写既反人性，
- * 也会拿到失真的内容（见 docs/plans/2026-10-23-agent-user-memory-design.md §12）。
+ * 刻意不做筛选框：记忆有硬配额（习惯 120 + 案例 80），一屏滚动足够；
+ * 也刻意不用 Popconfirm / Dropdown —— 弹窗自身 z-index 高于 antd 浮层默认值，
+ * 走 portal 的浮层会被压在弹窗下面，表现为"点了没反应"。删除与反馈都用行内交互。
  */
 
 const KIND_META = {
@@ -44,22 +29,20 @@ const KIND_META = {
   procedure: { label: '操作口诀', color: '#EB2F96' }
 };
 
-const KIND_FILTERS = [
-  { value: 'all', label: '全部' },
-  { value: 'preference', label: '偏好' },
-  { value: 'habit', label: '习惯' },
-  { value: 'case', label: '案例' },
-  { value: 'episode', label: '工作记录' }
-];
+const SCOPE_LABELS = {
+  user: '个人',
+  app: '应用',
+  component: '组件'
+};
 
-const SCOPE_OPTIONS = [
-  { value: 'user', label: '个人' },
-  { value: 'app', label: '应用' },
-  { value: 'component', label: '组件' }
-];
+const FEEDBACK_NOTICE = {
+  useful: '已标记为有用',
+  noise: '已标记为噪声',
+  wrong: '已删除，这条记忆不会再出现'
+};
 
-/** 单次拉取上限：记忆有硬配额（习惯 120 + 案例 80），一次取全量即可做本地筛选。 */
-const MAX_ITEMS = 100; // 后端 MAX_PAGE_SIZE=100
+/** 后端单页上限 100，记忆本身有硬配额，一次取够即可。 */
+const MAX_ITEMS = 100;
 
 function pad(value) {
   return value < 10 ? `0${value}` : String(value);
@@ -88,9 +71,11 @@ export default class MemorySettingsModal extends PureComponent {
     storage: '',
     enabled: true,
     learnEnabled: true,
-    kind: 'all',
-    scope: 'all',
-    keyword: ''
+    pendingDeleteId: '',
+    deletingId: '',
+    feedbackOpenId: '',
+    feedbackPendingId: '',
+    notice: ''
   };
 
   componentDidMount() {
@@ -99,6 +84,10 @@ export default class MemorySettingsModal extends PureComponent {
 
   componentDidUpdate(prevProps) {
     if (this.props.visible && !prevProps.visible) this.load();
+  }
+
+  componentWillUnmount() {
+    if (this.noticeTimer) clearTimeout(this.noticeTimer);
   }
 
   load = () => {
@@ -125,48 +114,47 @@ export default class MemorySettingsModal extends PureComponent {
       .finally(() => this.setState({ loading: false }));
   };
 
+  /** 行内提示：不用 antd message（它的 z-index 低于弹窗，会被遮罩挡住）。 */
+  flash = text => {
+    this.setState({ notice: text });
+    if (this.noticeTimer) clearTimeout(this.noticeTimer);
+    this.noticeTimer = setTimeout(() => this.setState({ notice: '' }), 3000);
+  };
+
   handleRemove = memoryId => {
+    this.setState({ deletingId: memoryId });
     deleteAgentMemory(memoryId)
       .then(() => {
         this.setState(state => ({
-          items: state.items.filter(item => item.id !== memoryId)
+          items: state.items.filter(item => item.id !== memoryId),
+          pendingDeleteId: '',
+          deletingId: ''
         }));
-        message.success('已删除，本轮之后不会再带上它');
+        this.flash('已删除，之后不会再带上它');
       })
       .catch(error => {
-        message.error((error && error.message) || '删除失败');
+        this.setState({ deletingId: '' });
+        this.flash((error && error.message) || '删除失败');
       });
   };
 
   handleFeedback = (memoryId, signal) => {
+    this.setState({ feedbackPendingId: memoryId, feedbackOpenId: '' });
     submitAgentMemoryFeedback(memoryId, signal)
       .then(() => {
-        if (signal === 'wrong') {
-          this.setState(state => ({
-            items: state.items.filter(item => item.id !== memoryId)
-          }));
-          message.success('已删除，这条记忆不会再出现');
-          return;
-        }
-        message.success(signal === 'useful' ? '已标记为有用' : '已标记为噪声');
+        this.setState(state => ({
+          feedbackPendingId: '',
+          ...(signal === 'wrong'
+            ? { items: state.items.filter(item => item.id !== memoryId) }
+            : {})
+        }));
+        this.flash(FEEDBACK_NOTICE[signal] || '已反馈');
       })
       .catch(error => {
-        message.error((error && error.message) || '反馈失败');
+        this.setState({ feedbackPendingId: '' });
+        this.flash((error && error.message) || '反馈失败');
       });
   };
-
-  filteredItems() {
-    const { items, kind, scope, keyword } = this.state;
-    const text = keyword.trim().toLowerCase();
-    return items.filter(item => {
-      if (kind !== 'all' && item.kind !== kind) return false;
-      if (scope !== 'all' && (item.scope || 'user') !== scope) return false;
-      if (!text) return true;
-      const haystack = `${item.summary || ''} ${item.content ||
-        ''}`.toLowerCase();
-      return haystack.indexOf(text) >= 0;
-    });
-  }
 
   renderAlert() {
     const { ready, storage, enabled, learnEnabled, loaded } = this.state;
@@ -178,7 +166,7 @@ export default class MemorySettingsModal extends PureComponent {
           type="error"
           showIcon
           message={`记忆存储不可用（${storage || '未知存储'}）`}
-          description="请管理员确认迁移 034 是否已执行，或数据库账号是否可写。"
+          description="请管理员确认迁移 034/035 是否已执行，或数据库账号是否可写。"
         />
       );
     }
@@ -217,54 +205,81 @@ export default class MemorySettingsModal extends PureComponent {
     return null;
   }
 
-  renderToolbar() {
-    const { kind, scope, keyword, loading } = this.state;
+  renderActions(item) {
+    const {
+      pendingDeleteId,
+      deletingId,
+      feedbackOpenId,
+      feedbackPendingId
+    } = this.state;
+    const pendingFeedback = feedbackPendingId === item.id;
+
+    if (feedbackOpenId === item.id) {
+      return (
+        <div className={styles.memoryItemActions}>
+          <span className={styles.memoryActionMuted}>这条记忆：</span>
+          <a
+            className={styles.memoryAction}
+            onClick={() => this.handleFeedback(item.id, 'useful')}
+          >
+            有用
+          </a>
+          <a
+            className={styles.memoryAction}
+            onClick={() => this.handleFeedback(item.id, 'noise')}
+          >
+            噪声
+          </a>
+          <a
+            className={styles.memoryActionDanger}
+            onClick={() => this.handleFeedback(item.id, 'wrong')}
+          >
+            记错了
+          </a>
+          <a
+            className={styles.memoryActionMuted}
+            onClick={() => this.setState({ feedbackOpenId: '' })}
+          >
+            取消
+          </a>
+        </div>
+      );
+    }
+
+    if (pendingDeleteId === item.id) {
+      return (
+        <div className={styles.memoryItemActions}>
+          <span className={styles.memoryActionMuted}>删掉这条？</span>
+          <a
+            className={styles.memoryActionDanger}
+            onClick={() => this.handleRemove(item.id)}
+          >
+            {deletingId === item.id ? '删除中…' : '确认删除'}
+          </a>
+          <a
+            className={styles.memoryActionMuted}
+            onClick={() => this.setState({ pendingDeleteId: '' })}
+          >
+            取消
+          </a>
+        </div>
+      );
+    }
+
     return (
-      <div className={styles.memoryToolbar}>
-        <Radio.Group
-          size="small"
-          value={kind}
-          onChange={event => this.setState({ kind: event.target.value })}
-          optionType="button"
-          buttonStyle="solid"
+      <div className={styles.memoryItemActions}>
+        <a
+          className={styles.memoryAction}
+          onClick={() => this.setState({ feedbackOpenId: item.id })}
         >
-          {KIND_FILTERS.map(option => (
-            <Radio.Button key={option.value} value={option.value}>
-              {option.label}
-            </Radio.Button>
-          ))}
-        </Radio.Group>
-        <Select
-          size="small"
-          className={styles.memoryScopeSelect}
-          value={scope}
-          onChange={value => this.setState({ scope: value || 'all' })}
-          allowClear
-          placeholder="全部作用域"
+          {pendingFeedback ? '提交中…' : '反馈'}
+        </a>
+        <a
+          className={styles.memoryActionDanger}
+          onClick={() => this.setState({ pendingDeleteId: item.id })}
         >
-          {SCOPE_OPTIONS.map(option => (
-            <Select.Option key={option.value} value={option.value}>
-              {option.label}
-            </Select.Option>
-          ))}
-        </Select>
-        <Input.Search
-          size="small"
-          className={styles.memorySearch}
-          placeholder="搜索记忆内容"
-          allowClear
-          value={keyword}
-          onChange={event => this.setState({ keyword: event.target.value })}
-        />
-        <Button
-          size="small"
-          icon="reload"
-          loading={loading}
-          onClick={this.load}
-          className={styles.memoryRefresh}
-        >
-          刷新
-        </Button>
+          删除
+        </a>
       </div>
     );
   }
@@ -272,9 +287,6 @@ export default class MemorySettingsModal extends PureComponent {
   renderItem(item) {
     const meta = kindMeta(item.kind);
     const scope = item.scope || 'user';
-    const scopeLabel = (
-      SCOPE_OPTIONS.find(option => option.value === scope) || {}
-    ).label;
     const text = item.summary || item.content || '';
     return (
       <div key={item.id} className={styles.memoryItem}>
@@ -295,12 +307,14 @@ export default class MemorySettingsModal extends PureComponent {
               {meta.label}
             </Tag>
             {scope !== 'user' ? (
-              <Tag className={styles.memoryScopeTag}>{scopeLabel}</Tag>
+              <Tag className={styles.memoryScopeTag}>
+                {SCOPE_LABELS[scope] || scope}
+              </Tag>
             ) : null}
             {item.pinned ? (
-              <Tooltip title="置顶：每轮都会带上">
+              <span title="置顶：每轮都会带上">
                 <Icon type="star" theme="filled" className={styles.memoryPin} />
-              </Tooltip>
+              </span>
             ) : null}
             <span className={styles.memoryTime}>
               {formatDateTime(item.updatedAt)}
@@ -315,42 +329,14 @@ export default class MemorySettingsModal extends PureComponent {
             {text}
           </div>
         </div>
-        <div className={styles.memoryItemActions}>
-          <Dropdown
-            placement="bottomRight"
-            trigger={['click']}
-            overlay={
-              <Menu
-                onClick={({ key }) => this.handleFeedback(item.id, key)}
-                selectedKeys={[]}
-              >
-                <Menu.Item key="useful">有用</Menu.Item>
-                <Menu.Item key="noise">噪声</Menu.Item>
-                <Menu.Item key="wrong">记错了</Menu.Item>
-              </Menu>
-            }
-          >
-            <a className={styles.memoryFeedback}>反馈</a>
-          </Dropdown>
-          <Popconfirm
-            placement="left"
-            title="删掉这条记忆？"
-            okText="删除"
-            cancelText="取消"
-            okType="danger"
-            onConfirm={() => this.handleRemove(item.id)}
-          >
-            <a className={styles.memoryDelete}>删除</a>
-          </Popconfirm>
-        </div>
+        {this.renderActions(item)}
       </div>
     );
   }
 
   render() {
     const { visible, onClose } = this.props;
-    const { loading, loaded, error, keyword } = this.state;
-    const items = this.filteredItems();
+    const { items, loading, loaded, error } = this.state;
 
     return (
       <Modal
@@ -359,7 +345,7 @@ export default class MemorySettingsModal extends PureComponent {
         footer={null}
         width={760}
         centered
-        // Chat panel 的 z-index 是 1080/1200，弹窗必须压在它上面。
+        // 聊天面板 z-index 是 1080/1200，弹窗必须压在它上面。
         zIndex={1300}
         destroyOnClose={false}
         wrapClassName={styles.memoryModal}
@@ -377,8 +363,6 @@ export default class MemorySettingsModal extends PureComponent {
           </div>
 
           {this.renderAlert()}
-
-          {this.renderToolbar()}
 
           {error ? (
             <Alert
@@ -398,9 +382,7 @@ export default class MemorySettingsModal extends PureComponent {
             {!loading && !items.length ? (
               <Empty
                 className={styles.memoryEmpty}
-                description={
-                  keyword ? '没有匹配的记忆' : '还没有学到记忆，正常对话即可'
-                }
+                description="还没有学到记忆，正常对话即可"
               />
             ) : null}
             {items.map(item => this.renderItem(item))}
@@ -409,15 +391,23 @@ export default class MemorySettingsModal extends PureComponent {
           <div className={styles.memoryFooter}>
             <span className={styles.memoryCount}>
               共 {items.length} 条
-              {items.length !== this.state.items.length
-                ? `（已筛选，总计 ${this.state.items.length} 条）`
-                : ''}
+              {this.state.notice ? (
+                <span className={styles.memoryNotice}>{this.state.notice}</span>
+              ) : null}
             </span>
-            <div>
+            <div className={styles.memoryFooterActions}>
               <Button
                 size="small"
-                onClick={onClose}
+                icon="reload"
+                loading={loading}
+                onClick={this.load}
+              >
+                刷新
+              </Button>
+              <Button
+                size="small"
                 className={styles.memoryClose}
+                onClick={onClose}
               >
                 关闭
               </Button>
