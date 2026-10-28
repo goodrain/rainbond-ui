@@ -3,6 +3,7 @@ import { Alert, Button, Empty, Icon, Modal, Spin, Tag } from 'antd';
 import {
   deleteAgentMemory,
   getAgentMemoryStatus,
+  getRecentMemoryInjections,
   listAgentMemories,
   submitAgentMemoryFeedback
 } from '../../services/agent';
@@ -33,6 +34,13 @@ const SCOPE_LABELS = {
   user: '个人',
   app: '应用',
   component: '组件'
+};
+
+const DECISION_LABELS = {
+  'on-topic': '话题命中',
+  echo: '复述未展开',
+  'low-overlap': '低相关',
+  'no-query': '仅目录'
 };
 
 const FEEDBACK_NOTICE = {
@@ -75,7 +83,8 @@ export default class MemorySettingsModal extends PureComponent {
     deletingId: '',
     feedbackOpenId: '',
     feedbackPendingId: '',
-    notice: ''
+    notice: '',
+    lastInjection: null
   };
 
   componentDidMount() {
@@ -94,16 +103,21 @@ export default class MemorySettingsModal extends PureComponent {
     this.setState({ loading: true, error: '' });
     Promise.all([
       listAgentMemories({ limit: MAX_ITEMS }),
-      getAgentMemoryStatus()
+      getAgentMemoryStatus(),
+      // 审计行是增强信息：接口不存在或失败时不影响主列表。
+      getRecentMemoryInjections(1).catch(() => ({ items: [] }))
     ])
-      .then(([listPayload, status]) => {
+      .then(([listPayload, status, injections]) => {
+        const item =
+          (injections && injections.items && injections.items[0]) || null;
         this.setState({
           items: (listPayload && listPayload.items) || [],
           loaded: true,
           ready: !status || status.ready !== false,
           storage: (status && status.storage) || '',
           enabled: !status || status.enabled !== false,
-          learnEnabled: !status || status.learnEnabled !== false
+          learnEnabled: !status || status.learnEnabled !== false,
+          lastInjection: item
         });
       })
       .catch(error => {
@@ -391,6 +405,13 @@ export default class MemorySettingsModal extends PureComponent {
           <div className={styles.memoryFooter}>
             <span className={styles.memoryCount}>
               共 {items.length} 条
+              {this.state.lastInjection ? (
+                <span className={styles.memoryAudit}>
+                  最近注入 {this.state.lastInjection.memoryIds.length} 条 ·{' '}
+                  {DECISION_LABELS[this.state.lastInjection.decision] ||
+                    this.state.lastInjection.decision}
+                </span>
+              ) : null}
               {this.state.notice ? (
                 <span className={styles.memoryNotice}>{this.state.notice}</span>
               ) : null}

@@ -641,6 +641,15 @@ export async function deleteAgentMemory(memoryId) {
   );
 }
 
+/** 最近一次注入留痕（只读审计，弹窗底部一行）。 */
+export async function getRecentMemoryInjections(limit = 1) {
+  const safeLimit = Math.max(1, Math.min(5, Number(limit) || 1));
+  return requestJson(
+    `${await copilotApiBase()}/memory/injections?limit=${safeLimit}`,
+    { method: 'GET', headers: buildRequestHeaders() }
+  );
+}
+
 /** 单条记忆的反馈：useful / noise / wrong（wrong 会在后端立即软删）。 */
 export async function submitAgentMemoryFeedback(memoryId, signal, note) {
   if (!memoryId) throw new Error('memoryId is required');
