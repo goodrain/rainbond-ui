@@ -21,12 +21,12 @@ import styles from './index.less';
  */
 
 const KIND_META = {
-  preference: { label: '偏好', color: '#1B5DFB' },
-  convention: { label: '约定', color: '#13C2C2' },
-  fact: { label: '事实', color: '#52C41A' },
-  habit: { label: '习惯', color: '#722ED1' },
-  case: { label: '案例', color: '#FA8C16' },
-  episode: { label: '工作记录', color: '#8C8C8C' },
+  preference: { label: '你的偏好', color: '#1B5DFB' },
+  convention: { label: '团队约定', color: '#13C2C2' },
+  fact: { label: '已知事实', color: '#52C41A' },
+  habit: { label: '沟通习惯', color: '#722ED1' },
+  case: { label: '排障经验', color: '#FA8C16' },
+  episode: { label: '上次进度', color: '#8C8C8C' },
   procedure: { label: '操作口诀', color: '#EB2F96' }
 };
 
@@ -36,12 +36,32 @@ const SCOPE_LABELS = {
   component: '组件'
 };
 
-const DECISION_LABELS = {
-  'on-topic': '话题命中',
-  echo: '复述未展开',
-  'low-overlap': '低相关',
-  'no-query': '仅目录'
-};
+/** 只给用户看"关于我"和"经验"；工作记录属于内部状态，不在这里展示。 */
+const VISIBLE_KINDS = new Set([
+  'preference',
+  'habit',
+  'convention',
+  'fact',
+  'case'
+]);
+
+/**
+ * 把模型写的第三人称记录改成第二人称短句：
+ * "用户偏好先给结论，尽量简洁" -> "先给结论，尽量简洁"。
+ * 只做前缀剥离，改不动就原样显示，避免把事实改错。
+ */
+function humanizeMemory(text) {
+  const raw = String(text || '').trim();
+  if (!raw) return '';
+  const stripped = raw
+    .replace(
+      /^用户\s*(偏好|喜欢|不喜欢|希望|要求|习惯|倾向于|通常|总是|经常|讨厌)[：:\s]*/,
+      ''
+    )
+    .replace(/^用户[：:\s]*/, '')
+    .replace(/^(偏好|习惯|希望|要求)[：:\s]*/, '');
+  return stripped || raw;
+}
 
 const FEEDBACK_NOTICE = {
   useful: '已标记为有用',
@@ -127,6 +147,10 @@ export default class MemorySettingsModal extends PureComponent {
       })
       .finally(() => this.setState({ loading: false }));
   };
+
+  visibleItems() {
+    return this.state.items.filter(item => VISIBLE_KINDS.has(item.kind));
+  }
 
   /** 行内提示：不用 antd message（它的 z-index 低于弹窗，会被遮罩挡住）。 */
   flash = text => {
@@ -301,7 +325,7 @@ export default class MemorySettingsModal extends PureComponent {
   renderItem(item) {
     const meta = kindMeta(item.kind);
     const scope = item.scope || 'user';
-    const text = item.summary || item.content || '';
+    const text = humanizeMemory(item.summary || item.content || '');
     return (
       <div key={item.id} className={styles.memoryItem}>
         <span
@@ -333,10 +357,8 @@ export default class MemorySettingsModal extends PureComponent {
             <span className={styles.memoryTime}>
               {formatDateTime(item.updatedAt)}
             </span>
-            {item.hitCount ? (
-              <span className={styles.memoryHit}>
-                被用到 {item.hitCount} 次
-              </span>
+            {item.hitCount >= 3 ? (
+              <span className={styles.memoryHit}>用过 {item.hitCount} 次</span>
             ) : null}
           </div>
           <div className={styles.memoryItemText} title={item.content}>
@@ -350,7 +372,8 @@ export default class MemorySettingsModal extends PureComponent {
 
   render() {
     const { visible, onClose } = this.props;
-    const { items, loading, loaded, error } = this.state;
+    const { loading, loaded, error } = this.state;
+    const items = this.visibleItems();
 
     return (
       <Modal
@@ -371,9 +394,8 @@ export default class MemorySettingsModal extends PureComponent {
       >
         <div className={styles.memoryModalBody}>
           <div className={styles.memoryModalHint}>
-            这些记忆从你的对话里自动沉淀，用来还原你的表达习惯与排查经验；
-            它们只影响措辞和线索，不会改变工具选择、检查顺序或审批行为。
-            记错了可以直接删掉。
+            这里是助手从聊天里记住的东西：你的说话偏好、团队约定，以及踩过的坑。
+            它只会影响表达方式；工具怎么调、审批怎么走，仍然由规则决定。记错了可以直接删掉。
           </div>
 
           {this.renderAlert()}
@@ -396,7 +418,7 @@ export default class MemorySettingsModal extends PureComponent {
             {!loading && !items.length ? (
               <Empty
                 className={styles.memoryEmpty}
-                description="还没有学到记忆，正常对话即可"
+                description="还没有记住什么。正常聊天就行，助手会自动记下稳定的偏好。"
               />
             ) : null}
             {items.map(item => this.renderItem(item))}
@@ -407,9 +429,8 @@ export default class MemorySettingsModal extends PureComponent {
               共 {items.length} 条
               {this.state.lastInjection ? (
                 <span className={styles.memoryAudit}>
-                  最近注入 {this.state.lastInjection.memoryIds.length} 条 ·{' '}
-                  {DECISION_LABELS[this.state.lastInjection.decision] ||
-                    this.state.lastInjection.decision}
+                  上次对话带了 {this.state.lastInjection.memoryIds.length}{' '}
+                  条记忆
                 </span>
               ) : null}
               {this.state.notice ? (
