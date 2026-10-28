@@ -13,8 +13,11 @@ export function normalizeBuildDirectory(value = '') {
 
 export function isValidBuildDirectory(value = '') {
   const directory = value.trim();
-  return !(/^[\/]|^[a-z]:|[\\?#&\x00-\x1f\x7f]/i.test(directory) ||
-    directory.split('/').includes('..'));
+  const normalized = normalizeBuildDirectory(directory);
+  const invalidPath = /^[\/]|^[a-z]:|[\\?#&\x00-\x1f\x7f]/i;
+  return !/[\x00-\x1f\x7f]/.test(value) &&
+    !invalidPath.test(directory) && !invalidPath.test(normalized) &&
+    !normalized.split('/').includes('..');
 }
 
 export function joinBuildSourceUrl(url, directory = '') {

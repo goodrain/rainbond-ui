@@ -38,3 +38,10 @@ test('does not append directory to unsupported query or fragment URLs', async ()
     assert.equal(joinBuildSourceUrl(url, ''), url);
   }
 });
+
+test('validates the normalized directory and does not turn relative input into absolute paths', async () => {
+  const { isValidBuildDirectory } = await helpers;
+  for (const dir of ['.//etc', '././C:/folder', './\\folder', ' / ', 'api\n']) {
+    assert.equal(isValidBuildDirectory(dir), false, dir);
+  }
+});

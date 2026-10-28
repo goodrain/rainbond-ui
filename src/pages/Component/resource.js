@@ -708,7 +708,7 @@ export default class Index extends PureComponent {
 
   handleSubmitOauth = () => {
     const { form, dispatch, appAlias } = this.props;
-    form.validateFields((err, fieldsValue) => {
+    form.validateFields({ force: true }, (err, fieldsValue) => {
       if (err) return;
 
       dispatch({
