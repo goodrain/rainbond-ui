@@ -822,6 +822,130 @@
   }
 }
 
+.milestoneGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.milestoneGroupStandalone {
+  margin-bottom: 18px;
+}
+
+.milestoneList {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 6px 12px;
+  background: #fff;
+  border: 1px solid fade(@border-color-base, 85%);
+  border-radius: 12px;
+  box-shadow: @rbd-min-card-shadow;
+}
+
+.milestoneRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 0;
+  min-width: 0;
+
+  & + & {
+    border-top: 1px dashed fade(@border-color-base, 60%);
+  }
+}
+
+.milestoneStatus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  gap: 4px;
+  min-height: 20px;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.milestoneStatusDone {
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  border-radius: 50%;
+  color: @success-color;
+  background: fade(@success-color, 10%);
+  font-size: 10px;
+}
+
+.milestoneStatusRunning {
+  color: @primary-color;
+  background: transparent;
+}
+
+.milestoneStatusFailed {
+  gap: 2px;
+  color: @error-color;
+}
+
+.milestoneStatusText {
+  font-size: 11px;
+  color: inherit;
+}
+
+.milestoneBody {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  min-width: 0;
+  line-height: 20px;
+}
+
+.milestoneTitle {
+  color: @heading-color;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.milestoneResult {
+  color: @text-color-secondary;
+  font-size: 12px;
+  word-break: break-word;
+}
+
+.milestoneDetailToggle {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: @text-color-secondary;
+  font-size: 12px;
+  line-height: 20px;
+  cursor: pointer;
+
+  &:hover {
+    color: @primary-color;
+  }
+}
+
+.milestoneDetailBody {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  background: #fff;
+  border: 1px solid fade(@border-color-base, 85%);
+  border-radius: 12px;
+
+  .traceRow {
+    margin-bottom: 0;
+  }
+}
+
 .traceCard,
 .approvalCard,
 .errorCard {
@@ -916,6 +1040,7 @@
 .approvalResolvedText {
   display: inline-flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
   color: @text-color-secondary;
   font-size: 12px;
@@ -1107,6 +1232,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   padding: 6px 12px;
   background: fade(@warning-color, 6%);
   border-bottom: 1px solid fade(@warning-color, 12%);
@@ -1129,6 +1255,11 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
+}
+
+.approvalTitleText {
+  word-break: break-word;
 }
 
 .approvalContent {
@@ -1146,6 +1277,70 @@
 
 .approvalContentText {
   color: @heading-color;
+}
+
+.approvalObjectRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 6px;
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.approvalObjectChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: fade(@primary-color, 8%);
+  color: @primary-color;
+  font-size: 12px;
+  line-height: 20px;
+  word-break: break-word;
+}
+
+.approvalEffectRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  color: @text-color-secondary;
+  font-size: 12px;
+  line-height: 20px;
+}
+
+.approvalEffectIcon {
+  margin-top: 4px;
+  color: @primary-color;
+  flex: 0 0 auto;
+}
+
+.approvalDescription {
+  margin-top: 6px;
+  color: @text-color-secondary;
+  font-size: 12px;
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+.approvalReuseNote {
+  padding: 0 12px 10px;
+  color: @primary-color;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.approvalReuseBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: fade(@primary-color, 8%);
+  color: @primary-color;
+  font-size: 11px;
+  line-height: 18px;
+  white-space: nowrap;
 }
 
 .approvalAutoNote {

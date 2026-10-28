@@ -9,22 +9,23 @@ import * as composerState from './composerState';
 import * as closeBehavior from './closeBehavior';
 import * as displayFilters from './displayFilters';
 import * as markdownHelpers from './markdownHelpers';
+import * as milestones from './milestones';
 import * as scrollBehavior from './scrollBehavior';
 import MemorySettingsModal from './MemorySettingsModal';
 
+const {
+  buildMilestones,
+  getApprovalDisplayMeta,
+  mergeAdjacentApprovals,
+  splitTracesByRun,
+} = milestones;
+
 function ReasoningBlock({ reasoning, streaming }) {
-  // Default open while reasoning is still streaming so the user can watch the
-  // model think; auto-collapse the moment streaming closes so the final
-  // answer is the visual focus. Manual toggle stays available either way.
-  const [collapsed, setCollapsed] = useState(false);
-  const wasStreamingRef = useRef(streaming);
+  // Thinking is supporting detail, not the answer: keep it on a single
+  // collapsed line by default and let the user opt in to the full text.
+  const [collapsed, setCollapsed] = useState(true);
   const reasoningBodyRef = useRef(null);
-  useEffect(() => {
-    if (wasStreamingRef.current && !streaming) {
-      setCollapsed(true);
-    }
-    wasStreamingRef.current = streaming;
-  }, [streaming]);
+  const toggleLabel = collapsed ? '点击展开' : '点击收起';
 
   useEffect(() => {
     if (collapsed || !reasoningBodyRef.current) {
@@ -46,9 +47,9 @@ function ReasoningBlock({ reasoning, streaming }) {
         <span
           className={`${styles.reasoningLabel} ${streaming ? styles.reasoningLabelStreaming : ''
             }`}
-          data-text={streaming ? '思考中…' : undefined}
+          data-text={streaming ? `思考中…（${toggleLabel}）` : undefined}
         >
-          {streaming ? '思考中…' : '思考过程'}
+          {streaming ? '思考中…' : '思考过程'}（{toggleLabel}）
         </span>
       </button>
       {!collapsed && reasoning ? (
@@ -192,6 +193,120 @@ class TraceMessageRow extends PureComponent {
   }
 }
 
+class MilestoneRow extends PureComponent {
+  renderStatus() {
+    const { milestone } = this.props;
+
+    if (milestone.status === 'failed') {
+      return (
+        <span
+          className={`${styles.milestoneStatus} ${styles.milestoneStatusFailed}`}
+          title="失败"
+        >
+          <Icon type="close" />
+          <span className={styles.milestoneStatusText}>失败</span>
+        </span>
+      );
+    }
+
+    if (milestone.status === 'running') {
+      return (
+        <span
+          className={`${styles.milestoneStatus} ${styles.milestoneStatusRunning}`}
+          title="进行中"
+        >
+          <Icon type="loading" />
+          <span className={styles.milestoneStatusText}>进行中</span>
+        </span>
+      );
+    }
+
+    return (
+      <span
+        className={`${styles.milestoneStatus} ${styles.milestoneStatusDone}`}
+        title="已完成"
+      >
+        <Icon type="check" />
+      </span>
+    );
+  }
+
+  render() {
+    const { milestone } = this.props;
+    const showResult =
+      milestone.resultText && milestone.resultText !== milestone.phaseLabel;
+
+    return (
+      <div className={styles.milestoneRow}>
+        {this.renderStatus()}
+        <div className={styles.milestoneBody}>
+          <span className={styles.milestoneTitle}>{milestone.phaseLabel}</span>
+          {showResult ? (
+            <span className={styles.milestoneResult} title={milestone.label}>
+              {milestone.resultText}
+            </span>
+          ) : null}
+        </div>
+      </div>
+    );
+  }
+}
+
+class MilestoneTraceGroup extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      detailExpanded: false,
+    };
+  }
+
+  toggleDetail = () => {
+    this.setState(state => ({ detailExpanded: !state.detailExpanded }));
+  };
+
+  renderDetail() {
+    const { traces, renderTrace } = this.props;
+
+    return (
+      <div className={styles.milestoneDetailBody}>
+        {traces.map(item => renderTrace(item))}
+      </div>
+    );
+  }
+
+  render() {
+    const { traces, sending, standalone } = this.props;
+    const { detailExpanded } = this.state;
+    const milestoneRows = buildMilestones(traces, { sending });
+    const stepCount = Array.isArray(traces) ? traces.length : 0;
+
+    return (
+      <div
+        className={`${styles.milestoneGroup} ${standalone ? styles.milestoneGroupStandalone : ''
+          }`}
+      >
+        <div className={styles.milestoneList}>
+          {milestoneRows.map(milestone => (
+            <MilestoneRow key={milestone.key} milestone={milestone} />
+          ))}
+        </div>
+        {stepCount > 0 ? (
+          <button
+            type="button"
+            className={styles.milestoneDetailToggle}
+            onClick={this.toggleDetail}
+            aria-expanded={detailExpanded}
+          >
+            <Icon type={detailExpanded ? 'down' : 'right'} />
+            <span>详细过程（{stepCount} 步）</span>
+          </button>
+        ) : null}
+        {detailExpanded ? this.renderDetail() : null}
+      </div>
+    );
+  }
+}
+
 class ApprovalMessageCard extends PureComponent {
   renderHighRiskActions() {
     const { isDeciding, onDecision } = this.props;
@@ -314,6 +429,7 @@ class ApprovalMessageCard extends PureComponent {
   renderResolvedCompact() {
     const { item } = this.props;
     const approval = item.approval || {};
+    const display = getApprovalDisplayMeta(approval, item);
     const isApproved = approval.status === 'approved';
     const wasAutoApproved = !!approval.autoApproved;
     const iconType = isApproved ? 'check-circle' : 'close-circle';
@@ -323,12 +439,18 @@ class ApprovalMessageCard extends PureComponent {
     const iconClassName = isApproved
       ? styles.approvalResolvedIconApproved
       : styles.approvalResolvedIconRejected;
+    const objectText = display.objectLabel ? `（${display.objectLabel}）` : '';
 
     return (
       <div className={styles.approvalRow}>
         <span className={styles.approvalResolvedText}>
           <Icon type={iconType} className={iconClassName} />
-          <span>{statusLabel}：{item.content}</span>
+          <span>{statusLabel}：{display.actionLabel}{objectText}</span>
+          {item.mergedReuseCount > 0 ? (
+            <span className={styles.approvalReuseBadge}>
+              已沿用批准 {item.mergedReuseCount} 次
+            </span>
+          ) : null}
         </span>
       </div>
     );
@@ -337,6 +459,7 @@ class ApprovalMessageCard extends PureComponent {
   render() {
     const { item } = this.props;
     const approval = item.approval || {};
+    const display = getApprovalDisplayMeta(approval, item);
     const isPending = approval.status === 'pending';
 
     if (!isPending) {
@@ -345,29 +468,54 @@ class ApprovalMessageCard extends PureComponent {
 
     const wasAutoApproved = !!approval.autoApproved;
     const riskMeta = getApprovalRiskMeta(approval.risk, approval.levelLabel);
+    const isReadonly = display.readonly;
     const cardClassName = [
       styles.approvalCard,
-      styles[riskMeta.cardClass]
+      isReadonly ? styles.approvalCardInfo : styles[riskMeta.cardClass]
     ].filter(Boolean).join(' ');
+    const showDescription =
+      display.description && display.description !== display.actionLabel;
 
     return (
       <div className={styles.approvalRow}>
         <div className={cardClassName}>
           <div className={styles.approvalHeader}>
-            <span className={styles.approvalTitle}>
-              <Icon type="exclamation-circle-o" />
-              需要您的授权执行
+            <span className={styles.approvalTitle} title={display.actionLabel}>
+              <Icon type={isReadonly ? 'safety-certificate' : 'exclamation-circle-o'} />
+              <span className={styles.approvalTitleText}>{display.actionLabel}</span>
             </span>
-            <Tag color={riskMeta.color}>{riskMeta.label}</Tag>
+            {isReadonly ? (
+              <Tag color="blue">只读</Tag>
+            ) : (
+              <Tag color={riskMeta.color}>{riskMeta.label}</Tag>
+            )}
           </div>
           <div className={styles.approvalContent}>
-            <span className={styles.approvalContentLabel}>操作内容：</span>
-            <span className={styles.approvalContentText}>{item.content}</span>
+            {display.objectLabel ? (
+              <div className={styles.approvalObjectRow}>
+                <span className={styles.approvalContentLabel}>对象：</span>
+                <span className={styles.approvalObjectChip}>「{display.objectLabel}」</span>
+              </div>
+            ) : null}
+            {display.effectLabel ? (
+              <div className={styles.approvalEffectRow}>
+                <Icon type="info-circle-o" className={styles.approvalEffectIcon} />
+                <span>{display.effectLabel}</span>
+              </div>
+            ) : null}
+            {showDescription ? (
+              <div className={styles.approvalDescription}>{display.description}</div>
+            ) : null}
           </div>
+          {item.mergedReuseCount > 0 ? (
+            <div className={styles.approvalReuseNote}>
+              已沿用批准 {item.mergedReuseCount} 次
+            </div>
+          ) : null}
           {wasAutoApproved ? (
             <div className={styles.approvalAutoNote}>已根据会话策略自动批准</div>
           ) : null}
-          {approval.risk === 'high'
+          {!isReadonly && approval.risk === 'high'
             ? this.renderHighRiskActions()
             : this.renderNormalRiskActions()}
         </div>
@@ -497,7 +645,6 @@ const {
 const { renderMarkdownSource } = markdownHelpers;
 const {
   getNextAutoScrollEnabled,
-  isNearBottom,
   shouldAttemptAutoScrollUpdate,
 } = scrollBehavior;
 const {
@@ -1055,10 +1202,16 @@ export default class AgentHost extends PureComponent {
       return null;
     }
 
+    const { agent } = this.props;
+
     return (
-      <div className={styles.traceGroupStandalone} key={`trace-group-${traces[0].id}`}>
-        {traces.map(item => this.renderTraceMessage(item))}
-      </div>
+      <MilestoneTraceGroup
+        key={`trace-group-${traces[0].id}`}
+        traces={traces}
+        sending={!!(agent && agent.sending)}
+        standalone
+        renderTrace={this.renderTraceMessage}
+      />
     );
   };
 
@@ -1067,10 +1220,14 @@ export default class AgentHost extends PureComponent {
       return null;
     }
 
+    const { agent } = this.props;
+
     return (
-      <div className={styles.messageTraceGroup}>
-        {traces.map(item => this.renderTraceMessage(item))}
-      </div>
+      <MilestoneTraceGroup
+        traces={traces}
+        sending={!!(agent && agent.sending)}
+        renderTrace={this.renderTraceMessage}
+      />
     );
   };
 
@@ -1109,9 +1266,12 @@ export default class AgentHost extends PureComponent {
     }
 
     const rendered = [];
+    const displayMessages = mergeAdjacentApprovals(messages);
+    const { runs: traceRuns, runIndexByTraceId } = splitTracesByRun(displayMessages);
+    const renderedTraceRuns = new Set();
     let pendingTraceItems = [];
 
-    messages.forEach(item => {
+    displayMessages.forEach(item => {
       if (!shouldRenderMessageItem(item)) {
         return;
       }
@@ -1130,12 +1290,24 @@ export default class AgentHost extends PureComponent {
       }
 
       if (item.kind === 'trace') {
-        pendingTraceItems.push(item);
+        const runIndex = runIndexByTraceId.get(item.id);
+        if (runIndex === undefined) {
+          pendingTraceItems.push(item);
+          return;
+        }
+        if (renderedTraceRuns.has(runIndex)) {
+          return;
+        }
+        renderedTraceRuns.add(runIndex);
+        pendingTraceItems = (traceRuns[runIndex] || [item]).slice();
         return;
       }
 
       if (item.kind === 'approval') {
-        pendingTraceItems = [];
+        if (pendingTraceItems.length > 0) {
+          rendered.push(this.renderStandaloneTraceGroup(pendingTraceItems));
+          pendingTraceItems = [];
+        }
         rendered.push(this.renderApprovalMessage(item));
         return;
       }
