@@ -1,6 +1,10 @@
 // 组件下的信息
 
 const componentOverview = {
+  'buildSource.directory.label': 'Build subdirectory',
+  'buildSource.directory.help': 'Relative to the repository root, e.g. services/api. Leave empty to use the root. Check that the directory exists after switching repositories.',
+  'buildSource.directory.invalid': 'Enter a relative directory without absolute paths, .., backslashes or query parameters. Repository URLs with a subdirectory cannot contain other query parameters or fragments.',
+
     // tabs栏以上
     // 左侧按钮
     'componentOverview.header.left.reset': 'Restart',

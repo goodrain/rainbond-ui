@@ -1,6 +1,10 @@
 // 组件下的信息
 
 const componentOverview = {
+  'buildSource.directory.label': '构建子目录',
+  'buildSource.directory.help': '相对于仓库根目录，如 services/api；留空使用根目录。切换仓库后，请确认该目录存在。',
+  'buildSource.directory.invalid': '请输入有效的相对目录，不支持绝对路径、..、反斜杠或查询参数；配置子目录的仓库地址不能含其他查询参数或片段。',
+
     // tabs栏以上
     // 左侧按钮
     'componentOverview.header.left.reset': '重启',

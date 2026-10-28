@@ -10,6 +10,7 @@ import { getCodeBranch } from '../../../services/app';
 import appUtil from '../../../utils/app';
 import cookie from '../../../utils/cookie';
 import globalUtil from '../../../utils/global';
+import { splitBuildSourceUrl, joinBuildSourceUrl, canUseBuildDirectory } from '../../../utils/buildSourceDirectory';
 const { TabPane } = Tabs;
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -116,6 +117,18 @@ export default class ChangeBuildSource extends PureComponent {
       }
     });
   }
+  handleSourceUrlChange = event => {
+    const source = splitBuildSourceUrl(event.target.value);
+    if (this.state.serverType === 'git' && event.target.value.includes('?dir=')) {
+      this.props.form.setFieldsValue({ subdirectories: source.directory });
+    }
+  };
+
+  validateDirectory = (_rule, value, callback) => {
+    callback(canUseBuildDirectory(this.props.form.getFieldValue('git_url'), value || '')
+      ? undefined : formatMessage({ id: 'buildSource.directory.invalid' }));
+  };
+
   handleSubmit = () => {
     const { form, buildSource } = this.props;
     const { tabValue } = this.state
@@ -128,6 +141,10 @@ export default class ChangeBuildSource extends PureComponent {
       if(archLegnth && archLegnth != 2 && archLegnth != 0){
         fieldsValue.arch = buildSource.arch[0]
       }
+      if (tabValue === 'source_code' && fieldsValue.server_type === 'git') {
+        fieldsValue.git_url = joinBuildSourceUrl(fieldsValue.git_url, fieldsValue.subdirectories);
+      }
+      delete fieldsValue.subdirectories;
       this.props.dispatch({
         type: 'appControl/putAppBuidSource',
         payload: {
@@ -519,7 +536,7 @@ export default class ChangeBuildSource extends PureComponent {
     const isSSH = !isHttp;
 
     const prefixSelector = getFieldDecorator('server_type', {
-      initialValue: 'git'
+      initialValue: this.state.serverType
     })(
       <Select
         getPopupContainer={triggerNode => triggerNode.parentNode}
@@ -576,19 +593,31 @@ export default class ChangeBuildSource extends PureComponent {
                   label={<FormattedMessage id='componentOverview.body.ChangeBuildSource.address' />}
                 >
                   {getFieldDecorator('git_url', {
-                    initialValue: buildSource?.service_source == "source_code" && buildSource?.git_url ? buildSource.git_url : '',
+                    initialValue: buildSource?.service_source == "source_code" && buildSource?.git_url ? (this.state.serverType === 'git' ? splitBuildSourceUrl(buildSource.git_url).url : buildSource.git_url) : '',
                     force: true,
+                    getValueFromEvent: event => this.state.serverType === 'git' ? splitBuildSourceUrl(event.target.value).url : event.target.value,
                     rules: [
                       { required: true, message: formatMessage({ id: 'componentOverview.body.ChangeBuildSource.input_address' }), },
                       { validator: this.checkURL, message: formatMessage({ id: 'componentOverview.body.ChangeBuildSource.Illegal_address' }), }
                     ]
                   })(
                     <Input
+                      onChange={this.handleSourceUrlChange}
                       addonBefore={prefixSelector}
                       placeholder={formatMessage({ id: 'componentOverview.body.ChangeBuildSource.input_address' })}
                     />
                   )}
                 </Form.Item>
+                {this.state.serverType === 'git' && (
+                  <Form.Item {...is_language}
+                    label={formatMessage({ id: 'buildSource.directory.label' })}
+                    extra={formatMessage({ id: 'buildSource.directory.help' })}>
+                    {getFieldDecorator('subdirectories', {
+                      initialValue: buildSource?.service_source === 'source_code' ? splitBuildSourceUrl(buildSource.git_url).directory : '',
+                      rules: [{ validator: this.validateDirectory }]
+                    })(<Input allowClear placeholder="services/api" />)}
+                  </Form.Item>
+                )}
                 {isFlag &&
                   <Form.Item
                     {...is_language}
