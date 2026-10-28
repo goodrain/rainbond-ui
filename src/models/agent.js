@@ -335,16 +335,6 @@ function normalizePendingApproval(pendingApproval) {
     sessionId: pendingApproval.sessionId || '',
     status: pendingApproval.status || 'pending',
     lastSequence: pendingApproval.lastSequence || 0,
-    actionLabel: pendingApproval.actionLabel || pendingApproval.action_label || '',
-    objectLabel: pendingApproval.objectLabel || pendingApproval.object_label || '',
-    effectLabel: pendingApproval.effectLabel || pendingApproval.effect_label || '',
-    readonly:
-      pendingApproval.readonly === true ||
-      pendingApproval.readonly === 'true' ||
-      pendingApproval.readonly === 1 ||
-      pendingApproval.readOnly === true ||
-      pendingApproval.readOnly === 'true' ||
-      pendingApproval.readOnly === 1,
   };
 }
 
@@ -654,10 +644,6 @@ function applyAgentEvents({
           sessionId: adaptedEvent.sessionId || '',
           status: 'pending',
           lastSequence: eventSequence,
-          actionLabel: adaptedEvent.actionLabel || '',
-          objectLabel: adaptedEvent.objectLabel || '',
-          effectLabel: adaptedEvent.effectLabel || '',
-          readonly: !!adaptedEvent.readonly,
         };
 
         // Dedupe: skip if a message with this approvalId already exists.

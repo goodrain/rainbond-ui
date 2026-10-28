@@ -86,16 +86,6 @@ function adaptAgentEvent(event = {}) {
         levelLabel: data.level_label || '',
         skillId: data.skill_id || '',
         targetRef: data.target_ref || null,
-        actionLabel: data.action_label || data.actionLabel || '',
-        objectLabel: data.object_label || data.objectLabel || '',
-        effectLabel: data.effect_label || data.effectLabel || '',
-        readonly:
-          data.readonly === true ||
-          data.readonly === 'true' ||
-          data.readonly === 1 ||
-          data.readOnly === true ||
-          data.readOnly === 'true' ||
-          data.readOnly === 1,
       };
     case 'approval.resolved':
       return {

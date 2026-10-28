@@ -165,11 +165,7 @@ const approvalWithTarget = applyAgentEvent(baseState, {
       target_ref: { team_name: 't1', region_name: 'r1', app_id: 'a1', service_alias: 'svc1' },
       scope: 'component',
       scope_label: '组件',
-      level_label: '高风险',
-      action_label: '查看应用详情',
-      object_label: 'web',
-      effect_label: '只读，不会修改集群',
-      readonly: true
+      level_label: '高风险'
     }
   },
   contextSnapshot: { appId: 'app-1' }
@@ -184,12 +180,6 @@ assert.deepStrictEqual(
 assert.strictEqual(approvalWithTarget.pendingApproval.scope, 'component', 'pendingApproval should carry scope');
 assert.strictEqual(approvalWithTarget.pendingApproval.scopeLabel, '组件', 'pendingApproval should carry scope_label');
 assert.strictEqual(approvalWithTarget.pendingApproval.levelLabel, '高风险', 'pendingApproval should carry level_label');
-assert.strictEqual(approvalWithTarget.pendingApproval.actionLabel, '查看应用详情', 'pendingApproval should carry action_label');
-assert.strictEqual(approvalWithTarget.pendingApproval.objectLabel, 'web', 'pendingApproval should carry object_label');
-assert.strictEqual(approvalWithTarget.pendingApproval.effectLabel, '只读，不会修改集群', 'pendingApproval should carry effect_label');
-assert.strictEqual(approvalWithTarget.pendingApproval.readonly, true, 'pendingApproval should carry readonly');
-assert.strictEqual(approvalState.pendingApproval.actionLabel, '', 'pendingApproval should default missing action_label');
-assert.strictEqual(approvalState.pendingApproval.readonly, false, 'pendingApproval should default missing readonly');
 
 // Regression: concurrent SSE streams may deliver the same approval.requested
 // event twice. The reducer must dedupe by approvalId so only one approval
@@ -282,7 +272,7 @@ const startedState = applyCompactionEvent(defaultCompactionState, {
   data: { mode: 'async', input_chars: 14000, turn: 3 },
 });
 assert.strictEqual(startedState.active, true, 'compaction.started should set active=true');
-assert.strictEqual(startedState.mode, 'post_turn', 'compaction.started should use the post-turn mode');
+assert.strictEqual(startedState.mode, 'async', 'compaction.started should record the mode');
 assert.strictEqual(startedState.lastFailedAt, 0, 'compaction.started should not touch lastFailedAt');
 assert.strictEqual(startedState.lastFailedReason, '', 'compaction.started should not touch lastFailedReason');
 
@@ -306,13 +296,19 @@ assert.ok(
   'compaction.failed should record lastFailedAt as a positive timestamp'
 );
 
-// Case 4: the old forced_sync event is no longer emitted; if an old backend
-// replays it, the reducer should leave the post-turn slice untouched.
+// Case 4: compaction.forced_sync_due_to_pressure upgrades mode to sync_forced
+// (active stays true because the upgrade is mid-flight; backend follows up
+// with completed / failed afterwards).
 const upgradedState = applyCompactionEvent(startedState, {
   type: 'compaction.forced_sync_due_to_pressure',
   data: {},
 });
-assert.strictEqual(upgradedState, startedState, 'removed forced_sync events should leave the slice unchanged');
+assert.strictEqual(upgradedState.active, true, 'forced_sync upgrade should keep active=true');
+assert.strictEqual(
+  upgradedState.mode,
+  'sync_forced',
+  'forced_sync upgrade should set mode=sync_forced'
+);
 
 // Case 5 (extra robustness): non-compaction events leave the slice untouched
 // by reference equality — the UI relies on this for shallow re-render skip.

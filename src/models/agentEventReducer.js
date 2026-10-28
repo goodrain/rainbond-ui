@@ -29,16 +29,6 @@ function normalizePendingApproval(pendingApproval) {
     sessionId: pendingApproval.sessionId || '',
     status: pendingApproval.status || 'pending',
     lastSequence: pendingApproval.lastSequence || 0,
-    actionLabel: pendingApproval.actionLabel || pendingApproval.action_label || '',
-    objectLabel: pendingApproval.objectLabel || pendingApproval.object_label || '',
-    effectLabel: pendingApproval.effectLabel || pendingApproval.effect_label || '',
-    readonly:
-      pendingApproval.readonly === true ||
-      pendingApproval.readonly === 'true' ||
-      pendingApproval.readonly === 1 ||
-      pendingApproval.readOnly === true ||
-      pendingApproval.readOnly === 'true' ||
-      pendingApproval.readOnly === 1,
   };
 }
 
@@ -158,16 +148,6 @@ function applyAgentEvent(state, payload = {}) {
         scope: data.scope || '',
         scopeLabel: data.scope_label || '',
         levelLabel: data.level_label || '',
-        actionLabel: data.action_label || data.actionLabel || '',
-        objectLabel: data.object_label || data.objectLabel || '',
-        effectLabel: data.effect_label || data.effectLabel || '',
-        readonly:
-          data.readonly === true ||
-          data.readonly === 'true' ||
-          data.readonly === 1 ||
-          data.readOnly === true ||
-          data.readOnly === 'true' ||
-          data.readOnly === 1,
       };
 
       // Dedupe: skip if a message with this approvalId already exists.

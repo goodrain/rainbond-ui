@@ -46,48 +46,10 @@ const approval = adaptAgentEvent({
     scope: 'component',
     scope_label: '组件级',
     level_label: '高风险',
-    action_label: '查看应用详情',
-    object_label: 'web',
-    effect_label: '只读，不会修改集群',
-    readonly: true,
   }
 });
 assert.strictEqual(approval.type, 'approval_requested', 'adapter should normalize approval request events');
 assert.strictEqual(approval.approvalId, 'ap_1', 'adapter should expose approval id');
-assert.strictEqual(approval.actionLabel, '查看应用详情', 'adapter should expose action_label');
-assert.strictEqual(approval.objectLabel, 'web', 'adapter should expose object_label');
-assert.strictEqual(approval.effectLabel, '只读，不会修改集群', 'adapter should expose effect_label');
-assert.strictEqual(approval.readonly, true, 'adapter should expose readonly');
-
-const legacyApproval = adaptAgentEvent({
-  type: 'approval.requested',
-  sequence: 9,
-  data: {
-    approval_id: 'ap_legacy',
-    description: '旧审批',
-    risk: 'medium',
-  }
-});
-assert.strictEqual(legacyApproval.actionLabel, '', 'adapter should default missing action_label');
-assert.strictEqual(legacyApproval.objectLabel, '', 'adapter should default missing object_label');
-assert.strictEqual(legacyApproval.effectLabel, '', 'adapter should default missing effect_label');
-assert.strictEqual(legacyApproval.readonly, false, 'adapter should default missing readonly');
-
-const camelApproval = adaptAgentEvent({
-  type: 'approval.requested',
-  sequence: 9,
-  data: {
-    approval_id: 'ap_camel',
-    actionLabel: '重启组件',
-    objectLabel: 'api',
-    effectLabel: '会短暂中断服务',
-    readOnly: 'true',
-  }
-});
-assert.strictEqual(camelApproval.actionLabel, '重启组件', 'adapter should accept camelCase actionLabel');
-assert.strictEqual(camelApproval.objectLabel, 'api', 'adapter should accept camelCase objectLabel');
-assert.strictEqual(camelApproval.effectLabel, '会短暂中断服务', 'adapter should accept camelCase effectLabel');
-assert.strictEqual(camelApproval.readonly, true, 'adapter should accept camelCase readOnly');
 
 const autoResolved = adaptAgentEvent({
   type: 'approval.resolved',
