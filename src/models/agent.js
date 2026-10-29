@@ -1374,6 +1374,7 @@ export default {
       yield put({
         type: 'saveState',
         payload: {
+          visible: hideAfterAbort ? false : state.visible,
           cancellingRun: true,
           stoppingRunId: runId,
           sending: true,
