@@ -16,6 +16,14 @@
 // it without bringing in a UMI runtime.
 
 const BASE_LABELS = {
+  schedule_create_task: '创建定时任务',
+  schedule_list_tasks: '查看定时任务',
+  schedule_update_task: '修改定时任务',
+  schedule_set_task_enabled: '启停定时任务',
+  schedule_delete_task: '删除定时任务',
+  schedule_test_task: '试跑定时任务',
+  schedule_list_runs: '查看定时任务运行记录',
+  schedule_check_notification: '检查定时任务通知',
   // Read-only inspection
   rainbond_get_app_detail: '查看应用详情',
   rainbond_get_app_health_overview: '查看应用健康概览',
@@ -239,6 +247,9 @@ function refineByOperation(toolName, input) {
 function humanizeUnknownTool(toolName) {
   if (!toolName || typeof toolName !== 'string') {
     return '工具调用';
+  }
+  if (toolName.startsWith('schedule_')) {
+    return '定时任务操作';
   }
   if (!toolName.startsWith('rainbond_')) {
     return toolName;
