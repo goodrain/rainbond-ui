@@ -1262,7 +1262,9 @@ export default {
           type: 'saveState',
           payload: {
             conversationId: (response && response.sessionId) || state.conversationId,
-            activeRunId: (response && response.runId) || state.activeRunId,
+            // Do not resurrect activeRunId here: the terminal event already
+            // cleared it. If the stream ended without a terminal (dropped
+            // connection), keep whatever activeRunId is currently set.
             sending: false,
             updatedAt: Date.now(),
           },
