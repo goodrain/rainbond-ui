@@ -4,8 +4,7 @@ import {
   deleteAgentMemory,
   getAgentMemoryStatus,
   getRecentMemoryInjections,
-  listAgentMemories,
-  submitAgentMemoryFeedback
+  listAgentMemories
 } from '../../services/agent';
 import styles from './index.less';
 
@@ -13,11 +12,11 @@ import styles from './index.less';
  * 我的记忆（弹窗）。
  *
  * 入口在聊天面板头部的灯泡按钮；记忆由对话自动沉淀，这里只做三件事：
- * 看见它学到了什么、把学错的删掉、对单条给一次反馈。
+ * 看见它学到了什么、把学错的删掉。
  *
  * 刻意不做筛选框：记忆有硬配额（习惯 120 + 案例 80），一屏滚动足够；
  * 也刻意不用 Popconfirm / Dropdown —— 弹窗自身 z-index 高于 antd 浮层默认值，
- * 走 portal 的浮层会被压在弹窗下面，表现为"点了没反应"。删除与反馈都用行内交互。
+ * 走 portal 的浮层会被压在弹窗下面，表现为"点了没反应"。删除用行内二次确认。
  */
 
 const KIND_META = {
@@ -63,11 +62,6 @@ function humanizeMemory(text) {
   return stripped || raw;
 }
 
-const FEEDBACK_NOTICE = {
-  useful: '已标记为有用',
-  noise: '已标记为噪声',
-  wrong: '已删除，这条记忆不会再出现'
-};
 
 /** 后端单页上限 100，记忆本身有硬配额，一次取够即可。 */
 const MAX_ITEMS = 100;
@@ -101,8 +95,6 @@ export default class MemorySettingsModal extends PureComponent {
     learnEnabled: true,
     pendingDeleteId: '',
     deletingId: '',
-    feedbackOpenId: '',
-    feedbackPendingId: '',
     notice: '',
     lastInjection: null
   };
@@ -176,24 +168,6 @@ export default class MemorySettingsModal extends PureComponent {
       });
   };
 
-  handleFeedback = (memoryId, signal) => {
-    this.setState({ feedbackPendingId: memoryId, feedbackOpenId: '' });
-    submitAgentMemoryFeedback(memoryId, signal)
-      .then(() => {
-        this.setState(state => ({
-          feedbackPendingId: '',
-          ...(signal === 'wrong'
-            ? { items: state.items.filter(item => item.id !== memoryId) }
-            : {})
-        }));
-        this.flash(FEEDBACK_NOTICE[signal] || '已反馈');
-      })
-      .catch(error => {
-        this.setState({ feedbackPendingId: '' });
-        this.flash((error && error.message) || '反馈失败');
-      });
-  };
-
   renderAlert() {
     const { ready, storage, enabled, learnEnabled, loaded } = this.state;
     if (!loaded) return null;
@@ -244,45 +218,7 @@ export default class MemorySettingsModal extends PureComponent {
   }
 
   renderActions(item) {
-    const {
-      pendingDeleteId,
-      deletingId,
-      feedbackOpenId,
-      feedbackPendingId
-    } = this.state;
-    const pendingFeedback = feedbackPendingId === item.id;
-
-    if (feedbackOpenId === item.id) {
-      return (
-        <div className={styles.memoryItemActions}>
-          <span className={styles.memoryActionMuted}>这条记忆：</span>
-          <a
-            className={styles.memoryAction}
-            onClick={() => this.handleFeedback(item.id, 'useful')}
-          >
-            有用
-          </a>
-          <a
-            className={styles.memoryAction}
-            onClick={() => this.handleFeedback(item.id, 'noise')}
-          >
-            噪声
-          </a>
-          <a
-            className={styles.memoryActionDanger}
-            onClick={() => this.handleFeedback(item.id, 'wrong')}
-          >
-            记错了
-          </a>
-          <a
-            className={styles.memoryActionMuted}
-            onClick={() => this.setState({ feedbackOpenId: '' })}
-          >
-            取消
-          </a>
-        </div>
-      );
-    }
+    const { pendingDeleteId, deletingId } = this.state;
 
     if (pendingDeleteId === item.id) {
       return (
@@ -306,12 +242,6 @@ export default class MemorySettingsModal extends PureComponent {
 
     return (
       <div className={styles.memoryItemActions}>
-        <a
-          className={styles.memoryAction}
-          onClick={() => this.setState({ feedbackOpenId: item.id })}
-        >
-          {pendingFeedback ? '提交中…' : '反馈'}
-        </a>
         <a
           className={styles.memoryActionDanger}
           onClick={() => this.setState({ pendingDeleteId: item.id })}
