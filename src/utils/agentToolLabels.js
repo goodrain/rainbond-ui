@@ -18,6 +18,7 @@
 const BASE_LABELS = {
   // Read-only inspection
   rainbond_get_app_detail: '查看应用详情',
+  rainbond_get_app_health_overview: '查看应用健康概览',
   rainbond_get_app_publish_candidates: '查询发布候选',
   rainbond_get_app_upgrade_info: '查看应用升级信息',
   rainbond_get_app_version_overview: '查看版本中心概览',
@@ -140,6 +141,7 @@ const BASE_LABELS = {
   rainbond_manage_component_envs: '管理环境变量',
   rainbond_manage_component_ports: '管理组件端口',
   rainbond_manage_component_probe: '管理探针',
+  rainbond_probe_delivery_url: '验证访问地址',
   rainbond_manage_component_storage: '管理存储',
   rainbond_operate_app: '操作组件运行状态',
   rainbond_update_component_envs: '更新环境变量',
@@ -269,9 +271,9 @@ function humanizeUnknownTool(toolName) {
     horizontal: '水平伸缩',
     vertical: '垂直伸缩',
   };
-  const verbLabel = verbMap[verb] || verb;
-  const nounLabel = segments.slice(1).join(' ');
-  return nounLabel ? `${verbLabel} ${nounLabel}` : verbLabel;
+  // 没配标签的工具不再把英文名拼进可见文案（后端新增工具时最容易漏配）。
+  // 原始 toolName 仍保留在 trace.toolName / 技术详情里，便于排查。
+  return '调用平台能力';
 }
 
 function formatToolLabel(toolName, input) {

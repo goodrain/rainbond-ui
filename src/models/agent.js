@@ -1466,6 +1466,9 @@ export default {
         payload: {
           runConflict: null,
           pendingDraftMode: 'wait',
+          // 冲突期间跨窗口订阅可能把 interactionLocked 又置回 true；
+          // 用户选择继续等待时至少要能正常操作输入框。
+          interactionLocked: false,
         },
       });
     },

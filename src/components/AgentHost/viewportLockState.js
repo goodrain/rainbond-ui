@@ -20,7 +20,9 @@ function shouldViewportLock(snapshot = {}) {
     !isRouteHidden &&
     agent &&
     agent.visible &&
-    agent.interactionLocked
+    agent.interactionLocked &&
+    // 冲突提示（另一个窗口在跑）必须可点击：此时全局遮罩会吞掉按钮点击。
+    !agent.runConflict
   );
 }
 
