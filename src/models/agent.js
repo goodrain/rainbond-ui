@@ -1184,6 +1184,10 @@ export default {
           runEpoch,
           stoppingRunId: '',
           ignoredRunIds: [],
+          // A manual send supersedes any conflict/keep-waiting draft.
+          pendingDraft: '',
+          pendingDraftMode: '',
+          runConflict: null,
           lastError: '',
           pendingMutationTool: '',
           pendingMutationRoute: '',
