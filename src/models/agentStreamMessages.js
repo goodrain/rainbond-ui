@@ -217,6 +217,30 @@ function applyStreamingAssistantEvent(messages, event, createMessage, contextSna
   return nextMessages;
 }
 
+// A terminal run.status means the run will not emit more assistant output, so
+// any row still marked streaming must be finalized even if the matching
+// chat.message.completed was lost in the replay/live race. Otherwise the row
+// keeps rendering as plain text (raw **, ` and table pipes).
+function finalizeStreamingMessages(messages) {
+  let changed = false;
+  const nextMessages = (Array.isArray(messages) ? messages : []).map(item => {
+    if (!item || item.role !== 'assistant') {
+      return item;
+    }
+    if (!item.streaming && !item.reasoningStreaming) {
+      return item;
+    }
+    changed = true;
+    return {
+      ...item,
+      streaming: false,
+      reasoningStreaming: false,
+    };
+  });
+  return changed ? nextMessages : messages;
+}
+
 module.exports = {
   applyStreamingAssistantEvent,
+  finalizeStreamingMessages,
 };

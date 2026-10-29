@@ -200,7 +200,9 @@ async function readSseEvents(response, options = {}) {
                 // leftover replay from prior approval — keep reading
               } else {
                 shouldStop = true;
-                break;
+                // Do not break: the final chat.message / chat.message.completed
+                // can be flushed in the same chunk right after run.status.
+                // Drain what is already buffered before closing the reader.
               }
             }
 

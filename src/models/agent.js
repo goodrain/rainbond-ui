@@ -43,7 +43,7 @@ import { captureAgentRetentionEvent } from '../posthog';
 const { extractWorkflowState } = agentWorkflowState;
 const { adaptAgentEvent } = agentEventAdapter;
 const { getNextInteractionLocked } = agentInteractionLock;
-const { applyStreamingAssistantEvent } = agentStreamMessages;
+const { applyStreamingAssistantEvent, finalizeStreamingMessages } = agentStreamMessages;
 const {
   applyTraceEvent,
   buildTraceContent,
@@ -716,6 +716,17 @@ function applyAgentEvents({
             )
           );
         }
+        // done/error/cancelled are final: no more assistant output will be
+        // produced. Finalize any row still streaming so it renders as
+        // Markdown, even when chat.message.completed was dropped by the
+        // replay/live race. waiting_approval is a pause, not a finish.
+        if (
+          adaptedEvent.status === 'done' ||
+          adaptedEvent.status === 'error' ||
+          adaptedEvent.status === 'cancelled'
+        ) {
+          nextMessages = finalizeStreamingMessages(ensureMutableMessages());
+        }
         if (pendingApproval && adaptedEvent.status === 'waiting_approval') {
           pendingApproval = {
             ...pendingApproval,
@@ -734,6 +745,7 @@ function applyAgentEvents({
             { eventSequence }
           )
         );
+        nextMessages = finalizeStreamingMessages(ensureMutableMessages());
         break;
       }
       case 'workflow.selected': {

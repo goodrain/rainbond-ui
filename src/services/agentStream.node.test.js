@@ -83,6 +83,7 @@ async function main() {
   await testSubscribeToRunEventsRequiresUrl();
   await testReadSseEventsBatchesStreamingDeltas(encoder);
   await testReadSseEventsSkipsMalformedChunk(encoder);
+  await testTerminalDrainsTrailingEventsInSameChunk(encoder);
 
   await testResumeStopsOnTerminalWithoutReconnect();
   await testResumeReconnectsOnCleanPrematureEnd();
@@ -259,6 +260,36 @@ async function testReadSseEventsSkipsMalformedChunk(encoder) {
   );
   assert.strictEqual(events[1].data.status, 'done', 'terminal status after a bad chunk still stops the stream');
   assert.strictEqual(warned, true, 'a malformed SSE chunk should be logged via console.warn');
+}
+
+// run.status done and the final chat.message.completed can share one SSE
+// chunk; the reader must drain the trailing event before closing.
+async function testTerminalDrainsTrailingEventsInSameChunk(encoder) {
+  const seen = [];
+  const response = {
+    ok: true,
+    body: {
+      getReader() {
+        return createReader([
+          encoder.encode(
+            'data: {"type":"run.status","data":{"status":"done"}}\n\n' +
+              'data: {"type":"chat.message.completed","data":{"message_id":"m1","outcome":"committed"}}\n\n'
+          ),
+        ]);
+      },
+    },
+  };
+
+  const events = await readSseEvents(response, {
+    onEvent: e => seen.push(e.type),
+  });
+
+  assert.deepStrictEqual(
+    seen,
+    ['run.status', 'chat.message.completed'],
+    'events buffered after the terminal run.status must still be delivered'
+  );
+  assert.strictEqual(events.length, 2, 'terminal drain should aggregate both events');
 }
 
 function buildResponse(encoder, payloads) {
