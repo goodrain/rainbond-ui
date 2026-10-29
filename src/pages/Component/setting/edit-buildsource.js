@@ -10,6 +10,7 @@ import { getCodeBranch } from '../../../services/app';
 import appUtil from '../../../utils/app';
 import cookie from '../../../utils/cookie';
 import globalUtil from '../../../utils/global';
+import { splitBuildSourceUrl, joinBuildSourceUrl, canUseBuildDirectory } from '../../../utils/buildSourceDirectory';
 const { TabPane } = Tabs;
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -24,7 +25,7 @@ export default class ChangeBuildSource extends PureComponent {
       buildSource: this.props?.buildSource || null,
       showUsernameAndPass: this.props?.buildSource?.user !== '' ? true : false,
       showKey: false,
-      isFlag: true,
+      isFlag: this.props?.buildSource?.server_type !== 'oss',
       tabValue: 'source_code',
       gitUrl: this.props?.buildSource?.git_url,
       serverType: this.props?.buildSource?.server_type
@@ -116,11 +117,27 @@ export default class ChangeBuildSource extends PureComponent {
       }
     });
   }
+  handleSourceUrlChange = event => {
+    const source = splitBuildSourceUrl(event.target.value);
+    if (this.state.serverType === 'git' && event.target.value.includes('?dir=')) {
+      this.props.form.setFieldsValue({ subdirectories: source.directory });
+    }
+  };
+
+  validateDirectory = (_rule, value, callback) => {
+    if (this.state.tabValue !== 'source_code' || this.state.serverType !== 'git') {
+      callback();
+      return;
+    }
+    callback(canUseBuildDirectory(this.props.form.getFieldValue('git_url'), value || '')
+      ? undefined : formatMessage({ id: 'buildSource.directory.invalid' }));
+  };
+
   handleSubmit = () => {
     const { form, buildSource } = this.props;
     const { tabValue } = this.state
     const archLegnth = buildSource?.arch.length
-    form.validateFields((err, fieldsValue) => {
+    form.validateFields({ force: true }, (err, fieldsValue) => {
       if (err) return;
       if (fieldsValue.version_type == 'tag') {
         fieldsValue.code_version = 'tag:'.concat(fieldsValue.code_version);
@@ -128,6 +145,10 @@ export default class ChangeBuildSource extends PureComponent {
       if(archLegnth && archLegnth != 2 && archLegnth != 0){
         fieldsValue.arch = buildSource.arch[0]
       }
+      if (tabValue === 'source_code' && fieldsValue.server_type === 'git') {
+        fieldsValue.git_url = joinBuildSourceUrl(fieldsValue.git_url, fieldsValue.subdirectories);
+      }
+      delete fieldsValue.subdirectories;
       this.props.dispatch({
         type: 'appControl/putAppBuidSource',
         payload: {
@@ -508,6 +529,11 @@ export default class ChangeBuildSource extends PureComponent {
         }
       }
     };
+    // Keep initial values independent of the selected type so toggling cannot restore the old URL.
+    const sourceUrl = buildSource?.service_source === 'source_code' ? buildSource.git_url || '' : '';
+    const initialSource = !buildSource?.server_type || buildSource.server_type === 'git'
+      ? splitBuildSourceUrl(sourceUrl)
+      : { url: sourceUrl, directory: '' };
     const is_language = language ? formItemLayout : en_formItemLayout
     const gitUrl = getFieldValue('git_url');
     let isHttp = /(http|https):\/\/([\w.]+\/?)\S*/.test(gitUrl || '');
@@ -519,7 +545,7 @@ export default class ChangeBuildSource extends PureComponent {
     const isSSH = !isHttp;
 
     const prefixSelector = getFieldDecorator('server_type', {
-      initialValue: 'git'
+      initialValue: this.state.serverType
     })(
       <Select
         getPopupContainer={triggerNode => triggerNode.parentNode}
@@ -576,19 +602,33 @@ export default class ChangeBuildSource extends PureComponent {
                   label={<FormattedMessage id='componentOverview.body.ChangeBuildSource.address' />}
                 >
                   {getFieldDecorator('git_url', {
-                    initialValue: buildSource?.service_source == "source_code" && buildSource?.git_url ? buildSource.git_url : '',
+                    initialValue: initialSource.url,
                     force: true,
+                    getValueFromEvent: event => this.state.serverType === 'git' ? splitBuildSourceUrl(event.target.value).url : event.target.value,
                     rules: [
                       { required: true, message: formatMessage({ id: 'componentOverview.body.ChangeBuildSource.input_address' }), },
                       { validator: this.checkURL, message: formatMessage({ id: 'componentOverview.body.ChangeBuildSource.Illegal_address' }), }
                     ]
                   })(
                     <Input
+                      onChange={this.handleSourceUrlChange}
                       addonBefore={prefixSelector}
                       placeholder={formatMessage({ id: 'componentOverview.body.ChangeBuildSource.input_address' })}
                     />
                   )}
                 </Form.Item>
+                {this.state.serverType === 'git' && (
+                  <Form.Item {...is_language}
+                    label={formatMessage({ id: 'buildSource.directory.label' })}
+                    extra={formatMessage({ id: 'buildSource.directory.help' })}>
+                    {getFieldDecorator('subdirectories', {
+                      initialValue: initialSource.directory,
+                      // Antd removes unmounted fields when switching source types.
+                      preserve: true,
+                      rules: [{ validator: this.validateDirectory }]
+                    })(<Input allowClear placeholder="services/api" />)}
+                  </Form.Item>
+                )}
                 {isFlag &&
                   <Form.Item
                     {...is_language}

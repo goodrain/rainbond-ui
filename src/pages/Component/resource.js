@@ -24,6 +24,7 @@ import CodeBuildConfig from '../../components/CodeBuildConfig';
 import MarketAppDetailShow from '../../components/MarketAppDetailShow';
 import NoPermTip from '../../components/NoPermTip';
 import appUtil from '../../utils/app';
+import { splitBuildSourceUrl, joinBuildSourceUrl, canUseBuildDirectory } from '../../utils/buildSourceDirectory';
 import handleAPIError from '../../utils/error';
 import globalUtil from '../../utils/global';
 import rainbondUtil from '../../utils/rainbond';
@@ -394,6 +395,7 @@ export default class Index extends PureComponent {
     this.setState({ changeBuildSource: false });
   };
   changeEditOauth = () => {
+    this.props.form.resetFields(['git_url', 'subdirectories', 'full_name', 'code_version', 'oauth_service_id', 'arch']);
     this.handleProvinceChange();
     this.setState({ editOauth: true });
   };
@@ -659,7 +661,7 @@ export default class Index extends PureComponent {
           if (id) {
             setFieldsValue({
               full_name: repos[0].project_full_name,
-              git_url: repos[0].project_url,
+              git_url: splitBuildSourceUrl(repos[0].project_url).url,
               code_version: repos[0].project_default_branch
             });
           }
@@ -693,7 +695,7 @@ export default class Index extends PureComponent {
     if (item) {
       setFieldsValue(
         {
-          git_url: item.project_url,
+          git_url: splitBuildSourceUrl(item.project_url).url,
           code_version: item.project_default_branch
         },
         () => {
@@ -706,7 +708,7 @@ export default class Index extends PureComponent {
 
   handleSubmitOauth = () => {
     const { form, dispatch, appAlias } = this.props;
-    form.validateFields((err, fieldsValue) => {
+    form.validateFields({ force: true }, (err, fieldsValue) => {
       if (err) return;
 
       dispatch({
@@ -718,7 +720,7 @@ export default class Index extends PureComponent {
           is_oauth: true,
           oauth_service_id: fieldsValue.oauth_service_id,
           full_name: fieldsValue.full_name,
-          git_url: fieldsValue.git_url,
+          git_url: joinBuildSourceUrl(fieldsValue.git_url, fieldsValue.subdirectories),
           code_version: fieldsValue.code_version,
           service_source: 'source_code'
         },
@@ -1503,11 +1505,23 @@ export default class Index extends PureComponent {
                 <FormItem {...formOauthLayout} label={<FormattedMessage id='componentOverview.body.Resource.git_add' />}>
                   {getFieldDecorator('git_url', {
                     initialValue: buildSource
-                      ? buildSource.git_url
-                      : fullList.length > 0 && fullList[0].git_url,
+                      ? splitBuildSourceUrl(buildSource.git_url).url
+                      : fullList.length > 0 && splitBuildSourceUrl(fullList[0].project_url).url,
                     rules: [{ required: true, message: formatMessage({ id: 'componentOverview.body.Resource.placese_type' }), }]
                   })(<Input placeholder={formatMessage({ id: 'componentOverview.body.Resource.input_name' })} disabled />)}
                 </FormItem>
+
+                <Form.Item {...formOauthLayout}
+                  label={formatMessage({ id: 'buildSource.directory.label' })}
+                  extra={formatMessage({ id: 'buildSource.directory.help' })}>
+                  {getFieldDecorator('subdirectories', {
+                    initialValue: splitBuildSourceUrl(buildSource?.git_url).directory,
+                    rules: [{ validator: (_rule, value, callback) => {
+                      callback(canUseBuildDirectory(this.props.form.getFieldValue('git_url'), value || '')
+                        ? undefined : formatMessage({ id: 'buildSource.directory.invalid' }));
+                    } }]
+                  })(<Input allowClear placeholder="services/api" />)}
+                </Form.Item>
 
                 <Form.Item
                   className={styles.clearConform}
