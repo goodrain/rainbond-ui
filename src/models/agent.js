@@ -180,6 +180,14 @@ const defaultState = {
   pendingApproval: null,
   decidingApprovalId: '',
   activeRunId: '',
+  // Monotonic token for the current send. A send/clear bumps it so a late
+  // saga or SSE event from a previous run cannot write back into the new
+  // conversation.
+  runEpoch: 0,
+  // Set while a stop request is waiting for the server terminal event.
+  stoppingRunId: '',
+  // Run ids whose late events must be ignored after a forced stop.
+  ignoredRunIds: [],
   lastEventSequence: 0,
   context: {
     view: '',
@@ -1158,6 +1166,7 @@ export default {
         sessionId: state.conversationId,
         action_type: 'agent_question'
       });
+      const runEpoch = (state.runEpoch || 0) + 1;
       const suppressUserEcho = !!(payload && payload.suppressUserEcho);
       const pendingMessages = suppressUserEcho
         ? state.messages
@@ -1172,6 +1181,9 @@ export default {
           draft: '',
           sending: true,
           interactionLocked: true,
+          runEpoch,
+          stoppingRunId: '',
+          ignoredRunIds: [],
           lastError: '',
           pendingMutationTool: '',
           pendingMutationRoute: '',
@@ -1203,6 +1215,12 @@ export default {
             const startedSessionId = started && started.sessionId;
             const startedRunId = started && started.runId;
             if (storeDispatch && startedRunId) {
+              const live = storeDispatch && dvaApp._store
+                ? dvaApp._store.getState().agent
+                : null;
+              if (live && (live.runEpoch || 0) !== runEpoch) {
+                return;
+              }
               storeDispatch({
                 type: 'agent/saveState',
                 payload: {
@@ -1210,6 +1228,7 @@ export default {
                     ? { conversationId: startedSessionId }
                     : {}),
                   activeRunId: startedRunId,
+                  runEpoch,
                   // Event sequences are per run, not per session. A new run
                   // starts at sequence 1; carrying the previous run's high
                   // water mark would drop its traces/tool events.
@@ -1225,12 +1244,20 @@ export default {
                 payload: {
                   event,
                   contextSnapshot,
+                  runEpoch,
                 },
               });
             }
           },
         });
 
+        // A clear/new-session while this stream was in flight bumped the
+        // epoch; never let the old saga write its session back into the new
+        // conversation.
+        const currentState = yield select(current => current.agent);
+        if ((currentState.runEpoch || 0) !== runEpoch) {
+          return;
+        }
         yield put({
           type: 'saveState',
           payload: {
@@ -1241,6 +1268,10 @@ export default {
           },
         });
       } catch (error) {
+        const caughtState = yield select(s => s.agent);
+        if ((caughtState.runEpoch || 0) !== runEpoch) {
+          return;
+        }
         // Rich 409 conflict: another run is in progress in another tab.
         // 409 是预期内的跨标签页控制流，不算故障，留给下面分支处理、不打日志。
         if (error && error.status === 409 && error.responseBody) {
@@ -1330,42 +1361,98 @@ export default {
         return;
       }
 
-      yield put({ type: 'saveState', payload: { cancellingRun: true } });
+      // Enter an explicit stopping state instead of optimistically clearing
+      // the run. /abort is 202-async; the executor may still be in a tool and
+      // will emit its terminal event later. Clearing activeRunId here made
+      // late deltas render and the next send hit 409.
+      yield put({
+        type: 'saveState',
+        payload: {
+          cancellingRun: true,
+          stoppingRunId: runId,
+          sending: true,
+          interactionLocked: true,
+          lastError: '',
+        },
+      });
 
+      const epoch = state.runEpoch || 0;
+      let forceNow = false;
       try {
         const result = yield call(abortAgentRun, { sessionId, runId });
-        if (result && (result.status === 202 || result.status === 404)) {
-          yield put({
-            type: 'saveState',
-            payload: {
-              visible: hideAfterAbort ? false : state.visible,
-              cancellingRun: false,
-              sending: false,
-              interactionLocked: false,
-              activeRunId: '',
-              updatedAt: Date.now(),
-            },
-          });
+        if (!result || (result.status !== 202 && result.status !== 404)) {
+          forceNow = true;
         }
       } catch (e) {
-        // Backend abort failed (e.g. 500). The run may still be alive
-        // server-side, but the user's intent is to escape the thinking
-        // state — release UI lock the same way as the success path so
-        // they aren't stuck. lastError surfaces the failure as a toast.
+        forceNow = true;
         yield put({
           type: 'saveState',
           payload: {
-            visible: hideAfterAbort ? false : state.visible,
-            cancellingRun: false,
-            sending: false,
-            interactionLocked: false,
-            activeRunId: '',
-            updatedAt: Date.now(),
             lastError:
-              getErrorMessage(e) || '停止运行失败，服务端可能仍在执行',
+              getErrorMessage(e) || '停止请求失败，正在尝试强制停止',
           },
         });
       }
+
+      const dvaApp = getDvaApp();
+      const dispatch = dvaApp && dvaApp._store && dvaApp._store.dispatch;
+      if (dispatch) {
+        // If the executor never reaches a checkpoint, force-cancel after a
+        // short grace. The terminal event (if it arrives first) clears
+        // stoppingRunId, so this timer becomes a no-op.
+        setTimeout(() => {
+          dispatch({
+            type: 'agent/forceStopRun',
+            payload: { sessionId, runId, epoch, hideAfterAbort },
+          });
+        }, 8000);
+      }
+      if (forceNow) {
+        yield put({
+          type: 'agent/forceStopRun',
+          payload: { sessionId, runId, epoch, hideAfterAbort },
+        });
+      }
+    },
+
+    *forceStopRun({ payload }, { call, put, select }) {
+      const { sessionId, runId, hideAfterAbort } = payload || {};
+      const epoch = payload && payload.epoch;
+      const state = yield select(s => s.agent);
+      if (!sessionId || !runId) return;
+      // The terminal event may have already finalized this run; the delayed
+      // fallback timer must then be a no-op.
+      if (state.stoppingRunId !== runId && state.activeRunId !== runId) {
+        return;
+      }
+      if (epoch !== undefined && epoch !== (state.runEpoch || 0)) return;
+
+      let failure = '';
+      try {
+        yield call(forceCancelAgentRun, { sessionId, runId });
+      } catch (e) {
+        failure =
+          getErrorMessage(e) || '强制停止失败，服务端可能仍在执行';
+      }
+
+      const current = yield select(s => s.agent);
+      if (epoch !== undefined && epoch !== (current.runEpoch || 0)) return;
+      yield put({
+        type: 'saveState',
+        payload: {
+          visible: hideAfterAbort ? false : current.visible,
+          cancellingRun: false,
+          stoppingRunId: '',
+          sending: false,
+          interactionLocked: false,
+          activeRunId: '',
+          ignoredRunIds: Array.from(
+            new Set([...(current.ignoredRunIds || []), runId])
+          ),
+          ...(failure ? { lastError: failure } : {}),
+          updatedAt: Date.now(),
+        },
+      });
     },
 
     *clearConversation({ payload }, { call, put, select }) {
@@ -1386,6 +1473,21 @@ export default {
       });
 
       if (targetSessionId) {
+        // Clearing the conversation must not leave the active run executing
+        // behind an invisible session. Force-cancel it first; the backend
+        // clear also aborts/waits, but doing it here gives the user immediate
+        // feedback and covers the window before DELETE lands.
+        const activeRunId = state.activeRunId || state.stoppingRunId;
+        if (activeRunId) {
+          try {
+            yield call(forceCancelAgentRun, {
+              sessionId: targetSessionId,
+              runId: activeRunId,
+            });
+          } catch (e) {
+            // best-effort: the backend clear path will abort the run again
+          }
+        }
         try {
           yield call(clearAgentSessionRemote, targetSessionId);
         } catch (e) {
@@ -1451,10 +1553,36 @@ export default {
         return;
       }
 
-      // force-cancel returned 200 — the foreign run is now terminal. Stop
-      // watching it and send directly; no need to wait for an SSE terminal
-      // event (stream may have dropped on refresh) and no 409 race remains.
-      stopAllCrossTabSubscriptions();
+      // force-cancel returned 200 (DB terminal), but the previous executor
+      // may still be unwinding. Keep the stashed draft and let the observer's
+      // terminal event flush it; a short fallback covers a dropped stream.
+      // Sending immediately was what created overlapping runs in production.
+      yield put({
+        type: 'saveState',
+        payload: {
+          pendingDraft: stashedText,
+          pendingDraftMode: 'stop_and_send',
+          cancellingRun: false,
+          runConflict: null,
+          interactionLocked: false,
+        },
+      });
+      const dvaApp = getDvaApp();
+      const dispatch = dvaApp && dvaApp._store && dvaApp._store.dispatch;
+      if (dispatch) {
+        setTimeout(() => {
+          dispatch({ type: 'agent/flushPendingDraft' });
+        }, 3000);
+      }
+    },
+
+    *flushPendingDraft(_, { put, select }) {
+      const state = yield select(s => s.agent);
+      const text = state.pendingDraft || '';
+      const mode = state.pendingDraftMode || '';
+      if (!text || (mode !== 'stop_and_send' && mode !== 'wait')) {
+        return;
+      }
       yield put({
         type: 'saveState',
         payload: {
@@ -1464,23 +1592,24 @@ export default {
           runConflict: null,
         },
       });
-      if (stashedText) {
-        yield put({
-          type: 'sendMessage',
-          payload: { message: stashedText, context: state.context },
-        });
-      }
+      yield put({
+        type: 'sendMessage',
+        payload: { message: text, context: state.context },
+      });
     },
 
     *keepWaiting(_, { put }) {
+      // Keep the conflict notice (and its force-stop button) available: a
+      // zombie run may never emit a terminal event, so dismissing the only
+      // escape hatch left the user waiting forever.
       yield put({
         type: 'saveState',
         payload: {
-          runConflict: null,
           pendingDraftMode: 'wait',
           // 冲突期间跨窗口订阅可能把 interactionLocked 又置回 true；
           // 用户选择继续等待时至少要能正常操作输入框。
           interactionLocked: false,
+          lastError: '',
         },
       });
     },
@@ -1600,6 +1729,40 @@ export default {
         (payload && payload.event && payload.event.runId) || '';
       const incomingEventType =
         (payload && payload.event && payload.event.type) || '';
+      const incomingEventData =
+        (payload && payload.event && payload.event.data) || {};
+      const incomingIsTerminal =
+        incomingEventType === 'run.error' ||
+        (incomingEventType === 'run.status' &&
+          ['done', 'error', 'cancelled', 'completed', 'failed'].includes(
+            incomingEventData.status
+          ));
+      // Drop events from a superseded send (clear/new session bumped epoch).
+      if (
+        payload &&
+        payload.runEpoch !== undefined &&
+        payload.runEpoch !== (prevState.runEpoch || 0)
+      ) {
+        return;
+      }
+      // After a stop request, the old run may still have in-flight deltas.
+      // Keep only its terminal event so the row finalizes without rendering
+      // more output from a run the user already stopped.
+      if (
+        incomingRunId &&
+        prevState.stoppingRunId === incomingRunId &&
+        !incomingIsTerminal
+      ) {
+        return;
+      }
+      if (
+        incomingRunId &&
+        Array.isArray(prevState.ignoredRunIds) &&
+        prevState.ignoredRunIds.includes(incomingRunId) &&
+        !incomingIsTerminal
+      ) {
+        return;
+      }
       // Final assistant/status events are idempotent and may arrive after a
       // terminal event when a replay stream and the live stream race. Do not
       // drop them with the high-water mark, or the streaming row keeps the raw
@@ -1671,6 +1834,23 @@ export default {
       }
 
       if (isRunTerminal) {
+        const terminalBelongsToCurrent =
+          !incomingEvent.runId ||
+          !prevState.activeRunId ||
+          incomingEvent.runId === prevState.activeRunId ||
+          incomingEvent.runId === prevState.stoppingRunId;
+        if (terminalBelongsToCurrent) {
+          yield put({
+            type: 'saveState',
+            payload: {
+              stoppingRunId: '',
+              cancellingRun: false,
+              sending: false,
+              activeRunId: '',
+              interactionLocked: false,
+            },
+          });
+        }
         const flushedState = yield select(store => store.agent);
         const stashedText = flushedState.pendingDraft || '';
         const mode = flushedState.pendingDraftMode || '';
@@ -2097,6 +2277,9 @@ export default {
         pendingApproval: null,
         decidingApprovalId: '',
         activeRunId: '',
+        runEpoch: (state.runEpoch || 0) + 1,
+        stoppingRunId: '',
+        ignoredRunIds: [],
         lastEventSequence: 0,
         workflowState: null,
         structuredResult: null,
