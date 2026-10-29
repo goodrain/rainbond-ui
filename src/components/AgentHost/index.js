@@ -827,12 +827,8 @@ export default class AgentHost extends PureComponent {
     });
   };
 
-  handleConflictStopAndSend = () => {
-    this.props.dispatch({ type: 'agent/stopAndSendMine' });
-  };
-
-  handleConflictKeepWaiting = () => {
-    this.props.dispatch({ type: 'agent/keepWaiting' });
+  handleConflictForceStop = () => {
+    this.props.dispatch({ type: 'agent/forceStopConflict' });
   };
 
   handleConflictCancelMine = () => {
@@ -878,23 +874,16 @@ export default class AgentHost extends PureComponent {
             size="small"
             type="primary"
             loading={cancelling}
-            onClick={this.handleConflictStopAndSend}
+            onClick={this.handleConflictForceStop}
             style={{ marginRight: 8 }}
           >
-            停止它并发送本条
-          </Button>
-          <Button
-            size="small"
-            onClick={this.handleConflictKeepWaiting}
-            style={{ marginRight: 8 }}
-          >
-            继续等待
+            强制停止
           </Button>
           <Button
             size="small"
             onClick={this.handleConflictCancelMine}
           >
-            取消我的输入
+            取消输入
           </Button>
         </div>
       </div>
@@ -1214,8 +1203,6 @@ export default class AgentHost extends PureComponent {
     const cancellingRun = !!(agent && agent.cancellingRun);
     const activeRunId = (agent && agent.activeRunId) || '';
     const canStopRun = sending && !!activeRunId;
-    const pendingDraftMode = (agent && agent.pendingDraftMode) || '';
-    const isWaitingForOtherTab = pendingDraftMode === 'wait';
     const hasSessionPending = sessionPendingApprovals.length > 0;
     // F14 — compaction lifecycle banner. `compaction.active` is set while
     // the backend is compressing the conversation history; a brief
@@ -1364,15 +1351,6 @@ export default class AgentHost extends PureComponent {
                   type="warning"
                   showIcon
                   message={compactionFailureMessage}
-                  style={{ margin: '8px 12px' }}
-                />
-              ) : null}
-
-              {isWaitingForOtherTab ? (
-                <Alert
-                  type="info"
-                  showIcon
-                  message="等待另一个窗口的当前运行结束后将自动发送你的输入"
                   style={{ margin: '8px 12px' }}
                 />
               ) : null}

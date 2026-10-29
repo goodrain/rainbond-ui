@@ -1516,7 +1516,7 @@ export default {
       });
     },
 
-    *stopAndSendMine(_, { call, put, select }) {
+    *forceStopConflict(_, { call, put, select }) {
       const state = yield select(s => s.agent);
       const conflict = state.runConflict;
       if (!conflict || !conflict.currentRun || !conflict.currentRun.runId) {
@@ -1527,104 +1527,47 @@ export default {
       const runId = conflict.currentRun.runId;
       const stashedText = state.pendingDraft || '';
 
-      yield put({
-        type: 'saveState',
-        payload: { pendingDraftMode: 'stop_and_send', cancellingRun: true },
-      });
+      yield put({ type: 'saveState', payload: { cancellingRun: true } });
 
       try {
-        // Force-cancel (not abort): synchronous server-side clear that runs
-        // the recovery truncation protocol and commits the terminal status
-        // before returning. Abort was 202-async — it only flipped status once
-        // a live executor reached a checkpoint, so a wedged/zombie run (e.g.
-        // its executor crashed) never went terminal and the sendMessage below
-        // 409'd forever. A 200 here means the foreign run is already terminal.
         yield call(forceCancelAgentRun, { sessionId, runId });
       } catch (e) {
-        // Foreign-run force-cancel failed (e.g. 500). Tear down the conflict
-        // UI so the user can decide their next move instead of being
-        // stuck on the dialog. Do NOT auto-send their stashed draft —
-        // the foreign run may still be alive server-side.
-        stopAllCrossTabSubscriptions();
+        // Keep the conflict notice so the user still has both actions; do
+        // not touch the draft or auto-send anything.
         yield put({
           type: 'saveState',
           payload: {
             cancellingRun: false,
-            pendingDraftMode: '',
-            runConflict: null,
             lastError:
               getErrorMessage(e) ||
-              '停止其他窗口运行失败，服务端可能仍在执行',
+              '强制停止失败，服务端可能仍在执行',
           },
         });
         return;
       }
 
-      // force-cancel returned 200 (DB terminal), but the previous executor
-      // may still be unwinding. Keep the stashed draft and let the observer's
-      // terminal event flush it; a short fallback covers a dropped stream.
-      // Sending immediately was what created overlapping runs in production.
+      stopAllCrossTabSubscriptions();
+      // Two-button contract: force stop only stops the other run. Put the
+      // user's text back in the composer and let them send it explicitly.
       yield put({
         type: 'saveState',
         payload: {
-          pendingDraft: stashedText,
-          pendingDraftMode: 'stop_and_send',
-          cancellingRun: false,
           runConflict: null,
-          interactionLocked: false,
-        },
-      });
-      const dvaApp = getDvaApp();
-      const dispatch = dvaApp && dvaApp._store && dvaApp._store.dispatch;
-      if (dispatch) {
-        setTimeout(() => {
-          dispatch({ type: 'agent/flushPendingDraft' });
-        }, 3000);
-      }
-    },
-
-    *flushPendingDraft(_, { put, select }) {
-      const state = yield select(s => s.agent);
-      const text = state.pendingDraft || '';
-      const mode = state.pendingDraftMode || '';
-      if (!text || (mode !== 'stop_and_send' && mode !== 'wait')) {
-        return;
-      }
-      yield put({
-        type: 'saveState',
-        payload: {
           pendingDraft: '',
           pendingDraftMode: '',
+          draft: stashedText || state.draft || '',
           cancellingRun: false,
-          runConflict: null,
-        },
-      });
-      yield put({
-        type: 'sendMessage',
-        payload: { message: text, context: state.context },
-      });
-    },
-
-    *keepWaiting(_, { put }) {
-      // Keep the conflict notice (and its force-stop button) available: a
-      // zombie run may never emit a terminal event, so dismissing the only
-      // escape hatch left the user waiting forever.
-      yield put({
-        type: 'saveState',
-        payload: {
-          pendingDraftMode: 'wait',
-          // 冲突期间跨窗口订阅可能把 interactionLocked 又置回 true；
-          // 用户选择继续等待时至少要能正常操作输入框。
           interactionLocked: false,
+          sending: false,
+          activeRunId: '',
           lastError: '',
         },
       });
     },
 
-    *cancelMyInput(_, { put, select }) {
-      const state = yield select(s => s.agent);
-      const stashed = state.pendingDraft || '';
-      // F5 — user backed out, no need to keep watching the foreign run.
+    *cancelMyInput(_, { put }) {
+      // Two-button contract: cancel input clears the draft and the conflict
+      // notice; the other run is left untouched.
       stopAllCrossTabSubscriptions();
       yield put({
         type: 'saveState',
@@ -1632,11 +1575,12 @@ export default {
           runConflict: null,
           pendingDraft: '',
           pendingDraftMode: '',
-          draft: stashed || state.draft || '',
+          draft: '',
           interactionLocked: false,
           sending: false,
           activeRunId: '',
           cancellingRun: false,
+          lastError: '',
         },
       });
     },
@@ -1856,45 +1800,6 @@ export default {
               activeRunId: '',
               interactionLocked: false,
             },
-          });
-        }
-        const flushedState = yield select(store => store.agent);
-        const stashedText = flushedState.pendingDraft || '';
-        const mode = flushedState.pendingDraftMode || '';
-        if (stashedText && (mode === 'wait' || mode === 'stop_and_send')) {
-          yield put({
-            type: 'saveState',
-            payload: {
-              pendingDraft: '',
-              pendingDraftMode: '',
-              cancellingRun: false,
-              runConflict: null,
-            },
-          });
-          yield put({
-            type: 'sendMessage',
-            payload: {
-              message: stashedText,
-              context: flushedState.context,
-            },
-          });
-        } else if (flushedState.cancellingRun) {
-          yield put({
-            type: 'saveState',
-            payload: { cancellingRun: false },
-          });
-        } else if (
-          flushedState.sending &&
-          (!incomingEvent.runId ||
-            !flushedState.activeRunId ||
-            incomingEvent.runId === flushedState.activeRunId)
-        ) {
-          // Run terminated after a page-refresh reattach: clear the sending
-          // lock and activeRunId that hydrateSession set. Never let a late
-          // status from an older run clear a newer run's thinking state.
-          yield put({
-            type: 'saveState',
-            payload: { sending: false, activeRunId: '' },
           });
         }
       }
