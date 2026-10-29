@@ -913,6 +913,9 @@ export default class AgentHost extends PureComponent {
   };
 
   renderTraceMessage = item => {
+    // 记忆的写入/检索过程不在聊天里展示，避免打扰。
+    const toolName = (item.trace && item.trace.toolName) || '';
+    if (/^memory_/i.test(toolName) || /记忆/.test(toolName)) return null;
     return <TraceMessageRow key={item.id} item={item} />;
   };
 

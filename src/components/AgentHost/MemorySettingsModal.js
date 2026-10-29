@@ -357,12 +357,6 @@ export default class MemorySettingsModal extends PureComponent {
           <div className={styles.memoryFooter}>
             <span className={styles.memoryCount}>
               共 {items.length} 条
-              {this.state.lastInjection ? (
-                <span className={styles.memoryAudit}>
-                  上次对话带了 {this.state.lastInjection.memoryIds.length}{' '}
-                  条记忆
-                </span>
-              ) : null}
               {this.state.notice ? (
                 <span className={styles.memoryNotice}>{this.state.notice}</span>
               ) : null}
