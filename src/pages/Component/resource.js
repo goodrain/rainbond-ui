@@ -718,6 +718,7 @@ export default class Index extends PureComponent {
           team_name: globalUtil.getCurrTeamName(),
           service_alias: appAlias,
           is_oauth: true,
+          server_type: 'git',
           oauth_service_id: fieldsValue.oauth_service_id,
           full_name: fieldsValue.full_name,
           git_url: joinBuildSourceUrl(fieldsValue.git_url, fieldsValue.subdirectories),

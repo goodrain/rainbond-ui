@@ -8,7 +8,7 @@ import { connect } from 'dva';
 import { routerRedux } from "dva/router";
 import styles from './index.less';
 
-@connect(({ activities, appControl, appDetail, application, chart, createApp, enterprise, error, form, gateWay, global, index, invoice, list, loading, login, market, monitor, order, plugin, profile, project, region, register, rule, teamControl, user }) => ({
+@connect(({ activities, appControl, appDetail, application, chart, createApp, enterprise, error, form, gateWay, global, index, invoice, list, login, market, monitor, order, plugin, profile, project, region, register, rule, teamControl, user }) => ({
   activities: activities,
   appControl: appControl,
   appDetail: appDetail,
@@ -23,7 +23,6 @@ import styles from './index.less';
   index: index,
   invoice: invoice,
   list: list,
-  groupsLoading: loading.effects['global/fetchGroups'],
   login: login,
   market: market,
   monitor: monitor,
@@ -109,12 +108,10 @@ export default class index extends Component {
       user,
       formatMessage,
       componentData,
-      appKey,
-      groupsLoading
+      appKey
     } = this.props;
     const key = this.isMultiViewPlugin()
     const AppPagePlugin = app[key] ? app[key] : false
-    const permissionGroupsLoading = appKey === 'Permission' && groupsLoading;
     const permissionPluginKey = appKey === 'Permission'
       ? [
           Global.getCurrTeamName(),
@@ -154,7 +151,9 @@ export default class index extends Component {
       teamControl: teamControl,
       user: user
     }
-    return pluginLoading || permissionGroupsLoading ? (
+    // The role plugin fetches groups on mount. Unmounting it during that fetch
+    // would restart initialization as soon as the request settles.
+    return pluginLoading ? (
       <div style={{ width: '100%', height: 500, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <Spin size="large" tip="插件内容加载中..." />
       </div>
