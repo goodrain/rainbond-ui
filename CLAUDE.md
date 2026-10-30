@@ -195,7 +195,7 @@ rainbond-ui 作为宿主通过 SystemJS 动态加载插件前端模块。
 ## Build & Verify
 
 ```bash
-yarn install            # Install dependencies
+yarn install            # Install dependencies (Node 16, as in Dockerfile / build.sh)
 yarn start              # Dev server (proxies to console at :7070)
 yarn build              # Production build (MANDATORY quality gate)
 ```
@@ -272,3 +272,97 @@ yarn build              # Production build (MANDATORY quality gate)
 - Commit messages in English, Conventional Commits format
 - New `.less` files should import theme variables via `@import '~antd/lib/style/themes/default.less'` if needed
 
+## Agent Workflow (bug fixes and PRs)
+
+These rules apply to every AI agent working in this repo (Multica agents, the
+`claude` / `codex` / `mimo` comment bots, local sessions). CI enforces some of
+them; a PR that breaks the others will be sent back.
+
+### Scope
+
+- One issue → one branch → one PR. Make the minimal correct change; do not
+  refactor, reformat, rename or upgrade dependencies unless the issue asks for it.
+- Find the repo that actually owns the bug before editing
+  (UI → `rainbond-ui`, console API / permissions / DB → `rainbond-console`,
+  Kubernetes / build / runtime → `rainbond`). A fix that spans repos gets one PR
+  per repo, linked to each other.
+- Reproduce first. If you cannot reproduce or cannot find the cause, report what
+  you checked instead of guessing a fix.
+
+### Branches
+
+- Branch off the latest `main`; name it `fix/<short-slug>` or `feat/<short-slug>`
+  (lowercase, no personal names). The comment bots keep the branch name their
+  workflow prompt gives them.
+- Push the branch to this repository itself, not a fork: the E2E gate only tests
+  same-repo branches, and it builds components by branch name.
+- Never push to `main`, never merge a PR, never force-push a branch you did not
+  create. Humans merge.
+
+### Commits (CI-enforced)
+
+- First line: `type(scope): summary`, type one of
+  `feat fix docs style refactor test ci perf revert chore`; English.
+- **Every line ≤ 72 characters**, body included (Check Commit Message fails otherwise).
+- Sign off every commit: `git commit -s` (the DCO check is required).
+- No AI attribution lines (`Co-authored-by` an AI, "Generated with …").
+
+### Tests
+
+- Add a regression test that fails before the fix and passes after it, when the
+  code path is testable. Call the real code; never copy the logic under test into
+  the test.
+- This repo has no test runner. Small `*.node.test.js` files next to the source
+  are plain Node scripts (`node src/utils/<name>.node.test.js`); add one when the
+  fix is pure logic. Otherwise `yarn build` plus manual verification is the bar.
+- Run the verification commands below and paste the actual results into the PR.
+
+### Pull request
+
+- Title in the same Conventional Commits format. Body:
+  **Problem** (link the issue / Multica task), **Root cause**, **Fix**,
+  **Verification** (commands and results), **Risk**.
+- After `pr-ci-build` passes, request the functional gate by adding the
+  `run-e2e` label. It deploys the branch to the shared staging environment and
+  reports `e2e/product-gate` on the PR. Runs are serialized; do not re-trigger
+  while one is queued. If you cannot add labels, say so in the PR.
+- Report back where the task came from: PR link, CI result, E2E result, and
+  anything you could not verify.
+
+### Stop and ask a human first when the fix
+
+- changes the database schema beyond adding a nullable or defaulted
+  column/field, or touches migrations;
+- changes an API contract (console ↔ region `/v2/...`, `/openapi/v1/...`,
+  response fields) or removes/renames a field;
+- adds or renames configuration (env vars, Helm values, CRD fields);
+- touches install, upgrade or release paths;
+- needs a new dependency, or tests fail for reasons unrelated to your change.
+
+### Never
+
+- Edit `.github/workflows/`, release tooling, or generated files by hand.
+- Print, commit or ask for credentials (tokens, passwords, AK/SK, kubeconfig).
+- Run anything against production clusters, registries or download sites.
+
+### Verify before opening a PR (rainbond-ui)
+
+```bash
+yarn install
+yarn build                      # must succeed; CI runs ./build.sh (node:16.15.0)
+node src/<path>.node.test.js    # for any node test you added or touched
+```
+
+For UI changes, run `yarn start` against a console (`CONSOLE_PROXY_TARGET`,
+default `http://127.0.0.1:7070/`) and describe what you checked in the PR. The
+E2E gate for this repo runs `pnpm test:ui-gate` with console `main` plus your
+branch.
+
+### Repo-specific risks (rainbond-ui)
+
+- Keep antd at 3.x and React 16; do not touch `yarn.lock` or the `resolutions`
+  block unless the issue is a dependency problem.
+- `src/utils/request.js` handles errors and status codes for every API call;
+  changes there affect the whole UI and need human review.
+- Every new string goes into both `src/locales/zh-CN/` and `src/locales/en-US/`.
+- Do not edit `build.sh`, `Dockerfile`, `build/`, or the Sentry / PostHog setup.
