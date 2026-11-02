@@ -129,7 +129,7 @@ class CreateUserForm extends PureComponent {
                     message: formatMessage({id:'placeholder.max24'})
                   },
                   {
-                    pattern: /^[a-z][a-z0-9_\-]*$/,
+                    pattern: /^[a-z0-9][a-z0-9_\-]*$/,
                     message: formatMessage({id:'placeholder.createUser.real_nameMsg'})
                   }
                 ]
