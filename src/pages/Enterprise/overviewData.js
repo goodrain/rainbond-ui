@@ -16,13 +16,27 @@ function sectionStatus(snapshot, name) {
   return sectionEnvelope(snapshot, name).status;
 }
 
+function teamRankingItems(snapshot, metric) {
+  const teams = sectionData(snapshot, 'teams');
+  const list = teams && teams[metric];
+  if (!Array.isArray(list)) return [];
+  return list.map(team => {
+    const item = { ...team };
+    ['cpu_cores', 'memory_gib'].forEach(field => {
+      item[field] = teams.scope === 'actual_usage' && typeof team[field] !== 'boolean' &&
+        isNumber(team[field]) && Number(team[field]) >= 0 ? Number(team[field]) : null;
+    });
+    return item;
+  });
+}
+
 function teamRankingTotal(snapshot, metric) {
   const resources = sectionData(snapshot, 'resources');
   const teams = sectionData(snapshot, 'teams');
   const total = metric === 'applications' ? teams && teams.totals && teams.totals.applications :
     resources && resources[metric] && resources[metric].capacity;
   if (typeof total === 'boolean' || !isNumber(total) || Number(total) < 0) return null;
-  // Cluster memory capacity is MiB; team configuration is GiB.
+  // Cluster memory capacity is MiB; monitored team memory is GiB.
   return Number(total) / (metric === 'memory' ? 1024 : 1);
 }
 
@@ -398,6 +412,7 @@ function compactVersion(version) {
 }
 
 module.exports = {
+  teamRankingItems,
   teamRankingTotal,
   teamRankingShare,
   runtimeAvailability,

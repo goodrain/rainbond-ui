@@ -714,17 +714,50 @@ export default class Enterprise extends PureComponent {
     const { teamMetric } = this.state;
     const field = { cpu: 'cpu_cores', memory: 'memory_gib', applications: 'applications' }[teamMetric];
     const unit = { cpu: 'Core', memory: 'GiB', applications: t('common.countUnit') }[teamMetric];
-    const list = (teams && teams[teamMetric]) || [];
+    const list = overviewData.teamRankingItems(snapshot, teamMetric);
     const total = overviewData.teamRankingTotal(snapshot, teamMetric);
     const secondaryFields = ['memory', 'cpu', 'applications'].filter(key => key !== teamMetric);
     const fields = { cpu: 'cpu_cores', memory: 'memory_gib', applications: 'applications' };
     const units = { cpu: 'Core', memory: 'GiB', applications: t('common.countUnit') };
+    const sampledAt = teams && teams.sampled_at && moment(teams.sampled_at).isValid()
+      ? moment(teams.sampled_at).format('MM-DD HH:mm:ss') : null;
+    const usageStatus = teams && teams.metric_status && teams.metric_status[teamMetric];
     return (
       <OverviewModule title={t('teams.title')} className={styles.halfModule} error={errors.cluster} onRetry={this.loadClusterSnapshot}>
-        {teams ? (list.length ? <div className={styles.teamRanking}><div className={styles.rankingToolbar}><span><Icon type="team" /><span><strong>{t('teams.clusterTotal')} <em>{displayNumber(total, 2)} {unit}</em></strong><Tooltip title={t(teamMetric === 'applications' ? 'teams.applicationDescription' : 'teams.configuredDescription')}><small tabIndex={0}>{t(teamMetric === 'applications' ? 'teams.applicationSort' : 'teams.configuredSort')} <Icon type="info-circle" /></small></Tooltip></span></span><div className={styles.segmentedControl} role="group" aria-label={t('teams.metricLabel')}>{['memory', 'cpu', 'applications'].map(key => <button type="button" key={key} aria-pressed={teamMetric === key} className={teamMetric === key ? styles.segmentActive : ''} onClick={() => this.setState({ teamMetric: key })}>{t(`teams.${key}`)}</button>)}</div></div>{list.map((team, index) => {
-          const percent = overviewData.teamRankingShare(team[field], total);
-          return <button type="button" key={team.tenant_id} onClick={() => this.jump(`/team/${team.tenant_name}/region/${this.state.selectedRegion}/index`)}><span className={styles.rank}>{index + 1}</span><span className={styles.teamName}><span className={styles.teamLine}><strong>{team.tenant_alias || team.tenant_name}</strong><small>{secondaryFields.map(key => `${t(`teams.${key}`)} ${displayNumber(team[fields[key]], 1)} ${units[key]}`).join(' · ')}</small></span><span className={styles.teamTrack}><i style={{ width: `${percent === null ? 0 : Math.min(100, percent)}%` }} /></span></span><span className={styles.teamValue}><strong>{displayNumber(team[field], 2)} <small>{unit}</small></strong><em>{percent === null ? t('teams.shareUnavailable') : t(teamMetric === 'applications' ? 'teams.applicationShare' : 'teams.capacityShare', { percent: displayNumber(percent, 1) })}</em></span></button>;
-        })}</div> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('teams.empty')} />) : teamSection.status === 'loading' ? (!errors.cluster ? <Skeleton active paragraph={{ rows: 4 }} /> : null) : <Alert type="warning" showIcon message={t('teams.unavailable')} />}
+        {teams ? <div className={styles.teamRanking}>
+          <div className={styles.rankingToolbar}>
+            <span><Icon type="team" /><span>
+              <strong>{t(teamMetric === 'applications' ? 'teams.applicationTotal' : 'teams.clusterTotal')} <em>{displayNumber(total, 2)} {unit}</em></strong>
+              <small>{t(teamMetric === 'applications' ? 'teams.applicationSort' : 'teams.usageSort')}</small>
+            </span></span>
+            <div className={styles.segmentedControl} role="group" aria-label={t('teams.metricLabel')}>
+              {['memory', 'cpu', 'applications'].map(key => <button type="button" key={key} aria-pressed={teamMetric === key} className={teamMetric === key ? styles.segmentActive : ''} onClick={() => this.setState({ teamMetric: key })}>{t(`teams.${key}`)}</button>)}
+            </div>
+          </div>
+          <div className={styles.rankingNote}>
+            <span>{t(teamMetric === 'applications' ? 'teams.applicationDescription' : 'teams.usageDescription')}</span>
+            {teamMetric !== 'applications' && sampledAt ? <span>{t('teams.sampledAt', { time: sampledAt })}</span> : null}
+          </div>
+          {teamMetric !== 'applications' && usageStatus !== 'ok' ? <p className={styles.rankingNotice} role="status">{t(usageStatus === 'partial' ? 'teams.usagePartial' : 'teams.usageUnavailable')}</p> : null}
+          {list.length ? list.map((team, index) => {
+            const valueKnown = overviewData.isNumber(team[field]);
+            const percent = overviewData.teamRankingShare(team[field], total);
+            return <button type="button" key={team.tenant_id} onClick={() => this.jump(`/team/${team.tenant_name}/region/${this.state.selectedRegion}/index`)}>
+              <span className={styles.rank}>{valueKnown ? index + 1 : '-'}</span>
+              <span className={styles.teamName}>
+                <span className={styles.teamLine}>
+                  <strong>{team.tenant_alias || team.tenant_name}</strong>
+                  <small>{secondaryFields.map(key => `${t(`teams.${key}`)} ${overviewData.isNumber(team[fields[key]]) ? `${displayNumber(team[fields[key]], key === 'cpu' ? 2 : 1)} ${units[key]}` : '-'}`).join(' · ')}</small>
+                </span>
+                <span className={styles.teamTrack}><i style={{ width: `${percent === null ? 0 : Math.min(100, percent)}%` }} /></span>
+              </span>
+              <span className={styles.teamValue}>
+                <strong>{valueKnown ? <React.Fragment>{displayNumber(team[field], 2)} <small>{unit}</small></React.Fragment> : t('teams.noUsage')}</strong>
+                <em>{percent === null ? t('teams.shareUnavailable') : t(teamMetric === 'applications' ? 'teams.applicationShare' : 'teams.capacityShare', { percent: displayNumber(percent, 1) })}</em>
+              </span>
+            </button>;
+          }) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('teams.empty')} />}
+        </div> : teamSection.status === 'loading' ? (!errors.cluster ? <Skeleton active paragraph={{ rows: 4 }} /> : null) : <Alert type="warning" showIcon message={t('teams.unavailable')} />}
       </OverviewModule>
     );
   }
