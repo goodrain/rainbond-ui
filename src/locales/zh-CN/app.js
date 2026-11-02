@@ -660,6 +660,8 @@ const helmAppInstall = {
 
 const appVersionMock = {
   'appVersion.page.title': '应用版本',
+  'appVersion.automatic.pending': '正在等待部署完成，成功后将自动保存快照并刷新版本列表。',
+  'appVersion.automatic.incomplete': '本次部署尚未生成自动快照，请检查部署结果，成功后可重试部署或手动创建快照。',
   'appVersion.page.content': '当前应用：{appName}',
   'appVersion.history.title': '版本时间线',
   'appVersion.action.create': '创建快照',

@@ -648,6 +648,8 @@ const helmAppInstall = {
 }
 const appVersionMock = {
   'appVersion.page.title': 'App Versions',
+  'appVersion.automatic.pending': 'Waiting for deployment to complete. A snapshot will be saved and the version list refreshed after success.',
+  'appVersion.automatic.incomplete': 'No automatic snapshot was saved for this deployment. Check the deployment result, then retry deployment or create a snapshot manually.',
   'appVersion.page.content': 'Current app: {appName}',
   'appVersion.history.title': 'Version Timeline',
   'appVersion.action.create': 'Create Snapshot',
