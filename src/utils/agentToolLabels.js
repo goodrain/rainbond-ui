@@ -16,8 +16,17 @@
 // it without bringing in a UMI runtime.
 
 const BASE_LABELS = {
+  schedule_create_task: '创建定时任务',
+  schedule_list_tasks: '查看定时任务',
+  schedule_update_task: '修改定时任务',
+  schedule_set_task_enabled: '启停定时任务',
+  schedule_delete_task: '删除定时任务',
+  schedule_test_task: '试跑定时任务',
+  schedule_list_runs: '查看定时任务运行记录',
+  schedule_check_notification: '检查定时任务通知',
   // Read-only inspection
   rainbond_get_app_detail: '查看应用详情',
+  rainbond_get_app_health_overview: '查看应用健康概览',
   rainbond_get_app_publish_candidates: '查询发布候选',
   rainbond_get_app_upgrade_info: '查看应用升级信息',
   rainbond_get_app_version_overview: '查看版本中心概览',
@@ -58,6 +67,11 @@ const BASE_LABELS = {
   rainbond_query_region_rbd_components: '查询集群 Rainbond 组件',
   rainbond_query_regions: '查询集群列表',
   rainbond_query_teams: '查询团队列表',
+
+  // Web / skills
+  web_search: '联网搜索',
+  web_fetch: '抓取网页',
+  read_skill_module: '读取技能模块',
 
   // Creation
   rainbond_create_app: '创建应用',
@@ -135,6 +149,7 @@ const BASE_LABELS = {
   rainbond_manage_component_envs: '管理环境变量',
   rainbond_manage_component_ports: '管理组件端口',
   rainbond_manage_component_probe: '管理探针',
+  rainbond_probe_delivery_url: '验证访问地址',
   rainbond_manage_component_storage: '管理存储',
   rainbond_operate_app: '操作组件运行状态',
   rainbond_update_component_envs: '更新环境变量',
@@ -233,6 +248,9 @@ function humanizeUnknownTool(toolName) {
   if (!toolName || typeof toolName !== 'string') {
     return '工具调用';
   }
+  if (toolName.startsWith('schedule_')) {
+    return '定时任务操作';
+  }
   if (!toolName.startsWith('rainbond_')) {
     return toolName;
   }
@@ -264,14 +282,17 @@ function humanizeUnknownTool(toolName) {
     horizontal: '水平伸缩',
     vertical: '垂直伸缩',
   };
-  const verbLabel = verbMap[verb] || verb;
-  const nounLabel = segments.slice(1).join(' ');
-  return nounLabel ? `${verbLabel} ${nounLabel}` : verbLabel;
+  // 没配标签的工具不再把英文名拼进可见文案（后端新增工具时最容易漏配）。
+  // 原始 toolName 仍保留在 trace.toolName / 技术详情里，便于排查。
+  return '调用平台能力';
 }
 
 function formatToolLabel(toolName, input) {
   if (!toolName) {
     return '工具调用';
+  }
+  if (toolName.startsWith('select_skill_')) {
+    return `选择技能 ${toolName.slice('select_skill_'.length)}`;
   }
   const refined = refineByOperation(toolName, input);
   if (refined) {

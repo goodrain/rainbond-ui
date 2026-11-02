@@ -155,6 +155,7 @@ import {
 import { getTeamRegionGroups } from '../services/team';
 import { getPlatformSettings, updatePlatformSettings } from '../services/platformSettings';
 import { clearAgentLlmConfig, getAgentLlmConfig, updateAgentLlmConfig } from '../services/agentLlmConfig';
+import { clearAgentWebSearchConfig, getAgentWebSearchConfig, updateAgentWebSearchConfig } from '../services/agentWebSearchConfig';
 import cookie from '../utils/cookie';
 import rainbondUtil from '../utils/rainbond';
 import { getDvaApp } from 'umi';
@@ -761,6 +762,26 @@ export default {
     },
     *clearAgentLlmConfig({ payload, callback }, { call }) {
       const response = yield call(clearAgentLlmConfig, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *fetchAgentWebSearchConfig({ payload, callback, handleError }, { call }) {
+      const response = yield call(getAgentWebSearchConfig, payload);
+      if (response && callback) {
+        callback(response);
+      } else if (!response && handleError) {
+        handleError();
+      }
+    },
+    *updateAgentWebSearchConfig({ payload, callback }, { call }) {
+      const response = yield call(updateAgentWebSearchConfig, payload);
+      if (response && callback) {
+        callback(response);
+      }
+    },
+    *clearAgentWebSearchConfig({ payload, callback }, { call }) {
+      const response = yield call(clearAgentWebSearchConfig, payload);
       if (response && callback) {
         callback(response);
       }

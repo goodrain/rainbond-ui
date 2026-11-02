@@ -142,6 +142,9 @@ function normalizeMessages(messages) {
       trace: item.trace || null,
       approval: item.approval || null,
       streamMessageId: item.streamMessageId || '',
+      streamRunId: item.streamRunId || '',
+      reasoning: item.reasoning || '',
+      reasoningStreaming: !!item.reasoningStreaming,
       streaming: !!item.streaming
     }));
 }
@@ -596,4 +599,69 @@ export async function decideAgentApproval(payload = {}) {
     runId,
     events
   };
+}
+
+// ==================== 用户级记忆（P0） ====================
+// 记忆按登录用户隔离，接口挂在同一个 copilot base 下。
+
+export async function listAgentMemories({ limit = 50, offset = 0, kind } = {}) {
+  const params = new URLSearchParams();
+  params.set('limit', String(limit));
+  params.set('offset', String(offset));
+  if (kind) params.set('kind', kind);
+  return requestJson(`${await copilotApiBase()}/memory?${params.toString()}`, {
+    method: 'GET',
+    headers: buildRequestHeaders(),
+  });
+}
+
+export async function getAgentMemoryStatus() {
+  return requestJson(`${await copilotApiBase()}/memory/config`, {
+    method: 'GET',
+    headers: buildRequestHeaders(),
+  });
+}
+
+export async function createAgentMemory({ content, kind } = {}) {
+  const headers = buildRequestHeaders();
+  headers['Content-Type'] = 'application/json';
+  return requestJson(`${await copilotApiBase()}/memory`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ content, kind }),
+  });
+}
+
+export async function deleteAgentMemory(memoryId) {
+  if (!memoryId) throw new Error('memoryId is required');
+  return requestJsonAcceptStatuses(
+    `${await copilotApiBase()}/memory/${encodeURIComponent(memoryId)}`,
+    { method: 'DELETE', headers: buildRequestHeaders() },
+    [204]
+  );
+}
+
+/** 最近一次注入留痕（只读审计，弹窗底部一行）。 */
+export async function getRecentMemoryInjections(limit = 1) {
+  const safeLimit = Math.max(1, Math.min(5, Number(limit) || 1));
+  return requestJson(
+    `${await copilotApiBase()}/memory/injections?limit=${safeLimit}`,
+    { method: 'GET', headers: buildRequestHeaders() }
+  );
+}
+
+/** 单条记忆的反馈：useful / noise / wrong（wrong 会在后端立即软删）。 */
+export async function submitAgentMemoryFeedback(memoryId, signal, note) {
+  if (!memoryId) throw new Error('memoryId is required');
+  if (!['useful', 'noise', 'wrong'].includes(signal)) {
+    throw new Error('signal must be useful / noise / wrong');
+  }
+  const headers = buildRequestHeaders();
+  headers['Content-Type'] = 'application/json';
+  const body = { signal };
+  if (note) body.note = note;
+  return requestJson(
+    `${await copilotApiBase()}/memory/${encodeURIComponent(memoryId)}/feedback`,
+    { method: 'POST', headers, body: JSON.stringify(body) }
+  );
 }

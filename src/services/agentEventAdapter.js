@@ -79,6 +79,7 @@ function adaptAgentEvent(event = {}) {
         runId: event.runId || '',
         approvalId: data.approval_id || '',
         description: data.description || '',
+        input: data.input,
         risk: data.risk || 'medium',
         scope: data.scope || '',
         scopeLabel: data.scope_label || '',
