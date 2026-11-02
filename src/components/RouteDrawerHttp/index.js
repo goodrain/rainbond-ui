@@ -66,12 +66,13 @@ export default class index extends Component {
         const { editInfo, appID } = this.props;
 
         if (Object.keys(editInfo).length > 0) {
-            const hasMethods = editInfo.methods && editInfo.methods.length > 0;
+            const hasMethods = editInfo.match.methods && editInfo.match.methods.length > 0;
+            const hasRemoteAddrs = editInfo.match.remoteAddrs && editInfo.match.remoteAddrs.length > 0;
             const hasExprs = editInfo.match.exprs && editInfo.match.exprs.length > 0;
             const hasBackends = editInfo.backends && editInfo.backends.length > 0;
             const hasUpstreams = editInfo.upstreams && editInfo.upstreams.length > 0;
             this.setState({
-                showMateMore: hasMethods || editInfo.priority || editInfo.remoteAddrs || hasExprs,
+                showMateMore: hasMethods || editInfo.priority || hasRemoteAddrs || hasExprs,
                 groupSelect: hasBackends ? 'k8s' : 'advanced',
             }, () => {
                 if (this.state.groupSelect == 'k8s') {
@@ -202,7 +203,10 @@ export default class index extends Component {
                 data.match.paths = (values.paths && values.paths.length > 0) ? values.paths : ['/*'];
                 data.match.hosts = values.hosts;
                 data.match.methods = values.methods;
-                data.match.remoteAddrs = values.remoteAddrs;
+                const remoteAddrs = values.remoteAddrs === undefined
+                    ? (editInfo.match?.remoteAddrs || [])
+                    : values.remoteAddrs;
+                data.match.remoteAddrs = remoteAddrs.map(addr => addr.trim()).filter(Boolean);
                 if (values.exprs && values.exprs.length > 0) {
                     if (values.exprs.length == 1 && (values.exprs[0].name == '' || values.exprs[0].value == '')) {
                         data.match.exprs = [];
@@ -796,6 +800,7 @@ export default class index extends Component {
 
                                 <Form.Item {...formItemLayout} label={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.IP' })}>
                                     {getFieldDecorator('remoteAddrs', {
+                                        preserve: true,
                                         // rules: [{ required: true, message: formatMessage({id:'teamNewGateway.NewGateway.RouteDrawer.InputIP'}) }],
                                         initialValue: (editInfo && editInfo.match && editInfo.match.remoteAddrs) || []
                                     })(<DAHosts hostPlaceholder={formatMessage({ id: 'teamNewGateway.NewGateway.RouteDrawer.InputIP' })} />)}
