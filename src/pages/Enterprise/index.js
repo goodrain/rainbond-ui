@@ -718,7 +718,13 @@ export default class Enterprise extends PureComponent {
     const total = overviewData.teamRankingTotal(snapshot, teamMetric);
     const secondaryFields = ['memory', 'cpu', 'applications'].filter(key => key !== teamMetric);
     const fields = { cpu: 'cpu_cores', memory: 'memory_gib', applications: 'applications' };
-    const units = { cpu: 'Core', memory: 'GiB', applications: t('common.countUnit') };
+    const formatAmount = (team, key) => {
+      if (key === 'applications') {
+        return overviewData.isNumber(team.applications)
+          ? { value: displayNumber(team.applications, 0), unit: t('common.countUnit') } : null;
+      }
+      return overviewData.formatTeamResource(team[fields[key]], key);
+    };
     const sampledAt = teams && teams.sampled_at && moment(teams.sampled_at).isValid()
       ? moment(teams.sampled_at).format('MM-DD HH:mm:ss') : null;
     const usageStatus = teams && teams.metric_status && teams.metric_status[teamMetric];
@@ -740,20 +746,23 @@ export default class Enterprise extends PureComponent {
           </div>
           {teamMetric !== 'applications' && usageStatus !== 'ok' ? <p className={styles.rankingNotice} role="status">{t(usageStatus === 'partial' ? 'teams.usagePartial' : 'teams.usageUnavailable')}</p> : null}
           {list.length ? list.map((team, index) => {
-            const valueKnown = overviewData.isNumber(team[field]);
+            const amount = formatAmount(team, teamMetric);
             const percent = overviewData.teamRankingShare(team[field], total);
             return <button type="button" key={team.tenant_id} onClick={() => this.jump(`/team/${team.tenant_name}/region/${this.state.selectedRegion}/index`)}>
-              <span className={styles.rank}>{valueKnown ? index + 1 : '-'}</span>
+              <span className={styles.rank}>{amount ? index + 1 : '-'}</span>
               <span className={styles.teamName}>
                 <span className={styles.teamLine}>
                   <strong>{team.tenant_alias || team.tenant_name}</strong>
-                  <small>{secondaryFields.map(key => `${t(`teams.${key}`)} ${overviewData.isNumber(team[fields[key]]) ? `${displayNumber(team[fields[key]], key === 'cpu' ? 2 : 1)} ${units[key]}` : '-'}`).join(' · ')}</small>
+                  <small>{secondaryFields.map(key => {
+                    const secondaryAmount = formatAmount(team, key);
+                    return `${t(`teams.${key}`)} ${secondaryAmount ? `${secondaryAmount.value} ${secondaryAmount.unit}` : '-'}`;
+                  }).join(' · ')}</small>
                 </span>
                 <span className={styles.teamTrack}><i style={{ width: `${percent === null ? 0 : Math.min(100, percent)}%` }} /></span>
               </span>
               <span className={styles.teamValue}>
-                <strong>{valueKnown ? <React.Fragment>{displayNumber(team[field], 2)} <small>{unit}</small></React.Fragment> : t('teams.noUsage')}</strong>
-                <em>{percent === null ? t('teams.shareUnavailable') : t(teamMetric === 'applications' ? 'teams.applicationShare' : 'teams.capacityShare', { percent: displayNumber(percent, 1) })}</em>
+                <strong>{amount ? <React.Fragment>{amount.value} <small>{amount.unit}</small></React.Fragment> : t('teams.noUsage')}</strong>
+                <em>{percent === null ? t('teams.shareUnavailable') : t(teamMetric === 'applications' ? 'teams.applicationShare' : 'teams.capacityShare', { percent: overviewData.formatTeamShare(percent) })}</em>
               </span>
             </button>;
           }) : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('teams.empty')} />}

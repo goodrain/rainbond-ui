@@ -46,6 +46,32 @@ function teamRankingShare(value, total) {
   return Number.isFinite(percent) ? percent : null;
 }
 
+function formatTeamResource(value, metric) {
+  if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) return null;
+  let amount;
+  let unit;
+  if (metric === 'cpu') {
+    const millicores = value > 0 && value < 1;
+    amount = millicores ? value * 1000 : value;
+    unit = millicores ? 'mCore' : 'Core';
+  } else if (metric === 'memory') {
+    const scales = [[1, 'GiB'], [1 / 1024, 'MiB'], [1 / 1024 ** 2, 'KiB'], [1 / 1024 ** 3, 'B']];
+    const [scale, label] = value === 0 ? scales[0] : scales.find(([size]) => value >= size) || scales[3];
+    amount = value / scale;
+    unit = label;
+  } else {
+    return null;
+  }
+  const precision = unit === 'B' ? 0 : 2;
+  const rounded = formatNumber(amount, precision);
+  return { value: amount > 0 && rounded === 0 ? (precision ? '<0.01' : '<1') : rounded, unit };
+}
+
+function formatTeamShare(percent) {
+  if (typeof percent !== 'number' || !Number.isFinite(percent) || percent < 0) return null;
+  return percent > 0 && percent < 0.1 ? '<0.1' : formatNumber(percent, 1);
+}
+
 function sectionEnvelope(snapshot, name) {
   if (!snapshot) return { status: 'loading', data: null };
   const section = snapshot.sections && snapshot.sections[name];
@@ -412,6 +438,8 @@ function compactVersion(version) {
 }
 
 module.exports = {
+  formatTeamResource,
+  formatTeamShare,
   teamRankingItems,
   teamRankingTotal,
   teamRankingShare,
