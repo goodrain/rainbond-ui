@@ -164,8 +164,12 @@ export default class index extends Component {
                         }
                     }
                     // 递归循环所有config，将undefined、null、''、{}删除
-                    const newConfig = this.recursiveDelete(config) || {};
-                    plugins.push({ name: values.name, secretRef: '', enable: true, config: this.mergePluginConfig(extraConfig, newConfig) })
+                    const newConfig = this.mergePluginConfig(extraConfig, this.recursiveDelete(config) || {});
+                    // APISIX 根据字段是否存在校验跳转模式，关闭时必须省略该字段。
+                    if (name === 'redirect' && newConfig.http_to_https === false) {
+                        delete newConfig.http_to_https;
+                    }
+                    plugins.push({ name: values.name, secretRef: '', enable: true, config: newConfig })
                 }
             });
         });

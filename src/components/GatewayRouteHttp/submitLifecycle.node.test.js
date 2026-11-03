@@ -123,6 +123,9 @@ function harness(outcomes, options = {}) {
     Object.assign(drawer.state, update);
   };
   drawer.state.serviceComponentList = [{ k8s_service_name: 'demo', service_alias: 'demo' }];
+  drawer.state.formRefs = (options.plugins || []).map(values => ({
+    props: { form: { validateFields: callback => callback(null, values) } }
+  }));
   return {
     drawer, gateway, requests, notices, values,
     submit: () => drawer.handleSubmit({ preventDefault() {} }),
@@ -131,6 +134,49 @@ function harness(outcomes, options = {}) {
     refreshes: () => refreshes
   };
 }
+
+for (const target of [
+  { uri: '/competition', regex_uri: [undefined] },
+  { uri: '', regex_uri: ['^/$', '/competition'] }
+]) {
+  test(`redirect saves ${target.uri ? 'a fixed URI' : 'a regex URI'} without the disabled HTTPS mode`, async () => {
+    const h = harness([{ bean: {} }], {
+      plugins: [{
+        name: 'redirect', http_to_https: false, ...target,
+        ret_code: 302, encode_uri: false, append_query_string: false
+      }]
+    });
+    h.submit();
+    await flush();
+    assert.strictEqual(h.requests.length, 1);
+    const config = h.requests[0].data.plugins[0].config;
+    assert.strictEqual(Object.hasOwn(config, 'http_to_https'), false);
+    assert.deepStrictEqual(config, {
+      ...(target.uri ? { uri: target.uri } : { regex_uri: target.regex_uri }),
+      ret_code: 302, encode_uri: false, append_query_string: false
+    });
+  });
+}
+
+test('redirect preserves the enabled HTTPS mode when saving', async () => {
+  const h = harness([{ bean: {} }], {
+    plugins: [{ name: 'redirect', http_to_https: true, uri: '', regex_uri: [undefined] }]
+  });
+  h.submit();
+  await flush();
+  assert.deepStrictEqual(h.requests[0].data.plugins[0].config, { http_to_https: true });
+});
+
+test('saving another plugin preserves its disabled boolean settings', async () => {
+  const h = harness([{ bean: {} }], {
+    plugins: [{ name: 'real-ip', source: 'http_x_forwarded_for', recursive: false }]
+  });
+  h.submit();
+  await flush();
+  assert.deepStrictEqual(h.requests[0].data.plugins[0].config, {
+    source: 'http_x_forwarded_for', recursive: false
+  });
+});
 
 test('invalid IP failure releases the button and allows correction in the same editor', async () => {
   const h = harness([
