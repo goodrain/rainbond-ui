@@ -200,7 +200,7 @@ export default class RegisterComponent extends Component {
                     message: formatMessage({ id: 'login.registerComponent.max_length' })
                   },
                   {
-                    pattern: /^[a-z][a-z0-9\-]*$/,
+                    pattern: /^[a-z0-9][a-z0-9\-]*$/,
                     message: formatMessage({ id: 'login.registerComponent.Only' })
                   }
                 ]

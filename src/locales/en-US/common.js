@@ -873,7 +873,7 @@
         'placeholder.oauth.favicon':'Please upload a picture at 33 ✖️ 33',
         'placeholder.createUser.user_name':'Please fill in the user name!',
         'placeholder.createUser.min3':'The minimum length is 3 characters',
-        'placeholder.createUser.real_nameMsg':'Only letters, digits, underscores (_), and hyphens (-) are supported',
+        'placeholder.createUser.real_nameMsg':'Use 3–24 lowercase letters, digits, underscores or hyphens; digits only are allowed',
         'placeholder.createUser.real_name':'Please fill in name!',
         'placeholder.createUser.email':'Please fill in the email!',
         'placeholder.createUser.password':'Please fill in the password',

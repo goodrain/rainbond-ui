@@ -2,6 +2,7 @@ const assert = require('assert');
 const {
   applyTraceEvent,
   buildTraceContent,
+  extractWebSources,
   findTraceMessageIndex,
 } = require('./agentTraceHelpers.node');
 
@@ -80,3 +81,18 @@ assert.strictEqual(
 assert.strictEqual(messages[0].trace.detail, '', 'trace helper should no longer expose structured input/output detail');
 
 console.log('agent trace helper tests passed');
+
+const webTrace = buildTraceContent({
+  tool_name: 'web_search',
+  output: [{ type: 'text', text: JSON.stringify({ sources: [{ url: 'https://example.com', title: 'Example' }] }) }],
+});
+assert.strictEqual(webTrace.sources.length, 1, 'web search should expose source cards');
+assert.strictEqual(webTrace.sources[0].url, 'https://example.com');
+
+const fetchSources = extractWebSources({
+  tool_name: 'web_fetch',
+  structured_content: { result: { sources: [{ url: 'https://a.example' }, { url: 'https://a.example' }] } },
+});
+assert.strictEqual(fetchSources.length, 1, 'web sources should be de-duplicated');
+
+console.log('agent web source tests passed');

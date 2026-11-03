@@ -220,6 +220,7 @@ assert.equal(partialRestartServices.filter(item => item.props.className === 'com
 const rankingSnapshot = { sections: {
   resources: { status: 'ok', data: { cpu: { capacity: 64 }, memory: { capacity: 131072 } } },
   teams: { status: 'ok', data: {
+    scope: 'actual_usage', metric_status: { memory: 'ok', cpu: 'ok' }, sampled_at: '2026-11-02T09:20:00Z',
     memory: [{ tenant_id: 'a', tenant_name: 'a', memory_gib: 32 }, { tenant_id: 'b', tenant_name: 'b', memory_gib: 16 }],
     cpu: [{ tenant_id: 'a', tenant_name: 'a', cpu_cores: 8 }],
     applications: [{ tenant_id: 'a', tenant_name: 'a', applications: 10 }],
@@ -240,6 +241,63 @@ rankingSnapshot.sections.resources.data.memory.capacity = 16384;
 assert.deepStrictEqual(rankingBars(), ['100%', '100%'], 'overcommitted resource bars stay inside their track');
 rankingSnapshot.sections.resources.status = 'unavailable';
 assert.ok(textOf(displayPage.renderTeamRanking()).includes('platformOverview.teams.shareUnavailable'));
+
+assert.ok(textOf(displayPage.renderTeamRanking()).includes('platformOverview.teams.sampledAt'));
+rankingSnapshot.sections.resources.status = 'ok';
+rankingSnapshot.sections.teams.data.memory[0].memory_gib = 0;
+rankingSnapshot.sections.teams.data.memory[1].memory_gib = null;
+rankingSnapshot.sections.teams.data.metric_status.memory = 'partial';
+assert.deepStrictEqual(rankingBars(), ['0%', '0%']);
+assert.ok(textOf(displayPage.renderTeamRanking()).includes('platformOverview.teams.noUsage'));
+assert.ok(textOf(displayPage.renderTeamRanking()).includes('platformOverview.teams.usagePartial'));
+rankingSnapshot.sections.teams.data.scope = 'configured_resources';
+rankingSnapshot.sections.teams.data.memory[0].memory_gib = 252.13;
+assert.ok(!textOf(displayPage.renderTeamRanking()).includes('252.13'), 'old configured resources cannot appear as actual usage');
+displayPage.state.teamMetric = 'applications';
+assert.deepStrictEqual(rankingBars(), ['25%'], 'application counts remain usable with an older backend');
+
+const smallUsageSnapshot = { sections: {
+  resources: { status: 'ok', data: { cpu: { capacity: 8 }, memory: { capacity: 29024 } } },
+  teams: { status: 'ok', data: {
+    scope: 'actual_usage', metric_status: { memory: 'ok', cpu: 'ok' }, totals: { applications: 2 },
+    memory: [{ tenant_id: 'demo', tenant_name: 'demo', memory_gib: 0.016345977783203125, cpu_cores: 0.0002747551763320915, applications: 2 }],
+    cpu: [{ tenant_id: 'demo', tenant_name: 'demo', memory_gib: 0.016345977783203125, cpu_cores: 0.0002747551763320915, applications: 2 }]
+  } }
+} };
+displayPage.getCurrentSnapshot = () => smallUsageSnapshot;
+displayPage.state.teamMetric = 'cpu';
+let smallUsage = textOf(displayPage.renderTeamRanking());
+assert.ok(smallUsage.includes('16.74 MiB'), 'CPU view must retain the positive memory usage in its secondary metric');
+assert.ok(smallUsage.includes('0.27') && smallUsage.includes('mCore'), 'small CPU usage must use millicores rather than round to zero');
+assert.strictEqual(translations.filter(item => item.id === 'platformOverview.teams.capacityShare').pop().values.percent, '<0.1');
+displayPage.state.teamMetric = 'memory';
+smallUsage = textOf(displayPage.renderTeamRanking());
+assert.ok(smallUsage.includes('16.74') && smallUsage.includes('MiB'), 'main and secondary amounts must use the same units and precision');
+assert.ok(smallUsage.includes('0.27 mCore'));
+const smallBar = rankingBars()[0];
+assert.ok(parseFloat(smallBar) > 0 && parseFloat(smallBar) < 0.1, 'formatting must preserve the actual bar width');
+for (const metric of ['cpu', 'memory']) {
+  for (const value of [null, undefined, true, false, '', '1', NaN, Infinity, -1]) {
+    assert.strictEqual(data.formatTeamResource(value, metric), null);
+  }
+}
+assert.deepStrictEqual(data.formatTeamResource(0, 'cpu'), { value: 0, unit: 'Core' });
+assert.deepStrictEqual(data.formatTeamResource(0, 'memory'), { value: 0, unit: 'GiB' });
+assert.deepStrictEqual(data.formatTeamResource(2, 'memory'), { value: 2, unit: 'GiB' });
+assert.deepStrictEqual(data.formatTeamResource(1 / 1024 ** 2, 'memory'), { value: 1, unit: 'KiB' });
+assert.deepStrictEqual(data.formatTeamResource(1 / 1024 ** 3, 'memory'), { value: 1, unit: 'B' });
+assert.deepStrictEqual(data.formatTeamResource(1e-10, 'cpu'), { value: '<0.01', unit: 'mCore' });
+assert.deepStrictEqual(data.formatTeamResource(1e-20, 'memory'), { value: '<1', unit: 'B' });
+assert.deepStrictEqual(data.formatTeamResource(1.23, 'cpu'), { value: 1.23, unit: 'Core' });
+assert.strictEqual(data.formatTeamResource(1, 'applications'), null);
+assert.strictEqual(data.formatTeamShare(0), 0);
+assert.strictEqual(data.formatTeamShare(0.003), '<0.1');
+assert.strictEqual(data.formatTeamShare(0.1), 0.1);
+assert.strictEqual(data.formatTeamShare(null), null);
+assert.strictEqual(data.formatTeamShare(-1), null);
+assert.strictEqual(data.formatTeamShare(true), null);
+assert.strictEqual(smallUsageSnapshot.sections.teams.data.memory[0].memory_gib, 0.016345977783203125);
+
 
 const postureRuntime = { status: 'ok', global: {
   clusters: { total: 1, healthy: 1, warning: 0, unavailable: 0 },

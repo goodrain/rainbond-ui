@@ -48,8 +48,8 @@ assert.strictEqual(data.teamRankingTotal(rankingSnapshot, 'cpu'), 64, 'resource 
 assert.strictEqual(data.teamRankingShare(8, data.teamRankingTotal(rankingSnapshot, 'cpu')), 12.5);
 assert.strictEqual(data.teamRankingTotal(rankingSnapshot, 'applications'), 40, 'apps include every team rather than just the displayed top five');
 assert.strictEqual(data.teamRankingShare(10, data.teamRankingTotal(rankingSnapshot, 'applications')), 25);
-assert.strictEqual(data.teamRankingShare(0, 128), 0, 'known zero configuration remains zero');
-assert.strictEqual(data.teamRankingShare(160, 128), 125, 'configured resources may exceed capacity and the label must retain the true percentage');
+assert.strictEqual(data.teamRankingShare(0, 128), 0, 'measured zero usage remains zero');
+assert.strictEqual(data.teamRankingShare(160, 128), 125, 'inconsistent measurements must not be silently clamped');
 for (const total of [null, undefined, '', ' ', true, false, -1, 0, Infinity]) {
   assert.strictEqual(data.teamRankingShare(4, total), null, 'missing or unusable denominators must not become 0%');
 }
@@ -62,6 +62,16 @@ assert.strictEqual(data.teamRankingTotal(rankingSnapshot, 'memory'), null, 'fail
 assert.strictEqual(data.teamRankingTotal(rankingSnapshot, 'applications'), 40, 'application shares do not depend on the resource service');
 rankingSnapshot.sections.teams.status = 'unavailable';
 assert.strictEqual(data.teamRankingTotal(rankingSnapshot, 'applications'), null);
+const observed = { sections: { teams: { status: 'ok', data: {
+  scope: 'actual_usage', memory: [{ memory_gib: 44.1, cpu_cores: 0.866 }, { memory_gib: 0, cpu_cores: null }]
+} } } };
+assert.deepStrictEqual(data.teamRankingItems(observed, 'memory').map(item => item.memory_gib), [44.1, 0]);
+observed.sections.teams.data.scope = 'configured_resources';
+assert.deepStrictEqual(data.teamRankingItems(observed, 'memory').map(item => item.memory_gib), [null, null]);
+assert.strictEqual(observed.sections.teams.data.memory[0].memory_gib, 44.1, 'presentation must not mutate cached responses');
+assert.deepStrictEqual(data.teamRankingItems(null, 'memory'), []);
+observed.sections.teams.status = 'unavailable';
+assert.deepStrictEqual(data.teamRankingItems(observed, 'memory'), []);
 const axisSamples = [[1, 20], [2, 4.8]];
 data.percentageAxisMax(axisSamples);
 assert.deepStrictEqual(axisSamples, [[1, 20], [2, 4.8]], 'axis scaling must not modify actual samples');
@@ -101,7 +111,7 @@ assert.ok(!/disabled=\{!item\.action\}/.test(page));
 assert.ok(!/@media \(max-width: 1280px\)/.test(less));
 assert.ok(/@media \(max-width: 1100px\)/.test(less));
 assert.ok(/\.secondaryGrid\.singleModule/.test(less));
-assert.ok(/teams\.configuredDescription/.test(page));
+assert.ok(/teams\.usageDescription/.test(page));
 assert.ok(/monitor\.latestSample/.test(page));
 assert.ok(/prefers-reduced-motion/.test(less));
 const gauge = fs.readFileSync(path.join(__dirname, 'components/ResourceGauge.js'), 'utf8');

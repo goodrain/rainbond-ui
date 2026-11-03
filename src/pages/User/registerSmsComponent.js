@@ -145,7 +145,7 @@ export default class RegisterComponent extends Component {
                     message: formatMessage({ id: 'login.registerSmsComponent.username.max', defaultMessage: '最大长度24位' })
                   },
                   {
-                    pattern: /^[a-z](?:[a-z0-9]|-(?=[a-z0-9]))*$/,
+                    pattern: /^[a-z0-9](?:[a-z0-9]|-(?=[a-z0-9]))*$/,
                     message: formatMessage({ id: 'login.registerSmsComponent.username.pattern', defaultMessage: '只支持小写字母、数字和-组合' })
                   }
                 ]

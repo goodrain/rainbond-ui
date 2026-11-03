@@ -77,9 +77,10 @@ assert.strictEqual(
   formatToolLabel('rainbond_brand_new_thing'),
   formatToolLabel('rainbond_brand_new_thing', undefined)
 );
-assert.ok(
-  humanizeUnknownTool('rainbond_get_unicorn').startsWith('查看'),
-  'get_* should humanize to 查看'
+assert.strictEqual(
+  humanizeUnknownTool('rainbond_get_unicorn'),
+  '调用平台能力',
+  'unknown tools must not leak English segments into visible copy'
 );
 
 // Empty / missing tool name yields the safe default.
@@ -93,3 +94,12 @@ assert.ok(
 );
 
 console.log('agent tool label tests passed');
+
+// 曾经缺失、导致英文名直出的两个工具
+assert.strictEqual(formatToolLabel('rainbond_get_app_health_overview'), '查看应用健康概览');
+assert.strictEqual(formatToolLabel('rainbond_probe_delivery_url'), '验证访问地址');
+
+// 定时任务工具（此前会原样输出英文名）
+assert.strictEqual(formatToolLabel('schedule_list_runs'), '查看定时任务运行记录');
+assert.strictEqual(formatToolLabel('schedule_create_task'), '创建定时任务');
+assert.strictEqual(humanizeUnknownTool('schedule_unknown_thing'), '定时任务操作');

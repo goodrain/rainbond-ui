@@ -104,6 +104,7 @@ export default class AppVersion extends PureComponent {
       sharedAppExporting: false
     };
     this.rollbackRefreshTimer = null;
+    this.automaticSnapshotRefreshTimer = null;
     this.rollbackListContentRef = React.createRef();
     this.rollbackListScrollTop = 0;
     this.unmounted = false;
@@ -124,6 +125,7 @@ export default class AppVersion extends PureComponent {
   componentWillUnmount() {
     this.unmounted = true;
     this.clearRollbackRefreshPolling();
+    clearTimeout(this.automaticSnapshotRefreshTimer);
   }
 
   componentDidUpdate(prevProps) {
@@ -592,17 +594,27 @@ export default class AppVersion extends PureComponent {
       if (this.unmounted) {
         return;
       }
-      this.setState(
-        {
-          overview: (res && res.bean) || {}
-        }
-      );
+      const overview = (res && res.bean) || {};
+      const previousStatus = (this.state.overview.automatic_snapshot || {}).status;
+      const nextStatus = (overview.automatic_snapshot || {}).status;
+      const snapshotCountChanged = Number(this.state.overview.snapshot_count || 0) !== Number(overview.snapshot_count || 0);
+      this.setState({ overview });
+      this.scheduleAutomaticSnapshotRefresh(overview);
+      if (snapshotCountChanged || (['pending', 'dispatching'].includes(previousStatus) && !['pending', 'dispatching'].includes(nextStatus))) {
+        this.fetchSnapshotVersions();
+      }
     } catch (error) {
       if (!this.unmounted) {
-        this.setState({
-          overview: {}
-        });
+        this.scheduleAutomaticSnapshotRefresh(this.state.overview);
       }
+    }
+  };
+
+  scheduleAutomaticSnapshotRefresh = overview => {
+    clearTimeout(this.automaticSnapshotRefreshTimer);
+    const status = ((overview || {}).automatic_snapshot || {}).status;
+    if (!this.unmounted && ['pending', 'dispatching'].includes(status)) {
+      this.automaticSnapshotRefreshTimer = setTimeout(this.fetchAppVersionOverview, 5000);
     }
   };
 
@@ -2388,6 +2400,17 @@ export default class AppVersion extends PureComponent {
                 ? `当前应用存在未快照变更：新增 ${changeSummary.added_count || 0} 个组件，修改 ${changeSummary.updated_count || 0} 个组件，删除 ${changeSummary.removed_count || 0} 个组件。`
                 : '默认只展示当前应用的版本时间线；如果来源模板有更新，会在上方横幅里提示。'}
             </div>
+            {['pending', 'dispatching', 'failure', 'expired'].includes((overview.automatic_snapshot || {}).status) && (
+              <div className={styles.personalDesc} role="status" aria-live="polite">
+                <Icon type={['pending', 'dispatching'].includes(overview.automatic_snapshot.status) ? 'loading' : 'exclamation-circle'} />
+                {' '}
+                {formatMessage({
+                  id: ['pending', 'dispatching'].includes(overview.automatic_snapshot.status)
+                    ? 'appVersion.automatic.pending'
+                    : 'appVersion.automatic.incomplete'
+                })}
+              </div>
+            )}
           </div>
           <div className={styles.personalActions}>
             <Button

@@ -6,9 +6,7 @@ import {
   clearAgentSession,
   clearAgentSessionRemote,
   decideAgentApproval,
-  deleteAgentSession,
   hydrateAgentSession,
-  listAgentSessions,
   listAgentApprovalPolicies,
   deleteAgentApprovalPolicy,
   loadAgentSessionMessages,
@@ -45,7 +43,7 @@ import { captureAgentRetentionEvent } from '../posthog';
 const { extractWorkflowState } = agentWorkflowState;
 const { adaptAgentEvent } = agentEventAdapter;
 const { getNextInteractionLocked } = agentInteractionLock;
-const { applyStreamingAssistantEvent } = agentStreamMessages;
+const { applyStreamingAssistantEvent, finalizeStreamingMessages } = agentStreamMessages;
 const {
   applyTraceEvent,
   buildTraceContent,
@@ -180,7 +178,16 @@ const defaultState = {
   interactionLocked: false,
   lastError: '',
   pendingApproval: null,
+  decidingApprovalId: '',
   activeRunId: '',
+  // Monotonic token for the current send. A send/clear bumps it so a late
+  // saga or SSE event from a previous run cannot write back into the new
+  // conversation.
+  runEpoch: 0,
+  // Set while a stop request is waiting for the server terminal event.
+  stoppingRunId: '',
+  // Run ids whose late events must be ignored after a forced stop.
+  ignoredRunIds: [],
   lastEventSequence: 0,
   context: {
     view: '',
@@ -199,8 +206,6 @@ const defaultState = {
   lastContextSignature: '',
   workflowState: null,
   structuredResult: null,
-  sessionList: [],
-  sessionListLoading: false,
   sessionPendingApprovals: [],
   approvalPolicies: [],
   approvalPoliciesLoading: false,
@@ -327,6 +332,7 @@ function normalizePendingApproval(pendingApproval) {
   return {
     approvalId: pendingApproval.approvalId || '',
     description: pendingApproval.description || '',
+    input: pendingApproval.input,
     risk: pendingApproval.risk || 'medium',
     scope: pendingApproval.scope || '',
     scopeLabel: pendingApproval.scopeLabel || '',
@@ -355,6 +361,7 @@ function buildHydratedState(snapshot) {
     messages: Array.isArray(snapshot.messages) ? snapshot.messages : [],
     context: snapshot.context || defaultState.context,
     pendingApproval: normalizePendingApproval(snapshot.pendingApproval),
+    decidingApprovalId: '',
     activeRunId: snapshot.activeRunId || '',
     lastEventSequence: snapshot.lastEventSequence || 0,
     lastContextSignature:
@@ -374,8 +381,6 @@ function buildHydratedState(snapshot) {
     lastComponentMutationTeamName: snapshot.lastComponentMutationTeamName || '',
     lastComponentMutationRegionName: snapshot.lastComponentMutationRegionName || '',
     lastComponentMutationTool: snapshot.lastComponentMutationTool || '',
-    sessionList: [],
-    sessionListLoading: false,
     sessionPendingApprovals: [],
     approvalPolicies: [],
     approvalPoliciesLoading: false,
@@ -548,6 +553,7 @@ function applyAgentEvents({
             nextMessages,
             {
               type: 'chat.message',
+              runId: adaptedEvent.runId || (event && event.runId) || '',
               data: {
                 message_id: adaptedEvent.messageId,
                 role: adaptedEvent.role,
@@ -565,6 +571,30 @@ function applyAgentEvents({
             messagesCloned = true;
             break;
           }
+        }
+        const lastAssistantIndex = findLatestAssistantNormalMessageIndex(nextMessages);
+        const lastAssistant = lastAssistantIndex > -1
+          ? nextMessages[lastAssistantIndex]
+          : null;
+        const lastAssistantRunMatches =
+          !adaptedEvent.runId ||
+          !lastAssistant ||
+          (lastAssistant.streamRunId
+            ? lastAssistant.streamRunId === adaptedEvent.runId
+            : lastAssistant.streaming === true);
+        if (
+          lastAssistantIndex > -1 &&
+          lastAssistantRunMatches &&
+          (lastAssistant.streamMessageId || lastAssistant.streaming)
+        ) {
+          const mutableMessages = ensureMutableMessages();
+          mutableMessages[lastAssistantIndex] = {
+            ...mutableMessages[lastAssistantIndex],
+            content: adaptedEvent.content || mutableMessages[lastAssistantIndex].content || '',
+            streaming: false,
+            eventSequence,
+          };
+          break;
         }
         ensureMutableMessages().push(
           createMessage(
@@ -611,6 +641,7 @@ function applyAgentEvents({
         pendingApproval = {
           approvalId: adaptedEvent.approvalId || '',
           description: adaptedEvent.description || '',
+          input: adaptedEvent.input,
           risk: adaptedEvent.risk || 'medium',
           scope: adaptedEvent.scope || '',
           scopeLabel: adaptedEvent.scopeLabel || '',
@@ -693,6 +724,17 @@ function applyAgentEvents({
             )
           );
         }
+        // done/error/cancelled are final: no more assistant output will be
+        // produced. Finalize any row still streaming so it renders as
+        // Markdown, even when chat.message.completed was dropped by the
+        // replay/live race. waiting_approval is a pause, not a finish.
+        if (
+          adaptedEvent.status === 'done' ||
+          adaptedEvent.status === 'error' ||
+          adaptedEvent.status === 'cancelled'
+        ) {
+          nextMessages = finalizeStreamingMessages(ensureMutableMessages());
+        }
         if (pendingApproval && adaptedEvent.status === 'waiting_approval') {
           pendingApproval = {
             ...pendingApproval,
@@ -711,6 +753,7 @@ function applyAgentEvents({
             { eventSequence }
           )
         );
+        nextMessages = finalizeStreamingMessages(ensureMutableMessages());
         break;
       }
       case 'workflow.selected': {
@@ -1054,115 +1097,6 @@ export default {
       }
     },
 
-    *loadSessionList(_, { call, put }) {
-      yield put({ type: 'saveState', payload: { sessionListLoading: true } });
-      try {
-        const res = yield call(listAgentSessions, { limit: 20 });
-        const list = (res && res.data) || [];
-        yield put({
-          type: 'saveState',
-          payload: { sessionList: list, sessionListLoading: false },
-        });
-      } catch (e) {
-        yield put({
-          type: 'saveState',
-          payload: { sessionListLoading: false, lastError: getErrorMessage(e) || '加载历史失败' },
-        });
-      }
-    },
-
-    *removeSession({ payload }, { call, put, select }) {
-      const sessionId = payload && payload.sessionId;
-      if (!sessionId) return;
-      try {
-        yield call(deleteAgentSession, sessionId);
-      } catch (e) {
-        yield put({ type: 'saveState', payload: { lastError: getErrorMessage(e) || '删除失败' } });
-        return;
-      }
-      const state = yield select(s => s.agent);
-      const nextList = (state.sessionList || []).filter(it => it.session_id !== sessionId);
-      const patch = { sessionList: nextList };
-      if (state.conversationId === sessionId) {
-        patch.conversationId = 'global-default';
-        patch.messages = [];
-        patch.pendingApproval = null;
-        patch.approvalPolicies = [];
-        patch.approvalPoliciesLoading = false;
-        patch.approvalPolicyError = '';
-        patch.activeRunId = '';
-        patch.lastEventSequence = 0;
-        patch.workflowState = null;
-        patch.structuredResult = null;
-        patch.draft = '';
-        patch.lastError = '';
-        patch.pendingMutationTool = '';
-        patch.pendingMutationRoute = '';
-        patch.pendingMutationNavigationKey = '';
-        patch.pendingMutationRefreshKey = '';
-        patch.pendingMutationRefreshMode = '';
-        patch.lastMutationResult = null;
-        patch.lastMutationRunId = '';
-        Object.assign(patch, createClearedComponentMutationTrackingState());
-      }
-      yield put({ type: 'saveState', payload: patch });
-    },
-
-    *switchSession({ payload }, { call, put }) {
-      const sessionId = payload && payload.sessionId;
-      if (!sessionId) return;
-      yield put({
-        type: 'saveState',
-        payload: {
-          conversationId: sessionId,
-          messages: [],
-          draft: '',
-          pendingApproval: null,
-          activeRunId: '',
-          lastEventSequence: 0,
-          lastError: '',
-          workflowState: null,
-          structuredResult: null,
-          sessionPendingApprovals: [],
-          approvalPolicies: [],
-          approvalPoliciesLoading: false,
-          approvalPolicyError: '',
-          pendingMutationTool: '',
-          pendingMutationRoute: '',
-          pendingMutationNavigationKey: '',
-          pendingMutationRefreshKey: '',
-          pendingMutationRefreshMode: '',
-          lastMutationResult: null,
-          lastMutationRunId: '',
-          ...createClearedComponentMutationTrackingState(),
-        },
-      });
-
-      try {
-        const res = yield call(loadAgentSessionMessages, sessionId);
-        const data = (res && res.data) || {};
-        const replayed = chatMessagesToBubbles(data.messages || []);
-        yield put({
-          type: 'saveState',
-          payload: {
-            messages: replayed,
-            sessionPendingApprovals: Array.isArray(data.pending_approvals)
-              ? data.pending_approvals
-              : [],
-          },
-        });
-        yield put({
-          type: 'loadApprovalPolicies',
-          payload: { sessionId },
-        });
-      } catch (e) {
-        yield put({
-          type: 'saveState',
-          payload: { lastError: getErrorMessage(e) || '加载历史消息失败' },
-        });
-      }
-    },
-
     *cancelSessionPending(_, { call, put, select }) {
       const state = yield select(s => s.agent);
       const sessionId = state.conversationId;
@@ -1232,6 +1166,7 @@ export default {
         sessionId: state.conversationId,
         action_type: 'agent_question'
       });
+      const runEpoch = (state.runEpoch || 0) + 1;
       const suppressUserEcho = !!(payload && payload.suppressUserEcho);
       const pendingMessages = suppressUserEcho
         ? state.messages
@@ -1246,6 +1181,13 @@ export default {
           draft: '',
           sending: true,
           interactionLocked: true,
+          runEpoch,
+          stoppingRunId: '',
+          ignoredRunIds: [],
+          // A manual send supersedes any conflict/keep-waiting draft.
+          pendingDraft: '',
+          pendingDraftMode: '',
+          runConflict: null,
           lastError: '',
           pendingMutationTool: '',
           pendingMutationRoute: '',
@@ -1277,6 +1219,12 @@ export default {
             const startedSessionId = started && started.sessionId;
             const startedRunId = started && started.runId;
             if (storeDispatch && startedRunId) {
+              const live = storeDispatch && dvaApp._store
+                ? dvaApp._store.getState().agent
+                : null;
+              if (live && (live.runEpoch || 0) !== runEpoch) {
+                return;
+              }
               storeDispatch({
                 type: 'agent/saveState',
                 payload: {
@@ -1284,6 +1232,11 @@ export default {
                     ? { conversationId: startedSessionId }
                     : {}),
                   activeRunId: startedRunId,
+                  runEpoch,
+                  // Event sequences are per run, not per session. A new run
+                  // starts at sequence 1; carrying the previous run's high
+                  // water mark would drop its traces/tool events.
+                  lastEventSequence: 0,
                 },
               });
             }
@@ -1295,22 +1248,36 @@ export default {
                 payload: {
                   event,
                   contextSnapshot,
+                  runEpoch,
                 },
               });
             }
           },
         });
 
+        // A clear/new-session while this stream was in flight bumped the
+        // epoch; never let the old saga write its session back into the new
+        // conversation.
+        const currentState = yield select(current => current.agent);
+        if ((currentState.runEpoch || 0) !== runEpoch) {
+          return;
+        }
         yield put({
           type: 'saveState',
           payload: {
             conversationId: (response && response.sessionId) || state.conversationId,
-            activeRunId: (response && response.runId) || state.activeRunId,
+            // Do not resurrect activeRunId here: the terminal event already
+            // cleared it. If the stream ended without a terminal (dropped
+            // connection), keep whatever activeRunId is currently set.
             sending: false,
             updatedAt: Date.now(),
           },
         });
       } catch (error) {
+        const caughtState = yield select(s => s.agent);
+        if ((caughtState.runEpoch || 0) !== runEpoch) {
+          return;
+        }
         // Rich 409 conflict: another run is in progress in another tab.
         // 409 是预期内的跨标签页控制流，不算故障，留给下面分支处理、不打日志。
         if (error && error.status === 409 && error.responseBody) {
@@ -1400,42 +1367,99 @@ export default {
         return;
       }
 
-      yield put({ type: 'saveState', payload: { cancellingRun: true } });
+      // Enter an explicit stopping state instead of optimistically clearing
+      // the run. /abort is 202-async; the executor may still be in a tool and
+      // will emit its terminal event later. Clearing activeRunId here made
+      // late deltas render and the next send hit 409.
+      yield put({
+        type: 'saveState',
+        payload: {
+          visible: hideAfterAbort ? false : state.visible,
+          cancellingRun: true,
+          stoppingRunId: runId,
+          sending: true,
+          interactionLocked: true,
+          lastError: '',
+        },
+      });
 
+      const epoch = state.runEpoch || 0;
+      let forceNow = false;
       try {
         const result = yield call(abortAgentRun, { sessionId, runId });
-        if (result && (result.status === 202 || result.status === 404)) {
-          yield put({
-            type: 'saveState',
-            payload: {
-              visible: hideAfterAbort ? false : state.visible,
-              cancellingRun: false,
-              sending: false,
-              interactionLocked: false,
-              activeRunId: '',
-              updatedAt: Date.now(),
-            },
-          });
+        if (!result || (result.status !== 202 && result.status !== 404)) {
+          forceNow = true;
         }
       } catch (e) {
-        // Backend abort failed (e.g. 500). The run may still be alive
-        // server-side, but the user's intent is to escape the thinking
-        // state — release UI lock the same way as the success path so
-        // they aren't stuck. lastError surfaces the failure as a toast.
+        forceNow = true;
         yield put({
           type: 'saveState',
           payload: {
-            visible: hideAfterAbort ? false : state.visible,
-            cancellingRun: false,
-            sending: false,
-            interactionLocked: false,
-            activeRunId: '',
-            updatedAt: Date.now(),
             lastError:
-              getErrorMessage(e) || '停止运行失败，服务端可能仍在执行',
+              getErrorMessage(e) || '停止请求失败，正在尝试强制停止',
           },
         });
       }
+
+      const dvaApp = getDvaApp();
+      const dispatch = dvaApp && dvaApp._store && dvaApp._store.dispatch;
+      if (dispatch) {
+        // If the executor never reaches a checkpoint, force-cancel after a
+        // short grace. The terminal event (if it arrives first) clears
+        // stoppingRunId, so this timer becomes a no-op.
+        setTimeout(() => {
+          dispatch({
+            type: 'agent/forceStopRun',
+            payload: { sessionId, runId, epoch, hideAfterAbort },
+          });
+        }, 8000);
+      }
+      if (forceNow) {
+        yield put({
+          type: 'agent/forceStopRun',
+          payload: { sessionId, runId, epoch, hideAfterAbort },
+        });
+      }
+    },
+
+    *forceStopRun({ payload }, { call, put, select }) {
+      const { sessionId, runId, hideAfterAbort } = payload || {};
+      const epoch = payload && payload.epoch;
+      const state = yield select(s => s.agent);
+      if (!sessionId || !runId) return;
+      // The terminal event may have already finalized this run; the delayed
+      // fallback timer must then be a no-op.
+      if (state.stoppingRunId !== runId && state.activeRunId !== runId) {
+        return;
+      }
+      if (epoch !== undefined && epoch !== (state.runEpoch || 0)) return;
+
+      let failure = '';
+      try {
+        yield call(forceCancelAgentRun, { sessionId, runId });
+      } catch (e) {
+        failure =
+          getErrorMessage(e) || '强制停止失败，服务端可能仍在执行';
+      }
+
+      const current = yield select(s => s.agent);
+      if (epoch !== undefined && epoch !== (current.runEpoch || 0)) return;
+      yield put({
+        type: 'saveState',
+        payload: {
+          visible: hideAfterAbort ? false : current.visible,
+          cancellingRun: false,
+          stoppingRunId: '',
+          sending: false,
+          interactionLocked: false,
+          activeRunId: '',
+          ignoredRunIds: Array.from(
+            new Set([...(current.ignoredRunIds || []), runId])
+          ),
+          ...(failure ? { lastError: failure } : {}),
+          updatedAt: Date.now(),
+        },
+      });
     },
 
     *clearConversation({ payload }, { call, put, select }) {
@@ -1456,6 +1480,21 @@ export default {
       });
 
       if (targetSessionId) {
+        // Clearing the conversation must not leave the active run executing
+        // behind an invisible session. Force-cancel it first; the backend
+        // clear also aborts/waits, but doing it here gives the user immediate
+        // feedback and covers the window before DELETE lands.
+        const activeRunId = state.activeRunId || state.stoppingRunId;
+        if (activeRunId) {
+          try {
+            yield call(forceCancelAgentRun, {
+              sessionId: targetSessionId,
+              runId: activeRunId,
+            });
+          } catch (e) {
+            // best-effort: the backend clear path will abort the run again
+          }
+        }
         try {
           yield call(clearAgentSessionRemote, targetSessionId);
         } catch (e) {
@@ -1477,7 +1516,7 @@ export default {
       });
     },
 
-    *stopAndSendMine(_, { call, put, select }) {
+    *forceStopConflict(_, { call, put, select }) {
       const state = yield select(s => s.agent);
       const conflict = state.runConflict;
       if (!conflict || !conflict.currentRun || !conflict.currentRun.runId) {
@@ -1488,74 +1527,47 @@ export default {
       const runId = conflict.currentRun.runId;
       const stashedText = state.pendingDraft || '';
 
-      yield put({
-        type: 'saveState',
-        payload: { pendingDraftMode: 'stop_and_send', cancellingRun: true },
-      });
+      yield put({ type: 'saveState', payload: { cancellingRun: true } });
 
       try {
-        // Force-cancel (not abort): synchronous server-side clear that runs
-        // the recovery truncation protocol and commits the terminal status
-        // before returning. Abort was 202-async — it only flipped status once
-        // a live executor reached a checkpoint, so a wedged/zombie run (e.g.
-        // its executor crashed) never went terminal and the sendMessage below
-        // 409'd forever. A 200 here means the foreign run is already terminal.
         yield call(forceCancelAgentRun, { sessionId, runId });
       } catch (e) {
-        // Foreign-run force-cancel failed (e.g. 500). Tear down the conflict
-        // UI so the user can decide their next move instead of being
-        // stuck on the dialog. Do NOT auto-send their stashed draft —
-        // the foreign run may still be alive server-side.
-        stopAllCrossTabSubscriptions();
+        // Keep the conflict notice so the user still has both actions; do
+        // not touch the draft or auto-send anything.
         yield put({
           type: 'saveState',
           payload: {
             cancellingRun: false,
-            pendingDraftMode: '',
-            runConflict: null,
             lastError:
               getErrorMessage(e) ||
-              '停止其他窗口运行失败，服务端可能仍在执行',
+              '强制停止失败，服务端可能仍在执行',
           },
         });
         return;
       }
 
-      // force-cancel returned 200 — the foreign run is now terminal. Stop
-      // watching it and send directly; no need to wait for an SSE terminal
-      // event (stream may have dropped on refresh) and no 409 race remains.
       stopAllCrossTabSubscriptions();
+      // Two-button contract: force stop only stops the other run. Put the
+      // user's text back in the composer and let them send it explicitly.
       yield put({
         type: 'saveState',
         payload: {
+          runConflict: null,
           pendingDraft: '',
           pendingDraftMode: '',
+          draft: stashedText || state.draft || '',
           cancellingRun: false,
-          runConflict: null,
-        },
-      });
-      if (stashedText) {
-        yield put({
-          type: 'sendMessage',
-          payload: { message: stashedText, context: state.context },
-        });
-      }
-    },
-
-    *keepWaiting(_, { put }) {
-      yield put({
-        type: 'saveState',
-        payload: {
-          runConflict: null,
-          pendingDraftMode: 'wait',
+          interactionLocked: false,
+          sending: false,
+          activeRunId: '',
+          lastError: '',
         },
       });
     },
 
-    *cancelMyInput(_, { put, select }) {
-      const state = yield select(s => s.agent);
-      const stashed = state.pendingDraft || '';
-      // F5 — user backed out, no need to keep watching the foreign run.
+    *cancelMyInput(_, { put }) {
+      // Two-button contract: cancel input clears the draft and the conflict
+      // notice; the other run is left untouched.
       stopAllCrossTabSubscriptions();
       yield put({
         type: 'saveState',
@@ -1563,11 +1575,12 @@ export default {
           runConflict: null,
           pendingDraft: '',
           pendingDraftMode: '',
-          draft: stashed || state.draft || '',
+          draft: '',
           interactionLocked: false,
           sending: false,
           activeRunId: '',
           cancellingRun: false,
+          lastError: '',
         },
       });
     },
@@ -1593,6 +1606,7 @@ export default {
         type: 'saveState',
         payload: {
           sending: true,
+          decidingApprovalId: pendingApproval.approvalId,
           interactionLocked: true,
           lastError: '',
         },
@@ -1628,6 +1642,7 @@ export default {
           type: 'saveState',
           payload: {
             sending: false,
+            decidingApprovalId: '',
             lastError: '',
             updatedAt: Date.now(),
           },
@@ -1646,6 +1661,7 @@ export default {
           type: 'saveState',
           payload: {
             sending: false,
+            decidingApprovalId: '',
             interactionLocked: false,
             lastError: getErrorMessage(error),
             updatedAt: Date.now(),
@@ -1657,6 +1673,73 @@ export default {
     *applyStreamEvent({ payload }, { put, select }) {
       const rootState = yield select(store => store);
       const prevState = rootState.agent;
+      const incomingSequence = Number(
+        (payload && payload.event && payload.event.sequence) || 0
+      );
+      const incomingRunId =
+        (payload && payload.event && payload.event.runId) || '';
+      const incomingEventType =
+        (payload && payload.event && payload.event.type) || '';
+      const incomingEventData =
+        (payload && payload.event && payload.event.data) || {};
+      const incomingIsTerminal =
+        incomingEventType === 'run.error' ||
+        (incomingEventType === 'run.status' &&
+          ['done', 'error', 'cancelled', 'completed', 'failed'].includes(
+            incomingEventData.status
+          ));
+      // Drop events from a superseded send (clear/new session bumped epoch).
+      if (
+        payload &&
+        payload.runEpoch !== undefined &&
+        payload.runEpoch !== (prevState.runEpoch || 0)
+      ) {
+        return;
+      }
+      // After a stop request, the old run may still have in-flight deltas.
+      // Keep only its terminal event so the row finalizes without rendering
+      // more output from a run the user already stopped.
+      if (
+        incomingRunId &&
+        prevState.stoppingRunId === incomingRunId &&
+        !incomingIsTerminal
+      ) {
+        return;
+      }
+      if (
+        incomingRunId &&
+        Array.isArray(prevState.ignoredRunIds) &&
+        prevState.ignoredRunIds.includes(incomingRunId) &&
+        !incomingIsTerminal
+      ) {
+        return;
+      }
+      // Final assistant/status events are idempotent and may arrive after a
+      // terminal event when a replay stream and the live stream race. Do not
+      // drop them with the high-water mark, or the streaming row keeps the raw
+      // RB_SUGGESTED_ACTIONS text and the UI appears stuck.
+      const replaySafeEvent =
+        incomingEventType === 'chat.message' ||
+        incomingEventType === 'chat.suggested_actions' ||
+        incomingEventType === 'run.status' ||
+        incomingEventType === 'approval.requested' ||
+        incomingEventType === 'approval.resolved';
+      const runChanged = !!(
+        incomingRunId &&
+        prevState.activeRunId &&
+        incomingRunId !== prevState.activeRunId
+      );
+      if (
+        !replaySafeEvent &&
+        !runChanged &&
+        incomingSequence > 0 &&
+        incomingRunId &&
+        prevState.activeRunId &&
+        incomingRunId === prevState.activeRunId &&
+        incomingSequence <= Number(prevState.lastEventSequence || 0)
+      ) {
+        return;
+      }
       const prevApprovalId =
         (prevState.pendingApproval && prevState.pendingApproval.approvalId) || '';
       const adaptedEvent = adaptAgentEvent(payload && payload.event);
@@ -1674,7 +1757,10 @@ export default {
 
       yield put({
         type: 'applyStreamEventReducer',
-        payload,
+        payload: {
+          ...payload,
+          resetSequence: runChanged,
+        },
       });
 
       // Detect run-terminal status from this event so we can flush a pending
@@ -1699,37 +1785,21 @@ export default {
       }
 
       if (isRunTerminal) {
-        const flushedState = yield select(store => store.agent);
-        const stashedText = flushedState.pendingDraft || '';
-        const mode = flushedState.pendingDraftMode || '';
-        if (stashedText && (mode === 'wait' || mode === 'stop_and_send')) {
+        const terminalBelongsToCurrent =
+          !incomingEvent.runId ||
+          !prevState.activeRunId ||
+          incomingEvent.runId === prevState.activeRunId ||
+          incomingEvent.runId === prevState.stoppingRunId;
+        if (terminalBelongsToCurrent) {
           yield put({
             type: 'saveState',
             payload: {
-              pendingDraft: '',
-              pendingDraftMode: '',
+              stoppingRunId: '',
               cancellingRun: false,
-              runConflict: null,
+              sending: false,
+              activeRunId: '',
+              interactionLocked: false,
             },
-          });
-          yield put({
-            type: 'sendMessage',
-            payload: {
-              message: stashedText,
-              context: flushedState.context,
-            },
-          });
-        } else if (flushedState.cancellingRun) {
-          yield put({
-            type: 'saveState',
-            payload: { cancellingRun: false },
-          });
-        } else if (flushedState.sending) {
-          // Run terminated after a page-refresh reattach: clear the sending
-          // lock and activeRunId that hydrateSession set.
-          yield put({
-            type: 'saveState',
-            payload: { sending: false, activeRunId: '' },
           });
         }
       }
@@ -2088,7 +2158,10 @@ export default {
     },
 
     applyStreamEventReducer(state, { payload }) {
-      const merged = applyAgentStreamEvent(state, payload);
+      const baseState = payload && payload.resetSequence
+        ? { ...state, lastEventSequence: 0 }
+        : state;
+      const merged = applyAgentStreamEvent(baseState, payload);
       return {
         ...state,
         interactionLocked: merged.interactionLocked,
@@ -2114,7 +2187,11 @@ export default {
         lastContextSignature: state.lastContextSignature,
         interactionLocked: false,
         pendingApproval: null,
+        decidingApprovalId: '',
         activeRunId: '',
+        runEpoch: (state.runEpoch || 0) + 1,
+        stoppingRunId: '',
+        ignoredRunIds: [],
         lastEventSequence: 0,
         workflowState: null,
         structuredResult: null,

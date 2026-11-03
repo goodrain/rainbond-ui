@@ -46,3 +46,18 @@ assert.strictEqual(
 );
 
 console.log('viewport lock state tests passed');
+
+assert.strictEqual(
+  shouldViewportLock({
+    currentUser: { user_id: 1 },
+    needLogin: false,
+    location: { pathname: '/team/demo/overview' },
+    agent: {
+      visible: true,
+      interactionLocked: true,
+      runConflict: { currentRun: { runId: 'run_1' } },
+    },
+  }),
+  false,
+  'the conflict notice buttons must stay clickable while a foreign run is active'
+);

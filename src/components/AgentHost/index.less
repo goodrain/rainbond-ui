@@ -1351,3 +1351,231 @@
     margin-top: 14px;
   }
 }
+
+// ==================== 我的记忆（弹窗） ====================
+// 挂在 antd Modal 的 wrapClassName 上：弹窗渲染在 body 里，样式走 CSS Modules。
+// 注意：弹窗 z-index 1300 高于 antd 浮层默认值（1000~1060），所以内部一律不用
+// Popconfirm / Dropdown / Tooltip / message —— 走 portal 的组件会被压在弹窗下面。
+
+.memoryModal {
+  :global(.ant-modal-content) {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 24px 64px rgba(15, 23, 42, 0.24);
+  }
+
+  :global(.ant-modal-header) {
+    padding: 16px 24px;
+    border-bottom: 1px solid #eef1f6;
+  }
+
+  :global(.ant-modal-body) {
+    padding: 0;
+  }
+
+  :global(.ant-modal-close-x) {
+    width: 56px;
+    height: 56px;
+    line-height: 56px;
+    font-size: 14px;
+  }
+}
+
+.memoryModalTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1f2329;
+
+  :global(.anticon) {
+    color: #1b5dfb;
+    font-size: 16px;
+  }
+}
+
+.memoryModalBody {
+  display: flex;
+  flex-direction: column;
+  max-height: 72vh;
+}
+
+.memoryModalHint {
+  padding: 12px 24px 0;
+  font-size: 12px;
+  line-height: 20px;
+  color: #8c8c8c;
+}
+
+.memoryAlert {
+  margin: 12px 24px 0;
+  font-size: 12px;
+}
+
+.memoryList {
+  flex: 1 1 auto;
+  min-height: 200px;
+  max-height: 56vh;
+  overflow-y: auto;
+  padding: 8px 16px;
+  background: #fafbfd;
+}
+
+.memoryLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 0;
+}
+
+.memoryEmpty {
+  padding: 56px 0;
+}
+
+.memoryItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 8px;
+  padding: 12px;
+  background: #fff;
+  border: 1px solid #eef1f6;
+  border-radius: 8px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    border-color: #d6e4ff;
+    box-shadow: 0 2px 10px rgba(27, 93, 251, 0.08);
+  }
+}
+
+.memoryKindBar {
+  flex: 0 0 3px;
+  align-self: stretch;
+  width: 3px;
+  border-radius: 2px;
+}
+
+.memoryItemMain {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.memoryItemTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.memoryKindTag {
+  margin: 0;
+  padding: 0 6px;
+  font-size: 12px;
+  line-height: 18px;
+  border-radius: 4px;
+}
+
+.memoryScopeTag {
+  margin: 0;
+  padding: 0 6px;
+  font-size: 12px;
+  line-height: 18px;
+  color: #1b5dfb;
+  background: #f0f5ff;
+  border-color: #adc6ff;
+  border-radius: 4px;
+}
+
+.memoryPin {
+  font-size: 12px;
+  color: #fa8c16;
+}
+
+.memoryTime,
+.memoryHit {
+  font-size: 12px;
+  color: #bfbfbf;
+}
+
+.memoryItemText {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 20px;
+  color: #1f2329;
+  word-break: break-all;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.memoryItemActions {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  align-self: center;
+  gap: 10px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.memoryAction {
+  color: #8c8c8c;
+  cursor: pointer;
+
+  &:hover {
+    color: #1b5dfb;
+  }
+}
+
+.memoryActionDanger {
+  color: #ff4d4f;
+  cursor: pointer;
+
+  &:hover {
+    color: #ff7875;
+  }
+}
+
+.memoryActionMuted {
+  color: #bfbfbf;
+  cursor: pointer;
+
+  &:hover {
+    color: #8c8c8c;
+  }
+}
+
+.memoryFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  border-top: 1px solid #f0f2f5;
+}
+
+.memoryCount {
+  font-size: 12px;
+  color: #8c8c8c;
+}
+
+.memoryNotice {
+  margin-left: 12px;
+  color: #52c41a;
+}
+
+.memoryAudit {
+  margin-left: 12px;
+  color: #bfbfbf;
+}
+
+.memoryFooterActions {
+  display: flex;
+  gap: 8px;
+}
+
+.memoryClose {
+  min-width: 72px;
+}

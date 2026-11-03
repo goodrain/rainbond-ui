@@ -269,10 +269,10 @@ const {
 // Case 1: compaction.started → active=true, mode captured.
 const startedState = applyCompactionEvent(defaultCompactionState, {
   type: 'compaction.started',
-  data: { mode: 'async', input_chars: 14000, turn: 3 },
+  data: { mode: 'post_turn', input_chars: 14000, turn: 3 },
 });
 assert.strictEqual(startedState.active, true, 'compaction.started should set active=true');
-assert.strictEqual(startedState.mode, 'async', 'compaction.started should record the mode');
+assert.strictEqual(startedState.mode, 'post_turn', 'compaction.started should record the mode');
 assert.strictEqual(startedState.lastFailedAt, 0, 'compaction.started should not touch lastFailedAt');
 assert.strictEqual(startedState.lastFailedReason, '', 'compaction.started should not touch lastFailedReason');
 
@@ -296,7 +296,7 @@ assert.ok(
   'compaction.failed should record lastFailedAt as a positive timestamp'
 );
 
-// Case 4: compaction.forced_sync_due_to_pressure upgrades mode to sync_forced
+// Case 4: post_turn 设计下，forced_sync_due_to_pressure 不再切换成 sync_forced
 // (active stays true because the upgrade is mid-flight; backend follows up
 // with completed / failed afterwards).
 const upgradedState = applyCompactionEvent(startedState, {
@@ -306,8 +306,8 @@ const upgradedState = applyCompactionEvent(startedState, {
 assert.strictEqual(upgradedState.active, true, 'forced_sync upgrade should keep active=true');
 assert.strictEqual(
   upgradedState.mode,
-  'sync_forced',
-  'forced_sync upgrade should set mode=sync_forced'
+  'post_turn',
+  'forced_sync upgrade should keep post_turn mode'
 );
 
 // Case 5 (extra robustness): non-compaction events leave the slice untouched

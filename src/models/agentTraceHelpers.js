@@ -37,10 +37,48 @@ function findTraceMessageIndex(messages, trace) {
 
 const { formatToolLabel } = agentToolLabels;
 
-function buildTraceDisplayTitle(friendlyTitle, toolName) {
-  if (friendlyTitle && toolName && friendlyTitle !== toolName) {
-    return `${friendlyTitle}（${toolName}）`;
+
+function parseMaybeJson(value) {
+  if (!value) return null;
+  if (typeof value === 'object') return value;
+  if (typeof value !== 'string') return null;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
   }
+}
+
+export function extractWebSources(data = {}) {
+  if (!data || !/web_(search|fetch)/.test(data.tool_name || '')) return [];
+  const candidates = [data.output, data.structured_content, data.structuredContent, data.result];
+  const sources = [];
+  const visit = value => {
+    const parsed = parseMaybeJson(value);
+    if (!parsed) return;
+    if (Array.isArray(parsed)) {
+      parsed.forEach(item => visit(item && item.text ? item.text : item));
+      return;
+    }
+    if (Array.isArray(parsed.sources)) {
+      parsed.sources.forEach(source => {
+        if (source && source.url) {
+          sources.push({ url: source.url, title: source.title || '' });
+        }
+      });
+    }
+    ['structured_content', 'structuredContent', 'result'].forEach(key => visit(parsed[key]));
+  };
+  candidates.forEach(visit);
+  const seen = new Set();
+  return sources.filter(source => {
+    if (seen.has(source.url)) return false;
+    seen.add(source.url);
+    return true;
+  }).slice(0, 8);
+}
+
+function buildTraceDisplayTitle(friendlyTitle, toolName) {
   return friendlyTitle || toolName || '工具调用';
 }
 
@@ -61,6 +99,7 @@ export function buildTraceContent(data = {}) {
     toolCallId: data.tool_call_id || '',
     inputSignature: normalizedInput,
     hasOutput: !!data.output,
+    sources: extractWebSources(data),
   };
 }
 

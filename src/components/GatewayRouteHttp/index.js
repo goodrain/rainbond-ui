@@ -151,39 +151,44 @@ export default class index extends Component {
         });
     }
     // 新增或修改
-    addOrEditApiGateway = (values, app_id, serviceAliasArr) => {
+    addOrEditApiGateway = async (values, app_id, serviceAliasArr) => {
         const { dispatch, appID, type } = this.props
-        const { editInfo } = this.state;
         const teamName = globalUtil.getCurrTeamName()
-        dispatch({
-            type: 'gateWay/handleApiGateway',
-            payload: {
-                teamName: teamName,
-                values: values,
-                appID: app_id || appID || '',
-                type: type,
-                service_alias: serviceAliasArr && serviceAliasArr.length > 0 ? serviceAliasArr.join(',') : '',
-                name: values.name || '',
-                port: values.backends && values.backends.length > 0 ? values.backends[0].servicePort : '',
-            },
-            callback: res => {
-                if (res) {
-                    this.setState({
-                        routeDrawer: false
-                    }, () => {
-                        notification.success({
-                            message: formatMessage({ id: 'notification.success.succeeded' }),
-                        });
-                        this.getTableData()
-                    })
-                }
-            },
-            handleError: (err) => {
-                notification.error({
-                    message: err?.data?.msg || formatMessage({ id: 'componentOverview.body.safety.SafetyCodeScan.Controlserror' }),
-                });
-            }
-        })
+        const handleError = err => {
+            const responseData = err?.response?.data || err?.data || {};
+            notification.error({
+                message: responseData.msg_show || responseData.msg || formatMessage({ id: 'componentOverview.body.safety.SafetyCodeScan.Controlserror' }),
+            });
+        };
+        try {
+            await dispatch({
+                type: 'gateWay/handleApiGateway',
+                payload: {
+                    teamName: teamName,
+                    values: values,
+                    appID: app_id || appID || '',
+                    type: type,
+                    service_alias: serviceAliasArr && serviceAliasArr.length > 0 ? serviceAliasArr.join(',') : '',
+                    name: values.name || '',
+                    port: values.backends && values.backends.length > 0 ? values.backends[0].servicePort : '',
+                },
+                callback: res => {
+                    if (res) {
+                        this.setState({
+                            routeDrawer: false
+                        }, () => {
+                            notification.success({
+                                message: formatMessage({ id: 'notification.success.succeeded' }),
+                            });
+                            this.getTableData()
+                        })
+                    }
+                },
+                handleError,
+            })
+        } catch (err) {
+            handleError(err);
+        }
     }
     // 删除表格信息
     handleDelete = (data) => {

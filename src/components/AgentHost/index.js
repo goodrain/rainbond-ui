@@ -10,6 +10,7 @@ import * as closeBehavior from './closeBehavior';
 import * as displayFilters from './displayFilters';
 import * as markdownHelpers from './markdownHelpers';
 import * as scrollBehavior from './scrollBehavior';
+import MemorySettingsModal from './MemorySettingsModal';
 
 function ReasoningBlock({ reasoning, streaming }) {
   // Default open while reasoning is still streaming so the user can watch the
@@ -171,6 +172,21 @@ class TraceMessageRow extends PureComponent {
           <Icon type="api" className={styles.traceInlineIcon} />
           <span>{traceText}</span>
         </span>
+        {trace.sources && trace.sources.length > 0 ? (
+          <div style={{ marginTop: 4, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {trace.sources.map(source => (
+              <a
+                key={source.url}
+                href={source.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontSize: 12, wordBreak: 'break-all' }}
+              >
+                {source.title || source.url}
+              </a>
+            ))}
+          </div>
+        ) : null}
       </div>
     );
   }
@@ -178,7 +194,7 @@ class TraceMessageRow extends PureComponent {
 
 class ApprovalMessageCard extends PureComponent {
   renderHighRiskActions() {
-    const { isSending, onDecision } = this.props;
+    const { isDeciding, onDecision } = this.props;
 
     return (
       <React.Fragment>
@@ -187,7 +203,7 @@ class ApprovalMessageCard extends PureComponent {
             <Button
               type="primary"
               className={styles.approvalApproveButton}
-              loading={isSending}
+              loading={isDeciding}
               onClick={() => onDecision('approved')}
             >
               授权并执行
@@ -196,7 +212,7 @@ class ApprovalMessageCard extends PureComponent {
           <div className={styles.approvalActionHalf}>
             <Button
               className={styles.approvalRejectButton}
-              disabled={isSending}
+              disabled={isDeciding}
               onClick={() => onDecision('rejected')}
             >
               取消
@@ -209,7 +225,7 @@ class ApprovalMessageCard extends PureComponent {
   }
 
   renderNormalRiskActions() {
-    const { approval, isSending, onDecision } = this.props;
+    const { approval, isDeciding, onDecision } = this.props;
     const targetRef = approval.targetRef || null;
     const targetKey = autoApprovalPolicy.targetRefToKey(targetRef);
     const targetLabel = targetRef
@@ -265,7 +281,7 @@ class ApprovalMessageCard extends PureComponent {
             <Button
               type="primary"
               className={styles.approvalApproveButton}
-              loading={isSending}
+              loading={isDeciding}
               onClick={() => onDecision('approved')}
             >
               授权并执行
@@ -274,7 +290,7 @@ class ApprovalMessageCard extends PureComponent {
               <Button
                 type="primary"
                 className={styles.approvalPolicyButton}
-                disabled={isSending}
+                disabled={isDeciding}
                 aria-label="选择自动批准策略"
               >
                 <Icon type="more" />
@@ -285,7 +301,7 @@ class ApprovalMessageCard extends PureComponent {
         <div className={styles.approvalActionHalf}>
           <Button
             className={styles.approvalRejectButton}
-            disabled={isSending}
+            disabled={isDeciding}
             onClick={() => onDecision('rejected')}
           >
             取消
@@ -493,24 +509,13 @@ const {
 
 const { TextArea } = Input;
 const { confirm } = Modal;
-function formatRelativeTime(iso) {
-  if (!iso) return '';
-  const ts = Date.parse(iso);
-  if (Number.isNaN(ts)) return '';
-  const diffSec = Math.max(1, Math.floor((Date.now() - ts) / 1000));
-  if (diffSec < 60) return '刚刚';
-  if (diffSec < 3600) return `${Math.floor(diffSec / 60)} 分钟前`;
-  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)} 小时前`;
-  if (diffSec < 86400 * 30) return `${Math.floor(diffSec / 86400)} 天前`;
-  return new Date(ts).toLocaleDateString('zh-CN');
-}
 
 export default class AgentHost extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      historyPopoverVisible: false,
       approvalSettingsVisible: false,
+      memorySettingsVisible: false,
       updateBannerDismissed: false,
     };
     this.messagesRef = null;
@@ -822,12 +827,8 @@ export default class AgentHost extends PureComponent {
     });
   };
 
-  handleConflictStopAndSend = () => {
-    this.props.dispatch({ type: 'agent/stopAndSendMine' });
-  };
-
-  handleConflictKeepWaiting = () => {
-    this.props.dispatch({ type: 'agent/keepWaiting' });
+  handleConflictForceStop = () => {
+    this.props.dispatch({ type: 'agent/forceStopConflict' });
   };
 
   handleConflictCancelMine = () => {
@@ -873,23 +874,16 @@ export default class AgentHost extends PureComponent {
             size="small"
             type="primary"
             loading={cancelling}
-            onClick={this.handleConflictStopAndSend}
+            onClick={this.handleConflictForceStop}
             style={{ marginRight: 8 }}
           >
-            停止它并发送本条
-          </Button>
-          <Button
-            size="small"
-            onClick={this.handleConflictKeepWaiting}
-            style={{ marginRight: 8 }}
-          >
-            继续等待
+            强制停止
           </Button>
           <Button
             size="small"
             onClick={this.handleConflictCancelMine}
           >
-            取消我的输入
+            取消输入
           </Button>
         </div>
       </div>
@@ -919,6 +913,9 @@ export default class AgentHost extends PureComponent {
   };
 
   renderTraceMessage = item => {
+    // 记忆的写入/检索过程不在聊天里展示，避免打扰。
+    const toolName = (item.trace && item.trace.toolName) || '';
+    if (/^memory_/i.test(toolName) || /记忆/.test(toolName)) return null;
     return <TraceMessageRow key={item.id} item={item} />;
   };
 
@@ -928,7 +925,9 @@ export default class AgentHost extends PureComponent {
       <ApprovalMessageCard
         item={item}
         approval={item.approval || {}}
-        isSending={!!(agent && agent.sending)}
+        isDeciding={
+          !!agent && agent.decidingApprovalId === (item.approval && item.approval.approvalId)
+        }
         onDecision={this.handleApprovalDecision}
       />
     );
@@ -940,7 +939,10 @@ export default class AgentHost extends PureComponent {
         key={item.id}
         item={item}
         approval={item.approval || {}}
-        isSending={!!(this.props.agent && this.props.agent.sending)}
+        isDeciding={
+          !!this.props.agent &&
+          this.props.agent.decidingApprovalId === (item.approval && item.approval.approvalId)
+        }
         onDecision={this.handleApprovalDecision}
       />
     );
@@ -964,13 +966,6 @@ export default class AgentHost extends PureComponent {
     return <ErrorMessageRow key={item.id} item={item} />;
   };
 
-  handleHistoryVisibleChange = visible => {
-    this.setState({ historyPopoverVisible: visible });
-    if (visible) {
-      this.props.dispatch({ type: 'agent/loadSessionList' });
-    }
-  };
-
   handleApprovalSettingsVisibleChange = visible => {
     this.setState({ approvalSettingsVisible: visible });
     if (visible) {
@@ -989,69 +984,8 @@ export default class AgentHost extends PureComponent {
     this.props.dispatch({ type: 'agent/clearApprovalPolicies' });
   };
 
-  handleSwitchSession = sessionId => {
-    this.setState({ historyPopoverVisible: false });
-    this.props.dispatch({ type: 'agent/switchSession', payload: { sessionId } });
-  };
-
-  handleDeleteSession = (e, sessionId) => {
-    e.stopPropagation();
-    confirm({
-      title: '删除该会话？',
-      content: '该操作不可恢复。',
-      okType: 'danger',
-      okText: '删除',
-      cancelText: '取消',
-      onOk: () => {
-        this.props.dispatch({ type: 'agent/removeSession', payload: { sessionId } });
-      },
-    });
-  };
-
   handleCancelSessionPending = () => {
     this.props.dispatch({ type: 'agent/cancelSessionPending' });
-  };
-
-  renderHistoryPopover = () => {
-    const { agent } = this.props;
-    const list = (agent && agent.sessionList) || [];
-    const loading = !!(agent && agent.sessionListLoading);
-
-    if (loading) {
-      return <div className={styles.historyEmpty}>加载中…</div>;
-    }
-    if (!list.length) {
-      return <div className={styles.historyEmpty}>暂无历史会话</div>;
-    }
-
-    return (
-      <div className={styles.historyList}>
-        {list.map(item => (
-          <div
-            key={item.session_id}
-            className={styles.historyItem}
-            onClick={() => this.handleSwitchSession(item.session_id)}
-          >
-            <div className={styles.historyItemBody}>
-              <div className={styles.historyItemTitle} title={item.title || '新会话'}>
-                {item.title || '新会话'}
-              </div>
-              <div className={styles.historyItemMeta}>
-                {formatRelativeTime(item.updated_at)}
-              </div>
-            </div>
-            <button
-              type="button"
-              className={styles.historyItemDelete}
-              aria-label="删除会话"
-              onClick={e => this.handleDeleteSession(e, item.session_id)}
-            >
-              <Icon type="delete" />
-            </button>
-          </div>
-        ))}
-      </div>
-    );
   };
 
   renderAutoApprovalSettings = () => {
@@ -1272,8 +1206,6 @@ export default class AgentHost extends PureComponent {
     const cancellingRun = !!(agent && agent.cancellingRun);
     const activeRunId = (agent && agent.activeRunId) || '';
     const canStopRun = sending && !!activeRunId;
-    const pendingDraftMode = (agent && agent.pendingDraftMode) || '';
-    const isWaitingForOtherTab = pendingDraftMode === 'wait';
     const hasSessionPending = sessionPendingApprovals.length > 0;
     // F14 — compaction lifecycle banner. `compaction.active` is set while
     // the backend is compressing the conversation history; a brief
@@ -1337,18 +1269,13 @@ export default class AgentHost extends PureComponent {
                 </div>
               </div>
               <div className={styles.panelHeaderActions}>
-                <Popover
-                  trigger="click"
-                  placement="bottomRight"
-                  content={this.renderHistoryPopover()}
-                  overlayClassName={styles.historyPopover}
-                  visible={this.state.historyPopoverVisible}
-                  onVisibleChange={this.handleHistoryVisibleChange}
+                <button
+                  className={styles.headerIconButton}
+                  aria-label="我的记忆"
+                  onClick={() => this.setState({ memorySettingsVisible: true })}
                 >
-                  <button className={styles.headerIconButton} aria-label="历史会话">
-                    <Icon type="history" />
-                  </button>
-                </Popover>
+                  <Icon type="bulb" />
+                </button>
                 <Popover
                   trigger="click"
                   placement="bottomRight"
@@ -1431,15 +1358,6 @@ export default class AgentHost extends PureComponent {
                 />
               ) : null}
 
-              {isWaitingForOtherTab ? (
-                <Alert
-                  type="info"
-                  showIcon
-                  message="等待另一个窗口的当前运行结束后将自动发送你的输入"
-                  style={{ margin: '8px 12px' }}
-                />
-              ) : null}
-
               {hasSessionPending ? (
                 <div className={styles.pendingBanner}>
                   <div className={styles.pendingBannerText}>
@@ -1508,6 +1426,10 @@ export default class AgentHost extends PureComponent {
             </div>
           </div>
         </div>
+        <MemorySettingsModal
+          visible={this.state.memorySettingsVisible}
+          onClose={() => this.setState({ memorySettingsVisible: false })}
+        />
       </div>
     );
   }
