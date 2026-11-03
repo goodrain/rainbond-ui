@@ -31,6 +31,7 @@ const { Option } = Select;
 export default class index extends Component {
     constructor(props) {
         super(props);
+        this.isUnmounted = false;
         this.state = {
             isPerform: true,
             serviceComponentLoading: true,
@@ -61,6 +62,9 @@ export default class index extends Component {
             language: cookie.get('language') === 'zh-CN' ? true : false,
             editHttpStrategyLoading: false
         };
+    }
+    componentWillUnmount() {
+        this.isUnmounted = true;
     }
     componentWillMount() {
         const { editInfo, appID } = this.props;
@@ -259,11 +263,15 @@ export default class index extends Component {
                     } else {
                         ret = onOk(data, null, result);
                     }
-                    // 如果 onOk 返回 Promise，则在完成后关闭 loading
-                    if (ret && typeof ret.then === 'function') {
-                        ret.finally(() => {
+                    const resetLoading = () => {
+                        if (!this.isUnmounted) {
                             this.setState({ editHttpStrategyLoading: false });
-                        });
+                        }
+                    };
+                    if (ret && typeof ret.then === 'function') {
+                        ret.then(resetLoading, resetLoading);
+                    } else {
+                        resetLoading();
                     }
                 }
 
