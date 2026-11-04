@@ -6,6 +6,7 @@ import { importAppPagePlugin } from '@/utils/importPlugins';
 import EnterprisePluginsCom from '../EnterprisePluginsCom'
 import Global from '@/utils/global';
 import PluginUtil from '@/utils/pulginUtils';
+import { getPluginBaseId } from '@/utils/pluginArchUtils';
 import theme from '../../../config/theme';
 // import styles from './index.less';
 
@@ -31,7 +32,7 @@ export default class Backup extends Component {
   loadEnterpriseClusters = () => {
     const urlParams = new URLSearchParams(window.location.search || window.location.hash.split('?')[1]);
     const region_name = urlParams.get('regionName');
-    const regionName = Global.getCurrRegionName() || this.props?.match?.params?.regionID  || region_name 
+    const regionName = this.props.regionName || Global.getCurrRegionName() || this.props?.match?.params?.regionID  || region_name
     this.loadPluginList(regionName);
   };
   loadPluginList = (regionName) => {
@@ -46,8 +47,8 @@ export default class Backup extends Component {
       payload: { enterprise_id: enterpriseId, region_name: currentRegionName },
       callback: (res) => {
         if (res && res.list) {
-          const plugin = res.list.find((item) => item.name === 'rainbond-enterprise-base') || {};
-          this.setState({ plugins: plugin, loading: false }, () => {
+          const plugin = res.list.find((item) => getPluginBaseId(item.name) === 'rainbond-enterprise-base') || {};
+          this.setState({ plugins: plugin, regionName: currentRegionName, loading: false }, () => {
             if (plugin.plugin_type === 'JSInject') {
               this.importPlugin(plugin, currentRegionName);
             }

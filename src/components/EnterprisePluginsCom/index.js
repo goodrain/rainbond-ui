@@ -121,6 +121,8 @@ export default class index extends Component {
       : undefined;
     const pluginBaseInfo = {
       ...baseInfo,
+      enterprise_id: Global.getCurrEnterpriseId() || user?.currentUser?.enterprise_id,
+      region_name: this.props.regionName || baseInfo.region_name,
       namespace: this.getPluginNamespace()
     }
     const reduxInfo = {

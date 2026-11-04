@@ -1,5 +1,7 @@
 //整体导航栏信息
 const enterpriseMenu = {
+  'menu.enterprise.disk_cleanup': '磁盘清理',
+  'menu.enterprise.disk_cleanup_unavailable': '当前集群尚未安装集成磁盘清理的企业基础插件',
   'menu.enterprise.dashboard': '平台总览',
   'menu.enterprise.share': '应用市场',
   'menu.enterprise.team': '项目/团队',

@@ -163,6 +163,9 @@ export default {
       case 'OverMark':
         return 'OverMarkPage'
         break;
+      case 'DiskCleanup':
+        return 'DiskCleanupPage'
+        break;
       default:
         return key
         break;

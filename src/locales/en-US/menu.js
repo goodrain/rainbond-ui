@@ -1,4 +1,6 @@
 const enterpriseMenu = {
+  'menu.enterprise.disk_cleanup': 'Disk cleanup',
+  'menu.enterprise.disk_cleanup_unavailable': 'Enterprise disk cleanup is not installed in this cluster',
   'menu.enterprise.dashboard': 'Overview',
   'menu.enterprise.share': 'Market',
   'menu.enterprise.team': 'Team',
