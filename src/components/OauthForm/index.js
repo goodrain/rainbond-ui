@@ -57,7 +57,11 @@ class CreateOAuthForm extends PureComponent {
   handleSubmit = () => {
     this.props.form.validateFields((err, values) => {
       if (!err && this.props.onOk) {
-        this.props.onOk(values);
+        this.props.onOk({
+          ...values,
+          auto_create_user: this.props.type !== 'private' &&
+            values.oauth_type === 'gitlab' && values.auto_create_user === true
+        });
       }
     });
   };
@@ -74,7 +78,7 @@ class CreateOAuthForm extends PureComponent {
         span: 24
       }
     };
-    const oauthType = getFieldValue('oauth_type') || 'github';
+    const oauthType = getFieldValue('oauth_type') || (oauthInfo && oauthInfo.oauth_type) || 'github';
     return (
       <Modal
         visible
@@ -231,6 +235,26 @@ class CreateOAuthForm extends PureComponent {
               {formatMessage({ id: 'enterpriseSetting.basicsSetting.serve.form.label.redirect_domain.desc' })}
             </div>
           </Form.Item>
+          {type !== 'private' && oauthType === 'gitlab' && (
+            <Form.Item
+              className={styles.clearConform}
+              {...formItemLayout}
+              label={formatMessage({ id: 'enterpriseSetting.basicsSetting.serve.form.label.auto_create_user' })}
+            >
+              {getFieldDecorator('auto_create_user', {
+                initialValue: !!(oauthInfo && oauthInfo.auto_create_user),
+                valuePropName: 'checked'
+              })(
+                <Switch
+                  checkedChildren={formatMessage({ id: 'button.switch.open' })}
+                  unCheckedChildren={formatMessage({ id: 'button.switch.close' })}
+                />
+              )}
+              <div className={styles.conformDesc}>
+                {formatMessage({ id: 'enterpriseSetting.basicsSetting.serve.form.label.auto_create_user.desc' })}
+              </div>
+            </Form.Item>
+          )}
           {type !== 'private' && (
             <Form.Item
               className={styles.clearConform}
