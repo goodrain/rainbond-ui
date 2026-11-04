@@ -1563,6 +1563,8 @@ const enterpriseSetting = {
     'enterpriseSetting.basicsSetting.serve.form.label.client_secret': 'Client Secret',
     'enterpriseSetting.basicsSetting.serve.form.label.redirect_domain': 'Callback address',
     'enterpriseSetting.basicsSetting.serve.form.label.is_auto_login': 'Automatic login',
+    'enterpriseSetting.basicsSetting.serve.form.label.auto_create_user': 'Create account on first login',
+    'enterpriseSetting.basicsSetting.serve.form.label.auto_create_user.desc': 'Create a regular Rainbond account when a new user authenticates with this GitLab service. An administrator grants team access afterward. This setting is independent of public registration.',
     'enterpriseSetting.basicsSetting.serve.form.label.oauth_type.desc': 'If you need to modify the type, delete the configuration and add it again',
     'enterpriseSetting.basicsSetting.serve.form.label.name.desc': 'OAuth Service display name',
     'enterpriseSetting.basicsSetting.serve.form.label.home_url.desc': 'Address for accessing third-party services',

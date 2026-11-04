@@ -1569,6 +1569,8 @@ const enterpriseSetting = {
     'enterpriseSetting.basicsSetting.serve.form.label.client_secret': '客户端密钥',
     'enterpriseSetting.basicsSetting.serve.form.label.redirect_domain': '回调地址',
     'enterpriseSetting.basicsSetting.serve.form.label.is_auto_login': '自动登录',
+    'enterpriseSetting.basicsSetting.serve.form.label.auto_create_user': '首次登录自动创建账号',
+    'enterpriseSetting.basicsSetting.serve.form.label.auto_create_user.desc': '开启后，通过此 GitLab 认证的新用户将自动创建 Rainbond 普通账号，后续由管理员加入团队并授权。此设置独立于公开注册。',
     'enterpriseSetting.basicsSetting.serve.form.label.oauth_type.desc': '如需编辑类型，请删除配置后重新添加',
     'enterpriseSetting.basicsSetting.serve.form.label.name.desc': 'OAuth服务显示名称',
     'enterpriseSetting.basicsSetting.serve.form.label.home_url.desc': '第三方服务访问地址',

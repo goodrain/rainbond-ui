@@ -104,7 +104,8 @@ export default class OauthTable extends PureComponent {
       oauth_type,
       home_url,
       redirect_domain,
-      is_auto_login
+      is_auto_login,
+      auto_create_user
     } = values;
     oauth_type = oauth_type.toLowerCase();
     if (oauth_type === 'github') {
@@ -121,6 +122,7 @@ export default class OauthTable extends PureComponent {
       client_id,
       client_secret,
       is_auto_login,
+      auto_create_user: oauth_type === 'gitlab' && auto_create_user === true,
       oauth_type,
       redirect_uri: `${redirect_domain}/console/oauth/redirect`,
       home_url,
