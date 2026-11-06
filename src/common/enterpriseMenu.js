@@ -6,6 +6,7 @@ import getMenuSvg from './getMenuSvg';
 import PluginUtil from '../utils/pulginUtils'
 import { isRainbondInfoAgentEnabled } from '../utils/agentVisibility';
 import { getPluginBaseId, groupPluginsByLogicalId } from '../utils/pluginArchUtils';
+import { bundledDiskCleanupRegions, isBundledDiskCleanup } from '../utils/enterpriseDiskCleanup';
 
 function getAgentPluginPath(eid, agentPlugin) {
   return buildPlatformPluginPath(eid, 'rainbond-agent', Object.keys(agentPlugin || {}));
@@ -98,6 +99,16 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList, rainbon
         icon: getMenuSvg.getSvg('StorageMgtL'),
         path: `/enterprise/${eid}/region/${firstCluster.region_name}/platform-resources`,
         authority: ['admin', 'user']
+      });
+    }
+
+    const cleanupRegions = bundledDiskCleanupRegions(pluginList);
+    if (cleanupRegions.length > 0) {
+      resourceItems.push({
+        name: formatMessage({ id: 'menu.enterprise.disk_cleanup' }),
+        icon: getMenuSvg.getSvg('StorageMgtL'),
+        path: `/enterprise/${eid}/disk-cleanup?regionName=${encodeURIComponent(cleanupRegions[0])}`,
+        authority: ['admin']
       });
     }
 
@@ -228,7 +239,7 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList, rainbon
     Object.entries(pluginList).forEach(([key, value]) => {
       const pluginArr = PluginUtil.segregatePluginsByHierarchy(value, 'Platform');
       // 过滤掉已在其他分组中显示的插件
-      const filteredPlugins = pluginArr.filter(p => !excludePlugins.includes(p.name));
+      const filteredPlugins = pluginArr.filter(p => !excludePlugins.includes(p.name) && !isBundledDiskCleanup(p, value));
       if (filteredPlugins.length > 0) {
         pluginObj[key] = filteredPlugins;
       }

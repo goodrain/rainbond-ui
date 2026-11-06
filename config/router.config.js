@@ -133,6 +133,12 @@ export default [
             authority: ['admin', 'user'],
           },
           {
+            path: '/enterprise/:eid/disk-cleanup',
+            component: './EnterpriseDiskCleanup',
+            name: 'EnterpriseDiskCleanup',
+            authority: ['admin']
+          },
+          {
             path: '/enterprise/:eid/clusters/ClustersMGT/:regionID',
             component: './EnterpriseClusters/ClustersMGT',
             name: 'EnterpriseClustersMGT',
