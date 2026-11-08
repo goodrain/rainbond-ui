@@ -19,7 +19,16 @@ import explore from './zh-CN/explore'
 import resource from './zh-CN/resource'
 import cliAuth from './zh-CN/cliAuth'
 import deviceAuthorization from './zh-CN/deviceAuthorization'
+import workspace from './zh-CN/workspace';
+
+import delivery from './zh-CN/delivery';
+
+import workflow from './zh-CN/workflow';
+
 export default {
+  ...workflow,
+  ...delivery,
+  ...workspace,
   'navBar.lang': '语言',
   'layout.user.link.help': '帮助',
   'layout.user.link.privacy': '隐私',

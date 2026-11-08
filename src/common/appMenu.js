@@ -72,6 +72,12 @@ function menuData(teamName, regionName, appID, permissionsInfo, pluginList, curr
     path: `team/${teamName}/region/${regionName}/apps/${appID}/version`,
     authority: ['admin', 'user']
   });
+  adminItems.push({
+    name: formatMessage({ id: 'delivery.records' }),
+    icon: getMenuSvg.getSvg('shareAlt'),
+    path: `team/${teamName}/region/${regionName}/apps/${appID}/delivery`,
+    authority: ['admin', 'user']
+  });
 
   if (isAppGatewayMonitor || isAppRouteManage || isAppTargetServices || isAppCertificate) {
     adminItems.push({

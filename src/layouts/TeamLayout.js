@@ -1371,7 +1371,7 @@ class TeamLayout extends PureComponent {
                   isMobile={this.state.isMobile}
                   onCollapse={this.handleMenuCollapse}
                   menuData={menuData}
-                  pathname={pathname}
+                  pathname={appID && pathname && pathname.startsWith(`/team/${teamName}/region/${regionName}/apps/${appID}/delivery/`) ? `/team/${teamName}/region/${regionName}/apps/${appID}/delivery` : pathname}
                   showMenu={isApp}
                 />
               )}

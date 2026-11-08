@@ -1,4 +1,5 @@
 import { Layout } from 'antd';
+import { workspaceLanding } from '../utils/teamApplications';
 import classNames from 'classnames';
 import { connect } from 'dva';
 import { Link, Redirect, routerRedux } from 'dva/router';
@@ -33,7 +34,21 @@ class AccountLayout extends PureComponent {
     };
   }
   componentDidMount() {
+    this.viewportQuery = window.matchMedia('(max-width: 767px)');
+    this.syncViewport = () => {
+      const mobile = this.viewportQuery.matches;
+      this.setState({ isMobiles: mobile });
+      if (mobile) this.props.dispatch({ type: 'global/changeLayoutCollapsed', payload: false });
+    };
+    if (this.viewportQuery.addEventListener) this.viewportQuery.addEventListener('change', this.syncViewport);
+    else this.viewportQuery.addListener(this.syncViewport);
+    this.syncViewport();
     this.getEnterpriseList();
+  }
+
+  componentWillUnmount() {
+    if (this.viewportQuery.addEventListener) this.viewportQuery.removeEventListener('change', this.syncViewport);
+    else this.viewportQuery.removeListener(this.syncViewport);
   }
 
   // get enterprise list
@@ -65,11 +80,11 @@ class AccountLayout extends PureComponent {
       location
     };
   }
-  handleMenuCollapse = collapsed => {
+  handleMenuCollapse = (collapsed, type) => {
     const { dispatch } = this.props;
     dispatch({
       type: 'global/changeLayoutCollapsed',
-      payload: collapsed
+      payload: type === 'responsive' ? false : collapsed
     });
   };
 
@@ -95,21 +110,7 @@ class AccountLayout extends PureComponent {
     });
   };
   getLoginRole = (currUser) => {
-    const { dispatch } = this.props;
-    const { teams } = currUser
-    if (teams && teams.length > 0) {
-      const { team_name, region } = teams[0]
-      const { team_region_name } = region[0]
-      if (team_name && team_region_name) {
-        return`/team/${team_name}/region/${team_region_name}/index`
-      }
-    } else {
-      if (currUser?.is_enterprise_admin) {
-        return `/enterprise/${currUser?.enterprise_id}/index`
-      } else {
-        return `/account/center/personal`
-      }
-    }
+    return workspaceLanding(currUser);
   }
   onJumpPersonal = () => {
     const { 

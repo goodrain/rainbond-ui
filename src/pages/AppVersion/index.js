@@ -39,7 +39,6 @@ import {
   deleteAppVersionRollbackRecord
 } from '../../services/api';
 import {
-  createShare,
   getUpgradeComponentList,
   getShareRecords,
   deleteShareRecord as removeShareRecord,
@@ -52,6 +51,7 @@ import AppExporter from '../EnterpriseShared/AppExporter';
 import { runCloseCallback } from './closeCallback';
 import styles from './index.less';
 import snapshotVersionHelpers from '../Group/components/snapshotVersionHelpers';
+import { deliveryPath } from '../Group/Delivery/common';
 
 const { Panel } = Collapse;
 const { getLatestSnapshotVersionSeed } = snapshotVersionHelpers;
@@ -798,43 +798,13 @@ export default class AppVersion extends PureComponent {
     };
   };
 
-  createPublishRecord = async (scope = '', target = {}, recordVersion = '', appModelId = '') => {
-    const { teamName, appID } = this.props.match.params;
-    const { overview } = this.state;
-    const snapshotAppModelId = appModelId || (overview && overview.template_id);
-    if (!this.canPublishSnapshotVersion(recordVersion, snapshotAppModelId)) {
-      this.setState({ storeLoading: false });
-      notification.warning({ message: '请先创建快照后再发布' });
-      return;
-    }
-    try {
-      const res = await createShare({
-        team_name: teamName,
-        group_id: appID,
-        scope,
-        target,
-        snapshot_app_id: snapshotAppModelId,
-        snapshot_version: recordVersion
-      });
-      const bean = (res && res.bean) || {};
-      const recordId = bean.ID;
-      if (!recordId) {
-        throw new Error('publish record missing');
-      }
-      this.setState({
-        selectStoreVisible: false,
-        storeLoading: false,
-        pendingPublishVersion: '',
-        pendingPublishAppModelId: '',
-        isAuthCompany: false
-      });
-      this.navigateToPublishStep(recordId, bean.step, this.buildPublishQuery(recordVersion, snapshotAppModelId));
-    } catch (error) {
-      this.setState({ storeLoading: false });
-      notification.error({
-        message: this.getRequestErrorMessage(error, '创建发布流程失败')
-      });
-    }
+  openDeliveryEditor = () => {
+    this.props.dispatch(routerRedux.push(`${deliveryPath(this.props.match.params)}/create`));
+  };
+
+  createPublishRecord = async () => {
+    this.setState({ selectStoreVisible: false, storeLoading: false });
+    this.openDeliveryEditor('local');
   };
 
   getLatestPublishRecord = () => {
@@ -923,98 +893,13 @@ export default class AppVersion extends PureComponent {
     this.openPublishPage(recordVersion, appModelId);
   };
 
-  openCloudPublishPage = (recordVersion = '', appModelId = '') => {
-    if (!this.canPublishSnapshotVersion(recordVersion, appModelId)) {
-      notification.warning({ message: '请先创建快照后再发布' });
-      return;
-    }
-    const enterpriseId = this.getEnterpriseId();
-    if (!enterpriseId) {
-      notification.warning({ message: '当前企业信息缺失，无法发布到云应用商店' });
-      return;
-    }
-    this.setState({
-      storeLoading: true,
-      pendingPublishVersion: recordVersion,
-      pendingPublishAppModelId: appModelId
-    });
-    this.props.dispatch({
-      type: 'enterprise/fetchEnterpriseStoreList',
-      payload: {
-        enterprise_id: enterpriseId
-      },
-      callback: data => {
-        const storeList = (data && data.list) || [];
-        if (!storeList.length) {
-          this.setState({
-            storeLoading: false,
-            storeList: [],
-            selectStoreVisible: false
-          });
-          notification.warning({ message: '当前企业未配置可用的云应用商店' });
-          return;
-        }
-        if (storeList[0].access_key) {
-          const writableStores = storeList.filter(
-            item => item.status === 1 && fetchMarketAuthority(item, 'Write')
-          );
-          if (!writableStores.length) {
-            this.setState({
-              storeLoading: false,
-              storeList: [],
-              selectStoreVisible: false
-            });
-            notification.warning({ message: '当前没有可写入的云应用商店，请先检查商店权限' });
-            return;
-          }
-          this.setState({
-            selectStoreVisible: true,
-            isAuthCompany: false,
-            storeList: writableStores,
-            storeLoading: false
-          });
-          return;
-        }
-        this.setState({
-          storeName: storeList[0].name,
-          isAuthCompany: true,
-          storeLoading: false,
-          selectStoreVisible: false
-        });
-      }
-    });
-  };
+  openCloudPublishPage = () => this.openDeliveryEditor('local');
 
-  renderPublishAction = ({
-    recordVersion = '',
-    appModelId = '',
-    disabled = false,
-    size = 'default',
-    type,
-    ghost = false
-  } = {}) => {
-    const overlay = (
-      <Menu
-        onClick={({ key, domEvent }) => {
-          if (domEvent) {
-            domEvent.stopPropagation();
-          }
-          this.handlePublishAction(key, recordVersion, appModelId);
-        }}
-      >
-        <Menu.Item key="local">{formatMessage({ id: 'appPublish.btn.local' })}</Menu.Item>
-        <Menu.Item key="market">{formatMessage({ id: 'appPublish.btn.market' })}</Menu.Item>
-      </Menu>
-    );
-
-    return (
-      <Dropdown overlay={overlay} trigger={['click']} disabled={disabled}>
-        <Button size={size} type={type} ghost={ghost} disabled={disabled}>
-          {formatMessage({ id: 'appPublish.btn.publish' })} <Icon type="down" />
-        </Button>
-      </Dropdown>
-    );
-  };
+  renderPublishAction = ({ disabled = false, size = 'default', type, ghost = false } = {}) => (
+    <Button size={size} type={type} ghost={ghost} disabled={disabled} onClick={() => this.openDeliveryEditor('local')}>
+      {formatMessage({ id: 'delivery.createTemplate' })}
+    </Button>
+  );
 
   openUpgradePage = template => {
     if (this.state.sourceUpgradeVisible) {
@@ -2127,7 +2012,7 @@ export default class AppVersion extends PureComponent {
     }
     Modal.confirm({
       title: '删除历史版本',
-      content: '删除后该历史版本将无法再查看、发布或回滚，且不可恢复。',
+      content: '删除后该历史快照将无法再查看或回滚，且不可恢复。',
       okText: '确认删除',
       cancelText: '取消',
       onOk: () => this.handleDeleteSnapshot(item.detail.version_id)
@@ -2610,9 +2495,6 @@ export default class AppVersion extends PureComponent {
             )}
             {record.templateType === 'personal' && (
               this.renderPublishAction({
-                recordVersion: record.currentVersion,
-                appModelId: record.appModelId,
-                disabled: record.currentVersion === '未发布',
                 size: 'small'
               })
             )}
@@ -2838,10 +2720,10 @@ export default class AppVersion extends PureComponent {
                           创建快照
                         </Button>
                       ) : null}
-                      {publishPermission.isShare && item.timelineState !== 'runtime' && item.detail && item.detail.version ? (
+                      {publishPermission.isShare && item.timelineState === 'runtime' ? (
                         this.renderPublishAction({
-                          recordVersion: item.actionVersion,
-                          appModelId: item.detail.app_model_id,
+                          recordVersion: item.timelineState === 'runtime' ? '' : item.actionVersion,
+                          appModelId: item.timelineState === 'runtime' ? '' : item.detail.app_model_id,
                           size: 'small',
                           type: 'primary',
                           ghost: true

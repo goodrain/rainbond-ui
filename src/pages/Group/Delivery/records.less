@@ -1,0 +1,64 @@
+@import '~antd/lib/style/themes/default.less';
+
+.toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 0 0 24px;
+  :global(.ant-input-search) { max-width: 320px; }
+}
+.toolbarActions { display: flex; gap: 12px; }
+.changeBanner { margin-bottom: 24px;
+  :global(.ant-alert-description) { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+}
+.changeActions { display: inline-flex; gap: 12px; align-items: center; }
+.checkState { display: flex; align-items: center; gap: 8px; margin: 0 0 20px; color: @text-color-secondary; font-size: @rbd-content-size; }
+.templateGroup { border: 1px solid @border-color-base; border-radius: 12px; margin-bottom: 24px; }
+.groupHeader { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 24px; border-bottom: 1px solid @border-color-base; }
+.groupIdentity { display: flex; align-items: center; gap: 12px; min-width: 0;
+  > :global(.anticon) { font-size: @rbd-title-big-size; color: @primary-color; }
+  h2 { margin: 0 0 4px; font-size: @rbd-sub-title-size; line-height: 24px; color: @heading-color; overflow-wrap: anywhere; }
+  p { margin: 0; font-size: @rbd-auxiliary-size; color: @text-color-secondary; }
+}
+.versionTimeline { margin: 0; padding: 24px 24px 0;
+  :global(.ant-timeline-item-last) { padding-bottom: 24px; }
+}
+.versionCard { min-width: 0; padding: 20px; background: @body-background; border: 1px solid @border-color-base; border-radius: 8px; }
+.versionCard :global(.ant-table) { min-width: 640px; }
+.versionHeader { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; > :first-child { flex: 1; min-width: 0; } }
+.versionIdentity { display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  h3 { margin: 0; font-size: @rbd-title-size; color: @heading-color; line-height: 26px; }
+  button { border: 0; background: none; color: inherit; font: inherit; cursor: pointer; padding: 0; &:hover { color: @primary-color; } }
+  :global(.ant-tag) { margin-right: 0; }
+}
+.versionMeta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; font-size: @rbd-auxiliary-size; color: @text-color-secondary; }
+.versionActions { display: flex; flex-wrap: wrap; gap: 8px; }
+.releaseNotes { white-space: pre-wrap; overflow-wrap: anywhere; color: @text-color-secondary; margin: 12px 0 0; font-size: @rbd-content-size; }
+.notesPreview { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.expandButton { padding: 0; margin-top: 12px; height: auto; }
+.versionDetails { margin-top: 16px; padding-top: 18px; border-top: 1px solid @border-color-base; }
+.componentNames { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 20px; :global(.ant-tag) { margin-right: 0; } }
+.environmentHeading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px;
+  strong { font-size: @rbd-content-size; font-weight: 500; color: @heading-color; }
+  :global(.ant-btn) { padding: 0; height: auto; }
+}
+.emptyEnvironments { margin: 0; padding: 12px 0; color: @text-color-secondary; font-size: @rbd-content-size; }
+.exportStatus { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 12px; color: @text-color-secondary; font-size: @rbd-auxiliary-size;
+  :global(.ant-btn) { padding: 0; height: auto; }
+}
+.deletedVersion { background: fade(@rbd-background-color, 32%); }
+.deletionNote { color: @text-color-secondary; margin: 16px 0 0; font-size: @rbd-auxiliary-size; }
+.deleteAction { color: @error-color; }
+.historyDrawer { max-width: 100vw; :global(.ant-drawer-content-wrapper) { max-width: 100vw; } :global(.ant-drawer-body) { overflow-x: auto; } :global(.ant-table) { min-width: 640px; } }
+.changeList { margin: 24px 0 0; padding: 0; list-style: none;
+  > li { padding: 16px 0; border-top: 1px solid @border-color-base; }
+  strong { display: block; color: @heading-color; margin-bottom: 8px; }
+  p { margin: 0; color: @text-color-secondary; font-size: @rbd-content-size; }
+}
+@media (max-width: @screen-sm) {
+  .toolbar, .groupHeader { flex-wrap: wrap; }
+  .toolbarActions { width: 100%; flex-wrap: wrap; }
+  .groupHeader { padding: 16px; }
+  .versionTimeline { padding: 20px 12px 0; }
+  .versionCard { padding: 14px; }
+  .versionActions { gap: 6px; }
+  .versionActions :global(.ant-btn) { padding: 0 8px; }
+  .versionActions :global(.ant-btn > .anticon:first-child) { display: none; }
+  .environmentHeading { flex-wrap: wrap; }
+}

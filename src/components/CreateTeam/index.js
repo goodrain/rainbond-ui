@@ -1,4 +1,4 @@
-import { Button, Form, Input, Modal, Select, Table, Tabs, Upload, Icon } from 'antd';
+import { Alert, Button, Form, Input, InputNumber, Modal, Select, Table, Tabs, Upload, Icon } from 'antd';
 import { connect } from 'dva';
 import React, { Fragment, PureComponent } from 'react';
 import { FormattedMessage } from 'umi';
@@ -9,6 +9,7 @@ import cookie from '../../utils/cookie';
 import { pinyin } from 'pinyin-pro';
 import styles from './index.less';
 const { normalizeRegionOptions } = require('./regionOptions');
+const { quotaToFields, quotaFromFields } = require('../../utils/teamApplications');
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -39,6 +40,13 @@ class CreateTeam extends PureComponent {
     if (ID) {
       this.getUnRelationedApp(ID);
       this.getTeamName();
+    }
+    const previous = this.props.initialApplication;
+    if (this.props.application && previous) {
+      this.props.form.setFieldsValue({ team_name: previous.team_alias, namespace: previous.namespace,
+        useable_regions: previous.regions, application_reason: previous.reason,
+        ...quotaToFields(previous.quota) });
+      this.setState({ imageUrl: previous.logo || '' });
     }
   }
   // 获取集群下所有的团队英文名称
@@ -82,6 +90,9 @@ class CreateTeam extends PureComponent {
       .then(data => {
         const regions = normalizeRegionOptions(data && data.list);
         this.setState({ regions, regionLoading: false }, () => {
+          if (this.props.application && !this.props.initialApplication && regions.length === 1) {
+            this.props.form.setFieldsValue({ useable_regions: [regions[0].region_name] });
+          }
           // 如果只有一个集群，在 bind tab 下自动选中
           if (regions.length === 1 && this.state.activeTab === 'bind') {
             this.loadNamespaces(regions[0].region_name);
@@ -149,10 +160,27 @@ class CreateTeam extends PureComponent {
       return;
     }
 
-    form.validateFields(['team_name', 'namespace', 'useable_regions', 'logo'], (err, values) => {
+    if (this.props.application && (this.props.submitting || this.state.regionLoading || !this.state.regions.length)) return;
+    const fields = ['team_name', 'namespace', 'useable_regions', 'logo'];
+    if (this.props.application) fields.push('application_reason', 'cpu_cores', 'memory_gb', 'storage_gb');
+    form.validateFields(fields, (err, values) => {
       if (!err && onOk) {
         if (values.logo) {
           values.logo = imageUrl;
+        }
+        if (this.props.application) {
+          values.logo = imageUrl;
+          if (!values.useable_regions.every(name => this.state.regions.some(region => region.region_name === name))) {
+            form.setFields({ useable_regions: { value: values.useable_regions,
+              errors: [new Error(formatMessage({ id: 'workspace.noRegions' }))] } });
+            return;
+          }
+          values.region_labels = values.useable_regions.map(name =>
+            this.state.regions.find(region => region.region_name === name).region_alias || name);
+          values.quota = quotaFromFields(values);
+          delete values.cpu_cores;
+          delete values.memory_gb;
+          delete values.storage_gb;
         }
         onOk(values);
       }
@@ -164,15 +192,15 @@ class CreateTeam extends PureComponent {
     if (!value) {
       return callback(new Error(`${formatMessage({ id: 'popover.enterpriseOverview.setUpTeam.message.englishName' })}`));
     }
-    if (value && value.length <= 32) {
+    if (value && value.length > 24) {
+      return callback(new Error(`${formatMessage({ id: 'popover.enterpriseOverview.setUpTeam.placeholder.max' })}`));
+    }
+    if (value && value.length <= 24) {
       const Reg = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
       if (!Reg.test(value)) {
         return callback(new Error(`${formatMessage({ id: 'placeholder.nameSpaceReg' })}`));
       }
-      callback();
-    }
-    if (value.length > 24) {
-      return callback(new Error(`${formatMessage({ id: 'popover.enterpriseOverview.setUpTeam.placeholder.max' })}`));
+      return callback();
     }
   };
 
@@ -202,7 +230,7 @@ class CreateTeam extends PureComponent {
   };
 
   render() {
-    const { onCancel, form, loading, title, guideStep, handleNewbieGuiding, enterprise_id, clusterNamespaces } = this.props;
+    const { onCancel, form, loading, title, guideStep, handleNewbieGuiding, enterprise_id, clusterNamespaces, application, submitting } = this.props;
     const token = cookie.get('token');
     const { getFieldDecorator } = form;
     const { regions, regionLoading, imageBase64, imageUrl, activeTab, selectedRegion, selectedNamespace, namespaceLoading } = this.state;
@@ -221,7 +249,7 @@ class CreateTeam extends PureComponent {
       </div>
     );
     const isRegions = regions && regions.length;
-    const isConfirmDisabled = activeTab === 'bind' && !selectedNamespace;
+    const isConfirmDisabled = application ? regionLoading || !regions.length || submitting : activeTab === 'bind' && !selectedNamespace;
 
     const namespaceColumns = [
       { title: 'Namespace', dataIndex: 'name', key: 'name' },
@@ -240,19 +268,20 @@ class CreateTeam extends PureComponent {
 
     return (
       <Modal
-        title={title || <FormattedMessage id="popover.enterpriseOverview.setUpTeam.title" />}
+        title={title || <FormattedMessage id={application ? 'workspace.applyTitle' : 'popover.enterpriseOverview.setUpTeam.title'} />}
         visible
         maskClosable={false}
-        className={styles.TelescopicModal}
+        className={`${styles.TelescopicModal} ${application ? styles.applicationModal : ''}`}
         onOk={this.handleSubmit}
-        onCancel={onCancel}
+        onCancel={submitting ? undefined : onCancel}
+        closable={!submitting}
         footer={
           <Fragment>
-            <Button onClick={onCancel}>
+            <Button onClick={onCancel} disabled={submitting}>
               <FormattedMessage id="button.cancel" />
             </Button>
-            <Button type="primary" onClick={this.handleSubmit} loading={loading} disabled={isConfirmDisabled}>
-              <FormattedMessage id="button.confirm" />
+            <Button type="primary" onClick={this.handleSubmit} loading={application ? submitting : loading} disabled={isConfirmDisabled}>
+              <FormattedMessage id={application ? 'workspace.submit' : 'button.confirm'} />
             </Button>
             {guideStep &&
               !regionLoading &&
@@ -272,9 +301,10 @@ class CreateTeam extends PureComponent {
           </Fragment>
         }
       >
+        {application && !regionLoading && !regions.length && <Alert showIcon type="warning" message={formatMessage({ id: 'workspace.noRegions' })} />}
         <Tabs activeKey={activeTab} onChange={this.handleTabChange}>
           <TabPane tab="新建团队" key="new">
-            <Form onSubmit={this.handleSubmit} layout="horizontal">
+            <Form onSubmit={event => { event.preventDefault(); this.handleSubmit(); }} layout="horizontal">
               <FormItem
                 {...formItemLayout}
                 label={<FormattedMessage id="popover.enterpriseOverview.setUpTeam.label.name" />}
@@ -286,7 +316,7 @@ class CreateTeam extends PureComponent {
               >
                 {getFieldDecorator('team_name', {
                   rules: [
-                    { required: true, message: formatMessage({ id: 'popover.enterpriseOverview.setUpTeam.placeholder.name' }) },
+                    { required: true, whitespace: application, message: formatMessage({ id: 'popover.enterpriseOverview.setUpTeam.placeholder.name' }) },
                     { max: 24, message: formatMessage({ id: 'popover.enterpriseOverview.setUpTeam.placeholder.max' }) }
                   ]
                 })(<Input placeholder={formatMessage({ id: 'popover.enterpriseOverview.setUpTeam.placeholder.name' })} />)}
@@ -331,6 +361,25 @@ class CreateTeam extends PureComponent {
                   </Select>
                 )}
               </FormItem>
+              {application && [
+                ['cpu_cores', 'requestedCpu', 1, 0.001, undefined, Math.floor(Number.MAX_SAFE_INTEGER / 1000)],
+                ['memory_gb', 'requestedMemory', 1, 1 / 1024, undefined, Math.floor(Number.MAX_SAFE_INTEGER / 1024)],
+                ['storage_gb', 'requestedStorage', 10, 1, 0, Number.MAX_SAFE_INTEGER]
+              ].map(([field, label, step, min, precision, max]) => <FormItem key={field} {...formItemLayout}
+                label={formatMessage({ id: `workspace.${label}` })}
+                extra={field === 'storage_gb' ? formatMessage({ id: 'workspace.quotaHelp' }) : undefined}>
+                {getFieldDecorator(field, { rules: [
+                  { required: true, message: formatMessage({ id: 'workspace.resourceRequired' }) },
+                  { type: field === 'storage_gb' ? 'integer' : 'number', min, max, message: formatMessage({ id: 'workspace.invalidQuota' }) }
+                ] })(<InputNumber min={min} max={max} precision={precision} step={step} style={{ width: '100%' }}
+                  placeholder={formatMessage({ id: 'workspace.resourcePlaceholder' })} />)}
+              </FormItem>)}
+              {application && <FormItem {...formItemLayout} label={formatMessage({ id: 'workspace.reason' })}>
+                {getFieldDecorator('application_reason', { rules: [
+                  { required: true, whitespace: true, message: formatMessage({ id: 'workspace.reasonRequired' }) },
+                  { max: 500, message: formatMessage({ id: 'workspace.reasonLimit' }) }
+                ] })(<Input.TextArea rows={3} maxLength={500} placeholder={formatMessage({ id: 'workspace.reasonPlaceholder' })} />)}
+              </FormItem>}
               <FormItem
                 {...formItemLayout}
                 label="LOGO"
@@ -360,7 +409,7 @@ class CreateTeam extends PureComponent {
               </FormItem>
             </Form>
           </TabPane>
-          <TabPane tab="对接已有 Namespace" key="bind">
+          {!application && <TabPane tab="对接已有 Namespace" key="bind">
             <FormItem {...formItemLayout} label="团队名称">
               {getFieldDecorator('team_name_bind', {
                 rules: [
@@ -397,7 +446,7 @@ class CreateTeam extends PureComponent {
               pagination={{ pageSize: 8 }}
               locale={{ emptyText: selectedRegion ? '该集群下无未管理的 Namespace' : '请先选择集群' }}
             />
-          </TabPane>
+          </TabPane>}
         </Tabs>
       </Modal>
     );

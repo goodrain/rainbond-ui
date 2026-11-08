@@ -1,0 +1,38 @@
+@import '~antd/lib/style/themes/default.less';
+
+.description { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 16px; margin: 16px 0 0; padding: 0 16px;
+  > span { color: @text-color-secondary; font-size: @rbd-auxiliary-size; line-height: 22px; }
+  p { color: @text-color; font-size: @rbd-content-size; line-height: 22px; white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; }
+}
+.footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+.footerLinks { display: flex; flex-wrap: wrap; gap: 20px; align-items: center;
+  > :global(.ant-btn) { padding: 0; height: auto; }
+}
+.footerActions { display: flex; flex-wrap: wrap; gap: 8px; }
+.status { display: flex; align-items: center; min-height: 26px; flex-shrink: 0; white-space: nowrap; }
+.detailsTabs { margin-top: 20px; :global(.ant-tabs-bar) { margin-bottom: 20px; } }
+.facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin: 0 0 24px;
+  > div { min-width: 0; }
+  span { display: block; font-size: @rbd-auxiliary-size; color: @text-color-secondary; margin-bottom: 6px; }
+  strong { font-size: @rbd-content-size; font-weight: 500; color: @heading-color; overflow-wrap: anywhere; }
+}
+.componentHeader { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 12px;
+  h3 { font-size: @rbd-content-size; color: @heading-color; margin: 0; font-weight: 500; }
+  > :global(.ant-btn) { padding-right: 0; }
+}
+.table { overflow-x: auto; :global(.ant-table) { min-width: 640px; } }
+.secondary { display: block; color: @text-color-secondary; font-size: @rbd-auxiliary-size; line-height: 20px; margin-top: 4px; }
+.configurationSummary { color: @text-color-secondary; font-size: @rbd-auxiliary-size; line-height: 22px; }
+.wrap { overflow-wrap: anywhere; }
+.reviewTimeline { padding: 8px 0 0;
+  strong { font-size: @rbd-content-size; font-weight: 500; color: @heading-color; }
+  p { color: @text-color; font-size: @rbd-content-size; margin: 8px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+}
+.empty { color: @text-color-secondary; font-size: @rbd-content-size; padding: 12px 0; margin: 0; }
+@media (max-width: @screen-sm) {
+  .description { grid-template-columns: minmax(0, 1fr); gap: 4px; padding: 0 12px; }
+  .facts { grid-template-columns: minmax(0, 1fr); }
+  .componentHeader { flex-wrap: wrap; gap: 4px; }
+  .footer { align-items: flex-start; }
+  .footerLinks, .footerActions { width: 100%; }
+}

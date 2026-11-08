@@ -20,7 +20,16 @@ import resource from './en-US/resource'
 import cliAuth from './en-US/cliAuth'
 import deviceAuthorization from './en-US/deviceAuthorization'
 
+import workspace from './en-US/workspace';
+
+import delivery from './en-US/delivery';
+
+import workflow from './en-US/workflow';
+
 export default {
+  ...workflow,
+  ...delivery,
+  ...workspace,
   'navBar.lang': 'lang',
   'layout.user.link.help': 'help',
   'layout.user.link.privacy': 'privacy',

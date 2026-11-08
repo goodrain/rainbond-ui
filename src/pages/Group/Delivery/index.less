@@ -1,0 +1,180 @@
+@import '~antd/lib/style/themes/default.less';
+
+.page { color: @text-color; }
+.pageTitle { display: inline-flex; align-items: center; gap: 4px; min-height: 32px; svg { display: block; } }
+.muted, .componentSource { color: @text-color-secondary; font-size: @rbd-content-size; }
+.preWrap { white-space: pre-wrap; overflow-wrap: anywhere; }
+.empty { max-width: 1080px; margin: 0 auto; padding: 28px 0 32px; text-align: center;
+  h2 { font-size: @rbd-title-big-size; color: @heading-color; line-height: 36px; font-weight: 500; margin: 0 0 8px; }
+}
+.flow { display: grid; grid-template-columns: minmax(0, 1fr) 56px minmax(0, 1fr) 56px minmax(0, 1.2fr);
+  gap: 12px; width: 100%; max-width: 1080px; margin: 28px auto; padding: 28px;
+  text-align: left; border: 1px solid @border-color-base; border-radius: 12px; background: fade(@rbd-background-color, 38%);
+}
+.flowStage { display: flex; flex-direction: column; min-width: 0; }
+.flowHeading { min-height: 82px; text-align: center;
+  > div { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  span { color: @primary-color; font-size: @rbd-auxiliary-size; line-height: 16px; font-variant-numeric: tabular-nums; }
+  h3 { margin: 0; color: @heading-color; font-size: @rbd-sub-title-size; line-height: 24px; font-weight: 500; }
+  p { margin: 5px 0 0; color: @text-color-secondary; font-size: @rbd-auxiliary-size; line-height: 20px; }
+}
+.flowVisual { flex: 1; display: flex; align-items: center; justify-content: center; min-height: 190px; }
+.flowArtwork { display: block; width: 152px; max-width: 100%; height: auto; overflow: visible; }
+.flowWindowBack { fill: fade(@primary-color, 5%); }
+.flowWindow { fill: @body-background; stroke: @border-color-base; stroke-width: 1.5; }
+.flowWindowRule { fill: none; stroke: @border-color-base; }
+.flowWindowDot { fill: @border-color-base; }
+.flowCode { fill: none; stroke: @primary-color; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+.flowSheetBack { fill: fade(@primary-color, 5%); stroke: fade(@primary-color, 15%); }
+.flowSheetMiddle { fill: @body-background; stroke: fade(@primary-color, 22%); }
+.flowSheet { fill: @body-background; stroke: fade(@primary-color, 40%); stroke-width: 1.5; }
+.flowTile { fill: fade(@primary-color, 9%); stroke: @primary-color; stroke-width: 1.3; }
+.flowSheetLine { fill: @border-color-base; }
+.flowConnector { display: flex; align-items: center; padding-top: 82px;
+  > span { display: block; position: relative; width: 100%; height: 1px; background: fade(@primary-color, 30%);
+    &::before { content: ''; position: absolute; width: 5px; height: 5px; top: -2px; left: 0; border-radius: 50%; background: fade(@primary-color, 50%); }
+    &::after { content: ''; position: absolute; width: 6px; height: 6px; right: 0; top: -2.5px; border-top: 1px solid @primary-color; border-right: 1px solid @primary-color; transform: rotate(45deg); }
+  }
+}
+.flowMethods { display: flex; flex-direction: column; flex: 1; gap: 0; min-height: 190px; margin: 0; padding: 4px 12px; list-style: none;
+  border: 1px solid @border-color-base; border-radius: 10px; background: @body-background;
+  > li { display: flex; align-items: center; flex: 1; gap: 10px; min-height: 58px; padding: 10px 12px;
+    border-bottom: 1px solid @border-color-base; &:last-child { border-bottom: 0; } }
+  strong { display: block; color: @heading-color; font-size: @rbd-content-size; font-weight: 500; line-height: 20px; }
+  p { margin: 2px 0 0; color: @text-color-secondary; font-size: @rbd-auxiliary-size; line-height: 18px; }
+}
+.flowMethodIcon { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; width: 28px; height: 28px;
+  border-radius: 6px; color: @primary-color; background: fade(@primary-color, 5%); :global(.anticon) { font-size: @rbd-sub-title-size; }
+}
+.recordsToolbar { display: flex; gap: 12px; margin: 16px 0; :global(.ant-input-search) { max-width: 320px; } }
+.recordsTable, .summaryTable, .envTable { overflow-x: auto; }
+.recordsTable :global(.ant-table) { min-width: 800px; }
+.recordActions { display: flex; flex-wrap: wrap; gap: 12px; }
+.editorLayout { width: 100%; }
+.editorIntro { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; margin-bottom: 24px; }
+.basicForm, .metadataSection, .selectionSection { min-width: 0; }
+.sectionBody { min-width: 0; }
+.formSectionTitle { margin: 0 0 20px; font-size: @rbd-sub-title-size; font-weight: 500; color: @heading-color; line-height: 24px; }
+.selectionHeading { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; .formSectionTitle { margin: 0; } }
+.selectionSection :global(.ant-form-item) { margin-bottom: 0; }
+.selectionCount { color: @text-color-secondary; background: @rbd-background-color; padding: 0 8px; border-radius: @border-radius-base; font-size: @rbd-auxiliary-size; font-variant-numeric: tabular-nums; line-height: 24px; }
+.configurationSection { padding-top: 24px; border-top: 1px solid @border-color-base; }
+.editorForm > .footer { margin-top: 24px; padding: 20px 0 0; }
+.basicForm :global(textarea.ant-input) { min-height: 40px; }
+.configPlaceholder { min-height: 160px; }
+.metadataGrid, .fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 24px; }
+.basicForm .metadataGrid { max-width: 1120px; grid-template-columns: minmax(0, 360px) 160px minmax(0, 1fr); gap: 0 24px; }
+.componentChoices { width: 100%; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 240px)); gap: 12px; max-height: 264px; overflow-y: auto;
+  :global(.ant-checkbox-wrapper) { display: flex; align-items: center; margin-left: 0; padding: 10px 12px; border: 1px solid @border-color-base; border-radius: @border-radius-base; background: @body-background; }
+  .componentChoiceSelected { border-color: fade(@primary-color, 28%); background: fade(@primary-color, 2%); }
+}
+.componentSource { display: block; margin-top: 4px; font-size: @rbd-auxiliary-size; }
+.pluginSection { margin-top: 20px; padding-top: 20px; border-top: 1px solid @border-color-base; .fields { margin-top: 20px; } }
+.basicForm .pluginSection { margin-top: 0; padding-top: 0; border-top: 0; .fields { max-width: 720px; } }
+.componentEditor { min-width: 0; margin-top: 16px;
+  :global(.ant-tabs-left-content) { min-width: 0; padding-left: 24px; }
+  :global(.ant-tabs-tab) { text-align: left; max-width: 200px; white-space: normal; }
+}
+.editorComponentConfig { margin-top: 0;
+  :global(.ant-tabs-bar) { margin-bottom: 24px; }
+  :global(.ant-tabs-tab) { padding: 8px 4px 12px; margin-right: 28px; }
+  .envTable :global(.ant-table) { min-width: 0; }
+  .envTable :global(table) { table-layout: fixed; }
+  .scopeNote { padding-top: 4px; border-top: 0; }
+}
+.configurationLayout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px;
+  > .configSection { margin: 0; }
+  > .configSection + .configSection { position: relative;
+    &::before { content: ''; position: absolute; top: 0; bottom: 0; left: -24px; width: 1px; background: @border-color-base; }
+  }
+  .configSection h3 { font-size: @rbd-content-size; font-weight: 500; line-height: 22px; }
+  .configGrid :global(.ant-form-item) { margin-bottom: 16px; }
+}
+.configSection { margin-bottom: 28px;
+  h3 { font-size: @rbd-sub-title-size; color: @heading-color; margin-bottom: 16px; }
+}
+.sectionHeading { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 16px;
+  h3 { margin: 0; }
+}
+.envTable { :global(.ant-table) { min-width: 440px; } :global(.ant-btn-link) { padding: 0; } }
+.configGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 20px;
+  :global(.ant-input-number) { width: 100%; }
+}
+.scopeNote { display: flex; gap: 8px; align-items: flex-start; color: @text-color-secondary; font-size: @rbd-content-size;
+  padding: 16px 0 0; margin-bottom: 0; border-top: 1px solid @border-color-base; :global(.anticon) { color: @primary-color; margin-top: 4px; }
+}
+.sectionTitle { font-size: @rbd-sub-title-size; color: @heading-color; margin-bottom: 16px; }
+.destinations { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 24px;
+  :global(.ant-radio-wrapper) { display: flex; align-items: flex-start; margin: 0; padding: 20px 16px; border: 1px solid @border-color-base; border-radius: @border-radius-base; white-space: normal; }
+  :global(.ant-radio-wrapper-checked) { border-color: @primary-color; background: fade(@primary-color, 3%); }
+  :global(.ant-radio) { margin-top: 3px; }
+  strong { display: block; margin-bottom: 8px; color: @heading-color; font-size: @rbd-content-size; }
+  span > span { display: block; color: @text-color-secondary; font-size: @rbd-auxiliary-size; }
+}
+.summary { margin: 24px 0 16px; background: @rbd-background-color; }
+.summaryTable :global(.ant-table) { min-width: 520px; }
+.footer { display: flex; justify-content: flex-end; gap: 12px; margin-top: 32px; padding-top: 20px; border-top: 1px solid @border-color-base; }
+.failure { margin-top: 20px; }
+.syncPage { min-height: 560px; }
+.syncContent { padding: 32px 16px 12px; }
+.syncHeading { text-align: center; margin-bottom: 32px;
+  h2 { font-size: @rbd-title-big-size; font-weight: 500; line-height: 32px; margin: 24px 0 16px; color: @heading-color; }
+  p { margin-bottom: 0; color: @text-color-secondary; font-size: @rbd-content-size; line-height: 22px; }
+}
+.syncHero { font-size: (@rbd-display-size * 2); }
+.syncHeroSuccess { color: @rbd-success-status; }
+.syncAlert { margin-top: 20px; text-align: left; }
+.syncComponents { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 64px 0 0; padding: 0; list-style: none;
+  > li { min-width: 0; display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; align-items: center; gap: 2px 10px; padding: 12px 16px; text-align: left; border: 1px solid @border-color-base; border-radius: @border-radius-base;
+    > .muted { grid-column: 2; font-size: @rbd-auxiliary-size; line-height: 20px; }
+  }
+  :global(.anticon) { grid-row: ~"1 / 3"; }
+  :global(.ant-btn) { grid-row: ~"1 / 3"; grid-column: 3; padding: 0; }
+}
+.syncComponentName { min-width: 0; overflow-wrap: anywhere; font-weight: 500; }
+.syncStatussuccess { color: @success-color; }
+.syncStatusfailed { color: @error-color; }
+.syncStatussyncing { color: @primary-color; }
+.syncStatusqueued { color: @text-color-secondary; }
+.syncActions { display: flex; justify-content: center; gap: 12px; margin-top: 64px; }
+.syncLogModal { max-width: calc(100vw - 32px); }
+.syncLogs { max-height: 55vh; min-height: 160px; overflow: auto; margin: 0; padding: 16px; color: @text-color; background: @rbd-background-color; white-space: pre-wrap; overflow-wrap: anywhere; font-size: @rbd-content-size; }
+.detailModal { max-width: calc(100vw - 32px); :global(.ant-modal-body) { max-height: 75vh; overflow-y: auto; } .componentEditor { margin-top: 24px; } }
+.detailPlugin { margin-top: 20px; h3 { font-size: @rbd-sub-title-size; } }
+
+@media (max-width: @screen-xl) {
+  .syncComponents { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .configurationLayout { grid-template-columns: minmax(0, 1fr); gap: 24px;
+    > .configSection + .configSection { padding: 24px 0 0; border-top: 1px solid @border-color-base; &::before { display: none; } }
+  }
+}
+@media (max-width: @screen-lg) {
+  .basicForm .metadataGrid { grid-template-columns: minmax(0, 1fr) 160px;
+    > :last-child { grid-column: ~"1 / -1"; }
+  }
+}
+@media (max-width: @screen-md) {
+  .componentChoices, .configGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .destinations { grid-template-columns: 1fr; }
+}
+@media (max-width: @screen-sm) {
+  .syncContent { padding: 0; }
+  .syncComponents { grid-template-columns: minmax(0, 1fr); margin-top: 32px; }
+  .syncActions { flex-wrap: wrap; }
+  .empty { padding: 16px 0 24px; }
+  .flow { grid-template-columns: minmax(0, 1fr); gap: 12px; margin: 24px 0; padding: 20px; }
+  .flowVisual { min-height: 128px; }
+  .flowArtwork { width: 140px; }
+  .flowHeading { min-height: 74px; }
+  .flowConnector { justify-self: center; padding: 4px 0; height: 28px; width: 28px; transform: rotate(90deg); }
+  .flowMethods { min-height: 190px; }
+  .metadataGrid, .fields, .componentChoices, .configGrid { grid-template-columns: 1fr; }
+  .basicForm .metadataGrid { grid-template-columns: minmax(0, 1fr); }
+  .componentEditor :global(.ant-tabs-left-bar) { width: 100%; float: none; border-right: 0; }
+  .componentEditor :global(.ant-tabs-left-bar .ant-tabs-tab) { display: inline-block; padding: 8px 12px; margin: 0; }
+  .componentEditor :global(.ant-tabs-left-content) { width: 100%; padding: 16px 0 0; border-left: 0; }
+  .componentEditor :global(.ant-tabs-ink-bar) { display: none !important; }
+  .editorComponentConfig :global(.ant-tabs-ink-bar) { display: block !important; }
+  .recordsToolbar { flex-wrap: wrap; }
+  .footer { flex-wrap: wrap; :global(.ant-btn) { max-width: 100%; white-space: normal; height: auto; min-height: 32px; } }
+}
