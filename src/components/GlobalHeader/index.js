@@ -677,7 +677,7 @@ class GlobalHeader extends PureComponent {
 
     switch (key) {
       case 'userCenter':
-        dispatch(routerRedux.push('/account/center/personal'));
+        dispatch(routerRedux.push('/account/center/teams'));
         break;
       case 'bill':
         this.handleBalanceBill();
@@ -1292,7 +1292,7 @@ class GlobalHeader extends PureComponent {
           <div className={styles.menuItem} onClick={() => this.handleMenuClick({ key: 'userCenter' })}>
             <Icon component={SVG_ICONS.user} className={styles.menuIcon} />
             <span className={styles.menuText}>
-              <FormattedMessage id="GlobalHeader.core" />
+              <FormattedMessage id="workspace.name" />
             </span>
           </div>
 
