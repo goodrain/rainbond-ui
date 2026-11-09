@@ -3,6 +3,8 @@ import request from '../utils/request';
 const { listingGroups } = require('../utils/deliveryWorkflow');
 const url = enterprise => `${apiconfig.baseUrl}/console/enterprises/${encodeURIComponent(enterprise)}/development-deliveries`;
 const base = scope => `${apiconfig.baseUrl}/console/teams/${encodeURIComponent(scope.teamName)}/groups/${encodeURIComponent(scope.appID)}/delivery-templates`;
+const commentText = value => typeof value === 'string' ? value.replace(/<\/?[a-z][^>]*>/gi, '')
+  .replace(/&(?:nbsp|amp|lt|gt|quot|#39);/g, entity => ({ '&nbsp;': ' ', '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': "'" }[entity])).trim() : '';
 async function sourceComponents(scope) {
   const components = [], seen = new Set();
   const number = value => value == null || value === '' || !Number.isFinite(Number(value)) ? undefined : Number(value);
@@ -33,7 +35,7 @@ export async function loadDeliveryCenter({ user, kind, groupId, scope }) {
     const results = await Promise.allSettled([
       request(`${apiconfig.baseUrl}/console/teams/${encodeURIComponent(source.teamName)}/groups/${encodeURIComponent(source.appID)}`, { method: 'get', params: { region_name: source.regionName }, showMessage: false }),
       request(`${apiconfig.baseUrl}/console/teams/${encodeURIComponent(source.teamName)}/group/${encodeURIComponent(source.appID)}/resources`, { method: 'get', params: { region_name: source.regionName }, showMessage: false }),
-      request(`${apiconfig.baseUrl}/console/enterprise/${encodeURIComponent(user.enterprise_id)}/operation-logs`, { method: 'get', params: { page: 1, page_size: 20, query: source.appID }, showMessage: false }),
+      request(`${apiconfig.baseUrl}/console/teams/${encodeURIComponent(source.teamName)}/apps/${encodeURIComponent(source.appID)}/operation-logs`, { method: 'get', params: { region_name: source.regionName, page: 1, page_size: 20 }, showMessage: false }),
       request(`${apiconfig.baseUrl}/console/teams/${encodeURIComponent(source.teamName)}/groups/${encodeURIComponent(source.appID)}/status`, { method: 'get', params: { region_name: source.regionName }, showMessage: false }),
       sourceComponents(source)
     ]);
@@ -46,7 +48,8 @@ export async function loadDeliveryCenter({ user, kind, groupId, scope }) {
     return { bean: { app: app && Object.keys(app).length ? app : null, resources: resources && Object.keys(resources).length ? resources : null,
       state: state && Object.keys(state).length ? state : null, components: values[4] && values[4].bean ? values[4].bean.components : null,
       events_available: !!values[2], events: Array.isArray(events) ? events.filter(event => String(event.group_id || event.app_id || event.application_id) === String(source.appID) &&
-        (!event.team_name || event.team_name === source.teamName) && (!event.region_name || event.region_name === source.regionName)) : [], collected_at: new Date().toISOString() } };
+        (!event.team_name || event.team_name === source.teamName) && (!(event.region_name || event.region) || (event.region_name || event.region) === source.regionName))
+        .map(event => ({ ...event, comment_text: commentText(event.comment) })) : [], collected_at: new Date().toISOString() } };
 
   }
   if (kind === 'center') {

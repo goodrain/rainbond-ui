@@ -109,9 +109,9 @@ test('application status and events use the captured source region and exclude u
     if (url.endsWith('/status')) return { bean: {}, list: { status: 'RUNNING', cpu: 0, memory: 1024, disk: 1048576 } };
     if (url.endsWith('/resources')) return { bean: {}, list: { cpu_request: 1000 } };
     if (url.endsWith('/operation-logs')) return { bean: { list: [
-      { group_id: '1', team_name: 'team', region_name: 'region', operation_type: 'Build' },
+      { app_id: '1', team_name: 'team', region: 'region', operation_type: 'Build', comment: '构建 <a href="/#/apps/1">Portal</a> 完成' },
       { group_id: '2', operation_type: 'Other application' },
-      { group_id: '1', region_name: 'other', operation_type: 'Other cluster' }
+      { app_id: '1', region: 'other', operation_type: 'Other cluster' }
     ] }, list: [] };
     return { bean: { group_id: '1', group_name: 'Portal' } };
   } };
@@ -120,8 +120,12 @@ test('application status and events use the captured source region and exclude u
   const result = await context.loadDeliveryCenter({ user: admin, kind: 'runtime', scope });
   assert.equal(result.bean.state.cpu, 0, 'zero usage is valid');
   assert.equal(result.bean.resources.cpu_request, 1000);
+  const eventRequest = calls.find(call => call.url.endsWith('/operation-logs'));
+  assert.match(eventRequest.url, /\/teams\/team\/apps\/1\/operation-logs$/);
+  assert.equal(eventRequest.options.params.query, undefined, 'app identity must not be searched in comment text');
   assert.equal(result.bean.events.length, 1);
   assert.equal(result.bean.events[0].operation_type, 'Build');
+  assert.equal(result.bean.events[0].comment_text, '构建 Portal 完成');
   assert.equal(result.bean.components.length, 1);
   assert.equal(result.bean.components[0].cpu_millicores, 0);
   assert.equal(result.bean.components[0].replicas, 0);
