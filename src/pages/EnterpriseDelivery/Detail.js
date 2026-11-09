@@ -134,7 +134,7 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
       <section className={styles.currentEvents}><h3 className={styles.panelHeading}>{w('events')}<span className={styles.tabCount}>{events.length}</span></h3>
         {events.length ? <React.Fragment><Timeline className={styles.eventTimeline}>
           {(expandedEvents ? events : events.slice(0, 5)).map((event, index) => <Timeline.Item key={event.id || index} color="blue">
-            <p>{event.operation_type || event.operation_name || event.content || '—'}</p><div className={styles.muted}>{event.username || event.user_name || '—'} · {event.create_time || event.created_at || '—'}</div>
+            <p>{event.comment_text || event.operation_name || event.content || event.operation_type || '—'}</p><div className={styles.muted}>{event.username || event.user_name || '—'} · {event.create_time || event.created_at || '—'}</div>
           </Timeline.Item>)}
         </Timeline>{events.length > 5 && <Button type="link" onClick={() => this.setState({ expandedEvents: !expandedEvents })}>{w(expandedEvents ? 'collapseEvents' : 'expandEvents')}</Button>}</React.Fragment> :
           <div className={styles.muted}>{runtimeLoading ? w('loadingEvents') : runtime && runtime.events_available === false ? w('eventsUnavailable') : w('noEvents')}</div>}

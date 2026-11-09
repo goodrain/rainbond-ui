@@ -16,6 +16,7 @@ const babel = require('@umijs/deps/compiled/babel/core');
 const paths = {
   overview: 'src/pages/Group/Overview.js',
   header: 'src/components/SlidePanel/components/app.js',
+  deliveryCommon: 'src/pages/Group/Delivery/common.js',
   shape: 'src/pages/Group/AppShape.js',
   model: 'src/models/application.js',
   service: 'src/services/application.js',
@@ -92,6 +93,10 @@ async function withOverview(initialSearch, verify, { holdReads = false } = {}) {
       });
       return module.exports;
     };
+    // Use the real header permission helper so bootstrap assertions retain their production dependency.
+    fixtures['../../../pages/Group/Delivery/common'] = evaluate('deliveryCommon', {
+      '../../../utils/newRole': fixtures['@/utils/newRole']
+    });
     const globalUtil = evaluate('global').default;
     fixtures['@/utils/global'] = globalUtil;
     const observed = url => /\/(status|operator-managed|upgradable_num)$/.test(url);
