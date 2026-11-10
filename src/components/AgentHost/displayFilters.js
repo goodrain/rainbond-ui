@@ -19,10 +19,6 @@ function shouldRenderMessageItem(item = {}) {
     return false;
   }
 
-  if (item.kind === 'context') {
-    return false;
-  }
-
   if (isWorkflowStatusMessage(item)) {
     return false;
   }

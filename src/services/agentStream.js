@@ -1,4 +1,4 @@
-const TERMINAL_STATUSES = ['done', 'error', 'waiting_approval', 'cancelled'];
+const TERMINAL_STATUSES = ['done', 'error', 'waiting_approval', 'cancelled', 'completed', 'failed'];
 const STREAM_BATCHABLE_EVENT_TYPES = {
   'chat.message.delta': true,
   'chat.message.reasoning.delta': true,
@@ -113,7 +113,7 @@ function createStreamEventDispatcher(onEvent, options = {}) {
 }
 
 async function readSseEvents(response, options = {}) {
-  const { onEvent, skipFirstWaitingApproval } = options;
+  const { onEvent, skipFirstWaitingApproval, keepWaitingApproval } = options;
   let waitingApprovalSeen = false;
   let approvalResolvedSeen = false;
   const eventDispatcher = createStreamEventDispatcher(onEvent, options);
@@ -190,7 +190,10 @@ async function readSseEvents(response, options = {}) {
               parsed.data &&
               TERMINAL_STATUSES.indexOf(parsed.data.status) > -1
             ) {
-              if (
+              if (parsed.data.status === 'waiting_approval' && keepWaitingApproval) {
+                // Reattachment follows the whole run, including historical
+                // approval pauses that have already been resolved.
+              } else if (
                 parsed.data.status === 'waiting_approval' &&
                 skipFirstWaitingApproval &&
                 !waitingApprovalSeen &&
@@ -349,7 +352,7 @@ async function subscribeToRunEvents(options = {}) {
     signal,
   });
 
-  return readSseEvents(response, { onEvent });
+  return readSseEvents(response, { onEvent, keepWaitingApproval: true });
 }
 
 module.exports = {

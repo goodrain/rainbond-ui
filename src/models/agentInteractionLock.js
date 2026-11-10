@@ -1,6 +1,8 @@
 const LOCKED_RUN_STATUSES = {
   thinking: true,
   waiting_approval: true,
+  completed: false,
+  failed: false,
   done: false,
   error: false,
   cancelled: false,

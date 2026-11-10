@@ -23,13 +23,13 @@ function createSessionPersistenceScheduler(options = {}) {
 
   function schedule(snapshot, userId, extra = {}) {
     pending = { snapshot, userId };
-    clearTimer();
 
     if (extra.immediate) {
       flush();
       return;
     }
 
+    if (timer) return;
     timer = setTimeout(() => {
       flush();
     }, delayMs);
