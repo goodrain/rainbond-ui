@@ -457,7 +457,8 @@ async function streamRun({
   runId,
   afterSequence,
   onEvent,
-  skipFirstWaitingApproval
+  skipFirstWaitingApproval,
+  automaticApprovalPending
 }) {
   const query = afterSequence > 0 ? `?after_sequence=${afterSequence}` : '';
   const response = await fetch(
@@ -472,7 +473,7 @@ async function streamRun({
     }
   );
 
-  return readSseEvents(response, { onEvent, skipFirstWaitingApproval });
+  return readSseEvents(response, { onEvent, skipFirstWaitingApproval, automaticApprovalPending });
 }
 
 export async function sendAgentMessage(payload = {}) {
