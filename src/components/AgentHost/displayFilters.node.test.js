@@ -12,7 +12,7 @@ assert.strictEqual(
     kind: 'context',
     content: '已切换到 团队 default / 集群 rainbond'
   }),
-  true
+  false
 );
 
 assert.strictEqual(

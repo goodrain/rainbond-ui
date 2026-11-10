@@ -17,8 +17,8 @@ assert.strictEqual(
 
 assert.strictEqual(
   hasRenderableMessages([{ id: 'ctx_1', kind: 'context', content: '已切换上下文' }]),
-  true,
-  'visible context markers should count as renderable messages'
+  false,
+  'context markers should not count as visible messages'
 );
 
 assert.strictEqual(

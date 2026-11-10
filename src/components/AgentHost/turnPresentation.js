@@ -5,6 +5,29 @@ function hasAnswer(item) {
     ((typeof item.content === 'string' && item.content.trim()) || (Array.isArray(item.suggestedActions) && item.suggestedActions.length));
 }
 
+/** Model messages delimit actual execution nodes; tool events stay with their issuer. */
+function groupExecutionNodes(items, process, answer) {
+  const visible = new Set(process);
+  const nodes = [];
+  let node = null;
+  items.forEach(item => {
+    if (item.role === 'assistant' && item.kind === 'normal') {
+      node = { key: `node:${item.streamMessageId || item.id}`, output: item, events: [] };
+      nodes.push(node);
+    } else if (visible.has(item)) {
+      if (!node) {
+        node = { key: `node:${item.id}`, output: null, events: [] };
+        nodes.push(node);
+      }
+      node.events.push(item);
+    }
+  });
+  return nodes.filter(entry => entry.events.length || (entry.output && (
+    entry.output.reasoning || entry.output.reasoningStreaming ||
+    (entry.output !== answer && entry.output.content)
+  )));
+}
+
 /** A presentation group follows a user request, never a model/tool step. */
 function groupConversationMessages(messages, options = {}) {
   const groups = [];
@@ -36,7 +59,10 @@ function groupConversationMessages(messages, options = {}) {
   });
   const turns = groups.filter(group => group.kind === 'turn');
   turns.forEach((group, index) => {
-    group.answer = group.items.slice().reverse().find(hasAnswer) || null;
+    const latestOutput = group.items.slice().reverse().find(item => item.role === 'assistant' && item.kind === 'normal');
+    const followingActions = latestOutput && group.items.slice(group.items.indexOf(latestOutput) + 1)
+      .some(item => item.kind === 'trace' || item.kind === 'approval');
+    group.answer = hasAnswer(latestOutput) && (!followingActions || latestOutput.isFinalAnswer) ? latestOutput : null;
     group.pendingApprovals = group.items.filter(item => item.kind === 'approval' && item.approval && item.approval.status === 'pending');
     group.notices = group.items.filter(item => item.kind === 'error' || item.kind === 'status' || item.kind === 'suggested_actions');
     group.process = group.items.filter(item => {
@@ -49,6 +75,7 @@ function groupConversationMessages(messages, options = {}) {
       if (item.role === 'assistant' && item.kind === 'normal') return !!(item.reasoning || item.reasoningStreaming || item.content);
       return true;
     });
+    group.nodes = groupExecutionNodes(group.items, group.process, group.answer);
     group.running = !!(options.sending && index === turns.length - 1 &&
       (!options.activeRunId || !group.runId || options.activeRunId === group.runId));
     group.waiting = group.pendingApprovals.length > 0;

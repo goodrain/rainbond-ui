@@ -7,7 +7,7 @@ const t = (name, values) => formatMessage({ id: `agent.execution.${name}` }, val
 
 /** One user request owns one header and one chronological execution log. */
 export default class ExecutionTurn extends PureComponent {
-  state = { expanded: false };
+  state = { expanded: true };
 
   getStatus = () => {
     const { turn } = this.props;
@@ -24,16 +24,17 @@ export default class ExecutionTurn extends PureComponent {
   };
 
   renderProcessItem = item => {
-    const { turn, renderTrace, renderApproval, renderAnswer } = this.props;
-    if (item.kind === 'trace') return renderTrace(item);
-    if (item.kind === 'approval') return renderApproval(item);
-    if (item.kind === 'context') {
-      return <div key={item.id} className={styles.executionContext}>{item.content}</div>;
-    }
-    if (item.role !== 'assistant' || item.kind !== 'normal') return null;
+    if (item.kind === 'trace') return this.props.renderTrace(item);
+    if (item.kind === 'approval') return this.props.renderApproval(item);
+    return null;
+  };
+
+  renderExecutionNode = node => {
+    const { turn, renderProcessAnswer } = this.props;
+    const item = node.output;
     return (
-      <div className={styles.executionItem} key={item.id}>
-        {item.reasoning || item.reasoningStreaming ? (
+      <div className={styles.executionNode} key={node.key}>
+        {item && (item.reasoning || item.reasoningStreaming) ? (
           <div className={styles.executionThought}>
             <div className={styles.executionThoughtLabel}>
               <Icon type="bulb" />
@@ -45,7 +46,10 @@ export default class ExecutionTurn extends PureComponent {
             </div>
           </div>
         ) : null}
-        {item !== turn.answer && item.content ? renderAnswer(item) : null}
+        {item && item !== turn.answer && item.content ? (
+          <div className={styles.executionNarration}>{renderProcessAnswer(item)}</div>
+        ) : null}
+        {node.events.map(this.renderProcessItem)}
       </div>
     );
   };
@@ -78,7 +82,7 @@ export default class ExecutionTurn extends PureComponent {
               </span>
             </button>
             {expanded ? (
-              <div className={styles.executionLog}>{turn.process.map(this.renderProcessItem)}</div>
+              <div className={styles.executionLog}>{turn.nodes.map(this.renderExecutionNode)}</div>
             ) : null}
           </div>
         ) : null}

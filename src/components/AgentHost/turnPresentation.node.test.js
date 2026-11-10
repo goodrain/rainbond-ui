@@ -54,3 +54,28 @@ test('preserves stable turn identity and chronological order as a thought stream
   assert.equal(resolved.pendingApprovals.length, 0);
   assert.equal(resolved.process[1].id, 'a');
 });
+
+test('each model output owns its narration, tool calls and resolved approvals', () => {
+  const first = { ...thought, id: 'first', streamMessageId: 'm1', content: 'removing variables' };
+  const tool1 = { id: 'call1', kind: 'trace' };
+  const approved = { ...request, approval: { ...request.approval, status: 'approved' } };
+  const second = { ...thought, id: 'second', streamMessageId: 'm2', content: 'upgrading the component' };
+  const tool2 = { id: 'call2', kind: 'trace' };
+  let turn = groupConversationMessages([user, first, tool1, approved, second, tool2, request])[1];
+  assert.equal(turn.answer, null, 'narration that issues tools belongs inside the execution node');
+  assert.deepEqual(turn.nodes.map(node => [node.key, node.events.map(e => e.id)]), [
+    ['node:m1', ['call1', 'a']], ['node:m2', ['call2']],
+  ]);
+  assert.equal(turn.nodes[0].output.content, 'removing variables');
+  const final = { id: 'final', role: 'assistant', kind: 'normal', content: 'done' };
+  turn = groupConversationMessages([user, first, tool1, approved, second, tool2, final])[1];
+  assert.equal(turn.answer, final);
+  assert.equal(turn.nodes.length, 2, 'the final answer is not repeated as an empty execution node');
+});
+
+test('context switches remain hidden both before and inside a conversation', () => {
+  const context = { id: 'ctx', role: 'system', kind: 'context', content: '已切换到 团队 test / 集群 rainbond' };
+  const groups = groupConversationMessages([context, user, thought, { ...context, id: 'ctx2' }]);
+  assert.equal(groups.length, 2);
+  assert.equal(groups[1].items.some(item => item.kind === 'context'), false);
+});
