@@ -1,15 +1,17 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import { Alert, Button, Descriptions, Drawer, Empty, Icon, Input, Modal, Spin } from 'antd';
+import { Alert, Button, Descriptions, Drawer, Empty, Icon, Input, message, Modal, Spin } from 'antd';
 import moment from 'moment';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import pageheaderSvg from '../../../utils/pageHeaderSvg';
 import { t, getScope, deliveryPath, canPublishTemplate } from './common';
 import DeliveryFlow from './Flow';
 import ComponentConfig from './ComponentConfig';
+import CreateAppModels from '../../../components/CreateAppModels';
+import TemplateExporter from './TemplateExporter';
 import RecordTimeline from './RecordTimeline';
-import { ListingModal, DeployModal, DeploymentTable, w, listingStatusLabel } from '../../../components/DeliveryWorkflow';
+import { ListingModal, DeployModal, w, listingStatusLabel } from '../../../components/DeliveryWorkflow';
 import styles from './index.less';
 import timelineStyles from './records.less';
 const { templateGroups, nextTemplateVersion } = require('../../../utils/templateTimeline');
@@ -18,11 +20,12 @@ const { deliveryScope } = require('../../../utils/templateDelivery');
 @connect(({ user, teamControl, templateDelivery, application, loading }) => ({
   user: user.currentUser, team: teamControl.currentTeam, permissions: teamControl.currentTeamPermissionsInfo,
   appDetail: application.groupDetail || {}, busy: loading.effects['deliveryCenter/act'] || loading.effects['templateDelivery/deleteVersion'],
-  records: templateDelivery.records, activeSyncs: templateDelivery.activeSyncs || [], failed: templateDelivery.failed, loading: loading.effects['templateDelivery/records']
+  records: templateDelivery.records, templateInfo: templateDelivery.template,
+  failed: templateDelivery.failed, loading: loading.effects['templateDelivery/records']
 }))
 export default class DeliveryRecords extends PureComponent {
   state = { detail: null, query: '', listings: [], deployments: [], listing: null, delivery: null, workflowFailed: false,
-    checks: [], changesLoading: false, changesFailed: false, changesOpen: false, history: null };
+    checks: [], changesLoading: false, changesFailed: false, changesOpen: false, exporting: null, profileEditor: null };
   alive = false;
   generation = 0;
   checkTicket = 0;
@@ -41,7 +44,10 @@ export default class DeliveryRecords extends PureComponent {
     if (JSON.stringify(previous.match.params) !== JSON.stringify(this.props.match.params) ||
       (previous.user || {}).enterprise_id !== (this.props.user || {}).enterprise_id || (previous.user || {}).user_id !== (this.props.user || {}).user_id) {
       this.generation += 1;this.checkTicket += 1;this.checking = false;this.acting = false;this.lastRecords = [];clearTimeout(this.checkTimer);
-      this.setState({ detail: null, query: '', listings: [], deployments: [], listing: null, delivery: null, checks: [], changesOpen: false, history: null }, this.load);
+      this.setState({ detail: null, query: '', listings: [], deployments: [], listing: null, delivery: null, checks: [], changesOpen: false, exporting: null, profileEditor: null }, this.load);
+    } else if ((previous.records !== this.props.records || previous.loading && !this.props.loading) && !this.props.loading && !this.props.failed) {
+      this.lastRecords = this.props.records;
+      this.checkChanges(this.props.records);
     }
   }
   active = generation => this.alive && generation === this.generation;
@@ -103,11 +109,22 @@ export default class DeliveryRecords extends PureComponent {
       if (this.active(generation)) { this.acting = false;this.setState({ listing: null, delivery: null }, this.load); }
     }, onError: () => { if (this.active(generation)) this.acting = false; } });
   };
-  create = group => this.props.dispatch(routerRedux.push({ pathname: `${deliveryPath(this.props.match.params)}/create`, query: group ? {
-    template_name: group.template_name, version: nextTemplateVersion(group.versions.map(item => item.version))
-  } : {} }));
-  exportVersion = template => Modal.confirm({ title: t('exportTemplate'), content: t('exportVersionHelp', { name: template.template_name, version: template.version }),
-    okText: t('exportTemplate'), cancelText: t('cancel'), onOk: () => this.act({ operation: 'deploy', kind: 'offline', target: null }, template) });
+  create = group => this.props.dispatch(routerRedux.push({ pathname: `${deliveryPath(this.props.match.params)}/create`, query: {
+    version: nextTemplateVersion((group ? group.versions : this.lastRecords || []).map(item => item.version))
+  } }));
+  createTemplate = () => {
+    const app = String(this.props.appDetail.group_id) === String(this.props.match.params.appID) ? this.props.appDetail : {};
+    this.setState({ profileEditor: { creating: true, appName: app.group_name || '' } });
+  };
+  exportVersion = template => this.setState({ exporting: template });
+  editMetadata = group => this.setState({ profileEditor: { appInfo: { app_id: group.id.replace(/-/g, ''),
+    app_name: group.template_name, pic: group.logo || '', describe: group.template_description || '',
+    scope: 'team', create_team: this.props.match.params.teamName } } });
+  profileSaved = () => {
+    if (!this.alive) return;
+    message.success(t('metadataSaved'));
+    this.setState({ profileEditor: null }, this.load);
+  };
   deleteVersion = template => Modal.confirm({ title: t('deleteVersion'), content: t('deleteVersionHelp', { name: template.template_name, version: template.version }),
     okText: t('deleteVersion'), cancelText: t('cancel'), okType: 'danger', onOk: () => new Promise((resolve, reject) => {
       const { user, team, permissions, match } = this.props;
@@ -133,7 +150,7 @@ export default class DeliveryRecords extends PureComponent {
     const configs = {};
     row.component_overrides.forEach(config => { configs[config.service_id] = { ...config,
       service_env_map_list: config.service_env_map_list.map((env, index) => ({ ...env, _key: `saved-${index}` })) }; });
-    const fields = [['templateName', row.template_name], ['version', row.version], ['description', row.description || '—'],
+    const fields = [['templateName', row.template_name], ['version', row.version], ['templateDescription', row.template_description || '—'], ['description', row.description || '—'],
       ['destination', row.destination === 'market' ? row.market_name || t('market') : t(row.destination)],
       ['creator', row.creator_name || '—'], ['createdAt', moment(row.created_at).format('YYYY-MM-DD HH:mm')]];
     return <Modal visible title={t('templateDetails')} width={1040} className={styles.detailModal} onCancel={() => this.setState({ detail: null })}
@@ -145,37 +162,35 @@ export default class DeliveryRecords extends PureComponent {
       {row.is_platform_plugin && <div className={styles.detailPlugin}><h3>{t('deliveryAsPlatformPlugin')}</h3>
         <p>{row.plugin.plugin_name} · {row.plugin.plugin_id} · {row.plugin.plugin_type}</p></div>}
       <ComponentConfig key={row.id} disabled components={row.components} configs={configs} />
-      <h3>{w('deploymentRecords')}</h3><DeploymentTable items={this.state.deployments.filter(item => item.template_id === row.id)} />
     </Modal>;
   };
   render() {
-    const { records, activeSyncs, failed, loading, user, team, permissions, match, busy, dispatch } = this.props;
-    const { detail, query, listing, delivery, listings, workflowFailed, deployments, changesOpen, checks, history, changesFailed } = this.state;
+    const { records, templateInfo, failed, loading, user, team, permissions, match, busy, dispatch } = this.props;
+    const { detail, query, listing, delivery, listings, workflowFailed, deployments, changesOpen, checks, exporting, profileEditor, changesFailed } = this.state;
     const allowed = canPublishTemplate(user, team, permissions, match.params);
     const scopedRecords = user ? records.filter(item => item.scope === deliveryScope(getScope(match.params, user))) : [];
-    const groups = templateGroups(scopedRecords);
+    const groups = templateGroups(scopedRecords).map(group => templateInfo && group.id === templateInfo.id ? {
+      ...group, template_name: templateInfo.name, template_description: templateInfo.description, logo: templateInfo.logo
+    } : { ...group, logo: group.latest && group.latest.logo || '', template_description: group.latest && group.latest.template_description || '' });
+    if (templateInfo && !groups.some(group => group.id === templateInfo.id)) groups.unshift({ id: templateInfo.id,
+      template_name: templateInfo.name, logo: templateInfo.logo, template_description: templateInfo.description, versions: [], latest: null });
     const visible = groups.filter(group => [group.template_name, ...group.versions.map(item => item.version)].some(value => value.toLowerCase().includes(query.toLowerCase())));
     return <PageHeaderLayout isFooter wrapperClassName={styles.page} title={<span className={styles.pageTitle}>{pageheaderSvg.getPageHeaderSvg('publish', 18)}{t('records')}</span>}
       content={t('recordsHelp')} extraContent={<Button icon="home" onClick={() => dispatch(routerRedux.push(deliveryPath(match.params).replace(/delivery$/, 'overview')))}>{t('backToApplication')}</Button>}>
-      {activeSyncs.length > 0 && <Alert type="info" showIcon message={t('unfinishedSync')}
-        description={activeSyncs.map(job => <Button key={job.id} type="link" onClick={() => dispatch(routerRedux.push({
-          pathname: `${deliveryPath(match.params)}/create`, query: { sync_id: job.id }
-        }))}>{t('continueSync')} · {moment(job.created_at).format('MM-DD HH:mm')}</Button>)} />}
       <Spin spinning={!!loading}>
         {workflowFailed && <Alert type="warning" showIcon message={w('loadFailed')} description={<Button onClick={this.load}>{t('retry')}</Button>} />}
         {failed ? <Alert type="warning" showIcon message={t('recordsUnavailable')} description={<Button onClick={this.load}>{t('retry')}</Button>} /> :
-          !scopedRecords.length ? <section className={styles.empty}>
+          !groups.length ? <section className={styles.empty}>
             <h2>{t('emptyTitle')}</h2><p className={styles.muted}>{t('emptyHelp')}</p><DeliveryFlow />
-            {allowed && <Button type="primary" icon="plus" size="large" onClick={() => this.create()}>{t('createTemplate')}</Button>}
+            {allowed && <Button type="primary" icon="plus" size="large" onClick={this.createTemplate}>{t('createTemplate')}</Button>}
           </section> : <React.Fragment>
             {this.renderChanges(groups, allowed)}
             <div className={timelineStyles.toolbar}><Input.Search allowClear placeholder={t('searchTemplates')} onSearch={query => this.setState({ query: query.trim() })} />
               <div className={timelineStyles.toolbarActions}><Button icon="reload" onClick={this.load}>{t('refresh')}</Button>
-                {allowed && <Button type={checks.some(item => item.status === 'changed') && !changesFailed ? 'default' : 'primary'} icon="plus" onClick={() => this.create()}>{t('createTemplate')}</Button>}
               </div></div>
             {visible.length ? visible.map(group => <RecordTimeline key={group.id} group={group} listings={listings} deployments={deployments} allowed={allowed}
               workflowFailed={workflowFailed} onNewVersion={this.create} onDetail={detail => this.setState({ detail })} onInstall={delivery => this.setState({ delivery })}
-              onExport={this.exportVersion} onDelete={this.deleteVersion} onListing={listing => this.setState({ listing })} onHistory={history => this.setState({ history })} />) : <Empty description={t('noMatchingTemplates')} />}
+              onExport={this.exportVersion} onDelete={this.deleteVersion} onListing={listing => this.setState({ listing })} onEditMetadata={this.editMetadata} />) : <Empty description={t('noMatchingTemplates')} />}
           </React.Fragment>}
       </Spin>
       {detail && this.renderDetail(detail)}
@@ -183,10 +198,13 @@ export default class DeliveryRecords extends PureComponent {
       {delivery && <DeployModal installation template={delivery} user={user} scope={getScope(match.params, user)} dispatch={dispatch} busy={busy}
         approved={listings.some(item => item.template.id === delivery.id && item.publication_status === 'published')}
         onCancel={() => this.setState({ delivery: null })} onSubmit={values => this.act({ operation: 'deploy', ...values }, delivery)} />}
-      <Drawer visible={!!history} width={960} title={history ? `${history.template_name} · ${history.version} · ${t('deliveryHistory')}` : t('deliveryHistory')}
-        className={timelineStyles.historyDrawer} onClose={() => this.setState({ history: null })} destroyOnClose>
-        {history && <DeploymentTable items={deployments.filter(item => item.template_id === history.id)} />}
-      </Drawer>
+      {exporting && <TemplateExporter key={exporting.id} template={exporting} scope={getScope(match.params, user)} user={user}
+        onCancel={() => this.setState({ exporting: null }, this.loadWorkflow)} />}
+      {profileEditor && <CreateAppModels title={t(profileEditor.creating ? 'createTemplate' : 'editMetadata')}
+        eid={user && user.enterprise_id} appName={profileEditor.appName} appInfo={profileEditor.appInfo}
+        defaultScope="team" fixedScope="team" team_name={match.params.teamName}
+        deliverySource={{ team_name: match.params.teamName, region_name: match.params.regionName, app_id: match.params.appID }}
+        onOk={this.profileSaved} onCancel={() => this.setState({ profileEditor: null })} />}
       <Drawer visible={changesOpen} width={520} title={t('viewChanges')} className={timelineStyles.historyDrawer} onClose={() => this.setState({ changesOpen: false })} destroyOnClose>
         {checks.filter(item => item.status === 'changed').map(check => <section key={check.baseline_id}><h3>{check.template_name} · {check.version}</h3>
           <ul className={timelineStyles.changeList}>{check.details.map(item => <li key={item.service_id}><strong>{item.name}</strong><p>{t(`change_${item.type}`)}

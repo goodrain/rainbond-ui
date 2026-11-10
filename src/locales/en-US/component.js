@@ -1711,7 +1711,7 @@ const componentOther = {
     'componentOverview.body.CreateComponentModal.from_image': 'Build from Image',
     'componentOverview.body.CreateComponentModal.from_source': 'Build from Source',
     'componentOverview.body.CreateComponentModal.database': 'Database',
-    'componentOverview.body.CreateComponentModal.local_market': 'Local Component Library',
+    'componentOverview.body.CreateComponentModal.local_market': 'Local Application Market',
     'componentOverview.body.CreateComponentModal.offline_import': 'Upload App Template',
     'componentOverview.body.CreateComponentModal.image_entry': 'Build from Image',
     'componentOverview.body.CreateComponentModal.source_entry': 'Build from Source',

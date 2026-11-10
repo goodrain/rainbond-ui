@@ -31,12 +31,22 @@ test('status, retry, cancel and logs use the persistent server task with the sam
   assert.ok(calls.every(call => call.options.params.region_name === 'region'));
   assert.match(calls[3].url, /job-1\/components\/web\/logs$/);
 });
-test('publish references only the completed task, so a reload cannot replace frozen parameters', async () => {
+test('creation submits metadata and component overrides without requiring a synchronization task', async () => {
   const { service, calls } = harness('templateDelivery', ['publishDeliveryTemplate', 'deleteDeliveryVersion']);
-  await service.publishDeliveryTemplate({ scope, options: { sync_id: 'job-1' }, values: { template_name: 'forged' } });
-  assert.deepEqual(Object.keys(calls[0].options.data).sort(), ['region_name', 'sync_id']);
+  await service.publishDeliveryTemplate({ scope, requestId: 'create-one', values: { template_name: 'Application', template_description: 'Summary',
+    logo: '/uploads/logo.png', description: 'Release notes', version: '1.0.0', service_ids: ['web'] },
+    configs: { web: normalizeTemplateConfig({ service_id: 'web' }, [{ attr_name: 'MODE', attr_value: 'test' }]) } });
+  const data = calls[0].options.data;
+  assert.equal(data.request_id, 'create-one');
+  assert.equal(data.logo, undefined);
+  assert.equal(data.template_description, undefined);
+  assert.equal(data.template_name, undefined);
+  assert.equal(data.component_overrides[0].service_env_map_list[0].attr_value, 'test');
+  assert.equal(data.sync_id, undefined);
+  assert.equal(data.snapshot_id, undefined);
   await service.deleteDeliveryVersion({ scope, templateId: 'version-1' });
   assert.match(calls[1].url, /versions\/version-1$/);
+
 });
 test('listing, install, offline export and admin review use separate real endpoints', async () => {
   const { service, calls } = harness('deliveryCenter', ['actOnDelivery']);
@@ -47,4 +57,19 @@ test('listing, install, offline export and admin review use separate real endpoi
   await service.actOnDelivery({ ...args, operation: 'review', requestId: 'request-1', decision: 'approved' });
   await service.actOnDelivery({ ...args, operation: 'deploy', kind: 'test', listingId: 'request-1' });
   assert.deepEqual(calls.map(call => call.url.split('/').pop()), ['listing-requests', 'installations', 'exports', 'review', 'test-deployments']);
+});
+
+test('template metadata reuses existing app-model create and edit endpoints with source association', async () => {
+  const { service, calls } = harness('market', ['createAppModel', 'upAppModel']);
+  const source = { team_name: 'team', region_name: 'region', app_id: '123' };
+  await service.createAppModel({ enterprise_id: 'enterprise', name: 'Template', pic: '/uploads/logo.png', describe: 'Purpose',
+    scope: 'team', team_name: 'team', delivery_source: source });
+  await service.upAppModel({ enterprise_id: 'enterprise', app_id: 'template-id', name: 'Updated', scope: 'team',
+    create_team: 'team', delivery_source: source });
+  assert.equal(calls[0].url, '/console/enterprise/enterprise/app-models');
+  assert.equal(calls[1].url, '/console/enterprise/enterprise/app-model/template-id');
+  assert.equal(calls[1].options.method, 'PUT');
+  assert.deepEqual(calls[0].options.data.delivery_source, source);
+  await service.createAppModel({ enterprise_id: 'enterprise', name: 'Original catalog template', scope: 'enterprise' });
+  assert.equal(calls[2].options.data.delivery_source, undefined);
 });

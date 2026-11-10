@@ -1,19 +1,28 @@
 import apiconfig from '../../config/api.config';
 import request from '../utils/request';
 import { getStoreList } from './market';
-const { normalizeTemplateConfig } = require('../utils/templateDelivery');
+const { normalizeTemplateConfig, buildTemplatePayload } = require('../utils/templateDelivery');
 const urlFor = scope => `${apiconfig.baseUrl}/console/teams/${encodeURIComponent(scope.teamName)}/groups/${encodeURIComponent(scope.appID)}/delivery-templates`;
 
 export async function listDeliveryTemplates(scope) {
   return request(urlFor(scope), { method: 'get', params: { region_name: scope.regionName } });
 }
-export async function loadDeliverySource(scope) {
-  return request(`${urlFor(scope)}/source`, { method: 'get', params: { region_name: scope.regionName } });
+export async function loadDeliverySource(scope, options = {}) {
+  return request(`${urlFor(scope)}/source`, { method: 'get', params: { region_name: scope.regionName },
+    ...(options.showMessage === false ? { showMessage: false } : {}) });
 }
 export async function loadDeliveryComponents(scope) {
-  const response = await loadDeliverySource(scope);
+  const [response, saved] = await Promise.all([loadDeliverySource(scope), listDeliveryTemplates(scope)]);
   if (!response || !response.bean || !Array.isArray(response.bean.apps)) throw new Error('delivery.componentsUnavailable');
-  return { bean: { components: response.bean.apps.map(item => ({
+  const records = saved && saved.bean && saved.bean.items || [];
+  const version = records.find(item => item.template_id);
+  const annotations = version && version.manifest && version.manifest.annotations || {};
+  const metadata = saved && saved.bean && saved.bean.template || version && {
+    id: version.template_id, name: version.template_name || version.manifest && version.manifest.group_name || '',
+    logo: version.logo == null ? annotations.logo || '' : version.logo,
+    description: version.template_description == null ? annotations.describe || '' : version.template_description
+  };
+  return { bean: { template: metadata || null, components: response.bean.apps.map(item => ({
     service_id: item.service_id, service_alias: item.service_alias, name: item.service_cname,
     source_type: item.service_source, source: item.git_url || item.image || '',
     branch: item.code_branch || '', commit: item.code_version || '', extend_method: item.extend_method,
@@ -38,6 +47,13 @@ export async function loadTemplateChanges({ scope }) {
 export async function deleteDeliveryVersion({ scope, templateId }) {
   return request(`${urlFor(scope)}/versions/${encodeURIComponent(templateId)}`, { method: 'delete', params: { region_name: scope.regionName } });
 }
-export async function publishDeliveryTemplate({ scope, options }) {
-  return request(urlFor(scope), { method: 'post', data: { sync_id: options.sync_id, region_name: scope.regionName } });
+export async function publishDeliveryTemplate({ scope, values, configs, options, requestId }) {
+  return request(urlFor(scope), { method: 'post', data: {
+    ...buildTemplatePayload(values, configs, { ...options, versionOnly: true }), request_id: requestId, region_name: scope.regionName
+  } });
+}
+export async function loadDeliveryExports({ scope, versionId }) {
+  return request(`${urlFor(scope)}/versions/${encodeURIComponent(versionId)}/exports`, {
+    method: 'get', params: { region_name: scope.regionName }
+  });
 }

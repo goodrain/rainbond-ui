@@ -37,11 +37,10 @@ function validateTemplateConfig(config) {
   return errors;
 }
 
-function validateTemplateInfo(values, pluginEnabled, plugin = {}) {
+function validateVersionInfo(values, pluginEnabled, plugin = {}) {
   const errors = {};
-  if (!String(values.template_name || '').trim() || values.template_name.trim().length > 64) errors.template_name = 'nameRequired';
   if (!/^[0-9]+(\.[0-9]+){1,2}$/.test(String(values.version || '').trim())) errors.version = 'versionInvalid';
-  if (String(values.description || '').length > 255) errors.description = 'descriptionLimit';
+  if (String(values.description || '').length > 20000) errors.description = 'descriptionLimit';
   if (!Array.isArray(values.service_ids) || !values.service_ids.length) errors.service_ids = 'componentsRequired';
   if (pluginEnabled) {
     ['plugin_id', 'plugin_name', 'plugin_type', 'entry_path'].forEach(key => {
@@ -52,8 +51,15 @@ function validateTemplateInfo(values, pluginEnabled, plugin = {}) {
   return errors;
 }
 
+function validateTemplateInfo(values, pluginEnabled, plugin = {}) {
+  const errors = validateVersionInfo(values, pluginEnabled, plugin);
+  if (!String(values.template_name || '').trim() || values.template_name.trim().length > 64) errors.template_name = 'nameRequired';
+  if (String(values.template_description || '').length > 400) errors.template_description = 'templateDescriptionLimit';
+  return errors;
+}
+
 function buildTemplatePayload(values, configs, options = {}) {
-  if (Object.keys(validateTemplateInfo(values, options.pluginEnabled, options.plugin)).length) throw new Error('delivery.invalidForm');
+  if (Object.keys((options.versionOnly ? validateVersionInfo : validateTemplateInfo)(values, options.pluginEnabled, options.plugin)).length) throw new Error('delivery.invalidForm');
   const ids = Array.from(new Set(values.service_ids));
   const overrides = ids.map(id => {
     const config = configs[id];
@@ -67,14 +73,12 @@ function buildTemplatePayload(values, configs, options = {}) {
     return { service_id: id, extend_method: config.extend_method, service_env_map_list: envs,
       ...(config.extend_method !== 'vm' ? { extend_method_map: scaling } : {}) };
   });
-  if (!['local', 'market', 'offline'].includes(options.destination) || options.destination === 'market' && !options.market_id) {
-    throw new Error('delivery.destinationRequired');
-  }
   const plugin = options.plugin || {};
   return {
-    template_name: values.template_name.trim(), version: values.version.trim(), description: String(values.description || '').trim(),
-    service_ids: ids, component_overrides: overrides, destination: options.destination,
-    ...(options.destination === 'market' ? { market_id: options.market_id, market_name: options.market_name } : {}),
+    ...(!options.versionOnly ? { template_name: values.template_name.trim(), logo: String(values.logo || ''),
+      template_description: String(values.template_description || '').trim() } : {}),
+    version: values.version.trim(), description: String(values.description || '').trim(),
+    service_ids: ids, component_overrides: overrides,
     is_platform_plugin: !!options.pluginEnabled,
     ...(options.pluginEnabled ? { plugin: {
       plugin_id: plugin.plugin_id.trim(), plugin_name: plugin.plugin_name.trim(), plugin_type: plugin.plugin_type,
@@ -107,5 +111,5 @@ function appendTemplateRecord(records, scope, payload, components, user, now, id
   return { row, records: [row, ...records] };
 }
 
-module.exports = { sensitiveName, normalizeTemplateConfig, validateTemplateConfig, validateTemplateInfo, buildTemplatePayload,
+module.exports = { sensitiveName, normalizeTemplateConfig, validateTemplateConfig, validateTemplateInfo, validateVersionInfo, buildTemplatePayload,
   deliveryScope, appendTemplateRecord };

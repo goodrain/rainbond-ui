@@ -117,7 +117,7 @@ const appPublish = {
   'appPublish.title': '发布记录管理',
   'appPublish.desc': '应用发布是指将当前运行的应用进行模型化，形成应用模版发布到企业应用市场或云端应用商店中，从而支持应用的标准化交付或共享。',
   'appPublish.btn.publish':'发布',
-  'appPublish.btn.local':'发布到组件库',
+  'appPublish.btn.local':'发布到本地应用市场',
   'appPublish.btn.market':'发布到云应用商店',
   'appPublish.table.publishName':'发布模版名称',
   'appPublish.table.versions':'版本号(别名)',
@@ -647,7 +647,7 @@ const helmAppInstall = {
   'helmAppInstall.UpgradeInfo.now_version':'当前版本',
   'helmAppInstall.UpgradeInfo.form_version':'从版本',
   'helmAppInstall.UpgradeInfo.Administration':'应用升级管理',
-  'helmAppInstall.UpgradeInfo.application':'当前应用内具有从组件库或应用商店安装而来的组件时，升级管理功能可用。若安装源的应用版本有变更则可以进行升级操作。',
+  'helmAppInstall.UpgradeInfo.application':'当前应用内具有从本地应用市场或应用商店安装而来的组件时，升级管理功能可用。若安装源的应用版本有变更则可以进行升级操作。',
   'helmAppInstall.UpgradeInfo.updata_to':'升级到',
   'helmAppInstall.UpgradeInfo.select':'请选择',
   'helmAppInstall.UpgradeInfo.select_comm':'请选择需要升级的组件',
@@ -659,7 +659,7 @@ const helmAppInstall = {
 }
 
 const appVersionMock = {
-  'appVersion.page.title': '应用版本',
+  'appVersion.page.title': '应用快照',
   'appVersion.automatic.pending': '正在等待部署完成，成功后将自动保存快照并刷新版本列表。',
   'appVersion.automatic.incomplete': '本次部署尚未生成自动快照，请检查部署结果，成功后可重试部署或手动创建快照。',
   'appVersion.page.content': '当前应用：{appName}',

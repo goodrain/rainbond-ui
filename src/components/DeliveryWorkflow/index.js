@@ -103,12 +103,12 @@ export class DeployModal extends PureComponent {
     }, onError: () => { if (this.alive) this.setState({ failed: true, loading: false }); } });
   };
   render() {
-    const { testing, installation, approved, onCancel, onSubmit, busy } = this.props;
+    const { testing, installation, approved, onCancel, onSubmit, busy, title } = this.props;
     const { mode, teams, team, region, app, loading, failed, error } = this.state;
     const allowed = testing || mode === 'cross' ? teams : teams.filter(item => item.team_name === this.props.scope.teamName);
     const selected = allowed.find(item => item.team_name === team);
     const regions = selected && selected.regions || [];
-    return <Modal visible title={w(testing ? 'testDeploy' : installation ? 'install' : 'deliver')} width={560} onCancel={busy ? undefined : onCancel} maskClosable={false}
+    return <Modal visible title={title || w(testing ? 'testDeploy' : installation ? 'install' : 'deliver')} width={560} onCancel={busy ? undefined : onCancel} maskClosable={false}
       closable={!busy} confirmLoading={busy} okText={w(mode === 'offline' ? 'requestExport' : 'submitDeployment')} cancelText={w('cancel')}
       okButtonProps={{ disabled: mode !== 'offline' && (loading || failed) }} onOk={() => {
         if (mode !== 'offline' && (!selected || !regions.some(item => item.name === region) || !app.trim())) { this.setState({ error: true }); return; }
@@ -157,7 +157,7 @@ export class DeploymentTable extends PureComponent {
   render() {
     return <div style={{ overflowX: 'auto' }}><Table rowKey="id" size="small" pagination={false} dataSource={this.props.items} columns={[
       { title: w('operator'), dataIndex: 'user_name' },
-      { title: w('operation'), dataIndex: 'kind', render: value => w(value === 'test' ? 'testDeploy' : value === 'offline' ? 'offlineExport' : 'install') },
+      { title: w('operation'), dataIndex: 'kind', render: (value, row) => <span>{w(value === 'test' ? 'testDeploy' : value === 'offline' ? 'offlineExport' : 'install')}{value === 'offline' && row.export_format ? ` · ${row.export_format}` : ''}</span> },
       { title: w('environment'), key: 'target', render: (_, row) => row.target ? `${row.target.team_alias || row.target.team_name} / ${row.target.region_alias || row.target.region_name} / ${row.target.app_name}` : '—' },
       { title: w('time'), dataIndex: 'created_at', render: value => moment(value).format('YYYY-MM-DD HH:mm') },
       { title: w('status'), key: 'status', render: (_, row) => taskStatusLabel(row) },

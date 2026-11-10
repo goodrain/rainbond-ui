@@ -116,7 +116,7 @@ const appPublish = {
   'appPublish.title': 'Publish Management',
   'appPublish.desc': 'Application publishing means to model the currently running applications, form application templates and release them to the enterprise application market or cloud application store, so as to support standardized application delivery or sharing',
   'appPublish.btn.publish': 'Publish',
-  'appPublish.btn.local': 'Deploy Locally',
+  'appPublish.btn.local': 'Publish to Local Application Market',
   'appPublish.btn.market': 'Deploy to Cloud',
   'appPublish.table.publishName':'App Template Name',
   'appPublish.table.versions':'Version(alias)',
@@ -636,7 +636,7 @@ const helmAppInstall = {
   'helmAppInstall.UpgradeInfo.now_version':'Current version',
   'helmAppInstall.UpgradeInfo.form_version':'From Version',
   'helmAppInstall.UpgradeInfo.Administration':'Application upgrade management',
-  'helmAppInstall.UpgradeInfo.application':'The upgrade management function is available when there are components installed from the component library or the app store in the current app. If the application version of the installation source changes, you can upgrade it.',
+  'helmAppInstall.UpgradeInfo.application':'The upgrade management function is available when there are components installed from the local application market or the app store in the current app. If the application version of the installation source changes, you can upgrade it.',
   'helmAppInstall.UpgradeInfo.updata_to':'Upgrade to',
   'helmAppInstall.UpgradeInfo.select':'Please select',
   'helmAppInstall.UpgradeInfo.select_comm':'Please select the component to be upgraded',
@@ -647,7 +647,7 @@ const helmAppInstall = {
   'helmAppInstall.UpgradeInfo.version':'Version',
 }
 const appVersionMock = {
-  'appVersion.page.title': 'App Versions',
+  'appVersion.page.title': 'App snapshots',
   'appVersion.automatic.pending': 'Waiting for deployment to complete. A snapshot will be saved and the version list refreshed after success.',
   'appVersion.automatic.incomplete': 'No automatic snapshot was saved for this deployment. Check the deployment result, then retry deployment or create a snapshot manually.',
   'appVersion.page.content': 'Current app: {appName}',

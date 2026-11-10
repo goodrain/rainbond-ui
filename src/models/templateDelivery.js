@@ -1,12 +1,19 @@
 import { message } from 'antd';
 import { formatMessage } from '@/utils/intl';
-import { listDeliveryTemplates, loadDeliveryComponents, loadDeliveryConfig, loadDeliveryMarkets, publishDeliveryTemplate, loadTemplateChanges, deleteDeliveryVersion } from '../services/templateDelivery';
+import { listDeliveryTemplates, loadDeliveryComponents, loadDeliveryConfig, loadDeliveryMarkets, publishDeliveryTemplate, loadTemplateChanges, deleteDeliveryVersion, loadDeliveryExports } from '../services/templateDelivery';
 import { startTemplateSync, getTemplateSync, retryTemplateSync, cancelTemplateSync, loadTemplateSyncLogs } from '../services/templateSync';
 
 export default {
   namespace: 'templateDelivery',
-  state: { records: [], activeSyncs: [], failed: false },
+  state: { records: [], template: null, activeSyncs: [], failed: false },
   effects: {
+    *exports({ payload, callback, onError }, { call }) {
+      try {
+        const response = yield call(loadDeliveryExports, payload);
+        if (!response || !response.bean) throw new Error();
+        if (callback) callback(response.bean);
+      } catch (error) { if (onError) onError(error); }
+    },
     *synchronize({ payload, callback, onError }, { call }) {
       try {
         const operations = { start: startTemplateSync, status: getTemplateSync, retry: retryTemplateSync, cancel: cancelTemplateSync, logs: loadTemplateSyncLogs };
@@ -44,11 +51,11 @@ export default {
       } catch (error) { message.error(formatMessage({ id: error && /^delivery\./.test(error.message) ? error.message : 'delivery.unavailable' }));if (onError) onError(error); }
     },
     records: [function* ({ payload, callback }, { call, put }) {
-      yield put({ type: 'save', payload: { records: [], failed: false } });
+      yield put({ type: 'save', payload: { records: [], template: null, failed: false } });
       try {
         const response = yield call(listDeliveryTemplates, payload);
         if (!response || !response.bean || !Array.isArray(response.bean.items)) throw new Error();
-        yield put({ type: 'save', payload: { records: response.bean.items, activeSyncs: response.bean.active_syncs || [] } });
+        yield put({ type: 'save', payload: { records: response.bean.items, template: response.bean.template || null, activeSyncs: response.bean.active_syncs || [] } });
         if (callback) callback(response.bean.items, response.bean.active_syncs || []);
       } catch (error) { yield put({ type: 'save', payload: { failed: true } }); }
     }, { type: 'takeLatest' }],
@@ -60,11 +67,12 @@ export default {
         if (callback) callback(response.bean);
       } catch (error) { if (onError) onError(error); }
     },
-    *publish({ payload, callback, onError }, { call }) {
+    *publish({ payload, callback, onError }, { call, put }) {
       try {
         const response = yield call(publishDeliveryTemplate, payload);
         if (!response || !response.bean) throw new Error('delivery.unavailable');
         message.success(formatMessage({ id: 'delivery.publishSuccess' }));
+        yield put({ type: 'records', payload: payload.scope });
         if (callback) callback(response.bean);
       } catch (error) {
         const key = error && /^delivery\./.test(error.message) ? error.message : 'delivery.publishFailed';
@@ -72,5 +80,5 @@ export default {
       }
     }
   },
-  reducers: { save(state, { payload }) { return { ...state, ...payload }; }, reset() { return { records: [], activeSyncs: [], failed: false }; } }
+  reducers: { save(state, { payload }) { return { ...state, ...payload }; }, reset() { return { records: [], template: null, activeSyncs: [], failed: false }; } }
 };

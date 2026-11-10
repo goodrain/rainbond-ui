@@ -52,7 +52,7 @@ function listingGroups(items) {
   const groups = new Map();
   items.forEach(item => {
     const group = groups.get(item.group_id) || { id: item.group_id, source: item.source, app_name: item.app_name,
-      template_name: item.template.template_name, versions: [], latest_at: item.submitted_at };
+      template_name: item.template_profile && item.template_profile.name || item.template.template_name, profile: item.template_profile || null, versions: [], latest_at: item.submitted_at };
     group.versions.push(item);
     if (item.submitted_at > group.latest_at) group.latest_at = item.submitted_at;
     groups.set(item.group_id, group);

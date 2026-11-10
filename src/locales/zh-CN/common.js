@@ -127,7 +127,7 @@
 
         //位置：企业视图>应用市场>添加应用商店
         'popover.applicationMarket.addMarket.title':'添加应用商店',
-        'popover.applicationMarket.local':'本地组件库',
+        'popover.applicationMarket.local':'本地应用市场',
         'popover.applicationMarket.market':'开源应用商店',
         'popover.applicationMarket.all':'全部',
         'popover.applicationMarket.company':'公司发布',
@@ -311,7 +311,7 @@
         'confirmModal.delete.cluster.desc':'确定要删除此集群吗？',
         'confirmModal.unload.cluster.desc':'确定要卸载此集群吗？',
         'confirmModal.delete.monitor.desc':'确定要关闭监控？',
-        'confirmModal.delete.component_ibrary_mirror.desc':'确定要关闭组件库镜像仓库？',
+        'confirmModal.delete.component_ibrary_mirror.desc':'确定要关闭本地应用市场镜像仓库？',
         'confirmModal.delete.automatic_issued.desc':'确定要关闭自动签发证书？',
         'confirmModal.delete.Oauth.desc':'确定要关闭Oauth2.0认证？',
         'confirmModal.delete.object_storage.desc':'确定要关闭对象存储？',
@@ -354,7 +354,7 @@
         'confirmModal.app.label.third_party':'第三方组件:',
         'confirmModal.app.label.mirror_image':'镜像:',
         'confirmModal.app.label.sound_code':'源码:',
-        'confirmModal.app.label.component_library':'组件库:',
+        'confirmModal.app.label.component_library':'本地应用市场:',
         'confirmModal.app.label.local':'本地文件:',
         'confirmModal.app.label.copy_not_supported':'不支持快速复制',
         'confirmModal.app.copy.disabled.package_build':'上传软件包创建的组件不支持快速复制',
