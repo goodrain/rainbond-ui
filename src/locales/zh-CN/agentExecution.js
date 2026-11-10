@@ -1,0 +1,18 @@
+export default {
+  'agent.execution.viewProcess': '查看执行过程',
+  'agent.execution.reasoning': '思考过程',
+  'agent.execution.thinking': '思考中',
+  'agent.execution.responding': '正在回复',
+  'agent.execution.working': '正在执行',
+  'agent.execution.waitingApproval': '等待授权',
+  'agent.execution.finished': '已结束',
+  'agent.execution.failed': '执行失败',
+  'agent.execution.cancelled': '已取消',
+  'agent.execution.approved': '已批准',
+  'agent.execution.autoApproved': '已自动批准',
+  'agent.execution.rejected': '已拒绝',
+  'agent.execution.timedOut': '已超时',
+  'agent.execution.toolRunning': '执行中',
+  'agent.execution.toolDone': '完成',
+  'agent.execution.toolFailed': '失败',
+};

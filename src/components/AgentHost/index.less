@@ -1579,3 +1579,99 @@
 .memoryClose {
   min-width: 72px;
 }
+
+.executionProcess {
+  margin: 0 0 10px;
+  width: 100%;
+  min-width: 0;
+}
+
+.executionToggle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  padding: 6px 0;
+  border: 0;
+  background: transparent;
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  text-align: left;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid @primary-color;
+    outline-offset: 3px;
+  }
+}
+
+.executionStatus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-left: auto;
+  min-width: 0;
+  max-width: 52%;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.executionLog {
+  margin: 7px 0 10px 5px;
+  padding-left: 14px;
+  border-left: 2px solid @border-color-base;
+  overflow-wrap: anywhere;
+
+  .traceRow,
+  .approvalRow {
+    margin-bottom: 9px;
+  }
+
+  .messageBubble {
+    margin: 8px 0 12px;
+  }
+}
+
+.executionItem,
+.executionThought {
+  margin: 0 0 12px;
+}
+
+.executionThoughtLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+}
+
+.executionThoughtContent {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  line-height: 1.7;
+}
+
+.executionCursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 3px;
+  vertical-align: -2px;
+  background: @primary-color;
+}
+
+.executionToolStatus {
+  margin-left: 8px;
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+}
+
+.executionContext {
+  margin: 7px 0;
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+}
