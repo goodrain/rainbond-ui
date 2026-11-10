@@ -573,6 +573,12 @@
   margin-bottom: 18px;
 }
 
+.approvalRow {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
 .userRow {
   align-items: flex-end;
 }
@@ -1083,6 +1089,9 @@
 }
 
 .approvalCard {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   position: relative;
   overflow: hidden;
   background: #ffffff;
@@ -1164,38 +1173,46 @@
 
 .approvalActions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 12px;
   padding: 12px;
 }
 
 .approvalActionHalf {
-  flex: 1;
+  flex: 1 1 130px;
   min-width: 0;
 }
 
 .approvalPrimaryActions {
   display: flex;
   width: 100%;
+  min-width: 0;
 
-  :global {
-    .ant-btn {
-      width: 100%;
-    }
+  .approvalApproveButton {
+    flex: 1 1 0;
+    width: 0;
+  }
+
+  .approvalPolicyButton {
+    flex: 0 0 32px;
+    width: 32px;
+    min-width: 32px;
   }
 }
 
 .approvalApproveButton {
   height: 32px;
-  font-size: 14px;
-  width: calc(100% - 32px);
+  font-size: @rbd-content-size;
+  padding: 0 8px;
+  min-width: 0;
+  width: 100%;
 }
 
 .approvalPolicyButton {
-  width: 32px;
   height: 32px;
   padding: 0;
-  font-size: 14px;
+  font-size: @rbd-content-size;
 }
 
 .approvalRejectButton {
@@ -1664,14 +1681,30 @@
   background: @primary-color;
 }
 
-.executionToolStatus {
-  margin-left: 8px;
-  color: @text-color-secondary;
-  font-size: @rbd-auxiliary-size;
+
+
+.executionNode {
+  position: relative;
+  margin-bottom: 18px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 7px;
+    left: -18px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: @border-color-base;
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 
-.executionContext {
-  margin: 7px 0;
-  color: @text-color-secondary;
-  font-size: @rbd-auxiliary-size;
+.executionNarration {
+  margin: 6px 0 12px;
+  color: @text-color;
+  font-size: @rbd-content-size;
 }

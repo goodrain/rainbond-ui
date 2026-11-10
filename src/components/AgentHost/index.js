@@ -120,9 +120,7 @@ class TraceMessageRow extends PureComponent {
         <span className={styles.traceInlineText}>
           <Icon type="api" className={styles.traceInlineIcon} />
           <span>{traceText}</span>
-          {trace.phase ? <span className={styles.executionToolStatus}>
-            {formatMessage({ id: `agent.execution.${trace.isError ? 'toolFailed' : trace.phase === 'end' ? 'toolDone' : 'toolRunning'}` })}
-          </span> : null}
+
         </span>
         {trace.sources && trace.sources.length > 0 ? (
           <div style={{ marginTop: 4, display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -979,6 +977,11 @@ export default class AgentHost extends PureComponent {
     );
   };
 
+  renderTurnProcessAnswer = item => (
+    <AssistantMarkdownBody content={item.content || ''}
+      renderSuggestedActions={this.renderParsedSuggestedActions} streaming={!!item.streaming} />
+  );
+
   renderTurnAnswer = item => (
     <div key={`answer:${item.id}`} className={`${styles.messageBubble} ${styles.assistantBubble}`}>
       <AssistantMarkdownBody content={item.content || ''} suggestedActions={item.suggestedActions}
@@ -1043,6 +1046,7 @@ export default class AgentHost extends PureComponent {
         renderApproval={this.renderApprovalMessage}
         renderNotice={this.renderTurnNotice}
         renderAnswer={this.renderTurnAnswer}
+        renderProcessAnswer={this.renderTurnProcessAnswer}
       />;
     });
 

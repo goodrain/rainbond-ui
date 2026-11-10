@@ -19,7 +19,7 @@ function shouldRenderMessageItem(item = {}) {
     return false;
   }
 
-  if (isWorkflowStatusMessage(item)) {
+  if (item.kind === 'context' || isWorkflowStatusMessage(item)) {
     return false;
   }
 

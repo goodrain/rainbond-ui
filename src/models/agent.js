@@ -581,6 +581,7 @@ function applyAgentEvents({
           );
           if (matchedIndex > -1) {
             nextMessages = streamedMessages;
+            nextMessages[matchedIndex] = { ...nextMessages[matchedIndex], isFinalAnswer: true };
             messagesCloned = true;
             break;
           }
@@ -605,6 +606,7 @@ function applyAgentEvents({
             ...mutableMessages[lastAssistantIndex],
             content: adaptedEvent.content || mutableMessages[lastAssistantIndex].content || '',
             streaming: false,
+            isFinalAnswer: true,
             eventSequence,
           };
           break;
@@ -615,7 +617,7 @@ function applyAgentEvents({
             'normal',
             adaptedEvent.content || '',
             contextSnapshot,
-            { eventSequence }
+            { eventSequence, isFinalAnswer: true }
           )
         );
         break;
