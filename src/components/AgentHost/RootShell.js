@@ -72,7 +72,13 @@ export default class AgentRootShell extends PureComponent {
   componentDidMount() {
     this.attachStoreWithRetry();
     this.syncPanelOpenClass();
+    window.addEventListener('pagehide', this.flushSessionPersistence);
+    window.addEventListener('beforeunload', this.flushSessionPersistence);
   }
+
+  flushSessionPersistence = () => {
+    this.persistenceScheduler.flush();
+  };
 
   componentDidUpdate(prevProps, prevState) {
     this.syncPanelOpenClass();
@@ -92,6 +98,8 @@ export default class AgentRootShell extends PureComponent {
   }
 
   componentWillUnmount() {
+    window.removeEventListener('pagehide', this.flushSessionPersistence);
+    window.removeEventListener('beforeunload', this.flushSessionPersistence);
     this.persistenceScheduler.flush();
     this.persistenceScheduler.cancel();
     if (this.unsubscribe) {

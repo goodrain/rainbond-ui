@@ -17,8 +17,8 @@ assert.strictEqual(
 
 assert.strictEqual(
   hasRenderableMessages([{ id: 'ctx_1', kind: 'context', content: '已切换上下文' }]),
-  false,
-  'hidden context markers should not suppress the empty composer state'
+  true,
+  'visible context markers should count as renderable messages'
 );
 
 assert.strictEqual(

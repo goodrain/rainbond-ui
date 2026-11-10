@@ -900,7 +900,7 @@ export default class AgentHost extends PureComponent {
     );
   };
 
-  handleApprovalDecision = (decision, rememberPolicy = null) => {
+  handleApprovalDecision = (decision, rememberPolicy = null, approvalId) => {
     const { dispatch } = this.props;
     this.resumeAutoScroll();
     dispatch({
@@ -908,6 +908,7 @@ export default class AgentHost extends PureComponent {
       payload: {
         decision,
         rememberPolicy,
+        approvalId,
       },
     });
   };
@@ -928,7 +929,7 @@ export default class AgentHost extends PureComponent {
         isDeciding={
           !!agent && agent.decidingApprovalId === (item.approval && item.approval.approvalId)
         }
-        onDecision={this.handleApprovalDecision}
+        onDecision={(decision, policy) => this.handleApprovalDecision(decision, policy, item.approval && item.approval.approvalId)}
       />
     );
   };
@@ -943,7 +944,7 @@ export default class AgentHost extends PureComponent {
           !!this.props.agent &&
           this.props.agent.decidingApprovalId === (item.approval && item.approval.approvalId)
         }
-        onDecision={this.handleApprovalDecision}
+        onDecision={(decision, policy) => this.handleApprovalDecision(decision, policy, item.approval && item.approval.approvalId)}
       />
     );
   };
