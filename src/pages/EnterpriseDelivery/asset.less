@@ -117,10 +117,6 @@
 .notes { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
   margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; color: @text-color; font-size: @rbd-content-size; line-height: 24px; }
 .expandedNotes { display: block; overflow: visible; }
-.configuration { margin-top: 20px; background: transparent;
-  :global(.ant-collapse-header) { padding-left: 24px !important; }
-  :global(.ant-collapse-content-box) { padding: 12px 0 !important; }
-}
 .comparisonToolbar { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 4px 0 20px;
   :global(.ant-select) { min-width: 220px; }
 }
@@ -216,24 +212,25 @@
   strong { font-weight: 500; } small { margin: 0; } }
 .sourceRail .selectedRail { border-color: @primary-color; box-shadow: none; background: fade(@primary-color, 7%); }
 .sourceHeading { margin-bottom: 16px; }
-.sourcePanels { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 20px; margin-bottom: 24px; }
+.sourcePanels { margin-bottom: 24px; }
 .sourceInformation { border: 1px solid @border-color-base; border-radius: 12px; padding: 20px; background: fade(@rbd-background-color, 55%); }
+.sourceFacts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px 32px; margin: 0;
+  > div { min-width: 0; }
+  dt { margin: 0 0 8px; color: @text-color-secondary; font-size: @rbd-auxiliary-size; line-height: 20px; }
+  dd { margin: 0; color: @text-color; font-size: @rbd-content-size; line-height: 24px; overflow-wrap: anywhere; }
+  a > :global(.anticon) { margin-left: 8px; }
+}
+.codeFacts { grid-template-columns: minmax(0, 1fr) minmax(120px, 0.25fr); }
+.imageFacts { grid-template-columns: minmax(0, 2.4fr) minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1fr);
+  dd > code, dd > span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+@media (max-width: @screen-md) {
+  .sourceFacts, .codeFacts { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .imageFacts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 .facts { padding: 0; background: transparent; margin: 0;
   .wideFact { display: block; padding: 12px; margin-bottom: 4px; border: 1px solid @border-color-base; border-radius: 8px; background: @body-background; dt { margin-bottom: 8px; } }
 }
-.sourceConnections { min-width: 0; padding: 20px; border: 1px dashed @border-color-base; border-radius: 12px;
-  h3 { margin: 0 0 4px; font-size: @rbd-content-size; color: @heading-color; font-weight: 500; }
-  > button { display: flex; align-items: center; gap: 12px; width: 100%; margin-top: 12px; padding: 12px; border: 0; border-radius: 8px; background: @rbd-background-color; color: @text-color; text-align: left; cursor: pointer;
-    > :global(.anticon) { color: @primary-color; font-size: @rbd-sub-title-size; }
-    > span:not(.connectionAction) { min-width: 0; flex: 1; }
-    strong, small { display: block; overflow-wrap: anywhere; }
-    strong { font-size: @rbd-content-size; font-weight: 500; line-height: 22px; }
-    small { color: @text-color-secondary; font-size: @rbd-auxiliary-size; line-height: 20px; margin-top: 2px; }
-    &:hover { background: fade(@primary-color, 6%); }
-    &:focus-visible { outline: 2px solid @primary-color; outline-offset: 2px; }
-  }
-}
-.connectionAction { color: @primary-color; font-size: @rbd-auxiliary-size; flex-shrink: 0; }
 .buildTimeline { margin: 16px 0 0;
   :global(.ant-timeline-item-head) { width: 6px; height: 6px; top: 22px; background: @primary-color; border: 0; }
   :global(.ant-timeline-item-tail) { left: 2px; top: 32px; border-color: @border-color-base; }
@@ -277,7 +274,7 @@
 
 
 
-@media (max-width: @screen-lg) { .sourcePanels, .runtimeColumns { grid-template-columns: minmax(0, 1fr); }  }
+@media (max-width: @screen-lg) { .runtimeColumns { grid-template-columns: minmax(0, 1fr); }  }
 @media (max-width: @screen-sm) {
   .assetCanvas { padding: 12px; margin: 0 -12px -12px; }
   .flowNav { padding: 0 8px; gap: 8px; min-width: 0; }
@@ -286,7 +283,7 @@
   .assetSection { margin-left: 0; padding: 16px; scroll-margin-top: 88px; &::before { display: none; } }
   .sectionHeader { margin: -16px -16px 16px; padding: 16px; }
   .sectionMarker { display: none; }
-  .sourceInformation, .sourceConnections { padding: 12px; }
+  .sourceInformation { padding: 12px; }
   .sourceRail { flex-wrap: nowrap; overflow-x: auto; }
   .sourceRail .railButton { flex-shrink: 0; small { display: none; } }
   .buildRecord { align-items: flex-start; flex-direction: column; padding: 12px; }
@@ -309,12 +306,9 @@
 }
 .sourceRail { gap: 12px; margin-bottom: 24px; }
 .sourceRail .railButton { padding: 10px 16px; }
-.sourcePanels { gap: 24px; margin-bottom: 32px; }
-.sourceInformation, .sourceConnections { padding: 24px; }
+.sourcePanels { margin-bottom: 32px; }
+.sourceInformation { padding: 24px; }
 .facts { gap: 24px; dt { margin-bottom: 8px; } .wideFact { padding: 16px; } }
-.sourceConnections { h3 { margin-bottom: 8px; }
-  > button { padding: 16px; margin-top: 16px; gap: 12px; }
-}
 .sourceContent > .subheading { margin: 0 0 12px; }
 .buildTimeline { margin-top: 20px;
   :global(.ant-timeline-item) { padding-bottom: 16px; }
@@ -366,10 +360,9 @@
   .sectionHeader { margin: -20px -16px 20px; padding: 20px 16px; }
   .sourceRail { gap: 8px; margin-bottom: 20px; }
   .sourceRail .railButton { padding: 8px 12px; }
-  .sourceInformation, .sourceConnections, .buildRecord, .profile { padding: 16px; }
-  .sourcePanels { gap: 16px; margin-bottom: 24px; }
+  .sourceInformation, .buildRecord, .profile { padding: 16px; }
+  .sourcePanels { margin-bottom: 24px; }
   .facts { gap: 16px; .wideFact { padding: 12px; } }
-  .sourceConnections > button { padding: 12px; }
   .runtimeOverview { padding: 16px; }
   .runtimeColumns .eventTimeline { padding: 16px 16px 0; }
   .versionRail .railButton { padding: 16px; }
@@ -397,7 +390,22 @@
   &:focus-visible { outline: 2px solid @primary-color; outline-offset: 2px; }
 }
 .activeVersionEntry { border-color: fade(@primary-color, 30%); background: fade(@primary-color, 4%); strong { color: @primary-color; } }
-.savedConfiguration { padding: 4px 0 8px; }
+.savedConfiguration { padding: 4px 0 0; }
+.componentDetailBlock { border: 1px solid @border-color-base; border-radius: 10px; overflow: hidden;
+  > .configComponents { margin: 0; padding: 16px 20px; background: fade(@rbd-background-color, 45%); border-bottom: 1px solid @border-color-base; }
+  > .savedConfigPanel { margin: 0; padding: 20px; border: 0; border-radius: 0;
+    > header { padding: 0; margin-bottom: 16px; background: transparent; border: 0; }
+    > dl { padding: 0; }
+  }
+  > .savedConfigPanel:first-of-type > header h3 { font-size: @rbd-sub-title-size; }
+  > .versionChanges { margin: 0; padding: 20px; border-top: 1px solid @border-color-base; }
+}
+.savedConfigPanel > .savedCodeFacts { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+.savedConfigPanel > .savedImageFacts { grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr));
+  dd > code { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
+.savedConfigPanel > header :global(.ant-btn-link) > span { color: inherit; font-size: inherit; }
+.savedCommit { display: inline-block; margin-left: 12px; color: @text-color-secondary; }
 .configComponents { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;
   button { border: 1px solid @border-color-base; border-radius: 6px; padding: 8px 12px; background: @body-background; color: @text-color; font-size: @rbd-content-size; line-height: 22px; cursor: pointer;
     &:hover { border-color: @primary-color; }
@@ -426,14 +434,13 @@
 }
 @media (max-width: @screen-lg) { .savedConfigPanel > dl { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: @screen-sm) {
+  .componentDetailBlock > .configComponents, .componentDetailBlock > .savedConfigPanel, .componentDetailBlock > .versionChanges { padding: 16px; }
   .versionTimeline { padding-top: 4px; :global(.ant-timeline-item) { padding-bottom: 12px; } }
   .versionEntry { padding: 12px; time span { display: inline; } }
   .savedConfigPanel > header { padding: 12px 16px; }
   .savedConfigPanel > dl { padding: 16px; gap: 16px; grid-template-columns: minmax(0, 1fr); }
 }
 
-.configuration :global(.ant-collapse-header) { padding: 14px 16px 14px 40px !important; }
-.configuration :global(.ant-collapse-header .ant-collapse-arrow) { left: 16px !important; }
 .savedConfigPanel > .resourceFacts { grid-template-columns: repeat(6, minmax(0, 1fr));
   > div { grid-column: span 2; }
   > div:nth-child(-n+2) { grid-column: span 3; }
@@ -444,5 +451,80 @@
   .savedConfigPanel > .resourceFacts { grid-template-columns: repeat(2, minmax(0, 1fr)); > div:nth-child(n) { grid-column: auto; } }
 }
 @media (max-width: @screen-sm) {
+  .savedConfigPanel > .savedCodeFacts, .savedConfigPanel > .savedImageFacts { grid-template-columns: minmax(0, 1fr); }
   .savedConfigPanel > .resourceFacts { grid-template-columns: minmax(0, 1fr); }
+}
+
+.eventComponent { display: inline-block; margin-right: 8px; color: @text-color-secondary; font-size: @rbd-auxiliary-size; }
+
+.runtimeComponentList { display: flex; flex-direction: column; gap: 12px; }
+.runtimeComponentCard { display: block; width: 100%; min-width: 0; padding: 16px 20px; border: 1px solid @border-color-base; border-radius: 8px;
+  background: @body-background; color: @text-color; text-align: left; cursor: pointer;
+  &:hover { border-color: fade(@primary-color, 45%); }
+  &:focus-visible { outline: 2px solid @primary-color; outline-offset: 2px; }
+}
+.activeRuntimeComponent { border-color: fade(@primary-color, 55%); background: fade(@primary-color, 3%); }
+.runtimeCardHeading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  strong { font-size: @rbd-content-size; font-weight: 500; line-height: 24px; overflow-wrap: anywhere; }
+}
+.runtimeComponentDetails { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-top: 12px; font-size: @rbd-content-size; line-height: 22px; }
+.runtimeComponentUpdated { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; color: @text-color-secondary; font-size: @rbd-auxiliary-size; line-height: 20px; }
+.selectedEventComponent { display: inline-block; margin-left: 12px; color: @text-color-secondary; font-size: @rbd-content-size; font-weight: 400; }
+.versionChanges { margin-top: 24px; padding-top: 24px; border-top: 1px solid @border-color-base; }
+.runtimeOverview.runtimeContext { padding: 0 0 20px; margin-bottom: 0; border: 0; border-bottom: 1px solid @border-color-base; border-radius: 0; gap: 12px;
+  .environmentIdentity { margin: 0; h3 { font-size: @rbd-content-size; line-height: 22px; } }
+  .resourceSummary { gap: 12px 20px; dt { font-size: @rbd-auxiliary-size; } }
+}
+.runtimeWorkspace { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 0; height: 560px; margin-top: 24px;
+  border: 1px solid @border-color-base; border-radius: 8px; overflow: hidden;
+}
+.runtimeComponentPanel, .runtimeEventPanel { display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; }
+.runtimePanelHeading { display: flex; flex-direction: column; justify-content: center; gap: 12px; min-height: 120px; padding: 20px 16px; border-bottom: 1px solid @border-color-base;
+  h3 { margin: 0; font-size: @rbd-content-size; color: @heading-color; font-weight: 500; line-height: 24px; }
+}
+.runtimeEventPanel > .runtimePanelHeading { flex-direction: row; align-items: center; justify-content: space-between;
+  padding: 20px 24px;
+  > div { min-width: 0; }
+  .muted { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 4px; }
+  :global(.ant-btn) { flex-shrink: 0; padding-right: 0; }
+}
+.runtimeComponentScroll, .runtimeEventScroll { flex: 1; min-height: 0; overflow-y: auto; scrollbar-gutter: stable; }
+.runtimeComponentPanel {
+  background: fade(@rbd-background-color, 65%); border-right: 1px solid @border-color-base;
+  > .runtimePanelHeading h3 { color: @text-color-secondary; font-size: @rbd-auxiliary-size; font-weight: 400; }
+  .runtimeComponentList { gap: 0; }
+  .runtimeComponentCard { padding: 12px 16px; background: transparent; border: 0; border-radius: 0;
+    &:hover { background: fade(@primary-color, 3%); }
+    &:focus-visible { outline-offset: -2px; }
+  }
+  .activeRuntimeComponent { background: @body-background; box-shadow: inset 3px 0 @primary-color;
+    .runtimeCardHeading strong { color: @primary-color; }
+  }
+  .runtimeCardHeading { flex-wrap: nowrap;
+    strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    :global(.ant-badge) { flex-shrink: 0; }
+    :global(.ant-badge-status-text) { font-size: @rbd-auxiliary-size; }
+  }
+  .runtimeComponentUpdated { margin-top: 4px; gap: 6px; line-height: 20px; }
+}
+.runtimeEventEyebrow { display: block; margin-bottom: 4px; color: @text-color-secondary; font-size: @rbd-auxiliary-size; line-height: 20px; }
+.runtimeSelectedTitle { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.runtimeEventPanel .runtimeSelectedTitle h3 { color: @heading-color; font-size: @rbd-title-size; font-weight: 600; line-height: 28px; overflow-wrap: anywhere; }
+.runtimeSelectedResources { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 8px; color: @text-color-secondary; font-size: @rbd-auxiliary-size; line-height: 20px; }
+.runtimeEventScroll { padding: 20px 24px;
+  .eventTimeline { margin: 4px 0 0; padding: 0; }
+  .eventTimeline p { font-size: @rbd-content-size; line-height: 24px; white-space: pre-wrap; overflow-wrap: anywhere; margin-bottom: 6px; }
+  :global(.ant-timeline-item) { padding-bottom: 24px; }
+}
+.runtimePanelFooter { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; min-height: 48px; padding: 10px 16px; border-top: 1px solid @border-color-base;
+  color: @text-color-secondary; font-size: @rbd-auxiliary-size; line-height: 20px;
+}
+@media (max-width: @screen-lg) {
+  .runtimeWorkspace { grid-template-columns: minmax(0, 1fr); height: auto; }
+  .runtimeComponentPanel { height: 340px; border-right: 0; border-bottom: 1px solid @border-color-base; }
+  .runtimeEventPanel { height: 460px; }
+}
+@media (max-width: @screen-sm) {
+  .runtimeComponentCard { padding: 16px; }
+  .runtimeComponentDetails { flex-direction: column; gap: 4px; }
 }

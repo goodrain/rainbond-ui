@@ -38,12 +38,11 @@
 }
 .flowMethods { display: flex; flex-direction: column; flex: 1; gap: 0; min-height: 190px; margin: 0; padding: 4px 12px; list-style: none;
   border: 1px solid @border-color-base; border-radius: 10px; background: @body-background;
-  > li { display: flex; align-items: center; flex: 1; gap: 12px; min-height: 88px; padding: 14px 8px;
+  > li { display: flex; align-items: center; flex: 1; gap: 12px; min-height: 72px; padding: 12px 8px;
     border-bottom: 1px solid @border-color-base; &:last-child { border-bottom: 0; } }
   strong { display: block; color: @heading-color; font-size: @rbd-content-size; font-weight: 500; line-height: 20px; }
   p { margin: 4px 0 0; color: @text-color-secondary; font-size: @rbd-auxiliary-size; line-height: 20px; }
 }
-.flowMethodCondition { display: block; margin-bottom: 4px; color: @text-color-secondary; font-size: @rbd-auxiliary-size; line-height: 18px; }
 .flowMethodIcon { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; width: 28px; height: 28px;
   border-radius: 6px; color: @primary-color; background: fade(@primary-color, 5%); :global(.anticon) { font-size: @rbd-sub-title-size; }
 }
@@ -51,22 +50,25 @@
 .recordsTable, .summaryTable, .envTable { overflow-x: auto; }
 .recordsTable :global(.ant-table) { min-width: 800px; }
 .recordActions { display: flex; flex-wrap: wrap; gap: 12px; }
-.editorLayout { width: 100%; max-width: 1280px; }
+.editorLayout { width: 100%; }
+.editorForm { background: @rbd-background-color; }
 .editorIntro { margin-bottom: 24px; }
 .basicForm, .metadataSection, .selectionSection { min-width: 0; }
+.metadataSection { padding: 24px; background: @body-background; border: 1px solid @border-color-base; }
 .sectionBody { min-width: 0; }
 .formSectionTitle { margin: 0 0 20px; font-size: @rbd-sub-title-size; font-weight: 500; color: @heading-color; line-height: 24px; }
-.selectionHeading { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; .formSectionTitle { margin: 0; } }
+.selectionHeading { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; .formSectionTitle { margin: 0; } }
+.selectAllComponents { margin-left: auto; white-space: nowrap; }
 .selectionSection :global(.ant-form-item) { margin-bottom: 0; }
 .selectionCount { color: @text-color-secondary; background: @rbd-background-color; padding: 0 8px; border-radius: @border-radius-base; font-size: @rbd-auxiliary-size; font-variant-numeric: tabular-nums; line-height: 24px; }
-.configurationSection { padding-top: 24px; border-top: 1px solid @border-color-base; }
+.configurationSection { padding: 24px; border: 1px solid @border-color-base; background: @body-background; }
 .editorForm > .footer { margin-top: 24px; padding: 20px 0 0; }
 .basicForm :global(textarea.ant-input) { min-height: 40px; }
 .configPlaceholder { min-height: 160px; }
 .metadataGrid, .fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 24px; }
 .basicForm .metadataGrid { max-width: 1120px; grid-template-columns: minmax(0, 360px) 160px minmax(0, 1fr); gap: 0 24px; }
-.componentChoices { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; max-height: 200px; overflow-y: auto;
-  :global(.ant-checkbox-wrapper) { display: flex; align-items: center; min-height: 44px; margin-left: 0; padding: 9px 12px; border: 1px solid @border-color-base; border-radius: @border-radius-base; background: @body-background; }
+.componentChoices { width: 100%; display: flex; flex-wrap: wrap; gap: 12px; max-height: 240px; overflow-y: auto;
+  :global(.ant-checkbox-wrapper) { display: flex; align-items: center; width: 260px; max-width: 100%; min-height: 48px; margin-left: 0; padding: 12px 16px; border: 1px solid @border-color-base; border-radius: @border-radius-base; background: @body-background; }
   :global(.ant-checkbox-wrapper > span:last-child) { flex: 1; min-width: 0; }
   .componentChoiceSelected { border-color: fade(@primary-color, 30%); background: fade(@primary-color, 3%); }
 }
@@ -79,13 +81,18 @@
   :global(.ant-tabs-left-content) { min-width: 0; padding-left: 24px; }
   :global(.ant-tabs-tab) { text-align: left; max-width: 200px; white-space: normal; }
 }
-.editorComponentConfig { margin-top: 0;
+.editorComponentConfig { margin-top: 24px;
   :global(.ant-tabs-bar) { margin-bottom: 24px; }
   :global(.ant-tabs-tab) { padding: 8px 4px 12px; margin-right: 28px; }
   .envTable :global(.ant-table) { min-width: 0; }
   .envTable :global(table) { table-layout: fixed; }
   .scopeNote { padding-top: 4px; border-top: 0; }
 }
+.editorActions { position: sticky; bottom: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  margin-top: 24px; padding: 16px 24px; border: 1px solid @border-color-base; background: @body-background;
+  > div { display: flex; gap: 12px; }
+}
+.editorActionSummary { color: @text-color-secondary; font-size: @rbd-content-size; font-variant-numeric: tabular-nums; }
 .configurationLayout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px;
   > .configSection { margin: 0; }
   > .configSection + .configSection { position: relative;
@@ -184,8 +191,10 @@
 }
 
 .releaseMetadata { min-width: 0;
+  :global(.ant-form-item) { margin-bottom: 8px; }
   textarea { line-height: 24px; }
 }
+.notesCount { text-align: right; color: @text-color-secondary; font-size: @rbd-auxiliary-size; line-height: 20px; font-variant-numeric: tabular-nums; }
 .pluginOptions { margin-top: 20px;
   .pluginSection { margin: 0; padding: 0; border: 0; }
   :global(.ant-checkbox-wrapper) { color: @text-color-secondary; font-size: @rbd-content-size; }
@@ -196,19 +205,23 @@
 .versionHeading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;
   .formSectionTitle { margin: 0; }
 }
-.versionComposer { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 32px; }
+.versionComposer { display: grid; grid-template-columns: minmax(200px, 24%) minmax(0, 1fr); gap: 24px; }
 .versionSide { min-width: 0; }
 .selectionLabel { color: @heading-color; font-size: @rbd-content-size; font-weight: 500; }
-.templateContext { display: flex; align-items: center; gap: 8px; min-width: 0; max-width: 65%;
+.templateContext { display: flex; align-items: center; justify-content: flex-end; gap: 8px; min-width: 0; min-height: 32px;
   .contextLabel { color: @text-color-secondary; font-size: @rbd-auxiliary-size; flex-shrink: 0; }
   strong { min-width: 0; color: @text-color; font-size: @rbd-content-size; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   :global(.ant-avatar) { flex-shrink: 0; color: @primary-color; background: fade(@primary-color, 7%); }
 }
 @media (max-width: @screen-md) {
   .versionComposer { grid-template-columns: minmax(0, 1fr); gap: 20px; }
-  .versionSide .componentChoices { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .metadataSection, .configurationSection { padding: 20px; }
+  .templateContext { justify-content: flex-start; max-width: 240px; }
 }
 @media (max-width: @screen-sm) {
   .templateContext { max-width: 100%; }
-  .versionSide .componentChoices { grid-template-columns: minmax(0, 1fr); }
+  .metadataSection, .configurationSection { padding: 16px; }
+  .editorActions { flex-wrap: wrap; padding: 16px; }
+  .editorActionSummary { width: 100%; }
+  .editorActions > div { margin-left: auto; }
 }

@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import { Alert, Button, Descriptions, Drawer, Empty, Icon, Input, message, Modal, Spin } from 'antd';
+import { Alert, Button, Descriptions, Drawer, Empty, message, Modal, Spin } from 'antd';
 import moment from 'moment';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import pageheaderSvg from '../../../utils/pageHeaderSvg';
@@ -24,7 +24,7 @@ const { deliveryScope } = require('../../../utils/templateDelivery');
   failed: templateDelivery.failed, loading: loading.effects['templateDelivery/records']
 }))
 export default class DeliveryRecords extends PureComponent {
-  state = { detail: null, query: '', listings: [], deployments: [], listing: null, delivery: null, workflowFailed: false,
+  state = { detail: null, listings: [], deployments: [], listing: null, delivery: null, workflowFailed: false,
     checks: [], changesLoading: false, changesFailed: false, changesOpen: false, exporting: null, profileEditor: null };
   alive = false;
   generation = 0;
@@ -44,7 +44,7 @@ export default class DeliveryRecords extends PureComponent {
     if (JSON.stringify(previous.match.params) !== JSON.stringify(this.props.match.params) ||
       (previous.user || {}).enterprise_id !== (this.props.user || {}).enterprise_id || (previous.user || {}).user_id !== (this.props.user || {}).user_id) {
       this.generation += 1;this.checkTicket += 1;this.checking = false;this.acting = false;this.lastRecords = [];clearTimeout(this.checkTimer);
-      this.setState({ detail: null, query: '', listings: [], deployments: [], listing: null, delivery: null, checks: [], changesOpen: false, exporting: null, profileEditor: null }, this.load);
+      this.setState({ detail: null, listings: [], deployments: [], listing: null, delivery: null, checks: [], changesOpen: false, exporting: null, profileEditor: null }, this.load);
     } else if ((previous.records !== this.props.records || previous.loading && !this.props.loading) && !this.props.loading && !this.props.failed) {
       this.lastRecords = this.props.records;
       this.checkChanges(this.props.records);
@@ -118,7 +118,7 @@ export default class DeliveryRecords extends PureComponent {
   };
   exportVersion = template => this.setState({ exporting: template });
   editMetadata = group => this.setState({ profileEditor: { appInfo: { app_id: group.id.replace(/-/g, ''),
-    app_name: group.template_name, pic: group.logo || '', describe: group.template_description || '',
+    app_name: group.template_name, pic: group.logo || '', describe: group.template_description || '', details: group.details || '',
     scope: 'team', create_team: this.props.match.params.teamName } } });
   profileSaved = () => {
     if (!this.alive) return;
@@ -141,9 +141,7 @@ export default class DeliveryRecords extends PureComponent {
         name: item.template_name, version: item.version, added: item.summary.added_count || 0, updated: item.summary.updated_count || 0, removed: item.summary.removed_count || 0
       })}</div>)}</div><div className={timelineStyles.changeActions}><Button onClick={() => this.setState({ changesOpen: true })}>{t('viewChanges')}</Button>
         {allowed && <Button type="primary" onClick={() => this.create(groups.find(group => group.latest && group.latest.id === changed[0].baseline_id))}>{t('publishNewVersion')}</Button>}</div></React.Fragment>} />;
-    if (changesLoading) return <div className={timelineStyles.checkState}><Icon type="loading" />{t('checkingChanges')}</div>;
-    if (checks.some(item => item.status === 'unknown')) return <Alert type="info" className={timelineStyles.changeBanner} showIcon message={t('changesUnknown')} />;
-    return checks.length ? <div className={timelineStyles.checkState}><Icon type="check-circle" />{t('sourceUnchanged')}</div> : null;
+    return null;
   };
   renderDetail = row => {
     const listing = this.state.listings.find(item => item.template.id === row.id);
@@ -166,15 +164,15 @@ export default class DeliveryRecords extends PureComponent {
   };
   render() {
     const { records, templateInfo, failed, loading, user, team, permissions, match, busy, dispatch } = this.props;
-    const { detail, query, listing, delivery, listings, workflowFailed, deployments, changesOpen, checks, exporting, profileEditor, changesFailed } = this.state;
+    const { detail, listing, delivery, listings, workflowFailed, deployments, changesOpen, checks, exporting, profileEditor, changesFailed } = this.state;
     const allowed = canPublishTemplate(user, team, permissions, match.params);
     const scopedRecords = user ? records.filter(item => item.scope === deliveryScope(getScope(match.params, user))) : [];
     const groups = templateGroups(scopedRecords).map(group => templateInfo && group.id === templateInfo.id ? {
-      ...group, template_name: templateInfo.name, template_description: templateInfo.description, logo: templateInfo.logo
-    } : { ...group, logo: group.latest && group.latest.logo || '', template_description: group.latest && group.latest.template_description || '' });
+      ...group, template_name: templateInfo.name, template_description: templateInfo.description, logo: templateInfo.logo, details: templateInfo.details || ''
+    } : { ...group, logo: group.latest && group.latest.logo || '', template_description: group.latest && group.latest.template_description || '', details: group.latest && group.latest.manifest && group.latest.manifest.annotations && group.latest.manifest.annotations.details || '' });
     if (templateInfo && !groups.some(group => group.id === templateInfo.id)) groups.unshift({ id: templateInfo.id,
-      template_name: templateInfo.name, logo: templateInfo.logo, template_description: templateInfo.description, versions: [], latest: null });
-    const visible = groups.filter(group => [group.template_name, ...group.versions.map(item => item.version)].some(value => value.toLowerCase().includes(query.toLowerCase())));
+      template_name: templateInfo.name, logo: templateInfo.logo, template_description: templateInfo.description, details: templateInfo.details || '', versions: [], latest: null });
+
     return <PageHeaderLayout isFooter wrapperClassName={styles.page} title={<span className={styles.pageTitle}>{pageheaderSvg.getPageHeaderSvg('publish', 18)}{t('records')}</span>}
       content={t('recordsHelp')} extraContent={<Button icon="home" onClick={() => dispatch(routerRedux.push(deliveryPath(match.params).replace(/delivery$/, 'overview')))}>{t('backToApplication')}</Button>}>
       <Spin spinning={!!loading}>
@@ -185,10 +183,7 @@ export default class DeliveryRecords extends PureComponent {
             {allowed && <Button type="primary" icon="plus" size="large" onClick={this.createTemplate}>{t('createTemplate')}</Button>}
           </section> : <React.Fragment>
             {this.renderChanges(groups, allowed)}
-            <div className={timelineStyles.toolbar}><Input.Search allowClear placeholder={t('searchTemplates')} onSearch={query => this.setState({ query: query.trim() })} />
-              <div className={timelineStyles.toolbarActions}><Button icon="reload" onClick={this.load}>{t('refresh')}</Button>
-              </div></div>
-            {visible.length ? visible.map(group => <RecordTimeline key={group.id} group={group} listings={listings} deployments={deployments} allowed={allowed}
+            {groups.length ? groups.map(group => <RecordTimeline key={group.id} group={group} listings={listings} deployments={deployments} allowed={allowed}
               workflowFailed={workflowFailed} onNewVersion={this.create} onDetail={detail => this.setState({ detail })} onInstall={delivery => this.setState({ delivery })}
               onExport={this.exportVersion} onDelete={this.deleteVersion} onListing={listing => this.setState({ listing })} onEditMetadata={this.editMetadata} />) : <Empty description={t('noMatchingTemplates')} />}
           </React.Fragment>}

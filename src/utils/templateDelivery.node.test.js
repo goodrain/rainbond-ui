@@ -5,7 +5,7 @@ const vm = require('node:vm');
 const { normalizeTemplateConfig, validateTemplateConfig, validateTemplateInfo, validateVersionInfo, buildTemplatePayload,
   deliveryScope, appendTemplateRecord } = require('./templateDelivery');
 const scope = { enterprise_id: 'enterprise', teamName: 'team', regionName: 'region', appID: '1' };
-const component = { service_id: 'web', service_alias: 'web', name: 'Web' };
+const component = { service_id: 'web', service_alias: 'web', name: 'Web', extend_method_map: { min_node: 1, max_node: 3, step_node: 1 } };
 const config = () => normalizeTemplateConfig(component, [{ attr_name: 'LOG_LEVEL', attr_value: 'info' }], { current_memory: 1536, current_cpu: 1500 });
 const values = { template_name: ' Portal ', version: '1.0.0', description: 'Release', service_ids: ['web'] };
 const payload = () => buildTemplatePayload(values, { web: config() }, { destination: 'local' });
@@ -20,13 +20,13 @@ test('template config is a copy and preserves zero resource limits', () => {
   assert.deepEqual(validateTemplateConfig(row), {});
 });
 
-test('portable templates retain sensitive variable names without environment-specific values', () => {
-  const row = normalizeTemplateConfig(component, [{ attr_name: 'DEPLOY_SECRET', attr_value: '$DEPLOY_VALUE' }], {});
+test('private environment defaults stay server-side without becoming mandatory installation parameters', () => {
+  const row = normalizeTemplateConfig(component, [{ attr_name: 'DEPLOY_SECRET', attr_value: '$DEPLOY_VALUE' }], { current_cpu: 100, current_memory: 128 });
   assert.equal(row.service_env_map_list[0].attr_value, '');
   row.service_env_map_list[0].attr_value = '$INSTALL_VALUE';
   const result = buildTemplatePayload(values, { web: row }, { destination: 'local' });
   assert.deepEqual(result.component_overrides[0].service_env_map_list[0], {
-    attr_name: 'DEPLOY_SECRET', attr_value: '', required_on_install: true, is_sensitive: true
+    attr_name: 'DEPLOY_SECRET', attr_value: '', is_sensitive: true
   });
   for (const name of ['API_KEY', 'ACCESS_KEY', 'AUTHORIZATION']) {
     const protectedConfig = normalizeTemplateConfig(component, [{ attr_name: name, attr_value: '$INSTALL_VALUE' }], {});
@@ -106,6 +106,8 @@ test('component configuration uses the read-only source definition and preserves
   assert.equal(result.bean.extend_method_map.container_cpu, 0);
   assert.equal(result.bean.extend_method_map.init_memory, 0);
   assert.equal(result.bean.service_env_map_list[0].attr_value, 'production');
+  assert.equal(result.bean.extend_method_map.max_node, 3, 'source template defaults must be preserved');
+  assert.equal(result.bean.extend_method_map.step_node, 1);
 });
 
 test('snapshots retain rollback and expose no template publishing or export actions', () => {
@@ -248,4 +250,27 @@ test('missing template metadata stays on the editor and does not silently naviga
   assert.equal(target.state.loading, false);
   assert.equal(target.state.template, null);
   assert.equal(requests.length, 1);
+});
+
+test('normalizing source configuration never invents replica ranges or resource values', () => {
+  const row = normalizeTemplateConfig({ service_id: 'missing' }, []);
+  assert.equal(row.extend_method_map.min_node, undefined);
+  assert.equal(row.extend_method_map.max_node, undefined);
+  assert.equal(row.extend_method_map.step_node, undefined);
+  assert.equal(row.extend_method_map.container_cpu, undefined);
+  assert.equal(row.extend_method_map.init_memory, undefined);
+  assert.deepEqual(validateTemplateConfig(row), {});
+});
+
+
+test('empty optional resources are omitted so the server inherits defaults, while zero remains explicit', () => {
+  const row = config();
+  row.extend_method_map = { min_node: undefined, max_node: null, step_node: '', init_memory: 0, container_cpu: 0 };
+  assert.deepEqual(validateTemplateConfig(row), {});
+  assert.deepEqual(buildTemplatePayload(values, { web: row }).component_overrides[0].extend_method_map,
+    { init_memory: 0, container_cpu: 0 });
+  row.extend_method_map.max_node = -1;
+  assert.equal(validateTemplateConfig(row).max_node, 'numberInvalid');
+  row.extend_method_map.max_node = 1.5;
+  assert.equal(validateTemplateConfig(row).max_node, 'numberInvalid');
 });

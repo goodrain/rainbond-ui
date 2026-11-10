@@ -508,7 +508,6 @@ export default class AppExporter extends PureComponent {
         className={styles.TelescopicModal}
         onCancel={onCancel}
         footer={[
-          this.props.deliveryExport && <Button key="refresh" icon="reload" onClick={this.queryExport}>{formatMessage({ id: 'delivery.refresh' })}</Button>,
           <Button onClick={onCancel}> {formatMessage({ id: 'button.cancel' })} </Button>,
           <Button type="primary" loading={loading || false} onClick={onOk}>
             {formatMessage({ id: 'button.confirm' })}

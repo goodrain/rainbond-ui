@@ -99,13 +99,13 @@ test('actions reject cross-enterprise identities and mismatched listing versions
   assert.throws(() => submit([], { ...template, deleted_at: 'now' }), /versionUnavailable/);
 });
 
-test('application status and events use the captured source region and exclude unrelated applications', async () => {
+test('runtime loads source component status without eagerly requesting component event histories', async () => {
   const fs = require('node:fs'), vm = require('node:vm');
   const calls = [];
   const context = { require: require('node:module').createRequire(`${__dirname}/../services/deliveryCenter.js`), process: { env: {} }, apiconfig: { baseUrl: '' }, request: async (url, options) => {
     calls.push({ url, options });
     if (url.endsWith('/service/group')) return { list: [{ service_id: 'web', service_cname: 'Portal', status: 'running',
-      git_url: 'https://user@example.com/web.git?ref=main', code_version: 'main', commit: '1234567', container_cpu: 0, min_memory: 1024, current_node: 0 }] };
+      git_url: 'https://user@example.com/web.git?ref=main', code_version: 'main', commit: '1234567', container_cpu: 0, min_memory: 1024, current_node: 0, update_time: '2026-11-10T01:00:00Z' }] };
     if (url.endsWith('/status')) return { bean: {}, list: { status: 'RUNNING', cpu: 0, memory: 1024, disk: 1048576 } };
     if (url.endsWith('/resources')) return { bean: {}, list: { cpu_request: 1000 } };
     if (url.endsWith('/operation-logs')) return { bean: { list: [
@@ -120,17 +120,13 @@ test('application status and events use the captured source region and exclude u
   const result = await context.loadDeliveryCenter({ user: admin, kind: 'runtime', scope });
   assert.equal(result.bean.state.cpu, 0, 'zero usage is valid');
   assert.equal(result.bean.resources.cpu_request, 1000);
-  const eventRequest = calls.find(call => call.url.endsWith('/operation-logs'));
-  assert.match(eventRequest.url, /\/teams\/team\/apps\/1\/operation-logs$/);
-  assert.equal(eventRequest.options.params.query, undefined, 'app identity must not be searched in comment text');
-  assert.equal(result.bean.events.length, 1);
-  assert.equal(result.bean.events[0].operation_type, 'Build');
-  assert.equal(result.bean.events[0].comment_text, '构建 Portal 完成');
+  assert.equal(calls.some(call => call.url.endsWith('/events') || call.url.endsWith('/operation-logs')), false);
   assert.equal(result.bean.components.length, 1);
   assert.equal(result.bean.components[0].cpu_millicores, 0);
   assert.equal(result.bean.components[0].replicas, 0);
   assert.equal(result.bean.components[0].source, 'https://example.com/web.git');
   assert.equal(result.bean.components[0].memory_mib, 1024);
+  assert.equal(result.bean.components[0].updated_at, '2026-11-10T01:00:00Z');
   calls.filter(call => call.url.includes('/teams/')).forEach(call => {
     assert.equal(call.options.method, 'get');
     assert.equal(call.options.params.region_name, 'region');
@@ -157,4 +153,109 @@ test('development examples include complete version/runtime/deployment detail wi
   assert.ok(deliverySampleTargets(examples[0].source).length > 1);
   assert.equal(deliverySampleRuntime(scope), null, 'real application runtime must never be replaced with example data');
   assert.ok(seeded.deployments.some(item => item.status === 'succeeded'));
+});
+
+test('component event pages use the selected alias and filter unrelated component records', async () => {
+  const fs = require('node:fs'), vm = require('node:vm');
+  const calls = [];
+  const context = { require: require('node:module').createRequire(`${__dirname}/../services/deliveryCenter.js`), apiconfig: { baseUrl: '' }, request: async (url, options) => {
+    calls.push({ url, options });
+    if (url.endsWith('/service/group')) return { list: [{ service_id: 'web', service_alias: 'web-alias', service_cname: 'Web' }] };
+    if (url.endsWith('/operation-logs')) return { list: [{ ID: 1, comment: '更新 <b>资源</b>', create_time: '2026-11-10T01:00:00Z', username: 'owner' }] };
+    if (url.endsWith('/apps/web-alias/events')) return { list: [
+      { event_id: 'build', service_id: 'web', type_cn: '构建', message: '构建完成', status: 'success', start_time: '2026-11-10T02:00:00Z', user_name: 'builder' },
+      { event_id: 'unrelated', service_id: 'another', message: 'Unrelated component' }
+    ] };
+    return { bean: {} };
+  } };
+  vm.runInNewContext(fs.readFileSync(`${__dirname}/../services/deliveryCenter.js`, 'utf8').replace(/^import .*;\n/gm, '').replace(/^export /gm, ''), context);
+  const result = await context.loadDeliveryCenter({ user: admin, kind: 'componentEvents', scope,
+    component: { service_id: 'web', service_alias: 'web-alias', name: 'Web' }, page: 2 });
+  assert.equal(result.bean.items.length, 1);
+  assert.equal(result.bean.items[0].component_name, 'Web');
+  assert.equal(result.bean.items[0].comment_text, '构建完成');
+  assert.equal(result.bean.items[0].created_at, '2026-11-10T02:00:00Z');
+  assert.equal(result.bean.items[0].service_id, 'web');
+  assert.equal(result.bean.has_more, false);
+  const request = calls.find(call => call.url.endsWith('/apps/web-alias/events'));
+  assert.equal(request.options.params.region_name, scope.regionName);
+  assert.equal(request.options.params.page, 2);
+  assert.equal(request.options.params.page_size, 20);
+  assert.equal(request.options.method, 'get');
+  assert.equal(calls.length, 1);
+
+});
+
+test('build history keeps the server total and requested page instead of treating the loaded page as all records', async () => {
+  const fs = require('node:fs'), vm = require('node:vm');
+  const calls = [];
+  const context = { require: require('node:module').createRequire(`${__dirname}/../services/deliveryCenter.js`), apiconfig: { baseUrl: '' },
+    getAppVersionList: async params => { calls.push(params);return { list: [{ build_version: '8', code_version: 'abcdef1', code_commit_msg: 'Fix' }], total: '26', bean: { current_version: '8' } }; } };
+  vm.runInNewContext(fs.readFileSync(`${__dirname}/../services/deliveryCenter.js`, 'utf8').replace(/^import .*;\n/gm, '').replace(/^export /gm, ''), context);
+  const result = await context.loadDeliveryCenter({ kind: 'buildHistory', scope, component: { service_alias: 'web' }, page: 3 });
+  assert.equal(result.bean.total, 26);
+  assert.equal(result.bean.records.length, 1);
+  assert.equal(result.bean.page, 3);
+  assert.equal(calls[0].page_num, 3);
+  assert.equal(calls[0].region_name, scope.regionName);
+});
+
+test('component event failure is independent of source component status', async () => {
+  const fs = require('node:fs'), vm = require('node:vm');
+  const context = { require: require('node:module').createRequire(`${__dirname}/../services/deliveryCenter.js`), apiconfig: { baseUrl: '' }, request: async url => {
+    if (url.endsWith('/service/group')) return { list: [{ service_id: 'web', service_alias: 'web', service_cname: 'Web' }] };
+    if (url.endsWith('/events')) throw new Error('unavailable');
+    if (url.endsWith('/operation-logs')) return { list: [{ app_id: '1', comment: '更新资源', create_time: '2026-11-10T01:00:00Z' }] };
+    return { bean: {} };
+  } };
+  vm.runInNewContext(fs.readFileSync(`${__dirname}/../services/deliveryCenter.js`, 'utf8').replace(/^import .*;\n/gm, '').replace(/^export /gm, ''), context);
+  const result = await context.loadDeliveryCenter({ kind: 'runtime', user: admin, scope });
+  assert.equal(result.bean.components.length, 1);
+  assert.equal(result.bean.components[0].updated_at, null);
+  await assert.rejects(() => context.loadDeliveryCenter({ kind: 'componentEvents', user: admin, scope,
+    component: result.bean.components[0] }), /unavailable/);
+
+});
+
+
+test('component events retain their own scope and history when event IDs overlap', async () => {
+  const fs = require('node:fs'), vm = require('node:vm');
+  const context = { require: require('node:module').createRequire(`${__dirname}/../services/deliveryCenter.js`), apiconfig: { baseUrl: '' }, request: async url => {
+    if (url.endsWith('/service/group')) return { list: [
+      { service_id: 'web', service_alias: 'web', service_cname: 'Web' },
+      { service_id: 'api', service_alias: 'api', service_cname: 'API' }
+    ] };
+    if (url.endsWith('/apps/web/events')) return { list: [{ event_id: 'shared', message: 'Web built', start_time: '2026-11-10T01:00:00Z' }] };
+    if (url.endsWith('/apps/api/events')) return { list: [
+      { event_id: 'shared', message: 'API started', start_time: '2026-11-10T02:00:00Z' },
+      { event_id: 'wrong', service_id: 'web', message: 'Wrong component' }
+    ] };
+    if (url.endsWith('/operation-logs')) return { list: [{ id: 'app-only', comment: 'Application operation' }] };
+    return { bean: {} };
+  } };
+  vm.runInNewContext(fs.readFileSync(`${__dirname}/../services/deliveryCenter.js`, 'utf8').replace(/^import .*;\n/gm, '').replace(/^export /gm, ''), context);
+  const web = await context.loadDeliveryCenter({ kind: 'componentEvents', user: admin, scope,
+    component: { service_id: 'web', service_alias: 'web', name: 'Web' } });
+  const api = await context.loadDeliveryCenter({ kind: 'componentEvents', user: admin, scope,
+    component: { service_id: 'api', service_alias: 'api', name: 'API' } });
+  assert.equal(web.bean.items[0].comment_text, 'Web built');
+  assert.equal(api.bean.items.length, 1);
+  assert.equal(api.bean.items[0].comment_text, 'API started');
+  assert.notEqual(web.bean.items[0].id, api.bean.items[0].id);
+  assert.ok([...web.bean.items, ...api.bean.items].every(event => event.comment_text !== 'Application operation'));
+
+});
+
+
+test('component event paging respects the existing API has_next flag without requiring a total', async () => {
+  const fs = require('node:fs'), vm = require('node:vm');
+  const context = { require: require('node:module').createRequire(`${__dirname}/../services/deliveryCenter.js`), apiconfig: { baseUrl: '' },
+    request: async (url, options) => ({ list: [{ event_id: 'event', message: 'Completed' }], has_next: options.params.page === 1 }) };
+  vm.runInNewContext(fs.readFileSync(`${__dirname}/../services/deliveryCenter.js`, 'utf8').replace(/^import .*;\n/gm, '').replace(/^export /gm, ''), context);
+  const input = { kind: 'componentEvents', scope, component: { service_id: 'web', service_alias: 'web', name: 'Web' } };
+  const first = await context.loadDeliveryCenter(input);
+  assert.equal(first.bean.has_more, true);
+  assert.equal(first.bean.total, undefined);
+  const last = await context.loadDeliveryCenter({ ...input, page: 2 });
+  assert.equal(last.bean.has_more, false);
 });

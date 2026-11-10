@@ -84,8 +84,7 @@ function orderedVersions(items) {
 }
 function defaultComparison(items, selected) {
   const versions = orderedVersions(items), index = versions.findIndex(item => item.template.id === selected.template.id);
-  const older = versions.slice(index + 1);
-  return older.find(item => item.status === 'approved') || older[0] || null;
+  return index >= 0 ? versions[index + 1] || null : null;
 }
 function environmentRecords(source, tasks, versions) {
   const key = scope => [scope.teamName, scope.regionName, scope.appID].join(':');

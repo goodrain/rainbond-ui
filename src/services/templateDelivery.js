@@ -22,7 +22,8 @@ export async function loadDeliveryComponents(scope) {
     logo: version.logo == null ? annotations.logo || '' : version.logo,
     description: version.template_description == null ? annotations.describe || '' : version.template_description
   };
-  return { bean: { template: metadata || null, components: response.bean.apps.map(item => ({
+  const latest = records.filter(item => !item.deleted_at).slice().sort((a, b) => (Date.parse(b.created_at) || 0) - (Date.parse(a.created_at) || 0))[0];
+  return { bean: { template: metadata || null, latestVersion: latest ? latest.version : null, components: response.bean.apps.map(item => ({
     service_id: item.service_id, service_alias: item.service_alias, name: item.service_cname,
     source_type: item.service_source, source: item.git_url || item.image || '',
     branch: item.code_branch || '', commit: item.code_version || '', extend_method: item.extend_method,

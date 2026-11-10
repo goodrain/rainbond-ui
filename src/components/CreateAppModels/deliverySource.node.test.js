@@ -18,10 +18,11 @@ function modal(props) {
 test('reused modal keeps delivery templates team-private and binds to the source application', () => {
   const source = { team_name: 'source-team', region_name: 'source-region', app_id: '123' };
   const { target, calls } = modal({ fixedScope: 'team', team_name: 'source-team', deliverySource: source });
-  target.createAppModel({ name: 'Template', describe: 'Purpose' });
+  target.createAppModel({ name: 'Template', describe: 'Purpose', details: 'Complete introduction' });
   assert.equal(calls[0].type, 'market/createAppModel');
   assert.equal(calls[0].payload.team_name, 'source-team');
   assert.equal(calls[0].payload.scope, 'team');
+  assert.equal(calls[0].payload.details, 'Complete introduction');
   assert.deepEqual(calls[0].payload.delivery_source, source);
   target.props.appInfo = { app_id: 'template-id' };
   target.upAppModel({ name: 'Updated', describe: 'New purpose' });

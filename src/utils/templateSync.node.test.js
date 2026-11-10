@@ -16,7 +16,7 @@ function harness(file, names) {
 test('sync creation submits component overrides and a request key without snapshot identity', async () => {
   const { service, calls } = harness('templateSync', ['startTemplateSync']);
   await service.startTemplateSync({ scope, requestId: 'request-1', values: { template_name: 'App', version: '1.0.0', service_ids: ['web'] },
-    configs: { web: normalizeTemplateConfig({ service_id: 'web' }, [{ attr_name: 'MODE', attr_value: 'test' }]) }, options: { destination: 'local' } });
+    configs: { web: normalizeTemplateConfig({ service_id: 'web', extend_method_map: { min_node: 1, max_node: 3, step_node: 1, init_memory: 128, container_cpu: 100 } }, [{ attr_name: 'MODE', attr_value: 'test' }]) }, options: { destination: 'local' } });
   assert.match(calls[0].url, /delivery-templates\/sync$/);
   assert.equal(calls[0].options.data.request_id, 'request-1');
   assert.equal(calls[0].options.data.region_name, 'region');
@@ -35,7 +35,7 @@ test('creation submits metadata and component overrides without requiring a sync
   const { service, calls } = harness('templateDelivery', ['publishDeliveryTemplate', 'deleteDeliveryVersion']);
   await service.publishDeliveryTemplate({ scope, requestId: 'create-one', values: { template_name: 'Application', template_description: 'Summary',
     logo: '/uploads/logo.png', description: 'Release notes', version: '1.0.0', service_ids: ['web'] },
-    configs: { web: normalizeTemplateConfig({ service_id: 'web' }, [{ attr_name: 'MODE', attr_value: 'test' }]) } });
+    configs: { web: normalizeTemplateConfig({ service_id: 'web', extend_method_map: { min_node: 1, max_node: 3, step_node: 1, init_memory: 128, container_cpu: 100 } }, [{ attr_name: 'MODE', attr_value: 'test' }]) } });
   const data = calls[0].options.data;
   assert.equal(data.request_id, 'create-one');
   assert.equal(data.logo, undefined);
@@ -62,13 +62,14 @@ test('listing, install, offline export and admin review use separate real endpoi
 test('template metadata reuses existing app-model create and edit endpoints with source association', async () => {
   const { service, calls } = harness('market', ['createAppModel', 'upAppModel']);
   const source = { team_name: 'team', region_name: 'region', app_id: '123' };
-  await service.createAppModel({ enterprise_id: 'enterprise', name: 'Template', pic: '/uploads/logo.png', describe: 'Purpose',
+  await service.createAppModel({ enterprise_id: 'enterprise', name: 'Template', pic: '/uploads/logo.png', describe: 'Purpose', details: 'Complete application introduction',
     scope: 'team', team_name: 'team', delivery_source: source });
   await service.upAppModel({ enterprise_id: 'enterprise', app_id: 'template-id', name: 'Updated', scope: 'team',
     create_team: 'team', delivery_source: source });
   assert.equal(calls[0].url, '/console/enterprise/enterprise/app-models');
   assert.equal(calls[1].url, '/console/enterprise/enterprise/app-model/template-id');
   assert.equal(calls[1].options.method, 'PUT');
+  assert.equal(calls[0].options.data.details, 'Complete application introduction');
   assert.deepEqual(calls[0].options.data.delivery_source, source);
   await service.createAppModel({ enterprise_id: 'enterprise', name: 'Original catalog template', scope: 'enterprise' });
   assert.equal(calls[2].options.data.delivery_source, undefined);

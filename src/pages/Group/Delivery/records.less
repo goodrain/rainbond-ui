@@ -69,3 +69,107 @@
 .noTemplateVersions { padding: 32px 24px; text-align: center;
   p { margin: 0; color: @text-color-secondary; font-size: @rbd-content-size; }
 }
+
+// Team delivery: a single template heading and aligned version rows.
+.groupHeader { padding: 20px 24px; gap: 24px; }
+.groupIdentity { gap: 12px; flex: 1;
+  > :global(.ant-avatar) { flex-shrink: 0; background: @rbd-background-color; color: @text-color-secondary; }
+  h2 { margin: 0; font-size: @rbd-title-size; line-height: 28px; font-weight: 600; }
+  p { margin-top: 8px; line-height: 20px; }
+}
+.groupDescription { margin-top: 6px; color: @text-color-secondary; font-size: @rbd-content-size; line-height: 22px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.groupActions { flex-shrink: 0; }
+.versionsHeading { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin: 0 28px; padding: 24px 0 16px; border-bottom: 1px solid @border-color-base;
+  h3 { margin: 0; font-size: @rbd-sub-title-size; line-height: 24px; font-weight: 500; color: @text-color-secondary; }
+  > span { color: @text-color-secondary; font-size: @rbd-content-size; }
+}
+.versionTimeline { padding: 8px 28px 0; margin: 0;
+  > :global(.ant-timeline-item) { padding-bottom: 0; }
+  > :global(.ant-timeline-item > .ant-timeline-item-head) { width: 8px; height: 8px; left: 0; top: 38px; background: @body-background; border: 2px solid @primary-color; }
+  > :global(.ant-timeline-item > .ant-timeline-item-tail) { left: 3px; top: 50px; border-left: 1px solid fade(@primary-color, 20%); }
+  > :global(.ant-timeline-item > .ant-timeline-item-content) { top: 0; margin-left: 20px; }
+}
+.versionCard { padding: 24px 0 32px; border: 0; border-radius: 0; border-bottom: 1px solid @border-color-base; }
+.versionTimeline > :global(.ant-timeline-item-last) .versionCard { border-bottom: 0; }
+.versionHeader { gap: 12px; align-items: flex-start; > :first-child { flex: 0 0 24px; min-width: 24px; } }
+.versionHeadingBody { flex: 1; min-width: 0; }
+.versionToggle { width: 24px; height: 36px; padding: 0; color: @text-color-secondary; }
+.versionIdentity h3 { font-family: @code-family; font-size: @rbd-title-big-size; line-height: 36px; font-weight: 600; }
+.versionMeta { gap: 12px 20px; margin-top: 12px; line-height: 22px; font-size: @rbd-content-size; }
+.versionActions { margin-left: auto; gap: 8px;
+  :global(.ant-btn) { height: 36px; padding: 0 14px; font-size: @rbd-content-size; }
+  :global(.ant-btn-icon-only) { width: 36px; padding: 0; }
+}
+.versionStatusRow { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 24px; margin: 24px 0 0; padding-left: 36px;
+  font-size: @rbd-content-size; line-height: 22px;
+  :global(.ant-badge-status-text) { font-size: @rbd-content-size; }
+}
+.statusField { display: inline-flex; align-items: center; gap: 8px; color: @text-color-secondary; strong { font-weight: 400; color: @text-color; } }
+.versionCard > :global(.ant-tabs) { margin: 24px 0 0 36px;
+  > :global(.ant-tabs-bar) { margin-bottom: 24px; }
+  :global(.ant-tabs-tab) { padding: 12px 0; margin-right: 28px; font-size: @rbd-sub-title-size; }
+}
+.contentsHeading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; min-height: 32px; color: @text-color-secondary; font-size: @rbd-content-size;
+  :global(.ant-btn-link) { padding-right: 0; }
+}
+.componentTable { overflow-x: auto;
+  :global(.ant-table) { min-width: 780px; font-size: @rbd-content-size; table-layout: fixed; }
+  :global(.ant-table-small) { border: 0; }
+  :global(.ant-table-small > .ant-table-content > .ant-table-body) { margin: 0; }
+  :global(table) { table-layout: fixed; }
+  :global(.ant-table-thead > tr > th) { padding: 12px 16px !important; color: @text-color-secondary; font-size: @rbd-content-size; font-weight: 400; }
+  :global(.ant-table-tbody > tr > td) { padding: 20px 16px !important; border-bottom-color: @border-color-base; vertical-align: middle; }
+}
+.componentIdentity { display: flex; align-items: center; gap: 12px;
+  > :global(.anticon) { color: @text-color-secondary; font-size: @rbd-title-size; }
+  > div { min-width: 0; }
+  strong { display: block; color: @heading-color; font-size: @rbd-sub-title-size; line-height: 24px; font-weight: 600; overflow-wrap: anywhere; }
+  small { display: block; margin-top: 4px; color: @text-color-secondary; font-size: @rbd-content-size; line-height: 20px; }
+}
+.componentSourceCell { min-width: 0;
+  > code { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: @rbd-content-size; line-height: 24px; color: @text-color; }
+  > div { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 8px; color: @text-color-secondary; font-size: @rbd-content-size; line-height: 20px; }
+}
+.resourceValue { white-space: nowrap; color: @text-color; }
+.configurationValue { color: @text-color-secondary; font-size: @rbd-content-size;
+  small { display: block; margin-top: 4px; font-size: @rbd-auxiliary-size; line-height: 20px; }
+}
+.contentNotes {
+  h4 { margin: 0 0 16px; color: @heading-color; font-size: @rbd-content-size; font-weight: 500; line-height: 24px; }
+  p { margin: 0; padding: 20px 24px; background: fade(@rbd-background-color, 65%); border-radius: 8px;
+    white-space: pre-wrap; overflow-wrap: anywhere; color: @text-color; font-size: @rbd-content-size; line-height: 26px; }
+}
+@media (max-width: @screen-md) { .versionHeader { flex-wrap: wrap; } .versionActions { margin-left: 36px; } }
+@media (max-width: @screen-sm) {
+  .groupHeader { padding: 20px; }
+  .groupActions { width: 100%; margin-top: 4px; }
+  .versionsHeading { margin: 0 16px; padding: 20px 0 16px; }
+  .versionTimeline { padding: 12px 16px 0; }
+  .versionCard { padding: 16px 0 24px; }
+  .versionIdentity h3 { font-size: @rbd-title-size; }
+  .versionMeta { font-size: @rbd-auxiliary-size; gap: 8px; }
+  .versionStatusRow { padding-left: 0; gap: 8px 16px; margin-top: 16px; font-size: @rbd-auxiliary-size; :global(.ant-badge-status-text) { font-size: @rbd-auxiliary-size; } }
+  .versionCard > :global(.ant-tabs) { margin-left: 0; }
+  .versionActions { width: 100%; margin: 4px 0 0 36px; }
+}
+
+.groupHeader { background: fade(@rbd-background-color, 80%); border-radius: 12px 12px 0 0; }
+
+.groupCopy { flex: 1; min-width: 0; }
+.groupHeadingRow { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 16px;
+  p { margin: 0; white-space: nowrap; }
+}
+@media (max-width: @screen-sm) {
+  .groupHeader { padding: 16px; }
+  .groupDescription { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .groupHeadingRow p { white-space: normal; }
+}
+
+.versionDate { font-variant-numeric: tabular-nums; white-space: nowrap; }
+@media (max-width: @screen-sm) {
+  .versionTimeline > :global(.ant-timeline-item > .ant-timeline-item-head) { top: 28px; }
+  .versionTimeline > :global(.ant-timeline-item > .ant-timeline-item-tail) { top: 40px; }
+  .versionActions :global(.ant-btn) { padding: 0 10px; }
+  .componentTable :global(.ant-table-tbody > tr > td) { padding: 16px !important; }
+  .contentNotes p { padding: 16px; }
+}

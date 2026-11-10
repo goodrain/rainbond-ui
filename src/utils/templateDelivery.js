@@ -5,17 +5,18 @@ const clone = value => JSON.parse(JSON.stringify(value));
 function normalizeTemplateConfig(component, envs = [], scaling = {}) {
   const method = scaling.extend_method || component.extend_method || component.service_type || '';
   const source = component.extend_method_map || {};
+  const value = (field, current) => source[field] != null ? source[field] : scaling[field] != null ? scaling[field] : current ? scaling[current] : undefined;
   return {
     service_id: String(component.service_id), extend_method: component.vm ? 'vm' : method,
     service_env_map_list: envs.map((item, index) => ({ ...item, _key: `env-${index}`,
       is_sensitive: !!(item.is_sensitive || item.is_secret || sensitiveName(item.attr_name)),
       attr_value: item.is_sensitive || item.is_secret || sensitiveName(item.attr_name) ? '' : String(item.attr_value == null ? '' : item.attr_value) })),
     extend_method_map: {
-      min_node: source.min_node != null ? source.min_node : scaling.current_node != null ? scaling.current_node : 1,
-      max_node: source.max_node != null ? source.max_node : method === 'singleton' ? 1 : 64,
-      step_node: source.step_node != null ? source.step_node : 1,
-      init_memory: source.init_memory != null ? source.init_memory : scaling.current_memory != null ? scaling.current_memory : 128,
-      container_cpu: source.container_cpu != null ? source.container_cpu : scaling.current_cpu != null ? scaling.current_cpu : 100
+      min_node: value('min_node', 'current_node'),
+      max_node: value('max_node'),
+      step_node: value('step_node'),
+      init_memory: value('init_memory', 'current_memory'),
+      container_cpu: value('container_cpu', 'current_cpu')
     }
   };
 }
@@ -31,9 +32,11 @@ function validateTemplateConfig(config) {
   const fields = isNodeScalingDisabled(config) ? ['init_memory', 'container_cpu'] :
     ['min_node', 'max_node', 'step_node', 'init_memory', 'container_cpu'];
   fields.forEach(key => {
+    if (values[key] == null || values[key] === '') return;
     if (!Number.isSafeInteger(values[key]) || values[key] < (['init_memory', 'container_cpu'].includes(key) ? 0 : 1)) errors[key] = 'numberInvalid';
   });
-  if (!isNodeScalingDisabled(config) && values.max_node < values.min_node) errors.max_node = 'rangeInvalid';
+  if (!isNodeScalingDisabled(config) && values.max_node != null && values.max_node !== '' &&
+    values.min_node != null && values.min_node !== '' && values.max_node < values.min_node) errors.max_node = 'rangeInvalid';
   return errors;
 }
 
@@ -64,11 +67,15 @@ function buildTemplatePayload(values, configs, options = {}) {
   const overrides = ids.map(id => {
     const config = configs[id];
     if (!config || Object.keys(validateTemplateConfig(config)).length) throw new Error('delivery.configIncomplete');
-    const scaling = { ...config.extend_method_map };
+    const scaling = Object.keys(config.extend_method_map || {}).reduce((result, key) => {
+      const value = config.extend_method_map[key];
+      if (value != null && value !== '') result[key] = value;
+      return result;
+    }, {});
     if (isNodeScalingDisabled(config)) ['min_node', 'max_node', 'step_node'].forEach(key => delete scaling[key]);
     const envs = config.service_env_map_list.map(item => ({
       attr_name: item.attr_name, attr_value: item.is_sensitive || sensitiveName(item.attr_name) ? '' : item.attr_value,
-      ...(item.is_sensitive || sensitiveName(item.attr_name) ? { required_on_install: true, is_sensitive: true } : {})
+      ...(item.is_sensitive || sensitiveName(item.attr_name) ? { is_sensitive: true } : {})
     }));
     return { service_id: id, extend_method: config.extend_method, service_env_map_list: envs,
       ...(config.extend_method !== 'vm' ? { extend_method_map: scaling } : {}) };

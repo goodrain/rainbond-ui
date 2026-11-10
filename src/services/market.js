@@ -183,7 +183,7 @@ export async function upAppModel(body, handleError) {
         pic: body.pic,
         describe: body.describe,
         tag_ids: body.tag_ids,
-        details: body.details || 'This is a default description'
+        details: body.details == null ? '' : body.details
       },
       handleError
     }
@@ -331,7 +331,7 @@ export async function createAppModel(body, handleError) {
         dev_status: body.dev_status ? body.dev_status : '',
         name: body.name,
         pic: body.pic,
-        details: 'This is a default description',
+        details: body.details == null ? '' : body.details,
         describe: body.describe,
         tag_ids: body.tag_ids
       },
