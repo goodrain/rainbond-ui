@@ -318,6 +318,7 @@ class CreateAppModels extends PureComponent {
       ...(deliverySource ? { delivery_source: deliverySource } : {}),
       dev_status: values.dev_status ? 'release' : '',
       describe: values.describe,
+      details: values.details,
       scope: isShared && scope !== 'enterprise' ? 'team' : scope
     };
     if (team_name && scope !== 'enterprise') {
@@ -369,7 +370,7 @@ class CreateAppModels extends PureComponent {
         name: values.name,
         org_id: values.org_id,
         logo: imageUrl,
-        introduction: '',
+        introduction: values.details || '',
         app_classification_id: '',
         team_name: currentTeam && currentTeam.team_name,
         desc: values.describe,
@@ -402,6 +403,7 @@ class CreateAppModels extends PureComponent {
       team_name: deliverySource ? deliverySource.team_name : currentTeam && currentTeam.team_name,
       dev_status: values.dev_status,
       describe: values.describe,
+      details: values.details,
       tag_ids: arr
     };
 
@@ -691,6 +693,11 @@ class CreateAppModels extends PureComponent {
                 <div className={styles.conformDesc}>
                   {formatMessage({ id: 'appPublish.btn.record.creactAppModel.pages.label.model_intro' })}
                 </div>
+              </FormItem>
+              <FormItem {...is_formItemLayout} label={formatMessage({ id: 'delivery.fullDescription' })}>
+                {getFieldDecorator('details', { initialValue: appInfo && appInfo.details || '' })(
+                  <TextArea rows={6} autosize={{ minRows: 6, maxRows: 12 }} maxLength={20000}
+                    placeholder={formatMessage({ id: 'delivery.fullDescriptionPlaceholder' })} />)}
               </FormItem>
               <Form.Item {...is_formItemLayout} label={formatMessage({ id: 'appPublish.btn.record.creactAppModel.pages.label.logo' })}>
                 {getFieldDecorator('pic', {

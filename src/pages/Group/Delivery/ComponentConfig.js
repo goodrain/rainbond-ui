@@ -39,7 +39,7 @@ export default class ComponentConfig extends PureComponent {
       { title: t('variableName'), dataIndex: 'attr_name', width: '34%', render: value => <span className={styles.preWrap}>{value}</span> },
       { title: t('variableValue'), dataIndex: 'attr_value', render: (value, item, index) => {
         const secret = item.is_sensitive || sensitiveName(item.attr_name);
-        if (secret) return <span className={styles.muted}>{t('configureOnInstall')}</span>;
+        if (secret) return <span className={styles.muted}>{t('inheritComponent')}</span>;
         return disabled ? <span className={styles.preWrap}>{value || '—'}</span> :
           <Input aria-label={item.attr_name || t('variableValue')} value={value} onChange={event => this.editEnv(config, index, event.target.value)} />;
       } }
@@ -59,7 +59,7 @@ export default class ComponentConfig extends PureComponent {
         <section className={styles.configSection}><h3>{t('resourcesAndScaling')}</h3><Form layout="vertical" onSubmit={event => event.preventDefault()}>
           <div className={styles.configGrid}>{scales.map(([key, label, min, step, precision, divisor]) => {
             const locked = isNodeScalingDisabled(config) && ['min_node', 'max_node', 'step_node'].includes(key);
-            const control = <InputNumber aria-label={t(label)} disabled={disabled || locked} min={min} step={step} precision={precision}
+            const control = <InputNumber aria-label={t(label)} placeholder={disabled ? undefined : t('inheritComponent')} disabled={disabled || locked} min={min} step={step} precision={precision}
               value={config.extend_method_map[key] == null ? undefined : config.extend_method_map[key] / divisor}
               onChange={value => this.change(config, { extend_method_map: { ...config.extend_method_map,
                 [key]: value == null ? value : Math.round(value * divisor) } })} />;

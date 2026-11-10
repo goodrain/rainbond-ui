@@ -1,0 +1,45 @@
+@import '~antd/lib/style/themes/default.less';
+
+.versions { padding: 24px; color: @text-color; }
+.workspace { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 28px; }
+.timeline { margin: 0; padding: 4px 0 0 4px;
+  :global(.ant-timeline-item-head) { width: 8px; height: 8px; top: 18px; }
+  :global(.ant-timeline-item-tail) { left: 3px; top: 30px; border-left: 1px solid @border-color-base; }
+  :global(.ant-timeline-item-content) { top: 0; margin-left: 20px; }
+}
+.versionEntry { width: 100%; padding: 12px; border: 1px solid transparent; border-radius: 8px; background: transparent; text-align: left; cursor: pointer;
+  strong { display: block; color: @heading-color; font-family: @code-family; font-size: @rbd-sub-title-size; font-weight: 500; line-height: 24px; }
+  time { display: block; margin-top: 8px; color: @text-color-secondary; font-size: @rbd-auxiliary-size; line-height: 20px; }
+  &:hover { background: fade(@primary-color, 3%); }
+  &:focus-visible { outline: 2px solid @primary-color; outline-offset: 2px; }
+}
+.activeVersion { border-color: fade(@primary-color, 30%); background: fade(@primary-color, 4%); strong { color: @primary-color; } }
+.content { min-width: 0; }
+.versionHeader { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; }
+.identity { display: flex; align-items: center; flex-wrap: wrap; gap: 12px;
+  h3 { margin: 0; color: @heading-color; font-size: @rbd-title-size; line-height: 28px; font-weight: 600; }
+  > span { color: @text-color-secondary; font-size: @rbd-auxiliary-size; }
+  :global(.ant-tag) { margin: 0; }
+}
+.metadata { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 8px; color: @text-color-secondary; font-size: @rbd-auxiliary-size; line-height: 20px; }
+.actions { display: flex; align-items: center; gap: 12px; font-size: @rbd-content-size; }
+.releaseNotes { margin-bottom: 24px;
+  > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+  h4 { margin: 0; color: @heading-color; font-size: @rbd-content-size; font-weight: 500; line-height: 24px; }
+  p { margin: 0; color: @text-color; white-space: pre-wrap; overflow-wrap: anywhere; font-size: @rbd-content-size; line-height: 24px; }
+}
+.notesBody { padding: 16px 20px; border-radius: 8px; background: fade(@rbd-background-color, 65%); }
+.collapsedNotes { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 5; overflow: hidden; }
+.pagination { display: flex; justify-content: flex-end; margin-top: 24px; }
+@media (max-width: @screen-lg) { .workspace { grid-template-columns: 150px minmax(0, 1fr); gap: 20px; } }
+@media (max-width: @screen-sm) {
+  .versions { padding: 16px; }
+  .workspace { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .timeline { display: flex; overflow-x: auto; padding: 0; margin: 0;
+    :global(.ant-timeline-item) { flex: 0 0 150px; padding: 0 8px 8px 0; }
+    :global(.ant-timeline-item-head), :global(.ant-timeline-item-tail) { display: none; }
+    :global(.ant-timeline-item-content) { margin: 0; }
+  }
+  .notesBody { padding: 16px; }
+  .pagination { overflow-x: auto; }
+}

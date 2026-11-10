@@ -3,18 +3,15 @@ import { Alert, Badge, Button, Empty, Icon, Pagination, Spin, Tag, Timeline, Too
 import moment from 'moment';
 import { w } from '../../components/DeliveryWorkflow';
 import styles from './asset.less';
-const { repositoryLinks, versionSources } = require('../../utils/deliveryAsset');
+const { repositoryLinks } = require('../../utils/deliveryAsset');
 const sourceLabel = kind => w({ code: 'sourceCode', image: 'image', vm: 'virtualMachine', file: 'packageSource' }[kind] || 'image');
 const external = (url, text) => url ? <a href={url} target="_blank" rel="noopener noreferrer">{text}<Icon type="export" /></a> : text || '—';
 
 export default class SourceSection extends PureComponent {
   render() {
-    const { environment, runtime, onRuntime, components, selectedId, onSelect, history = {}, onPage, referenceVersion, onVersion, loading, failed, onRefresh } = this.props;
+    const { components, selectedId, onSelect, history = {}, onPage, loading, failed, onRefresh } = this.props;
     const component = components.find(item => item.service_id === selectedId) || components[0];
-    const reference = component && referenceVersion && versionSources(referenceVersion).find(item => item.service_id === component.service_id);
     const links = component ? repositoryLinks(component.repository, component.provider, component.commit, component.branch) : {};
-    const referenceCode = reference && (reference.commit || reference.image.address || reference.buildVersion);
-    const currentCode = component && (component.commit || component.image.address || component.buildVersion);
     return <section id="asset-sources" className={styles.assetSection} aria-labelledby="asset-sources-title">
       <header className={styles.sectionHeader}><div><h2 id="asset-sources-title"><span className={styles.sectionMarker}><Icon type="branches" /></span><span className={styles.sectionNumber}>01</span>{w('assetSources')}</h2><p>{w('assetSourcesHelp')}</p></div>
         <Button icon="reload" loading={loading} onClick={onRefresh}>{w('refresh')}</Button></header>
@@ -29,27 +26,18 @@ export default class SourceSection extends PureComponent {
         <div id="source-component-panel" className={styles.sourceContent} aria-label={component.name}>
           <div className={styles.sourceHeading}><h3>{w(component.kind === 'code' ? 'codeInformation' : component.kind === 'file' ? 'buildDetails' : 'imageInformation')}</h3>{component.archived && <Tag>{w('savedSource')}</Tag>}</div>
           <div className={styles.sourcePanels}><div className={styles.sourceInformation}>
-          <dl className={styles.facts}>
+          <dl className={`${styles.sourceFacts} ${component.kind === 'code' ? styles.codeFacts : styles.imageFacts}`}>
             {component.kind === 'code' ? <React.Fragment>
-              <div className={styles.wideFact}><dt>{w('repositoryAddress')}</dt><dd>{external(links.repository, component.repository)}</dd></div>
+              <div><dt>{w('repositoryAddress')}</dt><dd>{external(links.repository, component.repository)}</dd></div>
               <div><dt>{w('branch')}</dt><dd>{component.branch || '—'}</dd></div>
-              <div><dt>Commit</dt><dd><Tooltip title={component.commit}>{external(links.commit, component.commit ? <code>{component.commit.slice(0, 12)}</code> : '—')}</Tooltip></dd></div>
             </React.Fragment> : <React.Fragment>
-              <div className={styles.wideFact}><dt>{w('imageAddress')}</dt><dd><code>{component.image.address || '—'}</code></dd></div>
-              <div><dt>{w('imageRegistry')}</dt><dd>{component.image.address ? component.image.registry : '—'}</dd></div>
-              <div><dt>{w('imageRepository')}</dt><dd>{component.image.repository || '—'}</dd></div>
-              <div><dt>{w('imageTag')}</dt><dd>{component.image.tag || '—'}</dd></div>
+              <div><dt>{w('imageAddress')}</dt><dd><Tooltip title={component.image.address}><code>{component.image.address || '—'}</code></Tooltip></dd></div>
+              <div><dt>{w('imageRegistry')}</dt><dd><Tooltip title={component.image.registry}><span>{component.image.address ? component.image.registry : '—'}</span></Tooltip></dd></div>
+              <div><dt>{w('imageRepository')}</dt><dd><Tooltip title={component.image.repository}><span>{component.image.repository || '—'}</span></Tooltip></dd></div>
+              <div><dt>{w('imageTag')}</dt><dd><Tooltip title={component.image.tag}><span>{component.image.tag || '—'}</span></Tooltip></dd></div>
             </React.Fragment>}
-            <div><dt>{w('buildVersion')}</dt><dd>{component.buildVersion || '—'}</dd></div>
           </dl>
-          </div><aside className={styles.sourceConnections}>
-            <h3>{w('deliveryConnections')}</h3><p className={styles.muted}>{w('deliveryConnectionsHelp')}</p>
-            <button type="button" onClick={onRuntime}><Icon type="database" /><span><strong>{runtime && runtime.app && runtime.app.group_name || environment.name || w('sourceEnvironment')}</strong>
-              <small>{environment.scope.teamName} / {environment.scope.regionName}</small></span><span className={styles.connectionAction}>{w('viewRuntime')} <Icon type="arrow-right" /></span></button>
-            {reference ? <button type="button" onClick={onVersion}><Icon type="appstore" /><span><strong>{w('versionSourceReference', { version: referenceVersion.version })}</strong>
-              <small><code>{referenceCode || '—'}</code>{currentCode && referenceCode && currentCode !== referenceCode && <span> · {w('sourceHasNewBuild')}</span>}</small></span><span className={styles.connectionAction}>{w('inspectVersion')} <Icon type="arrow-right" /></span></button> :
-              <p className={styles.muted}>{w('sourceNotInVersion')}</p>}
-          </aside></div>
+          </div></div>
           <div className={styles.subheading}><h3>{w('buildAndCommitHistory')}</h3>{component.kind === 'code' && links.history && external(links.history, w('remoteCommitHistory'))}</div>
           <p className={styles.muted}>{w('buildHistoryScope')}</p>
           <Spin spinning={!!history.loading}>{history.failed ? <Alert type="info" showIcon message={w('historyUnavailable')} description={<Button size="small" onClick={() => onPage(history.page || 1)}>{w('retry')}</Button>} /> :

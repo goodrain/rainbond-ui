@@ -106,11 +106,11 @@ export default class EditAppVersion extends PureComponent {
                   message: formatMessage({id:'applicationMarket.EditAppVersion.input_introduction'})
                 },
                 {
-                  max: 255,
-                  message: formatMessage({id:'applicationMarket.EditAppVersion.max_length'})
+                  max: 20000,
+                  message: formatMessage({id:'delivery.descriptionLimit'})
                 }
               ]
-            })(<TextArea placeholder={formatMessage({id:'applicationMarket.EditAppVersion.input_introduction'})} />)}
+            })(<TextArea rows={6} autosize={{ minRows: 6, maxRows: 16 }} maxLength={20000} placeholder={formatMessage({id:'applicationMarket.EditAppVersion.input_introduction'})} />)}
           </FormItem>
         </Form>
       </Modal>

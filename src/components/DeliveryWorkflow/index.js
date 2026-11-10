@@ -82,14 +82,8 @@ export class ReviewModal extends PureComponent {
   }
 }
 
-const installationParameters = template => template.installation_parameters || (template.component_overrides || []).flatMap(config =>
-  (config.service_env_map_list || []).filter(env => env.required_on_install).map(env => ({
-    service_id: config.service_id, attr_name: env.attr_name,
-    name: (template.components.find(component => component.service_id === config.service_id) || {}).name || config.service_id
-  })));
-
 export class DeployModal extends PureComponent {
-  state = { teams: [], loading: true, failed: false, environment: {}, mode: 'team', team: this.props.scope.teamName,
+  state = { teams: [], loading: true, failed: false, mode: 'team', team: this.props.scope.teamName,
     region: this.props.scope.regionName, app: `${this.props.template.template_name}${this.props.testing ? '-test' : ''}`.slice(0, 64), error: false };
   alive = false;
   componentDidMount() { this.alive = true; this.load(); }
@@ -112,11 +106,7 @@ export class DeployModal extends PureComponent {
       closable={!busy} confirmLoading={busy} okText={w(mode === 'offline' ? 'requestExport' : 'submitDeployment')} cancelText={w('cancel')}
       okButtonProps={{ disabled: mode !== 'offline' && (loading || failed) }} onOk={() => {
         if (mode !== 'offline' && (!selected || !regions.some(item => item.name === region) || !app.trim())) { this.setState({ error: true }); return; }
-        const required = installationParameters(this.props.template);
-        if (mode !== 'offline' && required.some(env => !(this.state.environment[env.service_id] || {})[env.attr_name])) {
-          this.setState({ error: true });return;
-        }
-        onSubmit({ environment: this.state.environment, requestKey: this.requestKey || (this.requestKey = `${Date.now()}-${Math.random().toString(36).slice(2)}`), kind: mode === 'offline' ? 'offline' : testing ? 'test' : 'delivery',
+        onSubmit({ requestKey: this.requestKey || (this.requestKey = `${Date.now()}-${Math.random().toString(36).slice(2)}`), kind: mode === 'offline' ? 'offline' : testing ? 'test' : 'delivery',
           target: mode === 'offline' ? null : { team_name: team, team_alias: selected.team_alias, region_name: region,
             region_alias: regions.find(item => item.name === region).alias, app_name: app.trim() } });
       }}>
@@ -139,14 +129,6 @@ export class DeployModal extends PureComponent {
             <Form.Item label={w('targetApp')} required validateStatus={error ? 'error' : undefined} help={error ? w('targetRequired') : undefined}>
               <Input aria-label={w('targetApp')} maxLength={64} value={app} onChange={event => { this.requestKey = null;this.setState({ app: event.target.value, error: false }); }} />
             </Form.Item>
-            {installationParameters(this.props.template).map(env => <Form.Item key={`${env.service_id}:${env.attr_name}`}
-              required label={`${env.name} · ${env.attr_name}`}
-              validateStatus={error && !(this.state.environment[env.service_id] || {})[env.attr_name] ? 'error' : undefined}>
-              <Input.Password aria-label={`${env.name} ${env.attr_name}`} autoComplete="new-password"
-                value={(this.state.environment[env.service_id] || {})[env.attr_name] || ''}
-                onChange={event => { const value = event.target.value;this.requestKey = null;this.setState(state => ({ error: false,
-                  environment: { ...state.environment, [env.service_id]: { ...state.environment[env.service_id], [env.attr_name]: value } } })); }} />
-            </Form.Item>)}
           </Form>}
       </Spin>}
     </Modal>;

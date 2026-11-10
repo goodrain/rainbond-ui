@@ -38,9 +38,10 @@ test('comparison highlights component additions and application configuration ch
   assert.equal(diff.summary.added, 1);assert.equal(diff.summary.application, 1);
   assert.equal(JSON.stringify(diff).includes('private-definition'), false);
 });
-test('comparison baseline prefers an earlier approved version over pending versions', () => {
+test('version changes compare the immediately preceding version regardless of review status', () => {
   const items = [['3', 'pending', '2026-11-09'], ['2', 'pending', '2026-11-08'], ['1', 'approved', '2026-11-07']].map(([id, status, created_at]) => ({ status, template: { id, version: id, created_at } }));
-  assert.equal(defaultComparison(items, items[0]).template.id, '1');
+  assert.equal(defaultComparison(items, items[0]).template.id, '2');
+  assert.equal(defaultComparison(items, items[1]).template.id, '1');
   assert.equal(defaultComparison(items, items[2]), null);
 });
 test('runtime environments require an actual target app and retain version provenance', () => {

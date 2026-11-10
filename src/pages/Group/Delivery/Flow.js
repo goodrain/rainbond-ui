@@ -37,8 +37,7 @@ export default class DeliveryFlow extends PureComponent {
         <ul className={styles.flowMethods}>
           {[['Team', 'team'], ['Market', 'shop'], ['Offline', 'export']].map(([method, icon]) => <li key={method}>
             <span className={styles.flowMethodIcon} aria-hidden="true"><Icon type={icon} /></span>
-            <div><span className={styles.flowMethodCondition}>{t(`simple${method}Condition`)}</span>
-              <strong>{t(`simple${method}Title`)}</strong><p>{t(`simple${method}Help`)}</p></div>
+            <div><strong>{t(`simple${method}Title`)}</strong><p>{t(`simple${method}Help`)}</p></div>
           </li>)}
         </ul>
       </section>

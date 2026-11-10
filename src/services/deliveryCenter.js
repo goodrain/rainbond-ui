@@ -8,6 +8,27 @@ const url = enterprise => `${apiconfig.baseUrl}/console/enterprises/${encodeURIC
 const base = scope => `${apiconfig.baseUrl}/console/teams/${encodeURIComponent(scope.teamName)}/groups/${encodeURIComponent(scope.appID)}/delivery-templates`;
 const commentText = value => typeof value === 'string' ? value.replace(/<\/?[a-z][^>]*>/gi, '')
   .replace(/&(?:nbsp|amp|lt|gt|quot|#39);/g, entity => ({ '&nbsp;': ' ', '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': "'" }[entity])).trim() : '';
+const matchesApplication = (event, scope) => {
+  const id = event.group_id || event.app_id || event.application_id;
+  return (id == null || String(id) === String(scope.appID)) && (!event.team_name || event.team_name === scope.teamName) &&
+    (!(event.region_name || event.region) || (event.region_name || event.region) === scope.regionName);
+};
+async function componentEvents(scope, component, page) {
+  if (!component || !component.service_alias) throw new Error('workflow.componentEventsUnavailable');
+  const pageSize = 20;
+  const response = await request(`${apiconfig.baseUrl}/console/teams/${encodeURIComponent(scope.teamName)}/apps/${encodeURIComponent(component.service_alias)}/events`, {
+    method: 'get', params: { region_name: scope.regionName, page, page_size: pageSize }, showMessage: false
+  });
+  if (!response || !Array.isArray(response.list)) throw new Error('workflow.componentEventsUnavailable');
+  const total = response.total != null && Number.isFinite(Number(response.total)) ? Number(response.total) : undefined;
+  const items = response.list.filter(event => matchesApplication(event, scope) && (!event.service_id || String(event.service_id) === String(component.service_id)))
+    .map(event => ({ ...event, service_id: String(component.service_id), id: `component:${component.service_id}:${event.event_id || event.ID || event.start_time}`,
+      component_name: component.name, comment_text: commentText(event.message || event.type_cn || event.type),
+      created_at: event.start_time || event.created_at, user_name: event.user_name || event.username }));
+  const hasMore = typeof response.has_next === 'boolean' ? response.has_next : total == null ? response.list.length === pageSize : page * pageSize < total;
+  return { bean: { items, page, total, has_more: hasMore } };
+}
+
 async function sourceComponents(scope) {
   const components = [], seen = new Set();
   const number = value => value == null || value === '' || !Number.isFinite(Number(value)) ? undefined : Number(value);
@@ -24,7 +45,8 @@ async function sourceComponents(scope) {
         source: String(item.git_url || item.image || item.image_name || '').replace(/(https?:\/\/)[^/@]+@/, '$1').split(/[?#]/)[0],
         branch: item.code_version || item.branch || '', commit: item.commit || item.commit_sha || item.code_commit || '',
         cpu_millicores: number(item.container_cpu != null ? item.container_cpu : item.min_cpu),
-        memory_mib: number(item.container_memory != null ? item.container_memory : item.min_memory), replicas: number(item.current_node != null ? item.current_node : item.min_node) });
+        memory_mib: number(item.container_memory != null ? item.container_memory : item.min_memory), replicas: number(item.current_node != null ? item.current_node : item.min_node),
+        updated_at: item.update_time || item.updated_at || null });
     });
     if (fresh.length < 100) return { bean: { components } };
   }
@@ -41,30 +63,28 @@ export async function loadDeliveryCenter({ user, kind, groupId, scope, component
     const response = await getAppVersionList({ team_name: scope.teamName, service_alias: component.service_alias,
       region_name: scope.regionName, page_num: page, page_size: 5, showMessage: false });
     if (!response || !Array.isArray(response.list)) throw new Error('workflow.historyUnavailable');
-    return { bean: { records: response.list.map(buildRecord), total: response.total || response.list.length,
+    return { bean: { records: response.list.map(buildRecord), total: response.total == null ? response.list.length : Number(response.total),
       currentVersion: response.bean && response.bean.current_version, page } };
   }
+  if (kind === 'componentEvents') return componentEvents(scope, component, page);
   if (kind === 'targets') return request(`${apiconfig.baseUrl}/console/delivery-targets`, { method: 'get' });
   if (kind === 'runtime') {
     const source = scope;
     const results = await Promise.allSettled([
       request(`${apiconfig.baseUrl}/console/teams/${encodeURIComponent(source.teamName)}/groups/${encodeURIComponent(source.appID)}`, { method: 'get', params: { region_name: source.regionName }, showMessage: false }),
       request(`${apiconfig.baseUrl}/console/teams/${encodeURIComponent(source.teamName)}/group/${encodeURIComponent(source.appID)}/resources`, { method: 'get', params: { region_name: source.regionName }, showMessage: false }),
-      request(`${apiconfig.baseUrl}/console/teams/${encodeURIComponent(source.teamName)}/apps/${encodeURIComponent(source.appID)}/operation-logs`, { method: 'get', params: { region_name: source.regionName, page: 1, page_size: 20 }, showMessage: false }),
       request(`${apiconfig.baseUrl}/console/teams/${encodeURIComponent(source.teamName)}/groups/${encodeURIComponent(source.appID)}/status`, { method: 'get', params: { region_name: source.regionName }, showMessage: false }),
       sourceComponents(source)
     ]);
     const values = results.map(result => result.status === 'fulfilled' && result.value ? result.value : null);
-    const events = values[2] && (Array.isArray(values[2].list) && values[2].list.length ? values[2].list : values[2].bean && values[2].bean.list || values[2].list) || [];
+    const components = values[3] && values[3].bean ? values[3].bean.components : null;
     const app = values[0] && values[0].bean;
     const resourceBean = values[1] && values[1].bean;
     const resources = resourceBean && Object.keys(resourceBean).length ? resourceBean : values[1] && values[1].list;
-    const state = values[3] && (values[3].list && Object.keys(values[3].list).length ? values[3].list : values[3].bean);
+    const state = values[2] && (values[2].list && Object.keys(values[2].list).length ? values[2].list : values[2].bean);
     return { bean: { app: app && Object.keys(app).length ? app : null, resources: resources && Object.keys(resources).length ? resources : null,
-      state: state && Object.keys(state).length ? state : null, components: values[4] && values[4].bean ? values[4].bean.components : null,
-      events_available: !!values[2], events: Array.isArray(events) ? events.filter(event => String(event.group_id || event.app_id || event.application_id) === String(source.appID) &&
-        (!event.team_name || event.team_name === source.teamName) && (!(event.region_name || event.region) || (event.region_name || event.region) === source.regionName))
-        .map(event => ({ ...event, comment_text: commentText(event.comment) })) : [], collected_at: new Date().toISOString() } };
+      state: state && Object.keys(state).length ? state : null, components,
+      collected_at: new Date().toISOString() } };
 
   }
   if (kind === 'center') {

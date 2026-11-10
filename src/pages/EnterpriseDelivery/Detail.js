@@ -10,7 +10,7 @@ import VersionsSection from './VersionsSection';
 import styles from './asset.less';
 const { orderedVersions, versionSources, environmentRecords } = require('../../utils/deliveryAsset');
 const initialState = () => ({ group: null, deployments: [], loading: true, failed: false, source: [], sourceLoading: false, sourceFailed: false,
-  selectedSourceId: '', sourceVersionId: null, histories: {}, targets: [], environmentKey: '', runtime: null, runtimeLoading: false,
+  selectedSourceId: '', sourceVersionId: null, histories: {}, targets: [], runtime: null, runtimeLoading: false,
   selectedVersionId: '', activeSection: 'sources', review: null, deployment: null });
 
 @connect(({ user, loading }) => ({ user: user.currentUser, busy: loading.effects['deliveryCenter/act'] }))
@@ -57,7 +57,7 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
     return sources;
   };
   environments = () => this.state.group ? environmentRecords(this.state.group.source, this.state.deployments, this.state.group.versions) : [];
-  environment = () => this.environments().find(item => item.key === this.state.environmentKey) || this.environments()[0];
+  environment = () => this.environments()[0];
   load = (quiet = false) => {
     const { user, match } = this.props;
     if (!user || !user.is_enterprise_admin || String(user.enterprise_id) !== String(match.params.eid)) return;
@@ -101,7 +101,6 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
   };
   selectSource = (id, versionId) => this.setState({ selectedSourceId: id, sourceVersionId: versionId || null }, () => this.history(id, 1));
   focusSource = (id, versionId) => { this.selectSource(id, versionId);this.jump('sources'); };
-  selectEnvironment = key => this.setState({ environmentKey: key, runtime: null }, this.runtime);
   runtime = () => {
     const environment = this.environment();
     if (!environment) return;
@@ -129,7 +128,6 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
     if (!user || !user.is_enterprise_admin || String(user.enterprise_id) !== String(match.params.eid)) return <Alert type="warning" message={w('forbidden')} />;
     const { group, loading, failed, sourceLoading, sourceFailed, selectedSourceId, histories, targets, runtime, runtimeLoading, review, deployment, activeSection } = this.state;
     const sources = this.sources(), component = sources.find(item => item.service_id === selectedSourceId) || sources[0], version = this.currentVersion(), environment = this.environment();
-    const environments = this.environments();
     return <PageHeaderLayout isFooter wrapperClassName={styles.assetPage} title={<span className={styles.pageTitle}><Avatar shape="square" size={44} src={group && group.profile && group.profile.logo} icon="appstore" />{group ? group.template_name : w('assetDetail')}{version && <React.Fragment>{statusLabel(version.status)}<code className={styles.headerVersion}>v{version.template.version}</code></React.Fragment>}</span>}
       content={w('assetDetailHelp')} action={<Button onClick={() => dispatch(routerRedux.push(`/enterprise/${match.params.eid}/development-delivery`))}>{w('back')}</Button>}>
       <Spin spinning={loading}>{failed ? <Alert type="warning" showIcon message={w('loadFailed')} description={<Button onClick={() => this.load()}>{w('retry')}</Button>} /> : !group ? !loading && <Empty description={w('notFound')} /> :
@@ -137,7 +135,7 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
           <nav className={styles.flowNav} aria-label={w('assetLifecycle')}>
             {[
               ['sources', 'assetSources', w('sourceComponentCount', { count: sources.length })],
-              ['runtime', 'assetRuntime', w('environmentRecordCount', { count: environments.length })],
+              ['runtime', 'assetRuntime', `${group.source.teamName} / ${group.source.regionName}`],
               ['versions', 'assetVersions', w('assetVersionCount', { count: group.versions.length, pending: group.pending })]
             ].map(([key, label, help], index) => <button type="button" key={key} aria-controls={`asset-${key}`} aria-current={activeSection === key ? 'location' : undefined}
               className={`${styles.flowStep} ${activeSection === key ? styles.activeStep : ''}`} onClick={() => this.jump(key)}>
@@ -145,10 +143,9 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
             </button>)}
           </nav>
           <SourceSection components={sources} selectedId={component && component.service_id} onSelect={this.selectSource} history={component && histories[component.service_id] || {}}
-            onPage={page => this.history(component.service_id, page)} referenceVersion={this.sourceReference()} onVersion={() => this.focusVersion(this.sourceReference().id)}
-            loading={sourceLoading} failed={sourceFailed} onRefresh={this.loadSources}
-            environment={environment} runtime={runtime} onRuntime={() => this.jump('runtime')} />
-          <RuntimeSection environment={environment} environments={environments} onEnvironment={this.selectEnvironment} targets={targets}
+            onPage={page => this.history(component.service_id, page)}
+            loading={sourceLoading} failed={sourceFailed} onRefresh={this.loadSources} />
+          <RuntimeSection environment={environment} targets={targets}
             onRefresh={this.runtime} data={runtime} loading={runtimeLoading} sourceAppName={group.app_name} onVersion={this.focusVersion}
             versions={group.versions} onSource={this.focusSource} sourceIds={sources.map(item => item.service_id)} />
           <VersionsSection group={group} item={version} deployments={this.state.deployments} onSelect={this.selectVersion}

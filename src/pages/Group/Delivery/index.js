@@ -1,16 +1,15 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import { Alert, Avatar, Button, Checkbox, Empty, Form, Input, Modal, Spin } from 'antd';
+import { Alert, Button, Checkbox, Empty, Form, Input, Modal, Spin } from 'antd';
 import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
-import pageheaderSvg from '../../../utils/pageHeaderSvg';
 import { t, getScope, deliveryPath, canPublishTemplate } from './common';
 import ComponentConfig from './ComponentConfig';
 import PluginFields, { defaultPlugin } from './PluginFields';
 import styles from './index.less';
 const { validateVersionInfo } = require('../../../utils/templateDelivery');
 
-const initialState = props => ({ template: null, values: {
+const initialState = props => ({ template: null, latestVersion: null, values: {
   version: props.location && props.location.query && props.location.query.version || '1.0.0', description: '', service_ids: [] },
   components: [], configs: {}, plugin: defaultPlugin(), pluginEnabled: false,
   loading: true, loadingConfigs: false, dirty: false, failed: false, failedConfigs: [], errors: {}, failure: null });
@@ -42,7 +41,7 @@ export default class TemplateEditor extends PureComponent {
     this.props.dispatch({ type: 'templateDelivery/load', payload: { scope: this.scope() }, callback: bean => {
       if (!this.active(generation)) return;
       if (!bean.template) { this.setState({ template: null, components: bean.components, loading: false });return; }
-      this.setState(state => ({ template: bean.template, components: bean.components, loading: false,
+      this.setState(state => ({ template: bean.template, latestVersion: bean.latestVersion, components: bean.components, loading: false,
         values: { ...state.values, service_ids: bean.components.filter(item => item.delivery_available !== false).map(item => item.service_id) } }), this.loadConfigs);
     }, onError: () => { if (this.active(generation)) this.setState({ loading: false, failed: true }); } });
   };
@@ -98,27 +97,23 @@ export default class TemplateEditor extends PureComponent {
     Modal.confirm({ title: t('leaveTitle'), content: t('leaveHelp'), okText: t('leave'), cancelText: t('continueEditing'), onOk: go });
   };
   renderBasic = () => {
-    const { template, values, errors } = this.state;
+    const { values, errors } = this.state;
     return <section className={styles.metadataSection}>
-      <header className={styles.versionHeading}><h2 className={styles.formSectionTitle}>{t('versionInformation')}</h2>
-        {template && <div className={styles.templateContext}><span className={styles.contextLabel}>{t('belongsToTemplate')}</span>
-          <Avatar shape="square" size={24} src={template.logo} icon="appstore" /><strong title={template.name}>{template.name}</strong>
-        </div>}
-      </header>
+      <header className={styles.versionHeading}><h2 className={styles.formSectionTitle}>{t('versionInformation')}</h2></header>
       <div className={styles.versionComposer}>
         <div className={styles.versionSide}>
           <Form className={styles.basicForm} layout="vertical" onSubmit={event => { event.preventDefault();this.next(); }}>
-            <Form.Item label={t('version')} required validateStatus={errors.version ? 'error' : undefined} help={errors.version ? t(errors.version) : undefined}>
+            <Form.Item label={t('version')} required validateStatus={errors.version ? 'error' : undefined} help={errors.version ? t(errors.version) : this.state.latestVersion ? `${t('latestVersion')} ${this.state.latestVersion}` : undefined}>
               <Input aria-label={t('version')} maxLength={32} value={values.version} onChange={event => this.change('version', event.target.value)} placeholder="1.0.0" />
             </Form.Item>
           </Form>
-          {this.renderComponentSelection()}
         </div>
         <Form className={styles.releaseMetadata} layout="vertical" onSubmit={event => { event.preventDefault();this.next(); }}>
-          <Form.Item label={t('description')} validateStatus={errors.description ? 'error' : undefined} help={errors.description ? t(errors.description) : t('releaseNotesHelp')}>
-            <Input.TextArea aria-label={t('description')} rows={8} autosize={{ minRows: 8, maxRows: 16 }} maxLength={20000}
+          <Form.Item label={t('description')} validateStatus={errors.description ? 'error' : undefined} help={errors.description ? t(errors.description) : undefined}>
+            <Input.TextArea aria-label={t('description')} rows={5} autosize={{ minRows: 5, maxRows: 16 }} maxLength={20000}
               value={values.description} placeholder={t('descriptionPlaceholder')} onChange={event => this.change('description', event.target.value)} />
           </Form.Item>
+          <div className={styles.notesCount}>{values.description.length} / 20000</div>
         </Form>
       </div>
     </section>;
@@ -141,6 +136,9 @@ export default class TemplateEditor extends PureComponent {
         <span className={styles.selectionCount} aria-label={`${t('selectedComponents')} ${values.service_ids.length} / ${components.length}`}>
           {values.service_ids.length} / {components.length}
         </span>
+        <Checkbox className={styles.selectAllComponents} checked={components.some(item => item.delivery_available !== false) && components.filter(item => item.delivery_available !== false).every(item => values.service_ids.includes(item.service_id))}
+          indeterminate={values.service_ids.length > 0 && !components.filter(item => item.delivery_available !== false).every(item => values.service_ids.includes(item.service_id))}
+          disabled={!components.some(item => item.delivery_available !== false)} onChange={event => this.change('service_ids', event.target.checked ? components.filter(item => item.delivery_available !== false).map(item => item.service_id) : [])}>{t('selectAllComponents')}</Checkbox>
       </div>
       <Form layout="vertical" onSubmit={event => event.preventDefault()}>
       <Form.Item required validateStatus={errors.service_ids ? 'error' : undefined} help={errors.service_ids ? t(errors.service_ids) : undefined}>
@@ -157,8 +155,8 @@ export default class TemplateEditor extends PureComponent {
     const { template, loading, failed, components, configs, values, failedConfigs, loadingConfigs, failure } = this.state;
     const { user, team, permissions, match, publishing } = this.props;
     const allowed = canPublishTemplate(user, team, permissions, match.params);
-    return <PageHeaderLayout isFooter wrapperClassName={styles.page} title={<span className={styles.pageTitle}>{pageheaderSvg.getPageHeaderSvg('publish', 18)}{t('createVersion')}</span>} content={t('versionEditorHelp')}
-      action={<Button disabled={publishing} onClick={this.leave}>{t('backToRecords')}</Button>}>
+    return <PageHeaderLayout isFooter wrapperClassName={styles.page} title={<span className={styles.pageTitle}><Button type="link" icon="arrow-left" disabled={publishing} onClick={this.leave} aria-label={t('backToRecords')} />{t('createVersion')}</span>}
+      action={template && <div className={styles.templateContext}><span className={styles.contextLabel}>{t('belongsToTemplate')}</span><strong title={template.name}>{template.name}</strong></div>}>
       {!allowed ? <Alert type="warning" showIcon message={t('permissionRequired')} /> : <Spin spinning={loading}>
         {failed ? <Alert type="warning" showIcon message={t('componentsUnavailable')} description={<Button onClick={this.load}>{t('retry')}</Button>} /> :
           !loading && !template ? <Empty description={t('templateContextUnavailable')}><Button onClick={this.load}>{t('retry')}</Button></Empty> :
@@ -167,7 +165,8 @@ export default class TemplateEditor extends PureComponent {
             <div className={styles.editorForm}>
               <React.Fragment>
                 <div className={styles.editorIntro}>{this.renderBasic()}</div>
-                <section className={styles.configurationSection}><h2 className={styles.formSectionTitle}>{t('componentConfig')}</h2>
+                <section className={styles.configurationSection}>
+                {this.renderComponentSelection()}
                 <div className={styles.sectionBody}>
                 <Spin spinning={loadingConfigs}>
                 {!!failedConfigs.length && <Alert type="warning" showIcon message={t('configUnavailable')} description={<Button onClick={this.loadConfigs}>{t('retry')}</Button>} />}
@@ -175,12 +174,15 @@ export default class TemplateEditor extends PureComponent {
                   components={components.filter(item => values.service_ids.includes(item.service_id))} configs={configs}
                   onChange={(id, config) => this.setState(state => ({ configs: { ...state.configs, [id]: config }, dirty: true }))} /> :
                   <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('componentsRequired')} />}
-                </Spin></div></section>
+                </Spin></div>
+                {this.renderAdvanced()}
+                </section>
               </React.Fragment>
-              {this.renderAdvanced()}
               {failure && <Alert className={styles.failure} type="error" showIcon message={t(failure)} />}
-              <div className={styles.footer}>
-                <Button type="primary" loading={publishing} disabled={loading || !components.length || loadingConfigs || !!failedConfigs.length} onClick={this.next}>{t('createVersion')}</Button>
+              <div className={styles.editorActions}>
+                <span className={styles.editorActionSummary}>{values.version || '—'} · {t('selectedComponentCount', { count: values.service_ids.length })}</span>
+                <div><Button disabled={publishing} onClick={this.leave}>{t('cancel')}</Button>
+                <Button type="primary" loading={publishing} disabled={loading || !components.length || loadingConfigs || !!failedConfigs.length} onClick={this.next}>{t('createVersion')}</Button></div>
               </div>
             </div>
             </div>
