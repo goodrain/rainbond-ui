@@ -65,6 +65,7 @@ export default class AppExporter extends PureComponent {
     };
   }
   componentDidMount() {
+    if (this.props.deliveryExport) { this.handleVersionInfo();return; }
     const { exportVersionList, exportVersion } = this.state;
     if (exportVersion && exportVersion.length > 0) {
       this.handleVersionInfo();
@@ -80,7 +81,7 @@ export default class AppExporter extends PureComponent {
     dispatch(routerRedux.push(`/enterprise/${eid}/shared/helmSetting`))
   }
   getDockerComposeAppShow = () => {
-    const { app_exporte_status } = this.state;
+    const app_exporte_status = this.props.deliveryExport ? this.props.deliveryExport.status : this.state.app_exporte_status;
     if (!app_exporte_status || !app_exporte_status.docker_compose) {
       return;
     }
@@ -102,7 +103,7 @@ export default class AppExporter extends PureComponent {
     );
   };
   getHelmAppShow = () => {
-    const { app_exporte_status } = this.state;
+    const app_exporte_status = this.props.deliveryExport ? this.props.deliveryExport.status : this.state.app_exporte_status;
     if (!app_exporte_status || !app_exporte_status.helm_chart) {
       return;
     }
@@ -124,7 +125,7 @@ export default class AppExporter extends PureComponent {
     );
   };
   getRainbondAppShow = () => {
-    const { app_exporte_status } = this.state;
+    const app_exporte_status = this.props.deliveryExport ? this.props.deliveryExport.status : this.state.app_exporte_status;
     if (!app_exporte_status || !app_exporte_status.rainbond_app) {
       return;
     }
@@ -146,7 +147,7 @@ export default class AppExporter extends PureComponent {
     );
   };
   getRainbondNotContainerBag = () => {
-    const { app_exporte_status } = this.state;
+    const app_exporte_status = this.props.deliveryExport ? this.props.deliveryExport.status : this.state.app_exporte_status;
     if (!app_exporte_status || !app_exporte_status.slug) {
       return;
     }
@@ -171,6 +172,7 @@ export default class AppExporter extends PureComponent {
     if (!app_status.is_export_before) {
       return (
         <Button
+          disabled={!!(this.props.deliveryExport && this.props.deliveryExport.busy)}
           type="primary"
           size="small"
           onClick={() => {
@@ -186,6 +188,7 @@ export default class AppExporter extends PureComponent {
       return (
         <div>
           <Button
+            disabled={!!(this.props.deliveryExport && this.props.deliveryExport.busy)}
             type="primary"
             size="small"
             onClick={() => {
@@ -195,6 +198,7 @@ export default class AppExporter extends PureComponent {
             {formatMessage({ id: 'button.download' })}
           </Button>
           <Button
+            disabled={!!(this.props.deliveryExport && this.props.deliveryExport.busy)}
             style={{ marginLeft: 16 }}
             size="small"
             onClick={() => {
@@ -246,6 +250,7 @@ export default class AppExporter extends PureComponent {
             {formatMessage({ id: 'button.download' })}
           </Button>
           <Button
+            disabled={!!(this.props.deliveryExport && this.props.deliveryExport.busy)}
             style={{ marginLeft: 16 }}
             size="small"
             onClick={() => {
@@ -293,6 +298,7 @@ export default class AppExporter extends PureComponent {
   };
 
   handleRelease = type => {
+    if (this.props.deliveryExport) { this.handleExporter(type);return; }
     const { versionInfo } = this.state;
     const th = this;
     if (versionInfo.dev_status === '') {
@@ -343,6 +349,7 @@ export default class AppExporter extends PureComponent {
   }
   
   handleExporter = format => {
+    if (this.props.deliveryExport) { this.props.deliveryExport.onExport(format);return; }
     const { app, eid, dispatch, team_name, regionName } = this.props;
     const { exportVersion, teamName, region_name } = this.state;
     if (format == 'helm-chart') {
@@ -404,6 +411,7 @@ export default class AppExporter extends PureComponent {
     }
   };
   queryExport = () => {
+    if (this.props.deliveryExport) { this.props.deliveryExport.onRefresh();return; }
     const { app, eid, dispatch, setIsExporting } = this.props;
     const { exportVersion } = this.state;
     const groupVersions = Array.isArray(exportVersion)
@@ -462,7 +470,8 @@ export default class AppExporter extends PureComponent {
     let aEle = document.querySelector('#down-a-element');
     if (!aEle) {
       aEle = document.createElement('a');
-      aEle.setAttribute('download', 'filename');
+      aEle.id = 'down-a-element';
+      aEle.setAttribute('download', '');
       document.body.appendChild(aEle);
     }
     aEle.href = downloadPath;
@@ -489,7 +498,8 @@ export default class AppExporter extends PureComponent {
 
   render() {
     const { onOk, onCancel, loading, team_name } = this.props;
-    const { exportVersion, exportVersionList, no_export } = this.state;
+    const { exportVersion, exportVersionList } = this.state;
+    const no_export = this.props.deliveryExport ? this.props.deliveryExport.unavailable : this.state.no_export;
     return (
       <Modal
         title={formatMessage({ id: 'applicationMarket.offline_installer.title' })}
@@ -498,6 +508,7 @@ export default class AppExporter extends PureComponent {
         className={styles.TelescopicModal}
         onCancel={onCancel}
         footer={[
+          this.props.deliveryExport && <Button key="refresh" icon="reload" onClick={this.queryExport}>{formatMessage({ id: 'delivery.refresh' })}</Button>,
           <Button onClick={onCancel}> {formatMessage({ id: 'button.cancel' })} </Button>,
           <Button type="primary" loading={loading || false} onClick={onOk}>
             {formatMessage({ id: 'button.confirm' })}
@@ -506,8 +517,8 @@ export default class AppExporter extends PureComponent {
       >
         <Alert
           style={{ textAlign: 'center', marginBottom: 16 }}
-          message={no_export ? formatMessage({ id: 'applicationMarket.offline_installer.error_alert' }) : formatMessage({ id: 'applicationMarket.offline_installer.alert' })}
-          type={no_export ? "error" : "success"}
+          message={this.props.deliveryExport && this.props.deliveryExport.error || (no_export ? formatMessage({ id: 'applicationMarket.offline_installer.error_alert' }) : formatMessage({ id: 'applicationMarket.offline_installer.alert' }))}
+          type={no_export ? "error" : this.props.deliveryExport && this.props.deliveryExport.error ? "warning" : "success"}
         />
         {!no_export && !team_name &&
           <div style={{ marginBottom: '30px' }}>

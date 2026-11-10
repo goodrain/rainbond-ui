@@ -1723,7 +1723,7 @@ const componentOther = {
     'componentOverview.body.CreateComponentModal.from_image': '从镜像构建',
     'componentOverview.body.CreateComponentModal.from_source': '从源码构建',
     'componentOverview.body.CreateComponentModal.database': '数据库',
-    'componentOverview.body.CreateComponentModal.local_market': '本地组件库',
+    'componentOverview.body.CreateComponentModal.local_market': '本地应用市场',
     'componentOverview.body.CreateComponentModal.offline_import': '上传应用模板',
     'componentOverview.body.CreateComponentModal.image_entry': '从镜像构建',
     'componentOverview.body.CreateComponentModal.source_entry': '从源码构建',

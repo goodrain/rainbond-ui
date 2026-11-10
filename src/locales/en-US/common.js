@@ -128,7 +128,7 @@
 
         //位置：企业视图>应用市场>添加应用商店
         'popover.applicationMarket.addMarket.title':'Add an Market',
-        'popover.applicationMarket.local':'Local Market',
+        'popover.applicationMarket.local':'Local Application Market',
         'popover.applicationMarket.market':'Open source app store',
         'popover.applicationMarket.all':'All',
         'popover.applicationMarket.company':'Enterprise Scope',
@@ -311,7 +311,7 @@
         'confirmModal.delete.cluster.desc':'Are you sure you want to delete this cluster?',
         'confirmModal.unload.cluster.desc':'Are you sure you want to unload this cluster?',
         'confirmModal.delete.monitor.desc':'Sure you want to turn off monitoring?',
-        'confirmModal.delete.component_ibrary_mirror.desc':'Sure you want to close the component library image repository?',
+        'confirmModal.delete.component_ibrary_mirror.desc':'Sure you want to close the local application market image repository?',
         'confirmModal.delete.automatic_issued.desc':'Sure you want to disable automatic certificate issuance?',
         'confirmModal.delete.Oauth.desc':'Sure you want to disable Oauth2.0 authentication?',
         'confirmModal.delete.object_storage.desc':'Sure you want to disable object storage?',

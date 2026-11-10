@@ -1,5 +1,8 @@
 import apiconfig from '../../config/api.config';
 import request from '../utils/request';
+import { getAppVersionList } from './app';
+import { loadDeliverySource } from './templateDelivery';
+const { assetSource, buildRecord } = require('../utils/deliveryAsset');
 const { listingGroups } = require('../utils/deliveryWorkflow');
 const url = enterprise => `${apiconfig.baseUrl}/console/enterprises/${encodeURIComponent(enterprise)}/development-deliveries`;
 const base = scope => `${apiconfig.baseUrl}/console/teams/${encodeURIComponent(scope.teamName)}/groups/${encodeURIComponent(scope.appID)}/delivery-templates`;
@@ -16,7 +19,7 @@ async function sourceComponents(scope) {
     const fresh = response.list.filter(item => item.service_id && !seen.has(String(item.service_id)));
     fresh.forEach(item => {
       seen.add(String(item.service_id));
-      components.push({ service_id: String(item.service_id), name: item.service_cname || item.service_name || item.service_alias,
+      components.push({ service_id: String(item.service_id), name: item.service_cname || item.service_name || item.service_alias, service_alias: item.service_alias || '',
         status: item.status || item.service_status || '', source_type: item.service_source || item.source_type, vm: !!item.vm,
         source: String(item.git_url || item.image || item.image_name || '').replace(/(https?:\/\/)[^/@]+@/, '$1').split(/[?#]/)[0],
         branch: item.code_version || item.branch || '', commit: item.commit || item.commit_sha || item.code_commit || '',
@@ -28,7 +31,19 @@ async function sourceComponents(scope) {
 }
 
 
-export async function loadDeliveryCenter({ user, kind, groupId, scope }) {
+export async function loadDeliveryCenter({ user, kind, groupId, scope, component, page = 1 }) {
+  if (kind === 'source') {
+    const response = await loadDeliverySource(scope, { showMessage: false });
+    if (!response || !response.bean || !Array.isArray(response.bean.apps)) throw new Error('workflow.sourceUnavailable');
+    return { bean: { components: response.bean.apps.map(assetSource), collected_at: new Date().toISOString() } };
+  }
+  if (kind === 'buildHistory') {
+    const response = await getAppVersionList({ team_name: scope.teamName, service_alias: component.service_alias,
+      region_name: scope.regionName, page_num: page, page_size: 5, showMessage: false });
+    if (!response || !Array.isArray(response.list)) throw new Error('workflow.historyUnavailable');
+    return { bean: { records: response.list.map(buildRecord), total: response.total || response.list.length,
+      currentVersion: response.bean && response.bean.current_version, page } };
+  }
   if (kind === 'targets') return request(`${apiconfig.baseUrl}/console/delivery-targets`, { method: 'get' });
   if (kind === 'runtime') {
     const source = scope;
@@ -59,7 +74,7 @@ export async function loadDeliveryCenter({ user, kind, groupId, scope }) {
   }
   return request(`${base(scope)}/records`, { method: 'get', params: { region_name: scope.regionName } });
 }
-export async function actOnDelivery({ operation, user, scope, template, reason, requestId, decision, comment, target, kind, listingId, destination, environment, requestKey }) {
+export async function actOnDelivery({ operation, user, scope, template, reason, requestId, decision, comment, target, kind, listingId, destination, environment, requestKey, format, image_handle }) {
   const listing = requestId || listingId;
   if (operation === 'review') return request(`${apiconfig.baseUrl}/console/enterprises/${encodeURIComponent(user.enterprise_id)}/listing-requests/${encodeURIComponent(listing)}/review`, {
     method: 'post', data: { decision, comment }
@@ -69,7 +84,7 @@ export async function actOnDelivery({ operation, user, scope, template, reason, 
   });
   const action = operation === 'listing' ? 'listing-requests' : kind === 'offline' ? 'exports' : 'installations';
   return request(`${base(scope)}/versions/${encodeURIComponent(template.id)}/${action}`, {
-    method: 'post', data: { region_name: scope.regionName, reason, destination, target, environment, request_id: requestKey }
+    method: 'post', data: { region_name: scope.regionName, reason, destination, target, environment, format, image_handle, request_id: requestKey }
   });
 }
 

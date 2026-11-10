@@ -179,7 +179,7 @@ const teamAdd = {
   'teamAdd.create.advancedOptions': 'Advanced Options',
 
   //market
-  'teamAdd.create.market.desc':'Install apps with one click from local market or app stores.',
+  'teamAdd.create.market.desc':'Install apps with one click from local application market or app stores.',
   'teamAdd.create.market.market':'Application market (100+)',
   'teamAdd.create.market.command':'Command line installation',
   //third

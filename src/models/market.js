@@ -116,8 +116,8 @@ export default {
         callback(response);
       }
     },
-    *upAppModel({ payload, callback }, { call }) {
-      const response = yield call(upAppModel, payload);
+    *upAppModel({ payload, callback, handleError }, { call }) {
+      const response = yield call(upAppModel, payload, handleError);
       if (response && callback) {
         callback(response);
       }

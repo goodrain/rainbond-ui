@@ -35,13 +35,13 @@ export default class DevelopmentDeliveries extends PureComponent {
         {failed ? <Alert type="warning" showIcon message={w('loadFailed')} /> : <div className={styles.table}><Table rowKey="id" loading={loading}
           dataSource={groups.filter(group => `${group.template_name} ${group.app_name} ${group.source.teamName}`.includes(query))}
           pagination={{ pageSize: 10, hideOnSinglePage: true }} columns={[
-            { title: w('template'), dataIndex: 'template_name', render: (value, group) => <a onClick={() => open(group)}>{value}</a> },
+            { title: w('deliverable'), dataIndex: 'template_name', render: (value, group) => <a onClick={() => open(group)}>{value}</a> },
             { title: w('sourceApp'), dataIndex: 'app_name' },
             { title: w('sourceTeam'), key: 'team', render: (_, group) => group.source.team_alias || group.source.teamName },
             { title: w('versions'), key: 'versions', render: (_, group) => group.versions.length },
             { title: w('pendingReview'), dataIndex: 'pending', render: value => value ? <Tag color="blue">{value}</Tag> : '—' },
             { title: w('lastSubmitted'), dataIndex: 'latest_at', render: value => moment(value).format('YYYY-MM-DD HH:mm') },
-            { title: w('actions'), key: 'action', render: (_, group) => <a onClick={() => open(group)}>{w('details')}</a> }
+            { title: w('actions'), key: 'action', render: (_, group) => <a onClick={() => open(group)}>{w('deliveryManagement')}</a> }
           ]} locale={{ emptyText: w('noListings') }} /></div>}
       </Card>
     </PageHeaderLayout>;

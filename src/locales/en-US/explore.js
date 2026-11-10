@@ -28,7 +28,7 @@ const explore = {
 
     // Market page
     'explore.market.external': 'External Market',
-    'explore.market.local': 'Local Component Library',
+    'explore.market.local': 'Local Application Market',
     'explore.market.unavailable_title': 'External market is temporarily unavailable',
     'explore.market.unavailable_desc': 'The current network quality is poor or the platform is deployed offline, so the external market cannot be used. Please check the network or platform settings and try again.',
 

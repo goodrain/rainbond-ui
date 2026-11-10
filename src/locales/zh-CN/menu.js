@@ -53,7 +53,7 @@ const teamMenu = {
 }
 const appMenu = {
   'menu.app.dashboard': '应用总览',
-  'menu.app.version': '应用版本',
+  'menu.app.version': '应用快照',
   'menu.app.publish': '应用模板',
   'menu.app.backup': '应用备份',
   'menu.app.gateway': '应用网关',

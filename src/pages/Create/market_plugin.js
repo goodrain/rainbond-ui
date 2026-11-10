@@ -1396,7 +1396,7 @@ export default class Main extends PureComponent {
             <PageHeaderMarket
               title={formatMessage({ id: 'teamPlugin.install.title' })}
               titleSvg={pageheaderSvg.getPageHeaderSvg('market', 18)}
-              content="应用市场安装是部署插件的一种方式，支持通过本地组件库、开源应用商店和Helm应用商店等方式一键安装插件。"
+              content="应用市场安装是部署插件的一种方式，支持通过本地应用市场、开源应用商店和Helm应用商店等方式一键安装插件。"
               isAddMarket={this.props.isAddMarket}
               isSvg
               breadcrumbList={breadcrumbList}

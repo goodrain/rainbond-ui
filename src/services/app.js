@@ -22,9 +22,11 @@ export function getAppVersionList(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/version`,
     {
       method: 'get',
+      ...(body.showMessage === false ? { showMessage: false } : {}),
       params: {
         page_num: body.page_num,
-        page_size: body.page_size
+        page_size: body.page_size,
+        ...(body.region_name ? { region_name: body.region_name } : {})
       }
     }
   );

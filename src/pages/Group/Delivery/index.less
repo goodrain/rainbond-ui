@@ -4,11 +4,11 @@
 .pageTitle { display: inline-flex; align-items: center; gap: 4px; min-height: 32px; svg { display: block; } }
 .muted, .componentSource { color: @text-color-secondary; font-size: @rbd-content-size; }
 .preWrap { white-space: pre-wrap; overflow-wrap: anywhere; }
-.empty { max-width: 1080px; margin: 0 auto; padding: 28px 0 32px; text-align: center;
+.empty { max-width: 1180px; margin: 0 auto; padding: 28px 0 32px; text-align: center;
   h2 { font-size: @rbd-title-big-size; color: @heading-color; line-height: 36px; font-weight: 500; margin: 0 0 8px; }
 }
-.flow { display: grid; grid-template-columns: minmax(0, 1fr) 56px minmax(0, 1fr) 56px minmax(0, 1.2fr);
-  gap: 12px; width: 100%; max-width: 1080px; margin: 28px auto; padding: 28px;
+.flow { display: grid; grid-template-columns: minmax(0, 0.9fr) 40px minmax(0, 0.9fr) 40px minmax(0, 1.65fr);
+  gap: 12px; width: 100%; max-width: 1180px; margin: 28px auto; padding: 28px;
   text-align: left; border: 1px solid @border-color-base; border-radius: 12px; background: fade(@rbd-background-color, 38%);
 }
 .flowStage { display: flex; flex-direction: column; min-width: 0; }
@@ -38,11 +38,12 @@
 }
 .flowMethods { display: flex; flex-direction: column; flex: 1; gap: 0; min-height: 190px; margin: 0; padding: 4px 12px; list-style: none;
   border: 1px solid @border-color-base; border-radius: 10px; background: @body-background;
-  > li { display: flex; align-items: center; flex: 1; gap: 10px; min-height: 58px; padding: 10px 12px;
+  > li { display: flex; align-items: center; flex: 1; gap: 12px; min-height: 88px; padding: 14px 8px;
     border-bottom: 1px solid @border-color-base; &:last-child { border-bottom: 0; } }
   strong { display: block; color: @heading-color; font-size: @rbd-content-size; font-weight: 500; line-height: 20px; }
-  p { margin: 2px 0 0; color: @text-color-secondary; font-size: @rbd-auxiliary-size; line-height: 18px; }
+  p { margin: 4px 0 0; color: @text-color-secondary; font-size: @rbd-auxiliary-size; line-height: 20px; }
 }
+.flowMethodCondition { display: block; margin-bottom: 4px; color: @text-color-secondary; font-size: @rbd-auxiliary-size; line-height: 18px; }
 .flowMethodIcon { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; width: 28px; height: 28px;
   border-radius: 6px; color: @primary-color; background: fade(@primary-color, 5%); :global(.anticon) { font-size: @rbd-sub-title-size; }
 }
@@ -50,8 +51,8 @@
 .recordsTable, .summaryTable, .envTable { overflow-x: auto; }
 .recordsTable :global(.ant-table) { min-width: 800px; }
 .recordActions { display: flex; flex-wrap: wrap; gap: 12px; }
-.editorLayout { width: 100%; }
-.editorIntro { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; margin-bottom: 24px; }
+.editorLayout { width: 100%; max-width: 1280px; }
+.editorIntro { margin-bottom: 24px; }
 .basicForm, .metadataSection, .selectionSection { min-width: 0; }
 .sectionBody { min-width: 0; }
 .formSectionTitle { margin: 0 0 20px; font-size: @rbd-sub-title-size; font-weight: 500; color: @heading-color; line-height: 24px; }
@@ -64,11 +65,14 @@
 .configPlaceholder { min-height: 160px; }
 .metadataGrid, .fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 24px; }
 .basicForm .metadataGrid { max-width: 1120px; grid-template-columns: minmax(0, 360px) 160px minmax(0, 1fr); gap: 0 24px; }
-.componentChoices { width: 100%; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 240px)); gap: 12px; max-height: 264px; overflow-y: auto;
-  :global(.ant-checkbox-wrapper) { display: flex; align-items: center; margin-left: 0; padding: 10px 12px; border: 1px solid @border-color-base; border-radius: @border-radius-base; background: @body-background; }
-  .componentChoiceSelected { border-color: fade(@primary-color, 28%); background: fade(@primary-color, 2%); }
+.componentChoices { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; max-height: 200px; overflow-y: auto;
+  :global(.ant-checkbox-wrapper) { display: flex; align-items: center; min-height: 44px; margin-left: 0; padding: 9px 12px; border: 1px solid @border-color-base; border-radius: @border-radius-base; background: @body-background; }
+  :global(.ant-checkbox-wrapper > span:last-child) { flex: 1; min-width: 0; }
+  .componentChoiceSelected { border-color: fade(@primary-color, 30%); background: fade(@primary-color, 3%); }
 }
-.componentSource { display: block; margin-top: 4px; font-size: @rbd-auxiliary-size; }
+.componentChoiceBody { display: flex; align-items: center; gap: 10px; justify-content: space-between; min-width: 0; }
+.componentChoiceName { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.componentSource { color: @text-color-secondary; font-size: @rbd-auxiliary-size; flex-shrink: 0; }
 .pluginSection { margin-top: 20px; padding-top: 20px; border-top: 1px solid @border-color-base; .fields { margin-top: 20px; } }
 .basicForm .pluginSection { margin-top: 0; padding-top: 0; border-top: 0; .fields { max-width: 720px; } }
 .componentEditor { min-width: 0; margin-top: 16px;
@@ -177,4 +181,34 @@
   .editorComponentConfig :global(.ant-tabs-ink-bar) { display: block !important; }
   .recordsToolbar { flex-wrap: wrap; }
   .footer { flex-wrap: wrap; :global(.ant-btn) { max-width: 100%; white-space: normal; height: auto; min-height: 32px; } }
+}
+
+.releaseMetadata { min-width: 0;
+  textarea { line-height: 24px; }
+}
+.pluginOptions { margin-top: 20px;
+  .pluginSection { margin: 0; padding: 0; border: 0; }
+  :global(.ant-checkbox-wrapper) { color: @text-color-secondary; font-size: @rbd-content-size; }
+  .fields { max-width: 900px; margin-top: 20px; }
+}
+
+
+.versionHeading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;
+  .formSectionTitle { margin: 0; }
+}
+.versionComposer { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 32px; }
+.versionSide { min-width: 0; }
+.selectionLabel { color: @heading-color; font-size: @rbd-content-size; font-weight: 500; }
+.templateContext { display: flex; align-items: center; gap: 8px; min-width: 0; max-width: 65%;
+  .contextLabel { color: @text-color-secondary; font-size: @rbd-auxiliary-size; flex-shrink: 0; }
+  strong { min-width: 0; color: @text-color; font-size: @rbd-content-size; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  :global(.ant-avatar) { flex-shrink: 0; color: @primary-color; background: fade(@primary-color, 7%); }
+}
+@media (max-width: @screen-md) {
+  .versionComposer { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .versionSide .componentChoices { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: @screen-sm) {
+  .templateContext { max-width: 100%; }
+  .versionSide .componentChoices { grid-template-columns: minmax(0, 1fr); }
 }

@@ -409,8 +409,8 @@ const applicationMarket = {
     // PageHeaderLayout
     'applicationMarket.pageHeaderLayout.title': '应用市场管理',
     'applicationMarket.PageHeaderLayout.content': '应用市场支持Rainstore应用商店和Helm应用商店的对接和管理。',
-    // 本地组件库tabs
-    'applicationMarket.localMarket.title': '本地组件库',
+    // 本地应用市场tabs
+    'applicationMarket.localMarket.title': '本地应用市场',
     'applicationMarket.localMarket.placeholder': '请输入名称进行搜索',
     'applicationMarket.localMarket.radioValue.enterprise': '企业',
     'applicationMarket.localMarket.radioValue.team': '团队',
@@ -428,9 +428,9 @@ const applicationMarket = {
     'applicationMarket.localMarket.delete.template': '删除应用模板',
     'applicationMarket.localMarket.import.template': '导入应用模板',
     'applicationMarket.localMarket.edit.template': '编辑应用模板',
-    //本地组件库为空
+    //本地应用市场为空
     'applicationMarket.localMarket.nothing.msg': '当前无应用模版，请选择方式添加',
-    // 本地组件库有值
+    // 本地应用市场有值
     'applicationMarket.localMarket.have.title': '安装应用',
     'applicationMarket.localMarket.have.desc': '从应用商店安装应用是最简单的应用部署方式，后面你也可以很方便的将您的企业应用发布到应用商店中',
     'applicationMarket.localMarket.have.installNumber': '安装量',
@@ -438,7 +438,7 @@ const applicationMarket = {
     'applicationMarket.localMarket.have.install': '安装',
     // 网络超时提示
     'applicationMarket.localMarket.timeout.title': '网络连接超时',
-    'applicationMarket.localMarket.timeout.desc': '应用市场连接超时，当前仅显示本地组件库。请检查网络连接后刷新页面重试。',
+    'applicationMarket.localMarket.timeout.desc': '应用市场连接超时，当前仅显示本地应用市场。请检查网络连接后刷新页面重试。',
     // 开源商店tabs
     'applicationMarket.cloudMarket.msg': '市场已经正常连接,该平台具有',
     'applicationMarket.cloudMarket.msgs': '应用权限',
@@ -534,7 +534,7 @@ const applicationMarket = {
     'applicationMarket.confirm.remind': '配置提醒',
     'applicationMarket.confirm.understand': '已了解',
     'applicationMarket.confirm.Deconfiguration': '去配置',
-    'applicationMarket.confirm.Docking': '该平台已对接多个集群，但本地组件库暂未配置多集群可用的镜像仓库，将导致应用无法跨集群安装。',
+    'applicationMarket.confirm.Docking': '该平台已对接多个集群，但本地应用市场暂未配置多集群可用的镜像仓库，将导致应用无法跨集群安装。',
     'applicationMarket.confirm.connected': '市场未连接、暂无数据',
     'applicationMarket.confirm.null': '暂无数据',
     'applicationMarket.confirm.delete': '删除应用模版',
@@ -1532,8 +1532,8 @@ const enterpriseSetting = {
     'enterpriseSetting.basicsSetting.certificate.content': '这是一个外部扩充功能，实现网关策略所需证书的自动签发。',
     'enterpriseSetting.basicsSetting.serve.title': 'Oauth 第三方服务集成',
     'enterpriseSetting.basicsSetting.serve.content': '支持Github、Gitlab、码云等多种第三方OAuth服务，用户互联后可获取仓库项目。支持钉钉、Aliyun等服务进行第三方登录认证。',
-    'enterpriseSetting.basicsSetting.mirroring.title': '内部组件库镜像仓库',
-    'enterpriseSetting.basicsSetting.mirroring.content': '用于存储发布到组件库的应用模型镜像，其需要能被所有集群访问。',
+    'enterpriseSetting.basicsSetting.mirroring.title': '本地应用市场镜像仓库',
+    'enterpriseSetting.basicsSetting.mirroring.content': '用于存储发布到本地应用市场的应用模型镜像，其需要能被所有集群访问。',
     'enterpriseSetting.basicsSetting.globalImageRegistry.content': '由平台管理员维护，企业内用户创建镜像组件时可直接使用。',
     'enterpriseSetting.basicsSetting.globalImageRegistry.title': '全局容器镜像仓库',
     'enterpriseSetting.basicsSetting.externalTelemetry.title': '后端诊断数据上报',
@@ -1578,8 +1578,8 @@ const enterpriseSetting = {
     'enterpriseSetting.basicsSetting.serve.form.label.client_secret.desc': 'Client Secret',
     'enterpriseSetting.basicsSetting.serve.form.label.redirect_domain.desc': '回调地址是用于 OAuth认证完回跳时的访问地址，默认填充为当前访问地址。通常也需要您在Oauth 服务提供商进行相同的配置。',
     'enterpriseSetting.basicsSetting.serve.form.label.is_auto_login.desc': '开启自动登录即需要登录时将自动跳转到该Oauth服务进行认证，实现单点登录效果，未确认该服务可用之前请谨慎开启。',
-    'enterpriseSetting.basicsSetting.mirroring.modal.title': '开通组件库镜像仓库',
-    'enterpriseSetting.basicsSetting.mirroring.modal.comp_title': '组件库镜像仓库',
+    'enterpriseSetting.basicsSetting.mirroring.modal.title': '开通本地应用市场镜像仓库',
+    'enterpriseSetting.basicsSetting.mirroring.modal.comp_title': '本地应用市场镜像仓库',
     'enterpriseSetting.basicsSetting.mirroring.form.label.hub_url': '仓库地址',
     'enterpriseSetting.basicsSetting.mirroring.form.label.namespace': '命名空间',
     'enterpriseSetting.basicsSetting.mirroring.form.label.hub_user': '用户名',

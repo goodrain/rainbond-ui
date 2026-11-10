@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
-import { Badge, Button, Dropdown, Icon, Menu, Tag, Timeline } from 'antd';
+import { Avatar, Badge, Button, Dropdown, Empty, Icon, Menu, Tag, Timeline } from 'antd';
 import moment from 'moment';
-import { listingStatusLabel, w, deliveryRecordsLabel } from '../../../components/DeliveryWorkflow';
+import { listingStatusLabel, w } from '../../../components/DeliveryWorkflow';
 import EnvironmentSummary from '../../../components/DeliveryWorkflow/EnvironmentSummary';
 import timelineStyles from '../../../components/DeliveryWorkflow/timeline.less';
 import VersionDetails from '../../../components/DeliveryWorkflow/VersionDetails';
@@ -13,7 +13,7 @@ export default class RecordTimeline extends PureComponent {
   state = { expanded: {}, tabs: {} };
   toggle = id => this.setState(state => ({ expanded: { ...state.expanded, [id]: !state.expanded[id] } }));
   renderVersion = (record, group) => {
-    const { listings, deployments, allowed, workflowFailed, onDetail, onInstall, onExport, onListing, onDelete, onHistory } = this.props;
+    const { listings, deployments, allowed, workflowFailed, onDetail, onInstall, onExport, onListing, onDelete } = this.props;
     const listing = listings.find(item => item.template.id === record.id);
     const history = deployments.filter(item => item.template_id === record.id);
     const deleted = !!record.deleted_at;
@@ -44,7 +44,6 @@ export default class RecordTimeline extends PureComponent {
         <div className={versionStyles.footer}><div className={versionStyles.footerLinks}>
           <Button type="link" aria-expanded={expanded} aria-label={`${t(expanded ? 'collapseVersion' : 'expandVersion')} ${record.version}`}
             onClick={() => this.toggle(record.id)}>{t(expanded ? 'collapseVersion' : 'expandVersion')}<Icon type={expanded ? 'up' : 'down'} /></Button>
-          {history.length > 0 && <Button type="link" onClick={() => onHistory(record)}>{deliveryRecordsLabel(history, 'deliveryHistoryShort')} ({history.length})</Button>}
         </div><div className={versionStyles.footerActions}>
           {allowed && !deleted && <React.Fragment>
             <Button icon="cloud-download" disabled={workflowFailed} onClick={() => onInstall(record)}>{t('installTemplate')}</Button>
@@ -60,15 +59,17 @@ export default class RecordTimeline extends PureComponent {
     </Timeline.Item>;
   };
   render() {
-    const { group, allowed, onNewVersion } = this.props;
+    const { group, allowed, onNewVersion, onEditMetadata } = this.props;
     return <section className={styles.templateGroup} aria-label={group.template_name}>
       <header className={styles.groupHeader}><div className={styles.groupIdentity}>
-        <Icon type="appstore" aria-hidden="true" /><div><h2>{group.template_name}</h2>
+        <Avatar shape="square" size={40} src={group.logo} icon="appstore" /><div><h2>{group.template_name}</h2>
           <p>{t('templateVersionCount', { count: group.versions.filter(item => !item.deleted_at).length })}
             {group.latest && <span> · {t('latestVersion')} {group.latest.version}</span>}</p>
+          {group.template_description && <div className={styles.groupDescription}>{group.template_description}</div>}
         </div>
-      </div>{allowed && <Button icon="plus" onClick={() => onNewVersion(group)}>{t('publishNewVersion')}</Button>}</header>
-      <Timeline className={`${styles.versionTimeline} ${timelineStyles.timeline}`}>{group.versions.map(record => this.renderVersion(record, group))}</Timeline>
+      </div>{allowed && <div className={styles.groupActions}><Button icon="edit" onClick={() => onEditMetadata(group)}>{t('editMetadata')}</Button><Button type="primary" icon="plus" onClick={() => onNewVersion(group)}>{t('createVersion')}</Button></div>}</header>
+      {group.versions.length ? <Timeline className={`${styles.versionTimeline} ${timelineStyles.timeline}`}>{group.versions.map(record => this.renderVersion(record, group))}</Timeline> :
+        <div className={styles.noTemplateVersions}><Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('noTemplateVersions')} /><p>{t('firstVersionHelp')}</p></div>}
     </section>;
   }
 }

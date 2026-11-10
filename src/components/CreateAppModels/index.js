@@ -289,7 +289,7 @@ class CreateAppModels extends PureComponent {
   };
 
   upAppModel = values => {
-    const { dispatch, eid, appInfo, onOk, team_name } = this.props;
+    const { dispatch, eid, appInfo, onOk, team_name, deliverySource } = this.props;
     const { imageUrl, tagList, isShared } = this.state;
     const scope = this.getResolvedScope(values);
 
@@ -315,6 +315,7 @@ class CreateAppModels extends PureComponent {
       pic: imageUrl,
       tag_ids: arr,
       app_id: appInfo.app_id,
+      ...(deliverySource ? { delivery_source: deliverySource } : {}),
       dev_status: values.dev_status ? 'release' : '',
       describe: values.describe,
       scope: isShared && scope !== 'enterprise' ? 'team' : scope
@@ -328,16 +329,17 @@ class CreateAppModels extends PureComponent {
       type: 'market/upAppModel',
       payload: body,
       callback: res => {
+        this.handleSubmitLoading(false);
         if (res && res.status_code === 200 && onOk) {
           onOk(appInfo);
         }
-        this.handleSubmitLoading(false);
-      }
+      },
+      handleError: () => this.handleSubmitLoading(false)
     });
   };
 
   createAppModel = values => {
-    const { dispatch, eid, onOk, currentTeam, marketId } = this.props;
+    const { dispatch, eid, onOk, currentTeam, marketId, deliverySource } = this.props;
     const { imageUrl, tagList, isShared } = this.state;
     const scope = this.getResolvedScope(values);
     const arr = [];
@@ -379,10 +381,10 @@ class CreateAppModels extends PureComponent {
         type: 'market/createMarketAppModel',
         payload: customBody,
         callback: res => {
+          this.handleSubmitLoading(false);
           if (res && res.status_code === 200 && onOk) {
             onOk();
           }
-          this.handleSubmitLoading(false);
         },
         handleError: err => {
           notification.error({ message: err?.data?.msg || formatMessage({ id: 'notification.error.setUp' }) })
@@ -392,11 +394,12 @@ class CreateAppModels extends PureComponent {
       return null;
     }
     customBody = {
+      ...(deliverySource ? { delivery_source: deliverySource } : {}),
       enterprise_id: eid,
       name: values.name,
       pic: imageUrl,
       scope: isShared && scope !== 'enterprise' ? 'team' : scope,
-      team_name: currentTeam && currentTeam.team_name,
+      team_name: deliverySource ? deliverySource.team_name : currentTeam && currentTeam.team_name,
       dev_status: values.dev_status,
       describe: values.describe,
       tag_ids: arr
@@ -410,10 +413,10 @@ class CreateAppModels extends PureComponent {
       type: 'market/createAppModel',
       payload: customBody,
       callback: res => {
+        this.handleSubmitLoading(false);
         if (res && res.status_code === 200 && onOk) {
           onOk();
         }
-        this.handleSubmitLoading(false);
       },
       handleError: err => {
         notification.error({ message: err?.data?.msg || formatMessage({ id: 'notification.error.setUp' }) })
