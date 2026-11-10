@@ -1,3 +1,4 @@
+import agentExecution from './en-US/agentExecution';
 //英文入口文件
 
 import globalHeader from './en-US/globalHeader';
@@ -27,6 +28,7 @@ import delivery from './en-US/delivery';
 import workflow from './en-US/workflow';
 
 export default {
+  ...agentExecution,
   ...workflow,
   ...delivery,
   ...workspace,

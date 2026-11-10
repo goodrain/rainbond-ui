@@ -573,6 +573,12 @@
   margin-bottom: 18px;
 }
 
+.approvalRow {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
 .userRow {
   align-items: flex-end;
 }
@@ -1083,6 +1089,9 @@
 }
 
 .approvalCard {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   position: relative;
   overflow: hidden;
   background: #ffffff;
@@ -1164,38 +1173,46 @@
 
 .approvalActions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 12px;
   padding: 12px;
 }
 
 .approvalActionHalf {
-  flex: 1;
+  flex: 1 1 130px;
   min-width: 0;
 }
 
 .approvalPrimaryActions {
   display: flex;
   width: 100%;
+  min-width: 0;
 
-  :global {
-    .ant-btn {
-      width: 100%;
-    }
+  .approvalApproveButton {
+    flex: 1 1 0;
+    width: 0;
+  }
+
+  .approvalPolicyButton {
+    flex: 0 0 32px;
+    width: 32px;
+    min-width: 32px;
   }
 }
 
 .approvalApproveButton {
   height: 32px;
-  font-size: 14px;
-  width: calc(100% - 32px);
+  font-size: @rbd-content-size;
+  padding: 0 8px;
+  min-width: 0;
+  width: 100%;
 }
 
 .approvalPolicyButton {
-  width: 32px;
   height: 32px;
   padding: 0;
-  font-size: 14px;
+  font-size: @rbd-content-size;
 }
 
 .approvalRejectButton {
@@ -1578,4 +1595,116 @@
 
 .memoryClose {
   min-width: 72px;
+}
+
+.executionProcess {
+  margin: 0 0 10px;
+  width: 100%;
+  min-width: 0;
+}
+
+.executionToggle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  padding: 6px 0;
+  border: 0;
+  background: transparent;
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  text-align: left;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid @primary-color;
+    outline-offset: 3px;
+  }
+}
+
+.executionStatus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-left: auto;
+  min-width: 0;
+  max-width: 52%;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.executionLog {
+  margin: 7px 0 10px 5px;
+  padding-left: 14px;
+  border-left: 2px solid @border-color-base;
+  overflow-wrap: anywhere;
+
+  .traceRow,
+  .approvalRow {
+    margin-bottom: 9px;
+  }
+
+  .messageBubble {
+    margin: 8px 0 12px;
+  }
+}
+
+.executionItem,
+.executionThought {
+  margin: 0 0 12px;
+}
+
+.executionThoughtLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+}
+
+.executionThoughtContent {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  line-height: 1.7;
+}
+
+.executionCursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 3px;
+  vertical-align: -2px;
+  background: @primary-color;
+}
+
+
+
+.executionNode {
+  position: relative;
+  margin-bottom: 18px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 7px;
+    left: -18px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: @border-color-base;
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.executionNarration {
+  margin: 6px 0 12px;
+  color: @text-color;
+  font-size: @rbd-content-size;
 }

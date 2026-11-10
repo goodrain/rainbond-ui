@@ -1,0 +1,18 @@
+export default {
+  'agent.execution.viewProcess': 'View execution details',
+  'agent.execution.reasoning': 'Reasoning',
+  'agent.execution.thinking': 'Thinking',
+  'agent.execution.responding': 'Responding',
+  'agent.execution.working': 'Working',
+  'agent.execution.waitingApproval': 'Awaiting approval',
+  'agent.execution.finished': 'Finished',
+  'agent.execution.failed': 'Failed',
+  'agent.execution.cancelled': 'Cancelled',
+  'agent.execution.approved': 'Approved',
+  'agent.execution.autoApproved': 'Automatically approved',
+  'agent.execution.rejected': 'Rejected',
+  'agent.execution.timedOut': 'Timed out',
+  'agent.execution.toolRunning': 'Running',
+  'agent.execution.toolDone': 'Done',
+  'agent.execution.toolFailed': 'Failed',
+};

@@ -97,6 +97,7 @@ function adaptAgentEvent(event = {}) {
         decisionSource: data.decision_source || '',
         policyId: data.policy_id || '',
         resolvedBy: data.resolved_by || '',
+        reason: data.reason || '',
       };
     case 'run.status':
       return {

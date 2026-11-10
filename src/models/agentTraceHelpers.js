@@ -98,7 +98,9 @@ export function buildTraceContent(data = {}) {
     traceId: data.trace_id || '',
     toolCallId: data.tool_call_id || '',
     inputSignature: normalizedInput,
-    hasOutput: !!data.output,
+    hasOutput: data.phase === 'end' || !!data.output,
+    phase: data.phase || '',
+    isError: data.is_error === true,
     sources: extractWebSources(data),
   };
 }
@@ -110,7 +112,7 @@ export function applyTraceEvent(nextMessages, event, contextSnapshot, eventSeque
   if (traceIndex > -1) {
     nextMessages[traceIndex] = {
       ...nextMessages[traceIndex],
-      trace,
+      trace: { ...trace, inputSignature: trace.inputSignature || (nextMessages[traceIndex].trace || {}).inputSignature || '' },
       eventSequence,
     };
     return nextMessages;

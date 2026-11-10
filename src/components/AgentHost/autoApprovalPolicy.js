@@ -35,13 +35,13 @@ function targetRefToKey(targetRef) {
   // `targetRef.id` read always returned undefined and the "记住选择"
   // policy entries showed up as `service:undefined` / `app:undefined`,
   // never matching subsequent approvals. Pick the right id by kind.
-  let id = null;
+  let id = targetRef.id || null;
   if (targetRef.kind === 'service') {
-    id = targetRef.service_id || targetRef.service_alias;
+    id = targetRef.service_id || targetRef.service_alias || id;
   } else if (targetRef.kind === 'app') {
-    id = targetRef.app_id;
+    id = targetRef.app_id || id;
   } else if (targetRef.kind === 'team') {
-    id = targetRef.team_name;
+    id = targetRef.team_name || id;
   }
   return id ? `${targetRef.kind}:${id}` : null;
 }

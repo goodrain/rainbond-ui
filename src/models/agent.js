@@ -10,6 +10,7 @@ import {
   listAgentApprovalPolicies,
   deleteAgentApprovalPolicy,
   loadAgentSessionMessages,
+  listAgentSessions,
   sendAgentMessage,
   subscribeToActiveRun,
 } from '../services/agent';
@@ -119,6 +120,7 @@ function startReattachSubscription({ sessionId, runId, afterSequence, contextSna
 
   const dvaApp = getDvaApp();
   const dispatch = dvaApp && dvaApp._store && dvaApp._store.dispatch;
+  const runEpoch = dvaApp && dvaApp._store ? (dvaApp._store.getState().agent.runEpoch || 0) : 0;
 
   subscribeToActiveRun({
     sessionId,
@@ -129,7 +131,7 @@ function startReattachSubscription({ sessionId, runId, afterSequence, contextSna
       if (typeof dispatch !== 'function') return;
       dispatch({
         type: 'agent/applyStreamEvent',
-        payload: { event, contextSnapshot: contextSnapshot || {} },
+        payload: { event, runEpoch, contextSnapshot: contextSnapshot || {} },
       });
     },
   })
@@ -178,6 +180,7 @@ const defaultState = {
   interactionLocked: false,
   lastError: '',
   pendingApproval: null,
+  resolvedApprovalIds: [],
   decidingApprovalId: '',
   activeRunId: '',
   // Monotonic token for the current send. A send/clear bumps it so a late
@@ -282,13 +285,16 @@ function chatMessagesToBubbles(chatMessages) {
 
     if (msg.role === 'user') {
       const text = typeof msg.content === 'string' ? msg.content : '';
-      if (text.trim()) bubbles.push(createMessage('user', 'normal', text));
+      if (text.trim()) bubbles.push(createMessage('user', 'normal', text, {}, { createdAt: msg.created_at || Date.now() }));
       return;
     }
 
     if (msg.role === 'assistant') {
       const text = typeof msg.content === 'string' ? msg.content.trim() : '';
-      if (text) bubbles.push(createMessage('assistant', 'normal', text));
+      if (text || msg.reasoning_content) bubbles.push(createMessage('assistant', 'normal', text, {}, {
+        reasoning: msg.reasoning_content || '',
+        createdAt: msg.created_at || Date.now(),
+      }));
       if (Array.isArray(msg.tool_calls)) {
         msg.tool_calls.forEach(tc => {
           const fn = (tc && tc.function) || {};
@@ -478,6 +484,7 @@ function applyAgentEvents({
   events,
   contextSnapshot,
   currentPendingApproval,
+  currentResolvedApprovalIds,
   currentLastMutationResult,
   currentLastMutationRunId,
 }) {
@@ -492,11 +499,17 @@ function applyAgentEvents({
     return nextMessages;
   };
   let pendingApproval = normalizePendingApproval(currentPendingApproval);
+  const resolvedApprovalIds = new Set(currentResolvedApprovalIds || []);
   let lastEventSequence = 0;
   let lastMutationResult = currentLastMutationResult || null;
   let lastMutationRunId = currentLastMutationRunId || '';
 
   events.forEach(event => {
+    const eventCreateMessage = (role, kind, content, context, extra) => createMessage(role, kind, content, context, {
+      streamRunId: event.runId || '',
+      createdAt: Date.parse(event.timestamp || '') || Date.now(),
+      ...extra,
+    });
     const adaptedEvent = adaptAgentEvent(event);
     if (!adaptedEvent || !adaptedEvent.type) {
       return;
@@ -527,7 +540,7 @@ function applyAgentEvents({
           event,
           contextSnapshot,
           eventSequence,
-          createMessage
+          eventCreateMessage
         );
         break;
       }
@@ -540,7 +553,7 @@ function applyAgentEvents({
         const streamedMessages = applyStreamingAssistantEvent(
           nextMessages,
           event,
-          createMessage,
+          eventCreateMessage,
           contextSnapshot
         );
         nextMessages = streamedMessages;
@@ -560,7 +573,7 @@ function applyAgentEvents({
                 content: adaptedEvent.content,
               },
             },
-            createMessage,
+            eventCreateMessage,
             contextSnapshot
           );
           const matchedIndex = streamedMessages.findIndex(
@@ -568,6 +581,7 @@ function applyAgentEvents({
           );
           if (matchedIndex > -1) {
             nextMessages = streamedMessages;
+            nextMessages[matchedIndex] = { ...nextMessages[matchedIndex], isFinalAnswer: true };
             messagesCloned = true;
             break;
           }
@@ -592,17 +606,18 @@ function applyAgentEvents({
             ...mutableMessages[lastAssistantIndex],
             content: adaptedEvent.content || mutableMessages[lastAssistantIndex].content || '',
             streaming: false,
+            isFinalAnswer: true,
             eventSequence,
           };
           break;
         }
         ensureMutableMessages().push(
-          createMessage(
+          eventCreateMessage(
             adaptedEvent.role === 'user' ? 'user' : 'assistant',
             'normal',
             adaptedEvent.content || '',
             contextSnapshot,
-            { eventSequence }
+            { eventSequence, isFinalAnswer: true }
           )
         );
         break;
@@ -621,7 +636,7 @@ function applyAgentEvents({
           };
         } else {
           ensureMutableMessages().push(
-            createMessage(
+            eventCreateMessage(
               'system',
               'suggested_actions',
               adaptedEvent.summary || '后续建议',
@@ -638,6 +653,9 @@ function applyAgentEvents({
         break;
       }
       case 'approval_requested': {
+        if (resolvedApprovalIds.has(adaptedEvent.approvalId)) break;
+        const resolvedIndex = findApprovalMessageIndex(nextMessages, adaptedEvent.approvalId);
+        if (resolvedIndex >= 0 && nextMessages[resolvedIndex].approval.status !== 'pending') break;
         pendingApproval = {
           approvalId: adaptedEvent.approvalId || '',
           description: adaptedEvent.description || '',
@@ -664,7 +682,7 @@ function applyAgentEvents({
         );
         if (existingApprovalIndex === -1) {
           ensureMutableMessages().push(
-            createMessage(
+            eventCreateMessage(
               'system',
               'approval',
               adaptedEvent.description || '待审批操作',
@@ -680,6 +698,7 @@ function applyAgentEvents({
       }
       case 'approval_resolved': {
         const approvalId = adaptedEvent.approvalId;
+        resolvedApprovalIds.add(approvalId);
         const index = findApprovalMessageIndex(nextMessages, approvalId);
         if (index > -1) {
           const mutableMessages = ensureMutableMessages();
@@ -693,19 +712,28 @@ function applyAgentEvents({
               decisionSource: adaptedEvent.decisionSource || '',
               policyId: adaptedEvent.policyId || '',
               resolvedBy: adaptedEvent.resolvedBy || '',
+              resolutionReason: adaptedEvent.reason || '',
               lastSequence: eventSequence,
             },
           };
         }
         if (pendingApproval && pendingApproval.approvalId === approvalId) {
-          pendingApproval = null;
+          const remaining = nextMessages.find(item => item && item.kind === 'approval' &&
+            item.approval && item.approval.status === 'pending' && item.approval.approvalId !== approvalId);
+          pendingApproval = remaining ? remaining.approval : null;
         }
         break;
       }
       case 'run_status': {
+        if (event.runId) {
+          const mutable = ensureMutableMessages();
+          mutable.forEach((item, index) => {
+            if (item.streamRunId === event.runId) mutable[index] = { ...item, runStatus: adaptedEvent.status };
+          });
+        }
         if (adaptedEvent.status === 'cancelled') {
           ensureMutableMessages().push(
-            createMessage(
+            eventCreateMessage(
               'system',
               'status',
               '本次操作已取消。',
@@ -715,7 +743,7 @@ function applyAgentEvents({
           );
         } else if (adaptedEvent.status === 'error') {
           ensureMutableMessages().push(
-            createMessage(
+            eventCreateMessage(
               'system',
               'error',
               '执行过程中发生错误，请稍后重试。',
@@ -731,7 +759,9 @@ function applyAgentEvents({
         if (
           adaptedEvent.status === 'done' ||
           adaptedEvent.status === 'error' ||
-          adaptedEvent.status === 'cancelled'
+          adaptedEvent.status === 'cancelled' ||
+          adaptedEvent.status === 'completed' ||
+          adaptedEvent.status === 'failed'
         ) {
           nextMessages = finalizeStreamingMessages(ensureMutableMessages());
         }
@@ -745,7 +775,7 @@ function applyAgentEvents({
       }
       case 'run_error': {
         ensureMutableMessages().push(
-          createMessage(
+          eventCreateMessage(
             'system',
             'error',
             adaptedEvent.message || '执行过程中发生错误，请稍后重试。',
@@ -758,7 +788,7 @@ function applyAgentEvents({
       }
       case 'workflow.selected': {
         ensureMutableMessages().push(
-          createMessage(
+          eventCreateMessage(
             'system',
             'status',
             `已进入流程 ${((event.data || {}).workflow_name || 'workflow')}`,
@@ -770,7 +800,7 @@ function applyAgentEvents({
       }
       case 'workflow.stage': {
         ensureMutableMessages().push(
-          createMessage(
+          eventCreateMessage(
             'system',
             'status',
             `当前阶段：${((event.data || {}).workflow_stage || 'unknown')}`,
@@ -813,6 +843,7 @@ function applyAgentEvents({
   return {
     messages: nextMessages,
     pendingApproval,
+    resolvedApprovalIds: Array.from(resolvedApprovalIds),
     lastEventSequence,
     lastMutationResult,
     lastMutationRunId,
@@ -826,6 +857,7 @@ function applyAgentStreamEvent(state, payload) {
     events: [payload.event],
     contextSnapshot: payload.contextSnapshot || state.context || {},
     currentPendingApproval: state.pendingApproval,
+    currentResolvedApprovalIds: state.resolvedApprovalIds,
     currentLastMutationResult: state.lastMutationResult,
     currentLastMutationRunId: state.lastMutationRunId,
   });
@@ -844,6 +876,7 @@ function applyAgentStreamEvent(state, payload) {
     ),
     messages: merged.messages,
     pendingApproval: merged.pendingApproval,
+    resolvedApprovalIds: merged.resolvedApprovalIds,
     lastEventSequence: merged.lastEventSequence || state.lastEventSequence,
     lastMutationResult: merged.lastMutationResult || state.lastMutationResult,
     lastMutationRunId: merged.lastMutationRunId || state.lastMutationRunId,
@@ -967,27 +1000,68 @@ export default {
       });
     },
 
-    *hydrateSession({ payload }, { call, put }) {
+    *hydrateSession({ payload }, { call, put, select }) {
       const userId = payload && payload.userId;
-      const discardedLegacyPolicies = yield call(
-        autoApprovalPolicy.discardLegacyPolicies
-      );
-      const snapshot = yield call(hydrateAgentSession, userId);
-      yield put({
-        type: 'hydrateState',
-        payload: snapshot,
-      });
-      if (discardedLegacyPolicies > 0) {
-        yield put({
-          type: 'saveState',
-          payload: {
-            approvalPolicyNotice: `已移除 ${discardedLegacyPolicies} 条旧版浏览器自动批准规则，请按需重新授权。`,
-          },
-        });
+      const discardedLegacyPolicies = yield call(autoApprovalPolicy.discardLegacyPolicies);
+      const initial = yield select(store => store.agent);
+      const epoch = initial.runEpoch || 0;
+      let snapshot = yield call(hydrateAgentSession, userId);
+      // Keep sending disabled until the transcript and its replay cursor agree.
+      yield put({ type: 'saveState', payload: { hydrated: false } });
+      try {
+        let sessionId = snapshot && snapshot.conversationId;
+        if (!sessionId || sessionId === 'global-default') {
+          const sessions = yield call(listAgentSessions);
+          sessionId = sessions && sessions.data && sessions.data[0] && sessions.data[0].session_id;
+        }
+        if (sessionId && sessionId !== 'global-default') {
+          const response = yield call(loadAgentSessionMessages, sessionId);
+          const data = (response && response.data) || {};
+          const active = data.active_run;
+          let history = Array.isArray(data.messages) ? data.messages : [];
+          // The active turn will replay from sequence zero. Keep its user
+          // prompt, but omit its partial assistant output to avoid duplicates.
+          if (active) {
+            let lastUser = -1;
+            for (let i = history.length - 1; i >= 0; i -= 1) {
+              if (history[i].role === 'user') { lastUser = i; break; }
+            }
+            const startedAt = Date.parse(active.started_at || '');
+            const matchesCurrentTurn = lastUser >= 0 &&
+              history[lastUser].content === active.message &&
+              (!history[lastUser].created_at || !Number.isFinite(startedAt) || history[lastUser].created_at >= startedAt);
+            if (matchesCurrentTurn) {
+              history = history.slice(0, lastUser + 1);
+            } else if (active.message) {
+              history = history.concat({ role: 'user', content: active.message });
+            }
+          }
+          const remoteMessages = chatMessagesToBubbles(history);
+          snapshot = {
+            ...(snapshot || {}),
+            conversationId: sessionId,
+            messages: remoteMessages.length ? remoteMessages : ((snapshot && snapshot.messages) || []),
+            pendingApproval: null,
+            activeRunId: active ? active.run_id : '',
+            lastEventSequence: 0,
+          };
+          // Active replay restores approval cards with their sequence. An
+          // idle session must never revive a stale pending browser card.
+        }
+      } catch (error) {
+        if (error && error.status === 404) snapshot = null;
+        // A temporary network failure preserves the local conversation.
       }
-
-      // If the page was refreshed while a run was in-flight, auto-reattach to
-      // the SSE stream instead of surfacing a "another window" conflict dialog.
+      const root = yield select(store => store);
+      const currentUser = root.user && root.user.currentUser;
+      if ((root.agent.runEpoch || 0) !== epoch ||
+          !currentUser || String(currentUser.user_id) !== String(userId)) return;
+      yield put({ type: 'hydrateState', payload: snapshot });
+      if (discardedLegacyPolicies > 0) {
+        yield put({ type: 'saveState', payload: {
+          approvalPolicyNotice: `已移除 ${discardedLegacyPolicies} 条旧版浏览器自动批准规则，请按需重新授权。`,
+        } });
+      }
       const restoredRunId = snapshot && snapshot.activeRunId;
       const restoredSessionId = snapshot && snapshot.conversationId;
       if (restoredRunId && restoredSessionId && restoredSessionId !== 'global-default') {
@@ -1000,10 +1074,7 @@ export default {
         });
       }
       if (restoredSessionId && restoredSessionId !== 'global-default') {
-        yield put({
-          type: 'loadApprovalPolicies',
-          payload: { sessionId: restoredSessionId },
-        });
+        yield put({ type: 'loadApprovalPolicies', payload: { sessionId: restoredSessionId } });
       }
     },
 
@@ -1124,7 +1195,7 @@ export default {
       const state = yield select(store => store.agent);
       const nextSignature = getAgentContextSignature(context);
       const currentSignature = state.lastContextSignature || '';
-      const isChanged = !!currentSignature && currentSignature !== nextSignature;
+      const isChanged = currentSignature !== nextSignature;
       const nextMessages = isChanged
         ? state.messages.concat(
             createMessage(
@@ -1156,6 +1227,7 @@ export default {
       const rootState = yield select(store => store);
       const state = rootState.agent;
       const currentUser = rootState.user && rootState.user.currentUser;
+      if (!state.hydrated) return;
       const text = ((payload && payload.message) || state.draft || '').trim();
       if (!text) {
         return;
@@ -1232,6 +1304,8 @@ export default {
                     ? { conversationId: startedSessionId }
                     : {}),
                   activeRunId: startedRunId,
+                  messages: live ? live.messages.map(item => item === pendingMessages[pendingMessages.length - 1] && item.role === 'user'
+                    ? { ...item, streamRunId: startedRunId, runStatus: 'running' } : item) : pendingMessages,
                   runEpoch,
                   // Event sequences are per run, not per session. A new run
                   // starts at sequence 1; carrying the previous run's high
@@ -1596,9 +1670,12 @@ export default {
       const rootState = yield select(store => store);
       const state = rootState.agent;
       const currentUser = rootState.user && rootState.user.currentUser;
-      const pendingApproval = state.pendingApproval;
+      const requestedId = payload && payload.approvalId;
+      const selected = requestedId && state.messages.find(item => item.kind === 'approval' &&
+        item.approval && item.approval.approvalId === requestedId);
+      const pendingApproval = requestedId ? selected && selected.approval : state.pendingApproval;
 
-      if (!pendingApproval || !pendingApproval.approvalId) {
+      if (!pendingApproval || !pendingApproval.approvalId || pendingApproval.status !== 'pending' || state.decidingApprovalId) {
         return;
       }
 
@@ -1625,12 +1702,24 @@ export default {
           afterSequence: pendingApproval.lastSequence || state.lastEventSequence,
           context: state.context,
           currentUser,
+          onDecision: decision => {
+            if (storeDispatch) storeDispatch({
+              type: 'agent/applyStreamEvent',
+              payload: {
+                runEpoch: state.runEpoch || 0,
+                event: { type: 'approval.resolved', runId: pendingApproval.runId,
+                  sessionId: pendingApproval.sessionId, data: decision },
+                contextSnapshot: state.context || {},
+              },
+            });
+          },
           onEvent: event => {
             if (storeDispatch) {
               storeDispatch({
                 type: 'agent/applyStreamEvent',
                 payload: {
                   event,
+                  runEpoch: state.runEpoch || 0,
                   contextSnapshot: state.context || {},
                 },
               });
@@ -1638,6 +1727,8 @@ export default {
           },
         });
 
+        const live = yield select(store => store.agent);
+        if ((live.runEpoch || 0) !== (state.runEpoch || 0)) return;
         yield put({
           type: 'saveState',
           payload: {
@@ -1657,6 +1748,8 @@ export default {
           });
         }
       } catch (error) {
+        const live = yield select(store => store.agent);
+        if ((live.runEpoch || 0) !== (state.runEpoch || 0)) return;
         yield put({
           type: 'saveState',
           payload: {
@@ -2070,6 +2163,7 @@ export default {
     },
 
     *clearSession({ payload }, { call, put }) {
+      stopAllCrossTabSubscriptions();
       const userId = payload && payload.userId;
       const preserveVisible = payload && payload.preserveVisible;
       yield call(clearAgentSession, userId);
@@ -2084,7 +2178,7 @@ export default {
 
   reducers: {
     hydrateState(state, { payload }) {
-      return buildHydratedState(payload);
+      return { ...buildHydratedState(payload), runEpoch: (state.runEpoch || 0) + 1 };
     },
 
     saveState(state, { payload }) {
@@ -2167,6 +2261,7 @@ export default {
         interactionLocked: merged.interactionLocked,
         messages: merged.messages,
         pendingApproval: merged.pendingApproval,
+        resolvedApprovalIds: merged.resolvedApprovalIds,
         lastEventSequence: merged.lastEventSequence,
         lastMutationResult: merged.lastMutationResult,
         lastMutationRunId: merged.lastMutationRunId,
