@@ -505,6 +505,11 @@ function applyAgentEvents({
   let lastMutationRunId = currentLastMutationRunId || '';
 
   events.forEach(event => {
+    const eventCreateMessage = (role, kind, content, context, extra) => createMessage(role, kind, content, context, {
+      streamRunId: event.runId || '',
+      createdAt: Date.parse(event.timestamp || '') || Date.now(),
+      ...extra,
+    });
     const adaptedEvent = adaptAgentEvent(event);
     if (!adaptedEvent || !adaptedEvent.type) {
       return;
@@ -535,7 +540,7 @@ function applyAgentEvents({
           event,
           contextSnapshot,
           eventSequence,
-          createMessage
+          eventCreateMessage
         );
         break;
       }
@@ -548,7 +553,7 @@ function applyAgentEvents({
         const streamedMessages = applyStreamingAssistantEvent(
           nextMessages,
           event,
-          createMessage,
+          eventCreateMessage,
           contextSnapshot
         );
         nextMessages = streamedMessages;
@@ -568,7 +573,7 @@ function applyAgentEvents({
                 content: adaptedEvent.content,
               },
             },
-            createMessage,
+            eventCreateMessage,
             contextSnapshot
           );
           const matchedIndex = streamedMessages.findIndex(
@@ -605,7 +610,7 @@ function applyAgentEvents({
           break;
         }
         ensureMutableMessages().push(
-          createMessage(
+          eventCreateMessage(
             adaptedEvent.role === 'user' ? 'user' : 'assistant',
             'normal',
             adaptedEvent.content || '',
@@ -629,7 +634,7 @@ function applyAgentEvents({
           };
         } else {
           ensureMutableMessages().push(
-            createMessage(
+            eventCreateMessage(
               'system',
               'suggested_actions',
               adaptedEvent.summary || '后续建议',
@@ -675,7 +680,7 @@ function applyAgentEvents({
         );
         if (existingApprovalIndex === -1) {
           ensureMutableMessages().push(
-            createMessage(
+            eventCreateMessage(
               'system',
               'approval',
               adaptedEvent.description || '待审批操作',
@@ -705,6 +710,7 @@ function applyAgentEvents({
               decisionSource: adaptedEvent.decisionSource || '',
               policyId: adaptedEvent.policyId || '',
               resolvedBy: adaptedEvent.resolvedBy || '',
+              resolutionReason: adaptedEvent.reason || '',
               lastSequence: eventSequence,
             },
           };
@@ -717,9 +723,15 @@ function applyAgentEvents({
         break;
       }
       case 'run_status': {
+        if (event.runId) {
+          const mutable = ensureMutableMessages();
+          mutable.forEach((item, index) => {
+            if (item.streamRunId === event.runId) mutable[index] = { ...item, runStatus: adaptedEvent.status };
+          });
+        }
         if (adaptedEvent.status === 'cancelled') {
           ensureMutableMessages().push(
-            createMessage(
+            eventCreateMessage(
               'system',
               'status',
               '本次操作已取消。',
@@ -729,7 +741,7 @@ function applyAgentEvents({
           );
         } else if (adaptedEvent.status === 'error') {
           ensureMutableMessages().push(
-            createMessage(
+            eventCreateMessage(
               'system',
               'error',
               '执行过程中发生错误，请稍后重试。',
@@ -761,7 +773,7 @@ function applyAgentEvents({
       }
       case 'run_error': {
         ensureMutableMessages().push(
-          createMessage(
+          eventCreateMessage(
             'system',
             'error',
             adaptedEvent.message || '执行过程中发生错误，请稍后重试。',
@@ -774,7 +786,7 @@ function applyAgentEvents({
       }
       case 'workflow.selected': {
         ensureMutableMessages().push(
-          createMessage(
+          eventCreateMessage(
             'system',
             'status',
             `已进入流程 ${((event.data || {}).workflow_name || 'workflow')}`,
@@ -786,7 +798,7 @@ function applyAgentEvents({
       }
       case 'workflow.stage': {
         ensureMutableMessages().push(
-          createMessage(
+          eventCreateMessage(
             'system',
             'status',
             `当前阶段：${((event.data || {}).workflow_stage || 'unknown')}`,
@@ -1290,6 +1302,8 @@ export default {
                     ? { conversationId: startedSessionId }
                     : {}),
                   activeRunId: startedRunId,
+                  messages: live ? live.messages.map(item => item === pendingMessages[pendingMessages.length - 1] && item.role === 'user'
+                    ? { ...item, streamRunId: startedRunId, runStatus: 'running' } : item) : pendingMessages,
                   runEpoch,
                   // Event sequences are per run, not per session. A new run
                   // starts at sequence 1; carrying the previous run's high

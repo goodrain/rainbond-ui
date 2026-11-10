@@ -1,4 +1,5 @@
-import React, { PureComponent, useEffect, useRef, useState } from 'react';
+import React, { PureComponent } from 'react';
+import { formatMessage } from 'umi';
 import { Alert, Button, Dropdown, Icon, Input, Menu, Modal, Popover, Tag, message } from 'antd';
 import { routerRedux } from 'dva/router';
 import ReactMarkdown from 'react-markdown';
@@ -11,60 +12,8 @@ import * as displayFilters from './displayFilters';
 import * as markdownHelpers from './markdownHelpers';
 import * as scrollBehavior from './scrollBehavior';
 import MemorySettingsModal from './MemorySettingsModal';
-
-function ReasoningBlock({ reasoning, streaming }) {
-  // Default open while reasoning is still streaming so the user can watch the
-  // model think; auto-collapse the moment streaming closes so the final
-  // answer is the visual focus. Manual toggle stays available either way.
-  const [collapsed, setCollapsed] = useState(false);
-  const wasStreamingRef = useRef(streaming);
-  const reasoningBodyRef = useRef(null);
-  useEffect(() => {
-    if (wasStreamingRef.current && !streaming) {
-      setCollapsed(true);
-    }
-    wasStreamingRef.current = streaming;
-  }, [streaming]);
-
-  useEffect(() => {
-    if (collapsed || !reasoningBodyRef.current) {
-      return;
-    }
-
-    reasoningBodyRef.current.scrollTop = reasoningBodyRef.current.scrollHeight;
-  }, [collapsed, reasoning, streaming]);
-
-  return (
-    <div className={styles.reasoningBlock}>
-      <button
-        type="button"
-        className={styles.reasoningToggle}
-        onClick={() => setCollapsed(value => !value)}
-      >
-        <Icon type={collapsed ? 'right' : 'down'} className={styles.reasoningChevron} />
-        <Icon type="bulb" className={styles.reasoningIcon} />
-        <span
-          className={`${styles.reasoningLabel} ${streaming ? styles.reasoningLabelStreaming : ''
-            }`}
-          data-text={streaming ? '思考中…' : undefined}
-        >
-          {streaming ? '思考中…' : '思考过程'}
-        </span>
-      </button>
-      {!collapsed && reasoning ? (
-        <div className={styles.reasoningBody} ref={reasoningBodyRef}>
-          <div className={`${styles.markdownBody} ${styles.reasoningMarkdown}`}>
-            {streaming ? (
-              <PlainTextRenderer content={reasoning} />
-            ) : (
-              <MarkdownRenderer content={reasoning} />
-            )}
-          </div>
-        </div>
-      ) : null}
-    </div>
-  );
-}
+import ExecutionTurn from './ExecutionTurn';
+import * as turnPresentation from './turnPresentation';
 
 function AgentBrandIcon() {
   return (
@@ -171,6 +120,9 @@ class TraceMessageRow extends PureComponent {
         <span className={styles.traceInlineText}>
           <Icon type="api" className={styles.traceInlineIcon} />
           <span>{traceText}</span>
+          {trace.phase ? <span className={styles.executionToolStatus}>
+            {formatMessage({ id: `agent.execution.${trace.isError ? 'toolFailed' : trace.phase === 'end' ? 'toolDone' : 'toolRunning'}` })}
+          </span> : null}
         </span>
         {trace.sources && trace.sources.length > 0 ? (
           <div style={{ marginTop: 4, display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -318,8 +270,8 @@ class ApprovalMessageCard extends PureComponent {
     const wasAutoApproved = !!approval.autoApproved;
     const iconType = isApproved ? 'check-circle' : 'close-circle';
     const statusLabel = isApproved
-      ? (wasAutoApproved ? '已自动批准' : '已批准')
-      : '已拒绝';
+      ? formatMessage({ id: `agent.execution.${wasAutoApproved ? 'autoApproved' : 'approved'}` })
+      : formatMessage({ id: `agent.execution.${approval.resolutionReason === 'timeout' ? 'timedOut' : approval.status === 'rejected' ? 'rejected' : 'cancelled'}` });
     const iconClassName = isApproved
       ? styles.approvalResolvedIconApproved
       : styles.approvalResolvedIconRejected;
@@ -427,44 +379,6 @@ class ErrorMessageRow extends PureComponent {
   }
 }
 
-class AssistantMessageRow extends PureComponent {
-  render() {
-    const { item, traceGroup, reasoningBlock, showAssistantBubble, renderSuggestedActions } = this.props;
-
-    return (
-      <div className={`${styles.messageRow} ${styles.assistantRow}`}>
-        <div className={styles.messageMeta}>
-          <span className={styles.messageRole}>AI</span>
-          <span className={styles.messageTime}>
-            {new Date(item.createdAt).toLocaleTimeString([], {
-              hour: '2-digit',
-              minute: '2-digit',
-            })}
-          </span>
-        </div>
-        <div className={styles.assistantMessageStack}>
-          {reasoningBlock || traceGroup ? (
-            <div className={styles.assistantSupportStack}>
-              {reasoningBlock}
-              {traceGroup}
-            </div>
-          ) : null}
-          {showAssistantBubble ? (
-            <div className={`${styles.messageBubble} ${styles.assistantBubble}`}>
-              <AssistantMarkdownBody
-                content={item.content || ''}
-                suggestedActions={item.suggestedActions}
-                renderSuggestedActions={renderSuggestedActions}
-                streaming={!!item.streaming}
-              />
-            </div>
-          ) : null}
-        </div>
-      </div>
-    );
-  }
-}
-
 class UserMessageRow extends PureComponent {
   render() {
     const { item } = this.props;
@@ -501,10 +415,8 @@ const {
   shouldAttemptAutoScrollUpdate,
 } = scrollBehavior;
 const {
-  shouldRenderAssistantBubble,
   shouldRenderMessageItem,
   shouldRenderWorkflowSummary,
-  shouldShowBottomThinking,
 } = displayFilters;
 
 const { TextArea } = Input;
@@ -1067,6 +979,19 @@ export default class AgentHost extends PureComponent {
     );
   };
 
+  renderTurnAnswer = item => (
+    <div key={`answer:${item.id}`} className={`${styles.messageBubble} ${styles.assistantBubble}`}>
+      <AssistantMarkdownBody content={item.content || ''} suggestedActions={item.suggestedActions}
+        renderSuggestedActions={this.renderParsedSuggestedActions} streaming={!!item.streaming} />
+    </div>
+  );
+
+  renderTurnNotice = item => {
+    if (item.kind === 'error') return this.renderErrorMessage(item);
+    if (item.kind === 'suggested_actions') return this.renderSuggestedActionsMessage(item);
+    return this.renderStatusMessage(item);
+  };
+
   renderMessages = () => {
     const { agent } = this.props;
     const messages = (agent && agent.messages) || [];
@@ -1074,6 +999,8 @@ export default class AgentHost extends PureComponent {
     if (
       this.lastRenderedMessagesRef === messages &&
       this.lastRenderedMessagesSending === sending &&
+      this.lastRenderedActiveRunId === (agent && agent.activeRunId) &&
+      this.lastRenderedDecidingApprovalId === (agent && agent.decidingApprovalId) &&
       this.lastRenderedMessagesOutput
     ) {
       return this.lastRenderedMessagesOutput;
@@ -1101,94 +1028,28 @@ export default class AgentHost extends PureComponent {
       );
     }
 
-    const rendered = [];
-    let pendingTraceItems = [];
-
-    messages.forEach(item => {
-      if (!shouldRenderMessageItem(item)) {
-        return;
-      }
-
-      if (item.kind === 'context') {
-        if (pendingTraceItems.length > 0) {
-          rendered.push(this.renderStandaloneTraceGroup(pendingTraceItems));
-          pendingTraceItems = [];
-        }
-        rendered.push(
-          <div key={item.id} className={styles.contextRow}>
-            <span className={styles.contextBadge}>{item.content}</span>
-          </div>
-        );
-        return;
-      }
-
-      if (item.kind === 'trace') {
-        pendingTraceItems.push(item);
-        return;
-      }
-
-      if (item.kind === 'approval') {
-        pendingTraceItems = [];
-        rendered.push(this.renderApprovalMessage(item));
-        return;
-      }
-
-      if (item.kind === 'status') {
-        if (pendingTraceItems.length > 0) {
-          rendered.push(this.renderStandaloneTraceGroup(pendingTraceItems));
-          pendingTraceItems = [];
-        }
-        rendered.push(this.renderStatusMessage(item));
-        return;
-      }
-
-      if (item.kind === 'error') {
-        if (pendingTraceItems.length > 0) {
-          rendered.push(this.renderStandaloneTraceGroup(pendingTraceItems));
-          pendingTraceItems = [];
-        }
-        rendered.push(this.renderErrorMessage(item));
-        return;
-      }
-
-      const isUser = item.role === 'user';
-      const traceGroup = !isUser && pendingTraceItems.length > 0
-        ? this.renderAssistantTraceGroup(pendingTraceItems)
-        : null;
-      const reasoningBlock = !isUser && (item.reasoning || item.reasoningStreaming) ? (
-        <ReasoningBlock
-          reasoning={item.reasoning || ''}
-          streaming={!!item.reasoningStreaming}
-        />
-      ) : null;
-      const showAssistantBubble = !isUser && shouldRenderAssistantBubble(item);
-      if (isUser && pendingTraceItems.length > 0) {
-        rendered.push(this.renderStandaloneTraceGroup(pendingTraceItems));
-      }
-      pendingTraceItems = [];
-
-      if (isUser) {
-        rendered.push(<UserMessageRow key={item.id} item={item} />);
-      } else {
-        rendered.push(
-          <AssistantMessageRow
-            key={item.id}
-            item={item}
-            traceGroup={traceGroup}
-            reasoningBlock={reasoningBlock}
-            showAssistantBubble={showAssistantBubble}
-            renderSuggestedActions={this.renderParsedSuggestedActions}
-          />
-        );
-      }
+    const groups = turnPresentation.groupConversationMessages(messages, {
+      sending, activeRunId: agent && agent.activeRunId,
     });
-
-    if (pendingTraceItems.length > 0) {
-      rendered.push(this.renderStandaloneTraceGroup(pendingTraceItems));
-    }
+    const rendered = groups.map(group => {
+      if (group.kind === 'user') return <UserMessageRow key={group.key} item={group.item} />;
+      if (group.kind === 'context') return (
+        <div key={group.key} className={styles.contextRow}>
+          <span className={styles.contextBadge}>{group.item.content}</span>
+        </div>
+      );
+      return <ExecutionTurn key={group.key} turn={group}
+        renderTrace={this.renderTraceMessage}
+        renderApproval={this.renderApprovalMessage}
+        renderNotice={this.renderTurnNotice}
+        renderAnswer={this.renderTurnAnswer}
+      />;
+    });
 
     this.lastRenderedMessagesRef = messages;
     this.lastRenderedMessagesSending = sending;
+    this.lastRenderedActiveRunId = agent && agent.activeRunId;
+    this.lastRenderedDecidingApprovalId = agent && agent.decidingApprovalId;
     this.lastRenderedMessagesOutput = rendered;
 
     return rendered;
@@ -1223,10 +1084,6 @@ export default class AgentHost extends PureComponent {
     const compactionFailureMessage = compactionFailedRecently
       ? '压缩历史失败，已用原始历史继续'
       : '';
-    const showBottomThinking = shouldShowBottomThinking({
-      sending,
-      messages,
-    });
     const composerPlaceholder = getComposerPlaceholder({
       messages,
       hasSessionPending,
@@ -1332,13 +1189,7 @@ export default class AgentHost extends PureComponent {
               >
                 {this.renderWorkflowSummary()}
                 {this.renderMessages()}
-                {showBottomThinking ? (
-                  <div className={styles.thinkingRow}>
-                    <span className={styles.thinkingText} data-text="正在思考...">
-                      正在思考...
-                    </span>
-                  </div>
-                ) : null}
+
               </div>
 
               {this.renderRunConflictNotice()}

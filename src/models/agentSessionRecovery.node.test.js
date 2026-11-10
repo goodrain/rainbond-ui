@@ -151,3 +151,18 @@ test('submits the approval selected on the card when multiple approvals exist', 
   const request = iterator.next().value;
   assert.equal(request.approvalId, 'a');
 });
+
+test('renders existing restored messages through the same grouped execution layout', async () => {
+  const h = harness({ data: { messages: [
+    { role: 'user', content: 'open port' },
+    { role: 'assistant', content: '', reasoning_content: 'check configuration', tool_calls: [{ id: 'call', function: { name: 'read_skill_module', arguments: '{}' } }] },
+    { role: 'tool', tool_call_id: 'call', content: 'loaded' },
+    { role: 'assistant', content: 'port is open', reasoning_content: 'check access' },
+  ] } });
+  await h.run();
+  const groups = require('../components/AgentHost/turnPresentation').groupConversationMessages(h.getState().messages);
+  const turns = groups.filter(group => group.kind === 'turn');
+  assert.equal(turns.length, 1);
+  assert.equal(turns[0].answer.content, 'port is open');
+  assert.deepEqual(Array.from(turns[0].process.filter(item => item.reasoning), item => item.reasoning), ['check configuration', 'check access']);
+});
