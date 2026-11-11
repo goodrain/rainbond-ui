@@ -9,7 +9,7 @@ import RuntimeSection from './RuntimeSection';
 import VersionsSection from './VersionsSection';
 import styles from './asset.less';
 const { orderedVersions, versionSources, environmentRecords } = require('../../utils/deliveryAsset');
-const { deliveryTargetPath } = require('../../utils/deliveryNavigation');
+const { deliveryTargetPath, deliveryTargetIsCached } = require('../../utils/deliveryNavigation');
 const initialState = () => ({ group: null, deployments: [], loading: true, failed: false, source: [], sourceLoading: false, sourceFailed: false,
   selectedSourceId: '', sourceVersionId: null, histories: {}, targets: [], runtime: null, runtimeLoading: false,
   selectedVersionId: '', activeSection: 'sources', review: null, deployment: null });
@@ -20,6 +20,7 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
   generation = 0;
   alive = false;
   pendingDeliveryTaskId = '';
+  pendingDeliveryRefreshId = '';
   componentDidMount() {
     this.alive = true;this.load();
     this.poll = setInterval(() => { if (!document.hidden && !this.state.review && !this.state.deployment) this.load(true); }, 5000);
@@ -27,7 +28,7 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
   componentDidUpdate(previous) {
     if (JSON.stringify(previous.match.params) !== JSON.stringify(this.props.match.params) ||
       (previous.user || {}).user_id !== (this.props.user || {}).user_id || (previous.user || {}).enterprise_id !== (this.props.user || {}).enterprise_id) {
-      this.generation += 1;this.pendingDeliveryTaskId = '';this.observedGroup = null;this.observer && this.observer.disconnect();this.setState(initialState(), this.load);
+      this.generation += 1;this.pendingDeliveryTaskId = '';this.pendingDeliveryRefreshId = '';this.observedGroup = null;this.observer && this.observer.disconnect();this.setState(initialState(), this.load);
     }
     if (this.state.group && this.observedGroup !== this.state.group.id && this.assetRoot) {
       this.observedGroup = this.state.group.id;
@@ -82,10 +83,25 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
     if (!this.pendingDeliveryTaskId) return false;
     const task = (tasks || []).find(item => item.id === this.pendingDeliveryTaskId);
     if (!task) return false;
-    if (['failed', 'cancelled'].includes(task.status)) { this.pendingDeliveryTaskId = '';return false; }
+    if (['failed', 'cancelled'].includes(task.status)) { this.pendingDeliveryTaskId = '';this.pendingDeliveryRefreshId = '';return false; }
     const path = deliveryTargetPath(task);
     if (!path) return false;
+    if (!deliveryTargetIsCached(this.props.user, task)) {
+      if (this.pendingDeliveryRefreshId === task.id) return true;
+      const generation = this.generation;
+      this.pendingDeliveryRefreshId = task.id;
+      this.props.dispatch({ type: 'user/fetchCurrent', payload: { team_name: task.target.team_name }, callback: response => {
+        if (!this.active(generation) || this.pendingDeliveryTaskId !== task.id) return;
+        this.pendingDeliveryRefreshId = '';
+        this.pendingDeliveryTaskId = '';
+        if (deliveryTargetIsCached(response && response.bean, task)) this.props.dispatch(routerRedux.push(path));
+      }, handleError: () => {
+        if (this.active(generation) && this.pendingDeliveryRefreshId === task.id) this.pendingDeliveryRefreshId = '';
+      } });
+      return true;
+    }
     this.pendingDeliveryTaskId = '';
+    this.pendingDeliveryRefreshId = '';
     this.props.dispatch(routerRedux.push(path));
     return true;
   };

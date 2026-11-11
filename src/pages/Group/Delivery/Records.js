@@ -16,7 +16,7 @@ import styles from './index.less';
 import timelineStyles from './records.less';
 const { templateGroups, nextTemplateVersion } = require('../../../utils/templateTimeline');
 const { deliveryScope } = require('../../../utils/templateDelivery');
-const { deliveryTargetPath } = require('../../../utils/deliveryNavigation');
+const { deliveryTargetPath, deliveryTargetIsCached } = require('../../../utils/deliveryNavigation');
 
 @connect(({ user, teamControl, templateDelivery, application, loading }) => ({
   user: user.currentUser, team: teamControl.currentTeam, permissions: teamControl.currentTeamPermissionsInfo,
@@ -31,6 +31,7 @@ export default class DeliveryRecords extends PureComponent {
   generation = 0;
   checkTicket = 0;
   pendingDeliveryTaskId = '';
+  pendingDeliveryRefreshId = '';
   componentDidMount() {
     this.alive = true;this.load();
     this.workflowTimer = setInterval(() => { if (!document.hidden) this.loadWorkflow(); }, 5000);
@@ -45,7 +46,7 @@ export default class DeliveryRecords extends PureComponent {
   componentDidUpdate(previous) {
     if (JSON.stringify(previous.match.params) !== JSON.stringify(this.props.match.params) ||
       (previous.user || {}).enterprise_id !== (this.props.user || {}).enterprise_id || (previous.user || {}).user_id !== (this.props.user || {}).user_id) {
-      this.generation += 1;this.checkTicket += 1;this.checking = false;this.acting = false;this.lastRecords = [];this.pendingDeliveryTaskId = '';clearTimeout(this.checkTimer);
+      this.generation += 1;this.checkTicket += 1;this.checking = false;this.acting = false;this.lastRecords = [];this.pendingDeliveryTaskId = '';this.pendingDeliveryRefreshId = '';clearTimeout(this.checkTimer);
       this.setState({ detail: null, listings: [], deployments: [], listing: null, delivery: null, checks: [], changesOpen: false, exporting: null, profileEditor: null }, this.load);
     } else if ((previous.records !== this.props.records || previous.loading && !this.props.loading) && !this.props.loading && !this.props.failed) {
       this.lastRecords = this.props.records;
@@ -81,10 +82,25 @@ export default class DeliveryRecords extends PureComponent {
     if (!this.pendingDeliveryTaskId) return false;
     const task = (tasks || []).find(item => item.id === this.pendingDeliveryTaskId);
     if (!task) return false;
-    if (['failed', 'cancelled'].includes(task.status)) { this.pendingDeliveryTaskId = '';return false; }
+    if (['failed', 'cancelled'].includes(task.status)) { this.pendingDeliveryTaskId = '';this.pendingDeliveryRefreshId = '';return false; }
     const path = deliveryTargetPath(task);
     if (!path) return false;
+    if (!deliveryTargetIsCached(this.props.user, task)) {
+      if (this.pendingDeliveryRefreshId === task.id) return true;
+      const generation = this.generation;
+      this.pendingDeliveryRefreshId = task.id;
+      this.props.dispatch({ type: 'user/fetchCurrent', payload: { team_name: task.target.team_name }, callback: response => {
+        if (!this.active(generation) || this.pendingDeliveryTaskId !== task.id) return;
+        this.pendingDeliveryRefreshId = '';
+        this.pendingDeliveryTaskId = '';
+        if (deliveryTargetIsCached(response && response.bean, task)) this.props.dispatch(routerRedux.push(path));
+      }, handleError: () => {
+        if (this.active(generation) && this.pendingDeliveryRefreshId === task.id) this.pendingDeliveryRefreshId = '';
+      } });
+      return true;
+    }
     this.pendingDeliveryTaskId = '';
+    this.pendingDeliveryRefreshId = '';
     this.props.dispatch(routerRedux.push(path));
     return true;
   };
