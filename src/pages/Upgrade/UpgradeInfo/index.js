@@ -15,8 +15,7 @@ import {
   Row,
   Select,
   Spin,
-  Tooltip,
-  notification
+  Tooltip
 } from 'antd';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
@@ -34,6 +33,7 @@ import handleAPIError from '../../../utils/error';
 import globalUtil from '../../../utils/global';
 import styles from './index.less';
 import infoUtil from './info-util';
+import runtimeStatus from './runtime-status';
 
 const { Option } = Select;
 
@@ -65,6 +65,7 @@ export default class AppList extends PureComponent {
       service_id: [],
       upgradeLoading: false,
       rollbackLoading: false,
+      recordQueryError: false,
       conshow: true,
       isAppOrComponent: false
     };
@@ -73,6 +74,38 @@ export default class AppList extends PureComponent {
     this.fetchAppDetail();
     this.fetchUpgradeDetail();
   }
+
+  componentWillUnmount() {
+    this.unmounted = true;
+    this.stopRecordPolling();
+  }
+
+  stopRecordPolling = () => {
+    clearTimeout(this.recordTimer);
+    this.recordTimer = null;
+    this.recordRequestId = (this.recordRequestId || 0) + 1;
+  };
+
+  showRequestError = error => {
+    const data = error && ((error.response && error.response.data) || error.data);
+    handleAPIError(data && (data.msg_show || data.msg) ? error : {
+      data: { msg_show: formatMessage({ id: 'helmAppInstall.UpgradeInfo.requestFailed' }) }
+    });
+  };
+
+  handleRecordQueryError = error => {
+    if (this.unmounted) return;
+    this.stopRecordPolling();
+    this.setState({ upgradeLoading: false, rollbackLoading: false, recordQueryError: true });
+    this.showRequestError(error);
+  };
+
+  handleUpgradeError = error => {
+    if (this.unmounted) return;
+    this.setState({ upgradeLoading: false, rollbackLoading: false });
+    this.showRequestError(error);
+    this.getUpgradeRecordsInfo();
+  };
 
   onVersionChange = value => {
     this.props.form.setFieldsValue({ upgradeVersions: value });
@@ -86,12 +119,16 @@ export default class AppList extends PureComponent {
     if (upgradeDetail && upgradeDetail.record) {
       payload.marketName = upgradeDetail.record.market_name;
     }
-    this.setState({ upgradeListLoading: true });
+    const requestId = (this.previewRequestId || 0) + 1;
+    this.previewRequestId = requestId;
+    this.setState({ upgradeListLoading: true, selectVersion: false });
     payload.version = version;
     dispatch({
       type: 'global/CloudAppUpdatedInfo',
       payload,
       callback: res => {
+        if (this.unmounted || requestId !== this.previewRequestId) return;
+        this.setState({ upgradeListLoading: false });
         if (res && res.status_code === 200) {
           let upgrade_component_ids = [];
           if (res.list) {
@@ -139,6 +176,11 @@ export default class AppList extends PureComponent {
             }
           );
         }
+      },
+      handleError: error => {
+        if (this.unmounted || requestId !== this.previewRequestId) return;
+        this.setState({ upgradeListLoading: false, selectVersion: false });
+        this.showRequestError(error);
       }
     });
   };
@@ -164,6 +206,9 @@ export default class AppList extends PureComponent {
 
   // 查询某应用的更新记录详情
   getUpgradeRecordsInfo = () => {
+    if (this.unmounted) return;
+    this.stopRecordPolling();
+    const requestId = this.recordRequestId;
     const { team_name, group_id, upgradeGroupID } = this.getParameter();
     const { dispatch } = this.props;
     const { upgradeDetail, upgradeInfo } = this.state;
@@ -173,10 +218,11 @@ export default class AppList extends PureComponent {
         team_name,
         group_id,
         upgrade_group_id: upgradeGroupID,
-        record_id: upgradeDetail.record.ID
+        record_id: this.state.record_id || upgradeDetail.record.ID
       },
       callback: res => {
-        if (res && res.status_code === 200) {
+        if (this.unmounted || requestId !== this.recordRequestId) return;
+        if (res && res.status_code === 200 && res.bean) {
           const info = res.bean;
           const service_id_status = {};
           const service_key_status = {};
@@ -188,7 +234,7 @@ export default class AppList extends PureComponent {
             });
           }
           const newUpgradeInfo = upgradeInfo.map(item => {
-            const newInfo = item;
+            const newInfo = { ...item };
             if (item.service.service_id) {
               newInfo.status = service_id_status[item.service.service_id];
             } else if (item.service.service_key) {
@@ -204,24 +250,24 @@ export default class AppList extends PureComponent {
               textState: info.status,
               upgradeText: infoUtil.getStatusText(info.status),
               upgradeLoading: false,
-              rollbackLoading: false
+              rollbackLoading: false,
+              recordQueryError: false
             },
             () => {
-              if (
-                info.status != 3 &&
-                info.status != 5 &&
-                info.status != 6 &&
-                info.status != 7 &&
-                info.status != 8 &&
-                info.status != 9
-              ) {
-                setTimeout(() => {
+              if (!this.unmounted && requestId === this.recordRequestId && runtimeStatus.shouldPollUpgradeRecord(info)) {
+                this.recordTimer = setTimeout(() => {
                   this.getUpgradeRecordsInfo();
                 }, 3000);
               }
             }
           );
+        } else {
+          this.handleRecordQueryError({ data: res });
         }
+      },
+      handleError: error => {
+        if (this.unmounted || requestId !== this.recordRequestId) return;
+        this.handleRecordQueryError(error);
       }
     });
   };
@@ -505,7 +551,7 @@ export default class AppList extends PureComponent {
         );
       case 3:
         return (
-          <Tooltip title={formatMessage({ id: 'helmAppInstall.UpgradeInfo.success' })}>
+          <Tooltip title={formatMessage({ id: 'helmAppInstall.UpgradeInfo.runtime.operationComplete' })}>
             <Icon type="check" style={{ color: '#239B24' }} />
           </Tooltip>
         );
@@ -540,11 +586,60 @@ export default class AppList extends PureComponent {
   };
 
   getRecordShow = () => {
-    const { record } = this.state;
+    const { record, recordQueryError } = this.state;
+    if (recordQueryError) {
+      return (
+        <Alert
+          showIcon
+          type="warning"
+          message={formatMessage({ id: 'helmAppInstall.UpgradeInfo.runtime.queryFailed' })}
+          description={
+            <Button size="small" onClick={this.getUpgradeRecordsInfo}>
+              {formatMessage({ id: 'helmAppInstall.UpgradeInfo.runtime.refresh' })}
+            </Button>
+          }
+        />
+      );
+    }
     if (!record) {
       return null;
     }
     const { status } = record;
+    if ([3, 5].includes(Number(status))) {
+      const runtime = runtimeStatus.getRuntimePresentation(record);
+      const states = [
+        'building', 'waiting', 'starting', 'upgrade', 'stopping', 'closed', 'undeploy', 'abnormal', 'some_abnormal'
+      ];
+      const { team_name, group_id } = this.getParameter();
+      return (
+        <Alert
+          showIcon
+          type={runtime.type}
+          message={`${record.group_name} ${formatMessage({ id: `helmAppInstall.UpgradeInfo.runtime.${runtime.status}` })}`}
+          description={
+            <div>
+              {runtime.components.map(component => (
+                <div key={component.service_id}>
+                  {component.service_cname}: {formatMessage({
+                    id: `helmAppInstall.UpgradeInfo.runtime.component.${states.includes(component.status) ? component.status : 'unknown'}`
+                  })}
+                </div>
+              ))}
+              <Button size="small" onClick={() => this.props.dispatch(routerRedux.push(
+                `/team/${team_name}/region/${globalUtil.getCurrRegionName()}/apps/${group_id}/overview`
+              ))}>
+                {formatMessage({ id: 'helmAppInstall.UpgradeInfo.runtime.overview' })}
+              </Button>
+              {runtime.status === 'unknown' && (
+                <Button size="small" onClick={this.getUpgradeRecordsInfo}>
+                  {formatMessage({ id: 'helmAppInstall.UpgradeInfo.runtime.refresh' })}
+                </Button>
+              )}
+            </div>
+          }
+        />
+      );
+    }
     const statusMap = {
       1: formatMessage({ id: 'helmAppInstall.UpgradeInfo.not_started' }),
       2: formatMessage({ id: 'helmAppInstall.UpgradeInfo.implementation' }),
@@ -559,7 +654,7 @@ export default class AppList extends PureComponent {
       8: 'error',
       10: 'error'
     };
-    if ([1, 2, 3, 8].includes(status)) {
+    if ([1, 2, 8, 10].includes(status)) {
       return (
         <Alert
           showIcon
@@ -619,7 +714,8 @@ export default class AppList extends PureComponent {
         upgrade_group_id: upgradeGroupID
       },
       callback: res => {
-        if (res && res.status_code === 200) {
+        if (this.unmounted) return;
+        if (res && res.status_code === 200 && res.bean) {
           this.setState(
             {
               record_id: res.bean.ID
@@ -628,15 +724,11 @@ export default class AppList extends PureComponent {
               this.getUpgradeRecordsInfo();
             }
           );
+        } else {
+          this.handleUpgradeError({ data: res });
         }
       },
-      handleError: err => {
-        notification.error({
-          message: err.data.msg_show
-        })
-        handleAPIError(err);
-        this.getUpgradeRecordsInfo();
-      }
+      handleError: this.handleUpgradeError
     });
   };
   handleChangeVersion = (value, callback) => {
@@ -674,11 +766,13 @@ export default class AppList extends PureComponent {
       });
     }
   };
-  handleSubmit = () => {
+  handleSubmit = event => {
+    if (event && event.preventDefault) event.preventDefault();
     const { form } = this.props;
-    const { upgradeLoading } = this.state;
+    const { upgradeLoading, recordQueryError } = this.state;
     form.validateFields((err, values) => {
-      if (!err && !upgradeLoading) {
+      if (!err && !upgradeLoading && !recordQueryError) {
+        this.stopRecordPolling();
         this.setState(
           {
             upgradeLoading: true
@@ -694,9 +788,10 @@ export default class AppList extends PureComponent {
   handleRetry = () => {
     const { form, dispatch } = this.props;
 
-    const { upgradeLoading, upgradeDetail } = this.state;
+    const { upgradeLoading, upgradeDetail, recordQueryError } = this.state;
     form.validateFields(err => {
-      if (!err && !upgradeLoading) {
+      if (!err && !upgradeLoading && !recordQueryError) {
+        this.stopRecordPolling();
         this.setState(
           {
             upgradeLoading: true
@@ -711,7 +806,8 @@ export default class AppList extends PureComponent {
                 record_id: upgradeDetail.record.ID
               },
               callback: res => {
-                if (res && res.status_code === 200) {
+                if (this.unmounted) return;
+                if (res && res.status_code === 200 && res.bean) {
                   this.setState(
                     {
                       record_id: res.bean.ID
@@ -720,12 +816,11 @@ export default class AppList extends PureComponent {
                       this.getUpgradeRecordsInfo();
                     }
                   );
+                } else {
+                  this.handleUpgradeError({ data: res });
                 }
               },
-              handleError: errs => {
-                handleAPIError(errs);
-                this.getUpgradeRecordsInfo();
-              }
+              handleError: this.handleUpgradeError
             });
           }
         );
@@ -741,6 +836,7 @@ export default class AppList extends PureComponent {
       type: 'application/fetchGroupDetail',
       payload: this.getParameter(),
       callback: res => {
+        if (this.unmounted) return;
         if (res && res.status_code === 200) {
           this.setState({
             appDetail: res.bean,
@@ -749,7 +845,11 @@ export default class AppList extends PureComponent {
         }
       },
       handleError: res => {
-        if (res && res.code === 404) {
+        if (this.unmounted) return;
+        this.setState({ loadingDetail: false });
+        this.showRequestError(res);
+        const data = (res && res.response && res.response.data) || (res && res.data) || res || {};
+        if (Number(data.code) === 404) {
           dispatch(
             routerRedux.push(
               `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/index`
@@ -765,6 +865,8 @@ export default class AppList extends PureComponent {
 
     getApplicationUpgradeDetail(this.getParameter())
       .then(res => {
+        if (this.unmounted) return null;
+        this.setState({ loadingUpgradeDetail: false });
         if (res && res.status_code === 200) {
           let upgrade_versions = [];
           if (res.bean && res.bean.versions) {
@@ -782,14 +884,14 @@ export default class AppList extends PureComponent {
               const { record } = res.bean;
               if (record.version) {
                 this.handleChangeVersion(record.version, () => {
-                  if (record.status == 2) {
+                  if (Number(record.status) !== 1) {
                     // 获取升级记录信息
                     this.getUpgradeRecordsInfo();
                   }
                 });
               } else if (upgrade_versions.length > 0) {
                 this.handleChangeVersion(upgrade_versions[0], () => {
-                  if (record.status == 2) {
+                  if (Number(record.status) !== 1) {
                     this.getUpgradeRecordsInfo();
                   }
                 });
@@ -799,7 +901,11 @@ export default class AppList extends PureComponent {
         }
         return null;
       })
-      .catch(err => handleAPIError(err));
+      .catch(err => {
+        if (this.unmounted) return;
+        this.setState({ loadingUpgradeDetail: false });
+        this.showRequestError(err);
+      });
   };
 
   render() {
@@ -820,7 +926,8 @@ export default class AppList extends PureComponent {
       loadingUpgradeDetail,
       upgradeDetail,
       selectVersion,
-      isAppOrComponent
+      isAppOrComponent,
+      recordQueryError
     } = this.state;
     const JumpAddress = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${group_id}/overview`;
     const formItemLayout = {
@@ -834,7 +941,7 @@ export default class AppList extends PureComponent {
       }
     };
 
-    const UpgradeLoading = upgradeLoading || textState == 2;
+    const UpgradeLoading = !recordQueryError && (upgradeLoading || [2, 4].includes(Number(textState)));
     let breadcrumbList = [];
 
     breadcrumbList = createApp(
@@ -865,7 +972,9 @@ export default class AppList extends PureComponent {
         breadcrumbList={breadcrumbList}
         loading={loadingDetail}
         title={formatMessage({ id: 'helmAppInstall.UpgradeInfo.Administration' })}
-        content={formatMessage({ id: 'helmAppInstall.UpgradeInfo.application' })}
+        content={`${formatMessage({ id: 'helmAppInstall.UpgradeInfo.application' })} ${formatMessage({
+          id: 'helmAppInstall.UpgradeInfo.singleWriterNotice'
+        })}`}
         titleSvg={pageheaderSvg.getPageHeaderSvg('upgrade', 20)}
         extraContent={null}
       >
@@ -1058,18 +1167,22 @@ export default class AppList extends PureComponent {
                 }}
                 disabled={
                   !selectVersion ||
+                  recordQueryError ||
                   UpgradeLoading ||
                   [6, 10].includes(textState)
                 }
                 loading={UpgradeLoading}
               >
-                {upgradeText}
+                {[3, 5].includes(Number(textState))
+                  ? formatMessage({ id: 'helmAppInstall.UpgradeInfo.runtime.overview' })
+                  : upgradeText}
               </Button>
               {[6, 10].includes(textState) && (
                 <Button
                   type="primary"
                   onClick={this.handleRetry}
                   loading={upgradeLoading}
+                  disabled={recordQueryError}
                   style={{ marginLeft: '16px' }}
                 >
                   {formatMessage({ id: 'helmAppInstall.UpgradeInfo.retry' })}
