@@ -1,6 +1,8 @@
 export default {
   'agent.execution.viewProcess': 'View execution details',
   'agent.execution.reasoning': 'Reasoning',
+  'agent.execution.selectSkill': 'Select skill',
+  'agent.execution.readSkillModule': 'Read skill module',
   'agent.execution.thinking': 'Thinking',
   'agent.execution.responding': 'Responding',
   'agent.execution.working': 'Working',

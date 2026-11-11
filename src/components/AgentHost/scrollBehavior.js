@@ -17,9 +17,6 @@ function getNextAutoScrollEnabled(
     typeof options.threshold === 'number'
       ? options.threshold
       : BOTTOM_THRESHOLD_PX;
-  if (options.isStreaming) {
-    return true;
-  }
   return isNearBottom(metrics, threshold);
 }
 

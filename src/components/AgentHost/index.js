@@ -113,12 +113,30 @@ class TraceMessageRow extends PureComponent {
   render() {
     const { item } = this.props;
     const trace = item.trace || {};
-    const traceText = trace.displayTitle || trace.title || trace.toolName || '工具调用';
+    const toolName = trace.toolName || '';
+    const selectsSkill = toolName === 'skill' || toolName.startsWith('select_skill_');
+    const readsSkill = toolName === 'read_skill_module';
+    let traceText = trace.displayTitle || trace.title || toolName || '工具调用';
+    if (selectsSkill) {
+      let input = {};
+      try {
+        input = JSON.parse(trace.inputSignature || '{}') || {};
+      } catch {
+        // Older history can lack structured inputs; keep a readable label.
+      }
+      const skillName = toolName.startsWith('select_skill_')
+        ? toolName.slice('select_skill_'.length)
+        : input.name || input.skill_id || input.skill_name || '';
+      const label = formatMessage({ id: 'agent.execution.selectSkill' });
+      traceText = typeof skillName === 'string' && skillName ? `${label} · ${skillName}` : label;
+    } else if (readsSkill) {
+      traceText = formatMessage({ id: 'agent.execution.readSkillModule' });
+    }
 
     return (
       <div className={styles.traceRow}>
         <span className={styles.traceInlineText}>
-          <Icon type="api" className={styles.traceInlineIcon} />
+          <Icon type={selectsSkill || readsSkill ? 'book' : 'api'} className={styles.traceInlineIcon} />
           <span>{traceText}</span>
 
         </span>
@@ -524,7 +542,7 @@ export default class AgentHost extends PureComponent {
 
     if (this.messagesRef && (force || this.isAutoScrollEnabled)) {
       window.requestAnimationFrame(() => {
-        if (!this.messagesRef) {
+        if (!this.messagesRef || (!force && !this.isAutoScrollEnabled)) {
           return;
         }
 

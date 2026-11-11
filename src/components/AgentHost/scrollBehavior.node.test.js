@@ -35,8 +35,8 @@
       clientHeight: 320,
       scrollHeight: 520,
     }, { isStreaming: true }),
-    true,
-    'manual scrolling during active output should not disable follow mode'
+    false,
+    'reading earlier messages during active output should disable follow mode'
   );
 
   assert.strictEqual(

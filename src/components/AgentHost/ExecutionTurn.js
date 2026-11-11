@@ -2,13 +2,12 @@ import React, { PureComponent } from 'react';
 import { Icon } from 'antd';
 import { formatMessage } from 'umi';
 import styles from './index.less';
+import ExecutionDisclosure from './ExecutionDisclosure';
 
 const t = (name, values) => formatMessage({ id: `agent.execution.${name}` }, values);
 
 /** One user request owns one header and one chronological execution log. */
 export default class ExecutionTurn extends PureComponent {
-  state = { expanded: true };
-
   getStatus = () => {
     const { turn } = this.props;
     if (turn.waiting) return t('waitingApproval');
@@ -32,19 +31,23 @@ export default class ExecutionTurn extends PureComponent {
   renderExecutionNode = node => {
     const { turn, renderProcessAnswer } = this.props;
     const item = node.output;
+    const reasoningActive = !!(item && turn.running && !turn.waiting && !turn.failed &&
+      !turn.cancelled && item.reasoningStreaming && !item.content && !node.events.length);
     return (
       <div className={styles.executionNode} key={node.key}>
         {item && (item.reasoning || item.reasoningStreaming) ? (
-          <div className={styles.executionThought}>
-            <div className={styles.executionThoughtLabel}>
-              <Icon type="bulb" />
-              <span>{t('reasoning')}</span>
-            </div>
-            <div className={styles.executionThoughtContent}>
-              {item.reasoning || ''}
-              {item.reasoningStreaming ? <span className={styles.executionCursor} aria-hidden="true" /> : null}
-            </div>
-          </div>
+          <ExecutionDisclosure
+            id={`${turn.key}:${node.key}:reasoning`}
+            active={reasoningActive}
+            className={styles.executionThought}
+            toggleClassName={`${styles.executionToggle} ${styles.executionThoughtLabel}`}
+            contentClassName={styles.executionThoughtContent}
+            icon={<Icon type="bulb" className={styles.executionThoughtIcon} />}
+            title={t('reasoning')}
+          >
+            {item.reasoning || ''}
+            {reasoningActive ? <span className={styles.executionCursor} aria-hidden="true" /> : null}
+          </ExecutionDisclosure>
         ) : null}
         {item && item !== turn.answer && item.content ? (
           <div className={styles.executionNarration}>{renderProcessAnswer(item)}</div>
@@ -56,7 +59,6 @@ export default class ExecutionTurn extends PureComponent {
 
   render() {
     const { turn, renderApproval, renderNotice, renderAnswer } = this.props;
-    const { expanded } = this.state;
     const showProcess = turn.process.length > 0 || turn.running || turn.waiting;
     return (
       <div className={`${styles.messageRow} ${styles.assistantRow}`}>
@@ -67,24 +69,22 @@ export default class ExecutionTurn extends PureComponent {
           </span>
         </div>
         {showProcess ? (
-          <div className={styles.executionProcess}>
-            <button
-              type="button"
-              className={styles.executionToggle}
-              aria-expanded={expanded}
-              onClick={() => this.setState({ expanded: !expanded })}
-            >
-              <Icon type={expanded ? 'down' : 'right'} />
-              <span>{t('viewProcess')}</span>
+          <ExecutionDisclosure
+            id={`${turn.key}:execution`}
+            active={!turn.failed && !turn.cancelled && (turn.running || turn.waiting)}
+            className={styles.executionProcess}
+            toggleClassName={styles.executionToggle}
+            contentClassName={styles.executionLog}
+            title={t('viewProcess')}
+            extra={
               <span className={styles.executionStatus} role="status">
                 {turn.running && !turn.waiting ? <Icon type="loading" /> : null}
                 {this.getStatus()}
               </span>
-            </button>
-            {expanded ? (
-              <div className={styles.executionLog}>{turn.nodes.map(this.renderExecutionNode)}</div>
-            ) : null}
-          </div>
+            }
+          >
+            {turn.nodes.map(this.renderExecutionNode)}
+          </ExecutionDisclosure>
         ) : null}
         {turn.pendingApprovals.map(renderApproval)}
         {turn.notices.map(renderNotice)}

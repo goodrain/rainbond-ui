@@ -1,6 +1,8 @@
 export default {
   'agent.execution.viewProcess': '查看执行过程',
   'agent.execution.reasoning': '思考过程',
+  'agent.execution.selectSkill': '选择技能',
+  'agent.execution.readSkillModule': '读取技能模块',
   'agent.execution.thinking': '思考中',
   'agent.execution.responding': '正在回复',
   'agent.execution.working': '正在执行',
