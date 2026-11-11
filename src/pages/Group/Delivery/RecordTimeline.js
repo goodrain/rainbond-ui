@@ -42,9 +42,9 @@ export default class RecordTimeline extends PureComponent {
               <span><Icon type="appstore" /> {record.components.length} {t('componentUnit')}</span></div>
           </div>
           <div className={styles.versionActions}>{allowed && !deleted && <React.Fragment>
-            <Button type="primary" icon="shop" disabled={workflowFailed || !!(listing && listing.status !== 'rejected')} onClick={() => onListing(record)}>{w(listing && listing.status === 'rejected' ? 'resubmitListing' : 'listAction')}</Button>
-            <Button icon="cloud-download" disabled={workflowFailed} onClick={() => onInstall(record)}>{t('deliver')}</Button>
-            <Button icon="export" disabled={workflowFailed} onClick={() => onExport(record)}>{t('exportTemplate')}</Button>
+            <Button type="primary" icon="cloud-download" disabled={workflowFailed} onClick={() => onInstall(record)}>{t('deliver')}</Button>
+            <Button icon="shop" disabled={workflowFailed || !!(listing && listing.status !== 'rejected')} onClick={() => onListing(record)}>{w(listing && listing.status === 'rejected' ? 'resubmitListing' : 'listAction')}</Button>
+            <Button icon="export" disabled={workflowFailed} onClick={() => onExport(record)}>{t('exportOfflinePackage')}</Button>
             <Dropdown overlay={menu} trigger={['click']}><Button icon="ellipsis" aria-label={`${t('more')} ${record.version}`} /></Dropdown>
           </React.Fragment>}</div>
         </header>

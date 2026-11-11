@@ -162,9 +162,9 @@ test('component event pages use the selected alias and filter unrelated componen
     calls.push({ url, options });
     if (url.endsWith('/service/group')) return { list: [{ service_id: 'web', service_alias: 'web-alias', service_cname: 'Web' }] };
     if (url.endsWith('/operation-logs')) return { list: [{ ID: 1, comment: '更新 <b>资源</b>', create_time: '2026-11-10T01:00:00Z', username: 'owner' }] };
-    if (url.endsWith('/apps/web-alias/events')) return { list: [
-      { event_id: 'build', service_id: 'web', type_cn: '构建', message: '构建完成', status: 'success', start_time: '2026-11-10T02:00:00Z', user_name: 'builder' },
-      { event_id: 'unrelated', service_id: 'another', message: 'Unrelated component' }
+    if (url.endsWith('/events') && options.params.targetAlias === 'web-alias') return { list: [
+      { event_id: 'build', app_id: 'region-application-uuid', region: 'region-uuid', target: 'service', target_id: 'web', type_cn: '构建', message: '构建完成', status: 'success', start_time: '2026-11-10T02:00:00Z', user_name: 'builder' },
+      { event_id: 'unrelated', target: 'service', target_id: 'another', message: 'Unrelated component' }
     ] };
     return { bean: {} };
   } };
@@ -177,10 +177,13 @@ test('component event pages use the selected alias and filter unrelated componen
   assert.equal(result.bean.items[0].created_at, '2026-11-10T02:00:00Z');
   assert.equal(result.bean.items[0].service_id, 'web');
   assert.equal(result.bean.has_more, false);
-  const request = calls.find(call => call.url.endsWith('/apps/web-alias/events'));
+  const request = calls.find(call => call.url.endsWith('/events') && call.options.params.targetAlias === 'web-alias');
   assert.equal(request.options.params.region_name, scope.regionName);
   assert.equal(request.options.params.page, 2);
   assert.equal(request.options.params.page_size, 20);
+  assert.equal(request.options.params.target, 'service');
+  assert.equal(request.options.params.targetAlias, 'web-alias');
+  assert.equal(request.options.timeout, 12000);
   assert.equal(request.options.method, 'get');
   assert.equal(calls.length, 1);
 
@@ -220,13 +223,13 @@ test('component event failure is independent of source component status', async 
 
 test('component events retain their own scope and history when event IDs overlap', async () => {
   const fs = require('node:fs'), vm = require('node:vm');
-  const context = { require: require('node:module').createRequire(`${__dirname}/../services/deliveryCenter.js`), apiconfig: { baseUrl: '' }, request: async url => {
+  const context = { require: require('node:module').createRequire(`${__dirname}/../services/deliveryCenter.js`), apiconfig: { baseUrl: '' }, request: async (url, options) => {
     if (url.endsWith('/service/group')) return { list: [
       { service_id: 'web', service_alias: 'web', service_cname: 'Web' },
       { service_id: 'api', service_alias: 'api', service_cname: 'API' }
     ] };
-    if (url.endsWith('/apps/web/events')) return { list: [{ event_id: 'shared', message: 'Web built', start_time: '2026-11-10T01:00:00Z' }] };
-    if (url.endsWith('/apps/api/events')) return { list: [
+    if (url.endsWith('/events') && options.params.targetAlias === 'web') return { list: [{ event_id: 'shared', message: 'Web built', start_time: '2026-11-10T01:00:00Z' }] };
+    if (url.endsWith('/events') && options.params.targetAlias === 'api') return { list: [
       { event_id: 'shared', message: 'API started', start_time: '2026-11-10T02:00:00Z' },
       { event_id: 'wrong', service_id: 'web', message: 'Wrong component' }
     ] };
@@ -258,4 +261,21 @@ test('component event paging respects the existing API has_next flag without req
   assert.equal(first.bean.total, undefined);
   const last = await context.loadDeliveryCenter({ ...input, page: 2 });
   assert.equal(last.bean.has_more, false);
+});
+
+
+test('application access uses the overview visit endpoint with the captured source cluster', async () => {
+  const fs = require('node:fs'), vm = require('node:vm'), calls = [];
+  const links = [{ access_info: [{ service_cname: 'Web', access_urls: ['https://app.example.test'] }] }];
+  const context = { require: require('node:module').createRequire(`${__dirname}/../services/deliveryCenter.js`), apiconfig: { baseUrl: '' }, request: async (url, options) => {
+    calls.push({ url, options });return { list: links };
+  } };
+  vm.runInNewContext(fs.readFileSync(`${__dirname}/../services/deliveryCenter.js`, 'utf8').replace(/^import .*;\n/gm, '').replace(/^export /gm, ''), context);
+  const result = await context.loadDeliveryCenter({ kind: 'access', scope, components: [{ service_alias: 'web' }, { service_alias: 'api' }] });
+  assert.equal(calls[0].url, '/console/teams/team/group/service/visit');
+  assert.equal(calls[0].options.params.service_alias, 'web-api');
+  assert.equal(calls[0].options.params.region_name, 'region');
+  assert.equal(result.bean.list, links);
+  const empty = await context.loadDeliveryCenter({ kind: 'access', scope, components: [] });
+  assert.equal(empty.bean.list.length, 0);assert.equal(calls.length, 1);
 });

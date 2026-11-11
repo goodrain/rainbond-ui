@@ -22,17 +22,19 @@ export default class VersionChanges extends PureComponent {
     const { template, baseline, componentId, onSource, loading, baselineUnavailable, onRetry } = this.props;
     const comparison = compareVersions(baseline, template);
     const selectedChange = comparison.changes.find(row => row.id === componentId && row.type !== 'application');
-    const changes = comparison.changes.filter(row => row.id === componentId || row.type === 'removed' || row.type === 'application');
+    const scoped = componentId != null;
+    const changes = scoped ? comparison.changes.filter(row => row.id === componentId || row.type === 'removed' || row.type === 'application') : comparison.changes;
     return <section className={styles.versionChanges} aria-label={w('versionChanges')}>
       <div className={styles.subheading}><h3>{w('versionChanges')}</h3>{baseline && <span className={styles.muted}>v{baseline.version} <Icon type="arrow-right" /> v{template.version}</span>}</div>
       <Spin spinning={!!loading}>
       {!baseline ? <p className={styles.muted}>{w(baselineUnavailable ? 'previousVersionUnavailable' : 'initialTemplateVersion')}</p> : <React.Fragment>
-        {!selectedChange && <p className={styles.muted}>{w('noComponentVersionChanges')}</p>}
+        {scoped && !selectedChange && <p className={styles.muted}>{w('noComponentVersionChanges')}</p>}
+        {!scoped && !changes.length && <p className={styles.muted}>{w('noVersionDifferences')}</p>}
         <div className={styles.changeGroups}>{changes.map(row => {
           const compareURL = row.sourceBefore && repositoryComparison(row.sourceBefore, row.sourceAfter);
           return <section className={styles.changeGroup} key={row.id} aria-label={row.type === 'application' ? w('applicationConfiguration') : row.name}>
             <header><div>{row.type === 'application' ? <strong>{w('applicationConfiguration')}</strong> :
-              row.id !== componentId && (onSource ? <Button type="link" onClick={() => onSource(row.id, baseline.id)}>{row.name}</Button> : <strong>{row.name}</strong>)}
+              row.id !== componentId && (onSource ? <Button type="link" onClick={() => onSource(row.id, row.type === 'removed' ? baseline.id : template.id)}>{row.name}</Button> : <strong>{row.name}</strong>)}
               <Tag color={row.type === 'added' ? 'green' : row.type === 'removed' ? 'red' : 'blue'}>{w(`change_${row.type}`)}</Tag>
             </div>{compareURL && <a href={compareURL} target="_blank" rel="noopener noreferrer">{w('compareRepositoryChanges')}<Icon type="export" /></a>}</header>
             {row.fields.length ? <div className={`${styles.table} ${styles.diffTable}`}><Table rowKey="key" size="small" pagination={false} dataSource={row.fields} columns={[

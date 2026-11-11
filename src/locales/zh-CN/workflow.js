@@ -1,4 +1,6 @@
 export default {
+  "workflow.versionChangesTab": "版本变更",
+  "workflow.manageApplication": "管理",
   "workflow.localTemplateVersions": "模版版本",
   "workflow.publishedBy": "发布人",
   "workflow.publishedAt": "发布时间",

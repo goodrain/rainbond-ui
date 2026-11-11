@@ -1,4 +1,6 @@
 export default {
+  "workflow.versionChangesTab": "Version changes",
+  "workflow.manageApplication": "Manage",
   "workflow.localTemplateVersions": "Template versions",
   "workflow.publishedBy": "Publisher",
   "workflow.publishedAt": "Published",
