@@ -577,7 +577,8 @@ function applyAgentEvents({
             contextSnapshot
           );
           const matchedIndex = streamedMessages.findIndex(
-            item => item && item.streamMessageId === adaptedEvent.messageId
+            item => item && item.streamMessageId === adaptedEvent.messageId &&
+              (!event.runId || item.streamRunId === event.runId)
           );
           if (matchedIndex > -1) {
             nextMessages = streamedMessages;
@@ -597,6 +598,7 @@ function applyAgentEvents({
             ? lastAssistant.streamRunId === adaptedEvent.runId
             : lastAssistant.streaming === true);
         if (
+          !adaptedEvent.messageId &&
           lastAssistantIndex > -1 &&
           lastAssistantRunMatches &&
           (lastAssistant.streamMessageId || lastAssistant.streaming)
@@ -617,7 +619,7 @@ function applyAgentEvents({
             'normal',
             adaptedEvent.content || '',
             contextSnapshot,
-            { eventSequence, isFinalAnswer: true }
+            { eventSequence, isFinalAnswer: true, streamMessageId: adaptedEvent.messageId || '' }
           )
         );
         break;
@@ -1239,12 +1241,9 @@ export default {
         action_type: 'agent_question'
       });
       const runEpoch = (state.runEpoch || 0) + 1;
-      const suppressUserEcho = !!(payload && payload.suppressUserEcho);
-      const pendingMessages = suppressUserEcho
-        ? state.messages
-        : state.messages.concat(
-            createMessage('user', 'normal', text, contextSnapshot)
-          );
+      const pendingMessages = state.messages.concat(
+        createMessage('user', 'normal', text, contextSnapshot)
+      );
 
       yield put({
         type: 'saveState',

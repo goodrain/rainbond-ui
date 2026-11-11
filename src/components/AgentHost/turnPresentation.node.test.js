@@ -79,3 +79,26 @@ test('context switches remain hidden both before and inside a conversation', () 
   assert.equal(groups.length, 2);
   assert.equal(groups[1].items.some(item => item.kind === 'context'), false);
 });
+
+test('separates runs even when an older client hid the option-selection message', () => {
+  const previous = { id: 'previous', role: 'assistant', kind: 'normal', content: '复核结论', streamRunId: 'r1', isFinalAnswer: true };
+  const next = { ...thought, id: 'next', streamRunId: 'r2', reasoning: '执行方案' };
+  const groups = groupConversationMessages([{ ...user, streamRunId: 'r1' }, previous, next], { sending: true, activeRunId: 'r2' });
+  const turns = groups.filter(group => group.kind === 'turn');
+  assert.equal(turns.length, 2);
+  assert.equal(turns[0].answer, previous);
+  assert.equal(turns[0].process.includes(previous), false);
+  assert.equal(turns[1].running, true);
+});
+
+test('late events from an earlier run stay with their original conclusion', () => {
+  const first = { ...thought, id: 'first', streamRunId: 'r1', content: 'first answer', isFinalAnswer: true };
+  const second = { ...thought, id: 'second', streamRunId: 'r2' };
+  const late = { id: 'late', kind: 'trace', streamRunId: 'r1' };
+  const turns = groupConversationMessages([{ ...user, streamRunId: 'r1' }, first,
+    { ...user, id: 'u2', streamRunId: 'r2' }, second, late]).filter(group => group.kind === 'turn');
+  assert.equal(turns.length, 2);
+  assert.equal(turns[0].answer, first);
+  assert.equal(turns[0].items.includes(late), true);
+  assert.equal(turns[1].items.includes(late), false);
+});

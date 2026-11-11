@@ -143,6 +143,10 @@ function normalizeMessages(messages) {
       approval: item.approval || null,
       streamMessageId: item.streamMessageId || '',
       streamRunId: item.streamRunId || '',
+      runStatus: item.runStatus || '',
+      isFinalAnswer: !!item.isFinalAnswer,
+      suggestedActions: Array.isArray(item.suggestedActions) ? item.suggestedActions : [],
+      suggestedActionSummary: item.suggestedActionSummary || '',
       reasoning: item.reasoning || '',
       reasoningStreaming: !!item.reasoningStreaming,
       streaming: !!item.streaming

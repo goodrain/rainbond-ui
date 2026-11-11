@@ -32,6 +32,7 @@ function groupExecutionNodes(items, process, answer) {
 function groupConversationMessages(messages, options = {}) {
   const groups = [];
   let turn = null;
+  const turnsByRun = new Map();
   (Array.isArray(messages) ? messages : []).forEach(item => {
     if (!shouldRenderMessageItem(item)) return;
     if (item.role === 'user' && item.kind === 'normal') {
@@ -43,26 +44,37 @@ function groupConversationMessages(messages, options = {}) {
         items: [],
       };
       groups.push(turn);
+      if (turn.runId) turnsByRun.set(turn.runId, turn);
       return;
     }
     if (!turn && item.kind === 'context') {
       groups.push({ kind: 'context', item, key: item.id });
       return;
     }
-    if (!turn) {
-      turn = { kind: 'turn', key: `turn:${item.id}`, createdAt: item.createdAt, runId: item.streamRunId || '', items: [] };
-      groups.push(turn);
+    const runId = item.streamRunId || (item.approval && item.approval.runId) || '';
+    let target = runId && turnsByRun.get(runId);
+    if (!target) {
+      if (!turn || (runId && turn.runId && runId !== turn.runId)) {
+        turn = {
+          kind: 'turn', key: `turn:${runId ? `run:${runId}` : item.id}`,
+          createdAt: item.createdAt, runId, items: [],
+        };
+        groups.push(turn);
+      }
+      target = turn;
+      if (!target.runId) target.runId = runId;
+      if (target.runId) turnsByRun.set(target.runId, target);
     }
-    if (!turn.runId) turn.runId = item.streamRunId || (item.approval && item.approval.runId) || '';
-    if (item.runStatus) turn.runStatus = item.runStatus;
-    turn.items.push(item);
+    if (item.runStatus) target.runStatus = item.runStatus;
+    target.items.push(item);
   });
   const turns = groups.filter(group => group.kind === 'turn');
   turns.forEach((group, index) => {
     const latestOutput = group.items.slice().reverse().find(item => item.role === 'assistant' && item.kind === 'normal');
     const followingActions = latestOutput && group.items.slice(group.items.indexOf(latestOutput) + 1)
       .some(item => item.kind === 'trace' || item.kind === 'approval');
-    group.answer = hasAnswer(latestOutput) && (!followingActions || latestOutput.isFinalAnswer) ? latestOutput : null;
+    const finalAnswer = group.items.slice().reverse().find(item => item.isFinalAnswer && hasAnswer(item));
+    group.answer = finalAnswer || (hasAnswer(latestOutput) && !followingActions ? latestOutput : null);
     group.pendingApprovals = group.items.filter(item => item.kind === 'approval' && item.approval && item.approval.status === 'pending');
     group.notices = group.items.filter(item => item.kind === 'error' || item.kind === 'status' || item.kind === 'suggested_actions');
     group.process = group.items.filter(item => {

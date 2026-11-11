@@ -94,3 +94,18 @@
   console.error(error);
   process.exit(1);
 });
+
+const followAssert = require('node:assert/strict');
+const follow = require('./scrollBehavior');
+const aboveBottom = { scrollTop: 120, clientHeight: 320, scrollHeight: 900 };
+followAssert.equal(follow.getNextAutoScrollEnabled(true, aboveBottom, { isStreaming: true, userInitiated: false }), true,
+  'layout growth must not turn off an active follow mode');
+followAssert.equal(follow.getNextAutoScrollEnabled(true, aboveBottom, { isStreaming: true, userInitiated: true }), false,
+  'explicit scrolling away from the bottom pauses follow mode');
+followAssert.equal(follow.getNextAutoScrollEnabled(false, aboveBottom, { isStreaming: true, userInitiated: false }), false,
+  'new tokens must not steal the position from a reader looking back');
+followAssert.equal(follow.shouldAttemptAutoScrollUpdate({
+  prevMessages: [{ id: 'answer', content: 'partial' }, { id: 'trace', kind: 'trace' }],
+  nextMessages: [{ id: 'answer', content: 'finished answer' }, { id: 'trace', kind: 'trace' }],
+  wasVisible: true, isVisible: true,
+}), true, 'an answer updated before a trailing tool row must still trigger follow');

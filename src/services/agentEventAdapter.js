@@ -52,6 +52,7 @@ function adaptAgentEvent(event = {}) {
       return {
         type: 'message',
         sequence,
+        runId: event.runId || '',
         role: data.role === 'user' ? 'user' : 'assistant',
         content: data.content || '',
         messageId: data.message_id || '',

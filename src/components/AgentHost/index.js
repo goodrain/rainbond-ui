@@ -447,6 +447,12 @@ export default class AgentHost extends PureComponent {
       updateBannerDismissed: false,
     };
     this.messagesRef = null;
+    this.messagesContentRef = null;
+    this.messagesResizeObserver = null;
+    this.scrollFrame = null;
+    this.scrollGestureUntil = 0;
+    this.scrollPointerActive = false;
+    this.touchPosition = null;
     this.isAutoScrollEnabled = true;
     this.lastRenderedMessagesRef = null;
     this.lastRenderedMessagesSending = null;
@@ -457,6 +463,8 @@ export default class AgentHost extends PureComponent {
 
   componentDidMount() {
     this.scrollToBottom({ force: true });
+    window.addEventListener('resize', this.handleMessagesResize);
+    window.addEventListener('pointerup', this.handleScrollPointerUp);
   }
 
   componentDidUpdate(prevProps) {
@@ -470,8 +478,15 @@ export default class AgentHost extends PureComponent {
       nextMessages,
       wasVisible,
       isVisible,
+      wasSending: !!(prevProps.agent && prevProps.agent.sending),
+      isSending: !!(this.props.agent && this.props.agent.sending),
     })) {
-      this.scrollToBottom();
+      const lastMessage = nextMessages[nextMessages.length - 1];
+      const userSentMessage = lastMessage && lastMessage.role === 'user' &&
+        !prevMessages.some(item => item.id === lastMessage.id);
+      const force = (!wasVisible && isVisible) || !!userSentMessage;
+      if (force) this.resumeAutoScroll();
+      this.scrollToBottom({ force });
     }
 
     if (this.shouldFocusComposerAfterRun(prevProps)) {
@@ -480,6 +495,10 @@ export default class AgentHost extends PureComponent {
   }
 
   componentWillUnmount() {
+    window.removeEventListener('resize', this.handleMessagesResize);
+    window.removeEventListener('pointerup', this.handleScrollPointerUp);
+    if (this.messagesResizeObserver) this.messagesResizeObserver.disconnect();
+    if (this.scrollFrame) window.cancelAnimationFrame(this.scrollFrame);
     if (
       this.composerFocusFrame &&
       typeof window !== 'undefined' &&
@@ -491,6 +510,20 @@ export default class AgentHost extends PureComponent {
 
   setMessagesRef = node => {
     this.messagesRef = node;
+  };
+
+  setMessagesContentRef = node => {
+    if (this.messagesResizeObserver) this.messagesResizeObserver.disconnect();
+    this.messagesContentRef = node;
+    this.messagesResizeObserver = null;
+    if (node && typeof window.ResizeObserver === 'function') {
+      this.messagesResizeObserver = new window.ResizeObserver(this.handleMessagesResize);
+      this.messagesResizeObserver.observe(node);
+    }
+  };
+
+  handleMessagesResize = () => {
+    if (this.props.agent && this.props.agent.visible) this.scrollToBottom();
   };
 
   setComposerRef = node => {
@@ -541,7 +574,9 @@ export default class AgentHost extends PureComponent {
     const force = !!(options && options.force);
 
     if (this.messagesRef && (force || this.isAutoScrollEnabled)) {
-      window.requestAnimationFrame(() => {
+      if (this.scrollFrame) window.cancelAnimationFrame(this.scrollFrame);
+      this.scrollFrame = window.requestAnimationFrame(() => {
+        this.scrollFrame = null;
         if (!this.messagesRef || (!force && !this.isAutoScrollEnabled)) {
           return;
         }
@@ -566,8 +601,52 @@ export default class AgentHost extends PureComponent {
       target,
       {
         isStreaming: !!(this.props.agent && this.props.agent.sending),
+        userInitiated: this.scrollPointerActive || Date.now() < this.scrollGestureUntil,
       }
     );
+  };
+
+  handleMessagesWheel = event => {
+    this.scrollGestureUntil = Date.now() + 250;
+    if (event.deltaY < 0) this.isAutoScrollEnabled = false;
+  };
+
+  handleMessagesTouchStart = event => {
+    this.touchPosition = event.touches[0] && event.touches[0].clientY;
+  };
+
+  handleMessagesTouchMove = event => {
+    const touch = event.touches[0];
+    if (!touch) return;
+    this.scrollGestureUntil = Date.now() + 250;
+    if (this.touchPosition != null && touch.clientY > this.touchPosition) this.isAutoScrollEnabled = false;
+    this.touchPosition = touch.clientY;
+  };
+
+  handleMessagesKeyDown = event => {
+    const keys = ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '];
+    if (event.target !== this.messagesRef || !keys.includes(event.key)) return;
+    this.scrollGestureUntil = Date.now() + 250;
+    if (['ArrowUp', 'PageUp', 'Home'].includes(event.key) || (event.key === ' ' && event.shiftKey)) {
+      this.isAutoScrollEnabled = false;
+    }
+  };
+
+  handleScrollPointerDown = event => {
+    if (event.target !== this.messagesRef) return;
+    const bounds = this.messagesRef.getBoundingClientRect();
+    const scrollbarWidth = Math.max(16, this.messagesRef.offsetWidth - this.messagesRef.clientWidth);
+    if (event.clientX >= bounds.right - scrollbarWidth) {
+      this.scrollPointerActive = true;
+      this.isAutoScrollEnabled = false;
+    }
+  };
+
+  handleScrollPointerUp = () => {
+    if (!this.scrollPointerActive) return;
+    this.scrollPointerActive = false;
+    this.scrollGestureUntil = Date.now() + 250;
+    this.handleMessagesScroll();
   };
 
   closeDrawer = () => {
@@ -676,7 +755,6 @@ export default class AgentHost extends PureComponent {
         message: optionKey ? `选择方案 ${optionKey}${label ? `：${label}` : ''}` : label || '执行推荐方案',
         selectedActionId: actionId,
         selectedActionKey: optionKey,
-        suppressUserEcho: true,
         context: this.props.agent && this.props.agent.context,
       },
     });
@@ -1208,10 +1286,17 @@ export default class AgentHost extends PureComponent {
                 className={styles.messagesPanel}
                 ref={this.setMessagesRef}
                 onScroll={this.handleMessagesScroll}
+                onWheel={this.handleMessagesWheel}
+                onTouchStart={this.handleMessagesTouchStart}
+                onTouchMove={this.handleMessagesTouchMove}
+                onKeyDown={this.handleMessagesKeyDown}
+                onPointerDown={this.handleScrollPointerDown}
+                tabIndex={0}
               >
-                {this.renderWorkflowSummary()}
-                {this.renderMessages()}
-
+                <div className={styles.messagesContent} ref={this.setMessagesContentRef}>
+                  {this.renderWorkflowSummary()}
+                  {this.renderMessages()}
+                </div>
               </div>
 
               {this.renderRunConflictNotice()}
