@@ -163,7 +163,8 @@ class CreateVm extends PureComponent {
               <Descriptions.Item label={t('network')}>{t('defaultNetwork')}</Descriptions.Item>
             </Descriptions>
             {source.sshRequired && <Descriptions column={1} bordered size="small" className={styles.spaced}>
-              <Descriptions.Item label={t('firstLoginPublicKey')}>{source.sshUsername} · {t('publicKeyConfigured')}</Descriptions.Item>
+              <Descriptions.Item label={t('loginMethod')}>{t(source.loginMethod === 'password' ? 'loginMethodPassword' : 'loginMethodKey')}</Descriptions.Item>
+              <Descriptions.Item label={t('sshUsername')}>{source.sshUsername}</Descriptions.Item>
               <Descriptions.Item label={t('quickStartFirmware')}>UEFI</Descriptions.Item>
             </Descriptions>}
             <Alert className={styles.spaced} showIcon type="info" message={source.isIso ? t('isoNext') : t('imageNext')}

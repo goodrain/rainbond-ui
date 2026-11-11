@@ -6,6 +6,7 @@ import globalUtil from '@/utils/global';
 import PageHeader from '@/components/PageHeader';
 import pageHeaderSvg from '@/utils/pageHeaderSvg';
 import { isLinuxQcow2QuickStart } from '@/utils/vmQuickStart';
+import { assertNoVmPasswordPayload, resolveVmPasswordReaderOptions } from '@/utils/vmLoginCredentials';
 import CreateVm from './CreateVm';
 import { t } from './messages';
 import styles from './index.less';
@@ -90,7 +91,7 @@ export class VmCreateWorkflow extends PureComponent {
     }
     this.sourceCollectionInFlight = true;
     this.setState({ quickStartSubmitting: true });
-    this.props.collectSourcePayload(source => {
+    this.props.collectSourcePayload((source, requestOptions = {}) => {
       this.sourceCollectionInFlight = false;
       if (!this.mounted) return;
       if (!source) {
@@ -98,18 +99,28 @@ export class VmCreateWorkflow extends PureComponent {
         return;
       }
       const context = identity(this.props);
+      let boundOptions;
+      try {
+        assertNoVmPasswordPayload(source);
+        boundOptions = resolveVmPasswordReaderOptions(requestOptions, source.group_id || context.application);
+      } catch (_) {
+        this.setState({ quickStartSubmitting: false });
+        message.warning(t('loginPasswordUnavailable'));
+        return;
+      }
       this.runQuickStart({
         ...source,
         team_name: context.team,
         group_id: source.group_id || context.application,
         resources: { cpu: values.cpu, memory: values.memory, disk: values.disk },
         ...(values.disk_volume_type ? { disk_volume_type: values.disk_volume_type } : {})
-      });
+      }, undefined, boundOptions);
     });
   };
 
-  runQuickStart = (payload, resume) => {
+  runQuickStart = (payload, resume, requestOptions = {}) => {
     if (this.quickStartInFlight) return;
+    try { assertNoVmPasswordPayload(payload); } catch (_) { return; }
     this.quickStartInFlight = true;
     const context = identity(this.props);
     const isActive = () => this.mounted &&
@@ -154,6 +165,8 @@ export class VmCreateWorkflow extends PureComponent {
     };
     const request = this.props.dispatch({
       type: 'createApp/createVirtualMachineWorkflow', payload, resume, isActive,
+      readCredentials: resume?.serviceAlias ? undefined : requestOptions.readCredentials,
+      passwordBootstrapSupported: !resume?.serviceAlias && requestOptions.passwordBootstrapSupported === true,
       onProgress: result => update(result), callback: result => update(result, true)
     });
     if (request && request.catch) request.catch(() => update({ status: 'failed', error: 'quickStartInvalidRequest' }, true));

@@ -396,6 +396,7 @@ test('DVA catches unexpected helper failures and its telemetry excludes credenti
   const module = { exports: {} };
   const noop = () => {};
   vm.runInNewContext(source, {
+    ...require('./vmLoginCredentials'),
     module,
     captureAppOperation: (...args) => tracking.push(args),
     captureMarketInstall: noop,
@@ -605,6 +606,7 @@ test('the general DVA effect calls the real pipeline and emits only its safe res
   const noop = () => {};
   const generalRunner = () => {};
   vm.runInNewContext(source, {
+    ...require('./vmLoginCredentials'),
     module, captureAppOperation: noop, captureMarketInstall: noop,
     runVmQuickStart: noop, runVmCreation: generalRunner,
     createAppByVirtualMachine: noop, getPortDetail: noop, getVolumeOpts: noop,
@@ -637,6 +639,7 @@ function workflowModelWithServices(services) {
     .replace(/^import[\s\S]*?from '[^']+';/gm, '').replace('export default', 'module.exports =');
   const module = { exports: {} };
   vm.runInNewContext(source, {
+    ...require('./vmLoginCredentials'),
     module, captureAppOperation: () => {}, captureMarketInstall: () => {},
     runVmQuickStart, runVmCreation,
     createAppByVirtualMachine: services.createVm,

@@ -20,6 +20,7 @@ const code = babel.transformSync(fs.readFileSync(filename, 'utf8'), {
 }).code;
 const exportsObject = {};
 vm.runInNewContext(code, { exports: exportsObject, require: name => {
+  if (name.endsWith('/vmLoginCredentials')) return require('../../utils/vmLoginCredentials');
   if (name === 'react') return React;
   if (name === 'dva') return { connect: () => Component => Component };
   if (name === 'antd') return { message: { warning() {} }, Button, Alert: Box, Descriptions: Box, Empty: Box, Select: Box, Spin: Box, Steps: Box };

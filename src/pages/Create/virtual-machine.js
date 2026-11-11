@@ -22,6 +22,7 @@ import ImageVirtualMachineForm from "../../components/ImageVirtualMachineForm";
 import { VmCreateWorkflow } from '../VirtualMachineDemo/Workflow';
 import { isVmWorkflowDemoEnabled } from '../../utils/vmWorkflowDemo';
 import TopUpHints from '../../components/TopUpHints';
+import { assertNoVmPasswordPayload, resolveVmPasswordReaderOptions } from '../../utils/vmLoginCredentials';
 
 const { Option } = Select;
 
@@ -39,6 +40,8 @@ const formItemLayout = {
   groups: global.groups
 }))
 export default class Index extends PureComponent {
+  vmFormRef = React.createRef();
+  mounted = false;
   constructor(props) {
     super(props);
     this.state = {
@@ -51,7 +54,13 @@ export default class Index extends PureComponent {
   }
 
   componentDidMount(){
+    this.mounted = true;
     this.handleGetVirtualMachineImage()
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+    this.vmFormRef.current?.clearSshFields();
   }
 
   handleGetVirtualMachineImage = () => {
@@ -106,9 +115,23 @@ export default class Index extends PureComponent {
   hideShowKey = () => {
     this.setState({ showKey: false });
   };
-  handleSubmit = (value, event_id) => {
+  handleSubmit = (value, event_id, requestOptions = {}) => {
     if (isVmWorkflowDemoEnabled()) return;
     const teamName = globalUtil.getCurrTeamName();
+    const region = globalUtil.getCurrRegionName();
+    const application = globalUtil.getAppID();
+    const form = this.vmFormRef.current;
+    const generation = form?.loginCredentialGeneration;
+    const isActive = () => this.mounted && this.vmFormRef.current === form &&
+      teamName === globalUtil.getCurrTeamName() && region === globalUtil.getCurrRegionName() &&
+      application === globalUtil.getAppID() &&
+      (value.login_method !== 'password' || form?.loginCredentialGeneration === generation);
+    let boundOptions;
+    try {
+      assertNoVmPasswordPayload(value);
+      boundOptions = resolveVmPasswordReaderOptions(requestOptions, value.group_id);
+    } catch (_) { return; }
+    if (!isActive()) return;
     this.props.dispatch({
       type: "createApp/createAppByVirtualMachine",
       payload: {
@@ -116,9 +139,14 @@ export default class Index extends PureComponent {
         event_id,
         ...value
       },
+      isActive,
+      readCredentials: boundOptions.readCredentials,
+      passwordBootstrapSupported: boundOptions.passwordBootstrapSupported === true,
       callback: data => {
+        if (!isActive()) return;
         if (data) {
           const appAlias = data.bean.service_alias;
+          form?.clearSshFields();
           this.props.handleType && this.props.handleType === "Service"
             ? this.props.handleServiceGetData(appAlias)
             : this.props.dispatch(
@@ -151,6 +179,7 @@ export default class Index extends PureComponent {
             data={{ docker_cmd: image || "" }}
             onSubmit={this.handleSubmit}
             {...this.props}
+            wrappedComponentRef={this.vmFormRef}
             isDemo={true}
             virtualMachineImage={virtualMachineImage}
             onRefreshVirtualMachineImage={this.handleGetVirtualMachineImage}

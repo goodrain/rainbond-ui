@@ -1,3 +1,4 @@
+import { VM_LOGIN_METHODS, VM_SENSITIVE_LOGIN_FIELDS, supportsVmPasswordBootstrap, getVmLoginPasswordError, getVmPasswordUsernameError, safeVmCredentialError, assertNoVmPasswordPayload, clearRegisteredVmLoginFields, normalizeVmLoginGroupId } from '@/utils/vmLoginCredentials';
 /* eslint-disable react/jsx-indent */
 /* eslint-disable no-nested-ternary */
 import {
@@ -110,11 +111,14 @@ export default class Index extends PureComponent {
       radioKey: ['url', 'upload', 'existing'].includes(props.initialSourceType)
         ? props.initialSourceType : DEFAULT_VM_IMAGE_SOURCE,
       urlChoice: 'custom',
+      loginMethod: 'ssh_key',
       fileList: [],
       vmShow: false,
       existFileList: [],
       showAdvanced: false,
       vmCapabilities: {
+        password_bootstrap_supported: false,
+        login_methods: [],
         chunk_upload_supported: false,
         gpu_supported: false,
         usb_supported: false,
@@ -136,10 +140,15 @@ export default class Index extends PureComponent {
   }
 
   componentWillUnmount() {
+    this.loginCredentialsMounted = false;
+    this.loginCapabilitiesGeneration += 1;
+    this.clearSshFields();
     this.loop = false;
   }
 
   componentDidMount() {
+    this.loginCredentialsMounted = true;
+    this.loginSourceScope = this.getLoginScope();
     this.initializeFreshRecommendation();
     this.fetchPipePipeline();
     this.fetchVMCapabilities();
@@ -158,6 +167,7 @@ export default class Index extends PureComponent {
   }
 
   componentDidUpdate(previous) {
+    this.refreshLoginScope();
     if (previous.archInfo !== this.props.archInfo) this.initializeFreshRecommendation();
   }
 
@@ -166,6 +176,129 @@ export default class Index extends PureComponent {
     if (this.sourceSelectionTouched || this.state.radioKey !== 'url' || !archInfo.includes('amd64')) return;
     if (form.getFieldValue('vm_url') || form.getFieldValue('image_name') || form.getFieldValue('os_name')) return;
     this.fillUbuntuNobleQcow2Example();
+  };
+
+  loginCredentialsMounted = false;
+
+  loginCredentialGeneration = 0;
+
+  loginMethodTouched = false;
+
+  loginCapabilitiesGeneration = 0;
+
+  loginSourceScope = null;
+
+  loginCapabilitiesScope = null;
+
+  getLoginScope = () => ({
+    team: globalUtil.getCurrTeamName(),
+    region: globalUtil.getCurrRegionName(),
+    application: String(globalUtil.getAppID() || ''),
+    target: String(this.getFixedGroupId() || '')
+  });
+
+  isCurrentLoginScope = scope => {
+    const current = this.getLoginScope();
+    return !!scope && Object.keys(scope).every(name => current[name] === scope[name]);
+  };
+
+  refreshLoginScope = (refetch = true) => {
+    if (!this.loginCredentialsMounted) return false;
+    if (this.isCurrentLoginScope(this.loginSourceScope)) return true;
+    // A reused form belongs to its original scope until credentials are cleared.
+    // Invalidate synchronously, including when globals change before React updates.
+    this.loginSourceScope = this.getLoginScope();
+    this.loginCapabilitiesScope = null;
+    this.loginCapabilitiesGeneration += 1;
+    this.loginMethodTouched = false;
+    this.clearSshFields();
+    this.setState({ loginMethod: 'ssh_key', vmCapabilities: {
+      password_bootstrap_supported: false, login_methods: [],
+      chunk_upload_supported: false, gpu_supported: false, usb_supported: false,
+      gpu_resources: [], usb_resources: []
+    } });
+    if (refetch) this.fetchVMCapabilities();
+    return false;
+  };
+
+  invalidateLoginReaders = () => { this.loginCredentialGeneration += 1; };
+
+  applyLoginCapabilities = (input, scope) => {
+    if (!this.loginCredentialsMounted || !this.isCurrentLoginScope(scope) ||
+        !this.isCurrentLoginScope(this.loginSourceScope)) return;
+    this.loginCapabilitiesScope = scope;
+    const capabilities = input && typeof input === 'object' ? input : {};
+    const supported = supportsVmPasswordBootstrap(capabilities);
+    const form = this.props.form;
+    const hasCredentialInput = !!form.getFieldValue('ssh_public_key') || !!form.getFieldValue('login_password');
+    let method = this.state.loginMethod || 'ssh_key';
+    if (!supported && method === 'password') {
+      this.invalidateLoginReaders();
+      clearRegisteredVmLoginFields(form, ['login_password']);
+      method = 'ssh_key';
+    } else if (supported && !this.loginMethodTouched && !hasCredentialInput) {
+      method = 'password';
+    }
+    this.setState({
+      vmCapabilities: { ...capabilities, password_bootstrap_supported: supported },
+      loginMethod: method
+    });
+  };
+
+  createPasswordReaderBinder = selectedGroupId => {
+    if (!this.refreshLoginScope() || !this.isCurrentLoginScope(this.loginCapabilitiesScope)) {
+      throw safeVmCredentialError();
+    }
+    const scope = this.loginSourceScope;
+    const generation = this.loginCredentialGeneration;
+    const username = String(this.props.form.getFieldValue('ssh_username') || '').trim();
+    const selectedGroup = normalizeVmLoginGroupId(selectedGroupId);
+    let boundGroup = selectedGroup;
+    let reader;
+    const currentIntent = () => {
+      return this.refreshLoginScope() && generation === this.loginCredentialGeneration &&
+        this.isCurrentLoginScope(scope) && this.isCurrentLoginScope(this.loginCapabilitiesScope) &&
+        supportsVmPasswordBootstrap(this.state.vmCapabilities) && this.state.loginMethod === 'password' &&
+        isLinuxQcow2QuickStart(this.state.radioKey, this.props.form.getFieldValue('vm_url')) &&
+        String(this.props.form.getFieldValue('ssh_username') || '').trim() === username;
+    };
+    // This binder contains no password value. A new-group caller binds only after addGroup succeeds.
+    return resolvedGroupId => {
+      const resolved = normalizeVmLoginGroupId(resolvedGroupId);
+      const currentSelected = normalizeVmLoginGroupId(this.props.form.getFieldValue('group_id') || this.getFixedGroupId());
+      if (!currentIntent() || !resolved || (boundGroup && boundGroup !== resolved) ||
+          (selectedGroup && currentSelected !== selectedGroup) ||
+          (currentSelected && currentSelected !== resolved)) throw safeVmCredentialError();
+      boundGroup = resolved;
+      if (reader) return reader;
+      const expectedGroupId = resolved;
+      reader = request => {
+        const selectedNow = normalizeVmLoginGroupId(this.props.form.getFieldValue('group_id') || this.getFixedGroupId());
+        if (!currentIntent() || !request || request.login_method !== 'password' ||
+            request.ssh_username !== username || request.team_name !== scope.team ||
+            normalizeVmLoginGroupId(request.group_id) !== expectedGroupId ||
+            (selectedGroup && selectedNow !== selectedGroup) ||
+            (selectedNow && selectedNow !== expectedGroupId) ||
+            !isLinuxQcow2QuickStart('url', request.vm_url)) throw safeVmCredentialError();
+        // Group/source/scope checks deliberately precede the only secret read.
+        const value = this.props.form.getFieldValue('login_password');
+        if (getVmLoginPasswordError(value) || getVmPasswordUsernameError(username)) throw safeVmCredentialError();
+        return { login_password: value };
+      };
+      return reader;
+    };
+  };
+
+  handleLoginMethodChange = event => {
+    if (this.loginCredentialsMounted && !this.refreshLoginScope()) return;
+    const next = event.target.value;
+    this.loginMethodTouched = true;
+    if (!VM_LOGIN_METHODS.includes(next) ||
+        (next === 'password' && !supportsVmPasswordBootstrap(this.state.vmCapabilities)) ||
+        next === this.state.loginMethod) return;
+    this.invalidateLoginReaders();
+    clearRegisteredVmLoginFields(this.props.form, [next === 'password' ? 'ssh_public_key' : 'login_password']);
+    this.setState({ loginMethod: next });
   };
 
   getFixedGroupId = () => {
@@ -241,20 +374,19 @@ export default class Index extends PureComponent {
   };
 
   fetchVMCapabilities = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'createApp/getVMCapabilities',
-      payload: {
-        team_name: globalUtil.getCurrTeamName()
-      },
-      callback: res => {
-        const capabilities = (res && res.bean) || this.state.vmCapabilities;
-        this.setState({
-          vmCapabilities: capabilities
-        });
-      },
-      handleError: err => {
-        handleAPIError(err);
+    if (!this.loginCredentialsMounted) return;
+    this.refreshLoginScope(false);
+    const scope = this.loginSourceScope;
+    const generation = ++this.loginCapabilitiesGeneration;
+    const current = () => this.refreshLoginScope() && generation === this.loginCapabilitiesGeneration &&
+      this.isCurrentLoginScope(scope) && this.isCurrentLoginScope(this.loginSourceScope);
+    this.props.dispatch({ type: 'createApp/getVMCapabilities',
+      payload: { team_name: scope.team },
+      callback: response => { if (current()) this.applyLoginCapabilities(response?.bean, scope); },
+      handleError: error => {
+        if (!current()) return;
+        this.applyLoginCapabilities({ password_bootstrap_supported: false, login_methods: [] }, scope);
+        handleAPIError(error);
       }
     });
   };
@@ -320,6 +452,12 @@ export default class Index extends PureComponent {
 
   handleSubmit = (e, options = {}) => {
     e.preventDefault();
+    if (this.loginCredentialsMounted && !this.refreshLoginScope()) {
+      if (options.onInvalid) options.onInvalid();
+      return;
+    }
+    const mountedAtSubmit = this.loginCredentialsMounted;
+    const sourceScope = this.loginSourceScope;
     if (this.props.deferCreation && !options.final) options = {
       retainSsh: true, includeCredentials: false, deferCreation: true, ...options
     };
@@ -335,8 +473,13 @@ export default class Index extends PureComponent {
     }
     // rc-form logs rejected validation values during development. Keep both SSH
     // fields outside that result, including failures in an unrelated form field.
-    const fieldNames = Object.keys(form.getFieldsValue()).filter(name => !['ssh_username', 'ssh_public_key'].includes(name));
+    const fieldNames = Object.keys(form.getFieldsValue()).filter(name => !VM_SENSITIVE_LOGIN_FIELDS.includes(name));
     form.validateFields(fieldNames, (err, fieldsValue) => {
+      if (mountedAtSubmit && (!this.loginCredentialsMounted || !this.refreshLoginScope() ||
+          sourceScope !== this.loginSourceScope)) {
+        if (options.onInvalid) options.onInvalid();
+        return;
+      }
       if (err && options.onInvalid) options.onInvalid();
       if (!err && onSubmit) {
         const uploadedFile = this.getConfirmedUpload();
@@ -365,9 +508,10 @@ export default class Index extends PureComponent {
           fieldsValue.boot_mode = 'uefi';
           fieldsValue.os_name = 'Ubuntu 24.04';
           fieldsValue.os_family = 'linux';
+          fieldsValue.login_method = this.state.loginMethod;
           if (options.includeCredentials !== false) {
             fieldsValue.ssh_username = form.getFieldValue('ssh_username').trim();
-            fieldsValue.ssh_public_key = form.getFieldValue('ssh_public_key').trim();
+            if (this.state.loginMethod === 'ssh_key') fieldsValue.ssh_public_key = form.getFieldValue('ssh_public_key').trim();
           }
         } else if (archInfo && archInfo.length !== 2 && archInfo.length !== 0) {
           fieldsValue.arch = archInfo[0];
@@ -380,6 +524,7 @@ export default class Index extends PureComponent {
             return;
           }
           fieldsValue.os_name = osName;
+          delete fieldsValue.login_method;
           delete fieldsValue.os_family;
           delete fieldsValue.ssh_username;
           delete fieldsValue.ssh_public_key;
@@ -456,8 +601,14 @@ export default class Index extends PureComponent {
             this.generateEnglishName(fieldsValue.group_name || fieldsValue.service_cname);
         }
 
-        onSubmit(fieldsValue, radioKey === 'upload' ? event_id : '');
-        if (usesUbuntuNobleQcow2Example && !options.retainSsh) this.clearSshFields();
+        let requestOptions;
+        if (usesUbuntuNobleQcow2Example && this.state.loginMethod === 'password' && (options.final || !options.deferCreation)) {
+          requestOptions = { passwordBootstrapSupported: supportsVmPasswordBootstrap(this.state.vmCapabilities),
+            bindReadCredentials: this.createPasswordReaderBinder(fieldsValue.group_id || fixedGroupId) };
+        }
+        assertNoVmPasswordPayload(fieldsValue);
+        onSubmit(fieldsValue, radioKey === 'upload' ? event_id : '', requestOptions);
+        if (usesUbuntuNobleQcow2Example && this.state.loginMethod !== 'password' && !options.retainSsh) this.clearSshFields();
       }
     });
   };
@@ -520,19 +671,27 @@ export default class Index extends PureComponent {
   };
 
   clearSshFields = () => {
-    const { form } = this.props;
-    if (form.getFieldInstance('ssh_public_key')) form.resetFields(['ssh_username', 'ssh_public_key']);
+    // Keep the existing public hook name: every parent cleanup already calls it.
+    this.invalidateLoginReaders();
+    clearRegisteredVmLoginFields(this.props.form);
   };
 
   validateSshFields = () => {
     const { form } = this.props;
     if (!isLinuxQcow2QuickStart(this.state.radioKey, form.getFieldValue('vm_url'))) return true;
-    const errors = {
-      ssh_username: getSshUsernameError(form.getFieldValue('ssh_username')),
-      ssh_public_key: getSshPublicKeyError(form.getFieldValue('ssh_public_key'))
-    };
+    const method = this.state.loginMethod;
+    const errors = { ssh_username: getSshUsernameError(form.getFieldValue('ssh_username')) };
+    if (method === 'password') {
+      errors.ssh_username = getVmPasswordUsernameError(form.getFieldValue('ssh_username'));
+      errors.login_password = this.isCurrentLoginScope(this.loginCapabilitiesScope) && supportsVmPasswordBootstrap(this.state.vmCapabilities)
+        ? getVmLoginPasswordError(form.getFieldValue('login_password')) : 'loginPasswordUnavailable';
+    } else if (method === 'ssh_key') {
+      errors.ssh_public_key = getSshPublicKeyError(form.getFieldValue('ssh_public_key'));
+    } else {
+      return false;
+    }
     form.setFields(Object.keys(errors).reduce((fields, name) => ({
-      ...fields, [name]: { errors: errors[name] ? [new Error(t(errors[name]))] : undefined }
+      ...fields, [name]: { value: form.getFieldValue(name), errors: errors[name] ? [new Error(t(errors[name]))] : undefined }
     }), {}));
     return !Object.values(errors).some(Boolean);
   };
@@ -540,16 +699,35 @@ export default class Index extends PureComponent {
   renderSshLoginFields = () => {
     const { form } = this.props;
     if (!isLinuxQcow2QuickStart(this.state.radioKey, form.getFieldValue('vm_url'))) return null;
+    const method = this.state.loginMethod;
+    const passwordSupported = supportsVmPasswordBootstrap(this.state.vmCapabilities);
     return <div className="ph-no-capture ph-mask">
-      <p>{t('quickStartLoginHelp')}</p>
+      {passwordSupported && <div className={styles.loginMethodRow} role="group" aria-label={t('loginMethod')}>
+        <span>{t('loginMethod')}</span>
+        <Radio.Group size="small" value={method} onChange={this.handleLoginMethodChange}>
+          <Radio value="password">{t('loginMethodPassword')}</Radio>
+          <Radio value="ssh_key">{t('loginMethodKey')}</Radio>
+        </Radio.Group>
+      </div>}
       <Form.Item label={t('sshUsername')}>
-        {form.getFieldDecorator('ssh_username', {
-          initialValue: 'ubuntu'
-        })(<Input className="ph-no-capture ph-mask" autoComplete="off" maxLength={32} placeholder={t('sshUsernamePlaceholder')} />)}
+        {form.getFieldDecorator('ssh_username', { initialValue: 'ubuntu' })(
+          <Input className="ph-no-capture ph-mask" autoComplete="off" maxLength={32} onChange={this.invalidateLoginReaders}
+            placeholder={t('sshUsernamePlaceholder')} />
+        )}
       </Form.Item>
-      <Form.Item label={t('sshPublicKey')} extra={t('quickStartPortBoundary')}>
-        {form.getFieldDecorator('ssh_public_key')(<Input.TextArea className="ph-no-capture ph-mask" rows={3} autoComplete="off" autoCorrect="off" spellCheck={false} maxLength={8192} placeholder={t('sshPublicKeyPlaceholder')} />)}
-      </Form.Item>
+      {method === 'password' ? <Form.Item label={t('loginPassword')} extra={t('loginPasswordHelp')}>
+        {form.getFieldDecorator('login_password')(
+          <Input.Password className="ph-no-capture ph-mask" autoComplete="new-password"
+            autoCorrect="off" spellCheck={false} visibilityToggle maxLength={256} onChange={() => { this.loginMethodTouched = true; }}
+            placeholder={t('loginPasswordPlaceholder')} />
+        )}
+      </Form.Item> : <Form.Item label={t('sshPublicKey')} extra={t('quickStartPortBoundary')}>
+        {form.getFieldDecorator('ssh_public_key')(
+          <Input.TextArea className="ph-no-capture ph-mask" rows={3} autoComplete="off"
+            autoCorrect="off" spellCheck={false} onChange={() => { this.loginMethodTouched = true; }} maxLength={8192}
+            placeholder={t('sshPublicKeyPlaceholder')} />
+        )}
+      </Form.Item>}
     </div>;
   };
 
@@ -594,6 +772,7 @@ export default class Index extends PureComponent {
       return;
     }
     this.clearRecommendationMetadata();
+    this.clearSshFields();
     const runtimeSnapshot =
       asset && asset.extra && asset.extra.runtime_snapshot
         ? asset.extra.runtime_snapshot

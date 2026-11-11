@@ -1,4 +1,5 @@
 const { normalizeVmCreationStorageOptions } = require('./vmCreationStorage');
+const { assertNoVmPasswordPayload, getVmLoginMethod, getVmPasswordUsernameError } = require('./vmLoginCredentials');
 
 const UBUNTU_NOBLE_QCOW2_URL =
   'https://cloud-images.ubuntu.com/minimal/releases/noble/release/ubuntu-24.04-minimal-cloudimg-amd64.img';
@@ -210,6 +211,7 @@ async function runCreationPipeline({ payload = {}, resume, onProgress } = {}, ap
     }
   };
   const existingAlias = resume && resume.serviceAlias;
+  try { assertNoVmPasswordPayload(payload); } catch (_) { return fail('quickStartInvalidRequest'); }
   if (existingAlias && typeof existingAlias === 'string' && ALIAS_PATTERN.test(existingAlias))
     state.serviceAlias = existingAlias;
   if (!validResources(resources) || !/^[\w-]+$/.test(payload.team_name || '') ||
@@ -219,9 +221,13 @@ async function runCreationPipeline({ payload = {}, resume, onProgress } = {}, ap
   state.resourceConfigured = resourceAlreadyConfigured;
 
   if (!state.serviceAlias) {
-    if (sshRequired && (!isLinuxQcow2QuickStart(payload.source_type, payload.vm_url) ||
-      getSshUsernameError(payload.ssh_username) || getSshPublicKeyError(payload.ssh_public_key) ||
-      (payload.boot_mode && !['bios', 'uefi'].includes(payload.boot_mode)))) return fail('quickStartInvalidRequest');
+    const loginMethod = getVmLoginMethod(payload.login_method);
+    if ((!sshRequired && payload.login_method === 'password') ||
+      (sshRequired && (!loginMethod || !isLinuxQcow2QuickStart(payload.source_type, payload.vm_url) ||
+      (loginMethod === 'password'
+        ? getVmPasswordUsernameError(payload.ssh_username) || Object.prototype.hasOwnProperty.call(payload, 'ssh_public_key')
+        : getSshUsernameError(payload.ssh_username) || getSshPublicKeyError(payload.ssh_public_key)) ||
+      (payload.boot_mode && !['bios', 'uefi'].includes(payload.boot_mode))))) return fail('quickStartInvalidRequest');
     const creation = sshRequired ? {
       team_name: payload.team_name,
       group_id: payload.group_id,
@@ -236,7 +242,8 @@ async function runCreationPipeline({ payload = {}, resume, onProgress } = {}, ap
       os_name: 'Ubuntu 24.04',
       os_family: 'linux',
       ssh_username: payload.ssh_username.trim(),
-      ssh_public_key: payload.ssh_public_key.trim(),
+      ...(loginMethod === 'password' ? { login_method: 'password' }
+        : { ...(payload.login_method === undefined ? {} : { login_method: 'ssh_key' }), ssh_public_key: payload.ssh_public_key.trim() }),
       sensitiveError: true
     } : ordinaryCreationPayload(payload);
     if (!creation) return fail('quickStartInvalidRequest');

@@ -1,3 +1,4 @@
+import { assertNoVmPasswordPayload, safeVmCredentialError } from '../utils/vmLoginCredentials';
 import {
   buildApp,
   createAppByCode,
@@ -80,22 +81,22 @@ function trackCreateFailed(actionType, payload, error) {
   }));
 }
 
-function* runVirtualMachineWorkflow({ payload, resume, onProgress, callback, isActive }, { call }, runner, actionType) {
+function* runVirtualMachineWorkflow({ payload, resume, onProgress, callback, isActive, readCredentials, passwordBootstrapSupported }, { call }, runner, actionType) {
   // Request credentials exist only in the effect scope, never model state or
   // demo persistence. All emitted progress/results are helper projections.
   const ignoreError = () => {};
   const active = () => {
-    try { return typeof isActive !== 'function' || Boolean(isActive()); } catch (_) { return false; }
+    try { return typeof isActive === 'function' ? Boolean(isActive()) : payload?.login_method !== 'password'; } catch (_) { return false; }
   };
-  const invoke = (service, body) => {
+  const invoke = (service, body, options) => {
     if (!active()) {
       const cancelled = new Error('VM creation cancelled');
       cancelled.name = 'VmCreationCancelled';
       throw cancelled;
     }
-    return service(body, ignoreError);
+    return service(body, ignoreError, options);
   };
-  trackCreateStarted(actionType, payload || {});
+
   let result;
   let latestProgress;
   const reportProgress = progress => {
@@ -108,8 +109,10 @@ function* runVirtualMachineWorkflow({ payload, resume, onProgress, callback, isA
     if (onProgress) onProgress(progress);
   };
   try {
+    assertNoVmPasswordPayload(payload);
+    trackCreateStarted(actionType, payload || {});
     result = yield call(runner, { payload, resume, onProgress: reportProgress }, {
-      createVm: body => invoke(createAppByVirtualMachine, body),
+      createVm: body => invoke(createAppByVirtualMachine, body, { isActive: active, readCredentials, passwordBootstrapSupported: passwordBootstrapSupported === true }),
       getPortDetail: body => invoke(getPortDetail, body),
       getVolumeOpts: body => invoke(getVolumeOpts, body),
       configure: body => invoke(editAppCreateInfo, body),
@@ -302,7 +305,7 @@ export default {
         });
       }
     },
-    
+
     *deleteJarWarUploadStatus({ payload, callback, handleError }, { call }) {
       try {
         const data = yield call(deleteJarWarUploadStatus, payload);
@@ -403,23 +406,32 @@ export default {
         }
       }
     },
-    *createAppByVirtualMachine({ payload, callback, handleError }, { call }) {
-      trackCreateStarted('virtual_machine_create', payload);
+    *createAppByVirtualMachine({ payload, callback, handleError, readCredentials,
+      passwordBootstrapSupported, isActive }, { call }) {
+      const active = () => {
+        try {
+          return typeof isActive === 'function' ? Boolean(isActive()) : payload?.login_method !== 'password';
+        } catch (_) { return false; }
+      };
+      if (!active()) return;
       try {
-        const data = yield call(createAppByVirtualMachine, payload, handleError);
-        if (data) {
-          trackCreateSucceeded('virtual_machine_create', payload);
-        }
-        if (data && callback) {
-          callback(data);
-        }
-      } catch (e) {
-        trackCreateFailed('virtual_machine_create', payload, e);
-        if (handleError) {
-          handleError(e);
-        }
+        assertNoVmPasswordPayload(payload);
+        trackCreateStarted('virtual_machine_create', payload);
+        const guardedError = error => { if (active() && handleError) handleError(error); };
+        const data = yield call(createAppByVirtualMachine, payload, guardedError, {
+          readCredentials, passwordBootstrapSupported: passwordBootstrapSupported === true, isActive: active
+        });
+        if (!active()) return;
+        if (data) trackCreateSucceeded('virtual_machine_create', payload);
+        if (data && callback) callback(data);
+      } catch (error) {
+        if (!active()) return;
+        const safeError = payload?.login_method === 'password' ? safeVmCredentialError() : error;
+        trackCreateFailed('virtual_machine_create', payload, safeError);
+        if (handleError) handleError(safeError);
       }
     },
+
     *quickStartVirtualMachine(action, effects) {
       yield* runVirtualMachineWorkflow(action, effects, runVmQuickStart, 'virtual_machine_quickstart');
     },

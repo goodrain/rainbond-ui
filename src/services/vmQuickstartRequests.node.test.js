@@ -13,6 +13,28 @@ function parse(source) {
 }
 
 function loadService(file, name, request) {
+  if (file === 'createApp.js' && name === 'createAppByVirtualMachine') {
+    const babel = require('@umijs/deps/compiled/babel/core');
+    const sourceFile = path.join(__dirname, file);
+    const compiled = babel.transformSync(fs.readFileSync(sourceFile, 'utf8'), {
+      filename: sourceFile, babelrc: false, configFile: false,
+      presets: [[require('@umijs/deps/compiled/babel/preset-env').default, { targets: { node: 'current' } }]]
+    }).code;
+    const exported = {};
+    require('node:vm').runInNewContext(compiled, { exports: exported, URL,
+      require(dependency) {
+        if (dependency.endsWith('/request')) return request;
+        if (dependency.endsWith('/api.config')) return { baseUrl: '/backend' };
+        if (dependency.endsWith('/sourceBuildPayload')) return require('../utils/sourceBuildPayload');
+        if (dependency.endsWith('/global')) return {};
+        if (dependency.endsWith('/vmCreationStorage')) return require('../utils/vmCreationStorage');
+        if (dependency.endsWith('/vmLoginCredentials')) return require('../utils/vmLoginCredentials');
+        if (dependency.endsWith('/vmQuickStart')) return require('../utils/vmQuickStart');
+        throw new Error('Unexpected VM service dependency');
+      }
+    }, { filename: sourceFile });
+    return exported[name];
+  }
   const source = fs.readFileSync(path.join(__dirname, file), 'utf8');
   const declaration = parse(source).program.body.find(node =>
     node.type === 'ExportNamedDeclaration' && node.declaration?.id?.name === name
@@ -95,12 +117,12 @@ test('VM create forwards the explicit Linux/public-key contract and its failure 
   assert.equal(captured.options.method, 'post');
   assert.equal(captured.options.handleError, handleError);
   assert.equal(captured.options.sensitiveError, true);
-  assert.deepEqual(JSON.parse(JSON.stringify(captured.options.data)), {
+  assert.ok(JSON.stringify(captured.options.data) === JSON.stringify({
     group_id: 7, service_cname: 'vm-a', source_type: 'url', arch: 'amd64',
     vm_url: 'https://images.invalid/disk.qcow2', format: 'qcow2',
     os_name: 'Ubuntu 24.04', os_family: 'linux',
     ssh_username: 'ubuntu', ssh_public_key: inputMarker
-  });
+  }), 'The legacy key request must retain only its allowed fields');
 });
 
 test('ordinary VM payloads do not gain SSH or guest metadata fields', async () => {

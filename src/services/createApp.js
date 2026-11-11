@@ -1,3 +1,5 @@
+import { VM_LOGIN_METHODS, assertNoVmPasswordPayload, safeVmCredentialError, getVmPasswordUsernameError, getVmLoginPasswordError, normalizeVmLoginGroupId } from '../utils/vmLoginCredentials';
+import { isLinuxQcow2QuickStart } from '../utils/vmQuickStart';
 import apiconfig from '../../config/api.config';
 import request from '../utils/request';
 import sourceBuildPayload from '../utils/sourceBuildPayload';
@@ -280,37 +282,54 @@ export async function saveTarImageName(body = {}) {
 /*
    虚拟机镜像创建应用
 */
-export async function createAppByVirtualMachine(body = {}, handleError) {
-  return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/vm_run`,
-    {
-      method: 'post',
-      handleError,
-      sensitiveError: body.sensitiveError === true || body.ssh_username !== undefined || body.ssh_public_key !== undefined,
-      data: {
-        group_id: body.group_id,
-        service_cname: body.service_cname,
-        k8s_component_name: body.k8s_component_name,
-        image_name: body.image_name,
-        source_type: body.source_type,
-        asset_id: body.asset_id,
-        arch: body.arch,
-        vm_url: body.vm_url,
-        event_id: body.event_id,
-        format: body.format,
-        boot_mode: body.boot_mode,
-        gpu_enabled: body.gpu_enabled,
-        gpu_resources: body.gpu_resources,
-        gpu_count: body.gpu_count,
-        usb_enabled: body.usb_enabled,
-        usb_resources: body.usb_resources,
-        ...(body.os_name !== undefined ? { os_name: body.os_name } : {}),
-        ...(body.os_family !== undefined ? { os_family: body.os_family } : {}),
-        ...(body.ssh_username !== undefined ? { ssh_username: body.ssh_username } : {}),
-        ...(body.ssh_public_key !== undefined ? { ssh_public_key: body.ssh_public_key } : {}),
-      }
+function vmPasswordFieldsAtHttpBoundary(body, options) {
+  if (body.login_method !== 'password') return {};
+  try {
+    const active = () => typeof options.isActive === 'function' && options.isActive() === true;
+    if (!active() || options.passwordBootstrapSupported !== true ||
+        typeof options.readCredentials !== 'function' ||
+        !normalizeVmLoginGroupId(body.group_id) ||
+        !isLinuxQcow2QuickStart(body.source_type, body.vm_url) ||
+        body.format !== 'qcow2' || body.arch !== 'amd64' || body.boot_mode !== 'uefi' ||
+        body.os_family !== 'linux' || body.os_name !== 'Ubuntu 24.04' ||
+        Object.prototype.hasOwnProperty.call(body, 'ssh_public_key') ||
+        getVmPasswordUsernameError(body.ssh_username)) throw safeVmCredentialError();
+    const credential = options.readCredentials({
+      login_method: 'password', ssh_username: body.ssh_username,
+      team_name: body.team_name, group_id: body.group_id, vm_url: body.vm_url
+    });
+    if (!active() || !credential || Object.keys(credential).length !== 1 ||
+        getVmLoginPasswordError(credential.login_password)) throw safeVmCredentialError();
+    return { login_password: credential.login_password };
+  } catch (_) {
+    // Provider or active-predicate errors can themselves contain input. Never propagate them.
+    throw safeVmCredentialError();
+  }
+}
+
+export async function createAppByVirtualMachine(body = {}, handleError, options = {}) {
+  assertNoVmPasswordPayload(body);
+  if (body.login_method !== undefined && !VM_LOGIN_METHODS.includes(body.login_method)) throw safeVmCredentialError();
+  const passwordFields = vmPasswordFieldsAtHttpBoundary(body, options);
+  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/vm_run`, {
+    method: 'post', handleError,
+    sensitiveError: body.sensitiveError === true || body.login_method === 'password' ||
+      typeof options.readCredentials === 'function' || body.ssh_username !== undefined || body.ssh_public_key !== undefined,
+    data: {
+      group_id: body.group_id, service_cname: body.service_cname,
+      k8s_component_name: body.k8s_component_name, image_name: body.image_name,
+      source_type: body.source_type, asset_id: body.asset_id, arch: body.arch,
+      vm_url: body.vm_url, event_id: body.event_id, format: body.format, boot_mode: body.boot_mode,
+      gpu_enabled: body.gpu_enabled, gpu_resources: body.gpu_resources, gpu_count: body.gpu_count,
+      usb_enabled: body.usb_enabled, usb_resources: body.usb_resources,
+      ...(body.os_name !== undefined ? { os_name: body.os_name } : {}),
+      ...(body.os_family !== undefined ? { os_family: body.os_family } : {}),
+      ...(body.login_method !== undefined ? { login_method: body.login_method } : {}),
+      ...(body.ssh_username !== undefined ? { ssh_username: body.ssh_username } : {}),
+      ...(body.login_method !== 'password' && body.ssh_public_key !== undefined ? { ssh_public_key: body.ssh_public_key } : {}),
+      ...passwordFields
     }
-  );
+  });
 }
 
 /*

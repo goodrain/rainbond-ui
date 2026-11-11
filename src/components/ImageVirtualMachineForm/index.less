@@ -1,5 +1,15 @@
 @import '~antd/lib/style/themes/default.less';
 
+.loginMethodRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 8px;
+  > span { color: @text-color-secondary; font-size: @rbd-auxiliary-size; }
+  :global(.ant-radio-group) { gap: 8px; }
+}
+
 .vmForm {
   padding: 4px 2px 12px;
 

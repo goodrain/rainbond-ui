@@ -30,6 +30,7 @@ vm.runInNewContext(nativeCode, {
   exports: nativeExports,
   URL,
   require(name) {
+    if (name.endsWith('/vmLoginCredentials')) return require('../../utils/vmLoginCredentials');
     if (name === 'react') return React;
     if (name === 'dva') return { connect: () => Component => Component };
     if (name === 'antd') return {
@@ -65,6 +66,7 @@ function workflowHarness(extra = {}) {
   vm.runInNewContext(code, {
     exports,
     require(name) {
+    if (name.endsWith('/vmLoginCredentials')) return require('../../utils/vmLoginCredentials');
       if (name === 'react') return React;
       if (name === 'dva') return { connect: () => Component => Component };
       if (name === 'antd') return { message: { warning() {} } };
@@ -97,6 +99,7 @@ function chooserFunction(name, dependencies) {
     current: { team: 'team-a', region: 'region-a', application: '868' }
   };
   const scopedDependencies = {
+    ...require('../../utils/vmLoginCredentials'),
     normalizeVmOperatingSystem: quickStart.normalizeVmOperatingSystem,
     vmMountedRef: { current: true }, vmScopeMatches: () => true,
     vmSourceScopeRef: scopeRef, vmScopeForRender: scopeRef.current,

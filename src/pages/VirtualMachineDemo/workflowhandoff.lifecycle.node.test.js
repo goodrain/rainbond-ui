@@ -94,6 +94,7 @@ const moduleExports = {};
 vm.runInNewContext(code, {
   exports: moduleExports, document, window, URL, setTimeout, clearTimeout, console,
   require(name) {
+    if (name.endsWith('/vmLoginCredentials')) return require('../../utils/vmLoginCredentials');
     if (name === 'react') return React;
     if (name === 'react-dom') return ReactDOM;
     if (name === 'dva') return { connect: () => Component => Component };
