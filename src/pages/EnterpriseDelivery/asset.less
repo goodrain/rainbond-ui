@@ -457,61 +457,60 @@
 
 .eventComponent { display: inline-block; margin-right: 8px; color: @text-color-secondary; font-size: @rbd-auxiliary-size; }
 
-.runtimeComponentList { display: flex; flex-direction: column; gap: 12px; }
-.runtimeComponentCard { display: block; width: 100%; min-width: 0; padding: 16px 20px; border: 1px solid @border-color-base; border-radius: 8px;
-  background: @body-background; color: @text-color; text-align: left; cursor: pointer;
-  &:hover { border-color: fade(@primary-color, 45%); }
-  &:focus-visible { outline: 2px solid @primary-color; outline-offset: 2px; }
-}
-.activeRuntimeComponent { border-color: fade(@primary-color, 55%); background: fade(@primary-color, 3%); }
-.runtimeCardHeading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
-  strong { font-size: @rbd-content-size; font-weight: 500; line-height: 24px; overflow-wrap: anywhere; }
-}
-.runtimeComponentDetails { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-top: 12px; font-size: @rbd-content-size; line-height: 22px; }
-.runtimeComponentUpdated { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; color: @text-color-secondary; font-size: @rbd-auxiliary-size; line-height: 20px; }
-.selectedEventComponent { display: inline-block; margin-left: 12px; color: @text-color-secondary; font-size: @rbd-content-size; font-weight: 400; }
 .versionChanges { margin-top: 24px; padding-top: 24px; border-top: 1px solid @border-color-base; }
+.versionChangesTab > .versionChanges { margin: 0; padding: 0; border: 0; }
 .runtimeOverview.runtimeContext { padding: 0 0 20px; margin-bottom: 0; border: 0; border-bottom: 1px solid @border-color-base; border-radius: 0; gap: 12px;
   .environmentIdentity { margin: 0; h3 { font-size: @rbd-content-size; line-height: 22px; } }
   .resourceSummary { gap: 12px 20px; dt { font-size: @rbd-auxiliary-size; } }
 }
-.runtimeWorkspace { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 0; height: 560px; margin-top: 24px;
+.runtimeWorkspace { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 0; height: 560px; margin-top: 24px;
   border: 1px solid @border-color-base; border-radius: 8px; overflow: hidden;
 }
 .runtimeComponentPanel, .runtimeEventPanel { display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; }
-.runtimePanelHeading { display: flex; flex-direction: column; justify-content: center; gap: 12px; min-height: 120px; padding: 20px 16px; border-bottom: 1px solid @border-color-base;
+.runtimePanelHeading { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 88px; padding: 16px 20px; border-bottom: 1px solid @border-color-base;
   h3 { margin: 0; font-size: @rbd-content-size; color: @heading-color; font-weight: 500; line-height: 24px; }
 }
 .runtimeEventPanel > .runtimePanelHeading { flex-direction: row; align-items: center; justify-content: space-between;
-  padding: 20px 24px;
+  padding: 16px 20px; gap: 12px;
   > div { min-width: 0; }
   .muted { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 4px; }
   :global(.ant-btn) { flex-shrink: 0; padding-right: 0; }
 }
 .runtimeComponentScroll, .runtimeEventScroll { flex: 1; min-height: 0; overflow-y: auto; scrollbar-gutter: stable; }
-.runtimeComponentPanel {
-  background: fade(@rbd-background-color, 65%); border-right: 1px solid @border-color-base;
-  > .runtimePanelHeading h3 { color: @text-color-secondary; font-size: @rbd-auxiliary-size; font-weight: 400; }
-  .runtimeComponentList { gap: 0; }
-  .runtimeComponentCard { padding: 12px 16px; background: transparent; border: 0; border-radius: 0;
-    &:hover { background: fade(@primary-color, 3%); }
-    &:focus-visible { outline-offset: -2px; }
+.runtimeComponentPanel { border-right: 1px solid @border-color-base; background: @body-background;
+  > .runtimePanelHeading :global(.ant-input-affix-wrapper) { width: 45%; max-width: 240px; }
+  > .runtimePanelHeading h3 { font-size: @rbd-sub-title-size; }
+}
+.runtimeEventPanel { background: fade(@rbd-background-color, 22%); }
+.runtimeComponentScroll { overflow: auto; }
+.runtimeComponentTable {
+  :global(.ant-table) { min-width: 620px; font-size: @rbd-content-size; }
+  :global(table) { table-layout: fixed; }
+  :global(.ant-table-small) { border: 0; }
+  :global(.ant-table-small > .ant-table-content > .ant-table-body) { margin: 0; }
+  :global(.ant-table-thead > tr > th) { position: sticky; top: 0; z-index: 1; padding: 12px 16px !important; font-size: @rbd-auxiliary-size; font-weight: 400; color: @text-color-secondary; }
+  :global(.ant-table-tbody > tr > td) { padding: 12px 16px !important; vertical-align: middle; border-bottom: 1px solid @border-color-base; }
+  :global(.ant-table-tbody > tr) { cursor: pointer; }
+  :global(.ant-badge-status-text) { font-size: @rbd-auxiliary-size; }
+  .runtimeSelectedRow > td { background: fade(@primary-color, 4%);
+    &:first-child { box-shadow: inset 3px 0 @primary-color; }
   }
-  .activeRuntimeComponent { background: @body-background; box-shadow: inset 3px 0 @primary-color;
-    .runtimeCardHeading strong { color: @primary-color; }
-  }
-  .runtimeCardHeading { flex-wrap: nowrap;
-    strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    :global(.ant-badge) { flex-shrink: 0; }
-    :global(.ant-badge-status-text) { font-size: @rbd-auxiliary-size; }
-  }
-  .runtimeComponentUpdated { margin-top: 4px; gap: 6px; line-height: 20px; }
+}
+.runtimeComponentName { display: block; max-width: 100%; padding: 0; border: 0; background: transparent; color: @heading-color;
+  font-size: @rbd-content-size; font-weight: 500; line-height: 22px; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer;
+  &[aria-pressed=true] { color: @primary-color; }
+  &:focus-visible { outline: 2px solid @primary-color; outline-offset: 2px; }
+}
+.runtimeTableResources, .runtimeTableTime { display: flex; flex-direction: column; gap: 2px; font-size: @rbd-auxiliary-size; line-height: 20px; font-variant-numeric: tabular-nums;
+  small { color: @text-color-secondary; font-size: @rbd-auxiliary-size; }
 }
 .runtimeEventEyebrow { display: block; margin-bottom: 4px; color: @text-color-secondary; font-size: @rbd-auxiliary-size; line-height: 20px; }
-.runtimeSelectedTitle { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
-.runtimeEventPanel .runtimeSelectedTitle h3 { color: @heading-color; font-size: @rbd-title-size; font-weight: 600; line-height: 28px; overflow-wrap: anywhere; }
-.runtimeSelectedResources { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 8px; color: @text-color-secondary; font-size: @rbd-auxiliary-size; line-height: 20px; }
-.runtimeEventScroll { padding: 20px 24px;
+.runtimeSelectedTitle { display: flex; align-items: center; gap: 8px;
+  :global(.ant-badge) { flex-shrink: 0; }
+  :global(.ant-badge-status-text) { font-size: @rbd-auxiliary-size; }
+}
+.runtimeEventPanel .runtimeSelectedTitle h3 { min-width: 0; color: @heading-color; font-size: @rbd-content-size; font-weight: 500; line-height: 24px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.runtimeEventScroll { padding: 20px;
   .eventTimeline { margin: 4px 0 0; padding: 0; }
   .eventTimeline p { font-size: @rbd-content-size; line-height: 24px; white-space: pre-wrap; overflow-wrap: anywhere; margin-bottom: 6px; }
   :global(.ant-timeline-item) { padding-bottom: 24px; }
@@ -519,12 +518,19 @@
 .runtimePanelFooter { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; min-height: 48px; padding: 10px 16px; border-top: 1px solid @border-color-base;
   color: @text-color-secondary; font-size: @rbd-auxiliary-size; line-height: 20px;
 }
-@media (max-width: @screen-lg) {
+@media (max-width: (@screen-xl + 160px)) {
   .runtimeWorkspace { grid-template-columns: minmax(0, 1fr); height: auto; }
   .runtimeComponentPanel { height: 340px; border-right: 0; border-bottom: 1px solid @border-color-base; }
   .runtimeEventPanel { height: 460px; }
 }
 @media (max-width: @screen-sm) {
-  .runtimeComponentCard { padding: 16px; }
-  .runtimeComponentDetails { flex-direction: column; gap: 4px; }
+  .runtimeComponentPanel > .runtimePanelHeading { flex-wrap: wrap; gap: 12px; }
+  .runtimeComponentPanel > .runtimePanelHeading :global(.ant-input-affix-wrapper) { width: 100%; max-width: none; }
+  .runtimeEventPanel > .runtimePanelHeading { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding: 16px;
+    .runtimeEventHeadingCopy { display: contents; }
+    .runtimeEventEyebrow { grid-column: 1; grid-row: 1; margin: 0; }
+    .runtimeSelectedTitle { grid-column: ~"1 / -1"; grid-row: 2; }
+    :global(.ant-btn) { grid-column: 2; grid-row: 1; padding: 0; height: 20px; font-size: @rbd-auxiliary-size; }
+  }
+  .runtimeEventScroll { padding: 16px; }
 }

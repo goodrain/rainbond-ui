@@ -456,6 +456,7 @@ class CreateAppModels extends PureComponent {
       marketId,
       appName,
       marketVersion,
+      deliverySource,
       user
     } = this.props;
     const {
@@ -565,17 +566,17 @@ class CreateAppModels extends PureComponent {
                       message: formatMessage({ id: 'placeholder.appShare.appPublish.name' })
                     },
                     {
-                      max: 16,
-                      message: formatMessage({ id: 'placeholder.max16' })
+                      max: deliverySource ? 64 : 16,
+                      message: formatMessage({ id: deliverySource ? 'delivery.nameRequired' : 'placeholder.max16' })
                     },
                     {
                       pattern: /^[a-z0-9A-Z\u4e00-\u9fa5]([a-zA-Z0-9_\-\u4e00-\u9fa5]*[a-z0-9A-Z\u4e00-\u9fa5])?$/,
                       message: formatMessage({ id: 'placeholder.nameSpaceReg' })
                     }
                   ]
-                })(<Input placeholder={formatMessage({ id: 'placeholder.appShare.appPublish.name' })} />)}
+                })(<Input placeholder={formatMessage({ id: deliverySource ? 'delivery.nameRequired' : 'placeholder.appShare.appPublish.name' })} />)}
                 <div className={styles.conformDesc}>
-                  {formatMessage({ id: 'appPublish.btn.record.creactAppModel.pages.label.max16' })}
+                  {formatMessage({ id: deliverySource ? 'delivery.nameRequired' : 'appPublish.btn.record.creactAppModel.pages.label.max16' })}
                 </div>
               </FormItem>
               {!marketId && !fixedScope && (

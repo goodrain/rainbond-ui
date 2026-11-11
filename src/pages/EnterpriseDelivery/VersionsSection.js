@@ -50,12 +50,13 @@ export default class VersionsSection extends PureComponent {
             <div className={`${styles.notes} ${this.state.expandedNotes[template.id] ? styles.expandedNotes : ''}`} aria-label={w('releaseNotes')}><div className={styles.notesText}>{template.description || w('noDescription')}</div></div>
           </div>
 
-          <Tabs activeKey={this.state.tabs[template.id] || 'content'} animated={false}
+          <Tabs activeKey={this.state.tabs[template.id] || 'changes'} animated={false}
             onChange={tab => this.setState(state => ({ tabs: { ...state.tabs, [template.id]: tab } }))}>
+            <Tabs.TabPane key="changes" tab={w('versionChangesTab')}>
+              <div className={styles.versionChangesTab}><VersionChanges template={template} baseline={baseline && baseline.template} onSource={onSource} /></div>
+            </Tabs.TabPane>
             <Tabs.TabPane key="content" tab={w('versionContent')}>
-
-              <VersionConfiguration key={template.id} template={template} onSource={onSource}
-                renderChanges={componentId => <VersionChanges template={template} baseline={baseline && baseline.template} componentId={componentId} onSource={onSource} />} />
+              <VersionConfiguration key={template.id} template={template} onSource={onSource} />
             </Tabs.TabPane>
             <Tabs.TabPane key="audit" tab={w('reviewTab')}><ReviewHistory reviews={[item]} /></Tabs.TabPane>
             <Tabs.TabPane key="delivery" tab={w('deliveryRecordsTab')}>

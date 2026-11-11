@@ -8,10 +8,10 @@ function section() {
   const source = fs.readFileSync(`${__dirname}/RuntimeSection.js`, 'utf8');
   const ast = parser.parse(source, { sourceType: 'module', plugins: ['jsx', 'decorators-legacy', 'classProperties'] });
   const declaration = ast.program.body.find(node => node.type === 'ExportDefaultDeclaration').declaration;
-  const methods = declaration.body.body.filter(node => node.key && ['loadEvents', 'componentDidUpdate'].includes(node.key.name));
+  const methods = declaration.body.body.filter(node => node.key && ['loadEvents', 'loadVisits', 'componentDidUpdate'].includes(node.key.name));
   const Target = vm.runInNewContext(`class Target { ${methods.map(method => source.slice(method.start, method.end)).join('\n')} }; Target`);
   const target = new Target(), requests = [];
-  target.alive = true;target.generation = 0;target.pending = new Set();target.state = { events: {} };
+  target.alive = true;target.generation = 0;target.visitTicket = 0;target.pending = new Set();target.state = { events: {}, accesses: [] };
   target.props = { environment: { scope: { teamName: 'team', regionName: 'region', appID: '1' } }, dispatch: request => requests.push(request) };
   target.setState = update => { Object.assign(target.state, typeof update === 'function' ? update(target.state) : update); };
   return { target, requests };
@@ -74,4 +74,20 @@ test('status refresh leaves a failed older-page request available for retry', ()
   assert.equal(requests.length, 0);
   assert.equal(target.state.events.web.failedPage, 2);
   assert.equal(target.state.events.web.items.length, 1);
+});
+
+test('stale visit responses cannot expose another application or replace newer access information', () => {
+  const { target, requests } = section();
+  target.props.data = { components: [web] };
+  target.loadVisits();
+  target.generation += 1;target.state.accesses = [];
+  target.props.environment = { scope: { teamName: 'other-team', regionName: 'other-region', appID: '2' } };
+  target.loadVisits();requests[1].callback({ list: ['current-application'] });
+  requests[0].callback({ list: ['previous-application'] });
+  assert.equal(target.state.accesses[0], 'current-application');
+  target.loadVisits();target.loadVisits();
+  requests[3].callback({ list: ['latest-access'] });requests[2].onError();
+  assert.equal(target.state.accesses[0], 'latest-access');
+  target.loadVisits();target.alive = false;requests[4].callback({ list: ['unmounted'] });
+  assert.equal(target.state.accesses[0], 'latest-access');
 });

@@ -16,6 +16,7 @@ import styles from './index.less';
 import timelineStyles from './records.less';
 const { templateGroups, nextTemplateVersion } = require('../../../utils/templateTimeline');
 const { deliveryScope } = require('../../../utils/templateDelivery');
+const { deliveryTargetPath } = require('../../../utils/deliveryNavigation');
 
 @connect(({ user, teamControl, templateDelivery, application, loading }) => ({
   user: user.currentUser, team: teamControl.currentTeam, permissions: teamControl.currentTeamPermissionsInfo,
@@ -29,6 +30,7 @@ export default class DeliveryRecords extends PureComponent {
   alive = false;
   generation = 0;
   checkTicket = 0;
+  pendingDeliveryTaskId = '';
   componentDidMount() {
     this.alive = true;this.load();
     this.workflowTimer = setInterval(() => { if (!document.hidden) this.loadWorkflow(); }, 5000);
@@ -43,7 +45,7 @@ export default class DeliveryRecords extends PureComponent {
   componentDidUpdate(previous) {
     if (JSON.stringify(previous.match.params) !== JSON.stringify(this.props.match.params) ||
       (previous.user || {}).enterprise_id !== (this.props.user || {}).enterprise_id || (previous.user || {}).user_id !== (this.props.user || {}).user_id) {
-      this.generation += 1;this.checkTicket += 1;this.checking = false;this.acting = false;this.lastRecords = [];clearTimeout(this.checkTimer);
+      this.generation += 1;this.checkTicket += 1;this.checking = false;this.acting = false;this.lastRecords = [];this.pendingDeliveryTaskId = '';clearTimeout(this.checkTimer);
       this.setState({ detail: null, listings: [], deployments: [], listing: null, delivery: null, checks: [], changesOpen: false, exporting: null, profileEditor: null }, this.load);
     } else if ((previous.records !== this.props.records || previous.loading && !this.props.loading) && !this.props.loading && !this.props.failed) {
       this.lastRecords = this.props.records;
@@ -62,7 +64,7 @@ export default class DeliveryRecords extends PureComponent {
       this.checkChanges(records);
     } });
     this.props.dispatch({ type: 'deliveryCenter/load', payload: { kind: 'application', scope, user: this.props.user }, callback: bean => {
-      if (this.active(generation) && sequence === this.loadSequence) this.setState({ listings: bean.listings, deployments: bean.deployments, workflowFailed: false });
+      if (this.active(generation) && sequence === this.loadSequence && !this.followDelivery(bean.deployments)) this.setState({ listings: bean.listings, deployments: bean.deployments, workflowFailed: false });
     }, onError: () => { if (this.active(generation) && sequence === this.loadSequence) this.setState({ workflowFailed: true }); } });
   };
   loadWorkflow = () => {
@@ -72,8 +74,19 @@ export default class DeliveryRecords extends PureComponent {
     this.props.dispatch({ type: 'deliveryCenter/load', payload: { kind: 'application',
       scope: getScope(this.props.match.params, this.props.user), user: this.props.user }, callback: bean => {
       this.workflowLoading = false;
-      if (this.active(generation)) this.setState({ listings: bean.listings, deployments: bean.deployments, workflowFailed: false });
+      if (this.active(generation) && !this.followDelivery(bean.deployments)) this.setState({ listings: bean.listings, deployments: bean.deployments, workflowFailed: false });
     }, onError: () => { this.workflowLoading = false; } });
+  };
+  followDelivery = tasks => {
+    if (!this.pendingDeliveryTaskId) return false;
+    const task = (tasks || []).find(item => item.id === this.pendingDeliveryTaskId);
+    if (!task) return false;
+    if (['failed', 'cancelled'].includes(task.status)) { this.pendingDeliveryTaskId = '';return false; }
+    const path = deliveryTargetPath(task);
+    if (!path) return false;
+    this.pendingDeliveryTaskId = '';
+    this.props.dispatch(routerRedux.push(path));
+    return true;
   };
   focus = () => this.checkChanges();
   visibility = () => { if (!document.hidden) this.checkChanges(); else clearTimeout(this.checkTimer); };
@@ -105,8 +118,15 @@ export default class DeliveryRecords extends PureComponent {
     this.acting = true;
     this.props.dispatch({ type: 'deliveryCenter/act', payload: { ...payload, template, user, scope: getScope(match.params, user),
       authorized: canPublishTemplate(user, team, permissions, match.params),
-      appName: String(appDetail.group_id) === String(match.params.appID) ? appDetail.group_name : undefined }, callback: () => {
-      if (this.active(generation)) { this.acting = false;this.setState({ listing: null, delivery: null }, this.load); }
+      appName: String(appDetail.group_id) === String(match.params.appID) ? appDetail.group_name : undefined }, callback: task => {
+      if (this.active(generation)) {
+        this.acting = false;
+        if (payload.operation === 'deploy' && payload.kind === 'delivery' && task && task.id) {
+          this.pendingDeliveryTaskId = task.id;
+          if (this.followDelivery([task])) return;
+        }
+        this.setState({ listing: null, delivery: null }, this.load);
+      }
     }, onError: () => { if (this.active(generation)) this.acting = false; } });
   };
   create = group => this.props.dispatch(routerRedux.push({ pathname: `${deliveryPath(this.props.match.params)}/create`, query: {

@@ -9,6 +9,7 @@ import RuntimeSection from './RuntimeSection';
 import VersionsSection from './VersionsSection';
 import styles from './asset.less';
 const { orderedVersions, versionSources, environmentRecords } = require('../../utils/deliveryAsset');
+const { deliveryTargetPath } = require('../../utils/deliveryNavigation');
 const initialState = () => ({ group: null, deployments: [], loading: true, failed: false, source: [], sourceLoading: false, sourceFailed: false,
   selectedSourceId: '', sourceVersionId: null, histories: {}, targets: [], runtime: null, runtimeLoading: false,
   selectedVersionId: '', activeSection: 'sources', review: null, deployment: null });
@@ -18,6 +19,7 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
   state = initialState();
   generation = 0;
   alive = false;
+  pendingDeliveryTaskId = '';
   componentDidMount() {
     this.alive = true;this.load();
     this.poll = setInterval(() => { if (!document.hidden && !this.state.review && !this.state.deployment) this.load(true); }, 5000);
@@ -25,7 +27,7 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
   componentDidUpdate(previous) {
     if (JSON.stringify(previous.match.params) !== JSON.stringify(this.props.match.params) ||
       (previous.user || {}).user_id !== (this.props.user || {}).user_id || (previous.user || {}).enterprise_id !== (this.props.user || {}).enterprise_id) {
-      this.generation += 1;this.observedGroup = null;this.observer && this.observer.disconnect();this.setState(initialState(), this.load);
+      this.generation += 1;this.pendingDeliveryTaskId = '';this.observedGroup = null;this.observer && this.observer.disconnect();this.setState(initialState(), this.load);
     }
     if (this.state.group && this.observedGroup !== this.state.group.id && this.assetRoot) {
       this.observedGroup = this.state.group.id;
@@ -68,12 +70,24 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
       const group = bean.groups.find(item => item.id === match.params.groupId), first = !this.state.group;
       const ids = new Set(group ? group.versions.map(item => item.template.id) : []);
       const deployments = (bean.deployments || []).filter(item => item.template_group_id ? item.template_group_id === match.params.groupId : ids.has(item.template_id));
+      if (this.followDelivery(deployments)) return;
       this.setState({ group, deployments, loading: false, failed: false }, () => {
         if (!group) return;
         if (first) { this.loadSources();this.loadTargets();this.runtime(); }
         else if (!this.state.runtimeLoading && Date.now() - (this.runtimeUpdated || 0) > 30000) this.runtime();
       });
     }, onError: () => { if (this.active(generation) && ticket === this.centerTicket) this.setState({ loading: false, failed: true }); } });
+  };
+  followDelivery = tasks => {
+    if (!this.pendingDeliveryTaskId) return false;
+    const task = (tasks || []).find(item => item.id === this.pendingDeliveryTaskId);
+    if (!task) return false;
+    if (['failed', 'cancelled'].includes(task.status)) { this.pendingDeliveryTaskId = '';return false; }
+    const path = deliveryTargetPath(task);
+    if (!path) return false;
+    this.pendingDeliveryTaskId = '';
+    this.props.dispatch(routerRedux.push(path));
+    return true;
   };
   loadSources = () => {
     const generation = this.generation;
@@ -119,8 +133,14 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
   };
   act = payload => {
     const generation = this.generation;
-    this.props.dispatch({ type: 'deliveryCenter/act', payload: { ...payload, user: this.props.user }, callback: () => {
-      if (this.active(generation)) this.setState({ review: null, deployment: null }, () => this.load(true));
+    this.props.dispatch({ type: 'deliveryCenter/act', payload: { ...payload, user: this.props.user }, callback: task => {
+      if (this.active(generation)) {
+        if (payload.operation === 'deploy' && payload.kind === 'delivery' && task && task.id) {
+          this.pendingDeliveryTaskId = task.id;
+          if (this.followDelivery([task])) return;
+        }
+        this.setState({ review: null, deployment: null }, () => this.load(true));
+      }
     } });
   };
   render() {
@@ -146,7 +166,7 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
             onPage={page => this.history(component.service_id, page)}
             loading={sourceLoading} failed={sourceFailed} onRefresh={this.loadSources} />
           <RuntimeSection environment={environment} targets={targets}
-            onRefresh={this.runtime} data={runtime} loading={runtimeLoading} sourceAppName={group.app_name} onVersion={this.focusVersion}
+            data={runtime} loading={runtimeLoading} sourceAppName={group.app_name} onVersion={this.focusVersion}
             versions={group.versions} onSource={this.focusSource} sourceIds={sources.map(item => item.service_id)} />
           <VersionsSection group={group} item={version} deployments={this.state.deployments} onSelect={this.selectVersion}
             onReview={item => this.setState({ review: item })} onTest={item => this.setState({ deployment: item })}
