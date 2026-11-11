@@ -240,6 +240,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const thirdListFormRef = useRef(null);
   const databaseFormRef = useRef(null);
   const vmFormRef = useRef(null);
+  const vmSourceFormContainerRef = useRef(null);
   const vmSourceScopeRef = useRef(null);
   const vmScopeForRender = vmSourceScopeRef.current;
   const vmMountedRef = useRef(true);
@@ -281,6 +282,16 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       onCancel();
     }
   });
+  const vmSourceModalOpen = visible && !vmHardwareOpen && currentView === 'form' && currentFormType === 'vm';
+  useEffect(() => {
+    if (!vmSourceModalOpen) return undefined;
+    // Antd retains the native form and its scroll position between wizard steps.
+    const timer = setTimeout(() => {
+      const body = vmSourceFormContainerRef.current?.closest('.ant-modal-body');
+      if (body) body.scrollTop = 0;
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [vmSourceModalOpen]);
   const marketInstallFormRef = useRef(null);
   const localInstallFormRef = useRef(null);
   const imageRepoFormRef = useRef(null);
@@ -3261,7 +3272,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
             )}
           </div>
         ) : currentView === 'form' ? (
-          <div className={styles.formWrapper}>
+          <div className={styles.formWrapper} ref={currentFormType === 'vm' ? vmSourceFormContainerRef : undefined}>
             {currentFormType === 'docker' && (
               <ImageNameForm
                 wrappedComponentRef={dockerFormRef}
