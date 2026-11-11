@@ -5,6 +5,8 @@ import { formatMessage } from '@/utils/intl';
 import { routerRedux } from 'dva/router';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import VirtualMachine from './virtual-machine'
+import { VmCreateWorkflow } from '../VirtualMachineDemo/Workflow';
+import { isVmWorkflowDemoEnabled } from '../../utils/vmWorkflowDemo';
 import roleUtil from '../../utils/newRole';
 import pageheaderSvg from '@/utils/pageHeaderSvg';
 import { Icon, Button } from 'antd';
@@ -61,8 +63,9 @@ export default class Main extends PureComponent {
     );
   };
   render() {
+    const vmWorkflow = isVmWorkflowDemoEnabled();
     const map = {
-      VirtualMachine: VirtualMachine
+      VirtualMachine: vmWorkflow ? VmCreateWorkflow : VirtualMachine
     };
 
     const tabList = [
@@ -100,10 +103,10 @@ export default class Main extends PureComponent {
       <PageHeaderLayout
         breadcrumbList={breadcrumbList}
         title={formatMessage({id: 'Vm.createVm.creatCom'})}
-        onTabChange={this.handleTabChange}
-        content={formatMessage({id: 'Vm.createVm.creatApp'})}
-        tabActiveKey={type}
-        tabList={tabList}
+        onTabChange={vmWorkflow ? undefined : this.handleTabChange}
+        content={vmWorkflow ? undefined : formatMessage({id: 'Vm.createVm.creatApp'})}
+        tabActiveKey={vmWorkflow ? undefined : type}
+        tabList={vmWorkflow ? undefined : tabList}
         titleSvg={pageheaderSvg.getPageHeaderSvg('vm',18)}
         extraContent={
           <Button onClick={() => {

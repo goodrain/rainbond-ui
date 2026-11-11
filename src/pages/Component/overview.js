@@ -410,6 +410,10 @@ export default class Index extends PureComponent {
     this.mounted = true;
     this.pollingEnabled = !!this.props.timers;
     this.pollingIdentity = this.getPollingIdentity();
+    if (this.props.section === 'operations') {
+      this.load();
+      return;
+    }
     if (this.props.method !== 'vm') {
       this.loadBuildSourceInfo();
       this.getVersionList();
@@ -421,10 +425,10 @@ export default class Index extends PureComponent {
 
   componentDidUpdate(prevProps) {
     this.syncPolling();
-    if (prevProps.status !== this.props.status) {
+    if (this.props.section !== 'operations' && prevProps.status !== this.props.status) {
       this.refreshVMProfileForVNC();
     }
-    if (prevProps.pluginsList !== this.props.pluginsList) {
+    if (this.props.section !== 'operations' && prevProps.pluginsList !== this.props.pluginsList) {
       this.loadStorageUsageIfNeeded(this.props.pluginsList);
     }
   }
@@ -471,6 +475,10 @@ export default class Index extends PureComponent {
     }
   };
   load = () => {
+    if (this.props.section === 'operations') {
+      this.fetchOperationLog(true);
+      return;
+    }
     this.fetchPods(true);
     this.fetchOperationLog(true);
     this.loadStorageUsageIfNeeded(this.props.pluginsList);
@@ -623,7 +631,7 @@ export default class Index extends PureComponent {
 
   onAction = action => {
     this.fetchOperationLog(false);
-    this.getVersionList();
+    if (this.props.section !== 'operations') this.getVersionList();
   };
   onLogPush = isopen => {
     this.fetchOperationLog(false, isopen);
@@ -863,11 +871,22 @@ export default class Index extends PureComponent {
       });
   };
 
+  renderOperationRecord = () => (
+    <OperationRecord
+      isopenLog={this.state.isopenLog}
+      onLogPush={this.onLogPush}
+      has_next={this.state.has_next}
+      logList={this.state.logList}
+      recordLoading={this.state.recordLoading}
+      handleNextPage={this.handleNextPage}
+    />
+  );
+
   render() {
+    if (this.props.section === 'operations') return this.renderOperationRecord();
     const { status, componentPermissions, appDetail, method, pluginsList } = this.props;
     const {
       resourcesLoading,
-      logList,
       memory,
       beanData,
       dataList,
@@ -877,9 +896,6 @@ export default class Index extends PureComponent {
       more,
       disk,
       buildSource,
-      isopenLog,
-      recordLoading,
-      has_next,
       current_version,
       pages,
       pageSize,
@@ -947,16 +963,7 @@ export default class Index extends PureComponent {
             />
           </Card>
         )}
-        {!more && (
-          <OperationRecord
-            isopenLog={isopenLog}
-            onLogPush={this.onLogPush}
-            has_next={has_next}
-            logList={logList}
-            recordLoading={recordLoading}
-            handleNextPage={this.handleNextPage}
-          />
-        )}
+        {!more && this.renderOperationRecord()}
       </Fragment>
     );
   }

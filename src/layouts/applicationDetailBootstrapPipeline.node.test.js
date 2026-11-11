@@ -104,6 +104,7 @@ async function withApplication(verify, options = {}) {
       '../utils/error': { notifyAPIWarning: value => warnings.push(value) },
       '../utils/missingResourceHelpers': require('../utils/missingResourceHelpers'),
       '../../utils/missingResourceHelpers': require('../utils/missingResourceHelpers'),
+      '../../utils/vmWorkflowDemo': require('../utils/vmWorkflowDemo'),
       '../utils/teamOverviewBootstrap': require('../utils/teamOverviewBootstrap'),
       '../components/Team/TeamEventList/helpers': require('../components/Team/TeamEventList/helpers'),
       './customerServiceFloatVisibility': { shouldShowCustomerServiceFloat: () => false },

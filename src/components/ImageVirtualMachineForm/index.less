@@ -5,7 +5,8 @@
 
   :global {
     .ant-form-item {
-      margin-bottom: 20px;
+      margin-bottom: 6px;
+      padding-bottom: 0;
     }
 
     .ant-form-item-label>label {
@@ -39,6 +40,34 @@
   display: grid;
   grid-template-columns: 1fr;
 }
+
+.linkChoices {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.linkChoice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid @border-color-base;
+  border-radius: @border-radius-base;
+  background: @component-background;
+  color: @text-color;
+  text-align: left;
+  cursor: pointer;
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:focus { outline: 2px solid fade(@primary-color, 30%); outline-offset: 2px; }
+}
+
+.linkChoiceActive { border-color: @primary-color; background: fade(@primary-color, 5%); }
+.recommendationIcon { width: 32px; height: 32px; object-fit: contain; }
+.linkChoiceText { display: flex; flex-direction: column; gap: 4px; > span { color: @text-color-secondary; font-size: @rbd-auxiliary-size; } }
+.recommendationLabel { margin-left: 6px; color: @primary-color; font-size: @rbd-auxiliary-size; font-weight: normal; }
+.recommendationHint { color: @text-color-secondary; font-size: @rbd-auxiliary-size; }
 
 .publicVmGrid {
   display: grid;

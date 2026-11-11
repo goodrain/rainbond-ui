@@ -1,6 +1,8 @@
 import apiconfig from '../../config/api.config';
 import request from '../utils/request';
 import sourceBuildPayload from '../utils/sourceBuildPayload';
+import globalUtil from '../utils/global';
+import { requestVmCreationStorage } from '../utils/vmCreationStorage';
 
 const { sanitizePackageToolPayload } = sourceBuildPayload;
 
@@ -75,11 +77,12 @@ export async function createThirdPartyServices(body = {}) {
 /*
    Jar、War包上传文件获取事件记录
 */
-export async function createJarWarServices(body = {}) {
+export async function createJarWarServices(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/package_build/record`,
     {
       method: 'post',
+      handleError,
       data: {
         region: body.region,
         component_id: body && body.component_id ? body.component_id : ''
@@ -87,6 +90,7 @@ export async function createJarWarServices(body = {}) {
     }
   );
 }
+
 /*
    Jar、War包上传文件状态
 */
@@ -276,11 +280,13 @@ export async function saveTarImageName(body = {}) {
 /*
    虚拟机镜像创建应用
 */
-export async function createAppByVirtualMachine(body = {}) {
+export async function createAppByVirtualMachine(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/vm_run`,
     {
       method: 'post',
+      handleError,
+      sensitiveError: body.sensitiveError === true || body.ssh_username !== undefined || body.ssh_public_key !== undefined,
       data: {
         group_id: body.group_id,
         service_cname: body.service_cname,
@@ -298,6 +304,10 @@ export async function createAppByVirtualMachine(body = {}) {
         gpu_count: body.gpu_count,
         usb_enabled: body.usb_enabled,
         usb_resources: body.usb_resources,
+        ...(body.os_name !== undefined ? { os_name: body.os_name } : {}),
+        ...(body.os_family !== undefined ? { os_family: body.os_family } : {}),
+        ...(body.ssh_username !== undefined ? { ssh_username: body.ssh_username } : {}),
+        ...(body.ssh_public_key !== undefined ? { ssh_public_key: body.ssh_public_key } : {}),
       }
     }
   );
@@ -332,11 +342,16 @@ export async function deleteVirtualMachineImageAsset(body = {}, handleError) {
 /*
    虚拟机能力探测
 */
-export async function getVMCapabilities(body = {}) {
+export async function getVMCapabilities(body = {}, handleError) {
+  const url = `${apiconfig.baseUrl}/console/teams/${body.team_name}/vm/capabilities`;
+  if (body.creationStorageRead === true) return requestVmCreationStorage(request, url, body, handleError, {
+    team_name: globalUtil.getCurrTeamName(), region_name: globalUtil.getCurrRegionName()
+  });
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/vm/capabilities`,
+    url,
     {
       method: 'get',
+      ...(handleError ? { handleError } : {})
     }
   );
 }
@@ -416,6 +431,7 @@ export function buildApp(body = {}, handleError) {
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/build`,
     {
       method: 'post',
+      sensitiveError: body.sensitiveError === true,
       data: {
         is_deploy: body.is_deploy,
         nodejs_type: body.nodejs_type,

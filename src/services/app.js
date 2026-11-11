@@ -761,6 +761,20 @@ export async function getPorts(
   );
 }
 
+/* 获取单个端口配置，不创建或开放访问入口 */
+export async function getPortDetail(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/ports/${body.port}`,
+    {
+      method: 'get',
+      showLoading: body.showLoading,
+      showMessage: body.showMessage,
+      sensitiveError: body.sensitiveError === true,
+      handleError
+    }
+  );
+}
+
 /*
    修改端口协议
 */
@@ -1644,12 +1658,15 @@ export async function getVolumeOpts(
   body = {
     team_name,
     app_alias
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/volume-opts`,
     {
-      method: 'get'
+      method: 'get',
+      ...(body.sensitiveError === true ? { sensitiveError: true } : {}),
+      ...(handleError ? { handleError } : {})
     }
   );
 }
@@ -2636,11 +2653,13 @@ export async function editAppCreateInfo(
   },
   handleError
 ) {
+  const { sensitiveError, ...data } = body;
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/check_update`,
     {
       method: 'put',
-      data: body,
+      data,
+      ...(sensitiveError === true ? { sensitiveError: true } : {}),
       handleError
     }
   );

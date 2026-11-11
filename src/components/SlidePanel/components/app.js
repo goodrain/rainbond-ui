@@ -74,6 +74,7 @@ export default class app extends Component {
       },
       showComponentList: false,
       showCreateComponentModal: false,
+      vmCreationInitialSource: null,
       headerLeftExpanded: false,
       
     };
@@ -86,12 +87,14 @@ export default class app extends Component {
     this.operatorReadGeneration = 0;
     this.detailReadyIdentity = '';
     this.initializedReadIdentity = '';
+    this.lastVmCreationRequest = 0;
   }
   componentDidMount() {
     if (!globalUtil.getAppID()) {
       return;
     }
     this.componentMounted = true;
+    this.vmCreationScopeIdentity = this.getVmCreationScopeIdentity();
     this.headerReadIdentity = JSON.stringify(this.getApplicationReadSnapshot());
     this.loading(false);
     if (!this.props.initialDetailLoader) {
@@ -99,8 +102,14 @@ export default class app extends Component {
       this.loadStorageUsageIfNeeded(this.props.pluginsList);
     }
     document.addEventListener('visibilitychange', this.handleVisibilityChange);
+    this.handleVmCreationRequest();
   }
   componentDidUpdate(prevProps) {
+    const vmCreationScope = this.getVmCreationScopeIdentity();
+    if (this.vmCreationScopeIdentity !== vmCreationScope) {
+      this.vmCreationScopeIdentity = vmCreationScope;
+      this.setState({ showCreateComponentModal: false, vmCreationInitialSource: null });
+    }
     const identity = JSON.stringify(this.getApplicationReadSnapshot());
     if (this.headerReadIdentity !== identity) {
       this.headerReadIdentity = identity;
@@ -130,6 +139,7 @@ export default class app extends Component {
     if (prevProps.apps !== this.props.apps || prevProps.storeApps !== this.props.storeApps) {
       this.syncComponentSummary(this.getComponents());
     }
+    this.handleVmCreationRequest();
   }
   loading = (force = true) => {
     if (this.props.initialDetailLoader) {
@@ -158,6 +168,10 @@ export default class app extends Component {
       ...(this.props.initialDetailLoader && route && route.pathname
         ? { pathname: route.pathname, refresh: route.refresh || '' } : {})
     };
+  };
+  getVmCreationScopeIdentity = () => {
+    const { team, region, id } = this.getApplicationReadSnapshot();
+    return JSON.stringify([team, region, id]);
   };
   isApplicationReadCurrent = (snapshot, requireDetail = true) => {
     const current = this.getApplicationReadSnapshot();
@@ -983,7 +997,8 @@ export default class app extends Component {
   handleOpenAddComponentOrAppDetail = (type) => {
     if (type === 'addComponent') {
       this.setState({
-        showCreateComponentModal: true
+        showCreateComponentModal: true,
+        vmCreationInitialSource: null
       });
     } else {
       this.props?.handleAddComponentOrAppDetail(type);
@@ -993,9 +1008,22 @@ export default class app extends Component {
     }
   };
 
+  handleVmCreationRequest = () => {
+    const { vmCreationRequest, vmCreationRequestHandled, vmInitialSource, onVmCreationRequestHandled } = this.props;
+    if (!this.componentMounted || !Number.isInteger(vmCreationRequest) || vmCreationRequest <= 0 ||
+      vmCreationRequest <= this.lastVmCreationRequest || vmCreationRequest <= (vmCreationRequestHandled || 0)) return;
+    this.lastVmCreationRequest = vmCreationRequest;
+    this.setState({
+      showCreateComponentModal: true,
+      vmCreationInitialSource: ['url', 'upload', 'existing'].includes(vmInitialSource) ? vmInitialSource : 'url'
+    });
+    if (onVmCreationRequestHandled) onVmCreationRequestHandled(vmCreationRequest);
+  };
+
   handleCloseCreateComponentModal = () => {
     this.setState({
-      showCreateComponentModal: false
+      showCreateComponentModal: false,
+      vmCreationInitialSource: null
     });
   };
 
@@ -1411,6 +1439,8 @@ export default class app extends Component {
         {this.state.showCreateComponentModal && (
           <CreateComponentModal
             visible={this.state.showCreateComponentModal}
+            initialVmForm={Boolean(this.state.vmCreationInitialSource)}
+            initialVmSource={this.state.vmCreationInitialSource || 'url'}
             onCancel={this.handleCloseCreateComponentModal}
             dispatch={this.props.dispatch}
             currentEnterprise={this.props.currentEnterprise}

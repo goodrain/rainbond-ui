@@ -678,13 +678,21 @@ export default {
         callback(response);
       }
     },
-    *fetchDetail({ payload, callback, handleError }, { call, put }) {
-      const response = yield call(getDetail, payload, handleError);
+    *fetchDetail({ payload, callback, handleError, shouldApply }, { call, put }) {
+      const active = () => {
+        if (shouldApply === undefined) return true;
+        try { return typeof shouldApply === 'function' && Boolean(shouldApply()); } catch (_) { return false; }
+      };
+      if (!active()) return;
+      const readError = shouldApply !== undefined && typeof handleError === 'function'
+        ? error => { if (active()) handleError(error); } : handleError;
+      const response = yield call(getDetail, payload, readError);
+      if (!active()) return;
       if (response) {
         captureMeaningfulActive('view_app', buildAppControlProperties(payload));
         const detail = response.bean || {};
         const statusInfo = detail.status || {};
-        if (isRunningStatus(statusInfo.status || detail.service_status || detail.cur_status)) {
+        if (active() && isRunningStatus(statusInfo.status || detail.service_status || detail.cur_status)) {
           markFirstDeploySuccessOnce(buildAppControlProperties(payload, {
             app_alias: payload && (payload.app_alias || payload.service_alias || (detail.service && detail.service.service_alias)),
             action_type: 'first_app_deploy',
@@ -692,8 +700,9 @@ export default {
             deploy_type: detail.service && detail.service.service_source
           }));
         }
+        if (!active()) return;
         yield put({ type: 'saveDetail', payload: response.bean });
-        if (callback) {
+        if (callback && active()) {
           callback(response.bean);
         }
       }

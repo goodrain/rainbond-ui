@@ -19,6 +19,31 @@
   }
 }
 
+.vmSourceModalWrap {
+  scrollbar-gutter: stable;
+
+  :global {
+    .ant-modal-content {
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh - 84px);
+    }
+
+    .ant-modal-header,
+    .ant-modal-footer { flex-shrink: 0; }
+
+    .ant-modal-body {
+      min-height: 0;
+      overflow-y: auto;
+    }
+  }
+
+  .formWrapper {
+    max-height: none;
+    overflow-y: visible;
+  }
+}
+
 .modalTitle {
 
   display: flex;

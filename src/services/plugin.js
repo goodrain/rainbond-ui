@@ -1,6 +1,8 @@
 /* eslint-disable no-undef */
 import apiconfig from '../../config/api.config';
 import request from '../utils/request';
+import globalUtil from '../utils/global';
+import { requestVmCreationStorage } from '../utils/vmCreationStorage';
 
 /* 安装内部市场的插件 */
 export async function installMarketPlugin(body = { plugin_id }) {
@@ -270,10 +272,14 @@ export async function getPluginVersionConfig(
 }
 
 /* 获取插件可用的持久化存储类型 */
-export async function getPluginVolumeOpts(body = { team_name }) {
+export async function getPluginVolumeOpts(body = {}, handleError) {
+  const url = `${apiconfig.baseUrl}/console/teams/${body.team_name}/plugins/volume-opts`;
+  if (body.creationStorageRead === true) return requestVmCreationStorage(request, url, body, handleError, {
+    team_name: globalUtil.getCurrTeamName(), region_name: globalUtil.getCurrRegionName()
+  });
   return request(
-    `${apiconfig.baseUrl}/console/teams/${body.team_name}/plugins/volume-opts`,
-    { method: 'get' }
+    url,
+    { method: 'get', ...(handleError ? { handleError } : {}) }
   );
 }
 

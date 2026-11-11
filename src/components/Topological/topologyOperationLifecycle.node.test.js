@@ -5,6 +5,7 @@ const path = require('node:path');
 const parser = require('@babel/parser');
 const generate = require('@babel/generator').default;
 const coordination = require('../../utils/topologyRefresh');
+const { isVmWorkflowDemoEnabled } = require('../../utils/vmWorkflowDemo');
 const location = { hash: '#/team/team/region/region/apps/31/overview', origin: 'http://fixture' };
 
 function parse(relative) {
@@ -60,14 +61,14 @@ test('real DVA operation success boundaries refresh without changing callbacks',
 test('real topology lifecycle replaces scope callbacks, resets iframe graph and removes only its own callbacks', () => {
   const source = parse('index.js');
   const declaration = source.find(node => node.type === 'ClassDeclaration');
-  const selected = ['componentWillMount', 'componentDidMount', 'componentDidUpdate', 'componentWillUnmount', 'installFrameCallbacks', 'bindTopologyRefresh', 'refreshFrame', 'triggerTopologyRefresh'];
+  const selected = ['componentWillMount', 'componentDidMount', 'componentDidUpdate', 'componentWillUnmount', 'installFrameCallbacks', 'protectVmWorkflowActions', 'bindTopologyRefresh', 'refreshFrame', 'triggerTopologyRefresh'];
   const methods = declaration.body.body.filter(node => selected.includes(node.key.name)).map(node => generate(node).code).join('\n');
   const callbackNames = source.find(node => node.type === 'VariableDeclaration' && node.declarations[0].id.name === 'frameCallbackNames');
   const window = { location }; const posts = [];
   const globalUtil = { getCurrTeamName: () => 'team', getCurrRegionName: () => 'region', getAppID: () => 31, getSlidePanelComponentID: () => 'component' };
-  const Topology = new Function('window', 'globalUtil', 'apiconfig', 'topologyScope', 'subscribeTopologyRefresh', 'postTopologyRefresh',
+  const Topology = new Function('window', 'globalUtil', 'apiconfig', 'topologyScope', 'subscribeTopologyRefresh', 'postTopologyRefresh', 'isVmWorkflowDemoEnabled',
     `${generate(callbackNames).code}; return class { ${methods} };`)(window, globalUtil, { baseUrl: '' }, coordination.topologyScope, coordination.subscribeTopologyRefresh,
-    (frame, scope, type) => coordination.postTopologyRefresh(frame, scope, type, location.origin));
+    (frame, scope, type) => coordination.postTopologyRefresh(frame, scope, type, location.origin), isVmWorkflowDemoEnabled);
   const instance = new Topology(); instance.props = { group_id: 31, apps: [{ service_alias: 'component' }], dispatch() {} };
   instance.state = { keyes: false }; instance.setState = update => Object.assign(instance.state, typeof update === 'function' ? update(instance.state) : update);
   instance.topologyFrame = { src: 'http://fixture/static/www/weavescope-topolog/index.html', contentWindow: { postMessage: (...args) => posts.push(args) } };
@@ -81,6 +82,24 @@ test('real topology lifecycle replaces scope callbacks, resets iframe graph and 
   const replacementCallback = () => 'new owner'; window.clickNode = replacementCallback;
   instance.componentWillUnmount(); assert.equal(window.iframeGetNodeUrl, undefined);
   assert.equal(window.clickNode, replacementCallback); assert.equal(posts.at(-1)[0].type, 'rainbond:topology-stop');
+});
+
+test('VM workflow demo redirects VM actions without changing container actions and discards stale reads', () => {
+  const declaration = parse('index.js').find(node => node.type === 'ClassDeclaration');
+  const method = declaration.body.body.find(node => node.key.name === 'protectVmWorkflowActions');
+  const callbacks = []; const navigation = []; const originalCalls = [];
+  const window = { handleClickStart: (...args) => originalCalls.push(args) };
+  const globalUtil = { getCurrTeamName: () => 'team', getCurrRegionName: () => 'region', getAppID: () => 31 };
+  const Topology = new Function('window', 'globalUtil', 'isVmWorkflowDemoEnabled', 'routerRedux', 'notification', `return class { ${generate(method).code} };`)(window, globalUtil, () => true, { push: path => ({ type: 'navigate', path }) }, { warning() {}, info() {} });
+  const instance = new Topology(); instance.frameScope = 'scope-a';
+  instance.props = { apps: [], dispatch: action => action.type === 'vmDemo/resolveGraphAction' ? callbacks.push(action.callback) : navigation.push(action.path) };
+  instance.protectVmWorkflowActions(); instance.ownedFrameCallbacks = { handleClickStart: window.handleClickStart };
+  window.handleClickStart('start', { service_alias: 'vm' }); callbacks.shift()({ vm: 'vm' });
+  assert.equal(originalCalls.length, 0); assert.match(navigation[0], /componentID=vm&tab=overview$/);
+  window.handleClickStart('start', { service_alias: 'container' }); callbacks.shift()({ vm: null });
+  assert.equal(originalCalls.length, 1); assert.equal(originalCalls[0][1].service_alias, 'container');
+  window.handleClickStart('start', { service_alias: 'stale' }); instance.frameScope = 'scope-b'; callbacks.shift()({ vm: null });
+  assert.equal(originalCalls.length, 1);
 });
 
 for (const caller of ['../../pages/Group/ComponentList.js', '../../pages/Group/ComponentListModal.js']) {

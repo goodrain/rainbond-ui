@@ -43,8 +43,11 @@ function checkStatus(response) {
   if (response.status >= 200 && response.status < 300) {
     return response;
   }
-  const errortext = codeMessage[response.status] || response.statusText;
-  if (response.config?.showMessage !== false) {
+  const sensitiveError = response.config?.sensitiveError === true;
+  const errortext = sensitiveError
+    ? formatMessage({ id: 'utils.request.server_error' })
+    : codeMessage[response.status] || response.statusText;
+  if (!sensitiveError && response.config?.showMessage !== false) {
     notification.warning({
       message:  formatMessage({id:'utils.request.warning_url'},{url:response.url}),
       description: errortext
@@ -286,14 +289,20 @@ export default function request(url, options) {
   if (showLoading) {
     handleStoreDispatch('global/showLoading');
   }
-  const slowRequestContext = startSlowRequestTracking(newOptions);
+  const sensitiveError = newOptions.sensitiveError === true;
+  const slowRequestContext = sensitiveError ? undefined : startSlowRequestTracking(newOptions);
   return trackSlowRequestLifecycle(axios(newOptions), {
     context: slowRequestContext,
-    finish: finishSlowRequestTracking,
+    finish: sensitiveError ? undefined : finishSlowRequestTracking,
     checkStatus,
     isCancel: error => axios.isCancel(error)
   })
     .then(response => {
+      const businessCode = response.data && response.data.code;
+      if (sensitiveError && businessCode !== undefined &&
+          !(Number(businessCode) >= 200 && Number(businessCode) < 300)) {
+        throw new Error(formatMessage({ id: 'utils.request.server_error' }));
+      }
       updateRenewedTokenFromResponse(response);
       if (showLoading) {
         handleStoreDispatch('global/hiddenLoading');
@@ -301,6 +310,24 @@ export default function request(url, options) {
       return handleData(response);
     })
     .catch(error => {
+      if (sensitiveError) {
+        if (showLoading) {
+          handleStoreDispatch('global/hiddenLoading');
+        }
+        // Validation responses can echo user input. Never expose the original
+        // response, Axios config or error text to UI callbacks or telemetry.
+        const safeError = new Error(formatMessage({ id: 'utils.request.server_error' }));
+        safeError.name = 'SensitiveRequestError';
+        if (newOptions.handleError) {
+          newOptions.handleError(safeError);
+        } else if (newOptions.showMessage !== false) {
+          notification.error({
+            message: formatMessage({ id: 'utils.request.warning' }),
+            description: safeError.message
+          });
+        }
+        return undefined;
+      }
       captureRequestError(error, newOptions);
       captureErrorViewed(error && error.response ? 'api_response_error' : 'network_error', {
         error_code: error && (error.name || error.code || error.message),

@@ -19,6 +19,8 @@ import styles from "./Index.less";
 import AddGroup from "../../components/AddOrEditGroup";
 import globalUtil from "../../utils/global";
 import ImageVirtualMachineForm from "../../components/ImageVirtualMachineForm";
+import { VmCreateWorkflow } from '../VirtualMachineDemo/Workflow';
+import { isVmWorkflowDemoEnabled } from '../../utils/vmWorkflowDemo';
 import TopUpHints from '../../components/TopUpHints';
 
 const { Option } = Select;
@@ -105,6 +107,7 @@ export default class Index extends PureComponent {
     this.setState({ showKey: false });
   };
   handleSubmit = (value, event_id) => {
+    if (isVmWorkflowDemoEnabled()) return;
     const teamName = globalUtil.getCurrTeamName();
     this.props.dispatch({
       type: "createApp/createAppByVirtualMachine",
@@ -128,6 +131,7 @@ export default class Index extends PureComponent {
     });
   };
   render() {
+    if (isVmWorkflowDemoEnabled()) return <VmCreateWorkflow {...this.props} />;
     const image = decodeURIComponent(
       this.props.handleType && this.props.handleType === "Service"
         ? ""
