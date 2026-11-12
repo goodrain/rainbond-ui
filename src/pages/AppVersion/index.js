@@ -42,6 +42,7 @@ import { getAppModelLastRecord, postUpgradeRecord } from '../../services/app';
 import { runCloseCallback } from './closeCallback';
 import styles from './index.less';
 import snapshotVersionHelpers from '../Group/components/snapshotVersionHelpers';
+import { canPublishTemplate, deliveryPath, t as deliveryText } from '../Group/Delivery/common';
 
 const { Panel } = Collapse;
 const { getLatestSnapshotVersionSeed } = snapshotVersionHelpers;
@@ -2228,8 +2229,18 @@ export default class AppVersion extends PureComponent {
     );
   };
 
+  publishSnapshot = item => {
+    const { currentUser, currentTeam, currentTeamPermissionsInfo, match, dispatch } = this.props;
+    if (!item.detail || !item.detail.version_id || item.timelineState === 'runtime' ||
+      !canPublishTemplate(currentUser, currentTeam, currentTeamPermissionsInfo, match.params)) return;
+    dispatch(routerRedux.push({ pathname: `${deliveryPath(match.params)}/create`,
+      query: { snapshot_id: String(item.detail.version_id) } }));
+  };
+
   renderTimeline = () => {
     const timelineData = this.getPersonalTimeline();
+    const { currentUser, currentTeam, currentTeamPermissionsInfo, match } = this.props;
+    const canPublish = canPublishTemplate(currentUser, currentTeam, currentTeamPermissionsInfo, match.params);
 
     return (
       <Card
@@ -2269,6 +2280,8 @@ export default class AppVersion extends PureComponent {
                   </div>
                   <div className={styles.timelineActions}>
                     <Button size="small" onClick={() => this.setState({ detailVisible: true, detailRecord: item.detail })}>查看详情</Button>
+                    {canPublish && item.timelineState !== 'runtime' && item.detail && item.detail.version_id &&
+                      <Button size="small" onClick={() => this.publishSnapshot(item)}>{deliveryText('publishSnapshot')}</Button>}
                     {this.renderSnapshotRollbackAction(item)}
                     {this.canDeleteSnapshot(item) && <Button size="small" onClick={() => this.confirmDeleteSnapshot(item)}>删除</Button>}
                   </div>

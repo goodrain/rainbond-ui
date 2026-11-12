@@ -1,4 +1,8 @@
 export default {
+  "delivery.publishSnapshot": "发布",
+  "delivery.snapshotNeedsTemplate": "先创建应用模板，再发布此快照。",
+  "delivery.snapshotPublicationSource": "来源快照 {version}，将此快照内容保存为交付版本后选择上架位置。",
+  "delivery.createAndList": "创建版本并上架",
   "delivery.selectedComponentCount": "{count} 个交付组件",
   "delivery.selectAllComponents": "全选",
   "delivery.fullDescriptionPlaceholder": "完整介绍应用的功能、使用场景和使用方式。",
