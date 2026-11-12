@@ -11,6 +11,11 @@ test('upgrade entry addresses the actual target application and its exact instal
   assert.equal(deliveryUpgradePath({ ...info, upgrade_group_id: '' }), '');
 });
 
+test('unfinished upgrades resume the existing target record rather than losing the retry entry', () => {
+  assert.equal(deliveryUpgradePath({ ...info, resume_record_id: '33' }),
+    '/team/production-team/region/cluster-b/apps/42/upgrade/73/record/33?app_id=market-key');
+});
+
 test('upgrade list prioritizes the exact installed group without hiding other templates or changing the input', () => {
   const items = [{ group_key: 'market-key', upgrade_group_id: 9 }, { group_key: 'other-key', upgrade_group_id: 73 },
     { group_key: 'market-key', upgrade_group_id: 73 }];

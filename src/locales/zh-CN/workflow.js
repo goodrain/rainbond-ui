@@ -354,6 +354,8 @@ export default {
   "workflow.onlineListingHelp": "直接同步到所选在线应用市场，无需平台审核。",
   "workflow.onlineReviewNotRequired": "在线应用市场直接同步，无需审核。",
   "workflow.upgradeApplication": "升级",
+  "workflow.resumeUpgrade": "继续升级",
+  "workflow.resumeUpgradeHint": "上次升级尚未完成，可继续查看进度或重试失败组件",
   "workflow.upgradeChecking": "正在检查目标应用的可升级版本",
   "workflow.noUpgradeVersion": "目标应用暂无可用的新版本",
   "workflow.upgradeUnavailable": "暂时无法检查新版本，请稍后再试",

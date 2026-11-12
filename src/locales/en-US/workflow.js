@@ -354,6 +354,8 @@ export default {
   "workflow.onlineListingHelp": "Synchronize directly to the selected online application market. No platform review is required.",
   "workflow.onlineReviewNotRequired": "Online application markets synchronize directly without review.",
   "workflow.upgradeApplication": "Upgrade",
+  "workflow.resumeUpgrade": "Continue upgrade",
+  "workflow.resumeUpgradeHint": "The previous upgrade is unfinished. View its progress or retry failed components.",
   "workflow.upgradeChecking": "Checking available versions for the target application",
   "workflow.noUpgradeVersion": "No new version is available for this application",
   "workflow.upgradeUnavailable": "Available versions could not be checked. Please try again later.",
