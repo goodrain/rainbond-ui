@@ -37,7 +37,8 @@ vm.runInNewContext(code, {
     if (name === '@/utils/vmQuickStart') return quickStart;
     if (name === '@/utils/intl') return { formatMessage: ({ id }) => id };
     if (name.endsWith('/messages')) return { t: key => `vmDemo.${key}` };
-    if (name.endsWith('/global')) return { getAppID: () => '868' };
+    if (name.endsWith('/global')) return { getAppID: () => '868',
+      getCurrTeamName: () => 'team-a', getCurrRegionName: () => 'region-a' };
     if (name === './runtimeFieldMerge' || name === './assetReadiness' || name === './imageNameValidation')
       return require(path.join(__dirname, name));
     return {};
@@ -168,6 +169,8 @@ function uploadHarness() {
     fixture.instance.state = { ...fixture.instance.state, ...update };
   };
   fixture.instance.handleJarWarUploadStatus = () => {};
+  fixture.instance.uploadEventSession = { eventId: fixture.instance.state.event_id,
+    scope: fixture.instance.getLoginScope(), generation: fixture.instance.uploadSessionGeneration };
   return fixture;
 }
 
@@ -175,6 +178,7 @@ test('native upload accepts an HTTP done file without a fixed success message on
   const fixture = uploadHarness();
   const current = { uid: 'current-file', name: 'installer.iso.gz', status: 'done', response: { code: 200, data: {} } };
   fixture.instance.state.existFileList = ['older.qcow2', current.name];
+  fixture.instance.beforeUpload(current);
   fixture.instance.onChangeUpload({ file: current, fileList: [current] });
   assert.equal(fixture.instance.state.fileList.length, 1);
   assert.equal(fixture.instance.getConfirmedUpload().name, current.name);
@@ -189,6 +193,7 @@ for (const status of ['uploading', 'error']) {
     const fixture = uploadHarness();
     const current = { uid: 'new-file', name: 'new.iso', status, response: { code: 200 } };
     fixture.instance.state.existFileList = ['older.iso'];
+    fixture.instance.beforeUpload(current);
     fixture.instance.onChangeUpload({ file: current, fileList: [current] });
     assert.equal(fixture.instance.getConfirmedUpload(), null);
     fixture.instance.handleSubmit({ preventDefault() {} });
@@ -200,6 +205,7 @@ test('native HTTP done without a matching server filename remains blocked', () =
   const fixture = uploadHarness();
   const current = { uid: 'new-file', name: 'new.iso', status: 'done', response: { code: 200 } };
   fixture.instance.state.existFileList = ['other.iso'];
+  fixture.instance.beforeUpload(current);
   fixture.instance.onChangeUpload({ file: current, fileList: [current] });
   fixture.instance.handleSubmit({ preventDefault() {} });
   assert.equal(fixture.submissions.length, 0);

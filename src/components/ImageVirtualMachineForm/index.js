@@ -28,7 +28,7 @@ import { pinyin } from 'pinyin-pro';
 import globalUtil from '../../utils/global';
 import role from '@/utils/newRole';
 import handleAPIError from '../../utils/error';
-import { isLinuxQcow2QuickStart, createQuickStartImageName, inferVmSourceFormat, normalizeVmSourceFormat, normalizeVmOperatingSystem, getSshUsernameError, getSshPublicKeyError } from '@/utils/vmQuickStart';
+import { isLinuxQcow2QuickStart, createQuickStartImageName, inferVmSourceFormat, inspectVmUploadFormat, normalizeVmSourceFormat, normalizeVmOperatingSystem, getSshUsernameError, getSshPublicKeyError } from '@/utils/vmQuickStart';
 import { t } from '../../pages/VirtualMachineDemo/messages';
 import styles from './index.less';
 import centOS from '../../../public/images/centos.png';
@@ -142,6 +142,7 @@ export default class Index extends PureComponent {
   componentWillUnmount() {
     this.loginCredentialsMounted = false;
     this.loginCapabilitiesGeneration += 1;
+    this.invalidateUploadSession();
     this.clearSshFields();
     this.loop = false;
   }
@@ -190,6 +191,28 @@ export default class Index extends PureComponent {
 
   loginCapabilitiesScope = null;
 
+  uploadFormatGeneration = 0;
+
+  uploadHeader = null;
+
+  uploadSessionGeneration = 0;
+
+  uploadEventSession = null;
+
+  uploadFileOwners = new Map();
+
+  invalidateUploadSession = () => {
+    this.uploadSessionGeneration += 1;
+    this.uploadFormatGeneration += 1;
+    this.uploadEventSession = null;
+    this.uploadHeader = null;
+    this.uploadFileOwners.clear();
+    this.currentUploadSelection = null;
+    this.confirmedUploadEventId = null;
+    this.uploadSelectionChanged = true;
+    this.loop = false;
+  };
+
   getLoginScope = () => ({
     team: globalUtil.getCurrTeamName(),
     region: globalUtil.getCurrRegionName(),
@@ -212,11 +235,13 @@ export default class Index extends PureComponent {
     this.loginCapabilitiesGeneration += 1;
     this.loginMethodTouched = false;
     this.clearSshFields();
+    this.invalidateUploadSession();
     this.setState({ loginMethod: 'ssh_key', vmCapabilities: {
       password_bootstrap_supported: false, login_methods: [],
       chunk_upload_supported: false, gpu_supported: false, usb_supported: false,
       gpu_resources: [], usb_resources: []
-    } });
+    }, event_id: '', record: null, fileList: [], existFileList: [] });
+    this.handleJarWarUpload();
     if (refetch) this.fetchVMCapabilities();
     return false;
   };
@@ -341,16 +366,22 @@ export default class Index extends PureComponent {
   };
 
   handleJarWarUpload = () => {
+    if (!this.loginCredentialsMounted) return;
     const { dispatch } = this.props;
+    const scope = this.getLoginScope();
+    const generation = ++this.uploadSessionGeneration;
     dispatch({
       type: 'createApp/createJarWarServices',
       payload: {
-        region: globalUtil.getCurrRegionName(),
-        team_name: globalUtil.getCurrTeamName(),
+        region: scope.region,
+        team_name: scope.team,
         component_id: ''
       },
       callback: res => {
-        if (res && res.status_code === 200) {
+        if (!this.loginCredentialsMounted || generation !== this.uploadSessionGeneration ||
+            !this.isCurrentLoginScope(scope)) return;
+        if (res?.status_code === 200 && typeof res.bean?.event_id === 'string' && res.bean.event_id) {
+          this.uploadEventSession = { eventId: res.bean.event_id, generation, scope };
           this.setState(
             {
               record: res.bean,
@@ -359,6 +390,8 @@ export default class Index extends PureComponent {
               team_name: res.bean && res.bean.team_name
             },
             () => {
+              if (!this.loginCredentialsMounted || generation !== this.uploadSessionGeneration ||
+                  !this.isCurrentLoginScope(scope)) return;
               if (res.bean.region !== '') {
                 this.loop = true;
                 this.handleJarWarUploadStatus();
@@ -368,7 +401,8 @@ export default class Index extends PureComponent {
         }
       },
       handleError: err => {
-        handleAPIError(err);
+        if (this.loginCredentialsMounted && generation === this.uploadSessionGeneration &&
+            this.isCurrentLoginScope(scope)) handleAPIError(err);
       }
     });
   };
@@ -394,15 +428,20 @@ export default class Index extends PureComponent {
   handleJarWarUploadStatus = () => {
     const { dispatch } = this.props;
     const { event_id } = this.state;
+    const session = this.uploadEventSession;
+    const current = () => this.loginCredentialsMounted && session &&
+      session === this.uploadEventSession && session.generation === this.uploadSessionGeneration &&
+      session.eventId === this.state.event_id && this.isCurrentLoginScope(session.scope);
+    if (!current()) return;
     dispatch({
       type: 'createApp/createJarWarUploadStatus',
       payload: {
-        region: globalUtil.getCurrRegionName(),
-        team_name: globalUtil.getCurrTeamName(),
+        region: session.scope.region,
+        team_name: session.scope.team,
         event_id
       },
       callback: data => {
-        if (event_id !== this.state.event_id) return;
+        if (!current()) return;
         if (data && data.bean.package_name && data.bean.package_name.length > 0) {
           this.confirmedUploadEventId = event_id;
           this.setState({
@@ -412,12 +451,12 @@ export default class Index extends PureComponent {
         }
         if (this.loop) {
           setTimeout(() => {
-            this.handleJarWarUploadStatus();
+            if (current()) this.handleJarWarUploadStatus();
           }, 3000);
         }
       },
       handleError: err => {
-        handleAPIError(err);
+        if (current()) handleAPIError(err);
       }
     });
   };
@@ -425,14 +464,21 @@ export default class Index extends PureComponent {
   handleJarWarUploadDelete = () => {
     const { event_id } = this.state;
     const { dispatch, form } = this.props;
+    const session = this.uploadEventSession;
+    const current = () => this.loginCredentialsMounted && session && session === this.uploadEventSession &&
+      session.generation === this.uploadSessionGeneration && session.eventId === this.state.event_id &&
+      this.isCurrentLoginScope(session.scope);
+    if (!current()) return;
     dispatch({
       type: 'createApp/deleteJarWarUploadStatus',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
+        team_name: session.scope.team,
         event_id
       },
       callback: data => {
+        if (!current()) return;
         if (data.bean.res === 'ok') {
+          this.invalidateUploadSession();
           this.setState({
             existFileList: [],
             fileList: []
@@ -445,7 +491,7 @@ export default class Index extends PureComponent {
         }
       },
       handleError: err => {
-        handleAPIError(err);
+        if (current()) handleAPIError(err);
       }
     });
   };
@@ -550,8 +596,15 @@ export default class Index extends PureComponent {
           fieldsValue.format = this.inferSourceFormat(fieldsValue.vm_url, fieldsValue.image_name);
           fieldsValue.asset_id = '';
         } else if (radioKey === 'upload') {
+          const header = this.getCurrentUploadHeader(uploadedFile);
+          if (header && header.status !== 'ready') {
+            message.warning(formatMessage({ id: header.status === 'reading'
+              ? 'Vm.createVm.uploadFormatReading' : 'Vm.createVm.uploadFormatFailed' }));
+            if (options.onInvalid) options.onInvalid();
+            return;
+          }
           fieldsValue.source_type = 'upload';
-          fieldsValue.format = this.inferSourceFormat(
+          fieldsValue.format = header?.format || this.inferSourceFormat(
             uploadedFile.name,
             fieldsValue.image_name
           );
@@ -1078,27 +1131,75 @@ export default class Index extends PureComponent {
   onChangeUpload = info => {
     // rc-upload's HTTP status and the current event's server file record are
     // authoritative. Successful upload bodies do not share one `msg` value.
+    const owner = this.uploadFileOwners.get(info.file?.uid);
+    const session = this.uploadEventSession;
+    if (!owner || !session || owner.generation !== session.generation ||
+        session.generation !== this.uploadSessionGeneration || owner.eventId !== this.state.event_id ||
+        owner.name !== info.file.name || !this.isCurrentLoginScope(owner.scope)) return;
     const fileList = Array.isArray(info.fileList) ? info.fileList : [];
     this.uploadSelectionChanged = true;
     this.currentUploadSelection = info.file ? {
       eventId: this.state.event_id,
       name: info.file.name,
       uid: info.file.uid,
-      status: info.file.status
+      status: info.file.status,
+      scope: owner.scope
     } : null;
     this.setState({ fileList });
+    this.inspectCurrentUpload(info.file);
     if (info.file?.status === 'done') {
       this.loop = true;
       this.handleJarWarUploadStatus();
     }
   };
 
+  beforeUpload = file => {
+    const session = this.uploadEventSession;
+    if (!file || file.uid === undefined || !session || session.generation !== this.uploadSessionGeneration ||
+        session.eventId !== this.state.event_id || !this.isCurrentLoginScope(session.scope)) {
+      message.warning(formatMessage({ id: 'Vm.createVm.uploadSessionPreparing' }));
+      return false;
+    }
+    this.uploadFileOwners.set(file.uid, { ...session, uid: file.uid, name: file.name });
+    return true;
+  };
+
+  getCurrentUploadHeader = file => {
+    const header = this.uploadHeader;
+    return header && file && header.eventId === this.state.event_id &&
+      header.uid === file.uid && header.name === file.name && this.isCurrentLoginScope(header.scope)
+      ? header : null;
+  };
+
+  readUploadFormat = file => inspectVmUploadFormat(file);
+
+  inspectCurrentUpload = file => {
+    if (!file || file.status === 'removed') return;
+    const source = file.originFileObj || file;
+    if (typeof source.slice !== 'function' || this.getCurrentUploadHeader(file)) return;
+    const generation = ++this.uploadFormatGeneration;
+    const header = { eventId: this.state.event_id, uid: file.uid, name: file.name,
+      scope: this.getLoginScope(), status: 'reading', format: '' };
+    this.uploadHeader = header;
+    const current = () => this.loginCredentialsMounted && generation === this.uploadFormatGeneration &&
+      this.getCurrentUploadHeader(this.currentUploadSelection) === header;
+    Promise.resolve().then(() => this.readUploadFormat(source)).then(format => {
+      if (current()) this.uploadHeader = { ...header, status: 'ready', format };
+    }, () => {
+      if (current()) this.uploadHeader = { ...header, status: 'failed', format: '' };
+    });
+  };
+
   getConfirmedUpload = () => {
     const { event_id: eventId, fileList = [], existFileList = [] } = this.state;
+    if (this.loginCredentialsMounted && (!this.uploadEventSession ||
+        this.uploadEventSession.generation !== this.uploadSessionGeneration || this.uploadEventSession.eventId !== eventId ||
+        !this.isCurrentLoginScope(this.uploadEventSession.scope))) return null;
     if (!eventId || (this.confirmedUploadEventId && this.confirmedUploadEventId !== eventId)) return null;
     const names = [...new Set(existFileList.filter(name => typeof name === 'string' && name))];
     const selection = this.currentUploadSelection;
     if (selection) {
+      if (selection.scope && !this.isCurrentLoginScope(selection.scope)) return null;
       if (selection.eventId !== eventId || selection.status !== 'done' || !names.includes(selection.name)) return null;
       return fileList.find(file => file.status === 'done' && file.name === selection.name &&
         (selection.uid === undefined || file.uid === selection.uid)) || null;
@@ -1116,6 +1217,9 @@ export default class Index extends PureComponent {
   };
 
   onRemove = () => {
+    this.uploadFormatGeneration += 1;
+    this.uploadHeader = null;
+    this.uploadFileOwners.clear();
     this.uploadSelectionChanged = true;
     this.currentUploadSelection = null;
     this.setState({ fileList: [], existFileList: [] });
@@ -1504,6 +1608,8 @@ export default class Index extends PureComponent {
             {getFieldDecorator('packageTarFile', { initialValue: [] })(
               <div className={styles.uploadPanel}>
                 <Upload
+                  key={this.state.event_id || 'upload-session-pending'}
+                  beforeUpload={this.beforeUpload}
                   fileList={this.state.fileList}
                   name="packageTarFile"
                   onChange={this.onChangeUpload}
@@ -1512,7 +1618,7 @@ export default class Index extends PureComponent {
                   maxCount={1}
                   multiple={false}
                 >
-                  <Button>
+                  <Button disabled={!this.state.event_id}>
                     <Icon type="upload" />
                     {formatMessage({ id: 'Vm.createVm.imgUpload' })}
                   </Button>

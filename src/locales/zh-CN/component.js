@@ -64,7 +64,7 @@ const componentOverview = {
   'componentOverview.vmWorkspace.power.waiting': '等待资源',
   'componentOverview.vmWorkspace.power.starting': '启动中',
   'componentOverview.vmWorkspace.power.stopping': '关闭中',
-  'componentOverview.vmWorkspace.power.restoring': '恢复中',
+  'componentOverview.vmWorkspace.power.restoring': '准备磁盘',
   'componentOverview.vmWorkspace.power.failure': '运行失败',
   'componentOverview.vmWorkspace.power.abnormal': '状态异常',
   'componentOverview.vmWorkspace.power.building': '构建中',

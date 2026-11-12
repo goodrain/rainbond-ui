@@ -55,6 +55,7 @@ export default {
   'vmDemo.quickStartFirmware': '启动固件',
   'vmDemo.sshUsernameRequired': '请填写 Linux 登录用户名。',
   'vmDemo.sshUsernameInvalid': '用户名需为有效的 Linux 账户名称，最长 32 个字符。',
+  'vmDemo.sshUsernameRootUnsupported': '示例镜像请使用 ubuntu 等非 root 用户初始化登录。',
   'vmDemo.sshPublicKeyRequired': '请填写用于登录的 SSH 公钥。',
   'vmDemo.sshPublicKeyInvalid': '请填写有效的单行 OpenSSH 公钥，不要填写私钥或密码。',
   'vmDemo.quickStartPlatformStorage': '创建后选择平台可用持久存储',

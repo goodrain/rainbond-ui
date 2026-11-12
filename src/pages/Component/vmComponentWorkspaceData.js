@@ -19,6 +19,13 @@ function identifier(value) {
   return text(value, 128);
 }
 
+function configuredOperatingSystem(value) {
+  const name = text(value, 128);
+  // Older create handlers saved our generated asset identifier as the OS.
+  // Keep that identifier in image details, without presenting it as a system.
+  return name && !/^vm-image-[a-z0-9]+-[a-z0-9]+-[a-z0-9]{8}$/i.test(name) ? name : null;
+}
+
 function nonnegativeNumber(value) {
   if (typeof value === 'string') {
     const input = value.trim();
@@ -165,7 +172,7 @@ function deriveVmWorkspaceData(input = {}) {
     rootDiskGiB: volumeCapacity === null ? nonnegativeNumber(service.disk_cap) : volumeCapacity,
     powerStatus: POWER_STATUSES.has(normalizedStatus) ? normalizedStatus : 'unknown',
     rawPowerStatus,
-    osName: guest.guestOSName || text(runtime.os_name, 128) || text(asset.os_name, 128),
+    osName: guest.guestOSName || configuredOperatingSystem(runtime.os_name) || configuredOperatingSystem(asset.os_name),
     guestStatus: guest.guestStatus,
     agentConnected: guest.agentConnected,
     guestReason: guest.guestReason,

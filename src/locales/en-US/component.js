@@ -64,7 +64,7 @@ const componentOverview = {
   'componentOverview.vmWorkspace.power.waiting': 'Waiting for resources',
   'componentOverview.vmWorkspace.power.starting': 'Starting',
   'componentOverview.vmWorkspace.power.stopping': 'Stopping',
-  'componentOverview.vmWorkspace.power.restoring': 'Restoring',
+  'componentOverview.vmWorkspace.power.restoring': 'Preparing disks',
   'componentOverview.vmWorkspace.power.failure': 'Failed',
   'componentOverview.vmWorkspace.power.abnormal': 'Abnormal',
   'componentOverview.vmWorkspace.power.building': 'Building',

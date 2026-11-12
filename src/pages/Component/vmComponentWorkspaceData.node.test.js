@@ -226,3 +226,16 @@ test('does not leak credentials, raw responses, URLs or fabricate IPs/ports/snap
   assert.equal(result.snapshotCapability, 'unknown');
   assert.equal(result.vncUrl, null);
 });
+
+test('generated image identifiers are not OS names; real configured and observed OS names remain visible', () => {
+  const generated = 'vm-image-mwdbhiry-1-4zxu1nbm';
+  assert.equal(deriveVmWorkspaceData(fixture({}, {
+    runtime: { os_name: generated }, asset: { os_name: generated }
+  })).osName, null);
+  assert.equal(deriveVmWorkspaceData(fixture({}, {
+    runtime: { os_name: generated }, asset: { os_name: 'CirrOS 0.6.3' }
+  })).osName, 'CirrOS 0.6.3');
+  assert.equal(deriveVmWorkspaceData(fixture({}, {
+    runtime: { os_name: 'Windows Server 2025' }
+  })).osName, 'Windows Server 2025');
+});

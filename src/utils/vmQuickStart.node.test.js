@@ -168,6 +168,8 @@ test('independent creations use fresh asset names and alias retries generate non
 
 test('credential validation returns fixed codes and rejects private or multiline material', () => {
   assert.equal(getSshUsernameError('ubuntu'), '');
+  assert.equal(getSshUsernameError('root'), 'sshUsernameRootUnsupported');
+  assert.equal(getSshUsernameError(' root '), 'sshUsernameRootUnsupported');
   assert.equal(getSshUsernameError(''), 'sshUsernameRequired');
   ['root!', 'a'.repeat(33), 'two users', 'ubuntu\nother'].forEach(value =>
     assert.equal(getSshUsernameError(value), 'sshUsernameInvalid'));

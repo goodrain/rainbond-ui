@@ -72,6 +72,20 @@ const submit = async h => {
   act(() => h.instance.handleSubmit({ preventDefault() {} }));
   await flush();
 };
+function startUploadSession(h, eventId, create = false) {
+  if (create) act(() => h.instance.handleJarWarUpload());
+  const request = h.requests.filter(action => action.type === 'createApp/createJarWarServices').at(-1);
+  assert.ok(request);
+  act(() => request.callback({ status_code: 200, bean: { event_id: eventId,
+    region: request.payload.region, team_name: request.payload.team_name,
+    upload_url: 'https://uploads.example.invalid/' + eventId } }));
+}
+function selectUpload(h, file) {
+  act(() => {
+    assert.equal(h.instance.beforeUpload(file), true);
+    h.instance.onChangeUpload({ file, fileList: [file] });
+  });
+}
 test.afterEach(() => { act(() => { ReactDOM.unmountComponentAtNode(root); }); });
 test.after(() => dom.window.close());
 
@@ -243,10 +257,113 @@ test('local source pre-fills only real OS metadata and keeps it editable; upload
   act(() => h.instance.applyLocalImageSelection({ ...asset, os_name: undefined, extra: {} }));
   assert.equal(h.instance.props.form.getFieldValue('os_name'), undefined, 'a filename is not OS metadata');
   act(() => h.instance.handleChangeImageSource({ target: { value: 'upload' } }));
+  startUploadSession(h, 'event-current');
   setFields(h, { service_cname: 'upload-vm', k8s_component_name: 'upload-vm', image_name: 'ubuntu-label', os_name: 'Windows Server 2025' });
   act(() => h.instance.setState({ event_id: 'event-current', fileList: [{ uid: 'upload-current', name: 'ubuntu.iso', status: 'done' }], existFileList: ['ubuntu.iso'] }));
   await submit(h);
   assert.equal(h.submissions.length, 1);
   assert.equal(h.submissions[0].os_name, 'Windows Server 2025');
   assert.equal(h.submissions[0].format, 'iso');
+});
+
+test('the actual upload submission waits for its header and uses QCOW2 content behind IMG', async () => {
+  const h = mount({ initialSourceType: 'upload' });
+  startUploadSession(h, 'header-event');
+  setFields(h, { service_cname: 'upload-vm', k8s_component_name: 'upload-vm', image_name: 'cirros-image', os_name: 'CirrOS 0.6.3' });
+  act(() => h.instance.setState({ event_id: 'header-event', existFileList: ['disk.img'] }));
+  let finish;
+  h.instance.readUploadFormat = () => new Promise(resolve => { finish = resolve; });
+  const file = { uid: 'header-file', name: 'disk.img', status: 'done', originFileObj: { slice() {} } };
+  selectUpload(h, file);
+  await flush();
+  await submit(h);
+  assert.equal(h.submissions.length, 0, 'a pending read must not submit an extension guess');
+  finish('qcow2');
+  await flush();
+  await submit(h);
+  assert.equal(h.submissions.length, 1);
+  assert.equal(h.submissions[0].format, 'qcow2');
+  assert.equal(h.submissions[0].os_name, 'CirrOS 0.6.3');
+});
+
+test('late headers cannot overwrite another file, upload event or removed selection', async () => {
+  const h = mount({ initialSourceType: 'upload' });
+  startUploadSession(h, 'race-event');
+  act(() => h.instance.setState({ event_id: 'race-event' }));
+  const finish = new Map();
+  h.instance.readUploadFormat = file => new Promise(resolve => finish.set(file.name, resolve));
+  const file = name => ({ uid: name, name, status: 'uploading', originFileObj: { name, slice() {} } });
+  const first = file('first.img'), second = file('second.iso');
+  selectUpload(h, first);
+  await flush();
+  selectUpload(h, second);
+  await flush();
+  finish.get('first.img')('qcow2');
+  await flush();
+  assert.equal(h.instance.getCurrentUploadHeader(second).status, 'reading');
+  finish.get('second.iso')('iso');
+  await flush();
+  assert.equal(h.instance.getCurrentUploadHeader(second).format, 'iso');
+  const third = file('third.img');
+  selectUpload(h, third);
+  await flush();
+  startUploadSession(h, 'new-event', true);
+  finish.get('third.img')('qcow2');
+  await flush();
+  assert.equal(h.instance.getCurrentUploadHeader(third), null);
+  const fourth = file('fourth.img');
+  selectUpload(h, fourth);
+  await flush();
+  act(() => h.instance.onRemove());
+  finish.get('fourth.img')('qcow2');
+  await flush();
+  assert.equal(h.instance.uploadHeader, null);
+});
+
+test('a header from a previous application scope cannot be reused', async () => {
+  const h = mount({ initialSourceType: 'upload' });
+  startUploadSession(h, 'scope-event');
+  act(() => h.instance.setState({ event_id: 'scope-event' }));
+  let finish;
+  h.instance.readUploadFormat = () => new Promise(resolve => { finish = resolve; });
+  const file = { uid: 'scope-file', name: 'disk.img', status: 'done', originFileObj: { slice() {} } };
+  selectUpload(h, file);
+  await flush();
+  h.instance.getLoginScope = () => ({ team: 'team-b', region: 'region-a', application: '869', target: '869' });
+  finish('qcow2');
+  await flush();
+  assert.equal(h.instance.getCurrentUploadHeader(file), null);
+  assert.equal(h.instance.getConfirmedUpload(), null);
+});
+
+test('scope change invalidates the upload session and ignores all old completion callbacks', async () => {
+  const h = mount({ initialSourceType: 'upload' });
+  const firstCreate = h.requests.filter(action => action.type === 'createApp/createJarWarServices').at(-1);
+  startUploadSession(h, 'event-owned-by-a');
+  const firstStatus = h.requests.filter(action => action.type === 'createApp/createJarWarUploadStatus').at(-1);
+  const file = { uid: 'owned-by-a', name: 'old.img', status: 'uploading' };
+  selectUpload(h, file);
+  act(() => h.instance.handleJarWarUploadDelete());
+  const firstDelete = h.requests.filter(action => action.type === 'createApp/deleteJarWarUploadStatus').at(-1);
+  h.instance.getLoginScope = () => ({ team: 'team-b', region: 'region-a', application: '869', target: '869' });
+  h.render({ groupId: 869 });
+  const nextCreate = h.requests.filter(action => action.type === 'createApp/createJarWarServices').at(-1);
+  assert.notEqual(nextCreate, firstCreate);
+  assert.equal(nextCreate.payload.team_name, 'team-b');
+  assert.equal(h.instance.state.event_id, '');
+  assert.equal(h.instance.state.fileList.length, 0);
+  startUploadSession(h, 'event-owned-by-b');
+  act(() => {
+    firstCreate.callback({ status_code: 200, bean: { event_id: 'event-owned-by-a' } });
+    firstStatus.callback({ bean: { package_name: ['old.img'] } });
+    firstDelete.callback({ bean: { res: 'ok' } });
+    h.instance.onChangeUpload({ file: { ...file, status: 'done' }, fileList: [{ ...file, status: 'done' }] });
+  });
+  assert.equal(h.instance.state.event_id, 'event-owned-by-b');
+  assert.equal(h.instance.state.existFileList.length, 0);
+  assert.equal(h.instance.state.fileList.length, 0);
+  assert.equal(h.instance.getConfirmedUpload(), null);
+  setFields(h, { service_cname: 'scope-b-vm', k8s_component_name: 'scope-b-vm', image_name: 'scope-b-image', os_name: 'CirrOS' });
+  await submit(h);
+  assert.equal(h.submissions.length, 0);
 });
