@@ -1,9 +1,16 @@
 import { message } from 'antd';
 import { formatMessage } from '@/utils/intl';
-import { loadDeliveryCenter, actOnDelivery, retryDeliveryTask } from '../services/deliveryCenter';
+import { loadDeliveryCenter, actOnDelivery, retryDeliveryTask, loadDeliveryUpgrade } from '../services/deliveryCenter';
 export default {
   namespace: 'deliveryCenter', state: {},
   effects: {
+    *upgrade({ payload, callback, onError }, { call }) {
+      try {
+        const response = yield call(loadDeliveryUpgrade, payload);
+        if (!response || !response.bean) throw new Error('workflow.unavailable');
+        if (callback) callback(response.bean);
+      } catch (error) { if (onError) onError(error); }
+    },
     *retry({ payload, callback }, { call }) {
       const response = yield call(retryDeliveryTask, payload);
       if (response && response.bean) {

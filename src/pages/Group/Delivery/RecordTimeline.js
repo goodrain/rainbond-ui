@@ -6,6 +6,7 @@ import VersionDetails from '../../../components/DeliveryWorkflow/VersionDetails'
 import { t } from './common';
 import styles from './records.less';
 import VersionContent from './VersionContent';
+const { latestPublications } = require('../../../utils/deliveryWorkflow');
 
 export default class RecordTimeline extends PureComponent {
   state = { expanded: {}, tabs: {} };
@@ -15,7 +16,7 @@ export default class RecordTimeline extends PureComponent {
   });
   renderVersion = (record, group) => {
     const { listings, deployments, allowed, workflowFailed, onDetail, onInstall, onExport, onListing, onDelete } = this.props;
-    const listing = listings.find(item => item.template.id === record.id);
+    const publications = latestPublications(listings.filter(item => item.template.id === record.id));
     const history = deployments.filter(item => item.template_id === record.id);
     const deleted = !!record.deleted_at;
     const expanded = this.state.expanded[record.id] == null ? !!(group.latest && group.latest.id === record.id) : this.state.expanded[record.id];
@@ -43,14 +44,16 @@ export default class RecordTimeline extends PureComponent {
           </div>
           <div className={styles.versionActions}>{allowed && !deleted && <React.Fragment>
             <Button type="primary" icon="cloud-download" disabled={workflowFailed} onClick={() => onInstall(record)}>{t('deliver')}</Button>
-            <Button icon="shop" disabled={workflowFailed || !!(listing && listing.status !== 'rejected')} onClick={() => onListing(record)}>{w(listing && listing.status === 'rejected' ? 'resubmitListing' : 'listAction')}</Button>
+            <Button icon="shop" disabled={workflowFailed} onClick={() => onListing(record)}>{w('listAction')}</Button>
             <Button icon="export" disabled={workflowFailed} onClick={() => onExport(record)}>{t('exportOfflinePackage')}</Button>
             <Dropdown overlay={menu} trigger={['click']}><Button icon="ellipsis" aria-label={`${t('more')} ${record.version}`} /></Dropdown>
           </React.Fragment>}</div>
         </header>
         <div className={styles.versionStatusRow}>
           {workflowFailed ? <span className={styles.statusField}>{w('loadFailed')}</span> : <React.Fragment>
-          <span>{deleted ? <Tag>{t('deletedVersion')}</Tag> : listing ? listingStatusLabel(listing) : <Badge status="default" text={w('notListed')} />}</span>
+          {deleted ? <Tag>{t('deletedVersion')}</Tag> : publications.length ? publications.map(item => <span key={item.id}>
+            {w(item.destination && item.destination.type === 'market' ? 'onlineMarket' : 'localCatalog')}：{listingStatusLabel(item)}
+          </span>) : <Badge status="default" text={w('notListed')} />}
           {!!exports.length && <React.Fragment><span>{taskStatusLabel(exports[0])}</span><span className={styles.statusField}>{t('exportRecords', { count: exports.length })}</span></React.Fragment>}
           </React.Fragment>}
         </div>

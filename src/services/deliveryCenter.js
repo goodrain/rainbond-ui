@@ -117,3 +117,9 @@ export async function actOnDelivery({ operation, user, scope, template, reason, 
 export async function retryDeliveryTask(taskId) {
   return request(`${apiconfig.baseUrl}/console/delivery-tasks/${encodeURIComponent(taskId)}/retry`, { method: 'post' });
 }
+
+export async function loadDeliveryUpgrade(taskId) {
+  return request(`${apiconfig.baseUrl}/console/delivery-tasks/${encodeURIComponent(taskId)}/upgrade`, {
+    method: 'get', showMessage: false, timeout: 15000
+  });
+}

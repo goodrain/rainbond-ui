@@ -190,8 +190,8 @@ export default class DeliveryRecords extends PureComponent {
     return <Modal visible title={t('templateDetails')} width={1040} className={styles.detailModal} onCancel={() => this.setState({ detail: null })}
       footer={<Button onClick={() => this.setState({ detail: null })}>{t('close')}</Button>}>
       <Descriptions bordered size="small" column={1}>{fields.map(([key, value]) => <Descriptions.Item key={key} label={t(key)}>{value}</Descriptions.Item>)}</Descriptions>
-      {listing && <section className={styles.detailPlugin}><h3>{w('listingStatus')}</h3><p>{listingStatusLabel(listing)}</p><p>{w('reason')}：{listing.reason}</p>
-        {listing.status !== 'pending' && <p>{w('reviewer')}：{listing.reviewer_name} · {w('reviewComment')}：{listing.review_comment || w('noComment')}</p>}
+      {listing && <section className={styles.detailPlugin}><h3>{w('listingStatus')}</h3><p>{listingStatusLabel(listing)}</p>{listing.reason && <p>{w('reason')}：{listing.reason}</p>}
+        {listing.reviewed_at && <p>{w('reviewer')}：{listing.reviewer_name} · {w('reviewComment')}：{listing.review_comment || w('noComment')}</p>}
       </section>}
       {row.is_platform_plugin && <div className={styles.detailPlugin}><h3>{t('deliveryAsPlatformPlugin')}</h3>
         <p>{row.plugin.plugin_name} · {row.plugin.plugin_id} · {row.plugin.plugin_type}</p></div>}
@@ -225,7 +225,7 @@ export default class DeliveryRecords extends PureComponent {
           </React.Fragment>}
       </Spin>
       {detail && this.renderDetail(detail)}
-      {listing && <ListingModal template={listing} dispatch={dispatch} scope={getScope(match.params, user)} busy={busy} onCancel={() => this.setState({ listing: null })} onSubmit={(reason, destination) => this.act({ operation: 'listing', reason, destination }, listing)} />}
+      {listing && <ListingModal template={listing} existingRequests={listings.filter(row => row.template.id === listing.id)} dispatch={dispatch} scope={getScope(match.params, user)} busy={busy} onCancel={() => this.setState({ listing: null })} onSubmit={(reason, destination) => this.act({ operation: 'listing', reason, destination }, listing)} />}
       {delivery && <DeployModal installation template={delivery} user={user} scope={getScope(match.params, user)} dispatch={dispatch} busy={busy}
         approved={listings.some(item => item.template.id === delivery.id && item.publication_status === 'published')}
         onCancel={() => this.setState({ delivery: null })} onSubmit={values => this.act({ operation: 'deploy', ...values }, delivery)} />}

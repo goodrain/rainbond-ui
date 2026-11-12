@@ -9,6 +9,7 @@ import RuntimeSection from './RuntimeSection';
 import VersionsSection from './VersionsSection';
 import styles from './asset.less';
 const { orderedVersions, versionSources, environmentRecords } = require('../../utils/deliveryAsset');
+const { listingDeployable, listingRequiresReview } = require('../../utils/deliveryWorkflow');
 const { deliveryTargetPath, deliveryTargetIsCached } = require('../../utils/deliveryNavigation');
 const initialState = () => ({ group: null, deployments: [], loading: true, failed: false, source: [], sourceLoading: false, sourceFailed: false,
   selectedSourceId: '', sourceVersionId: null, histories: {}, targets: [], runtime: null, runtimeLoading: false,
@@ -47,7 +48,7 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
   active = generation => this.alive && generation === this.generation;
   currentVersion = () => {
     const items = this.state.group && this.state.group.versions || [];
-    return items.find(item => item.template.id === this.state.selectedVersionId) || orderedVersions(items).find(item => item.status === 'pending') || orderedVersions(items)[0];
+    return items.find(item => item.template.id === this.state.selectedVersionId) || orderedVersions(items).find(item => listingRequiresReview(item) && item.status === 'pending') || orderedVersions(items)[0];
   };
   sourceReference = () => {
     const group = this.state.group, current = this.currentVersion();
@@ -164,7 +165,7 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
     if (!user || !user.is_enterprise_admin || String(user.enterprise_id) !== String(match.params.eid)) return <Alert type="warning" message={w('forbidden')} />;
     const { group, loading, failed, sourceLoading, sourceFailed, selectedSourceId, histories, targets, runtime, runtimeLoading, review, deployment, activeSection } = this.state;
     const sources = this.sources(), component = sources.find(item => item.service_id === selectedSourceId) || sources[0], version = this.currentVersion(), environment = this.environment();
-    return <PageHeaderLayout isFooter wrapperClassName={styles.assetPage} title={<span className={styles.pageTitle}><Avatar shape="square" size={44} src={group && group.profile && group.profile.logo} icon="appstore" />{group ? group.template_name : w('assetDetail')}{version && <React.Fragment>{statusLabel(version.status)}<code className={styles.headerVersion}>v{version.template.version}</code></React.Fragment>}</span>}
+    return <PageHeaderLayout isFooter wrapperClassName={styles.assetPage} title={<span className={styles.pageTitle}><Avatar shape="square" size={44} src={group && group.profile && group.profile.logo} icon="appstore" />{group ? group.template_name : w('assetDetail')}{version && <React.Fragment>{statusLabel(listingRequiresReview(version) ? version.status : version.publication_status || "not_started")}<code className={styles.headerVersion}>v{version.template.version}</code></React.Fragment>}</span>}
       content={w('assetDetailHelp')} action={<Button onClick={() => dispatch(routerRedux.push(`/enterprise/${match.params.eid}/development-delivery`))}>{w('back')}</Button>}>
       <Spin spinning={loading}>{failed ? <Alert type="warning" showIcon message={w('loadFailed')} description={<Button onClick={() => this.load()}>{w('retry')}</Button>} /> : !group ? !loading && <Empty description={w('notFound')} /> :
         <div className={styles.assetCanvas} ref={node => { this.assetRoot = node; }}>
@@ -190,9 +191,9 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
         </div>}
       </Spin>
       {review && <ReviewModal item={review} busy={busy} onCancel={() => this.setState({ review: null })} onSubmit={(decision, comment) => this.act({ operation: 'review', requestId: review.id, decision, comment })} />}
-      {deployment && <DeployModal key={deployment.id} testing={deployment.status !== 'approved'} installation={deployment.status === 'approved'}
+      {deployment && <DeployModal key={deployment.id} testing={!listingDeployable(deployment)} installation={listingDeployable(deployment)}
         approved={group.versions.some(item => item.template.id === deployment.template.id && item.publication_status === 'published')}
-        title={deployment.status === 'approved' ? w('deploy') : undefined} template={deployment.template} scope={group.source} user={user} dispatch={dispatch} busy={busy} onCancel={() => this.setState({ deployment: null })}
+        title={listingDeployable(deployment) ? w('deploy') : undefined} template={deployment.template} scope={group.source} user={user} dispatch={dispatch} busy={busy} onCancel={() => this.setState({ deployment: null })}
         onSubmit={values => this.act({ operation: 'deploy', ...values, scope: group.source, template: deployment.template, listingId: deployment.id })} />}
     </PageHeaderLayout>;
   }

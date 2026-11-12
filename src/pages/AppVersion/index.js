@@ -80,7 +80,6 @@ export default class AppVersion extends PureComponent {
       selectedRollbackRecordId: null,
     };
     this.rollbackRefreshTimer = null;
-    this.automaticSnapshotRefreshTimer = null;
     this.rollbackListContentRef = React.createRef();
     this.rollbackListScrollTop = 0;
     this.unmounted = false;
@@ -92,15 +91,12 @@ export default class AppVersion extends PureComponent {
     this.fetchApps();
     this.fetchAppVersionOverview();
     this.fetchSnapshotVersions();
-    this.fetchUpgradeRecords();
-    this.loadSourceGroups();
     this.syncRoutePanel();
   }
 
   componentWillUnmount() {
     this.unmounted = true;
     this.clearRollbackRefreshPolling();
-    clearTimeout(this.automaticSnapshotRefreshTimer);
   }
 
   componentDidUpdate(prevProps) {
@@ -111,9 +107,6 @@ export default class AppVersion extends PureComponent {
       if (prevRefreshKey !== nextRefreshKey && nextRefreshKey) {
         this.handleRouteRefresh();
       }
-    }
-    if (prevProps.apps !== this.props.apps) {
-      this.loadSourceGroups();
     }
   }
 
@@ -139,7 +132,6 @@ export default class AppVersion extends PureComponent {
     this.fetchAppDetail();
     this.fetchAppVersionOverview();
     this.fetchSnapshotVersions();
-    this.fetchUpgradeRecords();
     this.fetchRollbackRecords();
   };
 
@@ -518,26 +510,13 @@ export default class AppVersion extends PureComponent {
         return;
       }
       const overview = (res && res.bean) || {};
-      const previousStatus = (this.state.overview.automatic_snapshot || {}).status;
-      const nextStatus = (overview.automatic_snapshot || {}).status;
       const snapshotCountChanged = Number(this.state.overview.snapshot_count || 0) !== Number(overview.snapshot_count || 0);
       this.setState({ overview });
-      this.scheduleAutomaticSnapshotRefresh(overview);
-      if (snapshotCountChanged || (['pending', 'dispatching'].includes(previousStatus) && !['pending', 'dispatching'].includes(nextStatus))) {
+      if (snapshotCountChanged) {
         this.fetchSnapshotVersions();
       }
     } catch (error) {
-      if (!this.unmounted) {
-        this.scheduleAutomaticSnapshotRefresh(this.state.overview);
-      }
-    }
-  };
-
-  scheduleAutomaticSnapshotRefresh = overview => {
-    clearTimeout(this.automaticSnapshotRefreshTimer);
-    const status = ((overview || {}).automatic_snapshot || {}).status;
-    if (!this.unmounted && ['pending', 'dispatching'].includes(status)) {
-      this.automaticSnapshotRefreshTimer = setTimeout(this.fetchAppVersionOverview, 5000);
+      return;
     }
   };
 
@@ -1959,28 +1938,21 @@ export default class AppVersion extends PureComponent {
             <div className={styles.personalDesc}>
               {overview.has_changes
                 ? `当前应用存在未快照变更：新增 ${changeSummary.added_count || 0} 个组件，修改 ${changeSummary.updated_count || 0} 个组件，删除 ${changeSummary.removed_count || 0} 个组件。`
-                : '默认只展示当前应用的快照时间线；如果来源模板有更新，会在上方横幅里提示。'}
+                : '快照保存应用的组件与配置，可用于查看历史、比较变更和回滚。'}
             </div>
-            {['pending', 'dispatching', 'failure', 'expired'].includes((overview.automatic_snapshot || {}).status) && (
-              <div className={styles.personalDesc} role="status" aria-live="polite">
-                <Icon type={['pending', 'dispatching'].includes(overview.automatic_snapshot.status) ? 'loading' : 'exclamation-circle'} />
-                {' '}
-                {formatMessage({
-                  id: ['pending', 'dispatching'].includes(overview.automatic_snapshot.status)
-                    ? 'appVersion.automatic.pending'
-                    : 'appVersion.automatic.incomplete'
-                })}
-              </div>
-            )}
           </div>
           <div className={styles.personalActions}>
-            <Button
-              type="primary"
-              onClick={this.handleCreateSnapshot}
-              disabled={!this.canCreateSnapshot(overview)}
-            >
-              创建快照
-            </Button>
+            <Tooltip title={!this.canCreateSnapshot(overview) ? formatMessage({ id: 'workflow.snapshotUnchanged' }) : undefined}>
+              <span>
+                <Button
+                  type="primary"
+                  onClick={this.handleCreateSnapshot}
+                  disabled={!this.canCreateSnapshot(overview)}
+                >
+                  创建快照
+                </Button>
+              </span>
+            </Tooltip>
             <Button onClick={() => this.openRollbackRecordsDrawer()}>
               <Icon type="history" />
               回滚状态
@@ -1996,10 +1968,6 @@ export default class AppVersion extends PureComponent {
           <div className={styles.personalStat}>
             <span className={styles.personalStatLabel}>快照数量</span>
             <span className={styles.personalStatValue}>{overview.snapshot_count || 0}</span>
-          </div>
-          <div className={styles.personalStat}>
-            <span className={styles.personalStatLabel}>来源模板</span>
-            <span className={styles.personalStatValue}>{overview.source_template_count || this.state.sourceGroups.length}</span>
           </div>
         </div>
       </Card>
@@ -2274,7 +2242,41 @@ export default class AppVersion extends PureComponent {
           </div>
         }
       >
-
+        {timelineData.length ? <Timeline className={styles.historyTimeline}>
+          {timelineData.map(item => {
+            const state = item.timelineState;
+            const suffix = state === 'runtime' ? 'Runtime' : state === 'upgrade' ? 'Upgrade' : state === 'current' ? 'Current' : 'History';
+            return <Timeline.Item key={item.id} color="blue" dot={<span className={styles[`timelineDot${suffix}`]} />}>
+              <Card bordered={false} className={`${styles.timelineCard} ${styles[`timeline${suffix}`]}`}>
+                <div className={styles.timelineHeader}>
+                  <div className={styles.timelineMain}>
+                    <div className={styles.timelineTopline}>
+                      <span className={`${styles.timelineTypeTag} ${styles[`timelineTypeTag${suffix}`]}`}>
+                        {state === 'runtime' ? '当前状态' : state === 'current' ? '当前快照' : '历史快照'}
+                      </span>
+                    </div>
+                    <div className={styles.timelineTitleRow}>
+                      <div className={styles.timelineTitle}>{state !== 'runtime' && <span className={styles.timelineTitlePrefix}>快照版本</span>}{item.version}</div>
+                      <div className={styles.timelineVersionDesc}>{item.description}</div>
+                    </div>
+                    <div className={styles.timelineMeta}>{item.timeLabel}：{this.formatTime(item.createTime)}</div>
+                    <div className={styles.timelineSummary}>
+                      <div className={styles.timelineComponentLabel}>{item.componentLabel}{item.componentNames.length ? `（${item.componentNames.length}）` : ''}</div>
+                      {item.componentNames.length ? <div className={styles.timelineComponentList}>
+                        {item.componentNames.map(name => <span key={name} className={styles.timelineComponentChip}>{name}</span>)}
+                      </div> : <div className={styles.timelineComponentEmpty}>{item.emptyComponentText}</div>}
+                    </div>
+                  </div>
+                  <div className={styles.timelineActions}>
+                    <Button size="small" onClick={() => this.setState({ detailVisible: true, detailRecord: item.detail })}>查看详情</Button>
+                    {this.renderSnapshotRollbackAction(item)}
+                    {this.canDeleteSnapshot(item) && <Button size="small" onClick={() => this.confirmDeleteSnapshot(item)}>删除</Button>}
+                  </div>
+                </div>
+              </Card>
+            </Timeline.Item>;
+          })}
+        </Timeline> : <Empty description="尚未创建应用快照" />}
       </Card>
     );
   };
@@ -2616,7 +2618,6 @@ export default class AppVersion extends PureComponent {
             <Spin />
           ) : (
             <>
-              {this.renderUpgradeBanner()}
               {this.renderPersonalOverview()}
               {this.renderTimeline()}
             </>
@@ -2624,7 +2625,6 @@ export default class AppVersion extends PureComponent {
         </div>
 
         {this.renderRollbackRecordsDrawer()}
-        {this.renderSourceUpgradeDrawer()}
         {this.renderDetailDrawer()}
 
 

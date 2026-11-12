@@ -7,6 +7,7 @@ import styles from './asset.less';
 import VersionConfiguration from './VersionConfiguration';
 import VersionChanges from './VersionChanges';
 const { defaultComparison, orderedVersions, localMarketTemplatePath } = require('../../utils/deliveryAsset');
+const { listingRequiresReview, listingDeployable } = require('../../utils/deliveryWorkflow');
 
 export default class VersionsSection extends PureComponent {
   state = { tabs: {}, expandedNotes: {} };
@@ -28,18 +29,18 @@ export default class VersionsSection extends PureComponent {
           <button type="button" aria-pressed={row.template.id === template.id}
             className={`${styles.versionEntry} ${row.template.id === template.id ? styles.activeVersionEntry : ''}`} onClick={() => onSelect(row.template.id)}>
             <strong>v{row.template.version}</strong><time dateTime={row.template.created_at || row.submitted_at}>{moment(row.template.created_at || row.submitted_at).format('YYYY-MM-DD')}<span>{moment(row.template.created_at || row.submitted_at).format('HH:mm')}</span></time>
-            <small>{w(row.status)}</small>
+            <small>{w(listingRequiresReview(row) ? row.status : row.publication_status || 'not_started')}</small>
           </button>
         </Timeline.Item>)}</Timeline>
         <div className={styles.versionContent}>
           <header className={styles.versionHeader}><div><h3>{template.version}</h3>{listingStatusLabel(item)}
             <div className={styles.muted}>{w('submittedBy')} {item.applicant_name || template.creator_name || '—'} · {moment(item.submitted_at).format('YYYY-MM-DD HH:mm')} · {template.components.length} {w('componentUnit')}</div>
           </div><div className={styles.versionActions}>{!template.deleted_at && <React.Fragment>
-            {item.status === 'pending' && <Button type="primary" onClick={() => onReview(item)}>{w('review')}</Button>}
-            {item.status === 'approved' ? <React.Fragment>
+            {listingRequiresReview(item) && item.status === 'pending' && <Button type="primary" onClick={() => onReview(item)}>{w('review')}</Button>}
+            {listingDeployable(item) ? <React.Fragment>
               <Button type="primary" onClick={() => onDeploy(item)}>{w('deploy')}</Button>
               <Tooltip title={!templatePath ? w('localTemplateNotPublished') : undefined}><span><Button disabled={!templatePath} onClick={() => onViewTemplate(templatePath)}>{w('viewTemplate')}</Button></span></Tooltip>
-            </React.Fragment> : <Button onClick={() => onTest(item)}>{w('deployTest')}</Button>}
+            </React.Fragment> : listingRequiresReview(item) ? <Button onClick={() => onTest(item)}>{w('deployTest')}</Button> : null}
           </React.Fragment>}</div></header>
           <div className={styles.versionNotes}>
             <div className={styles.subheading}><h3>{w('releaseNotes')}</h3>

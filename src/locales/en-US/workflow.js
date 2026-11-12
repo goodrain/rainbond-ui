@@ -203,7 +203,7 @@ export default {
   "workflow.resubmitListing": "Reapply",
   "workflow.reason": "Application description",
   "workflow.reasonRequired": "Describe your listing application",
-  "workflow.listingHelp": "A platform administrator reviews the application. Approval enables delivery to other environments.",
+  "workflow.listingHelp": "Publishing to the local application market requires platform approval. Synchronization starts after approval.",
   "workflow.listingStatus": "Listing status",
   "workflow.notListed": "Not listed",
   "workflow.alreadySubmitted": "This version already has a pending or approved listing request",
@@ -344,5 +344,18 @@ export default {
   "workflow.sourceAppRuntime": "Current source application status",
   "workflow.resourceUsage": "Resource usage",
   "workflow.resourceRatioUnavailable": "Usage ratio is unavailable",
-  "workflow.componentConfiguration": "Component configuration"
+  "workflow.componentConfiguration": "Component configuration",
+  "workflow.snapshotUnchanged": "This application matches its latest snapshot. Make a change before creating another snapshot.",
+  "workflow.publishVersion": "Publish application template",
+  "workflow.startMarketSync": "Start synchronization",
+  "workflow.chooseOnlineMarket": "Select a market you can publish to",
+  "workflow.noPublishableMarkets": "No publishable markets. Check market authorization and write access.",
+  "workflow.not_required": "No review required",
+  "workflow.onlineListingHelp": "Synchronize directly to the selected online application market. No platform review is required.",
+  "workflow.onlineReviewNotRequired": "Online application markets synchronize directly without review.",
+  "workflow.upgradeApplication": "Upgrade",
+  "workflow.upgradeChecking": "Checking available versions for the target application",
+  "workflow.noUpgradeVersion": "No new version is available for this application",
+  "workflow.upgradeUnavailable": "Available versions could not be checked. Please try again later.",
+  "workflow.deliveryUpgradeHint": "Current version {current}. Upgrade available: {latest}."
 };

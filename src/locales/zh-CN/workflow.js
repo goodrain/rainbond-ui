@@ -203,7 +203,7 @@ export default {
   "workflow.resubmitListing": "重新申请",
   "workflow.reason": "申请说明",
   "workflow.reasonRequired": "请填写上架申请说明",
-  "workflow.listingHelp": "提交后由平台管理员审核，审核通过并完成上架后可交付到其他环境。",
+  "workflow.listingHelp": "发布到本地应用市场需平台管理员审核，审核通过后开始同步上架。",
   "workflow.listingStatus": "上架状态",
   "workflow.notListed": "未上架",
   "workflow.alreadySubmitted": "该版本已有待审核或已通过的上架申请",
@@ -344,5 +344,18 @@ export default {
   "workflow.sourceAppRuntime": "源应用当前状态",
   "workflow.resourceUsage": "资源用量",
   "workflow.resourceRatioUnavailable": "暂时无法计算用量占比",
-  "workflow.componentConfiguration": "组件配置"
+  "workflow.componentConfiguration": "组件配置",
+  "workflow.snapshotUnchanged": "当前应用与最近快照一致，修改应用后即可创建新快照",
+  "workflow.publishVersion": "上架应用模板",
+  "workflow.startMarketSync": "开始同步",
+  "workflow.chooseOnlineMarket": "请选择有发布权限的商店",
+  "workflow.noPublishableMarkets": "暂无可发布的商店，请检查商店授权和写入权限。",
+  "workflow.not_required": "无需审核",
+  "workflow.onlineListingHelp": "直接同步到所选在线应用市场，无需平台审核。",
+  "workflow.onlineReviewNotRequired": "在线应用市场直接同步，无需审核。",
+  "workflow.upgradeApplication": "升级",
+  "workflow.upgradeChecking": "正在检查目标应用的可升级版本",
+  "workflow.noUpgradeVersion": "目标应用暂无可用的新版本",
+  "workflow.upgradeUnavailable": "暂时无法检查新版本，请稍后再试",
+  "workflow.deliveryUpgradeHint": "当前版本 {current}，可升级至 {latest}"
 };
