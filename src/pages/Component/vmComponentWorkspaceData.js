@@ -85,6 +85,47 @@ function references(value) {
   }, []);
 }
 
+const GUEST_RULES = new Map([
+  ['responding:agent_connected', true],
+  ['unconfirmed:agent_disconnected', false],
+  ['unconfirmed:agent_not_reported', null],
+  ['powered_off:vm_stopped', null],
+  ['paused:vm_paused', null],
+  ['starting:vm_starting', null],
+  ['unavailable:read_failed', null],
+  ['unavailable:instance_not_created', null],
+  ['unavailable:instance_not_running', null],
+  ['unavailable:backend_unsupported', null],
+  ['unavailable:invalid_response', null]
+]);
+
+function projectGuestObservation(value, powerStatus, readFailed) {
+  const unavailable = reason => ({ guestStatus: null, agentConnected: null, guestReason: reason });
+  if (readFailed) return unavailable('read_failed');
+  if (value === undefined || value === null) return unavailable('backend_unsupported');
+  const guest = record(value);
+  if (typeof guest.status !== 'string' || typeof guest.reason !== 'string')
+    return unavailable('invalid_response');
+  const key = `${guest.status}:${guest.reason}`;
+  if (!GUEST_RULES.has(key) || guest.agent_connected !== GUEST_RULES.get(key))
+    return unavailable('invalid_response');
+  // A newer power observation invalidates a previous profile's agent response.
+  if (guest.status !== 'unavailable') {
+    if (['closed', 'stopped', 'undeploy'].includes(powerStatus))
+      return { guestStatus: 'powered_off', agentConnected: null, guestReason: 'vm_stopped' };
+    if (powerStatus === 'paused')
+      return { guestStatus: 'paused', agentConnected: null, guestReason: 'vm_paused' };
+    if (guest.status === 'responding' && powerStatus !== 'running')
+      return unavailable('read_failed');
+  }
+  return {
+    guestStatus: guest.status,
+    agentConnected: guest.agent_connected,
+    guestReason: guest.reason,
+    guestOSName: guest.agent_connected === true ? text(record(guest.os).name, 128) : null
+  };
+}
+
 function deriveVmWorkspaceData(input = {}) {
   const options = record(input);
   const detail = record(options.appDetail);
@@ -106,6 +147,7 @@ function deriveVmWorkspaceData(input = {}) {
   // an older profile's running state while the current read is unresolved.
   const rawPowerStatus = statusValue(statusSource);
   const normalizedStatus = rawPowerStatus && rawPowerStatus.toLowerCase();
+  const guest = projectGuestObservation(profile.guest, normalizedStatus, options.guestObservationFailed === true);
   const count = nonnegativeNumber(asset.reference_count);
   const displayAsset = {
     name: text(asset.name),
@@ -123,11 +165,10 @@ function deriveVmWorkspaceData(input = {}) {
     rootDiskGiB: volumeCapacity === null ? nonnegativeNumber(service.disk_cap) : volumeCapacity,
     powerStatus: POWER_STATUSES.has(normalizedStatus) ? normalizedStatus : 'unknown',
     rawPowerStatus,
-    osName: text(runtime.os_name, 128) || text(asset.os_name, 128),
-    // The current Console profile has service runtime status, but no guest OS
-    // readiness or Guest Agent connection fields. Running is not guest-ready.
-    guestStatus: null,
-    agentConnected: null,
+    osName: guest.guestOSName || text(runtime.os_name, 128) || text(asset.os_name, 128),
+    guestStatus: guest.guestStatus,
+    agentConnected: guest.agentConnected,
+    guestReason: guest.guestReason,
     vncUrl: vncURL(connections.vnc_url),
     referenceCount: count !== null && Number.isSafeInteger(count) ? count : null,
     references: references(asset.references),

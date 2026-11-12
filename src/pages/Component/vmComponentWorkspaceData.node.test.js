@@ -1,6 +1,48 @@
 const assert = require('node:assert/strict');
 const { test } = require('node:test');
 const { deriveVmWorkspaceData, buildVmComponentWorkspaceData } = require('./vmComponentWorkspaceData');
++
+test('guest observations preserve connected, disconnected and unknown separately', () => {
+  for (const [agent, status, reason] of [
+    [true, 'responding', 'agent_connected'],
+    [false, 'unconfirmed', 'agent_disconnected'],
+    [null, 'unconfirmed', 'agent_not_reported']
+  ]) {
+    const result = deriveVmWorkspaceData(fixture({}, { guest: {
+      status, reason, agent_connected: agent, os: { name: 'Observed Ubuntu' }
+    } }));
+    assert.equal(result.guestStatus, status);
+    assert.equal(result.agentConnected, agent);
+    assert.equal(result.guestReason, reason);
+    assert.equal(result.osName, agent === true ? 'Observed Ubuntu' : 'runtime OS');
+  }
+});
+
+test('legacy backends and malformed guest data never claim a guest connection', () => {
+  assert.equal(deriveVmWorkspaceData(fixture()).guestReason, 'backend_unsupported');
+  for (const agent of ['true', 1, {}, undefined]) {
+    const result = deriveVmWorkspaceData(fixture({}, { guest: {
+      status: 'responding', reason: 'agent_connected', agent_connected: agent
+    } }));
+    assert.equal(result.agentConnected, null);
+    assert.equal(result.guestReason, 'invalid_response');
+  }
+});
+
+test('current stopped or paused power and failed refresh invalidate an old connected profile', () => {
+  const source = fixture({}, { guest: {
+    status: 'responding', reason: 'agent_connected', agent_connected: true
+  } });
+  for (const [status, expected] of [['closed', 'powered_off'], ['paused', 'paused']]) {
+    const result = deriveVmWorkspaceData({ ...source, status: { status } });
+    assert.equal(result.guestStatus, expected);
+    assert.equal(result.agentConnected, null);
+  }
+  const failed = deriveVmWorkspaceData({ ...source, guestObservationFailed: true });
+  assert.equal(failed.agentConnected, null);
+  assert.equal(failed.guestReason, 'read_failed');
+});
+
 
 function fixture(service = {}, profile = {}) {
   return {

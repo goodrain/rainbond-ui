@@ -136,6 +136,34 @@ function presenter(tab = 'overview', extra = {}) {
     appDetail: realDetail, status: { status: 'closed' }, permissions, componentPermissions: permissions,
     vmWorkspacePlugins: [{ name: 'rainbond-vm' }], dispatch() {}, ...extra });
 }
++
+test('overview renders real guest response and clears it after refresh failure', () => {
+  const detail = { ...realDetail, vm_profile: { ...realDetail.vm_profile, guest: {
+    status: 'responding', reason: 'agent_connected', agent_connected: true
+  } } };
+  const view = presenter('overview', { status: { status: 'running' }, appDetail: detail });
+  let html = ReactDOMServer.renderToStaticMarkup(view.render());
+  assert.ok(html.includes('guest.status.responding'));
+  assert.ok(html.includes('vmWorkspace.connected'));
+  assert.ok(html.includes('guestToolsHelp'));
+  view.state.refreshFailed = true;
+  html = ReactDOMServer.renderToStaticMarkup(view.render());
+  assert.ok(html.includes('guest.reason.read_failed'));
+  assert.equal(html.includes('guest.status.responding'), false);
+});
+
+test('overview does not turn absent agent evidence into an installation diagnosis', () => {
+  const detail = { ...realDetail, vm_profile: { ...realDetail.vm_profile, guest: {
+    status: 'unconfirmed', reason: 'agent_not_reported', agent_connected: null
+  } } };
+  const html = ReactDOMServer.renderToStaticMarkup(presenter('overview', {
+    status: { status: 'running' }, appDetail: detail
+  }).render());
+  assert.ok(html.includes('guest.status.unconfirmed'));
+  assert.ok(html.includes('guest.agentNotDetected'));
+  assert.equal(html.includes('vmWorkspace.connected'), false);
+});
+
 
 test('VM Main renders six dedicated tabs and the real workspace while non-VM modules remain unchanged', () => {
   const vmMain = main();
@@ -344,7 +372,7 @@ test('overview has two state/connection cards, live resources and original opera
   assert.ok(html.includes('power.closed'));
   assert.ok(html.includes('CirrOS'));
   assert.ok(html.includes('30 GiB'));
-  assert.ok(html.includes('guestNotReported'));
+  assert.ok(html.includes('guest.reason.backend_unsupported'));
   assert.equal(html.includes('10.43.0.41'), false);
   assert.equal(html.includes('power.running'), false);
   const overviewNodes = treeElements(view.render());
