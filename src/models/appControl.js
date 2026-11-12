@@ -54,6 +54,7 @@ import {
   fetchHelmInstanceDetails,
   fetchInstanceDetails,
   fetchLogContent,
+  getActionLogDetail,
   fetchOperationLog,
   getAnalyzePlugins,
   getAppBuidSource,
@@ -170,6 +171,8 @@ import {
   prepareComponentPortsState,
   saveComponentPortsState
 } from './appControlPortState';
+
+const { observeComponentUpgrade } = require('../utils/componentUpgradeFeedback');
 
 let portsRequestSequence = 0;
 
@@ -355,9 +358,18 @@ export default {
         callback(response);
       }
     },
-    *putUpdateRolling({ payload, callback }, { call }) {
+    *watchUpgrade({ payload, callback, isCurrent }, { call }) {
+      const result = yield call(observeComponentUpgrade, {
+        eventID: payload.event_id,
+        isCurrent,
+        readEvents: () => fetchOperationLog({ ...payload, target: 'service', page: 1, page_size: 30 }, () => {}),
+        readErrorLogs: () => getActionLogDetail({ ...payload, level: 'error' })
+      });
+      if (result && callback && isCurrent()) callback(result);
+    },
+    *putUpdateRolling({ payload, callback, handleError }, { call }) {
       captureAppOperation('rolling_update', 'started', buildAppControlProperties(payload));
-      const response = yield call(updateRolling, payload);
+      const response = yield call(updateRolling, payload, handleError);
       if (response) {
         trackOperationSucceeded('rolling_update', payload, response);
       }
@@ -1035,14 +1047,14 @@ export default {
         }
       }
     },
-    *fetchVMDiskLayout({ payload, callback }, { call, put }) {
-      const response = yield call(getVMDisks, payload);
-      if (response) {
+    *fetchVMDiskLayout({ payload, callback, shouldApply, handleError }, { call, put }) {
+      const response = yield call(getVMDisks, payload, handleError);
+      if (response && (!shouldApply || shouldApply())) {
         yield put({
           type: 'saveVMDiskLayout',
           payload: response.list || []
         });
-        if (callback) {
+        if (callback && (!shouldApply || shouldApply())) {
           callback(response);
         }
       }

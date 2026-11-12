@@ -1,3 +1,4 @@
+import { showComponentUpgradeFeedback } from '../../utils/componentUpgradeFeedback';
 /* eslint-disable consistent-return */
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable react/no-unused-state */
@@ -1029,6 +1030,9 @@ class Main extends PureComponent {
       putUpdateRolling: formatMessage({ id: 'notification.success.operationUpdata' })
     };
     const { team_name, app_alias } = this.fetchParameter();
+    if (state === 'putUpdateRolling') this.upgradeFeedbackSequence = (this.upgradeFeedbackSequence || 0) + 1;
+    const feedbackSequence = this.upgradeFeedbackSequence;
+    const operationIdentity = this.getPollingIdentity();
 
     dispatch({
       type: `appControl/${state}`,
@@ -1037,10 +1041,20 @@ class Main extends PureComponent {
         app_alias
       },
       callback: res => {
+        if (state === 'putUpdateRolling' && (this.destroy || this.upgradeFeedbackSequence !== feedbackSequence || this.getPollingIdentity() !== operationIdentity)) return;
         if (res) {
-          notification.success({
-            message: operationMap[state]
-          });
+          if (state === 'putUpdateRolling') {
+            const identity = operationIdentity;
+            showComponentUpgradeFeedback({
+              dispatch, payload: { team_name, app_alias }, response: res,
+              isCurrent: () => {
+                return !this.destroy && this.upgradeFeedbackSequence === feedbackSequence && this.getPollingIdentity() === identity;
+              },
+              notification, formatMessage
+            });
+          } else {
+            notification.success({ message: operationMap[state] });
+          }
           const child = this.getChildCom();
           if (child && child.onAction) {
             child.onAction(res.bean);

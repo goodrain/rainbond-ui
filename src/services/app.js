@@ -180,13 +180,15 @@ export function updateRolling(
   body = {
     team_name,
     app_alias
-  }
+  },
+  handleError
 ) {
   const refreshTopology = captureTopologyOperation(body);
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/upgrade`,
     {
-      method: 'post'
+      method: 'post',
+      handleError
     }
   ).then(response => { refreshTopology(response); return response; });
 }
@@ -1600,12 +1602,14 @@ export async function getVMDisks(
   body = {
     team_name,
     app_alias
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/vm-disks`,
     {
-      method: 'get'
+      method: 'get',
+      handleError
     }
   );
 }
