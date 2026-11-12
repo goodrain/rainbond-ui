@@ -190,7 +190,7 @@ export class VmComponentWorkspace extends PureComponent {
     </div>;
     else if (tab === 'port') content = <div className={styles.sectionStack}>
       <VMProfilePanel {...profileProps} section="network" />
-      {componentPermissions.isPort ? <Port {...this.props} /> : <Alert type="info" showIcon message={text('portPermissionRequired')} />}
+      {componentPermissions.isPort ? <Port {...this.props} vmWorkspace /> : <Alert type="info" showIcon message={text('portPermissionRequired')} />}
     </div>;
     else if (tab === 'snapshots') content = <Card title={text('snapshotsTitle')} size="small">
       <Empty description={text('snapshotNotConnected')} />
