@@ -1,6 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { submitListing, reviewListing, recordDelivery, listingGroups, successfulDeliveryEnvironments } = require('./deliveryWorkflow');
+const { submitListing, reviewListing, recordDelivery, listingGroups, successfulDeliveryEnvironments,
+  listingRequiresReview, listingDeployable, latestPublications } = require('./deliveryWorkflow');
 const { deliveryScope } = require('./templateDelivery');
 const scope = { enterprise_id: 'enterprise', teamName: 'team', regionName: 'region', appID: '1' };
 const user = { enterprise_id: 'enterprise', user_id: 10, nick_name: 'Applicant' };
@@ -10,6 +11,21 @@ const template = { id: 'version-1', scope: deliveryScope(scope), template_name: 
 const submit = (items = [], tpl = template, id = 'listing-1') => submitListing(items, { user, scope, template: tpl, reason: 'Publish portal', authorized: true, appName: 'Portal app' }, '2026-11-06', id);
 const target = { team_name: 'team', region_name: 'region', app_name: 'portal-test' };
 const deploy = (listings = [], overrides = {}) => recordDelivery([], { user, scope, template, authorized: true, kind: 'delivery', target, ...overrides }, listings, '2026-11-06', 'deployment-1');
+
+test('online publications do not count as pending review and do not hide a local review for the same version', () => {
+  const local = { ...submit(), destination: {type:'local'} };
+  const online = { ...local, id:'online',status:'not_required',destination:{type:'market',market_id:'store'},publication_status:'publishing',submitted_at:'2026-11-07' };
+  assert.equal(listingRequiresReview(online),false);
+  assert.equal(listingDeployable(online),false);
+  assert.equal(listingDeployable({...online,publication_status:'published'}),true);
+  const group=listingGroups([online,local])[0];
+  assert.equal(group.pending,1);
+  assert.equal(group.versions.length,1);
+  assert.equal(group.versions[0].id,local.id);
+  assert.equal(group.versions[0].history[0].id,online.id);
+  assert.equal(latestPublications([online,local]).length,2);
+  assert.equal(listingGroups([{...online,status:'pending'}])[0].pending,0);
+});
 
 test('listing requests freeze template content and group independent versions of the same template', () => {
   const first = submit();

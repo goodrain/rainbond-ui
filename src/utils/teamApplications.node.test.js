@@ -19,6 +19,22 @@ test('no-team landing and approved records depend on actual team membership', ()
   assert.equal(workspaceRows([team], [application]).length, 1);
   assert.equal(workspaceRows([team], [application])[0].status, 'joined');
 });
+test('approved team rows reconcile the user-detail numeric PK with the application tenant UUID', () => {
+  const tenantId = '3bb01fff94d1473199ff3f9b09f8e0e9';
+  const team = { team_id: 132, team_name: 'approved-team', namespace: 'qa-workspace', region: [] };
+  const approved = { id: 'approved', status: 'approved', team_id: tenantId, team_name: 'approved-team' };
+  const rejected = { id: 'rejected', status: 'rejected', namespace: 'qa-workspace' };
+  const rows = workspaceRows([team], [rejected, approved]);
+  assert.equal(rows.length, 2);
+  assert.equal(rows[0].application.id, 'approved');
+  assert.equal(rows[1].application.id, 'rejected');
+});
+test('a canonical tenant UUID takes precedence over the user-detail database PK', () => {
+  const team = { team_id: 132, tenant_id: 'tenant-uuid', team_name: 'current-name' };
+  const approved = { id: 'approved', status: 'approved', team_id: 'tenant-uuid', team_name: 'previous-name' };
+  assert.equal(workspaceRows([team], [approved])[0].application.id, 'approved');
+  assert.equal(workspaceRows([{ ...team, tenant_id: 'different-tenant' }], [approved]).length, 2);
+});
 test('service loads real paginated applications and submits review requests without local storage', async () => {
   const calls = [];
   const source = fs.readFileSync(`${__dirname}/../services/teamApplications.js`, 'utf8').replace(/^import .*;\n/gm, '').replace(/^export /gm, '');

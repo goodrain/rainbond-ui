@@ -4,6 +4,8 @@ import { Alert, Badge, Button, Form, Input, Modal, Radio, Select, Spin, Table } 
 import moment from 'moment';
 import { formatMessage } from '@/utils/intl';
 import ComponentConfig from '../../pages/Group/Delivery/ComponentConfig';
+import DeliveryUpgradeAction from './DeliveryUpgradeAction';
+const { listingRequiresReview } = require('../../utils/deliveryWorkflow');
 export const w = (key, values) => formatMessage({ id: `workflow.${key}` }, values);
 export const deliveryRecordsLabel = (items, normal = 'deliveryRecordsTab') => w(items.some(item => item.kind === 'test') ?
   items.every(item => item.kind === 'test') ? 'testRecordsTab' : 'deliveryAndTestRecords' : normal);
@@ -12,7 +14,8 @@ export const statusLabel = status => <Badge status={{ pending: 'processing', app
 export const taskStatusLabel = row => row.kind === 'offline' ? <Badge status={row.status === 'succeeded' ? 'success' : row.status === 'failed' ? 'error' : 'processing'}
   text={w(row.status === 'succeeded' ? 'packageReady' : row.status === 'failed' ? 'packageFailed' : 'packaging')} /> : statusLabel(row.status);
 
-export const listingStatusLabel = item => <span>{statusLabel(item.status)}{item.status === 'approved' &&
+export const listingStatusLabel = item => !listingRequiresReview(item) ? <span>{statusLabel(item.publication_status || 'not_started')}
+  {item.publication_status === 'failed' && item.publication_task_id && <TaskRetryButton taskId={item.publication_task_id} owner={item.applicant_id} />}</span> : <span>{statusLabel(item.status)}{item.status === 'approved' &&
   <span style={{ marginLeft: 8 }}>{statusLabel(item.publication_status || 'not_started')}
     {item.publication_status === 'failed' && item.publication_task_id && <TaskRetryButton adminOnly taskId={item.publication_task_id} />}</span>}</span>;
 
@@ -26,21 +29,28 @@ class TaskRetryButton extends PureComponent {
 }
 
 export class ListingModal extends PureComponent {
-  state = { reason: '', error: false, destination: 'local', marketId: undefined, markets: [], marketFailed: false };
+  state = { reason: '', error: false, destination: 'local', marketId: undefined, markets: [], marketsLoading: true, marketFailed: false };
   alive = false;
   componentDidMount() {
     this.alive = true;
     if (this.props.dispatch) this.props.dispatch({ type: 'templateDelivery/load', payload: { kind: 'markets', scope: this.props.scope },
-      callback: bean => { if (this.alive) this.setState({ markets: bean.items || [] }); },
-      onError: () => { if (this.alive) this.setState({ marketFailed: true }); } });
+      callback: bean => { if (this.alive) this.setState({ markets: bean.items || [], marketsLoading: false }); },
+      onError: () => { if (this.alive) this.setState({ marketFailed: true, marketsLoading: false }); } });
   }
   componentWillUnmount() { this.alive = false; }
   render() {
     const { template, busy, onCancel, onSubmit } = this.props;
-    return <Modal visible title={w('applyListing')} onCancel={busy ? undefined : onCancel} confirmLoading={busy} closable={!busy} maskClosable={false}
-      okText={w('submit')} cancelText={w('cancel')} onOk={() => {
-        if (!this.state.reason.trim() || this.state.destination === 'market' && !this.state.marketId) { this.setState({ error: true }); return; }
-        onSubmit(this.state.reason.trim(), { type: this.state.destination, ...(this.state.destination === 'market' ? { market_id: this.state.marketId } : {}) });
+    const online = this.state.destination === 'market';
+    const duplicate = (this.props.existingRequests || []).some(row => {
+      const destination = row.destination || {type:'local'};
+      return destination.type === this.state.destination && (!online || destination.market_id === this.state.marketId) &&
+        ['pending','approved','not_required'].includes(row.status) && !(online && row.status === 'pending' && !row.publication_task_id);
+    });
+    return <Modal visible title={w('publishVersion')} onCancel={busy ? undefined : onCancel} confirmLoading={busy} closable={!busy} maskClosable={false}
+      okText={w(online ? 'startMarketSync' : 'submit')} okButtonProps={{disabled:duplicate || online && (this.state.marketsLoading || this.state.marketFailed || !this.state.marketId)}} cancelText={w('cancel')} onOk={() => {
+        if (duplicate) return;
+        if (!online && !this.state.reason.trim() || online && !this.state.marketId) { this.setState({ error: true }); return; }
+        onSubmit(online ? '' : this.state.reason.trim(), { type: this.state.destination, ...(this.state.destination === 'market' ? { market_id: this.state.marketId } : {}) });
       }}>
       <p>{template.template_name} · {template.version}</p>
       <Form layout="vertical">
@@ -49,13 +59,15 @@ export class ListingModal extends PureComponent {
           <Radio value="local">{w('localCatalog')}</Radio><Radio value="market">{w('onlineMarket')}</Radio>
         </Radio.Group></Form.Item>
         {this.state.destination === 'market' && <Form.Item required label={w('onlineMarket')} validateStatus={this.state.error && !this.state.marketId ? 'error' : undefined}>
-          <Select value={this.state.marketId} onChange={marketId => this.setState({ marketId, error: false })}>
+          <Select value={this.state.marketId} loading={this.state.marketsLoading} disabled={this.state.marketsLoading}
+            placeholder={w('chooseOnlineMarket')} notFoundContent={w(this.state.marketFailed ? 'marketsUnavailable' : 'noPublishableMarkets')}
+            onChange={marketId => this.setState({ marketId, error: false })}>
             {this.state.markets.map(market => <Select.Option key={market.id} value={market.id}>{market.name}</Select.Option>)}
           </Select>{this.state.marketFailed && <span>{w('marketsUnavailable')}</span>}
         </Form.Item>}
-        <Form.Item label={w('reason')} required validateStatus={this.state.error ? 'error' : undefined} help={this.state.error ? w('reasonRequired') : undefined}>
+        {!online && <Form.Item label={w('reason')} required validateStatus={this.state.error ? 'error' : undefined} help={this.state.error ? w('reasonRequired') : undefined}>
         <Input.TextArea rows={4} maxLength={500} value={this.state.reason} onChange={event => this.setState({ reason: event.target.value, error: false })} />
-      </Form.Item></Form><p>{w('listingHelp')}</p>
+      </Form.Item>}</Form><p>{w(duplicate ? 'alreadySubmitted' : online ? 'onlineListingHelp' : 'listingHelp')}</p>
     </Modal>;
   }
 }
@@ -143,7 +155,9 @@ export class DeploymentTable extends PureComponent {
       { title: w('environment'), key: 'target', render: (_, row) => row.target ? `${row.target.team_alias || row.target.team_name} / ${row.target.region_alias || row.target.region_name} / ${row.target.app_name}` : '—' },
       { title: w('time'), dataIndex: 'created_at', render: value => moment(value).format('YYYY-MM-DD HH:mm') },
       { title: w('status'), key: 'status', render: (_, row) => taskStatusLabel(row) },
-      { title: w('actions'), key: 'download', render: (_, row) => row.download_url ? <a href={row.download_url} target="_blank" rel="noopener noreferrer">{w('download')}</a> : <span>{row.error || '—'}{row.status === 'failed' && <TaskRetryButton taskId={row.id} owner={row.user_id} />}</span> }
+      { title: w('actions'), key: 'download', render: (_, row) => row.download_url ? <a href={row.download_url} target="_blank" rel="noopener noreferrer">{w('download')}</a> : <span>
+        {row.kind === 'delivery' && row.status === 'succeeded' ? <DeliveryUpgradeAction task={row} /> : row.error || '—'}
+        {row.status === 'failed' && <TaskRetryButton taskId={row.id} owner={row.user_id} />}</span> }
     ]} /></div>;
   }
 }

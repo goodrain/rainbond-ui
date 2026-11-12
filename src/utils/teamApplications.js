@@ -37,8 +37,9 @@ function workspaceRows(teams, applications) {
   const joined = teams.map(team => {
     const application = applications.find(row => {
       if (row.status !== 'approved') return false;
-      const teamId = team.team_id || team.tenant_id;
-      if (row.team_id && teamId) return String(row.team_id) === String(teamId);
+      // User details expose a numeric team PK; approvals retain the tenant UUID.
+      const teamId = team.tenant_id || team.team_id;
+      if (row.team_id && teamId && typeof row.team_id === typeof teamId) return String(row.team_id) === String(teamId);
       if (row.team_name && team.team_name) return row.team_name === team.team_name;
       return !!(row.namespace && team.namespace && row.namespace === team.namespace &&
         teams.filter(candidate => candidate.namespace === row.namespace).length === 1);
