@@ -603,7 +603,7 @@ export default class Index extends PureComponent {
   handleCancelTroubleshoot = () => this.setState({ troubleshootVisible: false });
 
   render() {
-    const { ports, certificates, appDetail } = this.props;
+    const { ports, certificates, appDetail, vmWorkspace } = this.props;
     const {
       isAddLicense, troubleshootVisible, showDeletePort, showDeleteDomain,
       showAddPort, showAddDomain, showAddKey, showEditAlias, showSubDomain,
@@ -625,7 +625,7 @@ export default class Index extends PureComponent {
               showIcon
               message={
                 <>
-                  <FormattedMessage id="componentOverview.body.Port.message" />
+                  <FormattedMessage id={vmWorkspace ? 'componentOverview.body.Port.vmMessage' : 'componentOverview.body.Port.message'} />
                   <a onClick={this.handleTroubleshoot} style={{ fontWeight: 'bold' }}>
                     <FormattedMessage id="componentOverview.body.Port.troubleshoot" />
                   </a>

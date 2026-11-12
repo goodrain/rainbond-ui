@@ -752,6 +752,7 @@ const componentOverview = {
     'componentOverview.body.DirectoryPersistence.path': 'Path:',
     // tabs栏>Port
     'componentOverview.body.Port.message': 'If the port configuration information is changed, restart the component for the change to take effect. Make sure the port list matches the ports your program is listening to. Unable to access',
+    'componentOverview.body.Port.vmMessage': 'After saving the port configuration, verify the internal and external access addresses and make sure the guest OS is listening on the configured ports. ',
     'componentOverview.body.Port.troubleshoot': 'You can check according to the following ideas.',
     'componentOverview.body.Port.add': 'Add port',
     'componentOverview.body.Port.msg': 'If you need to provide access services, please',
