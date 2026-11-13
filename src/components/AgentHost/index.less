@@ -1668,36 +1668,37 @@
   transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 .executionActivityFresh { transform: translateY(2px); transition: none; }
-.executionLog { padding: 4px 10px 12px 44px; overflow-wrap: anywhere; }
+.executionLog { padding: 2px 10px 8px 30px; overflow-wrap: anywhere; }
 .executionRounds { list-style: none; padding: 0; margin: 0; }
 .executionNode {
-  position: relative; min-width: 0; padding: 0 0 18px 28px;
-  &::before { content: ''; position: absolute; left: 9px; top: 22px; bottom: -8px;
+  position: relative; min-width: 0; padding: 0 0 12px 22px;
+  &::before { content: ''; position: absolute; left: 7px; top: 20px; bottom: -6px;
     width: 1px; background: fade(@border-color-base, 85%); }
   &:last-child { padding-bottom: 0; }
   &:last-child::before { bottom: 12px; }
 }
-.executionThought { position: relative; margin-bottom: 4px; }
+.executionThought { position: relative; margin-bottom: 2px; }
 .executionThoughtLabel {
   position: relative; grid-template-columns: minmax(0, 1fr) 16px;
-  padding: 6px 0; color: @heading-color; font-weight: 500;
+  padding: 4px 0; color: @heading-color; font-weight: 400;
+  font-size: (@rbd-auxiliary-size - 1px); line-height: 18px;
   > span { min-width: 0; overflow-wrap: anywhere; }
 }
-.executionThoughtIcon { position: absolute; z-index: 1; left: -28px; top: 6px;
-  display: flex; align-items: center; justify-content: center; width: 20px; height: 20px;
-  font-size: @rbd-sub-title-size; color: @primary-color;
+.executionThoughtIcon { position: absolute; z-index: 1; left: -22px; top: 4px;
+  display: flex; align-items: center; justify-content: center; width: 16px; height: 18px;
+  font-size: @rbd-content-size; color: @primary-color;
   background: @rbd-background-color; }
-.executionThoughtContent { padding: 4px 0 8px; white-space: pre-wrap; overflow-wrap: anywhere;
-  color: @text-color-secondary; font-size: @rbd-auxiliary-size; line-height: 20px; }
+.executionThoughtContent { padding: 2px 0 6px; white-space: pre-wrap; overflow-wrap: anywhere;
+  color: @text-color-secondary; font-size: (@rbd-auxiliary-size - 1px); line-height: 18px; }
 .executionCursor { display: inline-block; width: 2px; height: 1em; margin-left: 3px;
   vertical-align: -2px; background: @primary-color; }
 .executionNarration { margin: 8px 0; color: @text-color; font-size: @rbd-content-size; }
 .executionTool { margin: 0 !important; }
 .executionToolRow, .executionApprovalRecord {
-  display: grid; grid-template-columns: 20px minmax(0, 1fr); align-items: start;
-  gap: 8px; padding: 4px 0; width: 100%; color: @text-color-secondary;
-  font-size: @rbd-auxiliary-size; line-height: 20px;
-  > :first-child { margin-top: 2px; font-size: @rbd-sub-title-size; }
+  display: grid; grid-template-columns: 16px minmax(0, 1fr); align-items: start;
+  gap: 6px; padding: 3px 0; width: 100%; color: @text-color-secondary;
+  font-size: (@rbd-auxiliary-size - 1px); line-height: 18px;
+  > :first-child { margin-top: 2px; font-size: @rbd-content-size; }
 }
 .executionToolCopy { min-width: 0; overflow-wrap: anywhere; }
 .executionApprovalRecord > span { min-width: 0; overflow-wrap: anywhere; }

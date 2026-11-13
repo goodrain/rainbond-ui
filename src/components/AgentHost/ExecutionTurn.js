@@ -39,14 +39,6 @@ export default class ExecutionTurn extends PureComponent {
     reasoningExpanded: false,
   };
 
-  componentDidUpdate() {
-    const { turn, following } = this.props;
-    if (following === false) return;
-    if (turn.segmentClosed && this.state.processExpanded) {
-      this.setState({ processExpanded: false, openedNodeKey: null, reasoningExpanded: false });
-    }
-  }
-
   requestView = options => {
     if (this.props.onViewChange) this.props.onViewChange(options);
   };
@@ -55,6 +47,7 @@ export default class ExecutionTurn extends PureComponent {
     const { turn } = this.props;
     const live = turn.running || turn.waiting;
     this.setState({ processExpanded: expanded, openedNodeKey: null, reasoningExpanded: false });
+    if (this.props.onProcessToggle) this.props.onProcessToggle(expanded);
     this.requestView({ ...(expanded ? { follow: !!live } : {}), anchor });
   };
 
@@ -98,6 +91,7 @@ export default class ExecutionTurn extends PureComponent {
 
   render() {
     const { turn, renderNotice, renderAnswer } = this.props;
+    const processExpanded = this.props.processExpanded !== undefined ? this.props.processExpanded : this.state.processExpanded;
     const showProcess = turn.process.length > 0 || turn.running || turn.waiting;
     const activity = executionLabels.describeExecution(turn, t);
     const working = turn.running && !turn.waiting && !turn.segmentClosed && !turn.failed && !turn.cancelled;
@@ -112,7 +106,7 @@ export default class ExecutionTurn extends PureComponent {
           })}</span>
         </div> : null}
         {showProcess ? <div className={styles.executionProcess}>
-          <ExecutionDisclosure id={`${turn.key}:execution`} expanded={this.state.processExpanded}
+          <ExecutionDisclosure id={`${turn.key}:execution`} expanded={processExpanded}
             onToggle={this.toggleProcess}
             toggleClassName={`${styles.executionToggle} ${styles.executionProcessToggle}`}
             contentClassName={styles.executionLog}
@@ -122,7 +116,7 @@ export default class ExecutionTurn extends PureComponent {
               <ActivityText text={label} />
             </strong>}
           >
-            {this.state.processExpanded ? <ol className={styles.executionRounds} aria-label={t('executionTimeline')}>
+            {processExpanded ? <ol className={styles.executionRounds} aria-label={t('executionTimeline')}>
               {turn.nodes.map(this.renderExecutionNode)}
             </ol> : null}
           </ExecutionDisclosure>

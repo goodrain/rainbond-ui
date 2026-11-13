@@ -12,6 +12,14 @@ function chatMessagesToBubbles(chatMessages, createMessage) {
       ...(msg.created_at ? { createdAt: msg.created_at } : {}),
       historyIncomplete: true
     };
+    if (msg.role === 'assistant' && msg.runtime_progress === true) {
+      bubbles.push(createMessage('assistant', 'progress', msg.content || '', {}, {
+        ...extra, id: `progress:${msg.progress_id || msg.message_id}`, progressId: msg.progress_id || msg.message_id,
+        streamRunId: msg.run_id || '', messageKind: 'progress', isFinalAnswer: false,
+        progressAfterMessageId: msg.after_message_id || '', progressAfterToolCallId: msg.after_tool_call_id || '',
+      }));
+      return;
+    }
     if (msg.role === 'user') {
       exchange += 1;
       if (typeof msg.content === 'string' && msg.content.trim())
@@ -65,6 +73,8 @@ function chatMessagesToBubbles(chatMessages, createMessage) {
                 ...traceExtra
               })
           );
+          const issued = bubbles.find(item => item.trace && item.trace.toolCallId === scoped);
+          if (issued) issued.trace.sourceToolCallId = id;
         }
       );
     } else if (msg.role === 'tool') {
@@ -101,6 +111,8 @@ function chatMessagesToBubbles(chatMessages, createMessage) {
             ...traceExtra
           })
       );
+      const completed = bubbles.find(item => item.trace && item.trace.toolCallId === (call ? call.id : `${exchange}:orphan:${msg.tool_call_id || index}`));
+      if (completed && msg.tool_call_id) completed.trace.sourceToolCallId = msg.tool_call_id;
       if (!call) {
         const orphanId = `${exchange}:orphan:${msg.tool_call_id || index}`;
         const orphan = bubbles.find(item => item.trace && item.trace.toolCallId === orphanId);

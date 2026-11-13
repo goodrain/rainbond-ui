@@ -475,6 +475,17 @@ function applyAgentEvents({
     }
 
     switch (adaptedEvent.type) {
+      case 'progress_message': {
+        if (!adaptedEvent.progressId || !adaptedEvent.content) break;
+        const mutableMessages = ensureMutableMessages();
+        const existing = mutableMessages.findIndex(item => item.kind === 'progress' && item.progressId === adaptedEvent.progressId);
+        const extra = { id: `progress:${adaptedEvent.progressId}`, progressId: adaptedEvent.progressId,
+          progressAfterMessageId: adaptedEvent.afterMessageId, progressAfterToolCallId: adaptedEvent.afterToolCallId,
+          messageKind: 'progress', isFinalAnswer: false, eventSequence };
+        if (existing >= 0) mutableMessages[existing] = { ...mutableMessages[existing], ...extra, content: adaptedEvent.content };
+        else mutableMessages.push(eventCreateMessage('assistant', 'progress', adaptedEvent.content, contextSnapshot, extra));
+        break;
+      }
       case 'trace': {
         const traceData = (event && event.data) || {};
         if (

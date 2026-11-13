@@ -4,6 +4,12 @@ import ExecutionTurn from './ExecutionTurn';
 
 /** One request, with durable checkpoint prose between its execution segments. */
 export default class ConversationTurn extends PureComponent {
+  state = { openedExecutionKey: null };
+
+  handleProcessToggle = (key, expanded) => {
+    this.setState({ openedExecutionKey: expanded ? key : null });
+  };
+
   render() {
     const { turn, following, onViewChange, renderTrace, renderApproval, renderAnswer, renderNotice, renderProcessAnswer } = this.props;
     return <div className={`${styles.messageRow} ${styles.assistantRow}`}>
@@ -16,6 +22,8 @@ export default class ConversationTurn extends PureComponent {
       <div className={styles.assistantMessageStack}>
         {turn.timeline.map(entry => entry.kind === 'answer' ? renderAnswer(entry.item) :
           <React.Fragment key={entry.key}><ExecutionTurn turn={entry.turn} embedded following={following}
+            processExpanded={this.state.openedExecutionKey === entry.key}
+            onProcessToggle={expanded => this.handleProcessToggle(entry.key, expanded)}
             onViewChange={onViewChange} renderTrace={renderTrace} renderApproval={renderApproval}
             renderAnswer={renderAnswer} renderNotice={renderNotice} renderProcessAnswer={renderProcessAnswer} />
             {entry.turn.pendingApprovals.map(renderApproval)}

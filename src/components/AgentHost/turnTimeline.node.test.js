@@ -27,6 +27,35 @@ test('a checkpoint remains nonfinal when a run is interrupted or has no final an
   assert.equal(turn.timeline[0].item, checkpoint);
 });
 
+test('runtime progress splits at its actual tool owner without adding a model round or becoming final', () => {
+  const progress = { id: 'progress:p', kind: 'progress', role: 'assistant', progressId: 'p',
+    progressAfterMessageId: 'm2', content: '应用创建请求已返回。', messageKind: 'progress' };
+  const final = model('m3', '完成。', { isFinalAnswer: true, messageKind: 'final' });
+  const turn = groupConversationMessages([user, model('m1', '', { reasoning: 'inspect' }), tool('source'),
+    model('m2', '', { reasoning: 'create' }), tool('create'), progress, final])[1];
+  assert.deepEqual(turn.timeline.map(entry => entry.kind), ['execution', 'answer', 'answer']);
+  assert.equal(turn.reasoningCount, 2);
+  assert.equal(turn.timeline[1].item, progress);
+  assert.equal(turn.answer, final);
+  assert.ok(!turn.process.includes(progress));
+});
+
+test('legacy progress follows its original tool identifier even when the final prose has no reasoning', () => {
+  const { chatMessagesToBubbles } = require('../../models/agentHistory');
+  let id = 0;
+  const create = (role, kind, content, context, extra) => ({ id: `old:${++id}`, role, kind, content, ...extra });
+  const bubbles = chatMessagesToBubbles([user,
+    { role: 'assistant', content: '', tool_calls: [{ id: 'create', function: { name: 'rainbond_create_app', arguments: '{}' } }] },
+    { role: 'tool', tool_call_id: 'create', content: '{"ok":true}' },
+    { role: 'assistant', runtime_progress: true, progress_id: 'p', run_id: 'r', after_tool_call_id: 'create', content: '应用创建请求已返回。' },
+    { role: 'assistant', content: '完成。' }], create);
+  const turn = groupConversationMessages(bubbles)[1];
+  assert.deepEqual(turn.timeline.map(entry => entry.kind), ['execution', 'answer', 'answer']);
+  assert.equal(turn.timeline[1].item.kind, 'progress');
+  assert.equal(turn.timeline[2].item.content, '完成。');
+  assert.equal(turn.nodes.length, 1);
+});
+
 test('late approvals stay with the issuing call after a checkpoint boundary', () => {
   const checkpoint = model('stage', '已确认原因，接下来更新。', { reasoning: 'analysis' });
   const approval = { id: 'approval', kind: 'approval', approval: { approvalId: 'a', toolCallId: 'repair', status: 'approved' } };

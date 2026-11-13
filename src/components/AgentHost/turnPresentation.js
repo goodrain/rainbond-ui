@@ -116,6 +116,7 @@ function groupConversationMessages(messages, options = {}) {
     group.pendingApprovals = group.items.filter(item => item.kind === 'approval' && item.approval && item.approval.status === 'pending');
     group.notices = group.items.filter(item => item.kind === 'error' || item.kind === 'status' || item.kind === 'suggested_actions');
     group.process = group.items.filter(item => {
+      if (item.kind === 'progress') return false;
       if (group.notices.includes(item)) return false;
       if (item.kind === 'trace') {
         const tool = item.trace && item.trace.toolName || '';

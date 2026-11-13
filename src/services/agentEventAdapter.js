@@ -7,6 +7,9 @@ function adaptAgentEvent(event = {}) {
   const data = event.data || {};
 
   switch (event.type) {
+    case 'chat.progress':
+      return { type: 'progress_message', sequence, progressId: data.progress_id || '', content: data.content || '',
+        afterMessageId: data.after_message_id || '', afterToolCallId: data.after_tool_call_id || '' };
     case 'chat.message.started':
       return {
         type: 'message_started',

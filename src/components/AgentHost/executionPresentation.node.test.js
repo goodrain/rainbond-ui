@@ -142,6 +142,19 @@ test('explicitly collapsed reasoning stays collapsed across both deltas and new 
   ui.destroy();
 });
 
+test('returning to the bottom preserves expanded reasoning in a completed segment', () => {
+  const rows = [...messages(2), { id: 'final', role: 'assistant', kind: 'normal', content: '完成。', isFinalAnswer: true }];
+  const ui = mount(rows, false, ConversationTurn);
+  ui.click(ui.outer());
+  ui.click(ui.thoughts()[0]);
+  assert.equal(ui.harness.state.following, false);
+  act(() => { ui.harness.setState({ following: true }); });
+  assert.equal(ui.outer().getAttribute('aria-expanded'), 'true');
+  assert.equal(ui.thoughts()[0].getAttribute('aria-expanded'), 'true');
+  assert.match(ui.container.textContent, /thought 1/);
+  ui.destroy();
+});
+
 test('closing execution details keeps outer follow enabled and reopening keeps reasoning collapsed', () => {
   const ui = mount(messages(), true);
   ui.click(ui.outer());
@@ -244,11 +257,11 @@ test('checkpoint prose stays visible and each next execution card waits for an e
   const body = ui.container.querySelector('[data-body="checkpoint"]');
   assert.ok(body);
   assert.equal(body.closest('.executionProcess'), null);
-  assert.equal(ui.outer().getAttribute('aria-expanded'), 'false');
+  assert.equal(ui.outer().getAttribute('aria-expanded'), 'true');
   const repair = { id: 'repair', kind: 'trace', trace: { toolCallId: 'repair', title: '更新配置' } };
   ui.update([...rows, { ...checkpoint, streaming: false }, repair]);
   const processes = [...ui.container.querySelectorAll('button[aria-controls$=":execution"]')];
-  assert.deepEqual(processes.map(button => button.getAttribute('aria-expanded')), ['false', 'false']);
+  assert.deepEqual(processes.map(button => button.getAttribute('aria-expanded')), ['true', 'false']);
   assert.equal(ui.harness.state.following, true);
   ui.click(processes[1]);
   assert.equal(ui.harness.state.following, true);

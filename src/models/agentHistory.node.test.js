@@ -48,6 +48,20 @@ const event = (type, data, runId = 'r1', sequence = 1) => ({
   timestamp: '2026-11-12T08:00:00.000Z'
 });
 
+test('runtime progress replays once with stable identity and never changes the final message', () => {
+  const progress = event('chat.progress', { progress_id: 'r1:p', content: '组件创建请求已返回。', after_message_id: 'm1', after_tool_call_id: 'call' });
+  const final = event('chat.message', { role: 'assistant', message_id: 'm2', content: '完成。', message_kind: 'final' }, 'r1', 2);
+  const reducer = eventReducer();
+  const first = reducer({ messages: [], events: [progress, final], contextSnapshot: {} });
+  const replay = reducer({ messages: first.messages, events: [progress], contextSnapshot: {} });
+  assert.equal(replay.messages.length, 2);
+  assert.equal(replay.messages[0].kind, 'progress');
+  assert.equal(replay.messages[0].progressAfterToolCallId, 'call');
+  assert.equal(replay.messages[0].isFinalAnswer, false);
+  assert.equal(replay.messages[1].content, '完成。');
+  assert.equal(replay.messages[1].isFinalAnswer, true);
+});
+
 test('new agent snapshot uses real run identities, merges traces, and preserves timeout decisions', () => {
   const events = [
     event('chat.message.started', { message_id: 'shared', turn: 1, step: 1 }),
