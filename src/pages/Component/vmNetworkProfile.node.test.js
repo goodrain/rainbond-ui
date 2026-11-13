@@ -21,6 +21,8 @@ function panelHarness() {
   const current = { team: 'team-a', region: 'region-a', app: '868', refresh: 'read-1' };
   const calls = [];
   const confirmations = [];
+  const timers = new Map();
+  let timerId = 0;
   const api = {
     ports: async () => ({ status_code: 200, list: [{ is_inner_service: true, k8s_service_name: 'internal-service' }] }),
     service: async () => ({ status_code: 200, bean: { spec: { clusterIP: '10.43.12.9' } } })
@@ -28,6 +30,12 @@ function panelHarness() {
   const exported = {};
   vm.runInNewContext(code, {
     exports: exported,
+    setTimeout(callback, delay) {
+      const id = ++timerId;
+      timers.set(id, { callback, delay });
+      return id;
+    },
+    clearTimeout(id) { timers.delete(id); },
     require(name) {
       if (name === 'react') return React;
       if (name === 'dva') return { connect: () => Component => Component };
@@ -65,7 +73,22 @@ function panelHarness() {
     panel.state = { ...panel.state, ...(typeof change === 'function' ? change(panel.state) : change) };
     if (callback) callback();
   };
-  return { panel, current, api, calls, actions, confirmations };
+  let latestNetworkRead;
+  const fetchClusterIP = panel.fetchClusterIP;
+  panel.fetchClusterIP = (...args) => {
+    latestNetworkRead = fetchClusterIP(...args);
+    return latestNetworkRead;
+  };
+  const runNextTimer = async () => {
+    const next = timers.entries().next().value;
+    assert.ok(next, 'expected an automatic address retry');
+    const [id, timer] = next;
+    timers.delete(id);
+    await timer.callback();
+    return timer.delay;
+  };
+  return { panel, current, api, calls, actions, confirmations, timers, runNextTimer,
+    settleNetworkRead: () => latestNetworkRead };
 }
 
 const okPorts = { status_code: 200, list: [{ is_inner_service: true, k8s_service_name: 'internal-service' }] };
@@ -123,6 +146,198 @@ test('a user retry can replace a failed read with the actual service address', a
   await h.panel.fetchClusterIP();
   assert.equal(h.panel.state.networkStatus, 'ready');
   assert.equal(h.panel.state.clusterIP, '10.43.12.9');
+  assert.equal(h.timers.size, 0);
+});
+
+test('a Service still being created updates automatically when its ClusterIP appears', async () => {
+  const h = panelHarness();
+  h.api.service = async () => ({ status_code: 404 });
+  await h.panel.fetchClusterIP();
+  assert.equal(h.panel.state.networkStatus, 'service-pending');
+  assert.equal(h.panel.state.clusterIP, '');
+  assert.equal(h.timers.size, 1);
+  h.api.service = async () => ({ status_code: 200, bean: { spec: { clusterIP: '10.43.12.10' } } });
+  assert.equal(await h.runNextTimer(), 2000);
+  assert.equal(h.panel.state.networkStatus, 'ready');
+  assert.equal(h.panel.state.clusterIP, '10.43.12.10');
+  assert.equal(h.timers.size, 0);
+});
+
+test('an actual failure remains visible during automatic recovery and retains manual retry', async () => {
+  const h = panelHarness();
+  h.api.service = async () => { throw new Error('temporary transport failure'); };
+  await h.panel.fetchClusterIP();
+  assert.equal(h.panel.state.networkStatus, 'read-failed');
+  const retry = elements(h.panel.renderInternalAddress()).find(element => element.props?.onClick === h.panel.fetchClusterIP);
+  assert.ok(retry);
+  let resolveService;
+  h.api.service = () => new Promise(resolve => { resolveService = resolve; });
+  const recovery = h.runNextTimer();
+  await Promise.resolve();
+  assert.equal(h.panel.state.networkStatus, 'read-failed');
+  assert.equal(h.timers.size, 0, 'another retry cannot start while this read is pending');
+  resolveService({ status_code: 200, bean: { spec: { clusterIP: '10.43.12.10' } } });
+  await recovery;
+  assert.equal(h.panel.state.networkStatus, 'ready');
+  assert.equal(h.panel.state.clusterIP, '10.43.12.10');
+  assert.equal(h.timers.size, 0);
+});
+
+test('repeated true failures stop automatic retries, and manual retry starts a new recovery attempt', async () => {
+  const h = panelHarness();
+  h.api.service = async () => ({ status_code: 500 });
+  await h.panel.fetchClusterIP();
+  const delays = [];
+  while (h.timers.size) {
+    assert.ok(delays.length < 4, 'true failures must have a bounded automatic retry count');
+    delays.push(await h.runNextTimer());
+  }
+  assert.deepEqual(delays, [2000, 5000, 10000]);
+  assert.equal(h.panel.state.networkStatus, 'read-failed');
+  assert.equal(h.calls.filter(call => call.method === 'service').length, 4);
+  await h.panel.fetchClusterIP({ type: 'click' });
+  assert.equal(h.timers.size, 1);
+  h.api.service = async () => ({ status_code: 200, bean: { spec: { clusterIP: '10.43.12.10' } } });
+  assert.equal(await h.runNextTimer(), 2000);
+  assert.equal(h.panel.state.networkStatus, 'ready');
+  assert.equal(h.timers.size, 0);
+});
+
+test('a slow initial Service keeps waiting with capped backoff and no overlapping reads', async () => {
+  const h = panelHarness();
+  h.panel.props = { ...h.panel.props, status: { status: 'running' } };
+  h.api.service = async () => ({ status_code: 200, bean: { spec: {} } });
+  await h.panel.fetchClusterIP();
+  const delays = [];
+  for (let retry = 0; retry < 6; retry += 1) {
+    assert.equal(h.timers.size, 1);
+    delays.push(await h.runNextTimer());
+    assert.equal(h.panel.state.networkStatus, 'service-pending');
+  }
+  assert.deepEqual(delays, [2000, 5000, 10000, 30000, 30000, 30000]);
+  h.api.service = async () => ({ status_code: 200, bean: { spec: { clusterIP: '10.43.12.10' } } });
+  await h.runNextTimer();
+  assert.equal(h.panel.state.clusterIP, '10.43.12.10');
+  assert.equal(h.timers.size, 0);
+});
+
+test('stopped VMs wait without polling, and a new start triggers address recovery', async () => {
+  const h = panelHarness();
+  h.panel.props = { ...h.panel.props, status: { status: 'closed' } };
+  h.api.service = async () => ({ status_code: 404 });
+  await h.panel.fetchClusterIP();
+  assert.equal(h.panel.state.networkStatus, 'service-pending');
+  assert.equal(h.timers.size, 0);
+  const previous = h.panel.props;
+  h.panel.props = { ...previous, status: { status: 'starting' } };
+  h.panel.componentDidUpdate(previous);
+  await h.settleNetworkRead();
+  assert.equal(h.timers.size, 1);
+  h.api.service = async () => ({ status_code: 200, bean: { spec: { clusterIP: '10.43.12.10' } } });
+  await h.runNextTimer();
+  assert.equal(h.panel.state.clusterIP, '10.43.12.10');
+});
+
+test('runtime transitions refresh once while equivalent profile objects do not repeat reads', async () => {
+  const h = panelHarness();
+  let refreshes = 0;
+  h.panel.fetchClusterIP = () => { refreshes += 1; };
+  for (const change of [
+    { status: { status: 'starting' } },
+    { status: { status: 'running' } },
+    { vmProfile: { network: { current_pod_ip: '10.42.0.9' }, runtime_status: { start_time: 'start-a' } } },
+    { vmProfile: { network: { current_pod_ip: '10.42.0.9' }, runtime_status: { start_time: 'start-b' } } }
+  ]) {
+    const previous = h.panel.props;
+    h.panel.props = { ...previous, ...change };
+    h.panel.componentDidUpdate(previous);
+  }
+  assert.equal(refreshes, 4);
+  const previous = h.panel.props;
+  h.panel.props = JSON.parse(JSON.stringify(previous));
+  h.panel.componentDidUpdate(previous);
+  assert.equal(refreshes, 4);
+});
+
+test('an armed retry cannot query an old component, team, region or application', async () => {
+  for (const key of ['alias', 'team', 'region', 'app']) {
+    const h = panelHarness();
+    h.api.service = async () => ({ status_code: 404 });
+    await h.panel.fetchClusterIP();
+    const staleTimer = h.timers.values().next().value;
+    const previous = h.panel.props;
+    if (key === 'alias') h.panel.props = { ...previous, serviceAlias: 'vm-b' };
+    else h.current[key] = 'new-scope';
+    h.panel.componentDidUpdate(previous);
+    await h.settleNetworkRead();
+    const callsBeforeStaleTimer = h.calls.length;
+    assert.equal(h.timers.size, 1);
+    await staleTimer.callback();
+    assert.equal(h.calls.length, callsBeforeStaleTimer);
+    assert.equal(h.timers.size, 1, 'an obsolete callback must not clear the new scope timer');
+    h.api.service = async () => ({ status_code: 200, bean: { spec: { clusterIP: '10.43.12.10' } } });
+    await h.runNextTimer();
+    assert.equal(h.panel.state.clusterIP, '10.43.12.10');
+    const ports = h.calls.filter(call => call.method === 'ports').pop().options;
+    const service = h.calls.filter(call => call.method === 'service').pop().options;
+    assert.equal(ports.app_alias, h.panel.props.serviceAlias);
+    assert.equal(ports.team_name, h.current.team);
+    assert.equal(service.region, h.current.region);
+    assert.equal(h.timers.size, 0);
+  }
+});
+
+test('unmount and leaving the network section clear armed retries', async () => {
+  for (const destination of ['unmount', 'acceleration', 'connections']) {
+    const h = panelHarness();
+    h.api.service = async () => ({ status_code: 404 });
+    await h.panel.fetchClusterIP();
+    const staleTimer = h.timers.values().next().value;
+    if (destination === 'unmount') h.panel.componentWillUnmount();
+    else {
+      const previous = h.panel.props;
+      h.panel.props = { ...previous, section: destination };
+      h.panel.componentDidUpdate(previous);
+    }
+    assert.equal(h.timers.size, 0);
+    const callsBeforeStaleTimer = h.calls.length;
+    await staleTimer.callback();
+    assert.equal(h.calls.length, callsBeforeStaleTimer);
+  }
+});
+
+test('manual refresh supersedes an in-flight automatic result', async () => {
+  const h = panelHarness();
+  h.api.service = async () => ({ status_code: 404 });
+  await h.panel.fetchClusterIP();
+  let resolveAutomatic;
+  h.api.service = () => new Promise(resolve => { resolveAutomatic = resolve; });
+  const automatic = h.runNextTimer();
+  await Promise.resolve();
+  h.api.service = async () => ({ status_code: 200, bean: { spec: { clusterIP: '10.43.12.10' } } });
+  await h.panel.fetchClusterIP();
+  resolveAutomatic({ status_code: 200, bean: { spec: { clusterIP: '10.43.99.9' } } });
+  await automatic;
+  assert.equal(h.panel.state.clusterIP, '10.43.12.10');
+  assert.equal(h.timers.size, 0);
+});
+
+test('a late result from the previous runtime cannot overwrite the same VM after restart', async () => {
+  const h = panelHarness();
+  h.panel.props = { ...h.panel.props, status: 'running' };
+  let resolveOld;
+  h.api.service = () => new Promise(resolve => { resolveOld = resolve; });
+  const oldRead = h.panel.fetchClusterIP();
+  await Promise.resolve();
+  const previous = h.panel.props;
+  h.panel.props = { ...previous, vmProfile: { network: { current_pod_ip: '10.42.0.10' }, runtime: {} } };
+  h.api.service = async () => ({ status_code: 200, bean: { spec: { clusterIP: '10.43.12.10' } } });
+  h.panel.componentDidUpdate(previous);
+  await h.settleNetworkRead();
+  resolveOld({ status_code: 200, bean: { spec: { clusterIP: '10.43.99.9' } } });
+  await oldRead;
+  assert.equal(h.panel.state.clusterIP, '10.43.12.10');
+  assert.equal(h.timers.size, 0);
 });
 
 function textNodes(element) {

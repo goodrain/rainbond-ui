@@ -218,6 +218,17 @@ export default function request(url, options) {
     ...defaultOptions,
     ...options
   };
+  // Optional scoped callers can discard obsolete work before shared effects.
+  // Calls without this predicate retain the existing request policy.
+  const isCurrent = () => {
+    if (newOptions.shouldApply === undefined) return true;
+    try {
+      return typeof newOptions.shouldApply === 'function' && Boolean(newOptions.shouldApply());
+    } catch (_) {
+      return false;
+    }
+  };
+  if (!isCurrent()) return Promise.resolve(undefined);
   // if (newOptions.method === "POST" || newOptions.method === "PUT") {
   newOptions.headers = {
     Accept: 'application/json',
@@ -293,11 +304,17 @@ export default function request(url, options) {
   const slowRequestContext = sensitiveError ? undefined : startSlowRequestTracking(newOptions);
   return trackSlowRequestLifecycle(axios(newOptions), {
     context: slowRequestContext,
-    finish: sensitiveError ? undefined : finishSlowRequestTracking,
-    checkStatus,
+    finish: sensitiveError ? undefined : (context, outcome) => finishSlowRequestTracking(
+      context, isCurrent() ? outcome : { ...outcome, cancelled: true }
+    ),
+    checkStatus: response => isCurrent() ? checkStatus(response) : response,
     isCancel: error => axios.isCancel(error)
   })
     .then(response => {
+      if (!isCurrent()) {
+        if (showLoading) handleStoreDispatch('global/hiddenLoading');
+        return undefined;
+      }
       const businessCode = response.data && response.data.code;
       if (sensitiveError && businessCode !== undefined &&
           !(Number(businessCode) >= 200 && Number(businessCode) < 300)) {
@@ -310,6 +327,10 @@ export default function request(url, options) {
       return handleData(response);
     })
     .catch(error => {
+      if (!isCurrent()) {
+        if (showLoading) handleStoreDispatch('global/hiddenLoading');
+        return undefined;
+      }
       if (sensitiveError) {
         if (showLoading) {
           handleStoreDispatch('global/hiddenLoading');

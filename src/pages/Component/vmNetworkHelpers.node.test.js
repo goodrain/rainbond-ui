@@ -3,6 +3,7 @@ const { test } = require('node:test');
 const {
   getEnabledVMServiceNames,
   getServiceClusterIP,
+  getVMNetworkStatus,
   readVMInternalAddress,
   buildVMPortManagementRoute
 } = require('./vmNetworkHelpers');
@@ -74,6 +75,43 @@ test('an internal declaration without a Service name waits without querying an i
   const { api, calls } = readers(ok({ list: [{ is_inner_service: true, k8s_service_name: '' }] }));
   assert.deepStrictEqual(await readVMInternalAddress(context, api), { status: 'service-pending', clusterIP: '' });
   assert.equal(calls.length, 1);
+});
+
+test('an initially missing ports resource remains pending for automatic recovery', async () => {
+  for (const getPorts of [
+    async options => { options.handleError({ response: { status: 404 } }); return undefined; },
+    async () => { throw Object.assign(new Error('not yet created'), { response: { status: 404 } }); },
+    async () => ({ status_code: 404 }),
+    async () => ({ status_code: 200, business_code: 404 }),
+    async () => ({ status_code: 200, response_data: { code: 404 } })
+  ]) {
+    const { api, calls } = readers();
+    api.getPorts = getPorts;
+    assert.deepStrictEqual(await readVMInternalAddress(context, api), { status: 'service-pending', clusterIP: '' });
+    assert.equal(calls.length, 0, 'a missing ports response cannot trigger a guessed Service read');
+  }
+});
+
+test('incomplete context waits without calling either API', async () => {
+  for (const key of ['teamName', 'regionName', 'serviceAlias']) {
+    const { api, calls } = readers();
+    assert.equal((await readVMInternalAddress({ ...context, [key]: '' }, api)).status, 'service-pending');
+    assert.equal(calls.length, 0);
+  }
+});
+
+test('HTTP permission or server failures take precedence over a business missing code', async () => {
+  for (const response of [{ status_code: 500, business_code: 404 }, { status_code: 403, business_code: 404 }]) {
+    assert.equal((await readVMInternalAddress(context, readers(response).api)).status, 'read-failed');
+    assert.equal((await readVMInternalAddress(context, readers(undefined, response).api)).status, 'read-failed');
+  }
+});
+
+test('network refresh uses the current power state without reviving a stale profile status', () => {
+  assert.equal(getVMNetworkStatus({ status: { status: ' CLOSED ' }, vmProfile: { runtime_status: 'running' } }), 'closed');
+  assert.equal(getVMNetworkStatus({ appStatus: 'starting' }), 'starting');
+  assert.equal(getVMNetworkStatus({ vmProfile: { runtime_status: { status: 'running' } } }), 'running');
+  assert.equal(getVMNetworkStatus({ status: {}, vmProfile: { runtime_status: 'running' } }), '');
 });
 
 test('existing Services without a ClusterIP or headless Services are pending', async () => {

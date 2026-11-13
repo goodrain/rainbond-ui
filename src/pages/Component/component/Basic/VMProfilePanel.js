@@ -16,10 +16,13 @@ import { getVMCapabilities } from '../../../../services/createApp';
 import { getNsResource } from '../../../../services/teamResource';
 import handleAPIError from '../../../../utils/error';
 import globalUtil from '../../../../utils/global';
-import { readVMInternalAddress, buildVMPortManagementRoute } from '../../vmNetworkHelpers';
+import { readVMInternalAddress, buildVMPortManagementRoute, getVMNetworkRefreshKey, getVMNetworkStatus } from '../../vmNetworkHelpers';
 import styles from './VMProfilePanel.less';
 
 const { Option } = Select;
+const NETWORK_RETRY_DELAYS = [2000, 5000, 10000, 30000];
+const NETWORK_FAILURE_RETRIES = 3;
+const NETWORK_STOPPED_STATUSES = ['closed', 'stopped', 'undeploy', 'failure', 'failed', 'build_fail', 'unusual', 'abnormal'];
 
 const EMPTY_CAPABILITIES = {
   gpu_supported: false,
@@ -80,6 +83,9 @@ export class VMProfilePanel extends PureComponent {
     fixedIPUpdating: false
   };
   networkRequestGeneration = 0;
+  networkRetryAttempt = 0;
+  networkFailureCount = 0;
+  networkRetryTimer = null;
 
   includesNetworkSection = () => !['acceleration', 'connections'].includes(this.props.section);
 
@@ -100,20 +106,20 @@ export class VMProfilePanel extends PureComponent {
     }
     if (!this.includesNetworkSection()) {
       if (prevProps.section !== this.props.section) {
-        this.networkRequestGeneration += 1;
-        this.networkReadContext = null;
+        this.invalidateNetworkRead();
       }
       return;
     }
     if (prevProps.section !== this.props.section || prevProps.serviceAlias !== this.props.serviceAlias ||
-        (this.networkReadContext && !this.isNetworkContextCurrent(this.networkReadContext))) {
+        (this.networkReadContext && !this.isNetworkContextCurrent(this.networkReadContext)) ||
+        getVMNetworkRefreshKey(prevProps) !== getVMNetworkRefreshKey(this.props)) {
       this.fetchClusterIP();
     }
   }
 
   componentWillUnmount() {
     this.mounted = false;
-    this.networkRequestGeneration += 1;
+    this.invalidateNetworkRead();
   }
 
   getSourceLabel = (sourceType) => {
@@ -195,16 +201,59 @@ export class VMProfilePanel extends PureComponent {
     return ['teamName', 'regionName', 'appId', 'serviceAlias'].every(key => current[key] === context[key]);
   };
 
-  fetchClusterIP = async () => {
+  clearNetworkRetry = () => {
+    if (this.networkRetryTimer !== null) clearTimeout(this.networkRetryTimer);
+    this.networkRetryTimer = null;
+  };
+
+  invalidateNetworkRead = () => {
+    this.clearNetworkRetry();
+    this.networkRequestGeneration += 1;
+    this.networkReadContext = null;
+    this.networkRetryAttempt = 0;
+    this.networkFailureCount = 0;
+  };
+
+  scheduleNetworkRetry = (result, context, isCurrent) => {
+    if (!isCurrent() || !['service-pending', 'read-failed'].includes(result.status) ||
+        !context.teamName || !context.regionName || !context.serviceAlias) return;
+    this.networkFailureCount = result.status === 'read-failed' ? this.networkFailureCount + 1 : 0;
+    if (this.networkFailureCount > NETWORK_FAILURE_RETRIES ||
+        (result.status === 'service-pending' && NETWORK_STOPPED_STATUSES.includes(getVMNetworkStatus(this.props)))) return;
+    const delay = NETWORK_RETRY_DELAYS[Math.min(this.networkRetryAttempt++, NETWORK_RETRY_DELAYS.length - 1)];
+    this.networkRetryTimer = setTimeout(() => {
+      if (!isCurrent()) return undefined;
+      this.networkRetryTimer = null;
+      return this.fetchClusterIP({ automatic: true });
+    }, delay);
+  };
+
+  fetchClusterIP = async (options = {}) => {
     if (!this.includesNetworkSection()) return;
+    this.clearNetworkRetry();
+    if (options?.automatic !== true) {
+      this.networkRetryAttempt = 0;
+      this.networkFailureCount = 0;
+    }
     const context = this.getNetworkContext();
+    const runtimeKey = getVMNetworkRefreshKey(this.props);
     const generation = ++this.networkRequestGeneration;
     this.networkReadContext = context;
-    const isCurrent = () => this.mounted && generation === this.networkRequestGeneration && this.isNetworkContextCurrent(context);
+    const isCurrent = () => this.mounted && this.includesNetworkSection() &&
+      generation === this.networkRequestGeneration && this.isNetworkContextCurrent(context) &&
+      runtimeKey === getVMNetworkRefreshKey(this.props);
     if (!isCurrent()) return;
-    this.setState({ clusterIP: '', networkStatus: 'loading' });
-    const result = await readVMInternalAddress(context, { getPorts, getNsResource }, isCurrent);
-    if (result && isCurrent()) this.setState({ clusterIP: result.clusterIP, networkStatus: result.status });
+    if (options?.automatic !== true) this.setState({ clusterIP: '', networkStatus: 'loading' });
+    let result;
+    try {
+      result = await readVMInternalAddress(context, { getPorts, getNsResource }, isCurrent);
+    } catch (_) {
+      result = { clusterIP: '', status: 'read-failed' };
+    }
+    if (result && isCurrent()) {
+      this.setState({ clusterIP: result.clusterIP, networkStatus: result.status });
+      this.scheduleNetworkRetry(result, context, isCurrent);
+    }
   };
 
   handleConfigurePorts = () => {

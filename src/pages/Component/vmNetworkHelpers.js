@@ -24,7 +24,25 @@ function responseSucceeded(response) {
 }
 
 function isMissingService(error) {
-  return Number(error?.response?.status || error?.status_code || error?.status) === 404;
+  const status = Number(error?.response?.status ?? error?.status_code ?? error?._code ?? error?.status);
+  if (status >= 400) return status === 404;
+  const code = Number(error?.business_code ?? error?._condition ?? error?.response_data?.code);
+  return code === 404;
+}
+
+function getVMNetworkStatus(props = {}) {
+  const value = [props.status, props.appStatus, props.vmProfile?.runtime_status]
+    .find(item => item !== undefined && item !== null);
+  const status = typeof value === 'string' ? value : value?.status;
+  return typeof status === 'string' ? status.trim().toLowerCase() : '';
+}
+
+function getVMNetworkRefreshKey(props = {}) {
+  const profile = props.vmProfile || {};
+  return JSON.stringify([
+    getVMNetworkStatus(props), profile.runtime_status?.start_time || '',
+    profile.network?.current_pod_ip || profile.current_pod_ip || ''
+  ]);
 }
 
 // A ClusterIP is a service address, not evidence that the guest/port is ready.
@@ -33,21 +51,23 @@ function isMissingService(error) {
 async function readVMInternalAddress(context, api, isCurrent = () => true) {
   const result = (status, clusterIP = '') => ({ status, clusterIP });
   if (!isCurrent()) return null;
-  if (!context.serviceAlias) return result('service-pending');
+  if (!context.serviceAlias || !context.teamName || !context.regionName) return result('service-pending');
   let ports;
+  let missing = false;
   try {
     const response = await api.getPorts({
       team_name: context.teamName,
       app_alias: context.serviceAlias,
       showLoading: false,
       showMessage: false,
-      handleError: () => {}
+      handleError: error => { missing = isMissingService(error); }
     });
     if (!isCurrent()) return null;
-    if (!responseSucceeded(response) || !Array.isArray(response.list)) return result('read-failed');
+    if (!responseSucceeded(response)) return result(missing || isMissingService(response) ? 'service-pending' : 'read-failed');
+    if (!Array.isArray(response.list)) return result('read-failed');
     ports = response.list;
-  } catch (_) {
-    return isCurrent() ? result('read-failed') : null;
+  } catch (error) {
+    return isCurrent() ? result(isMissingService(error) ? 'service-pending' : 'read-failed') : null;
   }
   const internalPorts = ports.filter(port => port && port.is_inner_service);
   if (!internalPorts.length) return result('no-inner-ports');
@@ -102,6 +122,8 @@ function buildVMPortManagementRoute({ teamName, regionName, appId, serviceAlias,
 module.exports = {
   getEnabledVMServiceNames,
   getServiceClusterIP,
+  getVMNetworkStatus,
+  getVMNetworkRefreshKey,
   readVMInternalAddress,
   buildVMPortManagementRoute
 };
