@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import {
+  Alert,
   Button,
   Card,
   Collapse,
@@ -73,6 +74,13 @@ export default class AppVersion extends PureComponent {
       detailRecord: null,
       sourceUpgradeVisible: false,
       rollbackRecordsVisible: false,
+      publishRecordsVisible: false,
+      publishRecordsLoading: false,
+      publishRecordsFailed: false,
+      publishRecords: [],
+      publishRecordsTotal: 0,
+      publishRecordsPage: 1,
+      publishRecordsPageSize: 10,
       rollbackDrawerView: 'list',
       rollbackRecordsLoading: false,
       rollbackRecordDetailLoading: false,
@@ -84,6 +92,7 @@ export default class AppVersion extends PureComponent {
     this.rollbackListContentRef = React.createRef();
     this.rollbackListScrollTop = 0;
     this.unmounted = false;
+    this.publishRecordsTicket = 0;
   }
 
   componentDidMount() {
@@ -101,6 +110,11 @@ export default class AppVersion extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
+    if (this.getPublishRecordsScopeKey(prevProps) !== this.getPublishRecordsScopeKey(this.props)) {
+      this.publishRecordsTicket += 1;
+      this.setState({ publishRecordsVisible: false, publishRecordsLoading: false, publishRecordsFailed: false,
+        publishRecords: [], publishRecordsTotal: 0, publishRecordsPage: 1 });
+    }
     if (prevProps.location !== this.props.location) {
       this.syncRoutePanel();
       const prevRefreshKey = this.getRouteRefreshKey(prevProps.location);
@@ -113,6 +127,38 @@ export default class AppVersion extends PureComponent {
 
   getAppId = () => {
     return this.props.match.params.appID;
+  };
+
+  getPublishRecordsScopeKey = (props = this.props) => {
+    const { teamName, regionName, appID } = props.match.params;
+    const user = props.currentUser || {};
+    return JSON.stringify([teamName, regionName, appID, user.enterprise_id, user.user_id]);
+  };
+
+  fetchPublishRecords = (page = 1, pageSize = 10) => {
+    const { teamName, appID } = this.props.match.params;
+    const scopeKey = this.getPublishRecordsScopeKey(), ticket = ++this.publishRecordsTicket;
+    const active = () => !this.unmounted && ticket === this.publishRecordsTicket && scopeKey === this.getPublishRecordsScopeKey();
+    const fail = () => { if (active()) this.setState({ publishRecordsLoading: false, publishRecordsFailed: true }); };
+    this.setState({ publishRecordsLoading: true, publishRecordsFailed: false, publishRecords: [],
+      publishRecordsTotal: 0, publishRecordsPage: page, publishRecordsPageSize: pageSize });
+    this.props.dispatch({ type: 'application/fetchShareRecords',
+      payload: { team_name: teamName, app_id: appID, page, page_size: pageSize },
+      callback: response => {
+        if (!active()) return;
+        const total = response && response.bean && response.bean.total;
+        if (!response || !Array.isArray(response.list) || !Number.isFinite(Number(total)) || total == null) { fail();return; }
+        this.setState({ publishRecords: response.list, publishRecordsTotal: Number(total), publishRecordsLoading: false });
+      }, onError: fail });
+  };
+
+  openPublishRecordsDrawer = () => {
+    this.setState({ publishRecordsVisible: true }, () => this.fetchPublishRecords());
+  };
+
+  closePublishRecordsDrawer = () => {
+    this.publishRecordsTicket += 1;
+    this.setState({ publishRecordsVisible: false, publishRecordsLoading: false });
   };
 
   getRouteRefreshKey = location => {
@@ -1958,7 +2004,7 @@ export default class AppVersion extends PureComponent {
               <Icon type="history" />
               回滚状态
             </Button>
-
+            <Button icon="file-text" onClick={this.openPublishRecordsDrawer}>{deliveryText('snapshotPublishRecords')}</Button>
           </div>
         </div>
         <div className={styles.personalStats}>
@@ -2377,6 +2423,40 @@ export default class AppVersion extends PureComponent {
     );
   };
 
+  renderPublishRecordsDrawer = () => {
+    const { publishRecordsVisible, publishRecordsLoading, publishRecordsFailed, publishRecords,
+      publishRecordsTotal, publishRecordsPage, publishRecordsPageSize } = this.state;
+    const columns = [
+      { title: formatMessage({ id: 'appPublish.table.publishName' }), dataIndex: 'app_model_name', width: 210,
+        render: value => value || '—' },
+      { title: formatMessage({ id: 'appPublish.table.versions' }), dataIndex: 'version', width: 150,
+        render: (value, record) => value || record.version_alias ? `${value || ''}${record.version_alias ? ` (${record.version_alias})` : ''}` :
+          formatMessage({ id: 'appPublish.table.versions.notSpecified' }) },
+      { title: formatMessage({ id: 'appPublish.table.scope' }), dataIndex: 'scope', width: 210,
+        render: (scope, record) => scope === 'team' ? deliveryText('snapshotPublishTeamMarket') : scope === 'enterprise' ?
+          deliveryText('snapshotPublishEnterpriseMarket') : scope === 'goodrain' ?
+            (record.scope_target || {}).store_name || formatMessage({ id: 'appPublish.table.scope.app_shop' }) :
+            formatMessage({ id: 'appPublish.table.versions.notSpecified' }) },
+      { title: formatMessage({ id: 'appPublish.table.publishTime' }), dataIndex: 'create_time', width: 180,
+        render: value => this.formatTime(value) },
+      { title: formatMessage({ id: 'appPublish.table.status' }), dataIndex: 'status', width: 100,
+        render: status => status == null || ![0, 1, 2].includes(Number(status)) ? '—' :
+          <Tag color={Number(status) === 1 ? 'green' : Number(status) === 0 ? 'blue' : undefined}>
+            {formatMessage({ id: `appPublish.table.status.${['release', 'release_finish', 'canceled'][Number(status)]}` })}</Tag> }
+    ];
+    return <Drawer title={deliveryText('snapshotPublishRecords')} width={1040} visible={publishRecordsVisible}
+      onClose={this.closePublishRecordsDrawer}>
+      <div className={styles.templateToolbar}><div className={styles.templateHint}>{deliveryText('snapshotPublishRecordsHelp')}</div></div>
+      {publishRecordsFailed ? <Alert type="warning" showIcon message={deliveryText('snapshotPublishRecordsFailed')}
+        description={<Button onClick={() => this.fetchPublishRecords(publishRecordsPage, publishRecordsPageSize)}>{deliveryText('retry')}</Button>} /> :
+        <Table rowKey="record_id" columns={columns} dataSource={publishRecords} loading={publishRecordsLoading}
+          className={styles.templateTable} scroll={{ x: 850 }} locale={{ emptyText: deliveryText('snapshotPublishRecordsEmpty') }}
+          pagination={{ current: publishRecordsPage, pageSize: publishRecordsPageSize, total: publishRecordsTotal,
+            showSizeChanger: true, onChange: this.fetchPublishRecords,
+            onShowSizeChange: (_, size) => this.fetchPublishRecords(1, size) }} />}
+    </Drawer>;
+  };
+
   renderRollbackRecordsDrawer = () => {
     const {
       rollbackRecordsVisible,
@@ -2637,6 +2717,7 @@ export default class AppVersion extends PureComponent {
         </div>
 
         {this.renderRollbackRecordsDrawer()}
+        {this.renderPublishRecordsDrawer()}
         {this.renderDetailDrawer()}
 
 

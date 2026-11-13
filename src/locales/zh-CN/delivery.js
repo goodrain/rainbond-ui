@@ -1,4 +1,10 @@
 export default {
+  "delivery.snapshotPublishRecords": "模板发布记录",
+  "delivery.snapshotPublishRecordsHelp": "查看此应用以往发布到本地应用市场和在线商店的模板记录。",
+  "delivery.snapshotPublishRecordsEmpty": "暂无模板发布记录",
+  "delivery.snapshotPublishRecordsFailed": "模板发布记录加载失败",
+  "delivery.snapshotPublishTeamMarket": "本地应用市场（团队）",
+  "delivery.snapshotPublishEnterpriseMarket": "本地应用市场（企业）",
   "delivery.publishSnapshot": "发布",
   "delivery.selectedComponentCount": "{count} 个交付组件",
   "delivery.selectAllComponents": "全选",

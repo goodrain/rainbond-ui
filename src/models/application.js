@@ -338,11 +338,12 @@ export default {
         callback(response);
       }
     },
-    *fetchShareRecords({ payload, callback }, { call }) {
-      const response = yield call(getShareRecords, payload);
-      if (response && callback) {
-        callback(response);
-      }
+    *fetchShareRecords({ payload, callback, onError }, { call }) {
+      try {
+        const response = yield call(getShareRecords, payload);
+        if (response && callback) callback(response);
+        else if (!response && onError) onError();
+      } catch (error) { if (onError) onError(error); }
     },
     *fetchShareRecord({ payload, callback }, { call }) {
       const response = yield call(getShareRecord, payload);

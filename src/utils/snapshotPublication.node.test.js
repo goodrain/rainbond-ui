@@ -32,3 +32,81 @@ test('snapshot publish opens application delivery without importing a snapshot o
   allowed = false;target.publishSnapshot({ timelineState: 'history', detail: { version_id: 52 } });
   assert.equal(actions.length, 2);
 });
+
+function publicationHistory() {
+  const source = fs.readFileSync(resolve(__dirname, '../pages/AppVersion/index.js'), 'utf8');
+  const ast = parser.parse(source, { sourceType: 'module', plugins: ['jsx', 'decorators-legacy', 'classProperties'] });
+  const component = ast.program.body.find(node => node.type === 'ExportDefaultDeclaration').declaration;
+  const members = component.body.body.filter(node => node.key && ['getPublishRecordsScopeKey', 'fetchPublishRecords',
+    'openPublishRecordsDrawer', 'closePublishRecordsDrawer'].includes(node.key.name));
+  const Target = vm.runInNewContext(`class Target { ${members.map(node => source.slice(node.start, node.end)).join('\n')} }; Target`);
+  const target = new Target(), requests = [];
+  target.props = { match: { params: { teamName: 'source', regionName: 'region', appID: '42' } },
+    currentUser: { user_id: 1, enterprise_id: 'enterprise' }, dispatch: action => requests.push(action) };
+  target.state = { publishRecords: [], publishRecordsVisible: false };
+  target.publishRecordsTicket = 0;target.unmounted = false;
+  target.setState = (update, callback) => { Object.assign(target.state, update);if (callback) callback(); };
+  return { target, requests };
+}
+test('publication history loads the original application records on demand with server pagination', () => {
+  const { target, requests } = publicationHistory();
+  assert.equal(requests.length, 0);
+  target.openPublishRecordsDrawer();
+  assert.equal(target.state.publishRecordsVisible, true);
+  assert.equal(requests[0].type, 'application/fetchShareRecords');
+  assert.equal(JSON.stringify(requests[0].payload), JSON.stringify({ team_name: 'source', app_id: '42', page: 1, page_size: 10 }));
+  const row = { record_id: 7, app_model_name: 'Historical template', version: '0.3.0', status: 1 };
+  requests[0].callback({ bean: { total: 21 }, list: [row] });
+  assert.equal(target.state.publishRecords[0], row);
+  assert.equal(target.state.publishRecordsTotal, 21);
+  target.fetchPublishRecords(3, 10);
+  assert.equal(requests[1].payload.page, 3);
+  requests[1].callback({ bean: { total: 21 }, list: [{ record_id: 1 }] });
+  assert.equal(target.state.publishRecordsPage, 3);
+  assert.equal(target.state.publishRecords[0].record_id, 1);
+});
+test('late publication history responses cannot replace a new page, reopen a drawer or cross application scope', () => {
+  const { target, requests } = publicationHistory();
+  target.openPublishRecordsDrawer();target.fetchPublishRecords(2, 10);
+  requests[1].callback({ bean: { total: 11 }, list: [{ record_id: 2 }] });
+  requests[0].callback({ bean: { total: 100 }, list: [{ record_id: 1 }] });
+  assert.equal(target.state.publishRecords[0].record_id, 2);
+  assert.equal(target.state.publishRecordsTotal, 11);
+  target.closePublishRecordsDrawer();requests[1].onError();
+  assert.equal(target.state.publishRecordsVisible, false);
+  assert.equal(target.state.publishRecordsFailed, false);
+  target.openPublishRecordsDrawer();
+  target.props.match.params.appID = '43';
+  requests[2].callback({ bean: { total: 100 }, list: [{ record_id: 99 }] });
+  assert.equal(target.state.publishRecords.length, 0);
+  target.unmounted = true;requests[2].onError();
+  assert.equal(target.state.publishRecordsFailed, false);
+});
+test('publication history distinguishes failed loading from empty records and supports retry', () => {
+  const { target, requests } = publicationHistory();
+  target.openPublishRecordsDrawer();requests[0].onError();
+  assert.equal(target.state.publishRecordsFailed, true);
+  assert.equal(target.state.publishRecordsLoading, false);
+  target.fetchPublishRecords();requests[1].callback({ bean: { total: 0 }, list: [] });
+  assert.equal(target.state.publishRecordsFailed, false);
+  assert.equal(target.state.publishRecordsTotal, 0);
+  target.fetchPublishRecords();requests[2].callback({ bean: {}, list: [] });
+  assert.equal(target.state.publishRecordsFailed, true);
+});
+test('existing publication history effect reports HTTP and transport failures to the drawer', () => {
+  const source = fs.readFileSync(resolve(__dirname, '../models/application.js'), 'utf8');
+  const ast = parser.parse(source, { sourceType: 'module' });
+  const model = ast.program.body.find(node => node.type === 'ExportDefaultDeclaration').declaration;
+  const effects = model.properties.find(node => node.key.name === 'effects').value;
+  const method = effects.properties.find(node => node.key.name === 'fetchShareRecords');
+  const effect = vm.runInNewContext(`({${source.slice(method.start, method.end)}}).fetchShareRecords`, { getShareRecords: () => {} });
+  let failures = 0;
+  const action = { payload: {}, onError: () => { failures++; } };
+  const first = effect(action, { call: () => ({}) });first.next();first.next(undefined);
+  const second = effect(action, { call: () => ({}) });second.next();second.throw(new Error('transport failed'));
+  assert.equal(failures, 2);
+  let record;
+  const success = effect({ payload: {}, callback: response => { record = response.list[0]; } }, { call: () => ({}) });
+  success.next();success.next({ bean: { total: 1 }, list: [{ record_id: 9 }] });
+  assert.equal(record.record_id, 9);
+});
