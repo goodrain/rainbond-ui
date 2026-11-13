@@ -659,6 +659,14 @@ const helmAppInstall = {
 }
 
 const appVersionMock = {
+  'appVersion.meta.sources': '来源模版',
+  'appVersion.meta.lastPublished': '最近发布时间',
+  'appVersion.meta.notPublished': '未发布',
+  'appVersion.action.createFirst': '创建第一个快照',
+  'appVersion.history.loadFailed': '快照历史加载失败',
+  'appVersion.overview.unavailable': '无法获取当前快照信息，请稍后重试',
+  'appVersion.configuration.unavailable': '打开快照配置页失败，请稍后重试',
+  'appVersion.result.unknown': '暂时无法确认快照结果，请返回快照列表查看',
   'appVersion.page.title': '应用快照',
   'appVersion.automatic.pending': '正在等待部署完成，成功后将自动保存快照并刷新版本列表。',
   'appVersion.automatic.incomplete': '本次部署尚未生成自动快照，请检查部署结果，成功后可重试部署或手动创建快照。',
@@ -689,7 +697,7 @@ const appVersionMock = {
   'appVersion.snapshot.meta': '创建于',
   'appVersion.drawer.basic': '基础信息',
   'appVersion.drawer.stats': '快照概览',
-  'appVersion.empty': '当前还没有应用快照',
+  'appVersion.empty': '当前应用还没有快照版本',
   'appVersion.modal.create.title': '创建应用快照',
   'appVersion.modal.create.desc': '将当前应用状态保存为一个可回滚、可发布的快照。',
   'appVersion.modal.create.placeholder': '可以补充一句这次变更的说明，例如：更新 GitLab 配置并准备发布。',

@@ -337,3 +337,19 @@ test('pending cancellation API carries the selected application version and requ
   assert.equal(request.options.data.region_name, 'region');
   assert.equal(request.options.data.action, 'cancel');
 });
+
+test('a deleted runtime application stops further reads and handles the 404 without a global error toast', async () => {
+  const fs = require('node:fs'), vm = require('node:vm');
+  const source = fs.readFileSync(`${__dirname}/../services/deliveryCenter.js`, 'utf8').replace(/^import .*;\n/gm, '').replace(/^export /gm, '');
+  const requests = [];
+  const context = { require, apiconfig: { baseUrl: '' }, request: async (url, options) => {
+    requests.push(url);
+    assert.equal(typeof options.handleError, 'function');
+    options.handleError({ response: { status: 404 } });return undefined;
+  } };
+  vm.runInNewContext(source, context);
+  const result = await context.loadDeliveryCenter({ kind: 'runtime', scope: { teamName: 'team', regionName: 'region', appID: '42' } });
+  assert.equal(result.bean.deleted, true);
+  assert.equal(requests.length, 1);
+  assert.equal(result.bean.components.length, 0);
+});

@@ -1,4 +1,6 @@
 export default {
+  "workflow.sourceApplicationDeleted": "构建环境应用已删除",
+  "workflow.sourceApplicationDeletedHelp": "无法再查看该应用的实时组件和操作事件，已保存的交付模版与版本记录仍然保留。",
   "workflow.cancelListingRequest": "取消上架申请",
   "workflow.relistAction": "重新申请上架",
   "workflow.listLocalAction": "上架到本地市场",

@@ -1,4 +1,6 @@
 export default {
+  "workflow.sourceApplicationDeleted": "The build environment application has been deleted",
+  "workflow.sourceApplicationDeletedHelp": "Live components and events are no longer available. Saved delivery templates and version records are retained.",
   "workflow.cancelListingRequest": "Cancel listing request",
   "workflow.relistAction": "Request listing again",
   "workflow.listLocalAction": "List in local market",

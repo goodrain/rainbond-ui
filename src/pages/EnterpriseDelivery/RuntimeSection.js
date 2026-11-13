@@ -21,9 +21,16 @@ export default class RuntimeSection extends PureComponent {
   generation = 0;
   pending = new Set();
   visitTicket = 0;
-  componentDidMount() { this.alive = true;this.ensureEvents();this.loadVisits(); }
+  componentDidMount() { this.alive = true;if (!this.isDeleted()) { this.ensureEvents();this.loadVisits(); } }
   componentWillUnmount() { this.alive = false;this.generation += 1; }
   componentDidUpdate(previous, previousState) {
+    if (this.isDeleted()) {
+      if (!this.isDeleted(previous)) {
+        this.generation += 1;this.visitTicket += 1;this.pending.clear();
+        this.setState({ selectedComponentId: '', events: {}, accesses: [] });
+      }
+      return;
+    }
     if (previous.environment.key !== this.props.environment.key) {
       this.generation += 1;this.pending.clear();
       this.setState({ selectedComponentId: '', query: '', events: {}, accesses: [] }, () => { this.ensureEvents();this.loadVisits(); });return;
@@ -35,13 +42,15 @@ export default class RuntimeSection extends PureComponent {
     const events = selected && this.state.events[selected.service_id];
     if (selected && previous.data !== this.props.data && !this.props.loading && !(events && events.failed && events.failedPage > 1)) this.loadEvents(selected);
   }
-  filtered = (props = this.props, state = this.state) => (props.data && props.data.components || [])
+  isDeleted = (props = this.props) => !!(props.deleted || props.data && props.data.deleted);
+  filtered = (props = this.props, state = this.state) => (this.isDeleted(props) ? [] : props.data && props.data.components || [])
     .filter(item => item.name.toLowerCase().includes(state.query.trim().toLowerCase()));
   selected = (props = this.props, state = this.state) => {
     const components = this.filtered(props, state);
     return components.find(item => item.service_id === state.selectedComponentId) || components[0];
   };
   loadVisits = () => {
+    if (this.isDeleted()) return;
     const components = this.props.data && this.props.data.components || [];
     const generation = this.generation, ticket = ++this.visitTicket;
     if (!components.length) { this.setState({ accesses: [] });return; }
@@ -56,6 +65,7 @@ export default class RuntimeSection extends PureComponent {
     if (selected && !this.state.events[selected.service_id]) this.loadEvents(selected);
   };
   loadEvents = (component, page = 1) => {
+    if (this.isDeleted()) return;
     const id = component.service_id;
     if (this.pending.has(id)) return;
     this.pending.add(id);
@@ -97,6 +107,11 @@ export default class RuntimeSection extends PureComponent {
   };
   render() {
     const { environment, data, loading, sourceAppName, onVersion, versions, onSource, sourceIds = [] } = this.props;
+    if (this.isDeleted()) return <section id="asset-runtime" className={styles.assetSection} aria-labelledby="asset-runtime-title">
+      <header className={styles.sectionHeader}><h2 id="asset-runtime-title"><span className={styles.sectionNumber}>02</span>{w('assetRuntime')}</h2></header>
+      <div className={styles.runtimeDeleted}><Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={w('sourceApplicationDeleted')} />
+        <p className={styles.muted}>{w('sourceApplicationDeletedHelp')}</p></div>
+    </section>;
     const resources = data && data.resources || {}, current = data && data.state || {}, app = data && data.app;
     const names = this.names(environment.scope), origin = environment.origins[0];
     const name = app && app.group_name || environment.name || (environment.kind === 'source' ? sourceAppName : '—');
@@ -157,7 +172,9 @@ export default class RuntimeSection extends PureComponent {
           <div className={styles.runtimeEventScroll} ref={node => { this.eventScroller = node; }} tabIndex={0} role="region" aria-label={w('componentEventsRegion')}>
           <Spin spinning={!!componentEvents && componentEvents.loading && !events.length}>
           {events.length ? <Timeline className={styles.eventTimeline}>{events.map((event, index) => <Timeline.Item key={event.id || index} color="blue">
-            <p>{this.renderEvent(event)}</p><div className={styles.muted}>{event.user_name || event.real_name || event.username || '—'} · {(event.created_at || event.create_time) ? moment(event.created_at || event.create_time).format('MM-DD HH:mm') : '—'}</div>
+            <div className={styles.runtimeEventRow}><span className={styles.runtimeEventMessage}>{this.renderEvent(event)}</span>
+              <span className={styles.runtimeEventActor}>{event.user_name || event.real_name || event.username || '—'}</span>
+              <time className={styles.runtimeEventTime}>{(event.created_at || event.create_time) ? moment(event.created_at || event.create_time).format('MM-DD HH:mm') : '—'}</time></div>
           </Timeline.Item>)}</Timeline> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={w(!selected ? 'selectRuntimeComponent' : componentEvents && componentEvents.loading ? 'loadingComponentEvents' : componentEvents && componentEvents.failed ? 'componentEventsUnavailable' : 'noComponentOperationEvents')} />}
           </Spin></div>
           <div className={styles.runtimePanelFooter}><span>{w(componentEvents && componentEvents.total != null ? 'componentEventCount' : 'loadedComponentEvents', { count: events.length, total: componentEvents && componentEvents.total })}</span>

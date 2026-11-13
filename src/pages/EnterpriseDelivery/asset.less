@@ -463,7 +463,7 @@
   .environmentIdentity { margin: 0; h3 { font-size: @rbd-content-size; line-height: 22px; } }
   .resourceSummary { gap: 12px 20px; dt { font-size: @rbd-auxiliary-size; } }
 }
-.runtimeWorkspace { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 0; height: 560px; margin-top: 24px;
+.runtimeWorkspace { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(440px, 1fr); gap: 0; height: 560px; margin-top: 24px;
   border: 1px solid @border-color-base; border-radius: 8px; overflow: hidden;
 }
 .runtimeComponentPanel, .runtimeEventPanel { display: flex; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; }
@@ -482,6 +482,10 @@
   > .runtimePanelHeading h3 { font-size: @rbd-sub-title-size; }
 }
 .runtimeEventPanel { background: fade(@rbd-background-color, 22%); }
+.runtimeDeleted { padding: 40px 24px; text-align: center; }
+.runtimeEventRow { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; line-height: 24px; }
+.runtimeEventMessage { flex: 1 1 auto; min-width: 120px; overflow-wrap: anywhere; color: @text-color; }
+.runtimeEventActor, .runtimeEventTime { flex: 0 0 auto; color: @text-color-secondary; font-size: @rbd-auxiliary-size; white-space: nowrap; }
 .runtimeComponentScroll { overflow: auto; }
 .runtimeComponentTable {
   :global(.ant-table) { min-width: 620px; font-size: @rbd-content-size; }

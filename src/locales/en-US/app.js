@@ -647,6 +647,14 @@ const helmAppInstall = {
   'helmAppInstall.UpgradeInfo.version':'Version',
 }
 const appVersionMock = {
+  'appVersion.meta.sources': 'Source templates',
+  'appVersion.meta.lastPublished': 'Last publication',
+  'appVersion.meta.notPublished': 'Not published',
+  'appVersion.action.createFirst': 'Create first snapshot',
+  'appVersion.history.loadFailed': 'Unable to load snapshot history',
+  'appVersion.overview.unavailable': 'Snapshot information is unavailable. Please try again later.',
+  'appVersion.configuration.unavailable': 'Unable to open snapshot configuration. Please try again later.',
+  'appVersion.result.unknown': 'Unable to confirm the snapshot result. Check the snapshot list.',
   'appVersion.page.title': 'App snapshots',
   'appVersion.automatic.pending': 'Waiting for deployment to complete. A snapshot will be saved and the version list refreshed after success.',
   'appVersion.automatic.incomplete': 'No automatic snapshot was saved for this deployment. Check the deployment result, then retry deployment or create a snapshot manually.',

@@ -111,15 +111,15 @@
 }
 
 .personalCard {
-  border: 1px solid #e8eef6;
-  border-radius: 24px;
+  border: 1px solid fade(@primary-color, 12%);
+  border-radius: 2px;
   box-shadow: none;
   overflow: hidden;
-  background: linear-gradient(180deg, #ffffff 0%, #fafcff 100%);
+  background: @component-background;
 
   :global {
     .ant-card-body {
-      padding: 20px 24px;
+      padding: 16px;
     }
   }
 }
@@ -259,16 +259,19 @@
 
 .personalStats {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
 }
 
 .personalStat {
   padding: 14px 16px;
-  border: 1px solid #edf2f8;
-  border-radius: 14px;
-  background: #ffffff;
+  border: 1px solid fade(@primary-color, 10%);
+  border-radius: 12px;
+  background: @component-background;
 }
+
+.historyCard { border: 1px solid fade(@primary-color, 12%); border-radius: 2px; }
+.snapshotEmpty { padding: 36px 16px; }
 
 .personalStatLabel {
   display: block;
