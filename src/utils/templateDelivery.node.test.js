@@ -110,11 +110,11 @@ test('component configuration uses the read-only source definition and preserves
   assert.equal(result.bean.extend_method_map.step_node, 1);
 });
 
-test('snapshots retain rollback without restoring the old direct publication or export flow', () => {
+test('snapshots retain rollback without restoring the old direct publication flow', () => {
   const source = fs.readFileSync(`${__dirname}/../pages/AppVersion/index.js`, 'utf8');
   assert.ok(source.includes('renderRollbackRecordsDrawer'));
   assert.ok(source.includes('handleCreateSnapshot'));
-  assert.doesNotMatch(source, /renderPublishAction|AppExporter|createPublishRecord/);
+  assert.doesNotMatch(source, /renderPublishAction|createPublishRecord/);
 });
 
 function mergedEditor() {

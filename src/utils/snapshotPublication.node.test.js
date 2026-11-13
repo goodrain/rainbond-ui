@@ -110,3 +110,52 @@ test('existing publication history effect reports HTTP and transport failures to
   success.next();success.next({ bean: { total: 1 }, list: [{ record_id: 9 }] });
   assert.equal(record.record_id, 9);
 });
+
+function historicalExport() {
+  const source = fs.readFileSync(resolve(__dirname, '../pages/AppVersion/index.js'), 'utf8');
+  const ast = parser.parse(source, { sourceType: 'module', plugins: ['jsx', 'decorators-legacy', 'classProperties'] });
+  const component = ast.program.body.find(node => node.type === 'ExportDefaultDeclaration').declaration;
+  const methods = component.body.body.filter(node => node.key && ['buildPublishRecordExportData', 'canExportPublishRecord',
+    'showSharedAppExport', 'hideSharedAppExport'].includes(node.key.name));
+  let allowed = true;
+  const permissionCalls = [];
+  const Target = vm.runInNewContext(`class Target { ${methods.map(node => source.slice(node.start, node.end)).join('\n')} }; Target`, {
+    roleUtil: { queryPermissionsInfo: (...args) => { permissionCalls.push(args);return { isExport: allowed }; } }
+  });
+  const target = new Target();
+  target.props = { currentTeamPermissionsInfo: { team: { sub_models: [] } } };
+  target.getAppId = () => '42';target.state = { exportRecord: null };
+  target.setState = update => Object.assign(target.state, update);
+  return { target, permissionCalls, deny: () => { allowed = false; } };
+}
+test('historical export uses the published model and version instead of the live application or snapshot', () => {
+  const { target, permissionCalls } = historicalExport();
+  const row = { record_id: 5, app_model_id: 'published-model', app_model_name: 'Historical template',
+    version: '0.3.0', app_version_info: 'Saved version notes', scope: 'team', status: 1, is_success: true };
+  assert.equal(target.canExportPublishRecord(row), true);
+  assert.equal(permissionCalls[0][1], 'app_release');
+  assert.equal(permissionCalls[0][2], 'app_42');
+  target.showSharedAppExport(row);
+  assert.equal(target.state.exportRecord, row);
+  const app = target.buildPublishRecordExportData(row);
+  assert.equal(app.app_id, 'published-model');
+  assert.equal(app.version.join(','), '0.3.0');
+  assert.equal(app.versions_info[0].version, '0.3.0');
+  assert.equal(app.versions_info[0][0], undefined, 'text notes must not be spread as metadata fields');
+  target.hideSharedAppExport();assert.equal(target.state.exportRecord, null);
+});
+test('historical export requires the original export permission and a completed local publication', () => {
+  const { target, deny } = historicalExport();
+  const row = { app_model_id: 'published-model', version: '1.0.0', scope: 'enterprise', status: 1 };
+  assert.equal(target.canExportPublishRecord(row), true);
+  for (const changes of [{ status: 0 }, { status: 2 }, { scope: 'goodrain' }, { is_success: false },
+    { app_model_id: '' }, { version: '' }, { version: [] }]) {
+    target.showSharedAppExport({ ...row, ...changes });
+    assert.equal(target.state.exportRecord, null);
+  }
+  deny();target.showSharedAppExport(row);
+  assert.equal(target.state.exportRecord, null);
+  assert.equal(target.canExportPublishRecord(row), false);
+  target.props.currentTeamPermissionsInfo = null;
+  assert.equal(target.canExportPublishRecord(row), false);
+});

@@ -44,6 +44,7 @@ import { runCloseCallback } from './closeCallback';
 import styles from './index.less';
 import snapshotVersionHelpers from '../Group/components/snapshotVersionHelpers';
 import { canPublishTemplate, deliveryPath, t as deliveryText } from '../Group/Delivery/common';
+import AppExporter from '../EnterpriseShared/AppExporter';
 
 const { Panel } = Collapse;
 const { getLatestSnapshotVersionSeed } = snapshotVersionHelpers;
@@ -81,6 +82,7 @@ export default class AppVersion extends PureComponent {
       publishRecordsTotal: 0,
       publishRecordsPage: 1,
       publishRecordsPageSize: 10,
+      exportRecord: null,
       rollbackDrawerView: 'list',
       rollbackRecordsLoading: false,
       rollbackRecordDetailLoading: false,
@@ -113,7 +115,9 @@ export default class AppVersion extends PureComponent {
     if (this.getPublishRecordsScopeKey(prevProps) !== this.getPublishRecordsScopeKey(this.props)) {
       this.publishRecordsTicket += 1;
       this.setState({ publishRecordsVisible: false, publishRecordsLoading: false, publishRecordsFailed: false,
-        publishRecords: [], publishRecordsTotal: 0, publishRecordsPage: 1 });
+        publishRecords: [], publishRecordsTotal: 0, publishRecordsPage: 1, exportRecord: null });
+    } else if (this.state.exportRecord && !this.canExportPublishRecord(this.state.exportRecord)) {
+      this.setState({ exportRecord: null });
     }
     if (prevProps.location !== this.props.location) {
       this.syncRoutePanel();
@@ -160,6 +164,33 @@ export default class AppVersion extends PureComponent {
     this.publishRecordsTicket += 1;
     this.setState({ publishRecordsVisible: false, publishRecordsLoading: false });
   };
+
+  buildPublishRecordExportData = record => {
+    const versions = (Array.isArray(record && record.version) ? record.version : [record && record.version])
+      .filter(version => typeof version === 'string' && version.trim());
+    const metadata = record && record.app_version_info;
+    return { ...record, app_id: record && record.app_model_id, source: 'local', version: versions,
+      versions_info: versions.map(version => ({
+        ...(metadata && typeof metadata === 'object' && !Array.isArray(metadata) ? metadata : {}), version
+      })) };
+  };
+
+  canExportPublishRecord = record => {
+    if (!record || Number(record.status) !== 1 || record.is_success === false || !['team', 'enterprise'].includes(record.scope)) return false;
+    const { currentTeamPermissionsInfo } = this.props;
+    const teamPermissions = currentTeamPermissionsInfo && currentTeamPermissionsInfo.team;
+    if (!teamPermissions || !Array.isArray(teamPermissions.sub_models)) return false;
+    const permission = roleUtil.queryPermissionsInfo(teamPermissions,
+      'app_release', `app_${this.getAppId()}`) || {};
+    const data = this.buildPublishRecordExportData(record);
+    return !!(permission.isExport && data.app_id && data.version.length);
+  };
+
+  showSharedAppExport = record => {
+    if (this.canExportPublishRecord(record)) this.setState({ exportRecord: record });
+  };
+
+  hideSharedAppExport = () => this.setState({ exportRecord: null });
 
   getRouteRefreshKey = location => {
     const query = (location && location.query) || {};
@@ -2442,7 +2473,10 @@ export default class AppVersion extends PureComponent {
       { title: formatMessage({ id: 'appPublish.table.status' }), dataIndex: 'status', width: 100,
         render: status => status == null || ![0, 1, 2].includes(Number(status)) ? '—' :
           <Tag color={Number(status) === 1 ? 'green' : Number(status) === 0 ? 'blue' : undefined}>
-            {formatMessage({ id: `appPublish.table.status.${['release', 'release_finish', 'canceled'][Number(status)]}` })}</Tag> }
+            {formatMessage({ id: `appPublish.table.status.${['release', 'release_finish', 'canceled'][Number(status)]}` })}</Tag> },
+      { title: formatMessage({ id: 'appPublish.table.operate' }), key: 'action', width: 130,
+        render: (_, record) => this.canExportPublishRecord(record) ?
+          <Button size="small" onClick={() => this.showSharedAppExport(record)}>{formatMessage({ id: 'applicationMarket.localMarket.export_app' })}</Button> : '—' }
     ];
     return <Drawer title={deliveryText('snapshotPublishRecords')} width={1040} visible={publishRecordsVisible}
       onClose={this.closePublishRecordsDrawer}>
@@ -2450,7 +2484,7 @@ export default class AppVersion extends PureComponent {
       {publishRecordsFailed ? <Alert type="warning" showIcon message={deliveryText('snapshotPublishRecordsFailed')}
         description={<Button onClick={() => this.fetchPublishRecords(publishRecordsPage, publishRecordsPageSize)}>{deliveryText('retry')}</Button>} /> :
         <Table rowKey="record_id" columns={columns} dataSource={publishRecords} loading={publishRecordsLoading}
-          className={styles.templateTable} scroll={{ x: 850 }} locale={{ emptyText: deliveryText('snapshotPublishRecordsEmpty') }}
+          className={styles.templateTable} scroll={{ x: 980 }} locale={{ emptyText: deliveryText('snapshotPublishRecordsEmpty') }}
           pagination={{ current: publishRecordsPage, pageSize: publishRecordsPageSize, total: publishRecordsTotal,
             showSizeChanger: true, onChange: this.fetchPublishRecords,
             onShowSizeChange: (_, size) => this.fetchPublishRecords(1, size) }} />}
@@ -2718,6 +2752,11 @@ export default class AppVersion extends PureComponent {
 
         {this.renderRollbackRecordsDrawer()}
         {this.renderPublishRecordsDrawer()}
+        {this.state.exportRecord && this.canExportPublishRecord(this.state.exportRecord) &&
+          <AppExporter key={`${this.getPublishRecordsScopeKey()}-${this.state.exportRecord.record_id}`}
+            eid={this.getEnterpriseId()} app={this.buildPublishRecordExportData(this.state.exportRecord)}
+            team_name={this.props.match.params.teamName} regionName={this.props.match.params.regionName}
+            onOk={this.hideSharedAppExport} onCancel={this.hideSharedAppExport} />}
         {this.renderDetailDrawer()}
 
 
