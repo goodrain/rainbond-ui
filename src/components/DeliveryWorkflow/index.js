@@ -14,7 +14,7 @@ export const statusLabel = status => <Badge status={{ pending: 'processing', app
 export const taskStatusLabel = row => row.kind === 'offline' ? <Badge status={row.status === 'succeeded' ? 'success' : row.status === 'failed' ? 'error' : 'processing'}
   text={w(row.status === 'succeeded' ? 'packageReady' : row.status === 'failed' ? 'packageFailed' : 'packaging')} /> : statusLabel(row.status);
 
-export const listingStatusLabel = item => !listingRequiresReview(item) ? <span>{statusLabel(item.publication_status || 'not_started')}
+export const listingStatusLabel = item => ['unlisted', 'cancelled'].includes(item.publication_status) ? statusLabel(item.publication_status) : !listingRequiresReview(item) ? <span>{statusLabel(item.publication_status || 'not_started')}
   {item.publication_status === 'failed' && item.publication_task_id && <TaskRetryButton taskId={item.publication_task_id} owner={item.applicant_id} />}</span> : <span>{statusLabel(item.status)}{item.status === 'approved' &&
   <span style={{ marginLeft: 8 }}>{statusLabel(item.publication_status || 'not_started')}
     {item.publication_status === 'failed' && item.publication_task_id && <TaskRetryButton adminOnly taskId={item.publication_task_id} />}</span>}</span>;
@@ -29,7 +29,7 @@ class TaskRetryButton extends PureComponent {
 }
 
 export class ListingModal extends PureComponent {
-  state = { reason: '', error: false, destination: 'local', marketId: undefined, markets: [], marketsLoading: true, marketFailed: false };
+  state = { reason: '', error: false, destination: this.props.initialDestination || 'local', marketId: undefined, markets: [], marketsLoading: true, marketFailed: false };
   alive = false;
   componentDidMount() {
     this.alive = true;
@@ -44,7 +44,8 @@ export class ListingModal extends PureComponent {
     const duplicate = (this.props.existingRequests || []).some(row => {
       const destination = row.destination || {type:'local'};
       return destination.type === this.state.destination && (!online || destination.market_id === this.state.marketId) &&
-        ['pending','approved','not_required'].includes(row.status) && !(online && row.status === 'pending' && !row.publication_task_id);
+        ['pending','approved','not_required'].includes(row.status) && !['cancelled','unlisted'].includes(row.publication_status) &&
+        !(online && row.status === 'pending' && !row.publication_task_id);
     });
     return <Modal visible title={w('publishVersion')} onCancel={busy ? undefined : onCancel} confirmLoading={busy} closable={!busy} maskClosable={false}
       okText={w(online ? 'startMarketSync' : 'submit')} okButtonProps={{disabled:duplicate || online && (this.state.marketsLoading || this.state.marketFailed || !this.state.marketId)}} cancelText={w('cancel')} onOk={() => {

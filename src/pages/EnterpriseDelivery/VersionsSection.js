@@ -40,7 +40,7 @@ export default class VersionsSection extends PureComponent {
             {listingDeployable(item) ? <React.Fragment>
               <Button type="primary" onClick={() => onDeploy(item)}>{w('deploy')}</Button>
               <Tooltip title={!templatePath ? w('localTemplateNotPublished') : undefined}><span><Button disabled={!templatePath} onClick={() => onViewTemplate(templatePath)}>{w('viewTemplate')}</Button></span></Tooltip>
-            </React.Fragment> : listingRequiresReview(item) ? <Button onClick={() => onTest(item)}>{w('deployTest')}</Button> : null}
+            </React.Fragment> : listingRequiresReview(item) && item.status !== 'cancelled' && !['unlisted', 'cancelled'].includes(item.publication_status) ? <Button onClick={() => onTest(item)}>{w('deployTest')}</Button> : null}
           </React.Fragment>}</div></header>
           <div className={styles.versionNotes}>
             <div className={styles.subheading}><h3>{w('releaseNotes')}</h3>
