@@ -122,17 +122,13 @@ function mergedEditor() {
   const ast = require('@babel/parser').parse(source, { sourceType: 'module', plugins: ['jsx', 'decorators-legacy', 'classProperties'] });
   const declaration = ast.program.body.find(node => node.type === 'ExportDefaultDeclaration').declaration;
   const methods = declaration.body.body.filter(node => node.key && ['load', 'loadConfigs', 'change', 'next', 'publish'].includes(node.key.name));
-  const Target = vm.runInNewContext(`class Target { ${methods.map(node => source.slice(node.start, node.end)).join('\n')} }; Target`, {
-    validateVersionInfo, canPublishTemplate: () => true,
-    snapshotId: props => props.location && props.location.query && props.location.query.snapshot_id,
-    nextTemplateVersion: require('./templateTimeline').nextTemplateVersion
-  });
+  const Target = vm.runInNewContext(`class Target { ${methods.map(node => source.slice(node.start, node.end)).join('\n')} }; Target`, { validateVersionInfo, canPublishTemplate: () => true });
   const target = new Target(), requests = [];
   target.generation = 0;
   target.pendingConfigs = new Set();
   target.active = generation => generation === target.generation;
   target.scope = () => scope;
-  target.state = { template: { id: 'existing-profile' }, components: [component, { ...component, service_id: 'api' }], configs: {},
+  target.state = { components: [component, { ...component, service_id: 'api' }], configs: {},
     values: { version: values.version, description: values.description, service_ids: values.service_ids.slice() }, failedConfigs: [], syncJob: null, errors: {} };
   target.setState = (update, callback) => {
     target.state = { ...target.state, ...(typeof update === 'function' ? update(target.state) : update) };

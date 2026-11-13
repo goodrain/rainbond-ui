@@ -9,15 +9,12 @@ export async function listDeliveryTemplates(scope) {
   return request(urlFor(scope), { method: 'get', params: { region_name: scope.regionName } });
 }
 export async function loadDeliverySource(scope, options = {}) {
-  return request(`${urlFor(scope)}/source`, { method: 'get', params: { region_name: scope.regionName,
-    ...(scope.snapshotId !== undefined ? { snapshot_id: scope.snapshotId } : {}) },
+  return request(`${urlFor(scope)}/source`, { method: 'get', params: { region_name: scope.regionName },
     ...(options.showMessage === false ? { showMessage: false } : {}) });
 }
 export async function loadDeliveryComponents(scope) {
   const [response, saved] = await Promise.all([loadDeliverySource(scope), listDeliveryTemplates(scope)]);
   if (!response || !response.bean || !Array.isArray(response.bean.apps)) throw new Error('delivery.componentsUnavailable');
-  if (scope.snapshotId !== undefined && (!response.bean.source_snapshot ||
-    String(response.bean.source_snapshot.version_id) !== String(scope.snapshotId))) throw new Error('delivery.componentsUnavailable');
   const records = saved && saved.bean && saved.bean.items || [];
   const version = records.find(item => item.template_id);
   const annotations = version && version.manifest && version.manifest.annotations || {};
@@ -27,8 +24,7 @@ export async function loadDeliveryComponents(scope) {
     description: version.template_description == null ? annotations.describe || '' : version.template_description
   };
   const latest = records.filter(item => !item.deleted_at).slice().sort((a, b) => (Date.parse(b.created_at) || 0) - (Date.parse(a.created_at) || 0))[0];
-  return { bean: { template: metadata || null, sourceSnapshot: response.bean.source_snapshot || null,
-    application: response.bean.application || {}, latestVersion: latest ? latest.version : null, components: response.bean.apps.map(item => ({
+  return { bean: { template: metadata || null, latestVersion: latest ? latest.version : null, components: response.bean.apps.map(item => ({
     service_id: item.service_id, service_alias: item.service_alias, name: item.service_cname,
     source_type: item.service_source, source: item.git_url || item.image || '',
     branch: item.code_branch || '', commit: item.code_version || '', extend_method: item.extend_method,
@@ -54,8 +50,7 @@ export async function deleteDeliveryVersion({ scope, templateId }) {
 }
 export async function publishDeliveryTemplate({ scope, values, configs, options, requestId }) {
   return request(urlFor(scope), { method: 'post', data: {
-    ...buildTemplatePayload(values, configs, { ...options, versionOnly: true }), request_id: requestId, region_name: scope.regionName,
-    ...(scope.snapshotId !== undefined ? { snapshot_id: scope.snapshotId } : {})
+    ...buildTemplatePayload(values, configs, { ...options, versionOnly: true }), request_id: requestId, region_name: scope.regionName
   } });
 }
 export async function loadDeliveryExports({ scope, versionId }) {

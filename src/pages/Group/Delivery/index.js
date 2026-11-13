@@ -6,15 +6,12 @@ import PageHeaderLayout from '../../../layouts/PageHeaderLayout';
 import { t, getScope, deliveryPath, canPublishTemplate } from './common';
 import ComponentConfig from './ComponentConfig';
 import PluginFields, { defaultPlugin } from './PluginFields';
-import CreateAppModels from '../../../components/CreateAppModels';
 import styles from './index.less';
 const { validateVersionInfo } = require('../../../utils/templateDelivery');
-const { nextTemplateVersion } = require('../../../utils/templateTimeline');
-const snapshotId = props => props.location && props.location.query && props.location.query.snapshot_id;
 
 const initialState = props => ({ template: null, latestVersion: null, values: {
   version: props.location && props.location.query && props.location.query.version || '1.0.0', description: '', service_ids: [] },
-  components: [], configs: {}, sourceSnapshot: null, application: {}, profileEditor: false, plugin: defaultPlugin(), pluginEnabled: false,
+  components: [], configs: {}, plugin: defaultPlugin(), pluginEnabled: false,
   loading: true, loadingConfigs: false, dirty: false, failed: false, failedConfigs: [], errors: {}, failure: null });
 
 @connect(({ user, teamControl, loading }) => ({
@@ -29,7 +26,6 @@ export default class TemplateEditor extends PureComponent {
   componentDidMount() { this.alive = true;this.load(); }
   componentDidUpdate(previous) {
     if (JSON.stringify(previous.match.params) !== JSON.stringify(this.props.match.params) ||
-      snapshotId(previous) !== snapshotId(this.props) ||
       (previous.user || {}).user_id !== (this.props.user || {}).user_id ||
       (previous.user || {}).enterprise_id !== (this.props.user || {}).enterprise_id) {
       this.generation += 1;this.submitting = false;this.pendingConfigs.clear();this.setState(initialState(this.props), this.load);
@@ -37,19 +33,16 @@ export default class TemplateEditor extends PureComponent {
   }
   componentWillUnmount() { this.alive = false;this.generation += 1; }
   active = generation => this.alive && generation === this.generation;
-  scope = () => ({ ...getScope(this.props.match.params, this.props.user),
-    ...(snapshotId(this.props) !== undefined ? { snapshotId: snapshotId(this.props) } : {}) });
+  scope = () => getScope(this.props.match.params, this.props.user);
   load = () => {
     if (!this.props.user) return;
     const generation = this.generation;
     this.setState({ loading: true, failed: false });
     this.props.dispatch({ type: 'templateDelivery/load', payload: { scope: this.scope() }, callback: bean => {
       if (!this.active(generation)) return;
-      this.setState(state => ({ template: bean.template, sourceSnapshot: bean.sourceSnapshot, application: bean.application,
-        latestVersion: bean.latestVersion, components: bean.components, loading: false,
-        values: { ...state.values,
-          version: snapshotId(this.props) !== undefined && !state.dirty ? nextTemplateVersion(bean.latestVersion ? [bean.latestVersion] : []) : state.values.version,
-          service_ids: bean.components.filter(item => item.delivery_available !== false).map(item => item.service_id) } }), this.loadConfigs);
+      if (!bean.template) { this.setState({ template: null, components: bean.components, loading: false });return; }
+      this.setState(state => ({ template: bean.template, latestVersion: bean.latestVersion, components: bean.components, loading: false,
+        values: { ...state.values, service_ids: bean.components.filter(item => item.delivery_available !== false).map(item => item.service_id) } }), this.loadConfigs);
     }, onError: () => { if (this.active(generation)) this.setState({ loading: false, failed: true }); } });
   };
   change = (key, value) => this.setState(state => ({ dirty: true, values: { ...state.values, [key]: value },
@@ -77,7 +70,7 @@ export default class TemplateEditor extends PureComponent {
     } }));
   };
   next = () => {
-    if (this.submitting || this.props.publishing || !this.state.template || this.state.loading || this.state.loadingConfigs || this.state.failedConfigs.length) return;
+    if (this.submitting || this.props.publishing || this.state.loading || this.state.loadingConfigs || this.state.failedConfigs.length) return;
     const { values, pluginEnabled, plugin, components } = this.state;
     const errors = validateVersionInfo(values, pluginEnabled, plugin);
     if (values.service_ids.some(id => !components.some(item => item.service_id === id))) errors.service_ids = 'componentsChanged';
@@ -90,14 +83,11 @@ export default class TemplateEditor extends PureComponent {
     this.submitting = true;
     const generation = this.generation;
     const { values, configs, pluginEnabled, plugin } = this.state;
-    const signature = JSON.stringify([snapshotId(this.props), values, configs, pluginEnabled, plugin]);
+    const signature = JSON.stringify([values, configs, pluginEnabled, plugin]);
     if (signature !== this.creationSignature) { this.creationSignature = signature;this.requestId = `${Date.now()}-${Math.random().toString(36).slice(2)}`; }
     this.props.dispatch({ type: 'templateDelivery/publish', payload: { scope: this.scope(), values, configs, user: this.props.user,
       requestId: this.requestId, options: { pluginEnabled, plugin } },
-      callback: version => {
-        if (this.active(generation)) this.props.dispatch(routerRedux.replace({ pathname: deliveryPath(this.props.match.params),
-          ...(snapshotId(this.props) !== undefined ? { query: { publish_version: version.id } } : {}) }));
-      },
+      callback: () => { if (this.active(generation)) this.props.dispatch(routerRedux.replace(deliveryPath(this.props.match.params))); },
       onError: key => { if (this.active(generation)) { this.submitting = false;this.setState({ failure: key.replace(/^delivery\./, '') }); } } });
   };
   leave = () => {
@@ -169,14 +159,11 @@ export default class TemplateEditor extends PureComponent {
       action={template && <div className={styles.templateContext}><span className={styles.contextLabel}>{t('belongsToTemplate')}</span><strong title={template.name}>{template.name}</strong></div>}>
       {!allowed ? <Alert type="warning" showIcon message={t('permissionRequired')} /> : <Spin spinning={loading}>
         {failed ? <Alert type="warning" showIcon message={t('componentsUnavailable')} description={<Button onClick={this.load}>{t('retry')}</Button>} /> :
-          !loading && !template ? <Empty description={t(snapshotId(this.props) !== undefined ? 'snapshotNeedsTemplate' : 'templateContextUnavailable')}>
-            {snapshotId(this.props) !== undefined && <Button type="primary" onClick={() => this.setState({ profileEditor: true })}>{t('createTemplate')}</Button>}
-            <Button onClick={this.load}>{t('retry')}</Button></Empty> :
+          !loading && !template ? <Empty description={t('templateContextUnavailable')}><Button onClick={this.load}>{t('retry')}</Button></Empty> :
           !loading && !components.length ? <Empty description={t('noComponents')} /> : <div className={styles.editorLayout}>
             <div ref={node => { this.editorRoot = node; }}>
             <div className={styles.editorForm}>
               <React.Fragment>
-                {this.state.sourceSnapshot && <Alert type="info" showIcon message={t('snapshotPublicationSource', { version: this.state.sourceSnapshot.version })} />}
                 <div className={styles.editorIntro}>{this.renderBasic()}</div>
                 <section className={styles.configurationSection}>
                 {this.renderComponentSelection()}
@@ -195,17 +182,12 @@ export default class TemplateEditor extends PureComponent {
               <div className={styles.editorActions}>
                 <span className={styles.editorActionSummary}>{values.version || '—'} · {t('selectedComponentCount', { count: values.service_ids.length })}</span>
                 <div><Button disabled={publishing} onClick={this.leave}>{t('cancel')}</Button>
-                <Button type="primary" loading={publishing} disabled={loading || !components.length || loadingConfigs || !!failedConfigs.length} onClick={this.next}>{t(snapshotId(this.props) !== undefined ? 'createAndList' : 'createVersion')}</Button></div>
+                <Button type="primary" loading={publishing} disabled={loading || !components.length || loadingConfigs || !!failedConfigs.length} onClick={this.next}>{t('createVersion')}</Button></div>
               </div>
             </div>
             </div>
           </div>}
       </Spin>}
-      {this.state.profileEditor && <CreateAppModels title={t('createTemplate')} eid={user && user.enterprise_id}
-        appName={(this.state.application || {}).name || ''} defaultScope="team" fixedScope="team" team_name={match.params.teamName}
-        deliverySource={{ team_name: match.params.teamName, region_name: match.params.regionName, app_id: match.params.appID }}
-        onOk={() => { if (this.alive) this.setState({ profileEditor: false }, this.load); }}
-        onCancel={() => this.setState({ profileEditor: false })} />}
     </PageHeaderLayout>;
   }
 }

@@ -2233,8 +2233,7 @@ export default class AppVersion extends PureComponent {
     const { currentUser, currentTeam, currentTeamPermissionsInfo, match, dispatch } = this.props;
     if (!item.detail || !item.detail.version_id || item.timelineState === 'runtime' ||
       !canPublishTemplate(currentUser, currentTeam, currentTeamPermissionsInfo, match.params)) return;
-    dispatch(routerRedux.push({ pathname: `${deliveryPath(match.params)}/create`,
-      query: { snapshot_id: String(item.detail.version_id) } }));
+    dispatch(routerRedux.push(deliveryPath(match.params)));
   };
 
   renderTimeline = () => {

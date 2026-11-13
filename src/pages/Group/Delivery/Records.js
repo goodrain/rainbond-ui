@@ -46,7 +46,7 @@ export default class DeliveryRecords extends PureComponent {
   componentDidUpdate(previous) {
     if (JSON.stringify(previous.match.params) !== JSON.stringify(this.props.match.params) ||
       (previous.user || {}).enterprise_id !== (this.props.user || {}).enterprise_id || (previous.user || {}).user_id !== (this.props.user || {}).user_id) {
-      this.generation += 1;this.checkTicket += 1;this.checking = false;this.acting = false;this.lastRecords = [];this.openedPublication = null;this.pendingDeliveryTaskId = '';this.pendingDeliveryRefreshId = '';clearTimeout(this.checkTimer);
+      this.generation += 1;this.checkTicket += 1;this.checking = false;this.acting = false;this.lastRecords = [];this.pendingDeliveryTaskId = '';this.pendingDeliveryRefreshId = '';clearTimeout(this.checkTimer);
       this.setState({ detail: null, listings: [], deployments: [], listing: null, delivery: null, checks: [], changesOpen: false, exporting: null, profileEditor: null }, this.load);
     } else if ((previous.records !== this.props.records || previous.loading && !this.props.loading) && !this.props.loading && !this.props.failed) {
       this.lastRecords = this.props.records;
@@ -63,22 +63,10 @@ export default class DeliveryRecords extends PureComponent {
       if (!this.active(generation) || sequence !== this.loadSequence) return;
       this.lastRecords = records;
       this.checkChanges(records);
-      this.openSnapshotListing(records);
     } });
     this.props.dispatch({ type: 'deliveryCenter/load', payload: { kind: 'application', scope, user: this.props.user }, callback: bean => {
       if (this.active(generation) && sequence === this.loadSequence && !this.followDelivery(bean.deployments)) this.setState({ listings: bean.listings, deployments: bean.deployments, workflowFailed: false });
     }, onError: () => { if (this.active(generation) && sequence === this.loadSequence) this.setState({ workflowFailed: true }); } });
-  };
-  openSnapshotListing = records => {
-    const query = this.props.location && this.props.location.query || {};
-    const versionId = query.publish_version;
-    if (!versionId || this.openedPublication === versionId) return;
-    const version = records.find(item => String(item.id) === String(versionId));
-    if (!version || !canPublishTemplate(this.props.user, this.props.team, this.props.permissions, this.props.match.params)) return;
-    this.openedPublication = versionId;
-    this.setState({ listing: version });
-    const { publish_version, ...remaining } = query;
-    this.props.dispatch(routerRedux.replace({ pathname: deliveryPath(this.props.match.params), query: remaining }));
   };
   loadWorkflow = () => {
     if (!this.props.user || this.workflowLoading) return;

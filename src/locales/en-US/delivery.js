@@ -1,8 +1,5 @@
 export default {
   "delivery.publishSnapshot": "Publish",
-  "delivery.snapshotNeedsTemplate": "Create an application template to publish this snapshot.",
-  "delivery.snapshotPublicationSource": "Source snapshot {version}. Save its content as a delivery version, then choose a publication destination.",
-  "delivery.createAndList": "Create version and publish",
   "delivery.selectedComponentCount": "{count} delivery components",
   "delivery.selectAllComponents": "Select all",
   "delivery.fullDescriptionPlaceholder": "Describe application features, use cases and usage in detail.",
