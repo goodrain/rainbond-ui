@@ -100,8 +100,11 @@ export async function loadDeliveryCenter({ user, kind, groupId, scope, component
   }
   return request(`${base(scope)}/records`, { method: 'get', params: { region_name: scope.regionName } });
 }
-export async function actOnDelivery({ operation, user, scope, template, reason, requestId, decision, comment, target, kind, listingId, destination, environment, requestKey, format, image_handle }) {
+export async function actOnDelivery({ operation, user, scope, template, reason, requestId, decision, comment, target, kind, listingId, destination, environment, requestKey, format, image_handle, action: withdrawalAction }) {
   const listing = requestId || listingId;
+  if (operation === 'withdraw') return request(`${base(scope)}/versions/${encodeURIComponent(template.id)}/listing-requests/${encodeURIComponent(listing)}/withdraw`, {
+    method: 'post', data: { region_name: scope.regionName, action: withdrawalAction }
+  });
   if (operation === 'review') return request(`${apiconfig.baseUrl}/console/enterprises/${encodeURIComponent(user.enterprise_id)}/listing-requests/${encodeURIComponent(listing)}/review`, {
     method: 'post', data: { decision, comment }
   });

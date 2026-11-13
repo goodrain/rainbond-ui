@@ -2,6 +2,8 @@ function deliveryUpgradePath(info) {
   const target = info && info.target;
   if (!info || !info.available || !info.upgrade_group_id || !info.app_model_id ||
       !target || !target.team_name || !target.region_name || !target.app_id) return '';
+  if (info.resume_record_id) return `/team/${encodeURIComponent(target.team_name)}/region/${encodeURIComponent(target.region_name)}/apps/${encodeURIComponent(target.app_id)}/upgrade/` +
+    `${encodeURIComponent(info.upgrade_group_id)}/record/${encodeURIComponent(info.resume_record_id)}?app_id=${encodeURIComponent(info.app_model_id)}`;
   return `/team/${encodeURIComponent(target.team_name)}/region/${encodeURIComponent(target.region_name)}/apps/${encodeURIComponent(target.app_id)}/upgrade` +
     `?app_model_id=${encodeURIComponent(info.app_model_id)}&upgrade_group_id=${encodeURIComponent(info.upgrade_group_id)}`;
 }

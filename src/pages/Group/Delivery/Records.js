@@ -26,7 +26,7 @@ const { deliveryTargetPath, deliveryTargetIsCached } = require('../../../utils/d
 }))
 export default class DeliveryRecords extends PureComponent {
   state = { detail: null, listings: [], deployments: [], listing: null, delivery: null, workflowFailed: false,
-    checks: [], changesLoading: false, changesFailed: false, changesOpen: false, exporting: null, profileEditor: null };
+    checks: [], changesLoading: false, changesFailed: false, changesOpen: false, exporting: null, profileEditor: null, listingDestination: 'local' };
   alive = false;
   generation = 0;
   checkTicket = 0;
@@ -148,6 +148,18 @@ export default class DeliveryRecords extends PureComponent {
   create = group => this.props.dispatch(routerRedux.push({ pathname: `${deliveryPath(this.props.match.params)}/create`, query: {
     version: nextTemplateVersion((group ? group.versions : this.lastRecords || []).map(item => item.version))
   } }));
+  withdrawListing = (template, listing, action) => {
+    const generation = this.generation;
+    Modal.confirm({ title: w(action === 'unlist' ? 'unlistConfirm' : 'cancelListingConfirm'),
+      content: w(action === 'unlist' ? 'unlistHelp' : 'cancelListingHelp'),
+      okText: w(action === 'unlist' ? 'unlistAction' : 'cancelListingRequest'), cancelText: t('cancel'),
+      onOk: () => new Promise((resolve, reject) => {
+        if (!this.active(generation)) { resolve();return; }
+        this.props.dispatch({ type: 'deliveryCenter/act', payload: { operation: 'withdraw', action, template,
+          requestId: listing.id, scope: getScope(this.props.match.params, this.props.user), user: this.props.user },
+          callback: () => { if (this.active(generation)) this.load();resolve(); }, onError: error => { if (this.active(generation)) this.load();reject(error); } });
+      }) });
+  };
   createTemplate = () => {
     const app = String(this.props.appDetail.group_id) === String(this.props.match.params.appID) ? this.props.appDetail : {};
     this.setState({ profileEditor: { creating: true, appName: app.group_name || '' } });
@@ -221,11 +233,12 @@ export default class DeliveryRecords extends PureComponent {
             {this.renderChanges(groups, allowed)}
             {groups.length ? groups.map(group => <RecordTimeline key={group.id} group={group} listings={listings} deployments={deployments} allowed={allowed}
               workflowFailed={workflowFailed} onNewVersion={this.create} onDetail={detail => this.setState({ detail })} onInstall={delivery => this.setState({ delivery })}
-              onExport={this.exportVersion} onDelete={this.deleteVersion} onListing={listing => this.setState({ listing })} onEditMetadata={this.editMetadata} />) : <Empty description={t('noMatchingTemplates')} />}
+              onExport={this.exportVersion} onDelete={this.deleteVersion} onWithdraw={this.withdrawListing}
+              onListing={(listing, listingDestination = 'local') => this.setState({ listing, listingDestination })} onEditMetadata={this.editMetadata} />) : <Empty description={t('noMatchingTemplates')} />}
           </React.Fragment>}
       </Spin>
       {detail && this.renderDetail(detail)}
-      {listing && <ListingModal template={listing} existingRequests={listings.filter(row => row.template.id === listing.id)} dispatch={dispatch} scope={getScope(match.params, user)} busy={busy} onCancel={() => this.setState({ listing: null })} onSubmit={(reason, destination) => this.act({ operation: 'listing', reason, destination }, listing)} />}
+      {listing && <ListingModal template={listing} initialDestination={this.state.listingDestination} existingRequests={listings.filter(row => row.template.id === listing.id)} dispatch={dispatch} scope={getScope(match.params, user)} busy={busy} onCancel={() => this.setState({ listing: null })} onSubmit={(reason, destination) => this.act({ operation: 'listing', reason, destination }, listing)} />}
       {delivery && <DeployModal installation template={delivery} user={user} scope={getScope(match.params, user)} dispatch={dispatch} busy={busy}
         approved={listings.some(item => item.template.id === delivery.id && item.publication_status === 'published')}
         onCancel={() => this.setState({ delivery: null })} onSubmit={values => this.act({ operation: 'deploy', ...values }, delivery)} />}

@@ -1,7 +1,17 @@
 const { deliveryScope, sensitiveName } = require('./templateDelivery');
 const copy = value => JSON.parse(JSON.stringify(value));
 const listingRequiresReview = item => !item.destination || item.destination.type !== 'market';
-const listingDeployable = item => item.status === 'approved' || !listingRequiresReview(item) && item.publication_status === 'published';
+const listingDeployable = item => !['unlisted', 'cancelled'].includes(item.publication_status) && item.status !== 'cancelled' &&
+  (item.status === 'approved' || !listingRequiresReview(item) && item.publication_status === 'published');
+function localListingAction(items) {
+  const latest = latestPublications(items);
+  const local = latest.find(item => !item.destination || item.destination.type === 'local');
+  const active = local && ['pending', 'approved'].includes(local.status) && !['cancelled', 'unlisted'].includes(local.publication_status);
+  return active ? { kind: 'withdraw', listing: local, action: local.publication_status === 'published' ? 'unlist' : 'cancel',
+    label: local.status === 'pending' ? 'cancelListingRequest' : 'unlistAction' } :
+    { kind: 'listing', label: local && (local.status === 'cancelled' || ['cancelled', 'unlisted'].includes(local.publication_status)) ?
+      'relistAction' : latest.some(item => item.destination && item.destination.type === 'market') ? 'listLocalAction' : 'listAction' };
+}
 function latestPublications(items) {
   const destinations = new Map();
   items.slice().sort((a,b) => (Date.parse(b.submitted_at) || 0) - (Date.parse(a.submitted_at) || 0)).forEach(item => {
@@ -91,4 +101,4 @@ function successfulDeliveryEnvironments(items) {
   return Array.from(environments.values());
 }
 module.exports = { submitListing, reviewListing, recordDelivery, listingGroups, successfulDeliveryEnvironments,
-  listingRequiresReview, listingDeployable, latestPublications };
+  listingRequiresReview, listingDeployable, latestPublications, localListingAction };

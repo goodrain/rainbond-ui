@@ -6,7 +6,7 @@ import VersionDetails from '../../../components/DeliveryWorkflow/VersionDetails'
 import { t } from './common';
 import styles from './records.less';
 import VersionContent from './VersionContent';
-const { latestPublications } = require('../../../utils/deliveryWorkflow');
+const { latestPublications, localListingAction } = require('../../../utils/deliveryWorkflow');
 
 export default class RecordTimeline extends PureComponent {
   state = { expanded: {}, tabs: {} };
@@ -15,15 +15,18 @@ export default class RecordTimeline extends PureComponent {
     return { expanded: { ...state.expanded, [id]: !expanded } };
   });
   renderVersion = (record, group) => {
-    const { listings, deployments, allowed, workflowFailed, onDetail, onInstall, onExport, onListing, onDelete } = this.props;
+    const { listings, deployments, allowed, workflowFailed, onDetail, onInstall, onExport, onListing, onWithdraw, onDelete } = this.props;
     const publications = latestPublications(listings.filter(item => item.template.id === record.id));
+    const listingAction = localListingAction(publications);
     const history = deployments.filter(item => item.template_id === record.id);
     const deleted = !!record.deleted_at;
     const expanded = this.state.expanded[record.id] == null ? !!(group.latest && group.latest.id === record.id) : this.state.expanded[record.id];
     const exports = history.filter(item => item.kind === 'offline').slice().sort((a, b) => (Date.parse(b.created_at) || 0) - (Date.parse(a.created_at) || 0));
     const menu = <Menu onClick={({ key }) => {
       if (key === 'delete') onDelete(record);
+      if (key === 'onlineMarket') onListing(record, 'market');
     }}>
+      {allowed && !deleted && <Menu.Item key="onlineMarket" disabled={workflowFailed}>{w('syncOnlineAction')}</Menu.Item>}
       {allowed && !deleted && <Menu.Item key="delete" disabled={workflowFailed}>
         <span className={styles.deleteAction}>{t('deleteVersion')}</span>
       </Menu.Item>}
@@ -44,7 +47,8 @@ export default class RecordTimeline extends PureComponent {
           </div>
           <div className={styles.versionActions}>{allowed && !deleted && <React.Fragment>
             <Button type="primary" icon="cloud-download" disabled={workflowFailed} onClick={() => onInstall(record)}>{t('deliver')}</Button>
-            <Button icon="shop" disabled={workflowFailed} onClick={() => onListing(record)}>{w('listAction')}</Button>
+            <Button icon={listingAction.kind === 'withdraw' ? 'stop' : 'shop'} disabled={workflowFailed}
+              onClick={() => listingAction.kind === 'withdraw' ? onWithdraw(record, listingAction.listing, listingAction.action) : onListing(record)}>{w(listingAction.label)}</Button>
             <Button icon="export" disabled={workflowFailed} onClick={() => onExport(record)}>{t('exportOfflinePackage')}</Button>
             <Dropdown overlay={menu} trigger={['click']}><Button icon="ellipsis" aria-label={`${t('more')} ${record.version}`} /></Dropdown>
           </React.Fragment>}</div>

@@ -1,4 +1,11 @@
 export default {
+  "delivery.snapshotPublishRecords": "Template publication history",
+  "delivery.snapshotPublishRecordsHelp": "View this application's previous template publications to the local market and online stores.",
+  "delivery.snapshotPublishRecordsEmpty": "No template publication records",
+  "delivery.snapshotPublishRecordsFailed": "Failed to load template publication records",
+  "delivery.snapshotPublishTeamMarket": "Local market (team)",
+  "delivery.snapshotPublishEnterpriseMarket": "Local market (enterprise)",
+  "delivery.publishSnapshot": "Publish",
   "delivery.selectedComponentCount": "{count} delivery components",
   "delivery.selectAllComponents": "Select all",
   "delivery.fullDescriptionPlaceholder": "Describe application features, use cases and usage in detail.",

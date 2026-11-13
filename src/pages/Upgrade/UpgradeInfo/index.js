@@ -1059,13 +1059,13 @@ export default class AppList extends PureComponent {
                 disabled={
                   !selectVersion ||
                   UpgradeLoading ||
-                  [6, 10].includes(textState)
+                  [6, 8, 10].includes(textState)
                 }
                 loading={UpgradeLoading}
               >
                 {upgradeText}
               </Button>
-              {[6, 10].includes(textState) && (
+              {[6, 8, 10].includes(textState) && (
                 <Button
                   type="primary"
                   onClick={this.handleRetry}
