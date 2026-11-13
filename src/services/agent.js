@@ -144,6 +144,9 @@ function normalizeMessages(messages) {
       streamMessageId: item.streamMessageId || '',
       streamRunId: item.streamRunId || '',
       runStatus: item.runStatus || '',
+      runStartedAt: item.runStartedAt, runFinishedAt: item.runFinishedAt,
+      modelTurn: item.modelTurn, modelStep: item.modelStep, streamAttemptId: item.streamAttemptId,
+      historyIncomplete: !!item.historyIncomplete,
       isFinalAnswer: !!item.isFinalAnswer,
       suggestedActions: Array.isArray(item.suggestedActions) ? item.suggestedActions : [],
       suggestedActionSummary: item.suggestedActionSummary || '',
@@ -311,7 +314,7 @@ export async function loadAgentSessionMessages(sessionId) {
     throw new Error('sessionId is required');
   }
   return requestJson(
-    `${await copilotApiBase()}/sessions/${encodeURIComponent(sessionId)}/messages`,
+    `${await copilotApiBase()}/sessions/${encodeURIComponent(sessionId)}/messages?include_execution_history=true`,
     {
       method: 'GET',
       headers: buildRequestHeaders(),

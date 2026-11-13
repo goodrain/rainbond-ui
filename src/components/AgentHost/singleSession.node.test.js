@@ -9,6 +9,6 @@ assert.doesNotMatch(source, /agent\/loadSessionList/, 'single-session UI must no
 assert.doesNotMatch(source, /agent\/switchSession/, 'single-session UI must not switch sessions');
 assert.doesNotMatch(source, /agent\/removeSession/, 'single-session UI must not delete historical sessions');
 assert.match(source, /handleClear/, 'single-session UI must keep the clear-current-conversation action');
-assert.match(source, /trace\.sources/, 'trace rows must render web search sources');
+assert.match(source, /<ToolCallRow/, 'the host must use the compact tool row');
 
 console.log('single-session UI tests passed');

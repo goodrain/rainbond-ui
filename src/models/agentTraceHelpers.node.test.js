@@ -28,8 +28,8 @@ assert.strictEqual(trace.traceId, 'trace_1', 'trace helper should preserve trace
 assert.strictEqual(trace.toolCallId, 'call_1', 'trace helper should preserve tool_call_id');
 assert.strictEqual(
   trace.displayTitle,
-  '查看当前用户（rainbond_get_current_user）',
-  'trace helper should format friendly tool labels with the raw tool name'
+  '查看当前用户',
+  'trace helper should keep technical identifiers out of visible titles'
 );
 
 let messages = [];
@@ -75,7 +75,7 @@ assert.strictEqual(findTraceMessageIndex(messages, trace), 0, 'trace helper shou
 assert.strictEqual(messages[0].trace.hasOutput, true, 'trace helper should update merged trace with output');
 assert.strictEqual(
   messages[0].trace.displayTitle,
-  '查看当前用户（rainbond_get_current_user）',
+  '查看当前用户',
   'merged trace should keep the compact display label'
 );
 assert.strictEqual(messages[0].trace.detail, '', 'trace helper should no longer expose structured input/output detail');

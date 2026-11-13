@@ -5,6 +5,28 @@ const user = { id: 'u', role: 'user', kind: 'normal', content: 'open port' };
 const thought = { id: 'm', role: 'assistant', kind: 'normal', content: '', reasoning: 'check port', streamRunId: 'r' };
 const request = { id: 'a', kind: 'approval', approval: { approvalId: 'a', status: 'pending', runId: 'r' } };
 
+test('historical prose guesses do not become actionable suggestion cards', () => {
+  const filters = require('./displayFilters');
+  const falseAction = { actionId: 'fallback:A', source: 'llm_fallback', label: '已执行完成，应用恢复正常。' };
+  assert.deepEqual(filters.getVisibleSuggestedActions([falseAction]), []);
+  assert.equal(filters.shouldRenderMessageItem({ kind: 'suggested_actions', suggestedActions: [falseAction] }), false);
+  assert.equal(filters.getVisibleSuggestedActions([{ source: 'llm_structured', actionId: 'real' }]).length, 1);
+  const original = '方案 A 已执行完成，应用恢复正常。';
+  assert.equal(filters.getAssistantDisplayContent({ content: original, suggestedActions: [falseAction] }), original);
+  assert.match(filters.getAssistantDisplayContent({ content: '旧的分析结论', suggestedActions: [
+    { source: 'llm_fallback', optionKey: 'A', label: '降低资源配置', description: '调整到合适的内存规格' },
+  ] }), /降低资源配置/);
+});
+
+test('historical duplicate approval rows render once and never override a resolved decision', () => {
+  const resolved = { ...request, id: 'resolved-copy', approval: { ...request.approval, status: 'approved' } };
+  const duplicate = { ...request, id: 'old-pending-copy' };
+  const turn = groupConversationMessages([user, thought, request, resolved, duplicate])[1];
+  assert.equal(turn.items.filter(item => item.kind === 'approval').length, 1);
+  assert.equal(turn.pendingApprovals.length, 0);
+  assert.equal(turn.process.find(item => item.kind === 'approval').approval.status, 'approved');
+});
+
 test('one user request produces one assistant group despite many reasoning and tool messages', () => {
   const groups = groupConversationMessages([user, thought, { id: 't', kind: 'trace' }, { ...thought, id: 'm2' }, { ...thought, id: 'answer', content: 'done' }]);
   assert.equal(groups.filter(g => g.kind === 'turn').length, 1);
@@ -12,10 +34,11 @@ test('one user request produces one assistant group despite many reasoning and t
   assert.deepEqual(turn.process.map(item => item.id), ['m', 't', 'm2', 'answer']);
   assert.equal(turn.answer.id, 'answer');
 });
-test('pending cards stay outside the process and the same record moves inside after approval', () => {
+test('pending and resolved approvals both stay inside the execution records', () => {
   let turn = groupConversationMessages([user, thought, request])[1];
   assert.equal(turn.pendingApprovals.length, 1);
-  assert.equal(turn.process.some(item => item.id === 'a'), false);
+  assert.equal(turn.process.some(item => item.id === 'a'), true);
+  assert.equal(turn.nodes[0].events[0], request);
   turn = groupConversationMessages([user, thought, { ...request, approval: { ...request.approval, status: 'approved' } }])[1];
   assert.equal(turn.pendingApprovals.length, 0);
   assert.deepEqual(turn.process.map(item => item.id), ['m', 'a']);
@@ -101,4 +124,25 @@ test('late events from an earlier run stay with their original conclusion', () =
   assert.equal(turns[0].answer, first);
   assert.equal(turns[0].items.includes(late), true);
   assert.equal(turns[1].items.includes(late), false);
+});
+
+test('late approval decisions stay with the model round that issued the tool call', () => {
+  const first = { ...thought, id: 'first', streamMessageId: 'm1' };
+  const second = { ...thought, id: 'second', streamMessageId: 'm2' };
+  const call1 = { id: 'call1', kind: 'trace', trace: { toolCallId: 'tool1' } };
+  const call2 = { id: 'call2', kind: 'trace', trace: { toolCallId: 'tool2' } };
+  for (const status of ['pending', 'approved', 'rejected', 'cancelled']) {
+    const decision = { ...request, approval: { ...request.approval, toolCallId: 'tool1', status } };
+    const turn = groupConversationMessages([user, first, call1, second, call2, decision])[1];
+    assert.deepEqual(turn.nodes.map(node => node.events.map(item => item.id)), [['call1', 'a'], ['call2']]);
+    assert.equal(turn.waiting, status === 'pending');
+  }
+});
+
+test('approvals received before their tool trace still appear once in the owning round', () => {
+  const decision = { ...request, approval: { ...request.approval, toolCallId: 'tool1', autoApproved: true, status: 'approved' } };
+  const call = { id: 'call1', kind: 'trace', trace: { toolCallId: 'tool1' } };
+  const turn = groupConversationMessages([user, thought, decision, call])[1];
+  assert.deepEqual(turn.nodes[0].events.map(item => item.id), ['a', 'call1']);
+  assert.equal(turn.nodes.flatMap(node => node.events).filter(item => item.kind === 'approval').length, 1);
 });

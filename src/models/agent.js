@@ -38,6 +38,7 @@ import * as agentCrossTab from './agentCrossTab';
 import * as agentClearConversation from './agentClearConversation';
 import * as agentCompactionReducer from './agentCompactionReducer';
 import * as agentToolLabels from '../utils/agentToolLabels';
+import agentHistory from './agentHistory';
 import * as agentComponentMutationFinalizer from './agentComponentMutationFinalizer';
 import { captureAgentRetentionEvent } from '../posthog';
 
@@ -276,58 +277,7 @@ function parseToolArgs(rawArgs) {
 }
 
 function chatMessagesToBubbles(chatMessages) {
-  if (!Array.isArray(chatMessages)) return [];
-  const bubbles = [];
-  const toolLabelById = {};
-
-  chatMessages.forEach(msg => {
-    if (!msg || !msg.role) return;
-
-    if (msg.role === 'user') {
-      const text = typeof msg.content === 'string' ? msg.content : '';
-      if (text.trim()) bubbles.push(createMessage('user', 'normal', text, {}, { createdAt: msg.created_at || Date.now() }));
-      return;
-    }
-
-    if (msg.role === 'assistant') {
-      const text = typeof msg.content === 'string' ? msg.content.trim() : '';
-      if (text || msg.reasoning_content) bubbles.push(createMessage('assistant', 'normal', text, {}, {
-        reasoning: msg.reasoning_content || '',
-        createdAt: msg.created_at || Date.now(),
-      }));
-      if (Array.isArray(msg.tool_calls)) {
-        msg.tool_calls.forEach(tc => {
-          const fn = (tc && tc.function) || {};
-          const rawName = fn.name || 'tool';
-          const parsedArgs = parseToolArgs(fn.arguments);
-          const label = formatToolLabel(rawName, parsedArgs) || rawName;
-          if (tc && tc.id) toolLabelById[tc.id] = label;
-          bubbles.push(
-            createMessage('assistant', 'trace', '', {}, {
-              trace: {
-                title: label,
-                detail: truncateReplayDetail(formatReplayArguments(fn.arguments)),
-              },
-            })
-          );
-        });
-      }
-      return;
-    }
-
-    if (msg.role === 'tool') {
-      const label =
-        (msg.tool_call_id && toolLabelById[msg.tool_call_id]) || 'tool';
-      const detail = truncateReplayDetail(formatReplayToolContent(msg.content));
-      bubbles.push(
-        createMessage('tool', 'trace', '', {}, {
-          trace: { title: `${label} 结果`, detail },
-        })
-      );
-    }
-  });
-
-  return bubbles;
+  return agentHistory.chatMessagesToBubbles(chatMessages, createMessage);
 }
 
 function normalizePendingApproval(pendingApproval) {
@@ -337,12 +287,14 @@ function normalizePendingApproval(pendingApproval) {
 
   return {
     approvalId: pendingApproval.approvalId || '',
+    toolCallId: pendingApproval.toolCallId || '',
     description: pendingApproval.description || '',
     input: pendingApproval.input,
     risk: pendingApproval.risk || 'medium',
     scope: pendingApproval.scope || '',
     scopeLabel: pendingApproval.scopeLabel || '',
     levelLabel: pendingApproval.levelLabel || '',
+    autoApprovalEligible: pendingApproval.autoApprovalEligible,
     skillId: pendingApproval.skillId || '',
     targetRef: pendingApproval.targetRef || null,
     runId: pendingApproval.runId || '',
@@ -469,10 +421,10 @@ function findApprovalMessageIndex(messages, approvalId) {
   );
 }
 
-function findLatestAssistantNormalMessageIndex(messages) {
+function findLatestAssistantNormalMessageIndex(messages, runId) {
   for (let index = (messages || []).length - 1; index >= 0; index -= 1) {
     const item = messages[index];
-    if (item && item.role === 'assistant' && item.kind === 'normal') {
+    if (item && item.role === 'assistant' && item.kind === 'normal' && (!runId || item.streamRunId === runId)) {
       return index;
     }
   }
@@ -507,6 +459,8 @@ function applyAgentEvents({
   events.forEach(event => {
     const eventCreateMessage = (role, kind, content, context, extra) => createMessage(role, kind, content, context, {
       streamRunId: event.runId || '',
+      modelTurn: event.data && event.data.turn, modelStep: event.data && event.data.step,
+      streamAttemptId: event.data && event.data.attempt_id,
       createdAt: Date.parse(event.timestamp || '') || Date.now(),
       ...extra,
     });
@@ -571,6 +525,7 @@ function applyAgentEvents({
                 message_id: adaptedEvent.messageId,
                 role: adaptedEvent.role,
                 content: adaptedEvent.content,
+                message_kind: adaptedEvent.messageKind || 'final',
               },
             },
             eventCreateMessage,
@@ -582,7 +537,7 @@ function applyAgentEvents({
           );
           if (matchedIndex > -1) {
             nextMessages = streamedMessages;
-            nextMessages[matchedIndex] = { ...nextMessages[matchedIndex], isFinalAnswer: true };
+            nextMessages[matchedIndex] = { ...nextMessages[matchedIndex], isFinalAnswer: true, messageKind: 'final' };
             messagesCloned = true;
             break;
           }
@@ -609,6 +564,7 @@ function applyAgentEvents({
             content: adaptedEvent.content || mutableMessages[lastAssistantIndex].content || '',
             streaming: false,
             isFinalAnswer: true,
+            messageKind: 'final',
             eventSequence,
           };
           break;
@@ -619,13 +575,13 @@ function applyAgentEvents({
             'normal',
             adaptedEvent.content || '',
             contextSnapshot,
-            { eventSequence, isFinalAnswer: true, streamMessageId: adaptedEvent.messageId || '' }
+            { eventSequence, isFinalAnswer: true, messageKind: 'final', streamMessageId: adaptedEvent.messageId || '' }
           )
         );
         break;
       }
       case 'suggested_actions': {
-        const assistantMessageIndex = findLatestAssistantNormalMessageIndex(nextMessages);
+        const assistantMessageIndex = findLatestAssistantNormalMessageIndex(nextMessages, event.runId);
         if (assistantMessageIndex > -1) {
           const mutableMessages = ensureMutableMessages();
           mutableMessages[assistantMessageIndex] = {
@@ -660,8 +616,13 @@ function applyAgentEvents({
         if (resolvedIndex >= 0 && nextMessages[resolvedIndex].approval.status !== 'pending') break;
         pendingApproval = {
           approvalId: adaptedEvent.approvalId || '',
+          toolCallId: adaptedEvent.toolCallId || '',
           description: adaptedEvent.description || '',
           input: adaptedEvent.input,
+          autoApprovalEligible: adaptedEvent.autoApprovalEligible,
+          autoApproved: adaptedEvent.autoApproved === true,
+          decisionSource: adaptedEvent.decisionSource || '',
+          policyId: adaptedEvent.policyId || '',
           risk: adaptedEvent.risk || 'medium',
           scope: adaptedEvent.scope || '',
           scopeLabel: adaptedEvent.scopeLabel || '',
@@ -670,7 +631,7 @@ function applyAgentEvents({
           targetRef: adaptedEvent.targetRef || null,
           runId: adaptedEvent.runId || '',
           sessionId: adaptedEvent.sessionId || '',
-          status: 'pending',
+          status: adaptedEvent.autoApproved ? 'approved' : 'pending',
           lastSequence: eventSequence,
         };
 
@@ -695,6 +656,14 @@ function applyAgentEvents({
               }
             )
           );
+        } else {
+          const mutable = ensureMutableMessages();
+          mutable[existingApprovalIndex] = { ...mutable[existingApprovalIndex], content: pendingApproval.description,
+            approval: { ...mutable[existingApprovalIndex].approval, ...pendingApproval }, eventSequence };
+        }
+        if (adaptedEvent.autoApproved) {
+          resolvedApprovalIds.add(adaptedEvent.approvalId);
+          pendingApproval = null;
         }
         break;
       }
@@ -821,7 +790,7 @@ function applyAgentEvents({
           ? structuredResult.suggestedActions
           : [];
         if (suggestedActions.length > 0) {
-          const assistantMessageIndex = findLatestAssistantNormalMessageIndex(nextMessages);
+          const assistantMessageIndex = findLatestAssistantNormalMessageIndex(nextMessages, event.runId);
           if (
             assistantMessageIndex > -1 &&
             !nextMessages[assistantMessageIndex].suggestedActions
@@ -1038,12 +1007,14 @@ export default {
               history = history.concat({ role: 'user', content: active.message });
             }
           }
-          const remoteMessages = chatMessagesToBubbles(history);
+          const execution = agentHistory.restoreExecutionHistory(data.execution_history, active, applyAgentEvents, createMessage);
+          const remoteMessages = execution ? execution.messages : chatMessagesToBubbles(history);
           snapshot = {
             ...(snapshot || {}),
             conversationId: sessionId,
             messages: remoteMessages.length ? remoteMessages : ((snapshot && snapshot.messages) || []),
-            pendingApproval: null,
+            pendingApproval: execution ? execution.pendingApproval : null,
+            resolvedApprovalIds: execution ? execution.resolvedApprovalIds : [],
             activeRunId: active ? active.run_id : '',
             lastEventSequence: 0,
           };
@@ -1961,23 +1932,8 @@ export default {
         );
 
         if (shouldFinalizeComponentMutation) {
-          const route = resolvePostActionRoute({
-            toolName: mutationToolName,
-            context: nextState.context,
-            appDetail: nextRootState.appControl && nextRootState.appControl.appDetail,
-            result: resultPayload,
-            resultRef,
-          });
-          const navigationPayload = buildMutationNavigationPayload(
-            mutationToolName,
-            route
-          );
-          const refreshPayload = navigationPayload
-            ? null
-            : buildMutationRefreshPayload(
-                mutationToolName,
-                shouldRefreshRoute ? 'route' : 'content'
-              );
+          // Collect the final target without switching configuration tabs.
+          // The done event opens the component overview once for this run.
           const componentMutationTrackingPatch =
             buildComponentMutationTrackingPatchFromResult(nextState, {
               toolName: mutationToolName,
@@ -1987,8 +1943,6 @@ export default {
           yield put({
             type: 'saveState',
             payload: {
-              ...(navigationPayload || {}),
-              ...(refreshPayload || {}),
               ...componentMutationTrackingPatch,
               updatedAt: Date.now(),
             },

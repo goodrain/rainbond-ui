@@ -17,6 +17,9 @@ function getNextAutoScrollEnabled(
     typeof options.threshold === 'number'
       ? options.threshold
       : BOTTOM_THRESHOLD_PX;
+  // Folding a long round can bring the viewport to the bottom without a gesture.
+  if (options.userInitiated === false) return !!currentEnabled;
+  if (options.movingUp) return false;
   if (isNearBottom(metrics, threshold)) return true;
   // Content growth, browser scroll anchoring and programmatic scrolling do
   // not mean the reader asked to stop following the output.

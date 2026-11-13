@@ -60,3 +60,11 @@ test('accepts kernel approval targets with a generic id', () => {
   assert.strictEqual(targetRefToKey({ kind: 'app', id: '9' }), 'app:9');
   assert.strictEqual(targetRefToKey({ kind: 'team', id: 'team-1' }), 'team:team-1');
 });
+
+test('always allow requires server eligibility and never permits a delete', () => {
+  const { canAlwaysAllowApproval } = require('./autoApprovalPolicy');
+  assert.equal(canAlwaysAllowApproval({ autoApprovalEligible: true, risk: 'medium' }), true);
+  assert.equal(canAlwaysAllowApproval({ autoApprovalEligible: false, risk: 'medium' }), false);
+  assert.equal(canAlwaysAllowApproval({ risk: 'medium' }), false);
+  assert.equal(canAlwaysAllowApproval({ autoApprovalEligible: true, input: { operation: 'delete' } }), false);
+});

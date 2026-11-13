@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import { formatMessage } from 'umi';
-import { Alert, Button, Dropdown, Icon, Input, Menu, Modal, Popover, Tag, message } from 'antd';
+import { Alert, Button, Icon, Input, Modal, Popover, Tag, message } from 'antd';
 import { routerRedux } from 'dva/router';
 import ReactMarkdown from 'react-markdown';
 import styles from './index.less';
@@ -12,7 +12,9 @@ import * as displayFilters from './displayFilters';
 import * as markdownHelpers from './markdownHelpers';
 import * as scrollBehavior from './scrollBehavior';
 import MemorySettingsModal from './MemorySettingsModal';
-import ExecutionTurn from './ExecutionTurn';
+import ConversationTurn from './ConversationTurn';
+import ApprovalRecord from './ApprovalRecord';
+import ToolCallRow from './ToolCallRow';
 import * as turnPresentation from './turnPresentation';
 
 function AgentBrandIcon() {
@@ -110,196 +112,38 @@ class AssistantMarkdownBody extends PureComponent {
 }
 
 class TraceMessageRow extends PureComponent {
-  render() {
-    const { item } = this.props;
-    const trace = item.trace || {};
-    const toolName = trace.toolName || '';
-    const selectsSkill = toolName === 'skill' || toolName.startsWith('select_skill_');
-    const readsSkill = toolName === 'read_skill_module';
-    let traceText = trace.displayTitle || trace.title || toolName || '工具调用';
-    if (selectsSkill) {
-      let input = {};
-      try {
-        input = JSON.parse(trace.inputSignature || '{}') || {};
-      } catch {
-        // Older history can lack structured inputs; keep a readable label.
-      }
-      const skillName = toolName.startsWith('select_skill_')
-        ? toolName.slice('select_skill_'.length)
-        : input.name || input.skill_id || input.skill_name || '';
-      const label = formatMessage({ id: 'agent.execution.selectSkill' });
-      traceText = typeof skillName === 'string' && skillName ? `${label} · ${skillName}` : label;
-    } else if (readsSkill) {
-      traceText = formatMessage({ id: 'agent.execution.readSkillModule' });
-    }
-
-    return (
-      <div className={styles.traceRow}>
-        <span className={styles.traceInlineText}>
-          <Icon type={selectsSkill || readsSkill ? 'book' : 'api'} className={styles.traceInlineIcon} />
-          <span>{traceText}</span>
-
-        </span>
-        {trace.sources && trace.sources.length > 0 ? (
-          <div style={{ marginTop: 4, display: 'flex', flexDirection: 'column', gap: 2 }}>
-            {trace.sources.map(source => (
-              <a
-                key={source.url}
-                href={source.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ fontSize: 12, wordBreak: 'break-all' }}
-              >
-                {source.title || source.url}
-              </a>
-            ))}
-          </div>
-        ) : null}
-      </div>
-    );
-  }
+  render() { return <ToolCallRow item={this.props.item} />; }
 }
 
 class ApprovalMessageCard extends PureComponent {
-  renderHighRiskActions() {
-    const { isDeciding, onDecision } = this.props;
-
+  renderActions() {
+    const { approval, isDeciding, onDecision } = this.props;
+    const alwaysAllowed = autoApprovalPolicy.canAlwaysAllowApproval(approval);
     return (
       <React.Fragment>
-        <div className={styles.approvalActions}>
-          <div className={styles.approvalActionHalf}>
-            <Button
-              type="primary"
-              className={styles.approvalApproveButton}
-              loading={isDeciding}
-              onClick={() => onDecision('approved')}
-            >
-              授权并执行
-            </Button>
-          </div>
-          <div className={styles.approvalActionHalf}>
-            <Button
-              className={styles.approvalRejectButton}
-              disabled={isDeciding}
-              onClick={() => onDecision('rejected')}
-            >
-              取消
-            </Button>
-          </div>
+        <div className={styles.approvalFlatActions}>
+          <Button disabled={isDeciding || !alwaysAllowed}
+            onClick={() => onDecision('approved', autoApprovalPolicy.toRememberPolicy('session-all'))}>
+            始终允许
+          </Button>
+          <Button type="primary" loading={isDeciding} disabled={isDeciding}
+            onClick={() => onDecision('approved')}>
+            本次允许
+          </Button>
+          <Button disabled={isDeciding} onClick={() => onDecision('rejected')}>
+            拒绝
+          </Button>
         </div>
-        <div className={styles.approvalCriticalNote}>高风险操作仅可逐次批准</div>
+        <div className={styles.approvalChoiceHint}>
+          当前会话有效，最长 24 小时；删除仍需手动确认。
+          {!alwaysAllowed ? <span> 此操作仅支持本次允许或拒绝。</span> : null}
+        </div>
       </React.Fragment>
     );
   }
 
-  renderNormalRiskActions() {
-    const { approval, isDeciding, onDecision } = this.props;
-    const targetRef = approval.targetRef || null;
-    const targetKey = autoApprovalPolicy.targetRefToKey(targetRef);
-    const targetLabel = targetRef
-      ? targetRef.kind === 'service' ? '该组件'
-        : targetRef.kind === 'app' ? '该应用'
-          : targetRef.kind === 'team' ? '该团队'
-            : '该资源'
-      : '';
-
-    const onAddPolicy = kind => () => {
-      onDecision('approved', autoApprovalPolicy.toRememberPolicy(kind));
-    };
-
-    const menu = (
-      <Menu>
-        {targetKey ? (
-          <Menu.Item
-            key="target"
-            onClick={onAddPolicy('session-target')}
-          >
-            {targetLabel}所有操作自动批准
-          </Menu.Item>
-        ) : null}
-        {targetKey && approval.skillId ? (
-          <Menu.Item
-            key="target-op"
-            onClick={onAddPolicy('session-target-op')}
-          >
-            {targetLabel}同类操作自动批准
-          </Menu.Item>
-        ) : null}
-        {approval.skillId ? (
-          <Menu.Item
-            key="op"
-            onClick={onAddPolicy('session-op')}
-          >
-            全局同类操作自动批准
-          </Menu.Item>
-        ) : null}
-        <Menu.Item
-          key="all"
-          onClick={onAddPolicy('session-all')}
-        >
-          本会话全部自动批准
-        </Menu.Item>
-      </Menu>
-    );
-
-    return (
-      <div className={styles.approvalActions}>
-        <div className={styles.approvalActionHalf}>
-          <Button.Group className={styles.approvalPrimaryActions}>
-            <Button
-              type="primary"
-              className={styles.approvalApproveButton}
-              loading={isDeciding}
-              onClick={() => onDecision('approved')}
-            >
-              授权并执行
-            </Button>
-            <Dropdown overlay={menu} trigger={['click']}>
-              <Button
-                type="primary"
-                className={styles.approvalPolicyButton}
-                disabled={isDeciding}
-                aria-label="选择自动批准策略"
-              >
-                <Icon type="more" />
-              </Button>
-            </Dropdown>
-          </Button.Group>
-        </div>
-        <div className={styles.approvalActionHalf}>
-          <Button
-            className={styles.approvalRejectButton}
-            disabled={isDeciding}
-            onClick={() => onDecision('rejected')}
-          >
-            取消
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
   renderResolvedCompact() {
-    const { item } = this.props;
-    const approval = item.approval || {};
-    const isApproved = approval.status === 'approved';
-    const wasAutoApproved = !!approval.autoApproved;
-    const iconType = isApproved ? 'check-circle' : 'close-circle';
-    const statusLabel = isApproved
-      ? formatMessage({ id: `agent.execution.${wasAutoApproved ? 'autoApproved' : 'approved'}` })
-      : formatMessage({ id: `agent.execution.${approval.resolutionReason === 'timeout' ? 'timedOut' : approval.status === 'rejected' ? 'rejected' : 'cancelled'}` });
-    const iconClassName = isApproved
-      ? styles.approvalResolvedIconApproved
-      : styles.approvalResolvedIconRejected;
-
-    return (
-      <div className={styles.approvalRow}>
-        <span className={styles.approvalResolvedText}>
-          <Icon type={iconType} className={iconClassName} />
-          <span>{statusLabel}：{item.content}</span>
-        </span>
-      </div>
-    );
+    return <ApprovalRecord item={this.props.item} />;
   }
 
   render() {
@@ -319,7 +163,7 @@ class ApprovalMessageCard extends PureComponent {
     ].filter(Boolean).join(' ');
 
     return (
-      <div className={styles.approvalRow}>
+      <div className={styles.approvalRow} data-approval-action={approval.approvalId}>
         <div className={cardClassName}>
           <div className={styles.approvalHeader}>
             <span className={styles.approvalTitle}>
@@ -335,9 +179,7 @@ class ApprovalMessageCard extends PureComponent {
           {wasAutoApproved ? (
             <div className={styles.approvalAutoNote}>已根据会话策略自动批准</div>
           ) : null}
-          {approval.risk === 'high'
-            ? this.renderHighRiskActions()
-            : this.renderNormalRiskActions()}
+          {this.renderActions()}
         </div>
       </div>
     );
@@ -396,6 +238,7 @@ class ErrorMessageRow extends PureComponent {
 }
 
 class UserMessageRow extends PureComponent {
+  state = { expanded: false };
   render() {
     const { item } = this.props;
 
@@ -411,7 +254,12 @@ class UserMessageRow extends PureComponent {
           </span>
         </div>
         <div className={`${styles.messageBubble} ${styles.userBubble}`}>
-          {item.content}
+          <div id={`question:${item.id}`} className={item.content && item.content.length > 800 && !this.state.expanded ? styles.longQuestionCollapsed : undefined}>{item.content}</div>
+          {item.content && item.content.length > 800 ? <button type="button" className={styles.longQuestionToggle}
+            aria-expanded={this.state.expanded} aria-controls={`question:${item.id}`}
+            onClick={() => this.setState(state => ({ expanded: !state.expanded }))}>
+            {formatMessage({ id: `agent.execution.${this.state.expanded ? 'collapseQuestion' : 'expandQuestion'}` })}<Icon type={this.state.expanded ? 'up' : 'down'} />
+          </button> : null}
         </div>
       </div>
     );
@@ -445,6 +293,7 @@ export default class AgentHost extends PureComponent {
       approvalSettingsVisible: false,
       memorySettingsVisible: false,
       updateBannerDismissed: false,
+      followOutput: true,
     };
     this.messagesRef = null;
     this.messagesContentRef = null;
@@ -453,7 +302,9 @@ export default class AgentHost extends PureComponent {
     this.scrollGestureUntil = 0;
     this.scrollPointerActive = false;
     this.touchPosition = null;
-    this.isAutoScrollEnabled = true;
+    this.scrollRequest = null;
+    this.scrollDirection = 0;
+    this.lastScrollTop = 0;
     this.lastRenderedMessagesRef = null;
     this.lastRenderedMessagesSending = null;
     this.lastRenderedMessagesOutput = null;
@@ -485,7 +336,7 @@ export default class AgentHost extends PureComponent {
       const userSentMessage = lastMessage && lastMessage.role === 'user' &&
         !prevMessages.some(item => item.id === lastMessage.id);
       const force = (!wasVisible && isVisible) || !!userSentMessage;
-      if (force) this.resumeAutoScroll();
+      if (force) this.resetOutputPosition();
       this.scrollToBottom({ force });
     }
 
@@ -570,24 +421,63 @@ export default class AgentHost extends PureComponent {
     runFocus();
   };
 
-  scrollToBottom = options => {
-    const force = !!(options && options.force);
-
-    if (this.messagesRef && (force || this.isAutoScrollEnabled)) {
+  setAutoScrollEnabled = enabled => {
+    if (!enabled) {
       if (this.scrollFrame) window.cancelAnimationFrame(this.scrollFrame);
-      this.scrollFrame = window.requestAnimationFrame(() => {
-        this.scrollFrame = null;
-        if (!this.messagesRef || (!force && !this.isAutoScrollEnabled)) {
-          return;
-        }
-
-        this.messagesRef.scrollTop = this.messagesRef.scrollHeight;
-      });
+      this.scrollFrame = null;
+      this.scrollRequest = null;
     }
+    if (this.state.followOutput !== enabled) this.setState({ followOutput: enabled });
   };
 
-  resumeAutoScroll = () => {
-    this.isAutoScrollEnabled = true;
+  scheduleMessagesScroll = request => {
+    // A deliberate reveal/anchor wins over generic resize and token updates.
+    if (request.explicit || request.force || !this.scrollRequest || !this.scrollRequest.explicit) this.scrollRequest = request;
+    if (this.scrollFrame) return;
+    this.scrollFrame = window.requestAnimationFrame(() => {
+      const view = this.scrollRequest;
+      this.scrollFrame = null;
+      this.scrollRequest = null;
+      const panel = this.messagesRef;
+      if (!panel || !view || (view.follow && !view.force && !this.state.followOutput)) return;
+      this.scrollGestureUntil = 0;
+      const target = view.getTarget && view.getTarget();
+      if (target && target.isConnected !== false) {
+        const bounds = target.getBoundingClientRect();
+        const viewport = panel.getBoundingClientRect();
+        if (view.align === 'start') panel.scrollTop += bounds.top - viewport.top - 12;
+        else if (bounds.bottom > viewport.bottom) panel.scrollTop += bounds.bottom - viewport.bottom;
+        else if (bounds.top < viewport.top) panel.scrollTop += bounds.top - viewport.top;
+      } else if (view.follow) panel.scrollTop = panel.scrollHeight;
+      else if (view.anchor && view.anchor.isConnected !== false) {
+        panel.scrollTop += view.anchor.getBoundingClientRect().top - view.anchorTop;
+      }
+      this.lastScrollTop = panel.scrollTop;
+    });
+  };
+
+  scrollToBottom = options => {
+    const force = !!(options && options.force);
+    if (force || this.state.followOutput) this.scheduleMessagesScroll({ follow: true, force });
+  };
+
+  resetOutputPosition = () => {
+    this.setAutoScrollEnabled(true);
+  };
+
+  handleExecutionViewChange = options => {
+    const changesFollow = typeof options.follow === 'boolean';
+    const follow = changesFollow ? options.follow : this.state.followOutput;
+    const anchorTop = options.anchor && options.anchor.getBoundingClientRect().top;
+    this.scrollGestureUntil = 0;
+    this.scrollDirection = 0;
+    if (changesFollow) this.setAutoScrollEnabled(follow);
+    if (!options.pauseOnly) this.scheduleMessagesScroll({ ...options, follow, anchorTop, explicit: true });
+  };
+
+  handleContinueFollowing = () => {
+    this.setAutoScrollEnabled(true);
+    this.scrollToBottom({ force: true });
   };
 
   handleMessagesScroll = event => {
@@ -596,19 +486,28 @@ export default class AgentHost extends PureComponent {
       return;
     }
 
-    this.isAutoScrollEnabled = getNextAutoScrollEnabled(
-      this.isAutoScrollEnabled,
+    const userInitiated = this.scrollPointerActive || Date.now() < this.scrollGestureUntil;
+    if (userInitiated && target.scrollTop !== this.lastScrollTop) {
+      this.scrollDirection = target.scrollTop > this.lastScrollTop ? 1 : -1;
+    }
+    this.lastScrollTop = target.scrollTop;
+    const nextEnabled = getNextAutoScrollEnabled(
+      this.state.followOutput,
       target,
       {
         isStreaming: !!(this.props.agent && this.props.agent.sending),
-        userInitiated: this.scrollPointerActive || Date.now() < this.scrollGestureUntil,
+        userInitiated,
+        movingUp: userInitiated && this.scrollDirection < 0,
       }
     );
+    if (nextEnabled && !this.state.followOutput) this.handleContinueFollowing();
+    else if (!nextEnabled && this.state.followOutput) this.setAutoScrollEnabled(false);
   };
 
   handleMessagesWheel = event => {
     this.scrollGestureUntil = Date.now() + 250;
-    if (event.deltaY < 0) this.isAutoScrollEnabled = false;
+    this.scrollDirection = Math.sign(event.deltaY);
+    if (event.deltaY < 0) this.setAutoScrollEnabled(false);
   };
 
   handleMessagesTouchStart = event => {
@@ -619,17 +518,23 @@ export default class AgentHost extends PureComponent {
     const touch = event.touches[0];
     if (!touch) return;
     this.scrollGestureUntil = Date.now() + 250;
-    if (this.touchPosition != null && touch.clientY > this.touchPosition) this.isAutoScrollEnabled = false;
+    this.scrollDirection = this.touchPosition == null ? 0 : Math.sign(this.touchPosition - touch.clientY);
+    if (this.touchPosition != null && touch.clientY > this.touchPosition) this.setAutoScrollEnabled(false);
     this.touchPosition = touch.clientY;
   };
 
   handleMessagesKeyDown = event => {
     const keys = ['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '];
-    if (event.target !== this.messagesRef || !keys.includes(event.key)) return;
+    if (!keys.includes(event.key)) return;
+    const target = event.target;
+    if (target && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))) return;
+    if (event.key === ' ' && target !== this.messagesRef && target && target.closest &&
+      target.closest('button, [role="button"]')) return;
     this.scrollGestureUntil = Date.now() + 250;
     if (['ArrowUp', 'PageUp', 'Home'].includes(event.key) || (event.key === ' ' && event.shiftKey)) {
-      this.isAutoScrollEnabled = false;
-    }
+      this.scrollDirection = -1;
+      this.setAutoScrollEnabled(false);
+    } else this.scrollDirection = 1;
   };
 
   handleScrollPointerDown = event => {
@@ -638,7 +543,8 @@ export default class AgentHost extends PureComponent {
     const scrollbarWidth = Math.max(16, this.messagesRef.offsetWidth - this.messagesRef.clientWidth);
     if (event.clientX >= bounds.right - scrollbarWidth) {
       this.scrollPointerActive = true;
-      this.isAutoScrollEnabled = false;
+      this.scrollDirection = 0;
+      this.setAutoScrollEnabled(false);
     }
   };
 
@@ -717,7 +623,7 @@ export default class AgentHost extends PureComponent {
       return;
     }
 
-    this.resumeAutoScroll();
+    this.resetOutputPosition();
     dispatch({
       type: 'agent/sendMessage',
       payload: {
@@ -729,7 +635,7 @@ export default class AgentHost extends PureComponent {
 
   handleContinueWorkflowAction = () => {
     const { dispatch, agent } = this.props;
-    this.resumeAutoScroll();
+    this.resetOutputPosition();
     dispatch({
       type: 'agent/sendMessage',
       payload: {
@@ -744,7 +650,7 @@ export default class AgentHost extends PureComponent {
       return;
     }
 
-    this.resumeAutoScroll();
+    this.resetOutputPosition();
     const actionId = action.actionId || '';
     const optionKey = action.optionKey || '';
     const label = action.label || '';
@@ -761,9 +667,8 @@ export default class AgentHost extends PureComponent {
   };
 
   renderParsedSuggestedActions = (actions, options = {}) => {
-    if (!actions || actions.length === 0) {
-      return null;
-    }
+    const visibleActions = displayFilters.getVisibleSuggestedActions(actions);
+    if (!visibleActions.length) return null;
     const showTitle = options.showTitle !== false;
 
     return (
@@ -771,7 +676,7 @@ export default class AgentHost extends PureComponent {
         {showTitle ? (
           <div className={styles.inlineSuggestionTitle}>后续建议</div>
         ) : null}
-        {actions.map((action, index) => (
+        {visibleActions.map((action, index) => (
           <button
             key={`${action.optionKey || 'option'}-${index}`}
             type="button"
@@ -908,7 +813,6 @@ export default class AgentHost extends PureComponent {
 
   handleApprovalDecision = (decision, rememberPolicy = null, approvalId) => {
     const { dispatch } = this.props;
-    this.resumeAutoScroll();
     dispatch({
       type: 'agent/resolveApproval',
       payload: {
@@ -1001,43 +905,25 @@ export default class AgentHost extends PureComponent {
     const loading = !!(agent && agent.approvalPoliciesLoading);
     const error = (agent && agent.approvalPolicyError) || '';
     const notice = (agent && agent.approvalPolicyNotice) || '';
-
-    if (loading) {
-      return <div className={styles.autoApprovalEmpty}>加载中…</div>;
-    }
-
+    if (loading) return <div className={styles.autoApprovalEmpty}>加载中…</div>;
+    const allAllowed = policies.some(policy => policy.kind === 'session_all');
+    const mode = allAllowed ? '始终允许' : policies.length ? '部分操作已自动允许' : '每次询问';
     return (
       <div className={styles.autoApprovalList}>
-        {notice ? (
-          <div className={styles.autoApprovalHint}>{notice}</div>
-        ) : null}
-        {error ? (
-          <div className={styles.autoApprovalError}>{error}</div>
-        ) : null}
-        {!policies.length ? (
-          <div className={styles.autoApprovalEmpty}>暂无自动批准规则</div>
-        ) : (
-          policies.map(policy => (
-            <div key={policy.policy_id} className={styles.autoApprovalItem}>
-              <span title={autoApprovalPolicy.formatServerPolicyLabel(policy)}>
-                {autoApprovalPolicy.formatServerPolicyLabel(policy)}
-              </span>
-              <a onClick={() => this.handleRemoveApprovalPolicy(policy.policy_id)}>
-                移除
-              </a>
-            </div>
-          ))
-        )}
+        <div className={styles.autoApprovalItem}>
+          <span>当前会话</span><Tag color={policies.length ? 'blue' : undefined}>{mode}</Tag>
+        </div>
+        {notice ? <div className={styles.autoApprovalHint}>{notice}</div> : null}
+        {error ? <div className={styles.autoApprovalError}>{error}</div> : null}
+        <div className={styles.autoApprovalHint}>
+          删除仍需手动确认；其他强制审批操作也不会自动放行。
+          规则仅对当前会话生效，最长 24 小时。
+        </div>
         {policies.length ? (
           <div className={styles.autoApprovalActions}>
-            <Button size="small" onClick={this.handleClearApprovalPolicies}>
-              全部清除
-            </Button>
+            <Button size="small" onClick={this.handleClearApprovalPolicies}>恢复每次询问</Button>
           </div>
-        ) : null}
-        <div className={styles.autoApprovalHint}>
-          规则由服务端保存，仅对当前会话的低风险操作生效
-        </div>
+        ) : <div className={styles.autoApprovalEmpty}>可在审批卡片中选择“始终允许”。</div>}
       </div>
     );
   };
@@ -1074,13 +960,13 @@ export default class AgentHost extends PureComponent {
   };
 
   renderTurnProcessAnswer = item => (
-    <AssistantMarkdownBody content={item.content || ''}
+    <AssistantMarkdownBody content={displayFilters.getAssistantDisplayContent(item)}
       renderSuggestedActions={this.renderParsedSuggestedActions} streaming={!!item.streaming} />
   );
 
   renderTurnAnswer = item => (
     <div key={`answer:${item.id}`} className={`${styles.messageBubble} ${styles.assistantBubble}`}>
-      <AssistantMarkdownBody content={item.content || ''} suggestedActions={item.suggestedActions}
+      <AssistantMarkdownBody content={displayFilters.getAssistantDisplayContent(item)} suggestedActions={item.suggestedActions}
         renderSuggestedActions={this.renderParsedSuggestedActions} streaming={!!item.streaming} />
     </div>
   );
@@ -1100,6 +986,7 @@ export default class AgentHost extends PureComponent {
       this.lastRenderedMessagesSending === sending &&
       this.lastRenderedActiveRunId === (agent && agent.activeRunId) &&
       this.lastRenderedDecidingApprovalId === (agent && agent.decidingApprovalId) &&
+      this.lastRenderedFollowing === this.state.followOutput &&
       this.lastRenderedMessagesOutput
     ) {
       return this.lastRenderedMessagesOutput;
@@ -1137,7 +1024,9 @@ export default class AgentHost extends PureComponent {
           <span className={styles.contextBadge}>{group.item.content}</span>
         </div>
       );
-      return <ExecutionTurn key={group.key} turn={group}
+      return <ConversationTurn key={group.key} turn={group}
+        following={this.state.followOutput}
+        onViewChange={this.handleExecutionViewChange}
         renderTrace={this.renderTraceMessage}
         renderApproval={this.renderApprovalMessage}
         renderNotice={this.renderTurnNotice}
@@ -1150,6 +1039,7 @@ export default class AgentHost extends PureComponent {
     this.lastRenderedMessagesSending = sending;
     this.lastRenderedActiveRunId = agent && agent.activeRunId;
     this.lastRenderedDecidingApprovalId = agent && agent.decidingApprovalId;
+    this.lastRenderedFollowing = this.state.followOutput;
     this.lastRenderedMessagesOutput = rendered;
 
     return rendered;
@@ -1161,7 +1051,6 @@ export default class AgentHost extends PureComponent {
     const sending = !!(agent && agent.sending);
     const messages = (agent && agent.messages) || [];
     const draft = (agent && agent.draft) || '';
-    const lastError = (agent && agent.lastError) || '';
     const sessionPendingApprovals =
       (agent && agent.sessionPendingApprovals) || [];
     const cancellingPending = !!(agent && agent.cancellingPending);
@@ -1299,6 +1188,15 @@ export default class AgentHost extends PureComponent {
                 </div>
               </div>
 
+              {!this.state.followOutput && (sending || hasSessionPending) ? (
+                <div className={styles.followOutputBar}>
+                  <button type="button" onClick={this.handleContinueFollowing}>
+                    <Icon type="arrow-down" aria-hidden="true" />
+                    {formatMessage({ id: 'agent.execution.continueFollowing' })}
+                  </button>
+                </div>
+              ) : null}
+
               {this.renderRunConflictNotice()}
 
               {compactionActive ? (
@@ -1333,8 +1231,6 @@ export default class AgentHost extends PureComponent {
                   </Button>
                 </div>
               ) : null}
-
-              {lastError ? <div className={styles.errorText}>{lastError}</div> : null}
 
               <div className={styles.footer}>
                 <div className={styles.footerComposer}>

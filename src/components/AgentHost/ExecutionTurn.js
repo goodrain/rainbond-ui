@@ -3,91 +3,131 @@ import { Icon } from 'antd';
 import { formatMessage } from 'umi';
 import styles from './index.less';
 import ExecutionDisclosure from './ExecutionDisclosure';
+import ApprovalRecord from './ApprovalRecord';
+import executionLabels from './executionLabels';
+import AiExecutionIndicator from './AiExecutionIndicator';
 
 const t = (name, values) => formatMessage({ id: `agent.execution.${name}` }, values);
 
-/** One user request owns one header and one chronological execution log. */
-export default class ExecutionTurn extends PureComponent {
-  getStatus = () => {
-    const { turn } = this.props;
-    if (turn.waiting) return t('waitingApproval');
-    if (turn.failed) return t('failed');
-    if (turn.cancelled) return t('cancelled');
-    if (!turn.running) return t('finished');
-    const latest = turn.latest;
-    if (latest && latest.kind === 'trace' && latest.trace) {
-      return latest.trace.title || t('working');
+class ActivityText extends PureComponent {
+  state = { text: this.props.text, fresh: false };
+  static getDerivedStateFromProps(props, state) {
+    return props.text === state.text ? null : { text: props.text, fresh: true };
+  }
+  componentDidUpdate(previousProps) {
+    if (previousProps.text === this.props.text) return;
+    if (typeof window === 'undefined' || !window.requestAnimationFrame) {
+      this.setState({ fresh: false });
+      return;
     }
-    if (latest && latest.reasoningStreaming) return t('thinking');
-    return turn.answer && turn.answer.streaming ? t('responding') : t('working');
+    if (this.frame) window.cancelAnimationFrame(this.frame);
+    this.frame = window.requestAnimationFrame(() => { this.frame = null; this.setState({ fresh: false }); });
+  }
+  componentWillUnmount() {
+    if (this.frame) window.cancelAnimationFrame(this.frame);
+  }
+  render() {
+    return <span className={`${styles.executionActivityText} ${this.state.fresh ? styles.executionActivityFresh : ''}`}>{this.props.text}</span>;
+  }
+}
+
+/** A real model message delimits a round; approvals remain with their tool issuer. */
+export default class ExecutionTurn extends PureComponent {
+  state = {
+    processExpanded: false,
+    openedNodeKey: null,
+    reasoningExpanded: false,
+  };
+
+  componentDidUpdate() {
+    const { turn, following } = this.props;
+    if (following === false) return;
+    if (turn.segmentClosed && this.state.processExpanded) {
+      this.setState({ processExpanded: false, openedNodeKey: null, reasoningExpanded: false });
+    }
+  }
+
+  requestView = options => {
+    if (this.props.onViewChange) this.props.onViewChange(options);
+  };
+
+  toggleProcess = (expanded, anchor) => {
+    const { turn } = this.props;
+    const live = turn.running || turn.waiting;
+    this.setState({ processExpanded: expanded, openedNodeKey: null, reasoningExpanded: false });
+    this.requestView({ ...(expanded ? { follow: !!live } : {}), anchor });
+  };
+
+  toggleReasoning = (node, expanded, anchor) => {
+    this.setState({ openedNodeKey: expanded ? node.key : null, reasoningExpanded: expanded });
+    this.requestView({ ...(expanded ? { follow: false } : {}), anchor });
   };
 
   renderProcessItem = item => {
-    if (item.kind === 'trace') return this.props.renderTrace(item);
-    if (item.kind === 'approval') return this.props.renderApproval(item);
-    return null;
+    if (item.kind === 'approval') return <ApprovalRecord key={item.id} item={item} />;
+    return item.kind === 'trace' ? this.props.renderTrace(item) : null;
   };
 
   renderExecutionNode = node => {
     const { turn, renderProcessAnswer } = this.props;
     const item = node.output;
-    const reasoningActive = !!(item && turn.running && !turn.waiting && !turn.failed &&
-      !turn.cancelled && item.reasoningStreaming && !item.content && !node.events.length);
+    const expanded = node.key === this.state.openedNodeKey && this.state.reasoningExpanded;
     return (
-      <div className={styles.executionNode} key={node.key}>
+      <li key={node.key} className={styles.executionNode}>
         {item && (item.reasoning || item.reasoningStreaming) ? (
-          <ExecutionDisclosure
-            id={`${turn.key}:${node.key}:reasoning`}
-            active={reasoningActive}
+          <ExecutionDisclosure id={`${turn.key}:${node.key}:reasoning`}
+            expanded={expanded} onToggle={(open, anchor) => this.toggleReasoning(node, open, anchor)}
+            trailingChevron
             className={styles.executionThought}
             toggleClassName={`${styles.executionToggle} ${styles.executionThoughtLabel}`}
             contentClassName={styles.executionThoughtContent}
             icon={<Icon type="bulb" className={styles.executionThoughtIcon} />}
             title={t('reasoning')}
           >
-            {item.reasoning || ''}
-            {reasoningActive ? <span className={styles.executionCursor} aria-hidden="true" /> : null}
+            {expanded ? item.reasoning || '' : ''}
+            {expanded && item.reasoningStreaming && turn.running ? <span className={styles.executionCursor} aria-hidden="true" /> : null}
           </ExecutionDisclosure>
         ) : null}
         {item && item !== turn.answer && item.content ? (
           <div className={styles.executionNarration}>{renderProcessAnswer(item)}</div>
         ) : null}
         {node.events.map(this.renderProcessItem)}
-      </div>
+      </li>
     );
   };
 
   render() {
-    const { turn, renderApproval, renderNotice, renderAnswer } = this.props;
+    const { turn, renderNotice, renderAnswer } = this.props;
     const showProcess = turn.process.length > 0 || turn.running || turn.waiting;
+    const activity = executionLabels.describeExecution(turn, t);
+    const working = turn.running && !turn.waiting && !turn.segmentClosed && !turn.failed && !turn.cancelled;
+    const mode = turn.waiting ? 'waiting' : working ? 'working' : 'ended';
+    const label = t(mode === 'ended' ? 'executionEndedWithActivity' : 'aiActivity', { name: activity.text });
     return (
-      <div className={`${styles.messageRow} ${styles.assistantRow}`}>
-        <div className={styles.messageMeta}>
+      <div className={this.props.embedded ? styles.assistantSupportStack : `${styles.messageRow} ${styles.assistantRow}`}>
+        {!this.props.embedded ? <div className={styles.messageMeta}>
           <span className={styles.messageRole}>AI</span>
-          <span className={styles.messageTime}>
-            {new Date(turn.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-          </span>
-        </div>
-        {showProcess ? (
-          <ExecutionDisclosure
-            id={`${turn.key}:execution`}
-            active={!turn.failed && !turn.cancelled && (turn.running || turn.waiting)}
-            className={styles.executionProcess}
-            toggleClassName={styles.executionToggle}
+          <span className={styles.messageTime}>{new Date(turn.createdAt).toLocaleTimeString([], {
+            hour: '2-digit', minute: '2-digit'
+          })}</span>
+        </div> : null}
+        {showProcess ? <div className={styles.executionProcess}>
+          <ExecutionDisclosure id={`${turn.key}:execution`} expanded={this.state.processExpanded}
+            onToggle={this.toggleProcess}
+            toggleClassName={`${styles.executionToggle} ${styles.executionProcessToggle}`}
             contentClassName={styles.executionLog}
-            title={t('viewProcess')}
-            extra={
-              <span className={styles.executionStatus} role="status">
-                {turn.running && !turn.waiting ? <Icon type="loading" /> : null}
-                {this.getStatus()}
-              </span>
-            }
+            trailingChevron
+            icon={<AiExecutionIndicator mode={mode} showCompleted={mode === 'ended' && !turn.failed && !turn.cancelled} />}
+            title={<strong className={styles.executionHeadingCopy} role="status" aria-live="polite" title={label}>
+              <ActivityText text={label} />
+            </strong>}
           >
-            {turn.nodes.map(this.renderExecutionNode)}
+            {this.state.processExpanded ? <ol className={styles.executionRounds} aria-label={t('executionTimeline')}>
+              {turn.nodes.map(this.renderExecutionNode)}
+            </ol> : null}
           </ExecutionDisclosure>
-        ) : null}
-        {turn.pendingApprovals.map(renderApproval)}
-        {turn.notices.map(renderNotice)}
+        </div> : null}
+        {turn.notices.filter(item => item.kind !== 'error').map(renderNotice)}
         {turn.answer ? renderAnswer(turn.answer) : null}
       </div>
     );

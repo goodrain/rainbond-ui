@@ -595,12 +595,20 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 8px;
+  gap: 12px;
   width: 100%;
   max-width: 100%;
 
   .messageBubble {
+    width: 100%;
     max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  // This stack owns the spacing between prose, execution and approval cards.
+  > .assistantSupportStack .executionProcess,
+  > .approvalRow {
+    margin-bottom: 0;
   }
 }
 
@@ -654,6 +662,7 @@
 }
 
 .assistantBubble {
+  max-width: 100%;
   background: #fff;
   color: @text-color;
   border: 1px solid fade(@border-color-base, 85%);
@@ -779,11 +788,18 @@
   border-radius: 12px;
   background: fade(@primary-color, 4%);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
 
-  &:hover {
-    border-color: fade(@primary-color, 28%);
-    box-shadow: @rbd-min-card-shadow;
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      border-color: fade(@primary-color, 28%);
+      box-shadow: @rbd-min-card-shadow;
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid @primary-color;
+    outline-offset: 2px;
   }
 }
 
@@ -1188,6 +1204,27 @@
   min-width: 0;
 }
 
+.approvalFlatActions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding: 12px;
+
+  :global(.ant-btn) {
+    width: 100%;
+    min-width: 0;
+    padding: 0 4px;
+    font-size: 13px;
+  }
+}
+
+.approvalChoiceHint {
+  padding: 0 12px 12px;
+  font-size: 12px;
+  color: @text-color-secondary;
+  line-height: 1.6;
+}
+
 .approvalPrimaryActions {
   display: flex;
   width: 100%;
@@ -1301,7 +1338,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-top: 16px;
+  margin-top: 8px;
 }
 
 .footerClearButton {
@@ -1369,7 +1406,7 @@
 
   .footerActions {
     gap: 12px;
-    margin-top: 14px;
+    margin-top: 8px;
   }
 }
 
@@ -1602,117 +1639,159 @@
 }
 
 .executionProcess {
-  margin: 0 0 10px;
-  width: 100%;
-  min-width: 0;
+  margin: 0 0 12px; width: 100%; min-width: 0;
+  border: 0; background: transparent;
+  [hidden] { display: none !important; }
 }
-
 .executionToggle {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  width: 100%;
-  padding: 6px 0;
-  border: 0;
-  background: transparent;
-  color: @text-color-secondary;
-  font-size: @rbd-auxiliary-size;
-  text-align: left;
-  cursor: pointer;
-
-  &:focus-visible {
-    outline: 2px solid @primary-color;
-    outline-offset: 3px;
-  }
+  display: grid; align-items: center; gap: 8px; width: 100%;
+  border: 0; background: transparent; color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size; line-height: 20px; text-align: left;
+  cursor: pointer; touch-action: manipulation;
+  > span { min-width: 0; }
+  &:focus-visible { outline: 2px solid @primary-color; outline-offset: -2px; }
 }
-
-.executionStatus {
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 6px;
-  margin-left: auto;
-  min-width: 0;
-  max-width: 52%;
-  overflow-wrap: anywhere;
-  text-align: right;
+.executionProcessToggle {
+  grid-template-columns: 26px minmax(0, 1fr) 14px;
+  min-height: 46px; padding: 8px 10px; border-radius: 6px;
+  > :first-child { justify-self: center; }
+  > :last-child { justify-self: end; }
+  &:focus-visible .executionActivityText { opacity: 1; transform: none; transition: none; }
 }
-
-.executionLog {
-  margin: 7px 0 10px 5px;
-  padding-left: 14px;
-  border-left: 2px solid @border-color-base;
-  overflow-wrap: anywhere;
-
-  .traceRow,
-  .approvalRow {
-    margin-bottom: 9px;
-  }
-
-  .messageBubble {
-    margin: 8px 0 12px;
-  }
+.executionHeadingCopy {
+  display: block; min-width: 0; color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size; line-height: 20px; font-weight: 400;
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
 }
-
-.executionItem,
-.executionThought {
-  margin: 0 0 12px;
+.executionActivityText {
+  display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1);
 }
-
-.executionThoughtLabel {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 5px;
-  color: @text-color-secondary;
-  font-size: @rbd-auxiliary-size;
-}
-
-.executionThoughtIcon {
-  color: @primary-color;
-}
-
-.executionThoughtContent {
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  color: @text-color-secondary;
-  font-size: @rbd-auxiliary-size;
-  line-height: 1.7;
-}
-
-.executionCursor {
-  display: inline-block;
-  width: 2px;
-  height: 1em;
-  margin-left: 3px;
-  vertical-align: -2px;
-  background: @primary-color;
-}
-
-
-
+.executionActivityFresh { transform: translateY(2px); transition: none; }
+.executionLog { padding: 4px 10px 12px 44px; overflow-wrap: anywhere; }
+.executionRounds { list-style: none; padding: 0; margin: 0; }
 .executionNode {
-  position: relative;
-  margin-bottom: 18px;
+  position: relative; min-width: 0; padding: 0 0 18px 28px;
+  &::before { content: ''; position: absolute; left: 9px; top: 22px; bottom: -8px;
+    width: 1px; background: fade(@border-color-base, 85%); }
+  &:last-child { padding-bottom: 0; }
+  &:last-child::before { bottom: 12px; }
+}
+.executionThought { position: relative; margin-bottom: 4px; }
+.executionThoughtLabel {
+  position: relative; grid-template-columns: minmax(0, 1fr) 16px;
+  padding: 6px 0; color: @heading-color; font-weight: 500;
+  > span { min-width: 0; overflow-wrap: anywhere; }
+}
+.executionThoughtIcon { position: absolute; z-index: 1; left: -28px; top: 6px;
+  display: flex; align-items: center; justify-content: center; width: 20px; height: 20px;
+  font-size: @rbd-sub-title-size; color: @primary-color;
+  background: @rbd-background-color; }
+.executionThoughtContent { padding: 4px 0 8px; white-space: pre-wrap; overflow-wrap: anywhere;
+  color: @text-color-secondary; font-size: @rbd-auxiliary-size; line-height: 20px; }
+.executionCursor { display: inline-block; width: 2px; height: 1em; margin-left: 3px;
+  vertical-align: -2px; background: @primary-color; }
+.executionNarration { margin: 8px 0; color: @text-color; font-size: @rbd-content-size; }
+.executionTool { margin: 0 !important; }
+.executionToolRow, .executionApprovalRecord {
+  display: grid; grid-template-columns: 20px minmax(0, 1fr); align-items: start;
+  gap: 8px; padding: 4px 0; width: 100%; color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size; line-height: 20px;
+  > :first-child { margin-top: 2px; font-size: @rbd-sub-title-size; }
+}
+.executionToolCopy { min-width: 0; overflow-wrap: anywhere; }
+.executionApprovalRecord > span { min-width: 0; overflow-wrap: anywhere; }
+.executionApprovalPending > :first-child { color: darken(@warning-color, 16%); }
+.executionApprovalApproved > :first-child { color: @success-color; }
+.executionApprovalResolved > :first-child { color: @text-color-secondary; }
+@media (hover: hover) and (pointer: fine) {
+  .executionProcessToggle:hover { background: fade(@text-color, 3%); }
+  .executionThoughtLabel:hover { color: @primary-color; }
+}
+@media (pointer: coarse) { .executionToggle { min-height: 44px; } }
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 7px;
-    left: -18px;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: @border-color-base;
-  }
-
-  &:last-child {
-    margin-bottom: 0;
-  }
+.aiExecutionIndicator {
+  position: relative; display: block; width: 26px; height: 26px;
+  color: mix(mix(@primary-color, @text-color-secondary, 14%), @component-background, 80%);
+  isolation: isolate;
+  transition: color 240ms ease;
+}
+.aiSparkDefinitions { position: absolute; width: 0; height: 0; overflow: hidden; pointer-events: none; }
+.aiSparkHighlight { stop-color: @component-background; }
+.aiSparkShade { stop-color: @heading-color; }
+.aiSparkParticle { position: absolute; display: block; }
+.aiSparkMain {
+  left: 3px; top: 4px; width: 18px; height: 18px;
+  --ai-x-duration: 3.8s; --ai-y-duration: 2.7s; --ai-breathe-duration: 3.1s; --ai-phase: -.45s;
+}
+.aiSparkSide {
+  left: 18px; top: 2px; width: 8px; height: 8px; opacity: .7;
+  --ai-x-duration: 3.2s; --ai-y-duration: 2.25s; --ai-breathe-duration: 2.8s; --ai-phase: -1.1s;
+}
+.aiSparkSmall {
+  left: 18px; top: 18px; width: 5px; height: 5px; opacity: .5;
+  --ai-x-duration: 2.9s; --ai-y-duration: 3.4s; --ai-breathe-duration: 2.4s; --ai-phase: -1.8s;
+}
+.aiSparkDriftX, .aiSparkDriftY, .aiSparkBreathe {
+  display: block; width: 100%; height: 100%; transform-origin: center;
+  > svg { display: block; width: 100%; height: 100%; overflow: visible; }
+}
+.aiExecutionWorking {
+  .aiSparkDriftX { animation: executionAiDriftX var(--ai-x-duration) cubic-bezier(.45, 0, .55, 1) var(--ai-phase) infinite; }
+  .aiSparkDriftY { animation: executionAiDriftY var(--ai-y-duration) cubic-bezier(.45, 0, .55, 1) var(--ai-phase) infinite; }
+  .aiSparkBreathe { animation: executionAiBreathe var(--ai-breathe-duration) cubic-bezier(.45, 0, .55, 1) var(--ai-phase) infinite; }
+}
+.aiExecutionSettled { color: mix(@text-color-secondary, @component-background, 78%); }
+.aiExecutionPaused {
+  .aiSparkDriftX, .aiSparkDriftY, .aiSparkBreathe { animation-play-state: paused; }
+}
+.aiExecutionCheck {
+  position: absolute; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center;
+  width: 12px; height: 12px; border-radius: 50%; background: @rbd-background-color;
+  color: mix(@text-color-secondary, @component-background, 85%);
+  opacity: 0; transform: scale(.85);
+  transition: opacity 180ms ease-out, transform 220ms cubic-bezier(.22, 1, .36, 1);
+  > :first-child { font-size: @rbd-auxiliary-size; transform: scale(.8); }
+}
+.aiExecutionDone .aiExecutionCheck { opacity: 1; transform: scale(1); }
+@keyframes executionAiDriftX {
+  0%, 100% { transform: translateX(-1px); }
+  50% { transform: translateX(1px); }
+}
+@keyframes executionAiDriftY {
+  0%, 100% { transform: translateY(-2px) rotate(-5deg); }
+  50% { transform: translateY(2px) rotate(5deg); }
+}
+@keyframes executionAiBreathe {
+  0%, 100% { transform: scale(.88); opacity: .64; }
+  50% { transform: scale(1.06); opacity: 1; }
 }
 
-.executionNarration {
-  margin: 6px 0 12px;
-  color: @text-color;
-  font-size: @rbd-content-size;
+.longQuestionCollapsed { max-height: 190px; overflow: hidden; }
+.longQuestionToggle {
+  display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%;
+  margin-top: 10px; padding: 6px; border: 1px solid fade(@btn-primary-color, 40%); border-radius: 5px;
+  background: fade(@btn-primary-color, 10%); color: inherit; cursor: pointer; font-size: @rbd-auxiliary-size;
 }
+
+.longQuestionToggle:focus-visible {
+  outline: 2px solid @primary-color; outline-offset: -2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .executionProcess :global(.anticon-spin) { animation-play-state: paused; }
+  .executionActivityText, .executionActivityFresh { opacity: 1; transform: none; transition: none; }
+  .aiSparkDriftX, .aiSparkDriftY, .aiSparkBreathe { animation: none !important; transform: none; opacity: 1; }
+  .aiExecutionCheck { transition: none; }
+}
+
+.followOutputBar {
+  display: flex; justify-content: center; flex-shrink: 0;
+  padding: 4px 12px 8px; background: @rbd-background-color;
+  button { display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 12px; border: 1px solid fade(@primary-color, 18%); border-radius: 16px;
+    background: @component-background; color: @primary-color; cursor: pointer;
+    font-size: @rbd-auxiliary-size; line-height: 20px; touch-action: manipulation; }
+}
+
+.followOutputBar button:focus-visible { outline: 2px solid @primary-color; outline-offset: -2px; }
+@media (pointer: coarse) { .followOutputBar button { min-height: 44px; } }

@@ -4,11 +4,59 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(`${__dirname}/agent.js`, 'utf8');
 
+function reducerContext() {
+  const context = { Date, Math, adaptAgentEvent: require('../services/agentEventAdapter').adaptAgentEvent,
+    extractWorkflowState: () => ({}) };
+  vm.createContext(context);
+  for (const [start, end] of [
+    ['function createMessage(', 'function formatReplayArguments('],
+    ['function normalizePendingApproval(', 'function buildHydratedState('],
+    ['function findApprovalMessageIndex(', 'function applyAgentStreamEvent('],
+  ]) vm.runInContext(source.slice(source.indexOf(start), source.indexOf(end)), context);
+  return context;
+}
+
+test('replayed approvals do not duplicate cards or revive a resolved deletion', () => {
+  const context = reducerContext();
+  const requests = [1, 2, 3].map(id => ({ type: 'approval.requested', runId: 'r', data: {
+    approval_id: `delete-${id}`, description: '修改组件环境变量', auto_approval_eligible: false,
+    input: { operation: 'delete', env_id: id },
+  } }));
+  let result = context.applyAgentEvents({ messages: [], events: requests.concat(requests) });
+  assert.equal(result.messages.length, 3);
+  result = context.applyAgentEvents({ messages: result.messages, events: [
+    { type: 'approval.resolved', runId: 'r', data: { approval_id: 'delete-1', status: 'approved' } }, requests[0],
+  ] });
+  assert.equal(result.messages.length, 3);
+  assert.equal(result.messages[0].approval.status, 'approved');
+});
+
+test('automatic approvals never appear as pending cards', () => {
+  const context = reducerContext();
+  const result = context.applyAgentEvents({ messages: [], events: [{ type: 'approval.requested', runId: 'r', data: {
+    approval_id: 'auto', description: '启动组件', auto_approved: true, auto_approval_eligible: true,
+    decision_source: 'policy', policy_id: 'session-policy',
+  } }] });
+  assert.equal(result.pendingApproval, null);
+  assert.equal(result.messages[0].approval.status, 'approved');
+  assert.equal(result.messages[0].approval.autoApproved, true);
+});
+
+test('late suggestions stay with their own run', () => {
+  const context = reducerContext();
+  const result = context.applyAgentEvents({ messages: [
+    { id: 'old', role: 'assistant', kind: 'normal', streamRunId: 'old', content: 'old answer' },
+    { id: 'new', role: 'assistant', kind: 'normal', streamRunId: 'new', content: 'new answer' },
+  ], events: [{ type: 'chat.suggested_actions', runId: 'old', data: { actions: [{ actionId: 'real', source: 'llm_structured' }] } }] });
+  assert.equal(result.messages[0].suggestedActions[0].actionId, 'real');
+  assert.equal(result.messages[1].suggestedActions, undefined);
+});
+
 test('a suggested option is echoed as a user message and retains its action identity', () => {
   const hostSource = fs.readFileSync(`${__dirname}/../components/AgentHost/index.js`, 'utf8');
   const context = {
     props: { agent: { context: {} }, dispatch: action => { context.action = action; } },
-    resumeAutoScroll() {}, Date, Math,
+    resetOutputPosition() {}, Date, Math,
     captureAgentRetentionEvent() {},
     createClearedComponentMutationTrackingState: () => ({}),
   };
