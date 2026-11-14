@@ -644,9 +644,10 @@ export default class app extends Component {
       {
         key: 'appUpgrade',
         type: 'badge',
+        showBadge: upgradableNum > 0,
         icon: 'arrow-up',
         text: <FormattedMessage id="versionUpdata_6_4.overview.upgrade" />,
-        show: isAppUpgrade && !isSlidePanel && upgradableNum !== 0,
+        show: isAppUpgrade && !isSlidePanel,
         disabled: false,
         onClick: () => this.handleJump('upgrade')
       },
@@ -751,7 +752,7 @@ export default class app extends Component {
       text: formatMessage({ id: 'versionUpdata_6_4.overview.detail' }), onClick: () => this.handleOpenAddComponentOrAppDetail('appDetail') });
     const commonKeys = ['visitor', 'appSnapshot', 'delivery', 'appDetail']
       .filter(key => available.some(operation => operation.key === key)).slice(0, 3);
-    const fixedKeys = ['addComponent', ...commonKeys];
+    const fixedKeys = ['addComponent', ...commonKeys, 'appUpgrade'];
 
     // 分离固定展示的按钮和其他按钮
     const fixedButtons = fixedKeys.map(key => available.find(op => op.key === key)).filter(Boolean);
@@ -774,7 +775,7 @@ export default class app extends Component {
         // 根据 showBadge 属性决定是否显示徽标
         return (
           <span key={op.key} style={{ marginRight: 8, display: 'inline-block' }}>
-            <Badge dot>
+            <Badge dot={op.showBadge !== false}>
               {buttonElement}
             </Badge>
           </span>
@@ -1055,9 +1056,7 @@ export default class app extends Component {
   };
   handleJump = target => {
     const { dispatch } = this.props;
-    const path = target === 'upgrade'
-      ? `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/version`
-      : `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/${target}`;
+    const path = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/${target}`;
     dispatch(
       routerRedux.push(path)
     );

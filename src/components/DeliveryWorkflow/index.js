@@ -43,9 +43,11 @@ export class ListingModal extends PureComponent {
     const online = this.state.destination === 'market';
     const duplicate = (this.props.existingRequests || []).some(row => {
       const destination = row.destination || {type:'local'};
-      return destination.type === this.state.destination && (!online || destination.market_id === this.state.marketId) &&
+      if ((destination.type || 'local') !== this.state.destination || online && destination.market_id !== this.state.marketId) return false;
+      if (!online && row.status === 'approved') return true;
+      return (
         ['pending','approved','not_required'].includes(row.status) && !['cancelled','unlisted'].includes(row.publication_status) &&
-        !(online && row.status === 'pending' && !row.publication_task_id);
+        !(online && row.status === 'pending' && !row.publication_task_id));
     });
     return <Modal visible title={w('publishVersion')} onCancel={busy ? undefined : onCancel} confirmLoading={busy} closable={!busy} maskClosable={false}
       okText={w(online ? 'startMarketSync' : 'submit')} okButtonProps={{disabled:duplicate || online && (this.state.marketsLoading || this.state.marketFailed || !this.state.marketId)}} cancelText={w('cancel')} onOk={() => {

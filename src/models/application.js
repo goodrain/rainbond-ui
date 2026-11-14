@@ -358,11 +358,12 @@ export default {
       }
     },
     // 创建发布记录
-    *ShareGroup({ payload, callback }, { call }) {
-      const response = yield call(createShare, payload);
-      if (response && callback) {
-        callback(response);
-      }
+    *ShareGroup({ payload, callback, onError }, { call }) {
+      try {
+        const response = yield call(createShare, payload);
+        if (response && callback) callback(response);
+        else if (!response && onError) onError();
+      } catch (error) { if (onError) onError(error); }
     },
     // 查询发布信息
     *getShareInfo({ payload, callback }, { call }) {

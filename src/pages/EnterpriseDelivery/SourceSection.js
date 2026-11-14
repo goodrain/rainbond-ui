@@ -9,12 +9,12 @@ const external = (url, text) => url ? <a href={url} target="_blank" rel="noopene
 
 export default class SourceSection extends PureComponent {
   render() {
-    const { components, selectedId, onSelect, history = {}, onPage, loading, failed, onRefresh } = this.props;
+    const { components, selectedId, onSelect, history = {}, onPage, loading, failed, onRefresh, sourceDeleted } = this.props;
     const component = components.find(item => item.service_id === selectedId) || components[0];
     const links = component ? repositoryLinks(component.repository, component.provider, component.commit, component.branch) : {};
     return <section id="asset-sources" className={styles.assetSection} aria-labelledby="asset-sources-title">
       <header className={styles.sectionHeader}><div><h2 id="asset-sources-title"><span className={styles.sectionMarker}><Icon type="branches" /></span><span className={styles.sectionNumber}>01</span>{w('assetSources')}</h2><p>{w('assetSourcesHelp')}</p></div>
-        <Button icon="reload" loading={loading} onClick={onRefresh}>{w('refresh')}</Button></header>
+        <Button icon="reload" loading={loading} disabled={sourceDeleted} onClick={onRefresh}>{w('refresh')}</Button></header>
       {failed && <Alert type="info" showIcon message={w('sourceSnapshotFallback')} />}
       <Spin spinning={loading}>{!component ? !loading && <Empty description={w('noSourceComponents')} /> : <div className={styles.sourceLayout}>
         <div className={styles.sourceRail} role="group" aria-label={w('sourceComponents')}>

@@ -16,8 +16,9 @@ export default class RecordTimeline extends PureComponent {
   });
   renderVersion = (record, group) => {
     const { listings, deployments, allowed, workflowFailed, onDetail, onInstall, onExport, onListing, onWithdraw, onDelete } = this.props;
-    const publications = latestPublications(listings.filter(item => item.template.id === record.id));
-    const listingAction = localListingAction(publications);
+    const recordListings = listings.filter(item => item.template.id === record.id);
+    const publications = latestPublications(recordListings);
+    const listingAction = localListingAction(recordListings);
     const history = deployments.filter(item => item.template_id === record.id);
     const deleted = !!record.deleted_at;
     const expanded = this.state.expanded[record.id] == null ? !!(group.latest && group.latest.id === record.id) : this.state.expanded[record.id];
@@ -47,8 +48,8 @@ export default class RecordTimeline extends PureComponent {
           </div>
           <div className={styles.versionActions}>{allowed && !deleted && <React.Fragment>
             <Button type="primary" icon="cloud-download" disabled={workflowFailed} onClick={() => onInstall(record)}>{t('deliver')}</Button>
-            <Button icon={listingAction.kind === 'withdraw' ? 'stop' : 'shop'} disabled={workflowFailed}
-              onClick={() => listingAction.kind === 'withdraw' ? onWithdraw(record, listingAction.listing, listingAction.action) : onListing(record)}>{w(listingAction.label)}</Button>
+            {listingAction.kind !== 'locked' && <Button icon={listingAction.kind === 'withdraw' ? 'stop' : 'shop'} disabled={workflowFailed}
+              onClick={() => listingAction.kind === 'withdraw' ? onWithdraw(record, listingAction.listing, listingAction.action) : onListing(record)}>{w(listingAction.label)}</Button>}
             <Button icon="export" disabled={workflowFailed} onClick={() => onExport(record)}>{t('exportOfflinePackage')}</Button>
             <Dropdown overlay={menu} trigger={['click']}><Button icon="ellipsis" aria-label={`${t('more')} ${record.version}`} /></Dropdown>
           </React.Fragment>}</div>

@@ -8,7 +8,7 @@ function section() {
   const source = fs.readFileSync(`${__dirname}/RuntimeSection.js`, 'utf8');
   const ast = parser.parse(source, { sourceType: 'module', plugins: ['jsx', 'decorators-legacy', 'classProperties'] });
   const declaration = ast.program.body.find(node => node.type === 'ExportDefaultDeclaration').declaration;
-  const methods = declaration.body.body.filter(node => node.key && ['loadEvents', 'loadVisits', 'componentDidUpdate'].includes(node.key.name));
+  const methods = declaration.body.body.filter(node => node.key && ['loadEvents', 'loadVisits', 'componentDidUpdate', 'isDeleted'].includes(node.key.name));
   const Target = vm.runInNewContext(`class Target { ${methods.map(method => source.slice(method.start, method.end)).join('\n')} }; Target`);
   const target = new Target(), requests = [];
   target.alive = true;target.generation = 0;target.visitTicket = 0;target.pending = new Set();target.state = { events: {}, accesses: [] };
@@ -90,4 +90,17 @@ test('stale visit responses cannot expose another application or replace newer a
   assert.equal(target.state.accesses[0], 'latest-access');
   target.loadVisits();target.alive = false;requests[4].callback({ list: ['unmounted'] });
   assert.equal(target.state.accesses[0], 'latest-access');
+});
+
+test('deleted source applications stop event/access reads and discard in-flight responses', () => {
+  const { target, requests } = section();
+  target.loadEvents(web);
+  const before = target.props;
+  target.props = { ...target.props, deleted: true };
+  target.componentDidUpdate(before, target.state);
+  requests[0].callback({ items: [event('late', '02')], page: 1, has_more: false });
+  target.loadEvents(web);target.loadVisits();
+  assert.equal(requests.length, 1);
+  assert.equal(Object.keys(target.state.events).length, 0);
+  assert.equal(target.state.accesses.length, 0);
 });

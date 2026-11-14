@@ -69,14 +69,19 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
     if (!quiet) this.setState({ loading: true, failed: false });
     this.props.dispatch({ type: 'deliveryCenter/load', payload: { kind: 'center', user, groupId: match.params.groupId }, callback: bean => {
       if (!this.active(generation) || ticket !== this.centerTicket) return;
-      const group = bean.groups.find(item => item.id === match.params.groupId), first = !this.state.group;
+      const selectedGroup = bean.groups.find(item => item.id === match.params.groupId), first = !this.state.group;
+      const group = selectedGroup ? { ...selectedGroup, sourceDeleted: bean.source_app_exists === false } : null;
       const ids = new Set(group ? group.versions.map(item => item.template.id) : []);
       const deployments = (bean.deployments || []).filter(item => item.template_group_id ? item.template_group_id === match.params.groupId : ids.has(item.template_id));
       if (this.followDelivery(deployments)) return;
       this.setState({ group, deployments, loading: false, failed: false }, () => {
         if (!group) return;
+        if (group.sourceDeleted) {
+          this.historyTicket = (this.historyTicket || 0) + 1;this.runtimeTicket = (this.runtimeTicket || 0) + 1;
+          this.setState({ source: [], sourceLoading: false, sourceFailed: false, histories: {}, runtime: { deleted: true }, runtimeLoading: false });
+          if (first) this.loadTargets();return;
+        }
         if (first) { this.loadSources();this.loadTargets();this.runtime(); }
-        else if (!this.state.runtimeLoading && Date.now() - (this.runtimeUpdated || 0) > 30000) this.runtime();
       });
     }, onError: () => { if (this.active(generation) && ticket === this.centerTicket) this.setState({ loading: false, failed: true }); } });
   };
@@ -107,12 +112,13 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
     return true;
   };
   loadSources = () => {
+    if (!this.state.group || this.state.group.sourceDeleted) return;
     const generation = this.generation;
     this.setState({ sourceLoading: true });
     this.props.dispatch({ type: 'deliveryCenter/load', payload: { kind: 'source', user: this.props.user, scope: this.state.group.source }, callback: data => {
-      if (!this.active(generation)) return;
+      if (!this.active(generation) || this.state.group.sourceDeleted) return;
       this.setState({ source: data.components, sourceLoading: false, sourceFailed: false }, () => this.history(this.state.selectedSourceId || (this.sources()[0] || {}).service_id, 1));
-    }, onError: () => { if (this.active(generation)) this.setState({ source: [], sourceLoading: false, sourceFailed: true }, () => this.history((this.sources()[0] || {}).service_id, 1)); } });
+    }, onError: () => { if (this.active(generation) && !this.state.group.sourceDeleted) this.setState({ source: [], sourceLoading: false, sourceFailed: true }, () => this.history((this.sources()[0] || {}).service_id, 1)); } });
   };
   loadTargets = () => {
     const generation = this.generation;
@@ -120,7 +126,7 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
   };
   history = (id, page = 1) => {
     const component = this.sources().find(item => item.service_id === id);
-    if (!component) return;
+    if (!component || this.state.group.sourceDeleted || component.archived) return;
     if (!component.service_alias) {
       this.setState(state => ({ histories: { ...state.histories, [id]: { page, records: [], failed: true, loading: false } } }));return;
     }
@@ -133,6 +139,7 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
   selectSource = (id, versionId) => this.setState({ selectedSourceId: id, sourceVersionId: versionId || null }, () => this.history(id, 1));
   focusSource = (id, versionId) => { this.selectSource(id, versionId);this.jump('sources'); };
   runtime = () => {
+    if (!this.state.group || this.state.group.sourceDeleted) return;
     const environment = this.environment();
     if (!environment) return;
     const generation = this.generation, ticket = this.runtimeTicket = (this.runtimeTicket || 0) + 1;
@@ -181,9 +188,9 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
           </nav>
           <SourceSection components={sources} selectedId={component && component.service_id} onSelect={this.selectSource} history={component && histories[component.service_id] || {}}
             onPage={page => this.history(component.service_id, page)}
-            loading={sourceLoading} failed={sourceFailed} onRefresh={this.loadSources} />
+            loading={sourceLoading} failed={sourceFailed} sourceDeleted={group.sourceDeleted || runtime && runtime.deleted} onRefresh={this.loadSources} />
           <RuntimeSection environment={environment} targets={targets}
-            data={runtime} loading={runtimeLoading} sourceAppName={group.app_name} onVersion={this.focusVersion}
+            data={runtime} deleted={group.sourceDeleted} loading={runtimeLoading} sourceAppName={group.app_name} onVersion={this.focusVersion}
             versions={group.versions} onSource={this.focusSource} sourceIds={sources.map(item => item.service_id)} />
           <VersionsSection group={group} item={version} deployments={this.state.deployments} onSelect={this.selectVersion}
             onReview={item => this.setState({ review: item })} onTest={item => this.setState({ deployment: item })}

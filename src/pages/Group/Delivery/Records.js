@@ -149,10 +149,10 @@ export default class DeliveryRecords extends PureComponent {
     version: nextTemplateVersion((group ? group.versions : this.lastRecords || []).map(item => item.version))
   } }));
   withdrawListing = (template, listing, action) => {
+    if (action !== 'cancel' || listing.status !== 'pending') return;
     const generation = this.generation;
-    Modal.confirm({ title: w(action === 'unlist' ? 'unlistConfirm' : 'cancelListingConfirm'),
-      content: w(action === 'unlist' ? 'unlistHelp' : 'cancelListingHelp'),
-      okText: w(action === 'unlist' ? 'unlistAction' : 'cancelListingRequest'), cancelText: t('cancel'),
+    Modal.confirm({ title: w('cancelListingConfirm'), content: w('cancelListingHelp'),
+      okText: w('cancelListingRequest'), cancelText: t('cancel'),
       onOk: () => new Promise((resolve, reject) => {
         if (!this.active(generation)) { resolve();return; }
         this.props.dispatch({ type: 'deliveryCenter/act', payload: { operation: 'withdraw', action, template,

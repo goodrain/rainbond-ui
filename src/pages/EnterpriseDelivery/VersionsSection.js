@@ -18,6 +18,8 @@ export default class VersionsSection extends PureComponent {
     const template = item && item.template, history = template ? deployments.filter(row => row.template_id === template.id) : [];
     const templatePath = localMarketTemplatePath(group.source.enterprise_id, item, versions);
     const baseline = item && defaultComparison(versions, item);
+    const selectedTab = template && this.state.tabs[template.id] || (baseline ? 'changes' : 'content');
+    const activeTab = !baseline && selectedTab === 'changes' ? 'content' : selectedTab;
     return <section id="asset-versions" className={styles.assetSection} aria-labelledby="asset-versions-title">
       <header className={styles.sectionHeader}><div><h2 id="asset-versions-title"><span className={styles.sectionMarker}><Icon type="appstore" /></span><span className={styles.sectionNumber}>03</span>{w('assetVersions')}</h2><p>{w('assetVersionsHelp')}</p></div>
         {group.pending > 0 && <Badge status="processing" text={`${group.pending} ${w('pendingReview')}`} />}</header>
@@ -51,11 +53,11 @@ export default class VersionsSection extends PureComponent {
             <div className={`${styles.notes} ${this.state.expandedNotes[template.id] ? styles.expandedNotes : ''}`} aria-label={w('releaseNotes')}><div className={styles.notesText}>{template.description || w('noDescription')}</div></div>
           </div>
 
-          <Tabs activeKey={this.state.tabs[template.id] || 'changes'} animated={false}
+          <Tabs activeKey={activeTab} animated={false}
             onChange={tab => this.setState(state => ({ tabs: { ...state.tabs, [template.id]: tab } }))}>
-            <Tabs.TabPane key="changes" tab={w('versionChangesTab')}>
+            {baseline && <Tabs.TabPane key="changes" tab={w('versionChangesTab')}>
               <div className={styles.versionChangesTab}><VersionChanges template={template} baseline={baseline && baseline.template} onSource={onSource} /></div>
-            </Tabs.TabPane>
+            </Tabs.TabPane>}
             <Tabs.TabPane key="content" tab={w('versionContent')}>
               <VersionConfiguration key={template.id} template={template} onSource={onSource} />
             </Tabs.TabPane>

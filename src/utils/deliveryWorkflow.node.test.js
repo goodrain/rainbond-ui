@@ -296,33 +296,33 @@ test('application access uses the overview visit endpoint with the captured sour
   assert.equal(empty.bean.list.length, 0);assert.equal(calls.length, 1);
 });
 
-test('local listing actions replace the list button across review, publication and withdrawal states', () => {
+test('local approval locks listing actions regardless of publication phase', () => {
   const { localListingAction } = require('./deliveryWorkflow');
   const local = { id: 'local', destination: { type: 'local' }, status: 'pending', publication_status: 'not_started', submitted_at: '2026-11-13T01:00:00Z' };
   assert.equal(localListingAction([]).label, 'listAction');
   assert.equal(localListingAction([local]).label, 'cancelListingRequest');
   assert.equal(localListingAction([local]).action, 'cancel');
-  assert.equal(localListingAction([{ ...local, status: 'approved', publication_status: 'publishing' }]).label, 'unlistAction');
-  const published = { ...local, status: 'approved', publication_status: 'published' };
-  assert.equal(localListingAction([published]).action, 'unlist');
-  for (const publication_status of ['cancelled', 'unlisted']) {
-    const withdrawn = { ...published, publication_status };
-    assert.equal(localListingAction([withdrawn]).kind, 'listing');
-    assert.equal(localListingAction([withdrawn]).label, 'relistAction');
-    assert.equal(listingDeployable(withdrawn), false);
+  for (const publication_status of ['publishing', 'published', 'failed', 'cancelled', 'unlisted']) {
+    const approved = { ...local, status: 'approved', publication_status };
+    assert.equal(localListingAction([approved]).kind, 'locked');
+    assert.equal(localListingAction([approved]).action, undefined);
+    assert.equal(localListingAction([approved]).label, undefined);
   }
+  assert.equal(localListingAction([{ ...local, status: 'cancelled', publication_status: 'cancelled' }]).kind, 'listing');
+  assert.equal(localListingAction([{ ...local, status: 'cancelled', publication_status: 'cancelled' }]).label, 'relistAction');
 });
-test('a new local request supersedes old withdrawal history independently of online store sync', () => {
+test('historical local approval cannot be bypassed by a later request or online store sync', () => {
   const { localListingAction } = require('./deliveryWorkflow');
   const old = { id: 'old', destination: { type: 'local' }, status: 'approved', publication_status: 'unlisted', submitted_at: '2026-11-12' };
   const current = { ...old, id: 'new', status: 'pending', publication_status: 'not_started', submitted_at: '2026-11-13' };
   const online = { ...old, id: 'online', destination: { type: 'market', market_id: 'store' }, status: 'not_required', publication_status: 'published', submitted_at: '2026-11-14' };
-  assert.equal(localListingAction([old, current, online]).listing.id, 'new');
-  assert.equal(localListingAction([old, current, online]).label, 'cancelListingRequest');
+  assert.equal(localListingAction([old, current, online]).kind, 'locked');
+  assert.equal(localListingAction([old, current, online]).listing.id, 'old');
+  assert.equal(localListingAction([{ ...old, destination: {} }, current]).kind, 'locked');
   assert.equal(localListingAction([online]).label, 'listLocalAction');
   assert.equal(listingDeployable(online), true);
 });
-test('withdrawal API carries the selected application version, request and confirmed action', async () => {
+test('pending cancellation API carries the selected application version and request', async () => {
   const fs = require('node:fs'), vm = require('node:vm'), parser = require('@babel/parser');
   const source = fs.readFileSync(`${__dirname}/../services/deliveryCenter.js`, 'utf8');
   const ast = parser.parse(source, { sourceType: 'module' });
@@ -331,9 +331,25 @@ test('withdrawal API carries the selected application version, request and confi
   const act = vm.runInNewContext(`${source.slice(declaration.start, declaration.end)};actOnDelivery`, {
     base: () => '/app/delivery-templates', request: async (url, options) => { request = { url, options }; }
   });
-  await act({ operation: 'withdraw', action: 'unlist', scope: { regionName: 'region' }, template: { id: 'version-1' }, requestId: 'listing-1' });
+  await act({ operation: 'withdraw', action: 'cancel', scope: { regionName: 'region' }, template: { id: 'version-1' }, requestId: 'listing-1' });
   assert.equal(request.url, '/app/delivery-templates/versions/version-1/listing-requests/listing-1/withdraw');
   assert.equal(request.options.method, 'post');
   assert.equal(request.options.data.region_name, 'region');
-  assert.equal(request.options.data.action, 'unlist');
+  assert.equal(request.options.data.action, 'cancel');
+});
+
+test('a deleted runtime application stops further reads and handles the 404 without a global error toast', async () => {
+  const fs = require('node:fs'), vm = require('node:vm');
+  const source = fs.readFileSync(`${__dirname}/../services/deliveryCenter.js`, 'utf8').replace(/^import .*;\n/gm, '').replace(/^export /gm, '');
+  const requests = [];
+  const context = { require, apiconfig: { baseUrl: '' }, request: async (url, options) => {
+    requests.push(url);
+    assert.equal(typeof options.handleError, 'function');
+    options.handleError({ response: { status: 404 } });return undefined;
+  } };
+  vm.runInNewContext(source, context);
+  const result = await context.loadDeliveryCenter({ kind: 'runtime', scope: { teamName: 'team', regionName: 'region', appID: '42' } });
+  assert.equal(result.bean.deleted, true);
+  assert.equal(requests.length, 1);
+  assert.equal(result.bean.components.length, 0);
 });
