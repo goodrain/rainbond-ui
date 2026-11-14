@@ -20,7 +20,7 @@ const marker = name => {
   Component.displayName = name;
   return Component;
 };
-const modules = Object.fromEntries(['Overview', 'Expansion', 'Mnt', 'Port', 'AdvancedSettings', 'Setting', 'Log', 'EnvironmentConfiguration', 'Relation', 'ComponentPlugin', 'VMProfilePanel', 'GenericMonitor', 'VmWorkspace', 'PageHeader']
+const modules = Object.fromEntries(['Overview', 'Expansion', 'Mnt', 'Port', 'AdvancedSettings', 'Setting', 'Log', 'EnvironmentConfiguration', 'Relation', 'ComponentPlugin', 'VMProfilePanel', 'VmSnapshots', 'GenericMonitor', 'VmWorkspace', 'PageHeader']
   .map(name => [name, marker(name)]));
 const Form = marker('Form');
 Form.create = () => Component => Component;
@@ -88,7 +88,7 @@ const presenterDependencies = {
   './setting': modules.Setting, './log': modules.Log,
   './environmentConfiguration': modules.EnvironmentConfiguration, './relation': modules.Relation,
   './componentPlugin': modules.ComponentPlugin, './overview': modules.Overview,
-  './component/Basic/VMProfilePanel': modules.VMProfilePanel
+  './component/Basic/VMProfilePanel': modules.VMProfilePanel, './VmSnapshots': modules.VmSnapshots
 };
 const Presenter = load('src/pages/Component/VmComponentWorkspace.js', presenterDependencies).VmComponentWorkspace;
 const mainDependencies = {
@@ -381,7 +381,10 @@ test('overview has two state/connection cards, live resources and original opera
   assert.ok(overviewNodes.some(node => node.type === modules.Overview && node.props.section === 'operations'));
   const snapshots = ReactDOMServer.renderToStaticMarkup(presenter('snapshots', { dispatch: action => actions.push(action) }).render());
   const dom = new JSDOM(snapshots);
-  assert.ok(snapshots.includes('snapshotNotConnected'));
+  assert.ok(snapshots.includes('data-module="VmSnapshots"'));
+  const snapshotPanel = treeElements(presenter('snapshots').render()).find(node => node.type === modules.VmSnapshots);
+  assert.equal(snapshotPanel.props.context.alias, 'gr-real');
+  assert.equal(snapshotPanel.props.context.application, '868');
   assert.equal(dom.window.document.querySelectorAll('button').length, 0);
   dom.window.close();
   assert.deepEqual(actions, []);

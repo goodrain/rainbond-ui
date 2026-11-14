@@ -39,6 +39,33 @@ function inferVmSourceFormat(fileOrUrl) {
   return archive ? archive[1].toLowerCase() : '';
 }
 
+const VM_UPLOAD_HEADER_BYTES = 64 * 1024;
+
+function readVmUploadHeader(blob) {
+  if (typeof blob.arrayBuffer === 'function') return blob.arrayBuffer();
+  return new Promise((resolve, reject) => {
+    if (typeof FileReader === 'undefined') {
+      reject(new Error('VM image header could not be read'));
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reader.onabort = () => reject(new Error('VM image header could not be read'));
+    reader.readAsArrayBuffer(blob);
+  });
+}
+
+// Inspect only the selected file's header. Extensions remain a hint for raw
+// disks and compressed media; the backend validates and converts their content.
+async function inspectVmUploadFormat(file) {
+  const bytes = new Uint8Array(await readVmUploadHeader(file.slice(0, VM_UPLOAD_HEADER_BYTES)));
+  if (bytes.length >= 8 && bytes[0] === 0x51 && bytes[1] === 0x46 && bytes[2] === 0x49 && bytes[3] === 0xfb &&
+      bytes[4] === 0 && bytes[5] === 0 && bytes[6] === 0 && [2, 3].includes(bytes[7])) return 'qcow2';
+  // ISO9660 volume descriptors start at logical sector 16.
+  if (bytes.length >= 32775 && String.fromCharCode(...bytes.slice(32769, 32774)) === 'CD001') return 'iso';
+  return '';
+}
+
 function normalizeVmSourceFormat(value) {
   if (typeof value !== 'string') return '';
   const format = value.trim().toLowerCase();
@@ -73,6 +100,7 @@ function isLinuxQcow2QuickStart(sourceType, url) {
 
 function getSshUsernameError(value) {
   if (typeof value !== 'string' || !value.trim()) return 'sshUsernameRequired';
+  if (value.trim() === 'root') return 'sshUsernameRootUnsupported';
   return /^[a-z_][a-z0-9_-]{0,31}$/.test(value.trim()) ? '' : 'sshUsernameInvalid';
 }
 
@@ -334,6 +362,7 @@ module.exports = {
   createVmImageName,
   SUPPORTED_VM_SOURCE_FORMATS,
   inferVmSourceFormat,
+  inspectVmUploadFormat,
   normalizeVmSourceFormat,
   normalizeVmOperatingSystem,
   safeVmRuntimeFields,

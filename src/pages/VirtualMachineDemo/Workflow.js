@@ -7,6 +7,7 @@ import PageHeader from '@/components/PageHeader';
 import pageHeaderSvg from '@/utils/pageHeaderSvg';
 import { isLinuxQcow2QuickStart } from '@/utils/vmQuickStart';
 import { assertNoVmPasswordPayload, resolveVmPasswordReaderOptions } from '@/utils/vmLoginCredentials';
+import { normalizeStorageChoice } from '../../utils/vmCreationStorage';
 import CreateVm from './CreateVm';
 import { t } from './messages';
 import styles from './index.less';
@@ -42,7 +43,7 @@ export class VmCreateWorkflow extends PureComponent {
     if (this.props.clearSourceCredentials) this.props.clearSourceCredentials();
   }
 
-  loadCreationStorage = () => {
+  loadCreationStorage = (refreshCapability = false) => {
     if (this.state.quickStartSubmitting || this.state.quickStart?.serviceAlias) return;
     const context = identity(this.props);
     const source = this.props.sourceSummary;
@@ -51,18 +52,25 @@ export class VmCreateWorkflow extends PureComponent {
       (!this.props.isSourceScopeCurrent || this.props.isSourceScopeCurrent()) &&
       context.team === globalUtil.getCurrTeamName() && context.region === globalUtil.getCurrRegionName() &&
       String(context.application) === String(globalUtil.getAppID());
-    this.setState({ creationStorage: { status: 'loading', options: [] } });
+    const preserve = refreshCapability === true && this.state.creationStorage.status === 'ready';
+    this.setState({ creationStorage: preserve
+      ? { ...this.state.creationStorage, capabilityRefreshing: true }
+      : { status: 'loading', options: [] } });
     let settled = false;
     const finish = result => {
       if (!isActive()) return;
       settled = true;
       const options = (Array.isArray(result?.options) ? result.options : [])
-        .filter(option => option && typeof option.value === 'string' && typeof option.label === 'string')
-        .map(option => ({ value: option.value.slice(0, 128), label: option.label.slice(0, 256) }));
+        .map(normalizeStorageChoice).filter(Boolean);
       const status = result?.status === 'deferred' && result.reason === 'legacy-permission' ? 'deferred'
         : result?.status === 'ready' ? options.length ? 'ready' : 'empty'
         : result?.status === 'empty' ? 'empty' : 'failed';
-      this.setState({ creationStorage: { status, options: status === 'ready' ? options : [] } });
+      // A capability refresh failure invalidates old support, but does not
+      // revoke an already listed storage choice for ordinary VM creation.
+      this.setState(previous => ({ creationStorage: preserve && status === 'failed'
+        ? { status: 'ready', options: previous.creationStorage.options.map(option => ({ ...option,
+          snapshotCapability: { state: 'failed' } })), capabilityFailed: true }
+        : { status, options: status === 'ready' ? options : [] } }));
     };
     const request = this.props.dispatch({
       type: 'createApp/fetchVMCreationStorage',
@@ -74,6 +82,8 @@ export class VmCreateWorkflow extends PureComponent {
       if (!settled) finish({ status: 'failed' });
     }, () => finish({ status: 'failed' }));
   };
+
+  refreshSnapshotCapability = () => this.loadCreationStorage(true);
 
   create = values => {
     if (this.quickStartInFlight || this.sourceCollectionInFlight) return;
@@ -237,6 +247,7 @@ export class VmCreateWorkflow extends PureComponent {
         {this.state.quickStart ? this.renderQuickStart() : this.props.sourceSummary ? <CreateVm
           sourceSummary={this.props.sourceSummary} onBackToSource={this.props.onBackToSource}
           creationStorage={this.state.creationStorage} onRetryStorage={this.loadCreationStorage}
+          onStorageChange={this.refreshSnapshotCapability} onRetrySnapshotCapability={this.refreshSnapshotCapability}
           onCreate={this.create} onCancel={this.props.onCancel} submitting={this.state.quickStartSubmitting}
         /> : <Empty description={t('nativeSourceRequired')} />}
       </div>

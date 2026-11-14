@@ -61,7 +61,8 @@ function renderGuidance(locale, sshRequired = false, step = 0) {
   const shared = { react: React, antd: components, './messages': { t: translate }, './index.less': {},
     '@/utils/intl': { formatMessage: ({ id }) => teamMessages[id] || messages[id] || id } };
   const HelpLabel = load('HelpLabel.js', shared);
-  const CreateVm = load('CreateVm.js', { ...shared, './HelpLabel': HelpLabel, './state': require('./state') });
+  const Hint = load('../../components/VMStorageSnapshotHint/index.js', shared);
+  const CreateVm = load('CreateVm.js', { ...shared, '../../components/VMStorageSnapshotHint': Hint, './HelpLabel': HelpLabel, './state': require('./state') });
   const values = { cpu: 4, memory: 8, disk: 80, disk_volume_type: 'actual-platform-type' };
   const form = {
     getFieldDecorator: (name, options) => element => { if (!Object.hasOwn(values, name)) values[name] = options?.initialValue; return element; },

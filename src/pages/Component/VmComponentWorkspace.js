@@ -15,6 +15,7 @@ import Relation from './relation';
 import ComponentPlugin from './componentPlugin';
 import Overview from './overview';
 import VMProfilePanel from './component/Basic/VMProfilePanel';
+import VmSnapshots from './VmSnapshots';
 import { deriveVmWorkspaceData } from './vmComponentWorkspaceData';
 import { LEGACY_ADVANCED_TABS, normalizeVmComponentWorkspaceTab } from './vmComponentWorkspaceTabs';
 import { shouldRefreshVMProfileForVNC } from './vmProfileRefreshHelpers';
@@ -198,10 +199,13 @@ export class VmComponentWorkspace extends PureComponent {
       <VMProfilePanel {...profileProps} section="network" />
       {componentPermissions.isPort ? <Port {...this.props} vmWorkspace /> : <Alert type="info" showIcon message={text('portPermissionRequired')} />}
     </div>;
-    else if (tab === 'snapshots') content = <Card title={text('snapshotsTitle')} size="small">
-      <Empty description={text('snapshotNotConnected')} />
-      <p className={styles.note}>{text('snapshotBoundary')}</p>
-    </Card>;
+    else if (tab === 'snapshots') content = <VmSnapshots context={{ ...this.currentContext(), serviceId: appDetail?.service?.service_id || '' }}
+      capabilityRefreshToken={JSON.stringify([status, appDetail?.service?.min_cpu, appDetail?.service?.min_memory,
+        (Array.isArray(profileProps.vmProfile?.runtime?.disk_layout) ? profileProps.vmProfile.runtime.disk_layout : [])
+          .map(disk => [disk.volume_id, disk.disk_key, disk.volume_name, disk.read_only, disk.device_type]),
+        (Array.isArray(appDetail?.volumes) ? appDetail.volumes : [])
+          .map(disk => [disk.volume_id, disk.volume_name, disk.volume_type, disk.volume_capacity])])}
+      pollingEnabled={this.props.pollingEnabled} dispatch={this.props.dispatch} />;
     else if (tab === 'advancedSettings') content = this.renderAdvanced();
     else if (tab === 'rainbond-vm') content = vmWorkspacePlugins.some(plugin => isPluginBaseId(plugin, 'rainbond-vm'))
       ? <ComponentPlugin {...this.props} type="rainbond-vm" /> : <Empty description={text('monitorUnavailable')} />;

@@ -55,6 +55,7 @@ export default {
   'vmDemo.quickStartFirmware': 'Boot firmware',
   'vmDemo.sshUsernameRequired': 'Enter a Linux login username.',
   'vmDemo.sshUsernameInvalid': 'Enter a valid Linux account name of up to 32 characters.',
+  'vmDemo.sshUsernameRootUnsupported': 'Use a non-root user such as ubuntu to initialize this example image.',
   'vmDemo.sshPublicKeyRequired': 'Enter the SSH public key used to sign in.',
   'vmDemo.sshPublicKeyInvalid': 'Enter a valid single-line OpenSSH public key. Do not enter a private key or password.',
   'vmDemo.quickStartPlatformStorage': 'Choose available persistent storage after creation',
