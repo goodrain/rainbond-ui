@@ -5,7 +5,8 @@ const ERROR_CODES = new Set(['vm_snapshot_invalid_request', 'vm_snapshot_forbidd
   'vm_snapshot_dependency_unavailable', 'vm_snapshot_read_failed']);
 const ITEM_ERRORS = new Set(['vm_snapshot_native_failed', 'vm_snapshot_cleanup_outcome_pending',
   'vm_snapshot_create_outcome_pending', 'vm_snapshot_delete_outcome_pending',
-  'vm_snapshot_halt_outcome_pending', 'vm_snapshot_resume_outcome_pending']);
+  'vm_snapshot_halt_outcome_pending', 'vm_snapshot_resume_outcome_pending',
+  'vm_snapshot_identity_pending', 'vm_snapshot_identity_outcome_unknown']);
 
 function validSnapshotName(value) {
   return typeof value === 'string' && value.length <= 253 && SNAPSHOT_NAME.test(value);
@@ -57,6 +58,7 @@ function projectSnapshot(value) {
   if (Object.prototype.hasOwnProperty.call(value, 'error_code')) {
     if (typeof value.error_code !== 'string' || (value.error_code && !ITEM_ERRORS.has(value.error_code))) invalidSnapshotResponse();
     if (value.error_code) item.error_code = value.error_code;
+    if (['vm_snapshot_identity_pending', 'vm_snapshot_identity_outcome_unknown'].includes(value.error_code) && item.ready_to_use) invalidSnapshotResponse();
   }
   if (!Array.isArray(value.disks)) invalidSnapshotResponse();
   item.disks = value.disks.map(disk => fields(disk, { volume_id: 'number', disk_key: 'string', role: 'string',

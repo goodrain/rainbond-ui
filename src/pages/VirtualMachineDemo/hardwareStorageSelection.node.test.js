@@ -44,6 +44,13 @@ const code = babel.transformSync(fs.readFileSync(filename, 'utf8'), {
 }).code;
 const exportsObject = {};
 vm.runInNewContext(code, { exports: exportsObject, require: name => {
+  if (name === '../../components/VMStorageSnapshotHint') {
+    const hintFile = path.resolve(__dirname, '../../components/VMStorageSnapshotHint/index.js');
+    const hintCode = babel.transformSync(fs.readFileSync(hintFile, 'utf8'), { filename: hintFile, babelrc: false, configFile: false,
+      presets: [[require('@umijs/deps/compiled/babel/preset-env').default, { targets: { node: 'current' } }], require('@umijs/deps/compiled/babel/preset-react').default] }).code;
+    const hintExports = {}; vm.runInNewContext(hintCode, { exports: hintExports, require: dependency => dependency === 'react' ? React : dependency === 'antd' ? antd : { formatMessage: ({ id }) => id } });
+    return hintExports.default;
+  }
   if (name === 'react') return React;
   if (name === 'antd') return antd;
   if (name === './messages') return { t: key => key };
@@ -146,6 +153,22 @@ test('legacy deferred storage stays visibly unconfirmed, allows Next and submits
   await flush();
   assert.equal(fixture.submissions.length, 1);
   assert.equal(Object.hasOwn(fixture.submissions[0], 'disk_volume_type'), false);
+});
+
+test('a sole actual storage defaults safely and the same unsupported hint survives confirmation', async () => {
+  const fixture = await mounted({ status: 'ready', options: [{ value: 'pool-a', label: 'Real storage',
+    snapshotCapability: { state: 'supported', reasonCode: 'native_ready' },
+    managedSnapshotCapability: { state: 'unsupported', reasonCode: 'managed_driver_unsupported' } }] });
+  assert.equal(fixture.instance.props.form.getFieldValue('disk_volume_type'), 'pool-a');
+  assert.ok(fixture.root.textContent.includes('vmStorageSnapshot.creation.unsupported'));
+  act(() => fixture.instance.next());
+  await flush();
+  assert.equal(fixture.instance.state.step, 1);
+  assert.ok(fixture.root.textContent.includes('vmStorageSnapshot.creation.unsupported'));
+  assert.equal(button(fixture.root, 'createAndStart').disabled, false);
+  act(() => fixture.instance.submit());
+  await flush();
+  assert.equal(fixture.submissions[0].disk_volume_type, 'pool-a');
 });
 
 test('four native preset choices update the canonical numeric fields and survive review/back with disk and storage', async () => {

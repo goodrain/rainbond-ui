@@ -92,10 +92,12 @@ function loadProduction(relative, dependencies = {}) {
     exports: exported, URL,
     require(name) {
       if (Object.hasOwn(dependencies, name)) return dependencies[name];
+      if (name === '../../components/VMStorageSnapshotHint') return loadProduction('components/VMStorageSnapshotHint/index.js', dependencies).default;
       if (name === 'react') return React;
       if (name === 'dva') return { connect: () => Component => Component };
       if (name === 'dva/router') return { routerRedux: { push: value => ({ type: 'navigate', value }) } };
       if (name === '@/utils/intl') return { formatMessage: ({ id }) => id };
+      if (name.endsWith('/vmCreationStorage')) return require('../../utils/vmCreationStorage');
       if (name === '@/utils/vmQuickStart') return quickStart;
       if (name === './messages') return { t: key => `vmDemo.${key}` };
       if (name.endsWith('.less')) return {};

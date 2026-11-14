@@ -1,5 +1,30 @@
 const TEMPORARY_VOLUME_TYPES = new Set(['memoryfs', 'config-file']);
 
+// Only an explicit, internally consistent authority result can claim support.
+function normalizeSnapshotCapability(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return { state: 'unknown' };
+  const state = ['supported', 'unsupported', 'unknown'].includes(value.status) &&
+    value.supported === (value.status === 'supported') ? value.status : 'unknown';
+  return { state, ...(typeof value.reason_code === 'string' && /^[a-z][a-z0-9_]{0,127}$/.test(value.reason_code)
+    ? { reasonCode: value.reason_code } : {}) };
+}
+
+function normalizeStorageChoice(option) {
+  if (!option || typeof option.value !== 'string' || typeof option.label !== 'string') return null;
+  return { value: option.value.slice(0, 128), label: option.label.slice(0, 256),
+    ...(option.snapshotCapability ? { snapshotCapability: {
+      state: ['supported', 'unsupported', 'unknown'].includes(option.snapshotCapability.state) ? option.snapshotCapability.state : 'unknown',
+      ...(typeof option.snapshotCapability.reasonCode === 'string' && /^[a-z][a-z0-9_]{0,127}$/.test(option.snapshotCapability.reasonCode)
+        ? { reasonCode: option.snapshotCapability.reasonCode } : {})
+    } } : {}),
+    ...(option.managedSnapshotCapability ? { managedSnapshotCapability: {
+      state: ['supported', 'unsupported', 'unknown'].includes(option.managedSnapshotCapability.state)
+        ? option.managedSnapshotCapability.state : 'unknown',
+      ...(typeof option.managedSnapshotCapability.reasonCode === 'string' && /^[a-z][a-z0-9_]{0,127}$/.test(option.managedSnapshotCapability.reasonCode)
+        ? { reasonCode: option.managedSnapshotCapability.reasonCode } : {})
+    } } : {}) };
+}
+
 function normalizeVmCreationStorageOptions(options) {
   const seen = new Set();
   return (Array.isArray(options) ? options : []).reduce((result, option) => {
@@ -9,7 +34,11 @@ function normalizeVmCreationStorageOptions(options) {
       option.enable === false || seen.has(value)) return result;
     seen.add(value);
     const display = typeof option.name_show === 'string' ? option.name_show.trim() : '';
-    result.push({ value, label: display && !/[\u0000-\u001f\u007f-\u009f]/.test(display) ? display.slice(0, 256) : value });
+    result.push({ value, label: display && !/[\u0000-\u001f\u007f-\u009f]/.test(display) ? display.slice(0, 256) : value,
+      ...(Object.prototype.hasOwnProperty.call(option, 'snapshot_capability')
+        ? { snapshotCapability: normalizeSnapshotCapability(option.snapshot_capability) } : {}),
+      ...(Object.prototype.hasOwnProperty.call(option, 'managed_snapshot_capability')
+        ? { managedSnapshotCapability: normalizeSnapshotCapability(option.managed_snapshot_capability) } : {}) });
     return result;
   }, []);
 }
@@ -110,6 +139,8 @@ function requestVmCreationStorage(request, url, body, handleError, currentScope)
 }
 
 module.exports = {
+  normalizeSnapshotCapability,
+  normalizeStorageChoice,
   fetchVmCreationStorage,
   normalizeVmCreationStorageOptions,
   requestVmCreationStorage

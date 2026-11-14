@@ -1,4 +1,6 @@
 import React, { PureComponent } from 'react';
+import VMStorageSnapshotHint from '../../components/VMStorageSnapshotHint';
+import VmSnapshotCreate from './VmSnapshotCreate';
 import { Alert, Badge, Button, Card, Descriptions, Empty, Spin, Table } from 'antd';
 import { connect } from 'dva';
 import { formatMessage } from '@/utils/intl';
@@ -7,6 +9,7 @@ import { snapshotContextKey, validSnapshotName } from '../../utils/vmSnapshotRea
 import { createComponentPollingGuard, getComponentPollingDelay } from './componentPolling';
 
 const text = key => formatMessage({ id: `componentOverview.vmWorkspace.snapshotRead.${key}` });
+const capText = key => formatMessage({ id: `componentOverview.vmStorageSnapshot.${key}` });
 const PHASES = ['prepared', 'stopping', 'creating', 'snapshotting', 'manifest-acked', 'resuming',
   'ready', 'failed', 'cancelling', 'cancelled', 'deleting', 'deleted'];
 const terminal = phase => ['ready', 'failed', 'cancelled', 'deleted'].includes(phase);
@@ -14,12 +17,14 @@ const failedRead = { kind: 'failed', status: 0, code: '', retryable: true };
 
 export class VmSnapshots extends PureComponent {
   state = { contextKey: '', listStatus: 'loading', items: null, page: 1, pageSize: 20, total: 0,
-    listRefreshing: false, listError: null, selectedName: '', detail: null, detailStatus: 'idle', detailError: null, detailRefreshing: false };
+    listRefreshing: false, listError: null, selectedName: '', detail: null, detailStatus: 'idle', detailError: null, detailRefreshing: false,
+    capability: null, capabilityStatus: 'loading', capabilityRefreshing: false, capabilityError: null };
   mounted = false;
   timers = { list: null, detail: null };
   failures = { list: 0, detail: 0 };
   listGuard = createComponentPollingGuard(() => this.enabled(), () => this.identity());
   detailGuard = createComponentPollingGuard(() => this.enabled(), () => `${this.identity()}:${this.state.selectedName}`);
+  capabilityGuard = createComponentPollingGuard(() => this.enabled(), () => this.identity());
 
   identity = () => snapshotContextKey(this.props.context);
   enabled = () => {
@@ -39,6 +44,10 @@ export class VmSnapshots extends PureComponent {
     if (snapshotContextKey(previous.context) !== this.identity() ||
         (previous.pollingEnabled !== false) !== (this.props.pollingEnabled !== false) ||
         previous.visible !== this.props.visible) this.reset();
+    else if (previous.capabilityRefreshToken !== this.props.capabilityRefreshToken) {
+      this.capabilityGuard.invalidate();
+      this.setState({ capability: null, capabilityStatus: 'loading', capabilityRefreshing: false, capabilityError: null }, this.readCapability);
+    }
   }
   componentWillUnmount() {
     this.mounted = false;
@@ -52,14 +61,15 @@ export class VmSnapshots extends PureComponent {
   };
   invalidate = () => {
     this.clearTimer('list'); this.clearTimer('detail');
-    this.listGuard.invalidate(); this.detailGuard.invalidate();
+    this.listGuard.invalidate(); this.detailGuard.invalidate(); this.capabilityGuard.invalidate();
     this.failures = { list: 0, detail: 0 };
   };
   reset = () => {
     this.invalidate();
     if (!this.mounted) return;
     this.setState({ contextKey: this.identity(), listStatus: 'loading', items: null, page: 1, total: 0,
-      listRefreshing: false, listError: null, selectedName: '', detail: null, detailStatus: 'idle', detailError: null, detailRefreshing: false },
+      listRefreshing: false, listError: null, selectedName: '', detail: null, detailStatus: 'idle', detailError: null, detailRefreshing: false,
+      capability: null, capabilityStatus: 'loading', capabilityRefreshing: false, capabilityError: null },
     () => { if (this.enabled()) this.read('list'); });
   };
   schedule = (flow, data, error) => {
@@ -108,8 +118,65 @@ export class VmSnapshots extends PureComponent {
       const pending = this.props.dispatch({ type: `vmSnapshotReads/${flow}`, payload,
         shouldApply: request.isCurrent, callback: data => finish(data), handleError: error => finish(null, error) });
       if (pending?.then) pending.then(() => { if (!finished) finish(null, failedRead); }, () => finish(null, failedRead));
+      if (flow === 'list') this.readCapability();
       return pending;
     } catch (_) { finish(null, failedRead); return undefined; }
+  };
+  readCapability = () => {
+    if (!this.enabled()) return undefined;
+    const request = this.capabilityGuard.begin('capability');
+    if (!request) return undefined;
+    const context = { ...this.props.context };
+    this.setState({ capabilityRefreshing: true });
+    let finished = false;
+    const finish = (data, error) => {
+      if (finished || !request.isCurrent()) return;
+      finished = true;
+      if (!request.complete()) return;
+      this.setState({ capabilityRefreshing: false, capabilityError: error || null,
+        capabilityStatus: error ? error.status === 404 || error.kind === 'notFound' ? 'unknown' : 'failed' : 'ready',
+        ...(data ? { capability: data } : error && ['forbidden', 'notFound'].includes(error.kind) ? { capability: null } : {}) });
+    };
+    try {
+      const pending = this.props.dispatch({ type: 'vmSnapshotReads/capability',
+        payload: { team_name: context.team, region_name: context.region, app_alias: context.alias },
+        shouldApply: request.isCurrent, callback: data => finish(data), handleError: error => finish(null, error) });
+      if (pending?.then) pending.then(() => { if (!finished) finish(null, failedRead); }, () => finish(null, failedRead));
+      return pending;
+    } catch (_) { finish(null, failedRead); return undefined; }
+  };
+  renderCapability = () => {
+    const { capability, capabilityStatus, capabilityRefreshing } = this.state;
+    const current = this.state.contextKey === this.identity() && this.enabled();
+    const state = !current ? 'unknown' : capabilityRefreshing ? 'loading'
+      : capabilityStatus === 'ready' ? capability.status : capabilityStatus;
+    const stale = !!capability && (capabilityRefreshing || capabilityStatus !== 'ready');
+    const label = row => row.disk_key || row.key;
+    return <section aria-label={capText('currentDisks')}>
+      <VMStorageSnapshotHint mode="component" state={state} onRetry={current ? this.readCapability : undefined}
+        refreshing={capabilityRefreshing} />
+      {current && capability && <div>
+        {stale ? <p>{capText('lastObservation')}</p> : <p>{capability.message} {capText(capability.complete ? 'membershipComplete' : 'membershipUnknown')}</p>}
+        <Table size="small" rowKey={(row, index) => `${row.key}:${index}`} pagination={false} dataSource={capability.volumes}
+          locale={{ emptyText: capText('noParticipants') }} columns={[
+            { title: capText('disk'), key: 'disk', render: (_, row) => label(row) },
+            { title: capText('role'), dataIndex: 'role', render: value => capText(value === 'root' ? 'rootDisk' : value === 'data' ? 'dataDisk' : 'unknownDisk') },
+            { title: capText('readOnly'), dataIndex: 'read_only', render: value => text(value ? 'yes' : 'no') },
+            { title: capText('storage'), dataIndex: 'storage_class', render: value => value || text('notReported') },
+            { title: capText('result'), dataIndex: 'status', render: value => <Badge status={value === 'supported' ? 'success' : value === 'unsupported' ? 'warning' : 'default'} text={capText(`decision.${value}`)} /> },
+            { title: capText('reason'), dataIndex: 'message' }
+          ]} />
+        {capability.excluded_volumes.length > 0 && <div>
+          <p>{capText('excluded')}</p>
+          <Table size="small" rowKey={(row, index) => `${row.key}:${index}`} pagination={false} dataSource={capability.excluded_volumes}
+            columns={[
+              { title: capText('disk'), dataIndex: 'key' },
+              { title: capText('reason'), dataIndex: 'reason_code', render: value => capText(['read_only_installation_media', 'auxiliary_media', 'detached_retained_volume'].includes(value) ? `excludedReason.${value}` : 'excludedReason.unknown') }
+            ]} />
+        </div>}
+        <p>{capText('advisory')}</p>
+      </div>}
+    </section>;
   };
   select = (expanded, item) => {
     if (!this.enabled() || this.state.contextKey !== this.identity() ||
@@ -166,6 +233,11 @@ export class VmSnapshots extends PureComponent {
     return <Card title={formatMessage({ id: 'componentOverview.vmWorkspace.snapshotsTitle' })} size="small"
       extra={<Button size="small" icon="reload" loading={listRefreshing} disabled={!current} onClick={() => this.read('list')}>{text('refresh')}</Button>}>
       <p>{text('readOnlyScope')}</p>
+      {this.renderCapability()}
+      <VmSnapshotCreate context={this.props.context} actorId={this.props.snapshotActorId} enabled={current}
+        capabilityReady={current && !this.state.capabilityRefreshing && this.state.capabilityStatus === 'ready' &&
+          this.state.capability?.supported === true && this.state.capability?.complete === true}
+        dispatch={this.props.dispatch} onAccepted={() => this.read('list')} />
       {!current || listStatus === 'loading' ? <Spin /> : ['ready', 'empty'].includes(listStatus) ?
         <Table size="small" rowKey="snapshot_name" loading={listRefreshing} dataSource={items}
           locale={{ emptyText: <Empty description={text('empty')} /> }}
@@ -182,4 +254,4 @@ export class VmSnapshots extends PureComponent {
     </Card>;
   }
 }
-export default connect()(VmSnapshots);
+export default connect(({ user }) => ({ snapshotActorId: user?.currentUser?.user_id }))(VmSnapshots);

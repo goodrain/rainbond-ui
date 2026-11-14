@@ -30,6 +30,7 @@ vm.runInNewContext(nativeCode, {
   exports: nativeExports,
   URL,
   require(name) {
+    if (name.endsWith('/vmCreationStorage')) return require('../../utils/vmCreationStorage');
     if (name.endsWith('/vmLoginCredentials')) return require('../../utils/vmLoginCredentials');
     if (name === 'react') return React;
     if (name === 'dva') return { connect: () => Component => Component };
@@ -66,6 +67,7 @@ function workflowHarness(extra = {}) {
   vm.runInNewContext(code, {
     exports,
     require(name) {
+    if (name.endsWith('/vmCreationStorage')) return require('../../utils/vmCreationStorage');
     if (name.endsWith('/vmLoginCredentials')) return require('../../utils/vmLoginCredentials');
       if (name === 'react') return React;
       if (name === 'dva') return { connect: () => Component => Component };

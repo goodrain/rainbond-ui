@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import VMStorageSnapshotHint from '../../components/VMStorageSnapshotHint';
 import { Alert, Button, Card, Descriptions, Form, Input, InputNumber, Radio, Select, Steps } from 'antd';
 import { formatMessage } from '@/utils/intl';
 import { createValues } from './state';
@@ -18,6 +19,14 @@ const FORM_ITEM_LAYOUT = { labelCol: { xs: { span: 24 }, sm: { span: 3 } }, wrap
 class CreateVm extends PureComponent {
   state = { step: 0, validationError: '', resourcePreset: '4c8g' };
 
+  componentDidMount() { this.selectOnlyStorage(); }
+
+  selectOnlyStorage = () => {
+    const storage = this.props.creationStorage;
+    if (storage?.status === 'ready' && storage.options.length === 1 && !this.props.form.getFieldValue('disk_volume_type'))
+      this.props.form.setFieldsValue({ disk_volume_type: storage.options[0].value });
+  };
+
   componentDidUpdate(previous) {
     if (previous.sourceSummary !== this.props.sourceSummary) {
       this.props.form.resetFields(['disk_volume_type']);
@@ -28,7 +37,7 @@ class CreateVm extends PureComponent {
       if (selected && (storage?.status !== 'ready' || !storage.options.some(option => option.value === selected))) {
         this.props.form.resetFields(['disk_volume_type']);
         this.setState({ step: 0, validationError: '' });
-      }
+      } else if (previous.creationStorage?.status !== 'ready') this.selectOnlyStorage();
     }
     if (this.state.resourcePreset !== 'custom') {
       const preset = VM_RESOURCE_PRESETS.find(item => item.cpu === this.props.form.getFieldValue('cpu') && item.memory === this.props.form.getFieldValue('memory'));
@@ -95,6 +104,10 @@ class CreateVm extends PureComponent {
     const selectedStorage = creationStorage.status === 'ready'
       ? creationStorage.options.find(option => option.value === value('disk_volume_type')) : null;
     const storageSummary = selectedStorage?.label || t(creationStorage.status === 'deferred' ? 'creationStorageDeferred' : 'storageRequired');
+    const snapshotState = creationStorage.capabilityRefreshing ? 'loading'
+      : creationStorage.capabilityFailed ? 'failed' : selectedStorage?.managedSnapshotCapability?.state || 'unknown';
+    const snapshotHint = <VMStorageSnapshotHint selected={!!selectedStorage} state={snapshotState}
+      onRetry={this.props.onRetrySnapshotCapability} refreshing={creationStorage.capabilityRefreshing} />;
     if (!source) return <Alert type="info" showIcon message={t('nativeSourceRequired')} />;
     return (
       <div className={`${styles.creation} ${step === 1 ? styles.creationReview : styles.creationCompact}`}>
@@ -140,6 +153,7 @@ class CreateVm extends PureComponent {
                     creationStorage.status === 'ready' && creationStorage.options.some(option => option.value === selected)
                       ? undefined : t('storageRequired')) }]
                 })(<Select loading={creationStorage.status === 'loading'} disabled={creationStorage.status !== 'ready' || submitting}
+                  onChange={this.props.onStorageChange}
                   placeholder={t(creationStorage.status === 'loading' ? 'creationStorageLoading' : 'storageRequired')}>
                   {creationStorage.options.map(option => <Select.Option key={option.value} value={option.value}>{option.label}</Select.Option>)}
                 </Select>)}
@@ -150,6 +164,9 @@ class CreateVm extends PureComponent {
                 </div>}
               </Item>
               <Item {...FORM_ITEM_LAYOUT} label=" " colon={false}><span className={styles.hint}>{t('dataDiskAfterCreation')}</span></Item>
+              <Item {...FORM_ITEM_LAYOUT} label=" " colon={false}>
+                {snapshotHint}
+              </Item>
             </Card>
           </div>
           {step === 1 && <div>
@@ -162,6 +179,7 @@ class CreateVm extends PureComponent {
               <Descriptions.Item label={t('dataDisk')}>—</Descriptions.Item>
               <Descriptions.Item label={t('network')}>{t('defaultNetwork')}</Descriptions.Item>
             </Descriptions>
+            <div className={styles.spaced}>{snapshotHint}</div>
             {source.sshRequired && <Descriptions column={1} bordered size="small" className={styles.spaced}>
               <Descriptions.Item label={t('loginMethod')}>{t(source.loginMethod === 'password' ? 'loginMethodPassword' : 'loginMethodKey')}</Descriptions.Item>
               <Descriptions.Item label={t('sshUsername')}>{source.sshUsername}</Descriptions.Item>

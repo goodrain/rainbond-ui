@@ -20,7 +20,8 @@ const code = babel.transformSync(fs.readFileSync(filename, 'utf8'), {
 }).code;
 const exportsObject = {};
 vm.runInNewContext(code, { exports: exportsObject, require: name => {
-  if (name.endsWith('/vmLoginCredentials')) return require('../../utils/vmLoginCredentials');
+  if (name.endsWith('/vmCreationStorage')) return require('../../utils/vmCreationStorage');
+    if (name.endsWith('/vmLoginCredentials')) return require('../../utils/vmLoginCredentials');
   if (name === 'react') return React;
   if (name === 'dva') return { connect: () => Component => Component };
   if (name === 'antd') return { message: { warning() {} }, Button, Alert: Box, Descriptions: Box, Empty: Box, Select: Box, Spin: Box, Steps: Box };
@@ -99,6 +100,26 @@ test('failed pre-creation storage cannot invoke source collection or real creati
   h.instance.create({ cpu: 4, memory: 8, disk: 80, disk_volume_type: 'invented-type' });
   assert.equal(collected, false);
   assert.equal(h.writes.length, 0);
+});
+
+test('capability refresh keeps VM creation available, suppresses stale support and preserves scope generations', () => {
+  const h = harness();
+  h.reads[0].callback({ status: 'ready', options: [{ value: 'pool-a', label: 'A',
+    snapshotCapability: { state: 'supported', reasonCode: 'ready', private: 'not-public' } }] });
+  assert.equal(h.instance.state.creationStorage.options[0].snapshotCapability.state, 'supported');
+  assert.equal(JSON.stringify(h.instance.state).includes('not-public'), false);
+  h.instance.refreshSnapshotCapability();
+  assert.equal(h.instance.state.creationStorage.status, 'ready');
+  assert.equal(h.instance.state.creationStorage.capabilityRefreshing, true);
+  h.instance.refreshSnapshotCapability();
+  h.reads[1].callback({ status: 'ready', options: storage });
+  assert.equal(h.instance.state.creationStorage.capabilityRefreshing, true);
+  h.reads[2].callback({ status: 'failed', options: [] });
+  assert.equal(h.instance.state.creationStorage.status, 'ready');
+  assert.equal(h.instance.state.creationStorage.capabilityFailed, true);
+  assert.equal(h.instance.state.creationStorage.options[0].snapshotCapability.state, 'failed');
+  h.instance.create({ cpu: 4, memory: 8, disk: 80, disk_volume_type: 'pool-a' });
+  assert.equal(h.writes.length, 1, 'failed snapshot evidence cannot block ordinary VM creation');
 });
 
 test('a failed creation result without an alias still exposes the original cleanup exit without any API action', () => {

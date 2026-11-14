@@ -200,6 +200,11 @@ export class VmComponentWorkspace extends PureComponent {
       {componentPermissions.isPort ? <Port {...this.props} vmWorkspace /> : <Alert type="info" showIcon message={text('portPermissionRequired')} />}
     </div>;
     else if (tab === 'snapshots') content = <VmSnapshots context={{ ...this.currentContext(), serviceId: appDetail?.service?.service_id || '' }}
+      capabilityRefreshToken={JSON.stringify([status, appDetail?.service?.min_cpu, appDetail?.service?.min_memory,
+        (Array.isArray(profileProps.vmProfile?.runtime?.disk_layout) ? profileProps.vmProfile.runtime.disk_layout : [])
+          .map(disk => [disk.volume_id, disk.disk_key, disk.volume_name, disk.read_only, disk.device_type]),
+        (Array.isArray(appDetail?.volumes) ? appDetail.volumes : [])
+          .map(disk => [disk.volume_id, disk.volume_name, disk.volume_type, disk.volume_capacity])])}
       pollingEnabled={this.props.pollingEnabled} dispatch={this.props.dispatch} />;
     else if (tab === 'advancedSettings') content = this.renderAdvanced();
     else if (tab === 'rainbond-vm') content = vmWorkspacePlugins.some(plugin => isPluginBaseId(plugin, 'rainbond-vm'))

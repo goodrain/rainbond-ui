@@ -7,6 +7,8 @@ const React = require('react');
 const babel = require('@umijs/deps/compiled/babel/core');
 const helpers = require('../../utils/vmSnapshotRead');
 const polling = require('./componentPolling');
+const capabilityHelpers = require('../../utils/vmExistingSnapshotCapability');
+const createHelpers = require('../../utils/vmSnapshotCreate');
 
 function load(relative, dependencies, globals = {}) {
   const filename = path.resolve(__dirname, '../..', relative);
@@ -29,6 +31,11 @@ function item(name = 'point-a', overrides = {}) {
 }
 const ok = bean => ({ status_code: 200, business_code: 200, bean });
 const list = (items = [item()], extra = {}) => ok({ items, page: 1, page_size: 20, total: items.length, ...extra });
+function currentCapability(extra = {}) {
+  return { supported: true, status: 'supported', reason_code: 'ready', message: 'Current mapped A', operation: 'create_snapshot', complete: true,
+    volumes: [{ key: 'manual42', disk_key: 'root', role: 'root', read_only: false, supported: true, status: 'supported', reason_code: 'ready', message: 'A verified', storage_class: 'fast' }],
+    excluded_volumes: [], ...extra };
+}
 function deferred() { let resolve; const promise = new Promise(done => { resolve = done; }); return { promise, resolve }; }
 async function execute(iterator) {
   let step = iterator.next();
@@ -40,33 +47,40 @@ async function execute(iterator) {
 }
 function harness() {
   const scope = { team: 'team-a', region: 'region-a', application: '42', alias: 'vm-a', serviceId: 'service-a' };
-  const requests = [], actions = [], pending = [], timers = new Map(), listeners = new Set();
+  const requests = [], actions = [], pending = [], capabilityRequests = [], capabilityActions = [], capabilityPending = [], timers = new Map(), listeners = new Set();
   let timerId = 0;
   const document = { hidden: false, addEventListener: (_, callback) => listeners.add(callback), removeEventListener: (_, callback) => listeners.delete(callback) };
-  const h = { scope, requests, actions, pending, timers, listeners, document,
+  const h = { scope, requests, actions, pending, capabilityRequests, capabilityActions, capabilityPending, timers, listeners, document,
+    capabilityRequest: async () => ok(currentCapability()),
     request: async url => url.includes('/vm-snapshots/') ? ok(item()) : list() };
   const services = load('services/vmSnapshots.js', {
-    '../../config/api.config': { baseUrl: '' }, '../utils/vmSnapshotRead': helpers,
-    '../utils/request': (url, options) => { requests.push({ url, options }); return h.request(url, options); }
+    '../../config/api.config': { baseUrl: '' }, '../utils/vmSnapshotRead': helpers, '../utils/vmSnapshotCreate': createHelpers,
+    '../utils/request': (url, options) => {
+      if (url.endsWith('/vm-snapshot-capability')) { capabilityRequests.push({ url, options }); return h.capabilityRequest(url, options); }
+      requests.push({ url, options }); return h.request(url, options); }
   });
   h.services = services;
-  const model = load('models/vmSnapshotReads.js', { '../services/vmSnapshots': services, '../utils/vmSnapshotRead': helpers }).default;
+  const model = load('models/vmSnapshotReads.js', { '../services/vmSnapshots': services, '../utils/vmSnapshotRead': helpers,
+    '../utils/vmSnapshotCreate': createHelpers, '../utils/vmExistingSnapshotCapability': capabilityHelpers }).default;
   const globalUtil = { getCurrTeamName: () => scope.team, getCurrRegionName: () => scope.region,
     getAppID: () => scope.application, getSlidePanelComponentID: () => scope.alias };
   const Component = load('pages/Component/VmSnapshots.js', {
     react: React, antd: { Alert: 'Alert', Badge: 'Badge', Button: 'Button', Card: 'Card', Descriptions: { Item: 'D' }, Empty: 'Empty', Spin: 'Spin', Table: 'Table' },
+    './VmSnapshotCreate': 'SnapshotCreate',
     dva: { connect: () => component => component }, '@/utils/intl': { formatMessage: ({ id }) => id },
-    '@/utils/global': globalUtil, '../../utils/vmSnapshotRead': helpers, './componentPolling': polling
+    '@/utils/global': globalUtil, '../../utils/vmSnapshotRead': helpers, '../../components/VMStorageSnapshotHint': load('components/VMStorageSnapshotHint/index.js', { react: React, antd: { Alert: 'Alert', Button: 'Button' }, '@/utils/intl': { formatMessage: ({ id }) => id } }).default, './componentPolling': polling
   }, { document, setTimeout(callback, delay) { const id = ++timerId; timers.set(id, { callback, delay }); return id; }, clearTimeout: id => timers.delete(id) }).VmSnapshots;
   const panel = new Component({ context: { ...scope }, pollingEnabled: true, dispatch: action => {
-    actions.push(action);
+    const isCapability = action.type.endsWith('/capability');
+    (isCapability ? capabilityActions : actions).push(action);
     const read = execute(model.effects[action.type.split('/')[1]](action, { call: (fn, ...args) => ({ fn, args }) }));
-    pending.push(read);
+    (isCapability ? capabilityPending : pending).push(read);
     return read;
   } });
   panel.setState = (change, callback) => { panel.state = { ...panel.state, ...change }; if (callback) callback(); };
   h.panel = panel;
   h.settle = async () => { await pending[pending.length - 1]; };
+  h.settleCapability = async () => { await capabilityPending[capabilityPending.length - 1]; };
   h.mount = async () => { panel.componentDidMount(); await h.settle(); };
   h.advance = async () => {
     const [id, timer] = timers.entries().next().value;
@@ -108,6 +122,78 @@ test('the real panel/model/service chain reads the frozen list and detail envelo
   h.panel.componentWillUnmount();
 });
 
+test('current VM checks consume actual Go complete-set outputs without hiding unknown, readonly or excluded disks', async () => {
+  const cases = require('../../utils/fixtures/vmExistingSnapshotCapability.go.json');
+  for (const [name, data] of Object.entries(cases)) {
+    const h = harness();
+    h.capabilityRequest = async () => ok(data);
+    await h.mount(); await h.settleCapability();
+    assert.equal(h.panel.state.capabilityStatus, 'ready', name);
+    assert.equal(h.panel.state.capability.status, data.status, name);
+    assert.equal(h.panel.state.capability.complete, data.complete, name);
+    assert.equal(h.panel.state.capability.volumes.length, data.volumes.length, name);
+    assert.equal(h.panel.state.capability.excluded_volumes.length, data.excluded_volumes.length, name);
+    assert.deepEqual(Array.from(h.panel.state.capability.volumes, row => row.read_only), data.volumes.map(row => row.read_only));
+    const tables = elements(h.panel.renderCapability()).filter(node => node.type === 'Table');
+    assert.equal(tables[0].props.dataSource.length, data.volumes.length);
+    assert.equal(h.capabilityRequests[0].url, '/console/teams/team-a/apps/vm-a/vm-snapshot-capability');
+    assert.deepEqual(Object.keys(h.capabilityRequests[0].options.params), ['region_name']);
+    assert.equal(h.capabilityRequests[0].options.method, 'get');
+    h.panel.componentWillUnmount();
+  }
+});
+
+test('capability refresh failure invalidates prior support, missing endpoint stays unknown and does not break record reads', async () => {
+  const h = harness(); await h.mount(); await h.settleCapability();
+  assert.equal(h.panel.state.capability.supported, true);
+  h.capabilityRequest = async () => undefined;
+  await h.panel.readCapability();
+  assert.equal(h.panel.state.capabilityStatus, 'failed');
+  const hint = elements(h.panel.renderCapability()).find(node => node.props?.mode === 'component');
+  assert.equal(hint.props.state, 'failed');
+  h.capabilityRequest = async () => ({ status_code: 404, business_code: 404 });
+  await h.panel.readCapability();
+  assert.equal(h.panel.state.capabilityStatus, 'unknown');
+  assert.equal(h.panel.state.listStatus, 'ready');
+  h.capabilityRequest = async () => ok(currentCapability({ supported: true, complete: false }));
+  await h.panel.readCapability();
+  assert.equal(h.panel.state.capabilityStatus, 'failed');
+  h.panel.componentWillUnmount();
+});
+
+test('capability has one in-flight read and a storage refresh token invalidates older responses', async () => {
+  const h = harness(); const slow = deferred();
+  h.capabilityRequest = () => slow.promise;
+  await h.mount();
+  const old = h.capabilityPending[0];
+  h.panel.readCapability(); h.panel.readCapability();
+  assert.equal(h.capabilityRequests.length, 1);
+  h.capabilityRequest = async () => ok(currentCapability({ supported: false, status: 'unknown', complete: false,
+    reason_code: 'vm_changed_during_check', message: 'Changed' }));
+  await h.update({ capabilityRefreshToken: 'new-disk-set' }); await h.settleCapability();
+  slow.resolve(ok(currentCapability())); await old;
+  assert.equal(h.panel.state.capability.status, 'unknown');
+  assert.equal(h.panel.state.capability.reason_code, 'vm_changed_during_check');
+  const before = h.capabilityRequests.length;
+  h.hide(true); h.panel.readCapability();
+  assert.equal(h.capabilityRequests.length, before);
+  h.panel.componentWillUnmount();
+});
+
+test('a late capability response cannot cross the service identity or continue after unmount', async () => {
+  const h = harness(); const slow = deferred();
+  h.capabilityRequest = () => slow.promise; await h.mount();
+  const old = h.capabilityPending[0];
+  h.scope.alias = 'vm-b'; h.scope.serviceId = 'service-b';
+  h.capabilityRequest = async () => ok(currentCapability({ message: 'B current' }));
+  await h.update({ context: { ...h.scope } }); await h.settleCapability();
+  slow.resolve(ok(currentCapability({ message: 'Old A' }))); await old;
+  assert.equal(h.panel.state.capability.message, 'B current');
+  h.panel.componentWillUnmount();
+  const before = h.capabilityRequests.length; h.panel.readCapability();
+  assert.equal(h.capabilityRequests.length, before);
+});
+
 test('empty, malformed, accepted, unsupported, forbidden, not found, conflict and read failures remain distinct and retryable by user', async () => {
   for (const [response, expected] of [
     [list([]), 'empty'], [ok({}), 'failed'], [{ status_code: 202, business_code: 202, bean: {} }, 'failed'],
@@ -124,6 +210,24 @@ test('empty, malformed, accepted, unsupported, forbidden, not found, conflict an
       h.request = async () => list(); await h.panel.read('list');
       assert.equal(h.panel.state.listStatus, 'ready');
     }
+    h.panel.componentWillUnmount();
+  }
+});
+
+test('v1.1 identity pending and unknown remain visible and never become ready snapshots', async () => {
+  for (const code of ['vm_snapshot_identity_pending', 'vm_snapshot_identity_outcome_unknown']) {
+    const h = harness();
+    const row = item('point-a', { phase: 'stopping', error_code: code });
+    h.request = async url => url.endsWith('/point-a') ? ok(row) : list([row]);
+    await h.mount();
+    assert.equal(h.panel.state.listStatus, 'ready');
+    assert.equal(h.panel.state.items[0].error_code, code);
+    assert.equal(h.panel.state.items[0].ready_to_use, false);
+    h.panel.select(true, h.panel.state.items[0]); await h.settle();
+    assert.equal(h.panel.state.detail.error_code, code);
+    h.request = async () => list([{ ...row, ready_to_use: true }]);
+    await h.panel.read('list');
+    assert.equal(h.panel.state.listStatus, 'failed');
     h.panel.componentWillUnmount();
   }
 });
