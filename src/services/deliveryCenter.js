@@ -8,22 +8,19 @@ const url = enterprise => `${apiconfig.baseUrl}/console/enterprises/${encodeURIC
 const base = scope => `${apiconfig.baseUrl}/console/teams/${encodeURIComponent(scope.teamName)}/groups/${encodeURIComponent(scope.appID)}/delivery-templates`;
 const commentText = value => typeof value === 'string' ? value.replace(/<\/?[a-z][^>]*>/gi, '')
   .replace(/&(?:nbsp|amp|lt|gt|quot|#39);/g, entity => ({ '&nbsp;': ' ', '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': "'" }[entity])).trim() : '';
-const matchesApplication = (event, scope) => {
-  const id = event.group_id || event.app_id || event.application_id;
-  return (id == null || String(id) === String(scope.appID)) && (!event.team_name || event.team_name === scope.teamName) &&
-    (!(event.region_name || event.region) || (event.region_name || event.region) === scope.regionName);
-};
 async function componentEvents(scope, component, page) {
   if (!component || !component.service_alias) throw new Error('workflow.componentEventsUnavailable');
   const pageSize = 20;
-  const response = await request(`${apiconfig.baseUrl}/console/teams/${encodeURIComponent(scope.teamName)}/apps/${encodeURIComponent(component.service_alias)}/events`, {
-    method: 'get', params: { region_name: scope.regionName, page, page_size: pageSize }, showMessage: false
+  const response = await request(`${apiconfig.baseUrl}/console/teams/${encodeURIComponent(scope.teamName)}/events`, {
+    method: 'get', params: { region_name: scope.regionName, target: 'service', targetAlias: component.service_alias, page, page_size: pageSize },
+    showMessage: false, timeout: 12000
   });
   if (!response || !Array.isArray(response.list)) throw new Error('workflow.componentEventsUnavailable');
   const total = response.total != null && Number.isFinite(Number(response.total)) ? Number(response.total) : undefined;
-  const items = response.list.filter(event => matchesApplication(event, scope) && (!event.service_id || String(event.service_id) === String(component.service_id)))
+  const items = response.list.filter(event => (!event.service_id || String(event.service_id) === String(component.service_id)) &&
+    (event.target !== 'service' || !event.target_id || String(event.target_id) === String(component.service_id)))
     .map(event => ({ ...event, service_id: String(component.service_id), id: `component:${component.service_id}:${event.event_id || event.ID || event.start_time}`,
-      component_name: component.name, comment_text: commentText(event.message || event.type_cn || event.type),
+      component_name: component.name, comment_text: commentText(event.message || event.type_cn || event.type || event.opt_type),
       created_at: event.start_time || event.created_at, user_name: event.user_name || event.username }));
   const hasMore = typeof response.has_next === 'boolean' ? response.has_next : total == null ? response.list.length === pageSize : page * pageSize < total;
   return { bean: { items, page, total, has_more: hasMore } };
@@ -53,7 +50,7 @@ async function sourceComponents(scope) {
 }
 
 
-export async function loadDeliveryCenter({ user, kind, groupId, scope, component, page = 1 }) {
+export async function loadDeliveryCenter({ user, kind, groupId, scope, component, components, page = 1 }) {
   if (kind === 'source') {
     const response = await loadDeliverySource(scope, { showMessage: false });
     if (!response || !response.bean || !Array.isArray(response.bean.apps)) throw new Error('workflow.sourceUnavailable');
@@ -67,6 +64,15 @@ export async function loadDeliveryCenter({ user, kind, groupId, scope, component
       currentVersion: response.bean && response.bean.current_version, page } };
   }
   if (kind === 'componentEvents') return componentEvents(scope, component, page);
+  if (kind === 'access') {
+    const aliases = (components || []).map(item => item.service_alias).filter(Boolean);
+    if (!aliases.length) return { bean: { list: [] } };
+    const response = await request(`${apiconfig.baseUrl}/console/teams/${encodeURIComponent(scope.teamName)}/group/service/visit`, {
+      method: 'get', params: { service_alias: aliases.join('-'), region_name: scope.regionName }, showMessage: false, timeout: 12000
+    });
+    if (!response || !Array.isArray(response.list)) throw new Error('workflow.unavailable');
+    return { bean: { list: response.list } };
+  }
   if (kind === 'targets') return request(`${apiconfig.baseUrl}/console/delivery-targets`, { method: 'get' });
   if (kind === 'runtime') {
     const source = scope;
@@ -94,8 +100,11 @@ export async function loadDeliveryCenter({ user, kind, groupId, scope, component
   }
   return request(`${base(scope)}/records`, { method: 'get', params: { region_name: scope.regionName } });
 }
-export async function actOnDelivery({ operation, user, scope, template, reason, requestId, decision, comment, target, kind, listingId, destination, environment, requestKey, format, image_handle }) {
+export async function actOnDelivery({ operation, user, scope, template, reason, requestId, decision, comment, target, kind, listingId, destination, environment, requestKey, format, image_handle, action: withdrawalAction }) {
   const listing = requestId || listingId;
+  if (operation === 'withdraw') return request(`${base(scope)}/versions/${encodeURIComponent(template.id)}/listing-requests/${encodeURIComponent(listing)}/withdraw`, {
+    method: 'post', data: { region_name: scope.regionName, action: withdrawalAction }
+  });
   if (operation === 'review') return request(`${apiconfig.baseUrl}/console/enterprises/${encodeURIComponent(user.enterprise_id)}/listing-requests/${encodeURIComponent(listing)}/review`, {
     method: 'post', data: { decision, comment }
   });
@@ -110,4 +119,10 @@ export async function actOnDelivery({ operation, user, scope, template, reason, 
 
 export async function retryDeliveryTask(taskId) {
   return request(`${apiconfig.baseUrl}/console/delivery-tasks/${encodeURIComponent(taskId)}/retry`, { method: 'post' });
+}
+
+export async function loadDeliveryUpgrade(taskId) {
+  return request(`${apiconfig.baseUrl}/console/delivery-tasks/${encodeURIComponent(taskId)}/upgrade`, {
+    method: 'get', showMessage: false, timeout: 15000
+  });
 }

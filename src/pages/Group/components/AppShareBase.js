@@ -773,7 +773,7 @@ export default class AppShareBase extends PureComponent {
         breadcrumbList={breadcrumbList}
         content={
           snapshotMode
-            ? '创建快照是指将当前应用的状态固化为一个版本，用于后续回滚或发布。'
+            ? '将当前应用的组件与配置保存为快照，用于查看历史、比较变更和回滚。'
             : '发布应用是指将当前运行的应用进行模型化，形成应用模版发布到当前平台的组件库或开源应用商店，供当前平台或开源应用商店的用户使用。'
         }
         titleSvg={pageheaderSvg.getPageHeaderSvg('publish', 18)}

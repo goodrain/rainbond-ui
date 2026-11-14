@@ -2,6 +2,7 @@ import apiconfig from '../../config/api.config';
 import request from '../utils/request';
 import { getStoreList } from './market';
 const { normalizeTemplateConfig, buildTemplatePayload } = require('../utils/templateDelivery');
+const { deliveryMarketOptions } = require('../utils/deliveryMarkets');
 const urlFor = scope => `${apiconfig.baseUrl}/console/teams/${encodeURIComponent(scope.teamName)}/groups/${encodeURIComponent(scope.appID)}/delivery-templates`;
 
 export async function listDeliveryTemplates(scope) {
@@ -39,8 +40,7 @@ export async function loadDeliveryConfig({ component }) {
 export async function loadDeliveryMarkets(scope) {
   const response = await getStoreList({ enterprise_id: scope.enterprise_id });
   if (!response || !Array.isArray(response.list)) throw new Error('delivery.marketsUnavailable');
-  return { bean: { items: response.list.map(item => ({ id: item.store_id || item.name,
-    name: item.name || item.store_name })).filter(item => item.id) } };
+  return { bean: { items: deliveryMarketOptions(response.list) } };
 }
 export async function loadTemplateChanges({ scope }) {
   return request(`${urlFor(scope)}/changes`, { method: 'get', params: { region_name: scope.regionName } });

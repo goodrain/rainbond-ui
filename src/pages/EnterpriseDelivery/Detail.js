@@ -9,6 +9,8 @@ import RuntimeSection from './RuntimeSection';
 import VersionsSection from './VersionsSection';
 import styles from './asset.less';
 const { orderedVersions, versionSources, environmentRecords } = require('../../utils/deliveryAsset');
+const { listingDeployable, listingRequiresReview } = require('../../utils/deliveryWorkflow');
+const { deliveryTargetPath, deliveryTargetIsCached } = require('../../utils/deliveryNavigation');
 const initialState = () => ({ group: null, deployments: [], loading: true, failed: false, source: [], sourceLoading: false, sourceFailed: false,
   selectedSourceId: '', sourceVersionId: null, histories: {}, targets: [], runtime: null, runtimeLoading: false,
   selectedVersionId: '', activeSection: 'sources', review: null, deployment: null });
@@ -18,6 +20,8 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
   state = initialState();
   generation = 0;
   alive = false;
+  pendingDeliveryTaskId = '';
+  pendingDeliveryRefreshId = '';
   componentDidMount() {
     this.alive = true;this.load();
     this.poll = setInterval(() => { if (!document.hidden && !this.state.review && !this.state.deployment) this.load(true); }, 5000);
@@ -25,7 +29,7 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
   componentDidUpdate(previous) {
     if (JSON.stringify(previous.match.params) !== JSON.stringify(this.props.match.params) ||
       (previous.user || {}).user_id !== (this.props.user || {}).user_id || (previous.user || {}).enterprise_id !== (this.props.user || {}).enterprise_id) {
-      this.generation += 1;this.observedGroup = null;this.observer && this.observer.disconnect();this.setState(initialState(), this.load);
+      this.generation += 1;this.pendingDeliveryTaskId = '';this.pendingDeliveryRefreshId = '';this.observedGroup = null;this.observer && this.observer.disconnect();this.setState(initialState(), this.load);
     }
     if (this.state.group && this.observedGroup !== this.state.group.id && this.assetRoot) {
       this.observedGroup = this.state.group.id;
@@ -44,7 +48,7 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
   active = generation => this.alive && generation === this.generation;
   currentVersion = () => {
     const items = this.state.group && this.state.group.versions || [];
-    return items.find(item => item.template.id === this.state.selectedVersionId) || orderedVersions(items).find(item => item.status === 'pending') || orderedVersions(items)[0];
+    return items.find(item => item.template.id === this.state.selectedVersionId) || orderedVersions(items).find(item => listingRequiresReview(item) && item.status === 'pending') || orderedVersions(items)[0];
   };
   sourceReference = () => {
     const group = this.state.group, current = this.currentVersion();
@@ -68,12 +72,39 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
       const group = bean.groups.find(item => item.id === match.params.groupId), first = !this.state.group;
       const ids = new Set(group ? group.versions.map(item => item.template.id) : []);
       const deployments = (bean.deployments || []).filter(item => item.template_group_id ? item.template_group_id === match.params.groupId : ids.has(item.template_id));
+      if (this.followDelivery(deployments)) return;
       this.setState({ group, deployments, loading: false, failed: false }, () => {
         if (!group) return;
         if (first) { this.loadSources();this.loadTargets();this.runtime(); }
         else if (!this.state.runtimeLoading && Date.now() - (this.runtimeUpdated || 0) > 30000) this.runtime();
       });
     }, onError: () => { if (this.active(generation) && ticket === this.centerTicket) this.setState({ loading: false, failed: true }); } });
+  };
+  followDelivery = tasks => {
+    if (!this.pendingDeliveryTaskId) return false;
+    const task = (tasks || []).find(item => item.id === this.pendingDeliveryTaskId);
+    if (!task) return false;
+    if (['failed', 'cancelled'].includes(task.status)) { this.pendingDeliveryTaskId = '';this.pendingDeliveryRefreshId = '';return false; }
+    const path = deliveryTargetPath(task);
+    if (!path) return false;
+    if (!deliveryTargetIsCached(this.props.user, task)) {
+      if (this.pendingDeliveryRefreshId === task.id) return true;
+      const generation = this.generation;
+      this.pendingDeliveryRefreshId = task.id;
+      this.props.dispatch({ type: 'user/fetchCurrent', payload: { team_name: task.target.team_name }, callback: response => {
+        if (!this.active(generation) || this.pendingDeliveryTaskId !== task.id) return;
+        this.pendingDeliveryRefreshId = '';
+        this.pendingDeliveryTaskId = '';
+        if (deliveryTargetIsCached(response && response.bean, task)) this.props.dispatch(routerRedux.push(path));
+      }, handleError: () => {
+        if (this.active(generation) && this.pendingDeliveryRefreshId === task.id) this.pendingDeliveryRefreshId = '';
+      } });
+      return true;
+    }
+    this.pendingDeliveryTaskId = '';
+    this.pendingDeliveryRefreshId = '';
+    this.props.dispatch(routerRedux.push(path));
+    return true;
   };
   loadSources = () => {
     const generation = this.generation;
@@ -119,8 +150,14 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
   };
   act = payload => {
     const generation = this.generation;
-    this.props.dispatch({ type: 'deliveryCenter/act', payload: { ...payload, user: this.props.user }, callback: () => {
-      if (this.active(generation)) this.setState({ review: null, deployment: null }, () => this.load(true));
+    this.props.dispatch({ type: 'deliveryCenter/act', payload: { ...payload, user: this.props.user }, callback: task => {
+      if (this.active(generation)) {
+        if (payload.operation === 'deploy' && payload.kind === 'delivery' && task && task.id) {
+          this.pendingDeliveryTaskId = task.id;
+          if (this.followDelivery([task])) return;
+        }
+        this.setState({ review: null, deployment: null }, () => this.load(true));
+      }
     } });
   };
   render() {
@@ -128,7 +165,7 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
     if (!user || !user.is_enterprise_admin || String(user.enterprise_id) !== String(match.params.eid)) return <Alert type="warning" message={w('forbidden')} />;
     const { group, loading, failed, sourceLoading, sourceFailed, selectedSourceId, histories, targets, runtime, runtimeLoading, review, deployment, activeSection } = this.state;
     const sources = this.sources(), component = sources.find(item => item.service_id === selectedSourceId) || sources[0], version = this.currentVersion(), environment = this.environment();
-    return <PageHeaderLayout isFooter wrapperClassName={styles.assetPage} title={<span className={styles.pageTitle}><Avatar shape="square" size={44} src={group && group.profile && group.profile.logo} icon="appstore" />{group ? group.template_name : w('assetDetail')}{version && <React.Fragment>{statusLabel(version.status)}<code className={styles.headerVersion}>v{version.template.version}</code></React.Fragment>}</span>}
+    return <PageHeaderLayout isFooter wrapperClassName={styles.assetPage} title={<span className={styles.pageTitle}><Avatar shape="square" size={44} src={group && group.profile && group.profile.logo} icon="appstore" />{group ? group.template_name : w('assetDetail')}{version && <React.Fragment>{statusLabel(listingRequiresReview(version) ? version.status : version.publication_status || "not_started")}<code className={styles.headerVersion}>v{version.template.version}</code></React.Fragment>}</span>}
       content={w('assetDetailHelp')} action={<Button onClick={() => dispatch(routerRedux.push(`/enterprise/${match.params.eid}/development-delivery`))}>{w('back')}</Button>}>
       <Spin spinning={loading}>{failed ? <Alert type="warning" showIcon message={w('loadFailed')} description={<Button onClick={() => this.load()}>{w('retry')}</Button>} /> : !group ? !loading && <Empty description={w('notFound')} /> :
         <div className={styles.assetCanvas} ref={node => { this.assetRoot = node; }}>
@@ -146,7 +183,7 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
             onPage={page => this.history(component.service_id, page)}
             loading={sourceLoading} failed={sourceFailed} onRefresh={this.loadSources} />
           <RuntimeSection environment={environment} targets={targets}
-            onRefresh={this.runtime} data={runtime} loading={runtimeLoading} sourceAppName={group.app_name} onVersion={this.focusVersion}
+            data={runtime} loading={runtimeLoading} sourceAppName={group.app_name} onVersion={this.focusVersion}
             versions={group.versions} onSource={this.focusSource} sourceIds={sources.map(item => item.service_id)} />
           <VersionsSection group={group} item={version} deployments={this.state.deployments} onSelect={this.selectVersion}
             onReview={item => this.setState({ review: item })} onTest={item => this.setState({ deployment: item })}
@@ -154,9 +191,9 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
         </div>}
       </Spin>
       {review && <ReviewModal item={review} busy={busy} onCancel={() => this.setState({ review: null })} onSubmit={(decision, comment) => this.act({ operation: 'review', requestId: review.id, decision, comment })} />}
-      {deployment && <DeployModal key={deployment.id} testing={deployment.status !== 'approved'} installation={deployment.status === 'approved'}
+      {deployment && <DeployModal key={deployment.id} testing={!listingDeployable(deployment)} installation={listingDeployable(deployment)}
         approved={group.versions.some(item => item.template.id === deployment.template.id && item.publication_status === 'published')}
-        title={deployment.status === 'approved' ? w('deploy') : undefined} template={deployment.template} scope={group.source} user={user} dispatch={dispatch} busy={busy} onCancel={() => this.setState({ deployment: null })}
+        title={listingDeployable(deployment) ? w('deploy') : undefined} template={deployment.template} scope={group.source} user={user} dispatch={dispatch} busy={busy} onCancel={() => this.setState({ deployment: null })}
         onSubmit={values => this.act({ operation: 'deploy', ...values, scope: group.source, template: deployment.template, listingId: deployment.id })} />}
     </PageHeaderLayout>;
   }

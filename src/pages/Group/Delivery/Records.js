@@ -16,6 +16,7 @@ import styles from './index.less';
 import timelineStyles from './records.less';
 const { templateGroups, nextTemplateVersion } = require('../../../utils/templateTimeline');
 const { deliveryScope } = require('../../../utils/templateDelivery');
+const { deliveryTargetPath, deliveryTargetIsCached } = require('../../../utils/deliveryNavigation');
 
 @connect(({ user, teamControl, templateDelivery, application, loading }) => ({
   user: user.currentUser, team: teamControl.currentTeam, permissions: teamControl.currentTeamPermissionsInfo,
@@ -25,10 +26,12 @@ const { deliveryScope } = require('../../../utils/templateDelivery');
 }))
 export default class DeliveryRecords extends PureComponent {
   state = { detail: null, listings: [], deployments: [], listing: null, delivery: null, workflowFailed: false,
-    checks: [], changesLoading: false, changesFailed: false, changesOpen: false, exporting: null, profileEditor: null };
+    checks: [], changesLoading: false, changesFailed: false, changesOpen: false, exporting: null, profileEditor: null, listingDestination: 'local' };
   alive = false;
   generation = 0;
   checkTicket = 0;
+  pendingDeliveryTaskId = '';
+  pendingDeliveryRefreshId = '';
   componentDidMount() {
     this.alive = true;this.load();
     this.workflowTimer = setInterval(() => { if (!document.hidden) this.loadWorkflow(); }, 5000);
@@ -43,7 +46,7 @@ export default class DeliveryRecords extends PureComponent {
   componentDidUpdate(previous) {
     if (JSON.stringify(previous.match.params) !== JSON.stringify(this.props.match.params) ||
       (previous.user || {}).enterprise_id !== (this.props.user || {}).enterprise_id || (previous.user || {}).user_id !== (this.props.user || {}).user_id) {
-      this.generation += 1;this.checkTicket += 1;this.checking = false;this.acting = false;this.lastRecords = [];clearTimeout(this.checkTimer);
+      this.generation += 1;this.checkTicket += 1;this.checking = false;this.acting = false;this.lastRecords = [];this.pendingDeliveryTaskId = '';this.pendingDeliveryRefreshId = '';clearTimeout(this.checkTimer);
       this.setState({ detail: null, listings: [], deployments: [], listing: null, delivery: null, checks: [], changesOpen: false, exporting: null, profileEditor: null }, this.load);
     } else if ((previous.records !== this.props.records || previous.loading && !this.props.loading) && !this.props.loading && !this.props.failed) {
       this.lastRecords = this.props.records;
@@ -62,7 +65,7 @@ export default class DeliveryRecords extends PureComponent {
       this.checkChanges(records);
     } });
     this.props.dispatch({ type: 'deliveryCenter/load', payload: { kind: 'application', scope, user: this.props.user }, callback: bean => {
-      if (this.active(generation) && sequence === this.loadSequence) this.setState({ listings: bean.listings, deployments: bean.deployments, workflowFailed: false });
+      if (this.active(generation) && sequence === this.loadSequence && !this.followDelivery(bean.deployments)) this.setState({ listings: bean.listings, deployments: bean.deployments, workflowFailed: false });
     }, onError: () => { if (this.active(generation) && sequence === this.loadSequence) this.setState({ workflowFailed: true }); } });
   };
   loadWorkflow = () => {
@@ -72,8 +75,34 @@ export default class DeliveryRecords extends PureComponent {
     this.props.dispatch({ type: 'deliveryCenter/load', payload: { kind: 'application',
       scope: getScope(this.props.match.params, this.props.user), user: this.props.user }, callback: bean => {
       this.workflowLoading = false;
-      if (this.active(generation)) this.setState({ listings: bean.listings, deployments: bean.deployments, workflowFailed: false });
+      if (this.active(generation) && !this.followDelivery(bean.deployments)) this.setState({ listings: bean.listings, deployments: bean.deployments, workflowFailed: false });
     }, onError: () => { this.workflowLoading = false; } });
+  };
+  followDelivery = tasks => {
+    if (!this.pendingDeliveryTaskId) return false;
+    const task = (tasks || []).find(item => item.id === this.pendingDeliveryTaskId);
+    if (!task) return false;
+    if (['failed', 'cancelled'].includes(task.status)) { this.pendingDeliveryTaskId = '';this.pendingDeliveryRefreshId = '';return false; }
+    const path = deliveryTargetPath(task);
+    if (!path) return false;
+    if (!deliveryTargetIsCached(this.props.user, task)) {
+      if (this.pendingDeliveryRefreshId === task.id) return true;
+      const generation = this.generation;
+      this.pendingDeliveryRefreshId = task.id;
+      this.props.dispatch({ type: 'user/fetchCurrent', payload: { team_name: task.target.team_name }, callback: response => {
+        if (!this.active(generation) || this.pendingDeliveryTaskId !== task.id) return;
+        this.pendingDeliveryRefreshId = '';
+        this.pendingDeliveryTaskId = '';
+        if (deliveryTargetIsCached(response && response.bean, task)) this.props.dispatch(routerRedux.push(path));
+      }, handleError: () => {
+        if (this.active(generation) && this.pendingDeliveryRefreshId === task.id) this.pendingDeliveryRefreshId = '';
+      } });
+      return true;
+    }
+    this.pendingDeliveryTaskId = '';
+    this.pendingDeliveryRefreshId = '';
+    this.props.dispatch(routerRedux.push(path));
+    return true;
   };
   focus = () => this.checkChanges();
   visibility = () => { if (!document.hidden) this.checkChanges(); else clearTimeout(this.checkTimer); };
@@ -105,13 +134,32 @@ export default class DeliveryRecords extends PureComponent {
     this.acting = true;
     this.props.dispatch({ type: 'deliveryCenter/act', payload: { ...payload, template, user, scope: getScope(match.params, user),
       authorized: canPublishTemplate(user, team, permissions, match.params),
-      appName: String(appDetail.group_id) === String(match.params.appID) ? appDetail.group_name : undefined }, callback: () => {
-      if (this.active(generation)) { this.acting = false;this.setState({ listing: null, delivery: null }, this.load); }
+      appName: String(appDetail.group_id) === String(match.params.appID) ? appDetail.group_name : undefined }, callback: task => {
+      if (this.active(generation)) {
+        this.acting = false;
+        if (payload.operation === 'deploy' && payload.kind === 'delivery' && task && task.id) {
+          this.pendingDeliveryTaskId = task.id;
+          if (this.followDelivery([task])) return;
+        }
+        this.setState({ listing: null, delivery: null }, this.load);
+      }
     }, onError: () => { if (this.active(generation)) this.acting = false; } });
   };
   create = group => this.props.dispatch(routerRedux.push({ pathname: `${deliveryPath(this.props.match.params)}/create`, query: {
     version: nextTemplateVersion((group ? group.versions : this.lastRecords || []).map(item => item.version))
   } }));
+  withdrawListing = (template, listing, action) => {
+    const generation = this.generation;
+    Modal.confirm({ title: w(action === 'unlist' ? 'unlistConfirm' : 'cancelListingConfirm'),
+      content: w(action === 'unlist' ? 'unlistHelp' : 'cancelListingHelp'),
+      okText: w(action === 'unlist' ? 'unlistAction' : 'cancelListingRequest'), cancelText: t('cancel'),
+      onOk: () => new Promise((resolve, reject) => {
+        if (!this.active(generation)) { resolve();return; }
+        this.props.dispatch({ type: 'deliveryCenter/act', payload: { operation: 'withdraw', action, template,
+          requestId: listing.id, scope: getScope(this.props.match.params, this.props.user), user: this.props.user },
+          callback: () => { if (this.active(generation)) this.load();resolve(); }, onError: error => { if (this.active(generation)) this.load();reject(error); } });
+      }) });
+  };
   createTemplate = () => {
     const app = String(this.props.appDetail.group_id) === String(this.props.match.params.appID) ? this.props.appDetail : {};
     this.setState({ profileEditor: { creating: true, appName: app.group_name || '' } });
@@ -154,8 +202,8 @@ export default class DeliveryRecords extends PureComponent {
     return <Modal visible title={t('templateDetails')} width={1040} className={styles.detailModal} onCancel={() => this.setState({ detail: null })}
       footer={<Button onClick={() => this.setState({ detail: null })}>{t('close')}</Button>}>
       <Descriptions bordered size="small" column={1}>{fields.map(([key, value]) => <Descriptions.Item key={key} label={t(key)}>{value}</Descriptions.Item>)}</Descriptions>
-      {listing && <section className={styles.detailPlugin}><h3>{w('listingStatus')}</h3><p>{listingStatusLabel(listing)}</p><p>{w('reason')}：{listing.reason}</p>
-        {listing.status !== 'pending' && <p>{w('reviewer')}：{listing.reviewer_name} · {w('reviewComment')}：{listing.review_comment || w('noComment')}</p>}
+      {listing && <section className={styles.detailPlugin}><h3>{w('listingStatus')}</h3><p>{listingStatusLabel(listing)}</p>{listing.reason && <p>{w('reason')}：{listing.reason}</p>}
+        {listing.reviewed_at && <p>{w('reviewer')}：{listing.reviewer_name} · {w('reviewComment')}：{listing.review_comment || w('noComment')}</p>}
       </section>}
       {row.is_platform_plugin && <div className={styles.detailPlugin}><h3>{t('deliveryAsPlatformPlugin')}</h3>
         <p>{row.plugin.plugin_name} · {row.plugin.plugin_id} · {row.plugin.plugin_type}</p></div>}
@@ -185,11 +233,12 @@ export default class DeliveryRecords extends PureComponent {
             {this.renderChanges(groups, allowed)}
             {groups.length ? groups.map(group => <RecordTimeline key={group.id} group={group} listings={listings} deployments={deployments} allowed={allowed}
               workflowFailed={workflowFailed} onNewVersion={this.create} onDetail={detail => this.setState({ detail })} onInstall={delivery => this.setState({ delivery })}
-              onExport={this.exportVersion} onDelete={this.deleteVersion} onListing={listing => this.setState({ listing })} onEditMetadata={this.editMetadata} />) : <Empty description={t('noMatchingTemplates')} />}
+              onExport={this.exportVersion} onDelete={this.deleteVersion} onWithdraw={this.withdrawListing}
+              onListing={(listing, listingDestination = 'local') => this.setState({ listing, listingDestination })} onEditMetadata={this.editMetadata} />) : <Empty description={t('noMatchingTemplates')} />}
           </React.Fragment>}
       </Spin>
       {detail && this.renderDetail(detail)}
-      {listing && <ListingModal template={listing} dispatch={dispatch} scope={getScope(match.params, user)} busy={busy} onCancel={() => this.setState({ listing: null })} onSubmit={(reason, destination) => this.act({ operation: 'listing', reason, destination }, listing)} />}
+      {listing && <ListingModal template={listing} initialDestination={this.state.listingDestination} existingRequests={listings.filter(row => row.template.id === listing.id)} dispatch={dispatch} scope={getScope(match.params, user)} busy={busy} onCancel={() => this.setState({ listing: null })} onSubmit={(reason, destination) => this.act({ operation: 'listing', reason, destination }, listing)} />}
       {delivery && <DeployModal installation template={delivery} user={user} scope={getScope(match.params, user)} dispatch={dispatch} busy={busy}
         approved={listings.some(item => item.template.id === delivery.id && item.publication_status === 'published')}
         onCancel={() => this.setState({ delivery: null })} onSubmit={values => this.act({ operation: 'deploy', ...values }, delivery)} />}

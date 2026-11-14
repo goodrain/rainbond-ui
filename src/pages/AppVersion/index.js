@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import {
+  Alert,
   Button,
   Card,
   Collapse,
@@ -42,6 +43,8 @@ import { getAppModelLastRecord, postUpgradeRecord } from '../../services/app';
 import { runCloseCallback } from './closeCallback';
 import styles from './index.less';
 import snapshotVersionHelpers from '../Group/components/snapshotVersionHelpers';
+import { canPublishTemplate, deliveryPath, t as deliveryText } from '../Group/Delivery/common';
+import AppExporter from '../EnterpriseShared/AppExporter';
 
 const { Panel } = Collapse;
 const { getLatestSnapshotVersionSeed } = snapshotVersionHelpers;
@@ -72,6 +75,14 @@ export default class AppVersion extends PureComponent {
       detailRecord: null,
       sourceUpgradeVisible: false,
       rollbackRecordsVisible: false,
+      publishRecordsVisible: false,
+      publishRecordsLoading: false,
+      publishRecordsFailed: false,
+      publishRecords: [],
+      publishRecordsTotal: 0,
+      publishRecordsPage: 1,
+      publishRecordsPageSize: 10,
+      exportRecord: null,
       rollbackDrawerView: 'list',
       rollbackRecordsLoading: false,
       rollbackRecordDetailLoading: false,
@@ -80,10 +91,10 @@ export default class AppVersion extends PureComponent {
       selectedRollbackRecordId: null,
     };
     this.rollbackRefreshTimer = null;
-    this.automaticSnapshotRefreshTimer = null;
     this.rollbackListContentRef = React.createRef();
     this.rollbackListScrollTop = 0;
     this.unmounted = false;
+    this.publishRecordsTicket = 0;
   }
 
   componentDidMount() {
@@ -92,18 +103,22 @@ export default class AppVersion extends PureComponent {
     this.fetchApps();
     this.fetchAppVersionOverview();
     this.fetchSnapshotVersions();
-    this.fetchUpgradeRecords();
-    this.loadSourceGroups();
     this.syncRoutePanel();
   }
 
   componentWillUnmount() {
     this.unmounted = true;
     this.clearRollbackRefreshPolling();
-    clearTimeout(this.automaticSnapshotRefreshTimer);
   }
 
   componentDidUpdate(prevProps) {
+    if (this.getPublishRecordsScopeKey(prevProps) !== this.getPublishRecordsScopeKey(this.props)) {
+      this.publishRecordsTicket += 1;
+      this.setState({ publishRecordsVisible: false, publishRecordsLoading: false, publishRecordsFailed: false,
+        publishRecords: [], publishRecordsTotal: 0, publishRecordsPage: 1, exportRecord: null });
+    } else if (this.state.exportRecord && !this.canExportPublishRecord(this.state.exportRecord)) {
+      this.setState({ exportRecord: null });
+    }
     if (prevProps.location !== this.props.location) {
       this.syncRoutePanel();
       const prevRefreshKey = this.getRouteRefreshKey(prevProps.location);
@@ -112,14 +127,70 @@ export default class AppVersion extends PureComponent {
         this.handleRouteRefresh();
       }
     }
-    if (prevProps.apps !== this.props.apps) {
-      this.loadSourceGroups();
-    }
   }
 
   getAppId = () => {
     return this.props.match.params.appID;
   };
+
+  getPublishRecordsScopeKey = (props = this.props) => {
+    const { teamName, regionName, appID } = props.match.params;
+    const user = props.currentUser || {};
+    return JSON.stringify([teamName, regionName, appID, user.enterprise_id, user.user_id]);
+  };
+
+  fetchPublishRecords = (page = 1, pageSize = 10) => {
+    const { teamName, appID } = this.props.match.params;
+    const scopeKey = this.getPublishRecordsScopeKey(), ticket = ++this.publishRecordsTicket;
+    const active = () => !this.unmounted && ticket === this.publishRecordsTicket && scopeKey === this.getPublishRecordsScopeKey();
+    const fail = () => { if (active()) this.setState({ publishRecordsLoading: false, publishRecordsFailed: true }); };
+    this.setState({ publishRecordsLoading: true, publishRecordsFailed: false, publishRecords: [],
+      publishRecordsTotal: 0, publishRecordsPage: page, publishRecordsPageSize: pageSize });
+    this.props.dispatch({ type: 'application/fetchShareRecords',
+      payload: { team_name: teamName, app_id: appID, page, page_size: pageSize },
+      callback: response => {
+        if (!active()) return;
+        const total = response && response.bean && response.bean.total;
+        if (!response || !Array.isArray(response.list) || !Number.isFinite(Number(total)) || total == null) { fail();return; }
+        this.setState({ publishRecords: response.list, publishRecordsTotal: Number(total), publishRecordsLoading: false });
+      }, onError: fail });
+  };
+
+  openPublishRecordsDrawer = () => {
+    this.setState({ publishRecordsVisible: true }, () => this.fetchPublishRecords());
+  };
+
+  closePublishRecordsDrawer = () => {
+    this.publishRecordsTicket += 1;
+    this.setState({ publishRecordsVisible: false, publishRecordsLoading: false });
+  };
+
+  buildPublishRecordExportData = record => {
+    const versions = (Array.isArray(record && record.version) ? record.version : [record && record.version])
+      .filter(version => typeof version === 'string' && version.trim());
+    const metadata = record && record.app_version_info;
+    return { ...record, app_id: record && record.app_model_id, source: 'local', version: versions,
+      versions_info: versions.map(version => ({
+        ...(metadata && typeof metadata === 'object' && !Array.isArray(metadata) ? metadata : {}), version
+      })) };
+  };
+
+  canExportPublishRecord = record => {
+    if (!record || Number(record.status) !== 1 || record.is_success === false || !['team', 'enterprise'].includes(record.scope)) return false;
+    const { currentTeamPermissionsInfo } = this.props;
+    const teamPermissions = currentTeamPermissionsInfo && currentTeamPermissionsInfo.team;
+    if (!teamPermissions || !Array.isArray(teamPermissions.sub_models)) return false;
+    const permission = roleUtil.queryPermissionsInfo(teamPermissions,
+      'app_release', `app_${this.getAppId()}`) || {};
+    const data = this.buildPublishRecordExportData(record);
+    return !!(permission.isExport && data.app_id && data.version.length);
+  };
+
+  showSharedAppExport = record => {
+    if (this.canExportPublishRecord(record)) this.setState({ exportRecord: record });
+  };
+
+  hideSharedAppExport = () => this.setState({ exportRecord: null });
 
   getRouteRefreshKey = location => {
     const query = (location && location.query) || {};
@@ -139,7 +210,6 @@ export default class AppVersion extends PureComponent {
     this.fetchAppDetail();
     this.fetchAppVersionOverview();
     this.fetchSnapshotVersions();
-    this.fetchUpgradeRecords();
     this.fetchRollbackRecords();
   };
 
@@ -518,26 +588,13 @@ export default class AppVersion extends PureComponent {
         return;
       }
       const overview = (res && res.bean) || {};
-      const previousStatus = (this.state.overview.automatic_snapshot || {}).status;
-      const nextStatus = (overview.automatic_snapshot || {}).status;
       const snapshotCountChanged = Number(this.state.overview.snapshot_count || 0) !== Number(overview.snapshot_count || 0);
       this.setState({ overview });
-      this.scheduleAutomaticSnapshotRefresh(overview);
-      if (snapshotCountChanged || (['pending', 'dispatching'].includes(previousStatus) && !['pending', 'dispatching'].includes(nextStatus))) {
+      if (snapshotCountChanged) {
         this.fetchSnapshotVersions();
       }
     } catch (error) {
-      if (!this.unmounted) {
-        this.scheduleAutomaticSnapshotRefresh(this.state.overview);
-      }
-    }
-  };
-
-  scheduleAutomaticSnapshotRefresh = overview => {
-    clearTimeout(this.automaticSnapshotRefreshTimer);
-    const status = ((overview || {}).automatic_snapshot || {}).status;
-    if (!this.unmounted && ['pending', 'dispatching'].includes(status)) {
-      this.automaticSnapshotRefreshTimer = setTimeout(this.fetchAppVersionOverview, 5000);
+      return;
     }
   };
 
@@ -1959,33 +2016,26 @@ export default class AppVersion extends PureComponent {
             <div className={styles.personalDesc}>
               {overview.has_changes
                 ? `当前应用存在未快照变更：新增 ${changeSummary.added_count || 0} 个组件，修改 ${changeSummary.updated_count || 0} 个组件，删除 ${changeSummary.removed_count || 0} 个组件。`
-                : '默认只展示当前应用的快照时间线；如果来源模板有更新，会在上方横幅里提示。'}
+                : '快照保存应用的组件与配置，可用于查看历史、比较变更和回滚。'}
             </div>
-            {['pending', 'dispatching', 'failure', 'expired'].includes((overview.automatic_snapshot || {}).status) && (
-              <div className={styles.personalDesc} role="status" aria-live="polite">
-                <Icon type={['pending', 'dispatching'].includes(overview.automatic_snapshot.status) ? 'loading' : 'exclamation-circle'} />
-                {' '}
-                {formatMessage({
-                  id: ['pending', 'dispatching'].includes(overview.automatic_snapshot.status)
-                    ? 'appVersion.automatic.pending'
-                    : 'appVersion.automatic.incomplete'
-                })}
-              </div>
-            )}
           </div>
           <div className={styles.personalActions}>
-            <Button
-              type="primary"
-              onClick={this.handleCreateSnapshot}
-              disabled={!this.canCreateSnapshot(overview)}
-            >
-              创建快照
-            </Button>
+            <Tooltip title={!this.canCreateSnapshot(overview) ? formatMessage({ id: 'workflow.snapshotUnchanged' }) : undefined}>
+              <span>
+                <Button
+                  type="primary"
+                  onClick={this.handleCreateSnapshot}
+                  disabled={!this.canCreateSnapshot(overview)}
+                >
+                  创建快照
+                </Button>
+              </span>
+            </Tooltip>
             <Button onClick={() => this.openRollbackRecordsDrawer()}>
               <Icon type="history" />
               回滚状态
             </Button>
-
+            <Button icon="file-text" onClick={this.openPublishRecordsDrawer}>{deliveryText('snapshotPublishRecords')}</Button>
           </div>
         </div>
         <div className={styles.personalStats}>
@@ -1996,10 +2046,6 @@ export default class AppVersion extends PureComponent {
           <div className={styles.personalStat}>
             <span className={styles.personalStatLabel}>快照数量</span>
             <span className={styles.personalStatValue}>{overview.snapshot_count || 0}</span>
-          </div>
-          <div className={styles.personalStat}>
-            <span className={styles.personalStatLabel}>来源模板</span>
-            <span className={styles.personalStatValue}>{overview.source_template_count || this.state.sourceGroups.length}</span>
           </div>
         </div>
       </Card>
@@ -2260,8 +2306,17 @@ export default class AppVersion extends PureComponent {
     );
   };
 
+  publishSnapshot = item => {
+    const { currentUser, currentTeam, currentTeamPermissionsInfo, match, dispatch } = this.props;
+    if (!item.detail || !item.detail.version_id || item.timelineState === 'runtime' ||
+      !canPublishTemplate(currentUser, currentTeam, currentTeamPermissionsInfo, match.params)) return;
+    dispatch(routerRedux.push(deliveryPath(match.params)));
+  };
+
   renderTimeline = () => {
     const timelineData = this.getPersonalTimeline();
+    const { currentUser, currentTeam, currentTeamPermissionsInfo, match } = this.props;
+    const canPublish = canPublishTemplate(currentUser, currentTeam, currentTeamPermissionsInfo, match.params);
 
     return (
       <Card
@@ -2274,7 +2329,43 @@ export default class AppVersion extends PureComponent {
           </div>
         }
       >
-
+        {timelineData.length ? <Timeline className={styles.historyTimeline}>
+          {timelineData.map(item => {
+            const state = item.timelineState;
+            const suffix = state === 'runtime' ? 'Runtime' : state === 'upgrade' ? 'Upgrade' : state === 'current' ? 'Current' : 'History';
+            return <Timeline.Item key={item.id} color="blue" dot={<span className={styles[`timelineDot${suffix}`]} />}>
+              <Card bordered={false} className={`${styles.timelineCard} ${styles[`timeline${suffix}`]}`}>
+                <div className={styles.timelineHeader}>
+                  <div className={styles.timelineMain}>
+                    <div className={styles.timelineTopline}>
+                      <span className={`${styles.timelineTypeTag} ${styles[`timelineTypeTag${suffix}`]}`}>
+                        {state === 'runtime' ? '当前状态' : state === 'current' ? '当前快照' : '历史快照'}
+                      </span>
+                    </div>
+                    <div className={styles.timelineTitleRow}>
+                      <div className={styles.timelineTitle}>{state !== 'runtime' && <span className={styles.timelineTitlePrefix}>快照版本</span>}{item.version}</div>
+                      <div className={styles.timelineVersionDesc}>{item.description}</div>
+                    </div>
+                    <div className={styles.timelineMeta}>{item.timeLabel}：{this.formatTime(item.createTime)}</div>
+                    <div className={styles.timelineSummary}>
+                      <div className={styles.timelineComponentLabel}>{item.componentLabel}{item.componentNames.length ? `（${item.componentNames.length}）` : ''}</div>
+                      {item.componentNames.length ? <div className={styles.timelineComponentList}>
+                        {item.componentNames.map(name => <span key={name} className={styles.timelineComponentChip}>{name}</span>)}
+                      </div> : <div className={styles.timelineComponentEmpty}>{item.emptyComponentText}</div>}
+                    </div>
+                  </div>
+                  <div className={styles.timelineActions}>
+                    <Button size="small" onClick={() => this.setState({ detailVisible: true, detailRecord: item.detail })}>查看详情</Button>
+                    {canPublish && item.timelineState !== 'runtime' && item.detail && item.detail.version_id &&
+                      <Button size="small" onClick={() => this.publishSnapshot(item)}>{deliveryText('publishSnapshot')}</Button>}
+                    {this.renderSnapshotRollbackAction(item)}
+                    {this.canDeleteSnapshot(item) && <Button size="small" onClick={() => this.confirmDeleteSnapshot(item)}>删除</Button>}
+                  </div>
+                </div>
+              </Card>
+            </Timeline.Item>;
+          })}
+        </Timeline> : <Empty description="尚未创建应用快照" />}
       </Card>
     );
   };
@@ -2361,6 +2452,43 @@ export default class AppVersion extends PureComponent {
         {this.renderDetailDiffSection(record)}
       </Drawer>
     );
+  };
+
+  renderPublishRecordsDrawer = () => {
+    const { publishRecordsVisible, publishRecordsLoading, publishRecordsFailed, publishRecords,
+      publishRecordsTotal, publishRecordsPage, publishRecordsPageSize } = this.state;
+    const columns = [
+      { title: formatMessage({ id: 'appPublish.table.publishName' }), dataIndex: 'app_model_name', width: 210,
+        render: value => value || '—' },
+      { title: formatMessage({ id: 'appPublish.table.versions' }), dataIndex: 'version', width: 150,
+        render: (value, record) => value || record.version_alias ? `${value || ''}${record.version_alias ? ` (${record.version_alias})` : ''}` :
+          formatMessage({ id: 'appPublish.table.versions.notSpecified' }) },
+      { title: formatMessage({ id: 'appPublish.table.scope' }), dataIndex: 'scope', width: 210,
+        render: (scope, record) => scope === 'team' ? deliveryText('snapshotPublishTeamMarket') : scope === 'enterprise' ?
+          deliveryText('snapshotPublishEnterpriseMarket') : scope === 'goodrain' ?
+            (record.scope_target || {}).store_name || formatMessage({ id: 'appPublish.table.scope.app_shop' }) :
+            formatMessage({ id: 'appPublish.table.versions.notSpecified' }) },
+      { title: formatMessage({ id: 'appPublish.table.publishTime' }), dataIndex: 'create_time', width: 180,
+        render: value => this.formatTime(value) },
+      { title: formatMessage({ id: 'appPublish.table.status' }), dataIndex: 'status', width: 100,
+        render: status => status == null || ![0, 1, 2].includes(Number(status)) ? '—' :
+          <Tag color={Number(status) === 1 ? 'green' : Number(status) === 0 ? 'blue' : undefined}>
+            {formatMessage({ id: `appPublish.table.status.${['release', 'release_finish', 'canceled'][Number(status)]}` })}</Tag> },
+      { title: formatMessage({ id: 'appPublish.table.operate' }), key: 'action', width: 130,
+        render: (_, record) => this.canExportPublishRecord(record) ?
+          <Button size="small" onClick={() => this.showSharedAppExport(record)}>{formatMessage({ id: 'applicationMarket.localMarket.export_app' })}</Button> : '—' }
+    ];
+    return <Drawer title={deliveryText('snapshotPublishRecords')} width={1040} visible={publishRecordsVisible}
+      onClose={this.closePublishRecordsDrawer}>
+      <div className={styles.templateToolbar}><div className={styles.templateHint}>{deliveryText('snapshotPublishRecordsHelp')}</div></div>
+      {publishRecordsFailed ? <Alert type="warning" showIcon message={deliveryText('snapshotPublishRecordsFailed')}
+        description={<Button onClick={() => this.fetchPublishRecords(publishRecordsPage, publishRecordsPageSize)}>{deliveryText('retry')}</Button>} /> :
+        <Table rowKey="record_id" columns={columns} dataSource={publishRecords} loading={publishRecordsLoading}
+          className={styles.templateTable} scroll={{ x: 980 }} locale={{ emptyText: deliveryText('snapshotPublishRecordsEmpty') }}
+          pagination={{ current: publishRecordsPage, pageSize: publishRecordsPageSize, total: publishRecordsTotal,
+            showSizeChanger: true, onChange: this.fetchPublishRecords,
+            onShowSizeChange: (_, size) => this.fetchPublishRecords(1, size) }} />}
+    </Drawer>;
   };
 
   renderRollbackRecordsDrawer = () => {
@@ -2616,7 +2744,6 @@ export default class AppVersion extends PureComponent {
             <Spin />
           ) : (
             <>
-              {this.renderUpgradeBanner()}
               {this.renderPersonalOverview()}
               {this.renderTimeline()}
             </>
@@ -2624,7 +2751,12 @@ export default class AppVersion extends PureComponent {
         </div>
 
         {this.renderRollbackRecordsDrawer()}
-        {this.renderSourceUpgradeDrawer()}
+        {this.renderPublishRecordsDrawer()}
+        {this.state.exportRecord && this.canExportPublishRecord(this.state.exportRecord) &&
+          <AppExporter key={`${this.getPublishRecordsScopeKey()}-${this.state.exportRecord.record_id}`}
+            eid={this.getEnterpriseId()} app={this.buildPublishRecordExportData(this.state.exportRecord)}
+            team_name={this.props.match.params.teamName} regionName={this.props.match.params.regionName}
+            onOk={this.hideSharedAppExport} onCancel={this.hideSharedAppExport} />}
         {this.renderDetailDrawer()}
 
 

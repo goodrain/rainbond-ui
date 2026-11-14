@@ -1169,7 +1169,7 @@ export default class AppList extends PureComponent {
                   !selectVersion ||
                   recordQueryError ||
                   UpgradeLoading ||
-                  [6, 10].includes(textState)
+                  [6, 8, 10].includes(textState)
                 }
                 loading={UpgradeLoading}
               >
@@ -1177,7 +1177,7 @@ export default class AppList extends PureComponent {
                   ? formatMessage({ id: 'helmAppInstall.UpgradeInfo.runtime.overview' })
                   : upgradeText}
               </Button>
-              {[6, 10].includes(textState) && (
+              {[6, 8, 10].includes(textState) && (
                 <Button
                   type="primary"
                   onClick={this.handleRetry}

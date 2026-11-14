@@ -3,7 +3,7 @@ import { Button, Icon, Table, Tabs, Timeline } from 'antd';
 import moment from 'moment';
 import { DeploymentTable, TemplateConfiguration, statusLabel, w, deliveryRecordsLabel } from './index';
 import styles from './version.less';
-const { successfulDeliveryEnvironments } = require('../../utils/deliveryWorkflow');
+const { successfulDeliveryEnvironments, listingRequiresReview } = require('../../utils/deliveryWorkflow');
 
 const metric = value => value == null || !Number.isFinite(Number(value)) ? '—' : Number(Number(value).toFixed(3));
 const sourceType = component => w(component.vm || component.source_type === 'vm' ? 'virtualMachine' : component.source_type === 'source_code' ? 'sourceCode' : 'image');
@@ -12,19 +12,20 @@ export class ReviewHistory extends PureComponent {
   render = () => {
     const attempts = new Map();
     (this.props.reviews || []).forEach(item => [...(item.history || []), item].forEach(attempt => attempts.set(attempt.id, attempt)));
-    const reviews = Array.from(attempts.values()).sort((a, b) => (Date.parse(a.submitted_at) || 0) - (Date.parse(b.submitted_at) || 0));
+    const reviews = Array.from(attempts.values()).filter(item => listingRequiresReview(item) || item.reviewed_at)
+      .sort((a, b) => (Date.parse(a.submitted_at) || 0) - (Date.parse(b.submitted_at) || 0));
     return reviews.length ? <Timeline className={styles.reviewTimeline}>
       {reviews.map(attempt => [
         <Timeline.Item key={`${attempt.id}-submitted`} color="blue"><strong>{w('listingSubmitted')}</strong>
           <div className={styles.secondary}>{attempt.applicant_name} · {moment(attempt.submitted_at).format('YYYY-MM-DD HH:mm')}</div>
           <p>{attempt.reason}</p>
         </Timeline.Item>,
-        attempt.status !== 'pending' ? <Timeline.Item key={`${attempt.id}-reviewed`} color="blue">{statusLabel(attempt.status)}
+        attempt.reviewed_at ? <Timeline.Item key={`${attempt.id}-reviewed`} color="blue">{statusLabel(attempt.status)}
           <div className={styles.secondary}>{attempt.reviewer_name || '—'} · {moment(attempt.reviewed_at).format('YYYY-MM-DD HH:mm')}</div>
           <p>{attempt.review_comment || w('noComment')}</p>
         </Timeline.Item> : null
       ])}
-    </Timeline> : <p className={styles.empty}>{w('noReviewRecords')}</p>;
+    </Timeline> : <p className={styles.empty}>{w(attempts.size ? 'onlineReviewNotRequired' : 'noReviewRecords')}</p>;
   };
 }
 

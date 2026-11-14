@@ -1,5 +1,25 @@
 const { deliveryScope, sensitiveName } = require('./templateDelivery');
 const copy = value => JSON.parse(JSON.stringify(value));
+const listingRequiresReview = item => !item.destination || item.destination.type !== 'market';
+const listingDeployable = item => !['unlisted', 'cancelled'].includes(item.publication_status) && item.status !== 'cancelled' &&
+  (item.status === 'approved' || !listingRequiresReview(item) && item.publication_status === 'published');
+function localListingAction(items) {
+  const latest = latestPublications(items);
+  const local = latest.find(item => !item.destination || item.destination.type === 'local');
+  const active = local && ['pending', 'approved'].includes(local.status) && !['cancelled', 'unlisted'].includes(local.publication_status);
+  return active ? { kind: 'withdraw', listing: local, action: local.publication_status === 'published' ? 'unlist' : 'cancel',
+    label: local.status === 'pending' ? 'cancelListingRequest' : 'unlistAction' } :
+    { kind: 'listing', label: local && (local.status === 'cancelled' || ['cancelled', 'unlisted'].includes(local.publication_status)) ?
+      'relistAction' : latest.some(item => item.destination && item.destination.type === 'market') ? 'listLocalAction' : 'listAction' };
+}
+function latestPublications(items) {
+  const destinations = new Map();
+  items.slice().sort((a,b) => (Date.parse(b.submitted_at) || 0) - (Date.parse(a.submitted_at) || 0)).forEach(item => {
+    const destination = item.destination || { type: 'local' }, key = `${destination.type}:${destination.market_id || ''}`;
+    if (!destinations.has(key)) destinations.set(key, item);
+  });
+  return [...destinations.values()];
+}
 function requireValue(value, key = 'workflow.invalid') { if (!value) throw new Error(key); }
 function actor(user, enterprise) {
   requireValue(user && user.user_id != null && String(user.enterprise_id) === String(enterprise), 'workflow.forbidden');
@@ -63,8 +83,12 @@ function listingGroups(items) {
       if (!versions.has(item.template.id)) versions.set(item.template.id, { ...item, history: [] });
       else versions.get(item.template.id).history.push(item);
     });
-    const latest = Array.from(versions.values());
-    return { ...group, versions: latest, pending: latest.filter(version => version.status === 'pending').length };
+    const latest = Array.from(versions.values()).map(item => {
+      const entries = [item, ...item.history];
+      const pending = latestPublications(entries).find(row => listingRequiresReview(row) && row.status === 'pending');
+      return pending ? { ...pending, history: entries.filter(row => row.id !== pending.id) } : item;
+    });
+    return { ...group, versions: latest, pending: latest.filter(version => listingRequiresReview(version) && version.status === 'pending').length };
   }).sort((a, b) => b.latest_at.localeCompare(a.latest_at));
 }
 function successfulDeliveryEnvironments(items) {
@@ -76,4 +100,5 @@ function successfulDeliveryEnvironments(items) {
     });
   return Array.from(environments.values());
 }
-module.exports = { submitListing, reviewListing, recordDelivery, listingGroups, successfulDeliveryEnvironments };
+module.exports = { submitListing, reviewListing, recordDelivery, listingGroups, successfulDeliveryEnvironments,
+  listingRequiresReview, listingDeployable, latestPublications, localListingAction };
