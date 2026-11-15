@@ -7,6 +7,7 @@ const React = require('react');
 const babel = require('@umijs/deps/compiled/babel/core');
 const create = require('../../utils/vmSnapshotCreate');
 const reads = require('../../utils/vmSnapshotRead');
+const restores = require('../../utils/vmSnapshotRestore');
 
 function load(relative, dependencies) {
   const filename = path.resolve(__dirname, '../..', relative);
@@ -40,10 +41,10 @@ function harness(extra = {}) {
   const requests = [], memory = storage();
   const h = { requests, memory, response: accepted, storage: memory };
   const services = load('services/vmSnapshots.js', { '../../config/api.config': { baseUrl: '' },
-    '../utils/vmSnapshotRead': reads, '../utils/vmSnapshotCreate': create,
+    '../utils/vmSnapshotRead': reads, '../utils/vmSnapshotCreate': create, '../utils/vmSnapshotRestore': restores,
     '../utils/request': (url, options) => { requests.push({ url, options }); return h.response(url, options); } });
   const model = load('models/vmSnapshotReads.js', { '../services/vmSnapshots': services,
-    '../utils/vmSnapshotRead': reads, '../utils/vmSnapshotCreate': create,
+    '../utils/vmSnapshotRead': reads, '../utils/vmSnapshotCreate': create, '../utils/vmSnapshotRestore': restores,
     '../utils/vmExistingSnapshotCapability': require('../../utils/vmExistingSnapshotCapability') }).default;
   const Component = load('pages/Component/VmSnapshotCreate.js', { react: React,
     antd: { Alert: 'Alert', Button: 'Button', Input: { TextArea: 'TextArea' }, Modal: 'Modal', Select: { Option: 'Option' } },
@@ -147,7 +148,8 @@ test('actual shared request.js preserves durable202 and the exact pre-enqueue er
     '../posthog': { captureErrorViewed: noop }, './requestSlowTelemetry': require('../../utils/requestSlowTelemetry'),
     './marketInstallPreflight': { renderPreflightContent: noop } }).default;
   const services = load('services/vmSnapshots.js', { '../../config/api.config': { baseUrl: '' },
-    '../utils/vmSnapshotRead': reads, '../utils/vmSnapshotCreate': create, '../utils/request': request });
+    '../utils/vmSnapshotRead': reads, '../utils/vmSnapshotCreate': create, '../utils/vmSnapshotRestore': restores,
+    '../utils/request': request });
   const input = { ...attempt(), team_name: 'team-a', region_name: 'region-a', app_alias: 'vm-a' };
   const value = await services.enqueueVMSnapshot(input, noop, () => true);
   assert.equal(create.readSnapshotEnqueue(value, input).job.kind, 'snapshot');

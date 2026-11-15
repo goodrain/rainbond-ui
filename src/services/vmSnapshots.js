@@ -2,6 +2,7 @@ import apiconfig from '../../config/api.config';
 import request from '../utils/request';
 import { validSnapshotName } from '../utils/vmSnapshotRead';
 import { validateSnapshotPrepare, validRequestId } from '../utils/vmSnapshotCreate';
+import { validateVMRestore } from '../utils/vmSnapshotRestore';
 
 function read(body, handleError, shouldApply, detail) {
   if (shouldApply && !shouldApply()) return undefined;
@@ -59,4 +60,31 @@ export function getVMExistingSnapshotCapability(body, handleError, shouldApply) 
     showLoading: false, showMessage: false, shouldApply,
     handleError: error => { if ((!shouldApply || shouldApply()) && handleError) handleError(error); }
   });
+}
+
+function restore(body, handleError, shouldApply, readback) {
+  if (shouldApply && !shouldApply()) return undefined;
+  const input = validateVMRestore(body);
+  for (const key of ['team_name', 'region_name', 'app_alias']) {
+    if (typeof body[key] !== 'string' || !body[key] || ['.', '..'].includes(body[key])) throw new Error('Invalid VM restore scope');
+  }
+  const base = `${apiconfig.baseUrl}/console/teams/${encodeURIComponent(body.team_name)}/apps/${encodeURIComponent(body.app_alias)}` +
+    `/vm-snapshots/${encodeURIComponent(input.snapshot_name)}/restore`;
+  return request(readback ? `${base}/${encodeURIComponent(input.request_id)}` : base, {
+    method: readback ? 'get' : 'post',
+    ...(readback ? { params: { region_name: body.region_name } } : {
+      data: { request_id: input.request_id, team_name: body.team_name, region_name: body.region_name }
+    }),
+    ...(!readback ? {} : { data: { team_name: body.team_name, region_name: body.region_name } }),
+    showLoading: false, showMessage: false, shouldApply,
+    handleError: error => { if ((!shouldApply || shouldApply()) && handleError) handleError(error); }
+  });
+}
+
+export function startVMSnapshotRestore(body, handleError, shouldApply) {
+  return restore(body, handleError, shouldApply, false);
+}
+
+export function getVMSnapshotRestore(body, handleError, shouldApply) {
+  return restore(body, handleError, shouldApply, true);
 }

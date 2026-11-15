@@ -9,6 +9,7 @@ const helpers = require('../../utils/vmSnapshotRead');
 const polling = require('./componentPolling');
 const capabilityHelpers = require('../../utils/vmExistingSnapshotCapability');
 const createHelpers = require('../../utils/vmSnapshotCreate');
+const restoreHelpers = require('../../utils/vmSnapshotRestore');
 
 function load(relative, dependencies, globals = {}) {
   const filename = path.resolve(__dirname, '../..', relative);
@@ -37,6 +38,10 @@ function currentCapability(extra = {}) {
     excluded_volumes: [], ...extra };
 }
 function deferred() { let resolve; const promise = new Promise(done => { resolve = done; }); return { promise, resolve }; }
+function storage() {
+  const map = new Map();
+  return { map, getItem: key => map.get(key) || null, setItem: (key, value) => map.set(key, value), removeItem: key => map.delete(key) };
+}
 async function execute(iterator) {
   let step = iterator.next();
   while (!step.done) {
@@ -47,30 +52,36 @@ async function execute(iterator) {
 }
 function harness() {
   const scope = { team: 'team-a', region: 'region-a', application: '42', alias: 'vm-a', serviceId: 'service-a' };
+  const restoreStorage = storage();
   const requests = [], actions = [], pending = [], capabilityRequests = [], capabilityActions = [], capabilityPending = [], timers = new Map(), listeners = new Set();
   let timerId = 0;
   const document = { hidden: false, addEventListener: (_, callback) => listeners.add(callback), removeEventListener: (_, callback) => listeners.delete(callback) };
-  const h = { scope, requests, actions, pending, capabilityRequests, capabilityActions, capabilityPending, timers, listeners, document,
+  const h = { scope, requests, actions, pending, capabilityRequests, capabilityActions, capabilityPending, timers, listeners, document, restoreStorage,
     capabilityRequest: async () => ok(currentCapability()),
     request: async url => url.includes('/vm-snapshots/') ? ok(item()) : list() };
   const services = load('services/vmSnapshots.js', {
     '../../config/api.config': { baseUrl: '' }, '../utils/vmSnapshotRead': helpers, '../utils/vmSnapshotCreate': createHelpers,
+    '../utils/vmSnapshotRestore': restoreHelpers,
     '../utils/request': (url, options) => {
       if (url.endsWith('/vm-snapshot-capability')) { capabilityRequests.push({ url, options }); return h.capabilityRequest(url, options); }
       requests.push({ url, options }); return h.request(url, options); }
   });
   h.services = services;
   const model = load('models/vmSnapshotReads.js', { '../services/vmSnapshots': services, '../utils/vmSnapshotRead': helpers,
-    '../utils/vmSnapshotCreate': createHelpers, '../utils/vmExistingSnapshotCapability': capabilityHelpers }).default;
+    '../utils/vmSnapshotCreate': createHelpers, '../utils/vmSnapshotRestore': restoreHelpers,
+    '../utils/vmExistingSnapshotCapability': capabilityHelpers }).default;
   const globalUtil = { getCurrTeamName: () => scope.team, getCurrRegionName: () => scope.region,
     getAppID: () => scope.application, getSlidePanelComponentID: () => scope.alias };
   const Component = load('pages/Component/VmSnapshots.js', {
-    react: React, antd: { Alert: 'Alert', Badge: 'Badge', Button: 'Button', Card: 'Card', Descriptions: { Item: 'D' }, Empty: 'Empty', Spin: 'Spin', Table: 'Table' },
+    react: React, antd: { Alert: 'Alert', Badge: 'Badge', Button: 'Button', Card: 'Card', Descriptions: { Item: 'D' }, Empty: 'Empty', Modal: { confirm: options => options.onOk() }, Spin: 'Spin', Table: 'Table' },
     './VmSnapshotCreate': 'SnapshotCreate',
     dva: { connect: () => component => component }, '@/utils/intl': { formatMessage: ({ id }) => id },
-    '@/utils/global': globalUtil, '../../utils/vmSnapshotRead': helpers, '../../components/VMStorageSnapshotHint': load('components/VMStorageSnapshotHint/index.js', { react: React, antd: { Alert: 'Alert', Button: 'Button' }, '@/utils/intl': { formatMessage: ({ id }) => id } }).default, './componentPolling': polling
-  }, { document, setTimeout(callback, delay) { const id = ++timerId; timers.set(id, { callback, delay }); return id; }, clearTimeout: id => timers.delete(id) }).VmSnapshots;
-  const panel = new Component({ context: { ...scope }, pollingEnabled: true, dispatch: action => {
+    '@/utils/global': globalUtil, '../../utils/vmSnapshotRead': helpers,
+    '../../utils/vmSnapshotRestore': { ...restoreHelpers, newVMRestoreRequestId: () => 'restore-07070707070707070707070707070707' },
+    '../../components/VMStorageSnapshotHint': load('components/VMStorageSnapshotHint/index.js', { react: React, antd: { Alert: 'Alert', Button: 'Button' }, '@/utils/intl': { formatMessage: ({ id }) => id } }).default, './componentPolling': polling
+  }, { document, window: { crypto: { getRandomValues: bytes => { bytes.fill(7); return bytes; } } },
+    setTimeout(callback, delay) { const id = ++timerId; timers.set(id, { callback, delay }); return id; }, clearTimeout: id => timers.delete(id) }).VmSnapshots;
+  const panel = new Component({ context: { ...scope }, pollingEnabled: true, snapshotActorId: 17, storage: restoreStorage, dispatch: action => {
     const isCapability = action.type.endsWith('/capability');
     (isCapability ? capabilityActions : actions).push(action);
     const read = execute(model.effects[action.type.split('/')[1]](action, { call: (fn, ...args) => ({ fn, args }) }));
@@ -361,5 +372,102 @@ test('request boundary refuses dot segments and stale work before issuing HTTP; 
   assert.equal(h.panel.state.listStatus, 'failed');
   for (const name of ['.', '..', '%2e%2e', 'point/a', '']) assert.equal(helpers.validSnapshotName(name), false);
   assert.equal(helpers.validSnapshotName('point.a'), true);
+  h.panel.componentWillUnmount();
+});
+
+test('native restore service and model preserve snapshot and request identity', async () => {
+  const h = harness();
+  const payload = { team_name: 'team-a', region_name: 'region-a', app_alias: 'vm-a',
+    snapshot_name: 'point-a', request_id: 'restore-a' };
+  h.request = async (url, options) => {
+    assert.equal(url, '/console/teams/team-a/apps/vm-a/vm-snapshots/point-a/restore');
+    assert.equal(options.method, 'post');
+    assert.equal(options.data.request_id, 'restore-a');
+    assert.equal(options.data.team_name, 'team-a');
+    assert.equal(options.data.region_name, 'region-a');
+    return { status_code: 202, business_code: 202, bean: { restore_name: 'vmr-aaaaaaaaaaaaaaaaaaaaaaaa',
+      snapshot_name: 'point-a', request_id: 'restore-a', phase: 'pending', complete: false, volumes: [] } };
+  };
+  let result;
+  await h.panel.props.dispatch({ type: 'vmSnapshotReads/startRestore', payload, shouldApply: () => true,
+    callback: value => { result = value; } });
+  assert.equal(result.phase, 'pending');
+  h.request = async (url, options) => {
+    assert.ok(url.endsWith('/vm-snapshots/point-a/restore/restore-a'));
+    assert.equal(options.method, 'get');
+    return { status_code: 200, business_code: 200, bean: { ...result, phase: 'succeeded', complete: true } };
+  };
+  await h.panel.props.dispatch({ type: 'vmSnapshotReads/restoreStatus', payload, shouldApply: () => true,
+    callback: value => { result = value; } });
+  assert.equal(result.complete, true);
+  assert.equal(result.phase, 'succeeded');
+});
+
+test('restore attempt storage is immutable and remains bound to the actor and component', () => {
+  const store = storage();
+  const context = { team: 'team-a', region: 'region-a', application: '42', alias: 'vm-a', serviceId: 'service-a' };
+  const key = restoreHelpers.vmRestoreAttemptKey(context, 17);
+  restoreHelpers.saveVMRestoreAttempt(store, key, { snapshot_name: 'point-a', request_id: 'restore-a' });
+  assert.equal(restoreHelpers.loadVMRestoreAttempt(store, key).request_id, 'restore-a');
+  assert.throws(() => restoreHelpers.saveVMRestoreAttempt(store, key, { snapshot_name: 'point-a', request_id: 'restore-b' }));
+  assert.notEqual(key, restoreHelpers.vmRestoreAttemptKey({ ...context, serviceId: 'service-b' }, 17));
+  assert.notEqual(key, restoreHelpers.vmRestoreAttemptKey(context, 18));
+  restoreHelpers.clearVMRestoreAttempt(store, key);
+  assert.equal(restoreHelpers.loadVMRestoreAttempt(store, key), null);
+});
+
+test('only complete ready snapshots can restore and a restore is polled to completion', async () => {
+  const h = harness();
+  const ready = item('point-a', { phase: 'ready', ready_to_use: true, manifest_acked: true, finalized: true,
+    coverage: { complete: true, expected_writable_disks: 1, included_disks: 1, missing_disk_keys: [], excluded_read_only: [] } });
+  h.request = async (url, options) => {
+    if (!url.includes('/restore')) return list([ready]);
+    const base = { restore_name: 'vmr-aaaaaaaaaaaaaaaaaaaaaaaa', snapshot_name: 'point-a',
+      request_id: options.method === 'post' ? options.data.request_id : url.split('/').pop(), volumes: [] };
+    return options.method === 'post'
+      ? { status_code: 202, business_code: 202, bean: { ...base, phase: 'pending', complete: false } }
+      : { status_code: 200, business_code: 200, bean: { ...base, phase: 'succeeded', complete: true } };
+  };
+  await h.mount();
+  assert.equal(h.panel.canRestore(ready), true);
+  assert.equal(h.panel.canRestore({ ...ready, finalized: false }), false);
+  h.panel.confirmRestore(ready);
+  await h.settle();
+  assert.equal(h.panel.state.restore.phase, 'pending');
+  const restoreTimer = Array.from(h.timers.values()).find(timer => timer.delay < 10000);
+  assert.ok(restoreTimer, 'pending restore has a dedicated status poll');
+  restoreTimer.callback();
+  await h.settle();
+  assert.equal(h.panel.state.restore.phase, 'succeeded');
+  assert.equal(h.panel.state.restore.complete, true);
+  h.panel.componentWillUnmount();
+});
+
+test('an uncertain restore submission keeps its durable request and reads status instead of reposting', async () => {
+  const h = harness();
+  const ready = item('point-a', { phase: 'ready', ready_to_use: true, manifest_acked: true, finalized: true,
+    coverage: { complete: true, expected_writable_disks: 1, included_disks: 1, missing_disk_keys: [], excluded_read_only: [] } });
+  let posts = 0;
+  h.request = async (url, options) => {
+    if (!url.includes('/restore')) return list([ready]);
+    if (options.method === 'post') {
+      posts += 1;
+      options.handleError({ response: { status: 503, data: { data: { bean: { error: {
+        code: 'vm_restore_outcome_unknown', retryable: true } } } } } });
+      return undefined;
+    }
+    const requestId = url.split('/').pop();
+    return { status_code: 200, business_code: 200, bean: { restore_name: 'vmr-aaaaaaaaaaaaaaaaaaaaaaaa',
+      snapshot_name: 'point-a', request_id: requestId, phase: 'succeeded', complete: true, volumes: [] } };
+  };
+  await h.mount();
+  h.panel.confirmRestore(ready); await h.settle();
+  assert.equal(h.panel.state.restoreStatus, 'pending');
+  assert.equal(h.restoreStorage.map.size, 1);
+  const restoreTimer = Array.from(h.timers.values()).find(timer => timer.delay < 10000);
+  restoreTimer.callback(); await h.settle();
+  assert.equal(h.panel.state.restoreStatus, 'succeeded');
+  assert.equal(posts, 1);
+  assert.equal(h.restoreStorage.map.size, 0);
   h.panel.componentWillUnmount();
 });
