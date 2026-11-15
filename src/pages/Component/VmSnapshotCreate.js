@@ -93,9 +93,9 @@ export class VmSnapshotCreate extends PureComponent {
     const enabled = this.active();
     return <section aria-label={text('title')}>
       <Button type="primary" disabled={!enabled || !this.props.capabilityReady || !!attempt || status === 'unavailable'}
+        loading={this.props.capabilityChecking}
         onClick={() => this.setState({ visible: true })}>{text('title')}</Button>
-      {!this.props.capabilityReady && <p>{text('capabilityRequired')}</p>}
-      <p>{text('eligibilityNotice')}</p>
+      {!this.props.capabilityReady && !this.props.capabilityChecking && <p>{text('capabilityRequired')}</p>}
       {status !== 'idle' && <Alert type={status === 'accepted' ? 'info' : 'warning'} showIcon
         message={text(['pending', 'reading', 'accepted', 'unknown', 'rejected', 'unsupported', 'workerUnavailable', 'completed', 'unavailable', 'invalid'].includes(status) ? status : 'unknown')}
         description={attempt ? <span>{attempt.name} <Button disabled={!enabled || ['pending', 'reading'].includes(status)}

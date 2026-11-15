@@ -62,6 +62,7 @@ export default class Index extends PureComponent {
       toDeleteVolume: null,
       editor: null,
       volumeOpts: [],
+      volumeOptsLoaded: false,
       relyComponent: false,
       relyComponentList: [],
       page: 1,
@@ -94,6 +95,7 @@ export default class Index extends PureComponent {
       this.volumeRequestKey = requestKey;
       this.volumeRequestGeneration += 1;
       this.clearVolumeExpansionPolling();
+      this.fetchVolumeOpts();
       if (this.props.method === 'vm') this.fetchVMDiskLayout();
       else this.fetchVolumes();
     }
@@ -245,6 +247,8 @@ export default class Index extends PureComponent {
 
   fetchVolumeOpts = () => {
     const { dispatch, appAlias } = this.props;
+    const requestKey = this.getVolumeRequestKey();
+    this.setState({ volumeOptsLoaded: false });
     dispatch({
       type: 'appControl/fetchVolumeOpts',
       payload: {
@@ -252,8 +256,8 @@ export default class Index extends PureComponent {
         app_alias: appAlias
       },
       callback: data => {
-        if (data) {
-          this.setState({ volumeOpts: data.list || [] });
+        if (data && !this.unmounted && requestKey === this.getVolumeRequestKey()) {
+          this.setState({ volumeOpts: data.list || [], volumeOptsLoaded: true });
         }
       },
       handleError: err => handleAPIError(err)
@@ -1031,7 +1035,7 @@ export default class Index extends PureComponent {
               </div>
             }
           >
-            {vmAddVolumeOpts.length === 0 ? (
+            {this.state.volumeOptsLoaded && vmAddVolumeOpts.length === 0 ? (
               <Alert
                 showIcon
                 message={formatMessage({ id: 'Vm.createVm.noLiveMigrationStorage' })}

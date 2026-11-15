@@ -111,7 +111,7 @@ export class VmSnapshots extends PureComponent {
     const context = { ...this.props.context };
     const payload = { team_name: context.team, region_name: context.region, app_alias: context.alias,
       ...(flow === 'list' ? { page: this.state.page, page_size: this.state.pageSize } : { snapshot_name: this.state.selectedName }) };
-    this.setState({ [`${flow}Refreshing`]: true });
+    this.setState({ [`${flow}Refreshing`]: !automatic });
     let finished = false;
     const finish = (data, error) => {
       if (finished || !request.isCurrent()) return;
@@ -133,7 +133,7 @@ export class VmSnapshots extends PureComponent {
       const pending = this.props.dispatch({ type: `vmSnapshotReads/${flow}`, payload,
         shouldApply: request.isCurrent, callback: data => finish(data), handleError: error => finish(null, error) });
       if (pending?.then) pending.then(() => { if (!finished) finish(null, failedRead); }, () => finish(null, failedRead));
-      if (flow === 'list') this.readCapability();
+      if (flow === 'list' && !automatic) this.readCapability();
       return pending;
     } catch (_) { finish(null, failedRead); return undefined; }
   };
@@ -163,6 +163,8 @@ export class VmSnapshots extends PureComponent {
   renderCapability = () => {
     const { capability, capabilityStatus, capabilityRefreshing } = this.state;
     const current = this.state.contextKey === this.identity() && this.enabled();
+    if (current && ((!capability && capabilityStatus === 'loading') ||
+        (capabilityStatus === 'ready' && capability?.supported === true && capability?.complete === true))) return null;
     const state = !current ? 'unknown' : capabilityRefreshing ? 'loading'
       : capabilityStatus === 'ready' ? capability.status : capabilityStatus;
     const stale = !!capability && (capabilityRefreshing || capabilityStatus !== 'ready');
@@ -337,6 +339,7 @@ export class VmSnapshots extends PureComponent {
       <p>{text('readOnlyScope')}</p>
       {this.renderCapability()}
       <VmSnapshotCreate context={this.props.context} actorId={this.props.snapshotActorId} enabled={current}
+        capabilityChecking={current && (this.state.capabilityRefreshing || this.state.capabilityStatus === 'loading')}
         capabilityReady={current && !this.state.capabilityRefreshing && this.state.capabilityStatus === 'ready' &&
           this.state.capability?.supported === true && this.state.capability?.complete === true}
         dispatch={this.props.dispatch} onAccepted={() => this.read('list')} />

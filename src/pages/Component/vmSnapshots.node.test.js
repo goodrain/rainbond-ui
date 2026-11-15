@@ -146,12 +146,37 @@ test('current VM checks consume actual Go complete-set outputs without hiding un
     assert.equal(h.panel.state.capability.excluded_volumes.length, data.excluded_volumes.length, name);
     assert.deepEqual(Array.from(h.panel.state.capability.volumes, row => row.read_only), data.volumes.map(row => row.read_only));
     const tables = elements(h.panel.renderCapability()).filter(node => node.type === 'Table');
-    assert.equal(tables[0].props.dataSource.length, data.volumes.length);
+    if (data.supported && data.complete) assert.equal(h.panel.renderCapability(), null, name);
+    else assert.equal(tables[0].props.dataSource.length, data.volumes.length, name);
     assert.equal(h.capabilityRequests[0].url, '/console/teams/team-a/apps/vm-a/vm-snapshot-capability');
     assert.deepEqual(Object.keys(h.capabilityRequests[0].options.params), ['region_name']);
     assert.equal(h.capabilityRequests[0].options.method, 'get');
     h.panel.componentWillUnmount();
   }
+});
+
+test('supported storage stays quiet during background polling and only explicit refresh rechecks capability', async () => {
+  const h = harness(); await h.mount(); await h.settleCapability();
+  assert.equal(h.panel.renderCapability(), null);
+  assert.equal(elements(h.panel.render()).find(node => node.type === 'SnapshotCreate').props.capabilityReady, true);
+  const slowList = deferred();
+  h.request = () => slowList.promise;
+  const polling = h.advance();
+  assert.equal(h.panel.state.listRefreshing, false, 'background reads do not spin the refresh button');
+  assert.equal(h.capabilityRequests.length, 1, 'list polling does not recheck storage');
+  slowList.resolve(list()); await polling;
+  const slowCapability = deferred();
+  h.request = async () => list(); h.capabilityRequest = () => slowCapability.promise;
+  await h.panel.read('list');
+  assert.equal(h.capabilityRequests.length, 2, 'manual refresh still rechecks storage');
+  assert.equal(h.panel.renderCapability(), null, 'previous support does not flash a checking banner');
+  const create = elements(h.panel.render()).find(node => node.type === 'SnapshotCreate');
+  assert.equal(create.props.capabilityChecking, true);
+  assert.equal(create.props.capabilityReady, false);
+  slowCapability.resolve(undefined); await h.settleCapability();
+  assert.ok(h.panel.renderCapability(), 'a failed recheck still exposes the reason');
+  assert.equal(elements(h.panel.render()).find(node => node.type === 'SnapshotCreate').props.capabilityReady, false);
+  h.panel.componentWillUnmount();
 });
 
 test('capability refresh failure invalidates prior support, missing endpoint stays unknown and does not break record reads', async () => {
