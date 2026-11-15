@@ -119,8 +119,7 @@ export class VmComponentWorkspace extends PureComponent {
     const badgeStatus = stateKey === 'running' ? 'success' : ['failure', 'failed', 'unusual', 'abnormal', 'build_fail'].includes(stateKey) ? 'error' : 'default';
     const value = (amount, unit) => amount === null || amount === undefined ? text('notReported') : `${amount}${unit ? ` ${unit}` : ''}`;
     const unavailable = !data.guestStatus || data.guestStatus === 'unavailable';
-    const guestMessage = unavailable ? `guest.reason.${data.guestReason}` : `guest.status.${data.guestStatus}`;
-    const toolsMessage = unavailable ? guestMessage : ['powered_off', 'paused', 'starting'].includes(data.guestStatus)
+    const toolsMessage = unavailable ? `guest.reason.${data.guestReason}` : ['powered_off', 'paused', 'starting'].includes(data.guestStatus)
       ? `guest.status.${data.guestStatus}` : data.agentConnected === true ? 'connected'
       : data.agentConnected === false ? 'disconnected' : 'guest.agentNotDetected';
     return <div>
@@ -134,7 +133,6 @@ export class VmComponentWorkspace extends PureComponent {
         <div className={styles.column}>
           <Card title={text('stateTitle')} size="small" extra={<Button size="small" icon="reload" loading={this.state.refreshing} onClick={this.refreshProfile}>{text('refresh')}</Button>}>
             <Descriptions column={1} size="small">
-              <D label={text('guestState')}>{text(guestMessage)}</D>
               <D label={text('guestTools')}>{text(toolsMessage)}</D>
               <D label={text('operatingSystem')}>{data.osName || text('notReported')}</D>
               <D label={text('architecture')}>{data.arch || text('notReported')}</D>

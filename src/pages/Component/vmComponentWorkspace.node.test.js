@@ -137,19 +137,19 @@ function presenter(tab = 'overview', extra = {}) {
     vmWorkspacePlugins: [{ name: 'rainbond-vm' }], dispatch() {}, ...extra });
 }
 +
-test('overview renders real guest response and clears it after refresh failure', () => {
+test('overview renders one guest-tools connection status and clears it after refresh failure', () => {
   const detail = { ...realDetail, vm_profile: { ...realDetail.vm_profile, guest: {
     status: 'responding', reason: 'agent_connected', agent_connected: true
   } } };
   const view = presenter('overview', { status: { status: 'running' }, appDetail: detail });
   let html = ReactDOMServer.renderToStaticMarkup(view.render());
-  assert.ok(html.includes('guest.status.responding'));
+  assert.equal(html.includes('vmWorkspace.guestState'), false);
   assert.ok(html.includes('vmWorkspace.connected'));
   assert.ok(html.includes('guestToolsHelp'));
   view.state.refreshFailed = true;
   html = ReactDOMServer.renderToStaticMarkup(view.render());
   assert.ok(html.includes('guest.reason.read_failed'));
-  assert.equal(html.includes('guest.status.responding'), false);
+  assert.equal(html.includes('vmWorkspace.connected'), false);
 });
 
 test('overview does not turn absent agent evidence into an installation diagnosis', () => {
@@ -159,7 +159,7 @@ test('overview does not turn absent agent evidence into an installation diagnosi
   const html = ReactDOMServer.renderToStaticMarkup(presenter('overview', {
     status: { status: 'running' }, appDetail: detail
   }).render());
-  assert.ok(html.includes('guest.status.unconfirmed'));
+  assert.equal(html.includes('vmWorkspace.guestState'), false);
   assert.ok(html.includes('guest.agentNotDetected'));
   assert.equal(html.includes('vmWorkspace.connected'), false);
 });
