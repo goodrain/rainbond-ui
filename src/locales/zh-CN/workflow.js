@@ -1,4 +1,6 @@
 export default {
+  "workflow.environmentStatusUnavailable": "状态暂不可用",
+  "workflow.environmentStatusLoading": "查询中",
   "workflow.environmentApplicationName": "应用名称",
   "workflow.environmentApplicationDeleted": "应用已删除",
   "workflow.environmentDeliveredVersion": "交付时 {version}",

@@ -1,4 +1,6 @@
 export default {
+  "workflow.environmentStatusUnavailable": "Status unavailable",
+  "workflow.environmentStatusLoading": "Loading",
   "workflow.environmentApplicationName": "Application name",
   "workflow.environmentApplicationDeleted": "Application deleted",
   "workflow.environmentDeliveredVersion": "Delivered {version}",

@@ -76,6 +76,14 @@ export async function loadDeliveryCenter({ user, kind, groupId, scope, component
     return { bean: { list: response.list } };
   }
   if (kind === 'targets') return request(`${apiconfig.baseUrl}/console/delivery-targets`, { method: 'get' });
+  if (kind === 'environmentStatus') {
+    const response = await request(`${apiconfig.baseUrl}/console/teams/${encodeURIComponent(scope.teamName)}/groups/${encodeURIComponent(scope.appID)}/status`, {
+      method: 'get', params: { region_name: scope.regionName }, showMessage: false, timeout: 12000, handleError: () => {}
+    });
+    const state = response && (response.list && response.list.status ? response.list : response.bean);
+    if (!state || typeof state.status !== 'string' || !state.status) throw new Error('workflow.environmentStatusUnavailable');
+    return { bean: { status: state.status } };
+  }
   if (kind === 'runtime') {
     const source = scope;
     let deleted = false;

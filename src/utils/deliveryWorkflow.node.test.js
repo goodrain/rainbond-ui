@@ -353,3 +353,19 @@ test('a deleted runtime application stops further reads and handles the 404 with
   assert.equal(requests.length, 1);
   assert.equal(result.bean.components.length, 0);
 });
+
+test('environment status reads the target overview endpoint and rejects missing status without inventing success', async () => {
+  const fs = require('node:fs'), vm = require('node:vm');
+  const calls = [];let response = { list: { status: 'CLOSED' } };
+  const context = { require: require('node:module').createRequire(`${__dirname}/../services/deliveryCenter.js`), apiconfig: { baseUrl: '' },
+    request: async (url, options) => { calls.push({ url, options });return response; } };
+  vm.runInNewContext(fs.readFileSync(`${__dirname}/../services/deliveryCenter.js`, 'utf8').replace(/^import .*;\n/gm, '').replace(/^export /gm, ''), context);
+  const result = await context.loadDeliveryCenter({ kind: 'environmentStatus', scope: { teamName: 'target-team', regionName: 'production', appID: '42' } });
+  assert.equal(result.bean.status, 'CLOSED');
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].url, '/console/teams/target-team/groups/42/status');
+  assert.equal(calls[0].options.params.region_name, 'production');
+  assert.equal(typeof calls[0].options.handleError, 'function');
+  response = { bean: { status: null } };
+  await assert.rejects(context.loadDeliveryCenter({ kind: 'environmentStatus', scope }), /environmentStatusUnavailable/);
+});

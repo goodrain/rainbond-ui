@@ -1,19 +1,44 @@
 import React, { PureComponent } from 'react';
-import { Table, Tag, Tooltip } from 'antd';
+import { Badge, Table, Tooltip } from 'antd';
+import { connect } from 'dva';
 import moment from 'moment';
 import DeliveryUpgradeAction from './DeliveryUpgradeAction';
 import { w } from './index';
-import styles from './version.less';
+const statuses = { RUNNING: 'appRunning', CLOSED: 'appStopped', STARTING: 'appStarting', STOPPING: 'appStopping', ABNORMAL: 'appAbnormal', PARTIAL_ABNORMAL: 'appAbnormal', BUILDING: 'componentBuilding' };
 
+@connect()
 export default class EnvironmentTable extends PureComponent {
-  state = { information: {} };
+  state = { information: {}, statuses: {} };
+  alive = false;
+  tickets = {};
+  componentDidMount() { this.alive = true; }
+  componentWillUnmount() { this.alive = false;this.tickets = {}; }
+  receiveInformation = (row, info) => {
+    if (!this.alive) return;
+    const ticket = this.tickets[row.id] = (this.tickets[row.id] || 0) + 1;
+    this.setState(state => ({ information: { ...state.information, [row.id]: info },
+      statuses: { ...state.statuses, [row.id]: info ? null : 'unavailable' } }));
+    const target = info && info.target || row.target;
+    if (!info || info.target_deleted || !target || !target.app_id) return;
+    this.props.dispatch({ type: 'deliveryCenter/load', payload: { kind: 'environmentStatus',
+      scope: { teamName: target.team_name, regionName: target.region_name, appID: target.app_id } }, callback: data => {
+      if (this.alive && this.tickets[row.id] === ticket) this.setState(state => ({ statuses: { ...state.statuses, [row.id]: data.status } }));
+    }, onError: () => {
+      if (this.alive && this.tickets[row.id] === ticket) this.setState(state => ({ statuses: { ...state.statuses, [row.id]: 'unavailable' } }));
+    } });
+  };
   render() {
-    return <Table rowKey="id" size="small" pagination={false} dataSource={this.props.items} scroll={{ x: 760 }} columns={[
+    return <Table rowKey="id" size="small" pagination={false} dataSource={this.props.items} scroll={{ x: 900 }} columns={[
       { title: w('environmentApplicationName'), key: 'application', width: '20%', render: (_, row) => {
         const info = this.state.information[row.id];
-        return <div>{info && info.target && info.target.app_name || row.target.app_name || '—'}
-          {info && info.target_deleted && <div className={styles.secondary}><Tag>{w('environmentApplicationDeleted')}</Tag></div>}
-        </div>;
+        return info && info.target && info.target.app_name || row.target.app_name || '—';
+      } },
+      { title: w('appStatus'), key: 'status', width: 110, render: (_, row) => {
+        const info = this.state.information[row.id];
+        if (info && info.target_deleted) return <Badge status="default" text={w('environmentApplicationDeleted')} />;
+        const status = String(this.state.statuses[row.id] || '').toUpperCase();
+        return <Badge status={status === 'RUNNING' ? 'success' : ['ABNORMAL', 'PARTIAL_ABNORMAL'].includes(status) ? 'error' : ['STARTING', 'STOPPING', 'BUILDING'].includes(status) ? 'processing' : 'default'}
+          text={statuses[status] ? w(statuses[status]) : w(status ? 'environmentStatusUnavailable' : 'environmentStatusLoading')} />;
       } },
       { title: w('environmentCurrentVersion'), key: 'version', width: '14%', render: (_, row) => {
         const info = this.state.information[row.id];
@@ -34,7 +59,7 @@ export default class EnvironmentTable extends PureComponent {
         </span> : '—';
       } },
       { title: w('actions'), key: 'upgrade', width: 100, render: (_, row) => <DeliveryUpgradeAction task={row}
-        onInfo={info => this.setState(state => ({ information: { ...state.information, [row.id]: info } }))} /> }
+        onInfo={info => this.receiveInformation(row, info)} /> }
     ]} />;
   }
 }
