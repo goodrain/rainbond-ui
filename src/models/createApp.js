@@ -1,3 +1,4 @@
+import { assertNoVmPasswordPayload, safeVmCredentialError } from '../utils/vmLoginCredentials';
 import {
   buildApp,
   createAppByCode,
@@ -36,6 +37,10 @@ import {
   installHelmUploadApp,
   updateCustomLanguage
 } from '../services/createApp';
+import { editAppCreateInfo, getPortDetail, getVolumeOpts } from '../services/app';
+import { runVmQuickStart, runVmCreation } from '../utils/vmQuickStart';
+import { getPluginVolumeOpts } from '../services/plugin';
+import { fetchVmCreationStorage } from '../utils/vmCreationStorage';
 import {
   captureAppOperation,
   captureMarketInstall
@@ -74,6 +79,56 @@ function trackCreateFailed(actionType, payload, error) {
     error_category: 'request_failed',
     error_code: error && (error.status || error.code || error.name)
   }));
+}
+
+function* runVirtualMachineWorkflow({ payload, resume, onProgress, callback, isActive, readCredentials, passwordBootstrapSupported }, { call }, runner, actionType) {
+  // Request credentials exist only in the effect scope, never model state or
+  // demo persistence. All emitted progress/results are helper projections.
+  const ignoreError = () => {};
+  const active = () => {
+    try { return typeof isActive === 'function' ? Boolean(isActive()) : payload?.login_method !== 'password'; } catch (_) { return false; }
+  };
+  const invoke = (service, body, options) => {
+    if (!active()) {
+      const cancelled = new Error('VM creation cancelled');
+      cancelled.name = 'VmCreationCancelled';
+      throw cancelled;
+    }
+    return service(body, ignoreError, options);
+  };
+
+  let result;
+  let latestProgress;
+  const reportProgress = progress => {
+    if (!active()) return;
+    latestProgress = {
+      ...progress,
+      resources: { ...progress.resources },
+      storageOptions: progress.storageOptions.map(option => ({ ...option }))
+    };
+    if (onProgress) onProgress(progress);
+  };
+  try {
+    assertNoVmPasswordPayload(payload);
+    trackCreateStarted(actionType, payload || {});
+    result = yield call(runner, { payload, resume, onProgress: reportProgress }, {
+      createVm: body => invoke(createAppByVirtualMachine, body, { isActive: active, readCredentials, passwordBootstrapSupported: passwordBootstrapSupported === true }),
+      getPortDetail: body => invoke(getPortDetail, body),
+      getVolumeOpts: body => invoke(getVolumeOpts, body),
+      configure: body => invoke(editAppCreateInfo, body),
+      build: body => invoke(buildApp, body)
+    });
+  } catch (_) {
+    result = {
+      stage: 'create', serviceAlias: '', groupId: '', portConfigured: false,
+      resourceConfigured: false, sshRequired: false,
+      storageOptions: [], resources: { cpu: 4, memory: 8, disk: 80 },
+      ...latestProgress, status: 'failed', error: 'quickStartInvalidRequest'
+    };
+  }
+  if (result.status === 'submitted') trackCreateSucceeded(actionType, payload || {});
+  else trackCreateFailed(actionType, payload || {}, { code: result.error });
+  if (callback && active()) callback(result);
 }
 
 export default {
@@ -196,7 +251,7 @@ export default {
     },
     *createJarWarServices({ payload, callback, handleError }, { call }) {
       try {
-        const data = yield call(createJarWarServices, payload);
+        const data = yield call(createJarWarServices, payload, handleError);
         if (data && callback) {
           setTimeout(() => {
             callback(data);
@@ -212,7 +267,7 @@ export default {
     },
     *createJarWarUploadStatus({ payload, callback, handleError }, { call }) {
       try {
-        const data = yield call(createJarWarUploadStatus, payload);
+        const data = yield call(createJarWarUploadStatus, payload, handleError);
         if (data && callback) {
           setTimeout(() => {
             callback(data);
@@ -250,7 +305,7 @@ export default {
         });
       }
     },
-    
+
     *deleteJarWarUploadStatus({ payload, callback, handleError }, { call }) {
       try {
         const data = yield call(deleteJarWarUploadStatus, payload);
@@ -351,22 +406,37 @@ export default {
         }
       }
     },
-    *createAppByVirtualMachine({ payload, callback, handleError }, { call }) {
-      trackCreateStarted('virtual_machine_create', payload);
+    *createAppByVirtualMachine({ payload, callback, handleError, readCredentials,
+      passwordBootstrapSupported, isActive }, { call }) {
+      const active = () => {
+        try {
+          return typeof isActive === 'function' ? Boolean(isActive()) : payload?.login_method !== 'password';
+        } catch (_) { return false; }
+      };
+      if (!active()) return;
       try {
-        const data = yield call(createAppByVirtualMachine, payload, handleError);
-        if (data) {
-          trackCreateSucceeded('virtual_machine_create', payload);
-        }
-        if (data && callback) {
-          callback(data);
-        }
-      } catch (e) {
-        trackCreateFailed('virtual_machine_create', payload, e);
-        if (handleError) {
-          handleError(e);
-        }
+        assertNoVmPasswordPayload(payload);
+        trackCreateStarted('virtual_machine_create', payload);
+        const guardedError = error => { if (active() && handleError) handleError(error); };
+        const data = yield call(createAppByVirtualMachine, payload, guardedError, {
+          readCredentials, passwordBootstrapSupported: passwordBootstrapSupported === true, isActive: active
+        });
+        if (!active()) return;
+        if (data) trackCreateSucceeded('virtual_machine_create', payload);
+        if (data && callback) callback(data);
+      } catch (error) {
+        if (!active()) return;
+        const safeError = payload?.login_method === 'password' ? safeVmCredentialError() : error;
+        trackCreateFailed('virtual_machine_create', payload, safeError);
+        if (handleError) handleError(safeError);
       }
+    },
+
+    *quickStartVirtualMachine(action, effects) {
+      yield* runVirtualMachineWorkflow(action, effects, runVmQuickStart, 'virtual_machine_quickstart');
+    },
+    *createVirtualMachineWorkflow(action, effects) {
+      yield* runVirtualMachineWorkflow(action, effects, runVmCreation, 'virtual_machine_create_workflow');
     },
     *getAppByVirtualMachineImage({ payload, callback, handleError }, { call }) {
       const data = yield call(getAppByVirtualMachineImage, payload, handleError);
@@ -385,6 +455,34 @@ export default {
       if (data && callback) {
         callback(data);
       }
+    },
+    *fetchVMCreationStorage({ payload, isActive, callback }, { call }) {
+      const active = () => {
+        try { return typeof isActive !== 'function' || Boolean(isActive()); } catch (_) { return false; }
+      };
+      const read = async (service, body) => {
+        if (!active()) {
+          const cancelled = new Error('VM storage request cancelled');
+          cancelled.name = 'VmStorageRequestCancelled';
+          throw cancelled;
+        }
+        let failure;
+        const result = await service({ ...body, creationStorageRead: true }, error => {
+          failure = { status: Number(error && error.status) || 0 };
+        });
+        if (failure) throw failure;
+        return result;
+      };
+      let result;
+      try {
+        result = yield call(fetchVmCreationStorage, { payload, isActive: active }, {
+          getCapabilities: body => read(getVMCapabilities, body),
+          getLegacyVolumeOpts: body => read(getPluginVolumeOpts, body)
+        });
+      } catch (_) {
+        result = { status: 'failed', options: [], reason: 'request-failed' };
+      }
+      if (active() && callback) callback(result);
     },
     *getImageRepositories({ payload, callback, handleError }, { call }) {
       const data = yield call(getImageRepositories, payload, handleError);

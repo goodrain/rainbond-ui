@@ -39,8 +39,8 @@ async function withOverview(initialSearch, verify, { holdReads = false } = {}) {
   Object.assign(dom.window, { requestAnimationFrame: globals.requestAnimationFrame, cancelAnimationFrame: globals.cancelAnimationFrame });
   const previous = Object.fromEntries(Object.keys(globals).map(key => [key, Object.getOwnPropertyDescriptor(global, key)]));
   Object.entries(globals).forEach(([key, value]) => Object.defineProperty(global, key, { configurable: true, writable: true, value }));
-  const tasks = new Set(), requests = [], errors = [], topologies = [], actions = [], headers = [], writes = [], warnings = [];
-  let ReactDOM, currentApp = '35', search = initialSearch, store;
+  const tasks = new Set(), requests = [], errors = [], topologies = [], actions = [], headers = [], writes = [], warnings = [], slidePanels = [], modalConfigs = [];
+  let ReactDOM, portalContainer, currentApp = '35', search = initialSearch, store;
   try {
     const React = require('react');
     ReactDOM = require('react-dom');
@@ -81,8 +81,11 @@ async function withOverview(initialSearch, verify, { holdReads = false } = {}) {
       moment: require('moment'),
       '../../layouts/MenuContext': React.createContext(),
       '../../utils/missingResourceHelpers': require('../../utils/missingResourceHelpers'),
+      '../../utils/vmWorkflowDemo': require('../../utils/vmWorkflowDemo'),
       './componentViewPerformance': require('../../components/SlidePanel/components/componentViewPerformance')
     };
+    fixtures['../../DeferredComponent'] = (loader, options) => options && options.modal
+      ? props => { modalConfigs.push(props); return null; } : box;
     const evaluate = (key, imports = {}) => {
       const module = { exports: {} };
       new Function('module', 'exports', 'require', compiled[key])(module, module.exports, name => {
@@ -133,7 +136,8 @@ async function withOverview(initialSearch, verify, { holdReads = false } = {}) {
     const AppHeader = evaluate('header').default;
     const AppShape = evaluate('shape', { '../../components/Topological': TopologyFixture }).default;
     const Overview = evaluate('overview', {
-      '@/components/SlidePanel/components/app': AppHeader, './AppShape': AppShape
+      '@/components/SlidePanel/components/app': AppHeader, './AppShape': AppShape,
+      '../../components/SlidePanel': props => { slidePanels.push(props); return null; }
     }).default;
     const container = dom.window.document.getElementById('root');
     const flush = async () => {
@@ -159,11 +163,42 @@ async function withOverview(initialSearch, verify, { holdReads = false } = {}) {
             : { status_code: 200, bean: { ID: record.app, group_name: 'fixture-app' } });
     });
     mount(); await flush();
-    await verify({ requests, errors, topologies, actions, headers, writes, warnings, counts, complete, flush,
+    await verify({ requests, errors, topologies, actions, headers, writes, warnings, slidePanels, modalConfigs, counts, complete, flush,
+      workspace: () => dom.window.document.getElementById('vm-creation-workspace'),
+      showWorkspace: () => {
+        portalContainer = dom.window.document.createElement('div');
+        dom.window.document.body.appendChild(portalContainer);
+        ReactDOM.render(ReactDOM.createPortal(React.createElement('section', {
+          'data-testid': 'vm-hardware-page', 'data-vm-workspace-active': 'true'
+        },
+          'VM hardware configuration'), dom.window.document.getElementById('vm-creation-workspace')), portalContainer);
+      },
+      hideWorkspace: () => {
+        ReactDOM.unmountComponentAtNode(portalContainer);
+        portalContainer.remove();
+        portalContainer = null;
+      },
+      renderStandaloneHeader: async (app, { scope, refresh = '', withLoader = false } = {}) => {
+        currentApp = app;
+        const pathname = `/team/test-team/region/test-region/apps/${app}/overview`;
+        dom.window.history.replaceState(null, '', `/#${pathname}${refresh ? `?refresh=${refresh}` : ''}`);
+        const loader = withLoader ? Object.assign(async () => ({
+          status_code: 200, bean: { ID: app, group_name: 'fixture-app' }
+        }), { isCurrent: () => true }) : undefined;
+        const header = React.createElement(AppHeader, {
+          applicationRoute: { teamName: 'test-team', regionName: 'test-region', appID: app, pathname, refresh },
+          initialDetailScope: scope, initialDetailLoader: loader,
+          permissions: { componentPermissions: { isAccess: true }, appPermissions: {} }, apps: [],
+          vmCreationRequest: 1, vmCreationRequestHandled: 0, vmInitialSource: 'upload'
+        });
+        ReactDOM.render(React.createElement(redux5.Provider, { store }, header), container);
+        await flush();
+      },
       navigate: async (nextSearch, app = currentApp) => { search = nextSearch; currentApp = app; mount(); await flush(); },
       unmount: () => ReactDOM.unmountComponentAtNode(container) });
     assert.deepEqual(errors, []);
   } finally {
+    if (ReactDOM && portalContainer) ReactDOM.unmountComponentAtNode(portalContainer);
     if (ReactDOM) ReactDOM.unmountComponentAtNode(dom.window.document.getElementById('root'));
     tasks.forEach(task => task.cancel());
     dom.window.close();
@@ -172,6 +207,87 @@ async function withOverview(initialSearch, verify, { holdReads = false } = {}) {
 }
 
 const expected = count => ({ status: count, 'operator-managed': count, upgradable_num: count });
+
+test('VM workspace portal preserves the application header and topology while opening and closing',
+  () => withOverview('', async h => {
+    const host = h.workspace();
+    assert(host);
+    assert.equal(host.childNodes.length, 0);
+    h.showWorkspace();
+    assert.equal(host.querySelector('[data-testid="vm-hardware-page"]').textContent, 'VM hardware configuration');
+    await h.navigate('?type=components&componentID=fixture-component&tab=overview');
+    assert.equal(h.workspace(), host);
+    assert.equal(host.childNodes.length, 1);
+    assert.equal(h.headers.length, 1);
+    assert.deepEqual(h.topologies, [{ event: 'mount', app: '35' }]);
+    h.hideWorkspace();
+    assert.equal(host.childNodes.length, 0);
+    assert.deepEqual(h.counts(), expected(1));
+    h.complete(); await h.flush();
+  }));
+
+test('legacy VM source-page query opens the native VM modal once without an unsupported drawer',
+  () => withOverview('?source_type=upload&type=vm-create&created_vm=vm-2&refresh=initial-token', async h => {
+    const replacement = h.actions.find(action => action.type === 'router/replace');
+    assert(replacement);
+    assert.equal(replacement.payload.pathname, '/team/test-team/region/test-region/apps/35/overview');
+    assert.deepEqual(replacement.payload.query, { refresh: 'initial-token' });
+    assert(h.slidePanels.every(panel => panel.isVisible === false));
+    assert.equal(h.headers[0].state.showCreateComponentModal, true);
+    assert.equal(h.headers[0].state.vmCreationInitialSource, 'upload');
+    assert.equal(h.headers[0].props.vmCreationRequest, 1);
+    assert.equal(h.headers[0].props.vmCreationRequestHandled, 1);
+    assert.equal(h.modalConfigs.at(-1).initialVmForm, true);
+    assert.equal(h.modalConfigs.at(-1).initialVmSource, 'upload');
+    assert.equal(h.workspace().childNodes.length, 0);
+    assert.deepEqual(h.topologies, [{ event: 'mount', app: '35' }]);
+    h.headers[0].handleCloseCreateComponentModal();
+    await h.navigate('?refresh=initial-token');
+    assert.equal(h.headers[0].state.showCreateComponentModal, false,
+      'clearing the legacy query must not replay the handled request after close');
+    await h.navigate('?refresh=after-close');
+    assert.equal(h.headers.at(-1).state.showCreateComponentModal, false,
+      'a refreshed application header must not replay the same handled request');
+    h.complete(); await h.flush();
+  }));
+
+test('legacy VM source selection is whitelisted before opening the native form',
+  () => withOverview('?type=vm-create&source_type=unexpected', async h => {
+    assert.equal(h.modalConfigs.at(-1).initialVmSource, 'url');
+    assert.equal(h.headers[0].props.vmInitialSource, 'url');
+    assert.equal(h.headers[0].state.showCreateComponentModal, true);
+    h.complete(); await h.flush();
+  }));
+
+test('a reused application header closes the native creation form when its application identity changes',
+  () => withOverview('', async h => {
+    await h.renderStandaloneHeader('35');
+    const header = h.headers.at(-1);
+    assert.equal(header.state.showCreateComponentModal, true);
+    assert.equal(header.state.vmCreationInitialSource, 'upload');
+    await h.renderStandaloneHeader('36');
+    assert.equal(h.headers.at(-1), header, 'the check must exercise a reused component, not a fresh mount');
+    assert.equal(header.state.showCreateComponentModal, false);
+    assert.equal(header.state.vmCreationInitialSource, null);
+    h.complete(); await h.flush();
+  }));
+
+test('bootstrap detail scope and read refresh changes keep an already-open native VM form',
+  () => withOverview('', async h => {
+    await h.renderStandaloneHeader('35');
+    const header = h.headers.at(-1);
+    assert.equal(header.state.showCreateComponentModal, true);
+    const firstReadIdentity = header.headerReadIdentity;
+    await h.renderStandaloneHeader('35', { scope: 'bootstrap-ready', refresh: 'first-read', withLoader: true });
+    assert.equal(h.headers.at(-1), header);
+    assert.notEqual(header.headerReadIdentity, firstReadIdentity, 'the test must change the existing read identity');
+    assert.equal(header.state.showCreateComponentModal, true);
+    assert.equal(header.state.vmCreationInitialSource, 'upload');
+    await h.renderStandaloneHeader('35', { scope: 'bootstrap-ready', refresh: 'next-read', withLoader: true });
+    assert.equal(header.state.showCreateComponentModal, true);
+    assert.equal(header.state.vmCreationInitialSource, 'upload');
+    h.complete(); await h.flush();
+  }));
 
 for (const search of ['', '?refresh=', '?refresh=false', '?refresh=first-token']) {
   test(`cold Group overview ${search || '(no query)'} initializes one AppHeader request set`,

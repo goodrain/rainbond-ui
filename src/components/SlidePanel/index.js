@@ -115,6 +115,7 @@ class SlidePanel extends PureComponent {
           <>
             {isVisible && type === 'components' && (
               <Components
+                demoComponents={this.props.demoComponents}
                 componentID={globalUtil.getSlidePanelComponentID()}
                 pageHeader={pageHeader}
                 permissions={componentPermissions}

@@ -25,12 +25,13 @@ import workspace from './zh-CN/workspace';
 import delivery from './zh-CN/delivery';
 
 import workflow from './zh-CN/workflow';
-
+import vmDemo from './zh-CN/vmDemo';
 export default {
   ...agentExecution,
   ...workflow,
   ...delivery,
   ...workspace,
+  ...vmDemo,
   'navBar.lang': '语言',
   'layout.user.link.help': '帮助',
   'layout.user.link.privacy': '隐私',

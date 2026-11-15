@@ -1,0 +1,64 @@
+@import '~antd/lib/style/themes/default.less';
+
+.workspace {
+  padding: 12px 0 20px;
+  color: @text-color;
+  :global(.ant-card) {
+    border-radius: 12px;
+    margin-bottom: 12px;
+  }
+  > :global(.ant-alert) { margin-bottom: 12px; }
+}
+.resourceStrip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0 0 16px;
+  padding: 16px 0;
+  border: 1px solid @border-color-base;
+  border-radius: 12px;
+  background: @component-background;
+  > div {
+    min-width: 0;
+    padding: 0 18px;
+    border-right: 1px solid @border-color-base;
+    &:last-child { border-right: 0; }
+  }
+  dt {
+    margin-bottom: 8px;
+    color: @text-color-secondary;
+    font-size: @rbd-auxiliary-size;
+    line-height: @rbd-auxiliary-line-height;
+  }
+  dd {
+    margin: 0;
+    color: @heading-color;
+    font-size: @rbd-sub-title-size;
+    line-height: @rbd-sub-title-line-height;
+    overflow-wrap: anywhere;
+  }
+}
+.overviewColumns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: stretch;
+  > :global(.ant-card), .column > :global(.ant-card) { height: calc(100% - 12px); }
+}
+.column { min-width: 0; }
+.sectionStack > :global(.ant-card) { margin-bottom: 12px; }
+.computeCard :global(.ant-descriptions-row) > th,
+.computeCard :global(.ant-descriptions-row) > td { padding-bottom: 0; }
+.note {
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+  margin: 8px 0;
+}
+@media (max-width: 900px) {
+  .overviewColumns { grid-template-columns: 1fr; gap: 0; }
+  .resourceStrip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 0;
+    > div:nth-child(2) { border-right: 0; }
+  }
+}

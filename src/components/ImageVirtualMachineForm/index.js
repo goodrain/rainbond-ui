@@ -1,3 +1,4 @@
+import { VM_LOGIN_METHODS, VM_SENSITIVE_LOGIN_FIELDS, supportsVmPasswordBootstrap, getVmLoginPasswordError, getVmPasswordUsernameError, safeVmCredentialError, assertNoVmPasswordPayload, clearRegisteredVmLoginFields, normalizeVmLoginGroupId } from '@/utils/vmLoginCredentials';
 /* eslint-disable react/jsx-indent */
 /* eslint-disable no-nested-ternary */
 import {
@@ -27,6 +28,8 @@ import { pinyin } from 'pinyin-pro';
 import globalUtil from '../../utils/global';
 import role from '@/utils/newRole';
 import handleAPIError from '../../utils/error';
+import { isLinuxQcow2QuickStart, createQuickStartImageName, inferVmSourceFormat, inspectVmUploadFormat, normalizeVmSourceFormat, normalizeVmOperatingSystem, getSshUsernameError, getSshPublicKeyError } from '@/utils/vmQuickStart';
+import { t } from '../../pages/VirtualMachineDemo/messages';
 import styles from './index.less';
 import centOS from '../../../public/images/centos.png';
 import ubuntuOS from '../../../public/images/ubuntu.png';
@@ -38,6 +41,24 @@ const {
 } = require('./imageNameValidation');
 
 const { Option } = Select;
+
+const DEFAULT_VM_IMAGE_SOURCE = 'url';
+const UBUNTU_NOBLE_QCOW2_URL =
+  'https://cloud-images.ubuntu.com/minimal/releases/noble/release/ubuntu-24.04-minimal-cloudimg-amd64.img';
+const UBUNTU_NOBLE_QCOW2_IMAGE_NAME =
+  'ubuntu-24.04-minimal-cloudimg-amd64';
+
+const normalizeImageUrl = value => {
+  try {
+    const url = new URL(value);
+    return `${url.origin}${url.pathname}`.replace(/\/$/, '').toLowerCase();
+  } catch (error) {
+    return '';
+  }
+};
+
+const isUbuntuNobleQcow2Example = value =>
+  normalizeImageUrl(value) === normalizeImageUrl(UBUNTU_NOBLE_QCOW2_URL);
 
 const PUBLIC_VM_OPTIONS = [
   {
@@ -87,12 +108,17 @@ export default class Index extends PureComponent {
     super(props);
     const defaultPublicVm = PUBLIC_VM_OPTIONS[0];
     this.state = {
-      radioKey: 'public',
+      radioKey: ['url', 'upload', 'existing'].includes(props.initialSourceType)
+        ? props.initialSourceType : DEFAULT_VM_IMAGE_SOURCE,
+      urlChoice: 'custom',
+      loginMethod: 'ssh_key',
       fileList: [],
       vmShow: false,
       existFileList: [],
       showAdvanced: false,
       vmCapabilities: {
+        password_bootstrap_supported: false,
+        login_methods: [],
         chunk_upload_supported: false,
         gpu_supported: false,
         usb_supported: false,
@@ -114,10 +140,17 @@ export default class Index extends PureComponent {
   }
 
   componentWillUnmount() {
+    this.loginCredentialsMounted = false;
+    this.loginCapabilitiesGeneration += 1;
+    this.invalidateUploadSession();
+    this.clearSshFields();
     this.loop = false;
   }
 
   componentDidMount() {
+    this.loginCredentialsMounted = true;
+    this.loginSourceScope = this.getLoginScope();
+    this.initializeFreshRecommendation();
     this.fetchPipePipeline();
     this.fetchVMCapabilities();
     this.handleJarWarUpload();
@@ -133,6 +166,165 @@ export default class Index extends PureComponent {
       this.fetchComponentNames(fixedGroupId);
     }
   }
+
+  componentDidUpdate(previous) {
+    this.refreshLoginScope();
+    if (previous.archInfo !== this.props.archInfo) this.initializeFreshRecommendation();
+  }
+
+  initializeFreshRecommendation = () => {
+    const { form, archInfo = [] } = this.props;
+    if (this.sourceSelectionTouched || this.state.radioKey !== 'url' || !archInfo.includes('amd64')) return;
+    if (form.getFieldValue('vm_url') || form.getFieldValue('image_name') || form.getFieldValue('os_name')) return;
+    this.fillUbuntuNobleQcow2Example();
+  };
+
+  loginCredentialsMounted = false;
+
+  loginCredentialGeneration = 0;
+
+  loginMethodTouched = false;
+
+  loginCapabilitiesGeneration = 0;
+
+  loginSourceScope = null;
+
+  loginCapabilitiesScope = null;
+
+  uploadFormatGeneration = 0;
+
+  uploadHeader = null;
+
+  uploadSessionGeneration = 0;
+
+  uploadEventSession = null;
+
+  uploadFileOwners = new Map();
+
+  invalidateUploadSession = () => {
+    this.uploadSessionGeneration += 1;
+    this.uploadFormatGeneration += 1;
+    this.uploadEventSession = null;
+    this.uploadHeader = null;
+    this.uploadFileOwners.clear();
+    this.currentUploadSelection = null;
+    this.confirmedUploadEventId = null;
+    this.uploadSelectionChanged = true;
+    this.loop = false;
+  };
+
+  getLoginScope = () => ({
+    team: globalUtil.getCurrTeamName(),
+    region: globalUtil.getCurrRegionName(),
+    application: String(globalUtil.getAppID() || ''),
+    target: String(this.getFixedGroupId() || '')
+  });
+
+  isCurrentLoginScope = scope => {
+    const current = this.getLoginScope();
+    return !!scope && Object.keys(scope).every(name => current[name] === scope[name]);
+  };
+
+  refreshLoginScope = (refetch = true) => {
+    if (!this.loginCredentialsMounted) return false;
+    if (this.isCurrentLoginScope(this.loginSourceScope)) return true;
+    // A reused form belongs to its original scope until credentials are cleared.
+    // Invalidate synchronously, including when globals change before React updates.
+    this.loginSourceScope = this.getLoginScope();
+    this.loginCapabilitiesScope = null;
+    this.loginCapabilitiesGeneration += 1;
+    this.loginMethodTouched = false;
+    this.clearSshFields();
+    this.invalidateUploadSession();
+    this.setState({ loginMethod: 'ssh_key', vmCapabilities: {
+      password_bootstrap_supported: false, login_methods: [],
+      chunk_upload_supported: false, gpu_supported: false, usb_supported: false,
+      gpu_resources: [], usb_resources: []
+    }, event_id: '', record: null, fileList: [], existFileList: [] });
+    this.handleJarWarUpload();
+    if (refetch) this.fetchVMCapabilities();
+    return false;
+  };
+
+  invalidateLoginReaders = () => { this.loginCredentialGeneration += 1; };
+
+  applyLoginCapabilities = (input, scope) => {
+    if (!this.loginCredentialsMounted || !this.isCurrentLoginScope(scope) ||
+        !this.isCurrentLoginScope(this.loginSourceScope)) return;
+    this.loginCapabilitiesScope = scope;
+    const capabilities = input && typeof input === 'object' ? input : {};
+    const supported = supportsVmPasswordBootstrap(capabilities);
+    const form = this.props.form;
+    const hasCredentialInput = !!form.getFieldValue('ssh_public_key') || !!form.getFieldValue('login_password');
+    let method = this.state.loginMethod || 'ssh_key';
+    if (!supported && method === 'password') {
+      this.invalidateLoginReaders();
+      clearRegisteredVmLoginFields(form, ['login_password']);
+      method = 'ssh_key';
+    } else if (supported && !this.loginMethodTouched && !hasCredentialInput) {
+      method = 'password';
+    }
+    this.setState({
+      vmCapabilities: { ...capabilities, password_bootstrap_supported: supported },
+      loginMethod: method
+    });
+  };
+
+  createPasswordReaderBinder = selectedGroupId => {
+    if (!this.refreshLoginScope() || !this.isCurrentLoginScope(this.loginCapabilitiesScope)) {
+      throw safeVmCredentialError();
+    }
+    const scope = this.loginSourceScope;
+    const generation = this.loginCredentialGeneration;
+    const username = String(this.props.form.getFieldValue('ssh_username') || '').trim();
+    const selectedGroup = normalizeVmLoginGroupId(selectedGroupId);
+    let boundGroup = selectedGroup;
+    let reader;
+    const currentIntent = () => {
+      return this.refreshLoginScope() && generation === this.loginCredentialGeneration &&
+        this.isCurrentLoginScope(scope) && this.isCurrentLoginScope(this.loginCapabilitiesScope) &&
+        supportsVmPasswordBootstrap(this.state.vmCapabilities) && this.state.loginMethod === 'password' &&
+        isLinuxQcow2QuickStart(this.state.radioKey, this.props.form.getFieldValue('vm_url')) &&
+        String(this.props.form.getFieldValue('ssh_username') || '').trim() === username;
+    };
+    // This binder contains no password value. A new-group caller binds only after addGroup succeeds.
+    return resolvedGroupId => {
+      const resolved = normalizeVmLoginGroupId(resolvedGroupId);
+      const currentSelected = normalizeVmLoginGroupId(this.props.form.getFieldValue('group_id') || this.getFixedGroupId());
+      if (!currentIntent() || !resolved || (boundGroup && boundGroup !== resolved) ||
+          (selectedGroup && currentSelected !== selectedGroup) ||
+          (currentSelected && currentSelected !== resolved)) throw safeVmCredentialError();
+      boundGroup = resolved;
+      if (reader) return reader;
+      const expectedGroupId = resolved;
+      reader = request => {
+        const selectedNow = normalizeVmLoginGroupId(this.props.form.getFieldValue('group_id') || this.getFixedGroupId());
+        if (!currentIntent() || !request || request.login_method !== 'password' ||
+            request.ssh_username !== username || request.team_name !== scope.team ||
+            normalizeVmLoginGroupId(request.group_id) !== expectedGroupId ||
+            (selectedGroup && selectedNow !== selectedGroup) ||
+            (selectedNow && selectedNow !== expectedGroupId) ||
+            !isLinuxQcow2QuickStart('url', request.vm_url)) throw safeVmCredentialError();
+        // Group/source/scope checks deliberately precede the only secret read.
+        const value = this.props.form.getFieldValue('login_password');
+        if (getVmLoginPasswordError(value) || getVmPasswordUsernameError(username)) throw safeVmCredentialError();
+        return { login_password: value };
+      };
+      return reader;
+    };
+  };
+
+  handleLoginMethodChange = event => {
+    if (this.loginCredentialsMounted && !this.refreshLoginScope()) return;
+    const next = event.target.value;
+    this.loginMethodTouched = true;
+    if (!VM_LOGIN_METHODS.includes(next) ||
+        (next === 'password' && !supportsVmPasswordBootstrap(this.state.vmCapabilities)) ||
+        next === this.state.loginMethod) return;
+    this.invalidateLoginReaders();
+    clearRegisteredVmLoginFields(this.props.form, [next === 'password' ? 'ssh_public_key' : 'login_password']);
+    this.setState({ loginMethod: next });
+  };
 
   getFixedGroupId = () => {
     const { handleType, groupId, data = {} } = this.props;
@@ -162,30 +354,34 @@ export default class Index extends PureComponent {
   };
 
   inferSourceFormat = (...candidates) => {
-    const knownSuffixes = ['.qcow2', '.img', '.iso', '.tar.gz', '.tar.xz', '.gz', '.xz', '.tar'];
-    for (let i = 0; i < candidates.length; i += 1) {
-      const candidate = `${candidates[i] || ''}`.toLowerCase();
-      for (let j = 0; j < knownSuffixes.length; j += 1) {
-        const suffix = knownSuffixes[j];
-        if (candidate.endsWith(suffix)) {
-          return suffix.slice(1);
-        }
-      }
+    if (candidates.some(isUbuntuNobleQcow2Example)) {
+      // Canonical's bootable QCOW2 image uses a .img suffix.
+      return 'qcow2';
+    }
+    for (const candidate of candidates) {
+      const format = normalizeVmSourceFormat(candidate) || inferVmSourceFormat(candidate);
+      if (format) return format;
     }
     return '';
   };
 
   handleJarWarUpload = () => {
+    if (!this.loginCredentialsMounted) return;
     const { dispatch } = this.props;
+    const scope = this.getLoginScope();
+    const generation = ++this.uploadSessionGeneration;
     dispatch({
       type: 'createApp/createJarWarServices',
       payload: {
-        region: globalUtil.getCurrRegionName(),
-        team_name: globalUtil.getCurrTeamName(),
+        region: scope.region,
+        team_name: scope.team,
         component_id: ''
       },
       callback: res => {
-        if (res && res.status_code === 200) {
+        if (!this.loginCredentialsMounted || generation !== this.uploadSessionGeneration ||
+            !this.isCurrentLoginScope(scope)) return;
+        if (res?.status_code === 200 && typeof res.bean?.event_id === 'string' && res.bean.event_id) {
+          this.uploadEventSession = { eventId: res.bean.event_id, generation, scope };
           this.setState(
             {
               record: res.bean,
@@ -194,6 +390,8 @@ export default class Index extends PureComponent {
               team_name: res.bean && res.bean.team_name
             },
             () => {
+              if (!this.loginCredentialsMounted || generation !== this.uploadSessionGeneration ||
+                  !this.isCurrentLoginScope(scope)) return;
               if (res.bean.region !== '') {
                 this.loop = true;
                 this.handleJarWarUploadStatus();
@@ -203,26 +401,26 @@ export default class Index extends PureComponent {
         }
       },
       handleError: err => {
-        handleAPIError(err);
+        if (this.loginCredentialsMounted && generation === this.uploadSessionGeneration &&
+            this.isCurrentLoginScope(scope)) handleAPIError(err);
       }
     });
   };
 
   fetchVMCapabilities = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'createApp/getVMCapabilities',
-      payload: {
-        team_name: globalUtil.getCurrTeamName()
-      },
-      callback: res => {
-        const capabilities = (res && res.bean) || this.state.vmCapabilities;
-        this.setState({
-          vmCapabilities: capabilities
-        });
-      },
-      handleError: err => {
-        handleAPIError(err);
+    if (!this.loginCredentialsMounted) return;
+    this.refreshLoginScope(false);
+    const scope = this.loginSourceScope;
+    const generation = ++this.loginCapabilitiesGeneration;
+    const current = () => this.refreshLoginScope() && generation === this.loginCapabilitiesGeneration &&
+      this.isCurrentLoginScope(scope) && this.isCurrentLoginScope(this.loginSourceScope);
+    this.props.dispatch({ type: 'createApp/getVMCapabilities',
+      payload: { team_name: scope.team },
+      callback: response => { if (current()) this.applyLoginCapabilities(response?.bean, scope); },
+      handleError: error => {
+        if (!current()) return;
+        this.applyLoginCapabilities({ password_bootstrap_supported: false, login_methods: [] }, scope);
+        handleAPIError(error);
       }
     });
   };
@@ -230,15 +428,22 @@ export default class Index extends PureComponent {
   handleJarWarUploadStatus = () => {
     const { dispatch } = this.props;
     const { event_id } = this.state;
+    const session = this.uploadEventSession;
+    const current = () => this.loginCredentialsMounted && session &&
+      session === this.uploadEventSession && session.generation === this.uploadSessionGeneration &&
+      session.eventId === this.state.event_id && this.isCurrentLoginScope(session.scope);
+    if (!current()) return;
     dispatch({
       type: 'createApp/createJarWarUploadStatus',
       payload: {
-        region: globalUtil.getCurrRegionName(),
-        team_name: globalUtil.getCurrTeamName(),
+        region: session.scope.region,
+        team_name: session.scope.team,
         event_id
       },
       callback: data => {
+        if (!current()) return;
         if (data && data.bean.package_name && data.bean.package_name.length > 0) {
+          this.confirmedUploadEventId = event_id;
           this.setState({
             existFileList: data.bean.package_name
           });
@@ -246,12 +451,12 @@ export default class Index extends PureComponent {
         }
         if (this.loop) {
           setTimeout(() => {
-            this.handleJarWarUploadStatus();
+            if (current()) this.handleJarWarUploadStatus();
           }, 3000);
         }
       },
       handleError: err => {
-        handleAPIError(err);
+        if (current()) handleAPIError(err);
       }
     });
   };
@@ -259,14 +464,21 @@ export default class Index extends PureComponent {
   handleJarWarUploadDelete = () => {
     const { event_id } = this.state;
     const { dispatch, form } = this.props;
+    const session = this.uploadEventSession;
+    const current = () => this.loginCredentialsMounted && session && session === this.uploadEventSession &&
+      session.generation === this.uploadSessionGeneration && session.eventId === this.state.event_id &&
+      this.isCurrentLoginScope(session.scope);
+    if (!current()) return;
     dispatch({
       type: 'createApp/deleteJarWarUploadStatus',
       payload: {
-        team_name: globalUtil.getCurrTeamName(),
+        team_name: session.scope.team,
         event_id
       },
       callback: data => {
+        if (!current()) return;
         if (data.bean.res === 'ok') {
+          this.invalidateUploadSession();
           this.setState({
             existFileList: [],
             fileList: []
@@ -279,28 +491,89 @@ export default class Index extends PureComponent {
         }
       },
       handleError: err => {
-        handleAPIError(err);
+        if (current()) handleAPIError(err);
       }
     });
   };
 
-  handleSubmit = e => {
+  handleSubmit = (e, options = {}) => {
     e.preventDefault();
-    const { event_id, radioKey, existFileList, selectedPublicVm } = this.state;
-    const { form, onSubmit, archInfo } = this.props;
+    if (this.loginCredentialsMounted && !this.refreshLoginScope()) {
+      if (options.onInvalid) options.onInvalid();
+      return;
+    }
+    const mountedAtSubmit = this.loginCredentialsMounted;
+    const sourceScope = this.loginSourceScope;
+    if (this.props.deferCreation && !options.final) options = {
+      retainSsh: true, includeCredentials: false, deferCreation: true, ...options
+    };
+    if (this.props.createAppByVirtualMachineLoading) return;
+    const { event_id, radioKey, selectedPublicVm } = this.state;
+    const { form, archInfo } = this.props;
+    const onSubmit = options.onSubmit || this.props.onSubmit;
     const fixedGroupId = this.getFixedGroupId();
 
-    form.validateFields((err, fieldsValue) => {
+    if (!this.validateSshFields()) {
+      if (options.onInvalid) options.onInvalid();
+      return;
+    }
+    // rc-form logs rejected validation values during development. Keep both SSH
+    // fields outside that result, including failures in an unrelated form field.
+    const fieldNames = Object.keys(form.getFieldsValue()).filter(name => !VM_SENSITIVE_LOGIN_FIELDS.includes(name));
+    form.validateFields(fieldNames, (err, fieldsValue) => {
+      if (mountedAtSubmit && (!this.loginCredentialsMounted || !this.refreshLoginScope() ||
+          sourceScope !== this.loginSourceScope)) {
+        if (options.onInvalid) options.onInvalid();
+        return;
+      }
+      if (err && options.onInvalid) options.onInvalid();
       if (!err && onSubmit) {
-        if (radioKey === 'upload' && existFileList.length === 0) {
+        const uploadedFile = this.getConfirmedUpload();
+        if (radioKey === 'upload' && (!event_id || !uploadedFile)) {
           message.warning(
             formatMessage({ id: 'teamAdd.create.upload.finishBeforeSubmit' })
           );
+          if (options.onInvalid) options.onInvalid();
           return;
         }
 
-        if (archInfo && archInfo.length !== 2 && archInfo.length !== 0) {
+        const usesUbuntuNobleQcow2Example =
+          isLinuxQcow2QuickStart(radioKey, fieldsValue.vm_url);
+        if (
+          usesUbuntuNobleQcow2Example &&
+          archInfo &&
+          archInfo.length > 0 &&
+          !archInfo.includes('amd64')
+        ) {
+          message.warning(formatMessage({ id: 'Vm.createVm.qcow2ExampleRequiresAmd64' }));
+          if (options.onInvalid) options.onInvalid();
+          return;
+        }
+        if (usesUbuntuNobleQcow2Example) {
+          fieldsValue.arch = 'amd64';
+          fieldsValue.boot_mode = 'uefi';
+          fieldsValue.os_name = 'Ubuntu 24.04';
+          fieldsValue.os_family = 'linux';
+          fieldsValue.login_method = this.state.loginMethod;
+          if (options.includeCredentials !== false) {
+            fieldsValue.ssh_username = form.getFieldValue('ssh_username').trim();
+            if (this.state.loginMethod === 'ssh_key') fieldsValue.ssh_public_key = form.getFieldValue('ssh_public_key').trim();
+          }
+        } else if (archInfo && archInfo.length !== 2 && archInfo.length !== 0) {
           fieldsValue.arch = archInfo[0];
+        }
+        if (!usesUbuntuNobleQcow2Example) {
+          const osName = normalizeVmOperatingSystem(fieldsValue.os_name);
+          if (!osName) {
+            form.setFields({ os_name: { errors: [new Error(formatMessage({ id: 'Vm.createVm.osInvalid' }))] } });
+            if (options.onInvalid) options.onInvalid();
+            return;
+          }
+          fieldsValue.os_name = osName;
+          delete fieldsValue.login_method;
+          delete fieldsValue.os_family;
+          delete fieldsValue.ssh_username;
+          delete fieldsValue.ssh_public_key;
         }
 
         if (fixedGroupId) {
@@ -323,16 +596,29 @@ export default class Index extends PureComponent {
           fieldsValue.format = this.inferSourceFormat(fieldsValue.vm_url, fieldsValue.image_name);
           fieldsValue.asset_id = '';
         } else if (radioKey === 'upload') {
+          const header = this.getCurrentUploadHeader(uploadedFile);
+          if (header && header.status !== 'ready') {
+            message.warning(formatMessage({ id: header.status === 'reading'
+              ? 'Vm.createVm.uploadFormatReading' : 'Vm.createVm.uploadFormatFailed' }));
+            if (options.onInvalid) options.onInvalid();
+            return;
+          }
           fieldsValue.source_type = 'upload';
-          fieldsValue.format = this.inferSourceFormat(
-            (existFileList && existFileList[0]) || '',
+          fieldsValue.format = header?.format || this.inferSourceFormat(
+            uploadedFile.name,
             fieldsValue.image_name
           );
           fieldsValue.asset_id = '';
         } else {
           const selectedAsset = this.findAssetByName(fieldsValue.image_name);
-          if (selectedAsset && !isVMAssetSelectable(selectedAsset)) {
+          if (!selectedAsset || !isVMAssetSelectable(selectedAsset)) {
             message.warning(formatMessage({ id: 'Vm.assetCatalog.useDisabled' }));
+            if (options.onInvalid) options.onInvalid();
+            return;
+          }
+          if (this.props.deferCreation && selectedAsset.arch && selectedAsset.arch !== fieldsValue.arch) {
+            message.warning(t('architectureRequired'));
+            if (options.onInvalid) options.onInvalid();
             return;
           }
           fieldsValue.source_type = 'existing';
@@ -348,6 +634,7 @@ export default class Index extends PureComponent {
             ? selectedAsset.id
             : fieldsValue.asset_id || '';
         }
+        if (usesUbuntuNobleQcow2Example && !options.deferCreation) fieldsValue.image_name = createQuickStartImageName();
 
         if (!fieldsValue.gpu_enabled) {
           fieldsValue.gpu_resources = [];
@@ -367,7 +654,14 @@ export default class Index extends PureComponent {
             this.generateEnglishName(fieldsValue.group_name || fieldsValue.service_cname);
         }
 
-        onSubmit(fieldsValue, radioKey === 'upload' ? event_id : '');
+        let requestOptions;
+        if (usesUbuntuNobleQcow2Example && this.state.loginMethod === 'password' && (options.final || !options.deferCreation)) {
+          requestOptions = { passwordBootstrapSupported: supportsVmPasswordBootstrap(this.state.vmCapabilities),
+            bindReadCredentials: this.createPasswordReaderBinder(fieldsValue.group_id || fixedGroupId) };
+        }
+        assertNoVmPasswordPayload(fieldsValue);
+        onSubmit(fieldsValue, radioKey === 'upload' ? event_id : '', requestOptions);
+        if (usesUbuntuNobleQcow2Example && this.state.loginMethod !== 'password' && !options.retainSsh) this.clearSshFields();
       }
     });
   };
@@ -391,10 +685,128 @@ export default class Index extends PureComponent {
   handleChangeImageSource = e => {
     const radioKey = e.target.value;
     const { form } = this.props;
+    this.sourceSelectionTouched = true;
+    this.clearRecommendationMetadata();
     this.setState({
-      radioKey
+      radioKey,
+      urlChoice: 'custom'
     });
     resetImageSourceFields(form, radioKey);
+  };
+
+  clearRecommendationMetadata = () => {
+    this.clearSshFields();
+    const { form } = this.props;
+    const values = { os_name: undefined, boot_mode: undefined };
+    if (Object.prototype.hasOwnProperty.call(form.getFieldsValue(), 'os_family')) values.os_family = undefined;
+    form.setFieldsValue(values);
+  };
+
+  selectCustomLink = () => {
+    this.sourceSelectionTouched = true;
+    if (this.state.radioKey === 'url' && this.state.urlChoice === 'custom') return;
+    this.clearRecommendationMetadata();
+    this.setState({ urlChoice: 'custom' });
+    this.props.form.setFieldsValue({ vm_url: undefined, image_name: undefined, asset_id: '' });
+  };
+
+  handleVmUrlChange = event => {
+    this.sourceSelectionTouched = true;
+    const { form, archInfo = [] } = this.props;
+    if (isLinuxQcow2QuickStart('url', event.target.value)) {
+      this.clearSshFields();
+      form.setFieldsValue({ os_name: 'Ubuntu 24.04', boot_mode: 'uefi' });
+      if (archInfo.includes('amd64') && archInfo.length === 2) form.setFieldsValue({ arch: 'amd64' });
+    } else if (isLinuxQcow2QuickStart('url', form.getFieldValue('vm_url'))) {
+      this.clearRecommendationMetadata();
+      this.setState({ urlChoice: 'custom' });
+    }
+  };
+
+  clearSshFields = () => {
+    // Keep the existing public hook name: every parent cleanup already calls it.
+    this.invalidateLoginReaders();
+    clearRegisteredVmLoginFields(this.props.form);
+  };
+
+  validateSshFields = () => {
+    const { form } = this.props;
+    if (!isLinuxQcow2QuickStart(this.state.radioKey, form.getFieldValue('vm_url'))) return true;
+    const method = this.state.loginMethod;
+    const errors = { ssh_username: getSshUsernameError(form.getFieldValue('ssh_username')) };
+    if (method === 'password') {
+      errors.ssh_username = getVmPasswordUsernameError(form.getFieldValue('ssh_username'));
+      errors.login_password = this.isCurrentLoginScope(this.loginCapabilitiesScope) && supportsVmPasswordBootstrap(this.state.vmCapabilities)
+        ? getVmLoginPasswordError(form.getFieldValue('login_password')) : 'loginPasswordUnavailable';
+    } else if (method === 'ssh_key') {
+      errors.ssh_public_key = getSshPublicKeyError(form.getFieldValue('ssh_public_key'));
+    } else {
+      return false;
+    }
+    form.setFields(Object.keys(errors).reduce((fields, name) => ({
+      ...fields, [name]: { value: form.getFieldValue(name), errors: errors[name] ? [new Error(t(errors[name]))] : undefined }
+    }), {}));
+    return !Object.values(errors).some(Boolean);
+  };
+
+  renderSshLoginFields = () => {
+    const { form } = this.props;
+    if (!isLinuxQcow2QuickStart(this.state.radioKey, form.getFieldValue('vm_url'))) return null;
+    const method = this.state.loginMethod;
+    const passwordSupported = supportsVmPasswordBootstrap(this.state.vmCapabilities);
+    return <div className="ph-no-capture ph-mask">
+      {passwordSupported && <div className={styles.loginMethodRow} role="group" aria-label={t('loginMethod')}>
+        <span>{t('loginMethod')}</span>
+        <Radio.Group size="small" value={method} onChange={this.handleLoginMethodChange}>
+          <Radio value="password">{t('loginMethodPassword')}</Radio>
+          <Radio value="ssh_key">{t('loginMethodKey')}</Radio>
+        </Radio.Group>
+      </div>}
+      <Form.Item label={t('sshUsername')}>
+        {form.getFieldDecorator('ssh_username', { initialValue: 'ubuntu' })(
+          <Input className="ph-no-capture ph-mask" autoComplete="off" maxLength={32} onChange={this.invalidateLoginReaders}
+            placeholder={t('sshUsernamePlaceholder')} />
+        )}
+      </Form.Item>
+      {method === 'password' ? <Form.Item label={t('loginPassword')} extra={t('loginPasswordHelp')}>
+        {form.getFieldDecorator('login_password')(
+          <Input.Password className="ph-no-capture ph-mask" autoComplete="new-password"
+            autoCorrect="off" spellCheck={false} visibilityToggle maxLength={256} onChange={() => { this.loginMethodTouched = true; }}
+            placeholder={t('loginPasswordPlaceholder')} />
+        )}
+      </Form.Item> : <Form.Item label={t('sshPublicKey')} extra={t('quickStartPortBoundary')}>
+        {form.getFieldDecorator('ssh_public_key')(
+          <Input.TextArea className="ph-no-capture ph-mask" rows={3} autoComplete="off"
+            autoCorrect="off" spellCheck={false} onChange={() => { this.loginMethodTouched = true; }} maxLength={8192}
+            placeholder={t('sshPublicKeyPlaceholder')} />
+        )}
+      </Form.Item>}
+    </div>;
+  };
+
+  fillUbuntuNobleQcow2Example = () => {
+    const { form, archInfo = [] } = this.props;
+    if (!archInfo.includes('amd64')) {
+      message.warning(formatMessage({ id: 'Vm.createVm.qcow2ExampleRequiresAmd64' }));
+      return;
+    }
+    const sameImage = this.state.radioKey === 'url' && isLinuxQcow2QuickStart('url', form.getFieldValue('vm_url'));
+    if (sameImage && this.state.urlChoice === 'recommended') return;
+    const imageName = sameImage && form.getFieldValue('image_name');
+    if (!sameImage) this.clearSshFields();
+    this.setState({ radioKey: 'url', urlChoice: 'recommended' }, () => {
+      form.setFieldsValue({
+        imagefrom: 'url',
+        vm_url: UBUNTU_NOBLE_QCOW2_URL,
+        image_name: imageName || UBUNTU_NOBLE_QCOW2_IMAGE_NAME,
+        os_name: 'Ubuntu 24.04',
+        boot_mode: 'uefi',
+        asset_id: ''
+      });
+      if (archInfo.length === 2) {
+        form.setFieldsValue({ arch: 'amd64' });
+      }
+    });
   };
 
   findAssetByName = name => {
@@ -412,6 +824,8 @@ export default class Index extends PureComponent {
       message.warning(formatMessage({ id: 'Vm.assetCatalog.useDisabled' }));
       return;
     }
+    this.clearRecommendationMetadata();
+    this.clearSshFields();
     const runtimeSnapshot =
       asset && asset.extra && asset.extra.runtime_snapshot
         ? asset.extra.runtime_snapshot
@@ -428,6 +842,7 @@ export default class Index extends PureComponent {
         form.setFieldsValue({
           image_name: asset.name,
           asset_id: asset.id,
+          os_name: normalizeVmOperatingSystem(asset.os_name) || normalizeVmOperatingSystem(runtimeSnapshot.os_name) || undefined,
           boot_mode: sanitizedRuntimeSnapshot.boot_mode || undefined,
           gpu_enabled: !!sanitizedRuntimeSnapshot.gpu_enabled,
           gpu_resources: sanitizedRuntimeSnapshot.gpu_resources || [],
@@ -714,18 +1129,100 @@ export default class Index extends PureComponent {
   };
 
   onChangeUpload = info => {
-    let { fileList } = info;
-    fileList = fileList.filter(file => {
-      if (file.response) {
-        return file.response.msg === 'success';
-      }
-      return true;
-    });
+    // rc-upload's HTTP status and the current event's server file record are
+    // authoritative. Successful upload bodies do not share one `msg` value.
+    const owner = this.uploadFileOwners.get(info.file?.uid);
+    const session = this.uploadEventSession;
+    if (!owner || !session || owner.generation !== session.generation ||
+        session.generation !== this.uploadSessionGeneration || owner.eventId !== this.state.event_id ||
+        owner.name !== info.file.name || !this.isCurrentLoginScope(owner.scope)) return;
+    const fileList = Array.isArray(info.fileList) ? info.fileList : [];
+    this.uploadSelectionChanged = true;
+    this.currentUploadSelection = info.file ? {
+      eventId: this.state.event_id,
+      name: info.file.name,
+      uid: info.file.uid,
+      status: info.file.status,
+      scope: owner.scope
+    } : null;
     this.setState({ fileList });
+    this.inspectCurrentUpload(info.file);
+    if (info.file?.status === 'done') {
+      this.loop = true;
+      this.handleJarWarUploadStatus();
+    }
+  };
+
+  beforeUpload = file => {
+    const session = this.uploadEventSession;
+    if (!file || file.uid === undefined || !session || session.generation !== this.uploadSessionGeneration ||
+        session.eventId !== this.state.event_id || !this.isCurrentLoginScope(session.scope)) {
+      message.warning(formatMessage({ id: 'Vm.createVm.uploadSessionPreparing' }));
+      return false;
+    }
+    this.uploadFileOwners.set(file.uid, { ...session, uid: file.uid, name: file.name });
+    return true;
+  };
+
+  getCurrentUploadHeader = file => {
+    const header = this.uploadHeader;
+    return header && file && header.eventId === this.state.event_id &&
+      header.uid === file.uid && header.name === file.name && this.isCurrentLoginScope(header.scope)
+      ? header : null;
+  };
+
+  readUploadFormat = file => inspectVmUploadFormat(file);
+
+  inspectCurrentUpload = file => {
+    if (!file || file.status === 'removed') return;
+    const source = file.originFileObj || file;
+    if (typeof source.slice !== 'function' || this.getCurrentUploadHeader(file)) return;
+    const generation = ++this.uploadFormatGeneration;
+    const header = { eventId: this.state.event_id, uid: file.uid, name: file.name,
+      scope: this.getLoginScope(), status: 'reading', format: '' };
+    this.uploadHeader = header;
+    const current = () => this.loginCredentialsMounted && generation === this.uploadFormatGeneration &&
+      this.getCurrentUploadHeader(this.currentUploadSelection) === header;
+    Promise.resolve().then(() => this.readUploadFormat(source)).then(format => {
+      if (current()) this.uploadHeader = { ...header, status: 'ready', format };
+    }, () => {
+      if (current()) this.uploadHeader = { ...header, status: 'failed', format: '' };
+    });
+  };
+
+  getConfirmedUpload = () => {
+    const { event_id: eventId, fileList = [], existFileList = [] } = this.state;
+    if (this.loginCredentialsMounted && (!this.uploadEventSession ||
+        this.uploadEventSession.generation !== this.uploadSessionGeneration || this.uploadEventSession.eventId !== eventId ||
+        !this.isCurrentLoginScope(this.uploadEventSession.scope))) return null;
+    if (!eventId || (this.confirmedUploadEventId && this.confirmedUploadEventId !== eventId)) return null;
+    const names = [...new Set(existFileList.filter(name => typeof name === 'string' && name))];
+    const selection = this.currentUploadSelection;
+    if (selection) {
+      if (selection.scope && !this.isCurrentLoginScope(selection.scope)) return null;
+      if (selection.eventId !== eventId || selection.status !== 'done' || !names.includes(selection.name)) return null;
+      return fileList.find(file => file.status === 'done' && file.name === selection.name &&
+        (selection.uid === undefined || file.uid === selection.uid)) || null;
+    }
+    if (fileList.length) {
+      const current = fileList[fileList.length - 1];
+      return current.status === 'done' && names.includes(current.name) ? current : null;
+    }
+    // Recover only the old filter's empty-list state: the current event has
+    // exactly one confirmed artifact and no new selection/removal was observed.
+    // A new upload/error cannot fall back to a previously confirmed server file.
+    if (!this.uploadSelectionChanged && names.length === 1)
+      return { name: names[0], status: 'done', recovered: true };
+    return null;
   };
 
   onRemove = () => {
-    this.setState({ fileList: [] });
+    this.uploadFormatGeneration += 1;
+    this.uploadHeader = null;
+    this.uploadFileOwners.clear();
+    this.uploadSelectionChanged = true;
+    this.currentUploadSelection = null;
+    this.setState({ fileList: [], existFileList: [] });
   };
 
   fetchPipePipeline = () => {
@@ -1029,10 +1526,12 @@ export default class Index extends PureComponent {
   };
 
   renderSourceFields = () => {
-    const { form, virtualMachineImage = [] } = this.props;
+    const { form, virtualMachineImage = [], archInfo = [] } = this.props;
     const { getFieldDecorator } = form;
-    const { radioKey } = this.state;
+    const { radioKey, urlChoice } = this.state;
     const selectableVirtualMachineImages = getSelectableVMAssets(virtualMachineImage);
+    const canUseUbuntuNobleExample =
+      archInfo.includes('amd64');
     const imageNameRules = [
       {
         required: true,
@@ -1051,15 +1550,37 @@ export default class Index extends PureComponent {
     if (radioKey === 'url') {
       return (
         <Fragment>
+          <div className={styles.linkChoices} role="group" aria-label={formatMessage({ id: 'Vm.createVm.linkChoice' })}>
+            <button type="button" data-testid="vm-source-ubuntu-recommended"
+              className={`${styles.linkChoice} ${urlChoice === 'recommended' ? styles.linkChoiceActive : ''}`}
+              disabled={!canUseUbuntuNobleExample} aria-pressed={urlChoice === 'recommended'}
+              onClick={this.fillUbuntuNobleQcow2Example}>
+              <img src={ubuntuOS} alt="Ubuntu" className={styles.recommendationIcon} />
+              <span className={styles.linkChoiceText}>
+                <strong>Ubuntu 24.04 Minimal <span className={styles.recommendationLabel}>{formatMessage({ id: 'Vm.createVm.recommended' })}</span></strong>
+                <span>QCOW2 · amd64 · UEFI</span>
+              </span>
+            </button>
+            <button type="button" data-testid="vm-source-custom-link"
+              className={`${styles.linkChoice} ${urlChoice === 'custom' ? styles.linkChoiceActive : ''}`}
+              aria-pressed={urlChoice === 'custom'} onClick={this.selectCustomLink}>
+              <Icon type="link" />
+              <span>{formatMessage({ id: 'Vm.createVm.customLink' })}</span>
+            </button>
+          </div>
+          {!canUseUbuntuNobleExample && <p className={styles.recommendationHint}>{formatMessage({ id: 'Vm.createVm.qcow2ExampleRequiresAmd64' })}</p>}
+          <div hidden={urlChoice === 'recommended'} data-testid="vm-source-link-details">
           <Form.Item
             label={formatMessage({ id: 'Vm.createVm.install' })}
-            extra={formatMessage({ id: 'Vm.createVm.packageInstall' })}
+            extra={formatMessage({ id: 'Vm.createVm.urlImportRequiresClusterEgress' })}
           >
             {getFieldDecorator('vm_url', {
               rules: [{ required: true, message: formatMessage({ id: 'Vm.createVm.InputInstall' }) }]
             })(
               <Input
+                readOnly={urlChoice === 'recommended'}
                 placeholder={formatMessage({ id: 'Vm.createVm.InputInstall' })}
+                onChange={this.handleVmUrlChange}
               />
             )}
           </Form.Item>
@@ -1070,6 +1591,9 @@ export default class Index extends PureComponent {
               <Input placeholder={formatMessage({ id: 'Vm.createVm.saveName' })} />
             )}
           </Form.Item>
+          {this.renderOperatingSystemField()}
+          </div>
+          {this.renderSshLoginFields()}
         </Fragment>
       );
     }
@@ -1084,6 +1608,8 @@ export default class Index extends PureComponent {
             {getFieldDecorator('packageTarFile', { initialValue: [] })(
               <div className={styles.uploadPanel}>
                 <Upload
+                  key={this.state.event_id || 'upload-session-pending'}
+                  beforeUpload={this.beforeUpload}
                   fileList={this.state.fileList}
                   name="packageTarFile"
                   onChange={this.onChangeUpload}
@@ -1092,7 +1618,7 @@ export default class Index extends PureComponent {
                   maxCount={1}
                   multiple={false}
                 >
-                  <Button>
+                  <Button disabled={!this.state.event_id}>
                     <Icon type="upload" />
                     {formatMessage({ id: 'Vm.createVm.imgUpload' })}
                   </Button>
@@ -1110,6 +1636,7 @@ export default class Index extends PureComponent {
               <Input placeholder={formatMessage({ id: 'Vm.createVm.saveName' })} />
             )}
           </Form.Item>
+          {this.renderOperatingSystemField()}
         </Fragment>
       );
     }
@@ -1151,9 +1678,22 @@ export default class Index extends PureComponent {
             </Select>
           )}
         </Form.Item>
+        {this.renderOperatingSystemField()}
         {this.renderAssetCatalogModal()}
       </Fragment>
     );
+  };
+
+  renderOperatingSystemField = () => {
+    const { form } = this.props;
+    const recommended = isLinuxQcow2QuickStart(this.state.radioKey, form.getFieldValue('vm_url'));
+    return <Form.Item label={formatMessage({ id: 'Vm.createVm.operatingSystem' })}>
+      {form.getFieldDecorator('os_name', {
+        rules: [{ required: true, validator: (_, value, callback) => callback(normalizeVmOperatingSystem(value)
+          ? undefined : new Error(formatMessage({ id: 'Vm.createVm.osInvalid' }))) }]
+      })(<Input readOnly={recommended} maxLength={128} data-testid="vm-source-operating-system"
+        placeholder={formatMessage({ id: 'Vm.createVm.osPlaceholder' })} />)}
+    </Form.Item>;
   };
 
   renderRuntimeFields = (archLength, arch, form) => {
@@ -1167,7 +1707,7 @@ export default class Index extends PureComponent {
               initialValue: arch,
               rules: [{ required: true, message: formatMessage({ id: 'placeholder.code_version' }) }]
             })(
-              <Radio.Group>
+              <Radio.Group disabled={isLinuxQcow2QuickStart(this.state.radioKey, form.getFieldValue('vm_url'))}>
                 <Radio value="amd64">amd64</Radio>
                 <Radio value="arm64">arm64</Radio>
               </Radio.Group>
@@ -1355,6 +1895,13 @@ export default class Index extends PureComponent {
       showAdvanced
     } = this.state;
     const fixedGroupId = this.getFixedGroupId();
+    const imageSourceOptions = [
+      { value: 'url', messageId: 'Vm.createVm.add' },
+      { value: 'upload', messageId: 'Vm.createVm.upload' }
+    ];
+    if (getSelectableVMAssets(virtualMachineImage).length > 0) {
+      imageSourceOptions.push({ value: 'existing', messageId: 'Vm.createVm.have' });
+    }
     let arch = 'amd64';
     const archLength = archInfo.length;
     if (archLength === 1) {
@@ -1371,6 +1918,7 @@ export default class Index extends PureComponent {
             {getFieldDecorator('asset_id', {
               initialValue: ''
             })(<Input type="hidden" />)}
+            {getFieldDecorator('boot_mode')(<Input type="hidden" />)}
 
             <Form.Item label={formatMessage({ id: 'teamAdd.create.form.service_cname' })}>
               {getFieldDecorator('service_cname', {
@@ -1407,20 +1955,11 @@ export default class Index extends PureComponent {
                 ]
               })(
                 <Radio.Group onChange={this.handleChangeImageSource}>
-                  <Radio value="public">
-                    {formatMessage({ id: 'Vm.createVm.public' })}
-                  </Radio>
-                  <Radio value="url">
-                    {formatMessage({ id: 'Vm.createVm.add' })}
-                  </Radio>
-                  <Radio value="upload">
-                    {formatMessage({ id: 'Vm.createVm.upload' })}
-                  </Radio>
-                  {virtualMachineImage && virtualMachineImage.length > 0 ? (
-                    <Radio value="existing">
-                      {formatMessage({ id: 'Vm.createVm.have' })}
+                  {imageSourceOptions.map(source => (
+                    <Radio key={source.value} value={source.value}>
+                      {formatMessage({ id: source.messageId })}
                     </Radio>
-                  ) : null}
+                  ))}
                 </Radio.Group>
               )}
             </Form.Item>

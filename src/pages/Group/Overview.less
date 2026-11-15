@@ -1,8 +1,22 @@
+@import '~antd/lib/style/themes/default.less';
 // 菜单宽度变量（与 GlobalRouter 保持一致）
 @menu-width: 200px;
 @menu-collapsed-width: 56px;
 @transition-duration: 0.3s;
 @transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
+
+.vmCreationWorkspace {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  background: @rbd-background-color;
+  box-sizing: border-box;
+  overflow: auto;
+  &:empty { display: none; }
+  &:not(:has([data-vm-workspace-active='true'])) { display: none; }
+  &:has([data-vm-workspace-active='true']) ~ .guideEntryButton { visibility: hidden; }
+}
+
 
 .container {
   width: 100%;

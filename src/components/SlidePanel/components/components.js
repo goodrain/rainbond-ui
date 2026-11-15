@@ -1,3 +1,4 @@
+import { showComponentUpgradeFeedback } from '../../../utils/componentUpgradeFeedback';
 /* eslint-disable consistent-return */
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable react/no-unused-state */
@@ -75,6 +76,8 @@ import {
   canUpdateComponent
 } from './componentViewPerformance';
 import { isRainbondInfoAgentEnabled } from '../../../utils/agentVisibility';
+import VmComponentWorkspace from '../../../pages/Component/VmComponentWorkspace';
+import { VM_WORKSPACE_TABS, normalizeVmComponentWorkspaceTab, getVmLegacyAdvancedSubTab } from '../../../pages/Component/vmComponentWorkspaceTabs';
 
 const {
   shouldShowComponentAbnormalGuide,
@@ -389,7 +392,8 @@ class Main extends PureComponent {
       }
 
       // 检测 tab 参数变化，更新 activeTab
-      if (currentTab && currentTab !== this.state.activeTab) {
+      if (currentTab && (currentTab !== this.state.activeTab ||
+        this.normalizeActiveTab(currentTab, this.props.appDetail, this.state.isShowThirdParty) !== currentTab)) {
         const normalizedTab = this.normalizeActiveTab(
           currentTab,
           this.props.appDetail,
@@ -398,9 +402,10 @@ class Main extends PureComponent {
 
         if (normalizedTab !== currentTab) {
           const { dispatch } = this.props;
+          const legacySubTab = this.props.appDetail?.service?.extend_method === 'vm' ? getVmLegacyAdvancedSubTab(currentTab) : '';
           dispatch(
             routerRedux.replace(
-              `${this.fetchPrefixUrl()}apps/${globalUtil.getAppID()}/overview?type=components&componentID=${currentComponentID}&tab=${normalizedTab}`
+              `${this.fetchPrefixUrl()}apps/${globalUtil.getAppID()}/overview?type=components&componentID=${currentComponentID}&tab=${normalizedTab}${legacySubTab ? `&subTab=${legacySubTab}` : ''}`
             )
           );
           return;
@@ -601,9 +606,7 @@ class Main extends PureComponent {
       return defaultTab;
     }
 
-    if (method === 'vm' && tab === 'monitor') {
-      return 'overview';
-    }
+    if (method === 'vm') return normalizeVmComponentWorkspaceTab(tab, globalUtil.getSlidePanelSubTab());
 
     if (method === 'kubeblocks_component' && tab === 'overview') {
       return 'databaseOverview';
@@ -617,9 +620,12 @@ class Main extends PureComponent {
     const { app_alias } = this.fetchParameter();
     const refresh = globalUtil.getRefresh();
     const currentSubTab = globalUtil.getSlidePanelSubTab();
+    const isVM = this.props.appDetail?.service?.extend_method === 'vm';
+    const advancedSubTab = isVM && ['port', 'mnt'].includes(currentSubTab)
+      ? '' : currentSubTab;
     const nextSubTab =
       key === 'advancedSettings'
-        ? (currentSubTab || (this.state.isShowKubeBlocksComponent ? 'port' : 'mnt'))
+        ? (advancedSubTab || (isVM ? 'log' : this.state.isShowKubeBlocksComponent ? 'port' : 'mnt'))
         : '';
     this.setState({
       activeTab: key
@@ -780,9 +786,10 @@ class Main extends PureComponent {
             });
 
             if (haveTabKey && haveTabKey !== initialTab) {
+              const legacySubTab = appDetail?.service?.extend_method === 'vm' ? getVmLegacyAdvancedSubTab(haveTabKey) : '';
               dispatch(
                 routerRedux.replace(
-                  `${prefixUrl}apps/${globalUtil.getAppID()}/overview?type=components&componentID=${app_alias}&tab=${initialTab}`
+                  `${prefixUrl}apps/${globalUtil.getAppID()}/overview?type=components&componentID=${app_alias}&tab=${initialTab}${legacySubTab ? `&subTab=${legacySubTab}` : ''}`
                 )
               );
             }
@@ -1169,6 +1176,9 @@ class Main extends PureComponent {
       putUpdateRolling: formatMessage({ id: 'notification.success.operationUpdata' })
     };
     const { team_name, app_alias } = this.fetchParameter();
+    if (state === 'putUpdateRolling') this.upgradeFeedbackSequence = (this.upgradeFeedbackSequence || 0) + 1;
+    const feedbackSequence = this.upgradeFeedbackSequence;
+    const operationIdentity = this.getPollingIdentity();
 
     dispatch({
       type: `appControl/${state}`,
@@ -1177,10 +1187,20 @@ class Main extends PureComponent {
         app_alias
       },
       callback: res => {
+        if (state === 'putUpdateRolling' && (this.destroy || this.upgradeFeedbackSequence !== feedbackSequence || this.getPollingIdentity() !== operationIdentity)) return;
         if (res) {
-          notification.success({
-            message: operationMap[state]
-          });
+          if (state === 'putUpdateRolling') {
+            const identity = operationIdentity;
+            showComponentUpgradeFeedback({
+              dispatch, payload: { team_name, app_alias }, response: res,
+              isCurrent: () => {
+                return !this.destroy && this.upgradeFeedbackSequence === feedbackSequence && this.getPollingIdentity() === identity;
+              },
+              notification, formatMessage
+            });
+          } else {
+            notification.success({ message: operationMap[state] });
+          }
           const child = this.getChildCom();
           if (child && child.onAction) {
             child.onAction(res.bean);
@@ -1189,6 +1209,10 @@ class Main extends PureComponent {
             callback();
           }
         }
+        this.handleOffHelpfulHints();
+      },
+      handleError: err => {
+        notification.error({ message: (err && err.data && err.data.msg_show) || formatMessage({ id: 'notification.warn.error' }) });
         this.handleOffHelpfulHints();
       }
     });
@@ -1928,7 +1952,9 @@ class Main extends PureComponent {
     }
 
     // 最终的tabList
-    const tabList = isShowThirdParty ? getThirdPartyTabs(formatMessage) : tabs;
+    const tabList = method === 'vm'
+      ? VM_WORKSPACE_TABS.map(tab => ({ key: tab.key, tab: formatMessage({ id: tab.message }) }))
+      : isShowThirdParty ? getThirdPartyTabs(formatMessage) : tabs;
 
     const overviewTabs = [
       {
@@ -1978,7 +2004,8 @@ class Main extends PureComponent {
         }
       })
     }
-    const visibleTabList = tabsShow ? tabList : overviewTabs;
+    if (method === 'vm') VM_WORKSPACE_TABS.forEach(tab => { map[tab.key] = VmComponentWorkspace; });
+    const visibleTabList = method === 'vm' || tabsShow ? tabList : overviewTabs;
     const defaultTabKey = visibleTabList[0] && visibleTabList[0].key
       ? visibleTabList[0].key
       : 'overview';
@@ -2195,6 +2222,8 @@ class Main extends PureComponent {
                   ref={this.saveRef}
                   {...data}
                   {...this.props}
+                  vmWorkspaceTab={method === 'vm' ? currentActiveTab : undefined}
+                  vmWorkspacePlugins={method === 'vm' ? CompluginList : undefined}
                   pollingEnabled={pollingEnabled}
                   timers={pollingEnabled}
                   isShowKubeBlocksComponent={this.state.isShowKubeBlocksComponent}
