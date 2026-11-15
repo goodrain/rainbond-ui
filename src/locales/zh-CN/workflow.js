@@ -1,5 +1,13 @@
 export default {
-  "workflow.environmentTemplateName": "模版名称",
+  "workflow.environmentApplicationName": "应用名称",
+  "workflow.environmentApplicationDeleted": "应用已删除",
+  "workflow.environmentDeliveredVersion": "交付时 {version}",
+  "workflow.environmentDeletedVersionHint": "目标应用已删除，此处展示交付时记录的版本。",
+  "workflow.environmentVersionUnavailable": "当前版本关系不可用，此处展示交付时记录的版本。",
+  "workflow.environmentRecordUpdatedAt": "交付记录更新时间",
+  "workflow.environmentDeletedUpgradeUnavailable": "目标应用已删除，无法升级",
+  "workflow.environmentVersionUpgradeUnavailable": "未找到目标应用的模版版本关系，无法升级",
+
   "workflow.environmentCurrentVersion": "当前版本号",
   "workflow.environmentUpdatedAt": "更新时间",
   "workflow.sourceApplicationDeleted": "构建环境应用已删除",
