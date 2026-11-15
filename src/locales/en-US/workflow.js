@@ -3,7 +3,6 @@ export default {
   "workflow.environmentStatusLoading": "Loading",
   "workflow.environmentApplicationName": "Application name",
   "workflow.environmentApplicationDeleted": "Application deleted",
-  "workflow.environmentDeliveredVersion": "Delivered {version}",
   "workflow.environmentDeletedVersionHint": "The target application was deleted. This is the version recorded at delivery.",
   "workflow.environmentVersionUnavailable": "The current version relationship is unavailable. This is the version recorded at delivery.",
   "workflow.environmentRecordUpdatedAt": "Delivery record updated at",

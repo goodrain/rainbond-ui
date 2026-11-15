@@ -44,7 +44,7 @@ export default class EnvironmentTable extends PureComponent {
         const info = this.state.information[row.id];
         if (info && info.current_version) return info.current_version;
         return info && (info.target_deleted || info.version_unavailable) ? <Tooltip title={w(info.target_deleted ? 'environmentDeletedVersionHint' : 'environmentVersionUnavailable')}>
-          <span>{w('environmentDeliveredVersion', { version: info.delivered_version || row.version || '—' })}</span>
+          <span>{info.delivered_version || row.version || '—'}</span>
         </Tooltip> : '—';
       } },
       { title: w('deliveryEnvironments'), key: 'environment', render: (_, row) => {
