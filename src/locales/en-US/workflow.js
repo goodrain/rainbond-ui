@@ -1,4 +1,7 @@
 export default {
+  "workflow.environmentTemplateName": "Template name",
+  "workflow.environmentCurrentVersion": "Current version",
+  "workflow.environmentUpdatedAt": "Updated at",
   "workflow.sourceApplicationDeleted": "The build environment application has been deleted",
   "workflow.sourceApplicationDeletedHelp": "Live components and events are no longer available. Saved delivery templates and version records are retained.",
   "workflow.cancelListingRequest": "Cancel listing request",

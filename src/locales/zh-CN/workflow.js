@@ -1,4 +1,7 @@
 export default {
+  "workflow.environmentTemplateName": "模版名称",
+  "workflow.environmentCurrentVersion": "当前版本号",
+  "workflow.environmentUpdatedAt": "更新时间",
   "workflow.sourceApplicationDeleted": "构建环境应用已删除",
   "workflow.sourceApplicationDeletedHelp": "无法再查看该应用的实时组件和操作事件，已保存的交付模版与版本记录仍然保留。",
   "workflow.cancelListingRequest": "取消上架申请",

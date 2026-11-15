@@ -44,3 +44,20 @@ test('exports, failed installs and test deployments never query upgrade availabi
     const { component,actions } = action();component.props.task=task;component.load();assert.equal(actions.length,0);
   }
 });
+test('environment rows receive actual current version even when no upgrade is available', () => {
+  const { component, actions } = action();
+  const received = [];
+  component.props.onInfo = value => received.push(value);
+  component.load();
+  const current = { available: false, current_version: '2.0', updated_at: '2026-11-15T10:00:00Z' };
+  actions[0].callback(current);
+  assert.equal(received[0], current);
+});
+test('a failed environment check clears previously displayed current version', () => {
+  const { component, actions } = action();
+  const received = [];
+  component.props.onInfo = value => received.push(value);
+  component.load();actions[0].callback(info);
+  component.load();actions[1].onError();
+  assert.deepEqual(received, [info, null]);
+});

@@ -22,6 +22,7 @@ export default class DeliveryUpgradeAction extends PureComponent {
       (previous.user || {}).user_id !== (this.props.user || {}).user_id ||
       (previous.user || {}).enterprise_id !== (this.props.user || {}).enterprise_id) {
       this.ticket += 1;
+      if (this.props.onInfo) this.props.onInfo(null);
       this.setState({ info: null, busy: false, checking: true, failed: false }, this.load);
     }
   }
@@ -34,9 +35,13 @@ export default class DeliveryUpgradeAction extends PureComponent {
     dispatch({ type: 'deliveryCenter/upgrade', payload: task.id, callback: info => {
       if (!this.alive || ticket !== this.ticket) return;
       this.setState({ info, checking: false, failed: false });
+      if (this.props.onInfo) this.props.onInfo(info);
       if (callback) callback(info, ticket);
     }, onError: () => {
-      if (this.alive && ticket === this.ticket) this.setState({ info: null, busy: false, checking: false, failed: true });
+      if (this.alive && ticket === this.ticket) {
+        this.setState({ info: null, busy: false, checking: false, failed: true });
+        if (this.props.onInfo) this.props.onInfo(null);
+      }
     } });
   };
   open = () => {
