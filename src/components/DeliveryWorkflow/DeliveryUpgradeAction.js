@@ -69,7 +69,8 @@ export default class DeliveryUpgradeAction extends PureComponent {
     const { info, busy, checking, failed } = this.state;
     if (this.props.task.kind !== 'delivery' || this.props.task.status !== 'succeeded') return null;
     const available = !!deliveryUpgradePath(info);
-    const hint = available ? info.resume_record_id ? text('resumeUpgradeHint') : text('deliveryUpgradeHint', { current: info.current_version, latest: info.latest_version }) :
+    const hint = info && info.target_deleted ? text('environmentDeletedUpgradeUnavailable') : info && info.version_unavailable ? text('environmentVersionUpgradeUnavailable') :
+      available ? info.resume_record_id ? text('resumeUpgradeHint') : text('deliveryUpgradeHint', { current: info.current_version, latest: info.latest_version }) :
       text(failed ? 'upgradeUnavailable' : checking ? 'upgradeChecking' : 'noUpgradeVersion');
     return <Tooltip title={hint}><span>
       <Button type="link" size="small" disabled={!available} loading={busy || checking && !info} onClick={this.open}>{text(info && info.resume_record_id ? 'resumeUpgrade' : 'upgradeApplication')}</Button>

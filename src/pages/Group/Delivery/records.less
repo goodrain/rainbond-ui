@@ -100,9 +100,9 @@
   :global(.ant-btn) { height: 36px; padding: 0 14px; font-size: @rbd-content-size; }
   :global(.ant-btn-icon-only) { width: 36px; padding: 0; }
 }
-.versionStatusRow { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 24px; margin: 24px 0 0; padding-left: 36px;
-  font-size: @rbd-content-size; line-height: 22px;
-  :global(.ant-badge-status-text) { font-size: @rbd-content-size; }
+.versionPublicationStatus { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 8px 16px;
+  font-size: @rbd-auxiliary-size; line-height: 22px; color: @text-color-secondary;
+  :global(.ant-badge-status-text) { font-size: @rbd-auxiliary-size; }
 }
 .statusField { display: inline-flex; align-items: center; gap: 8px; color: @text-color-secondary; strong { font-weight: 400; color: @text-color; } }
 .versionCard > :global(.ant-tabs) { margin: 24px 0 0 36px;
@@ -148,7 +148,6 @@
   .versionCard { padding: 16px 0 24px; }
   .versionIdentity h3 { font-size: @rbd-title-size; }
   .versionMeta { font-size: @rbd-auxiliary-size; gap: 8px; }
-  .versionStatusRow { padding-left: 0; gap: 8px 16px; margin-top: 16px; font-size: @rbd-auxiliary-size; :global(.ant-badge-status-text) { font-size: @rbd-auxiliary-size; } }
   .versionCard > :global(.ant-tabs) { margin-left: 0; }
   .versionActions { width: 100%; margin: 4px 0 0 36px; }
 }

@@ -1,5 +1,14 @@
 export default {
-  "workflow.environmentTemplateName": "Template name",
+  "workflow.environmentStatusUnavailable": "Status unavailable",
+  "workflow.environmentStatusLoading": "Loading",
+  "workflow.environmentApplicationName": "Application name",
+  "workflow.environmentApplicationDeleted": "Application deleted",
+  "workflow.environmentDeletedVersionHint": "The target application was deleted. This is the version recorded at delivery.",
+  "workflow.environmentVersionUnavailable": "The current version relationship is unavailable. This is the version recorded at delivery.",
+  "workflow.environmentRecordUpdatedAt": "Delivery record updated at",
+  "workflow.environmentDeletedUpgradeUnavailable": "The target application was deleted and cannot be upgraded",
+  "workflow.environmentVersionUpgradeUnavailable": "The target application has no template version relationship for upgrades",
+
   "workflow.environmentCurrentVersion": "Current version",
   "workflow.environmentUpdatedAt": "Updated at",
   "workflow.sourceApplicationDeleted": "The build environment application has been deleted",
