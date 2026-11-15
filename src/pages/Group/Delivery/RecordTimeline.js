@@ -25,6 +25,10 @@ export default class RecordTimeline extends PureComponent {
     const deleted = !!record.deleted_at;
     const expanded = this.state.expanded[record.id] == null ? !!(group.latest && group.latest.id === record.id) : this.state.expanded[record.id];
     const exports = history.filter(item => item.kind === 'offline').slice().sort((a, b) => (Date.parse(b.created_at) || 0) - (Date.parse(a.created_at) || 0));
+    const publicationState = workflowFailed ? <span className={styles.statusField}>{w('loadFailed')}</span> :
+      deleted ? <Tag>{t('deletedVersion')}</Tag> : publications.length ? publications.map(item => <span key={item.id}>
+        {w(item.destination && item.destination.type === 'market' ? 'onlineMarket' : 'localCatalog')}：{listingStatusLabel(item)}
+      </span>) : <Badge status="default" text={w('notListed')} />;
     const menu = <Menu onClick={({ key }) => {
       if (key === 'delete') onDelete(record);
       if (key === 'onlineMarket') onListing(record, 'market');
@@ -43,10 +47,14 @@ export default class RecordTimeline extends PureComponent {
           <div className={styles.versionHeadingBody}>
             <div className={styles.versionIdentity}><h3><button type="button" aria-label={record.version} onClick={() => onDetail(record)}>v{record.version}</button></h3>
               {group.latest && group.latest.id === record.id && <Tag color="blue">{t('latestVersion')}</Tag>}
+              <div className={styles.versionPublicationStatus}>{publicationState}</div>
             </div>
             <div className={styles.versionMeta}><span>{record.creator_name || '—'}</span>
               <time className={styles.versionDate} dateTime={record.created_at}>{record.created_at ? moment(record.created_at).format('YYYY-MM-DD HH:mm') : '—'}</time>
-              <span><Icon type="appstore" /> {record.components.length} {t('componentUnit')}</span></div>
+              <span><Icon type="appstore" /> {record.components.length} {t('componentUnit')}</span>
+              {!workflowFailed && !!exports.length && <React.Fragment><span>{taskStatusLabel(exports[0])}</span>
+                <span className={styles.statusField}>{t('exportRecords', { count: exports.length })}</span></React.Fragment>}
+            </div>
           </div>
           <div className={styles.versionActions}>{allowed && !deleted && <React.Fragment>
             <Button type="primary" icon="cloud-download" disabled={workflowFailed} onClick={() => onInstall(record)}>{t('deliver')}</Button>
@@ -56,14 +64,6 @@ export default class RecordTimeline extends PureComponent {
             <Dropdown overlay={menu} trigger={['click']}><Button icon="ellipsis" aria-label={`${t('more')} ${record.version}`} /></Dropdown>
           </React.Fragment>}</div>
         </header>
-        <div className={styles.versionStatusRow}>
-          {workflowFailed ? <span className={styles.statusField}>{w('loadFailed')}</span> : <React.Fragment>
-          {deleted ? <Tag>{t('deletedVersion')}</Tag> : publications.length ? publications.map(item => <span key={item.id}>
-            {w(item.destination && item.destination.type === 'market' ? 'onlineMarket' : 'localCatalog')}：{listingStatusLabel(item)}
-          </span>) : <Badge status="default" text={w('notListed')} />}
-          {!!exports.length && <React.Fragment><span>{taskStatusLabel(exports[0])}</span><span className={styles.statusField}>{t('exportRecords', { count: exports.length })}</span></React.Fragment>}
-          </React.Fragment>}
-        </div>
         {expanded && <VersionDetails showEnvironments environmentDeployments={environmentDeployments} templateContent={<VersionContent template={record} onConfiguration={() => onDetail(record)} />} template={record} reviews={listings.filter(item => item.template.id === record.id)} deployments={history}
           activeTab={this.state.tabs[record.id] || 'template'} onTabChange={tab => this.setState(state => ({ tabs: { ...state.tabs, [record.id]: tab } }))}
           onConfiguration={() => onDetail(record)} />}
