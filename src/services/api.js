@@ -538,6 +538,7 @@ export async function createAppVersionSnapshot(body = {}) {
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/app-versions`,
     {
       method: 'post',
+      noModels: true,
       data: {
         version: body.version || '',
         version_alias: body.version_alias || '',

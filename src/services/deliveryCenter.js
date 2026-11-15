@@ -13,7 +13,7 @@ async function componentEvents(scope, component, page) {
   const pageSize = 20;
   const response = await request(`${apiconfig.baseUrl}/console/teams/${encodeURIComponent(scope.teamName)}/events`, {
     method: 'get', params: { region_name: scope.regionName, target: 'service', targetAlias: component.service_alias, page, page_size: pageSize },
-    showMessage: false, timeout: 12000
+    showMessage: false, timeout: 12000, handleError: () => {}
   });
   if (!response || !Array.isArray(response.list)) throw new Error('workflow.componentEventsUnavailable');
   const total = response.total != null && Number.isFinite(Number(response.total)) ? Number(response.total) : undefined;
@@ -31,7 +31,8 @@ async function sourceComponents(scope) {
   const number = value => value == null || value === '' || !Number.isFinite(Number(value)) ? undefined : Number(value);
   for (let page = 1; ; page += 1) {
     const response = await request(`${apiconfig.baseUrl}/console/teams/${encodeURIComponent(scope.teamName)}/service/group`, {
-      method: 'get', params: { region_name: scope.regionName, group_id: scope.appID, page, page_size: 100 }, showMessage: false
+      method: 'get', params: { region_name: scope.regionName, group_id: scope.appID, page, page_size: 100 }, showMessage: false,
+      handleError: () => {}
     });
     if (!response || !Array.isArray(response.list)) throw new Error('workflow.unavailable');
     const fresh = response.list.filter(item => item.service_id && !seen.has(String(item.service_id)));
@@ -52,7 +53,7 @@ async function sourceComponents(scope) {
 
 export async function loadDeliveryCenter({ user, kind, groupId, scope, component, components, page = 1 }) {
   if (kind === 'source') {
-    const response = await loadDeliverySource(scope, { showMessage: false });
+    const response = await loadDeliverySource(scope, { showMessage: false, handleError: () => {} });
     if (!response || !response.bean || !Array.isArray(response.bean.apps)) throw new Error('workflow.sourceUnavailable');
     return { bean: { components: response.bean.apps.map(assetSource), collected_at: new Date().toISOString() } };
   }
@@ -68,7 +69,8 @@ export async function loadDeliveryCenter({ user, kind, groupId, scope, component
     const aliases = (components || []).map(item => item.service_alias).filter(Boolean);
     if (!aliases.length) return { bean: { list: [] } };
     const response = await request(`${apiconfig.baseUrl}/console/teams/${encodeURIComponent(scope.teamName)}/group/service/visit`, {
-      method: 'get', params: { service_alias: aliases.join('-'), region_name: scope.regionName }, showMessage: false, timeout: 12000
+      method: 'get', params: { service_alias: aliases.join('-'), region_name: scope.regionName }, showMessage: false, timeout: 12000,
+      handleError: () => {}
     });
     if (!response || !Array.isArray(response.list)) throw new Error('workflow.unavailable');
     return { bean: { list: response.list } };
@@ -76,10 +78,16 @@ export async function loadDeliveryCenter({ user, kind, groupId, scope, component
   if (kind === 'targets') return request(`${apiconfig.baseUrl}/console/delivery-targets`, { method: 'get' });
   if (kind === 'runtime') {
     const source = scope;
+    let deleted = false;
+    const application = await request(`${apiconfig.baseUrl}/console/teams/${encodeURIComponent(source.teamName)}/groups/${encodeURIComponent(source.appID)}`, {
+      method: 'get', params: { region_name: source.regionName }, showMessage: false,
+      handleError: error => { deleted = !!(error && error.response && error.response.status === 404); }
+    });
+    if (deleted) return { bean: { deleted: true, app: null, components: [] } };
     const results = await Promise.allSettled([
-      request(`${apiconfig.baseUrl}/console/teams/${encodeURIComponent(source.teamName)}/groups/${encodeURIComponent(source.appID)}`, { method: 'get', params: { region_name: source.regionName }, showMessage: false }),
-      request(`${apiconfig.baseUrl}/console/teams/${encodeURIComponent(source.teamName)}/group/${encodeURIComponent(source.appID)}/resources`, { method: 'get', params: { region_name: source.regionName }, showMessage: false }),
-      request(`${apiconfig.baseUrl}/console/teams/${encodeURIComponent(source.teamName)}/groups/${encodeURIComponent(source.appID)}/status`, { method: 'get', params: { region_name: source.regionName }, showMessage: false }),
+      Promise.resolve(application),
+      request(`${apiconfig.baseUrl}/console/teams/${encodeURIComponent(source.teamName)}/group/${encodeURIComponent(source.appID)}/resources`, { method: 'get', params: { region_name: source.regionName }, showMessage: false, handleError: () => {} }),
+      request(`${apiconfig.baseUrl}/console/teams/${encodeURIComponent(source.teamName)}/groups/${encodeURIComponent(source.appID)}/status`, { method: 'get', params: { region_name: source.regionName }, showMessage: false, handleError: () => {} }),
       sourceComponents(source)
     ]);
     const values = results.map(result => result.status === 'fulfilled' && result.value ? result.value : null);

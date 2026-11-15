@@ -3,6 +3,7 @@ import { Button, Icon, Table, Tabs, Timeline } from 'antd';
 import moment from 'moment';
 import { DeploymentTable, TemplateConfiguration, statusLabel, w, deliveryRecordsLabel } from './index';
 import styles from './version.less';
+import EnvironmentTable from './EnvironmentTable';
 const { successfulDeliveryEnvironments, listingRequiresReview } = require('../../utils/deliveryWorkflow');
 
 const metric = value => value == null || !Number.isFinite(Number(value)) ? '—' : Number(Number(value).toFixed(3));
@@ -60,12 +61,12 @@ export default class VersionDetails extends PureComponent {
   renderReviews = () => <ReviewHistory reviews={this.props.reviews} />;
   render() {
     const { activeTab = 'template', onTabChange, deployments, template, inlineConfiguration, showEnvironments } = this.props;
-    const environments = showEnvironments ? successfulDeliveryEnvironments(deployments) : [];
+    const environments = showEnvironments ? successfulDeliveryEnvironments(this.props.environmentDeployments || deployments) : [];
     return <Tabs className={styles.detailsTabs} activeKey={activeTab} animated={false} onChange={onTabChange}>
       <Tabs.TabPane tab={w(this.props.templateContent ? 'versionContent' : 'templateTab')} key="template">{this.props.templateContent || this.renderTemplate()}</Tabs.TabPane>
       {inlineConfiguration && <Tabs.TabPane tab={w('componentConfiguration')} key="configuration"><TemplateConfiguration template={template} /></Tabs.TabPane>}
       {showEnvironments && <Tabs.TabPane tab={`${w('deliveryEnvironments')} (${environments.length})`} key="environments">
-        {environments.length ? <div className={styles.table}><DeploymentTable items={environments} /></div> : <p className={styles.empty}>{w('noEnvironmentDeliveries')}</p>}
+        {environments.length ? <div className={styles.table}><EnvironmentTable items={environments} /></div> : <p className={styles.empty}>{w('noEnvironmentDeliveries')}</p>}
       </Tabs.TabPane>}
       <Tabs.TabPane tab={w('reviewTab')} key="review">{this.renderReviews()}</Tabs.TabPane>
       <Tabs.TabPane tab={`${deliveryRecordsLabel(deployments)} (${deployments.length})`} key="deployments">

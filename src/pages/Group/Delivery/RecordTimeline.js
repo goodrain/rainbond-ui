@@ -16,9 +16,12 @@ export default class RecordTimeline extends PureComponent {
   });
   renderVersion = (record, group) => {
     const { listings, deployments, allowed, workflowFailed, onDetail, onInstall, onExport, onListing, onWithdraw, onDelete } = this.props;
-    const publications = latestPublications(listings.filter(item => item.template.id === record.id));
-    const listingAction = localListingAction(publications);
+    const recordListings = listings.filter(item => item.template.id === record.id);
+    const publications = latestPublications(recordListings);
+    const listingAction = localListingAction(recordListings);
     const history = deployments.filter(item => item.template_id === record.id);
+    const versionIds = new Set(group.versions.map(item => item.id));
+    const environmentDeployments = deployments.filter(item => versionIds.has(item.template_id));
     const deleted = !!record.deleted_at;
     const expanded = this.state.expanded[record.id] == null ? !!(group.latest && group.latest.id === record.id) : this.state.expanded[record.id];
     const exports = history.filter(item => item.kind === 'offline').slice().sort((a, b) => (Date.parse(b.created_at) || 0) - (Date.parse(a.created_at) || 0));
@@ -47,8 +50,8 @@ export default class RecordTimeline extends PureComponent {
           </div>
           <div className={styles.versionActions}>{allowed && !deleted && <React.Fragment>
             <Button type="primary" icon="cloud-download" disabled={workflowFailed} onClick={() => onInstall(record)}>{t('deliver')}</Button>
-            <Button icon={listingAction.kind === 'withdraw' ? 'stop' : 'shop'} disabled={workflowFailed}
-              onClick={() => listingAction.kind === 'withdraw' ? onWithdraw(record, listingAction.listing, listingAction.action) : onListing(record)}>{w(listingAction.label)}</Button>
+            {listingAction.kind !== 'locked' && <Button icon={listingAction.kind === 'withdraw' ? 'stop' : 'shop'} disabled={workflowFailed}
+              onClick={() => listingAction.kind === 'withdraw' ? onWithdraw(record, listingAction.listing, listingAction.action) : onListing(record)}>{w(listingAction.label)}</Button>}
             <Button icon="export" disabled={workflowFailed} onClick={() => onExport(record)}>{t('exportOfflinePackage')}</Button>
             <Dropdown overlay={menu} trigger={['click']}><Button icon="ellipsis" aria-label={`${t('more')} ${record.version}`} /></Dropdown>
           </React.Fragment>}</div>
@@ -61,7 +64,7 @@ export default class RecordTimeline extends PureComponent {
           {!!exports.length && <React.Fragment><span>{taskStatusLabel(exports[0])}</span><span className={styles.statusField}>{t('exportRecords', { count: exports.length })}</span></React.Fragment>}
           </React.Fragment>}
         </div>
-        {expanded && <VersionDetails showEnvironments templateContent={<VersionContent template={record} onConfiguration={() => onDetail(record)} />} template={record} reviews={listings.filter(item => item.template.id === record.id)} deployments={history}
+        {expanded && <VersionDetails showEnvironments environmentDeployments={environmentDeployments} templateContent={<VersionContent template={record} onConfiguration={() => onDetail(record)} />} template={record} reviews={listings.filter(item => item.template.id === record.id)} deployments={history}
           activeTab={this.state.tabs[record.id] || 'template'} onTabChange={tab => this.setState(state => ({ tabs: { ...state.tabs, [record.id]: tab } }))}
           onConfiguration={() => onDetail(record)} />}
         {expanded && deleted && <p className={styles.deletionNote}>{t('versionDeletedAt', { name: record.deleted_by, time: moment(record.deleted_at).format('YYYY-MM-DD HH:mm') })}</p>}

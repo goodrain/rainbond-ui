@@ -3,11 +3,12 @@ import { Avatar, Badge, Button, Empty, Icon, Tabs, Timeline, Tooltip } from 'ant
 import moment from 'moment';
 import { DeploymentTable, listingStatusLabel, w } from '../../components/DeliveryWorkflow';
 import { ReviewHistory } from '../../components/DeliveryWorkflow/VersionDetails';
+import EnvironmentTable from '../../components/DeliveryWorkflow/EnvironmentTable';
 import styles from './asset.less';
 import VersionConfiguration from './VersionConfiguration';
 import VersionChanges from './VersionChanges';
 const { defaultComparison, orderedVersions, localMarketTemplatePath } = require('../../utils/deliveryAsset');
-const { listingRequiresReview, listingDeployable } = require('../../utils/deliveryWorkflow');
+const { listingRequiresReview, listingDeployable, successfulDeliveryEnvironments } = require('../../utils/deliveryWorkflow');
 
 export default class VersionsSection extends PureComponent {
   state = { tabs: {}, expandedNotes: {} };
@@ -16,8 +17,13 @@ export default class VersionsSection extends PureComponent {
     const versions = orderedVersions(group.versions), profile = group.profile || { name: group.template_name,
       logo: versions[0] && versions[0].template.logo, description: versions[0] && versions[0].template.template_description };
     const template = item && item.template, history = template ? deployments.filter(row => row.template_id === template.id) : [];
+    const versionIds = new Set(versions.map(row => row.template.id));
+    const environments = successfulDeliveryEnvironments(deployments.filter(row => row.template_group_id ?
+      row.template_group_id === group.id : versionIds.has(row.template_id)));
     const templatePath = localMarketTemplatePath(group.source.enterprise_id, item, versions);
     const baseline = item && defaultComparison(versions, item);
+    const selectedTab = template && this.state.tabs[template.id] || (baseline ? 'changes' : 'content');
+    const activeTab = !baseline && selectedTab === 'changes' ? 'content' : selectedTab;
     return <section id="asset-versions" className={styles.assetSection} aria-labelledby="asset-versions-title">
       <header className={styles.sectionHeader}><div><h2 id="asset-versions-title"><span className={styles.sectionMarker}><Icon type="appstore" /></span><span className={styles.sectionNumber}>03</span>{w('assetVersions')}</h2><p>{w('assetVersionsHelp')}</p></div>
         {group.pending > 0 && <Badge status="processing" text={`${group.pending} ${w('pendingReview')}`} />}</header>
@@ -51,17 +57,25 @@ export default class VersionsSection extends PureComponent {
             <div className={`${styles.notes} ${this.state.expandedNotes[template.id] ? styles.expandedNotes : ''}`} aria-label={w('releaseNotes')}><div className={styles.notesText}>{template.description || w('noDescription')}</div></div>
           </div>
 
-          <Tabs activeKey={this.state.tabs[template.id] || 'changes'} animated={false}
+          <Tabs activeKey={activeTab} animated={false}
             onChange={tab => this.setState(state => ({ tabs: { ...state.tabs, [template.id]: tab } }))}>
-            <Tabs.TabPane key="changes" tab={w('versionChangesTab')}>
+            {baseline && <Tabs.TabPane key="changes" tab={w('versionChangesTab')}>
               <div className={styles.versionChangesTab}><VersionChanges template={template} baseline={baseline && baseline.template} onSource={onSource} /></div>
-            </Tabs.TabPane>
+            </Tabs.TabPane>}
             <Tabs.TabPane key="content" tab={w('versionContent')}>
               <VersionConfiguration key={template.id} template={template} onSource={onSource} />
             </Tabs.TabPane>
             <Tabs.TabPane key="audit" tab={w('reviewTab')}><ReviewHistory reviews={[item]} /></Tabs.TabPane>
             <Tabs.TabPane key="delivery" tab={w('deliveryRecordsTab')}>
-              {history.length ? <div className={styles.table}><DeploymentTable items={history} /></div> : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={w('noDeliveryRecords')} />}
+              {!!environments.length && <section aria-label={w('deliveryEnvironments')}>
+                <div className={styles.subheading}><h3>{w('deliveryEnvironments')} ({environments.length})</h3></div>
+                <div className={styles.table}><EnvironmentTable items={environments} /></div>
+              </section>}
+              {!!history.length && <section aria-label={w('deliveryRecordsTab')}>
+                <div className={styles.subheading}><h3>{w('deliveryRecordsTab')}</h3></div>
+                <div className={styles.table}><DeploymentTable items={history} /></div>
+              </section>}
+              {!environments.length && !history.length && <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={w('noDeliveryRecords')} />}
             </Tabs.TabPane>
           </Tabs>
         </div>

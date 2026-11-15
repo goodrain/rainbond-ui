@@ -7,7 +7,6 @@ import {
   createAppVersionSnapshot,
   getAppVersionOverview
 } from '../../../services/api';
-import globalUtil from '../../../utils/global';
 import AppShareBase from './AppShareBase';
 import {
   appShareStateSelector
@@ -103,17 +102,15 @@ class AppSnapshotSetting extends AppShareBase {
   };
 
   handleModeSubmit = values => {
-    const { dispatch } = this.props;
     const submissionData = this.collectSubmissionData();
     if (!submissionData) {
       return;
     }
     const { selectedShareServices, plugin_list, share_k8s_resources } =
       submissionData;
-    const teamName = globalUtil.getCurrTeamName();
-    const { appID, shareId } = this.props.match.params;
+    const { teamName, appID } = this.props.match.params;
     this.setState({ submitLoading: true });
-    createAppVersionSnapshot({
+    return createAppVersionSnapshot({
       team_name: teamName,
       group_id: appID,
       version: values.version,
@@ -126,55 +123,39 @@ class AppSnapshotSetting extends AppShareBase {
       .then(res => {
         this.setState({ submitLoading: false });
         const bean = (res && res.bean) || {};
+        if (!res || !bean.version_id) throw new Error(formatMessage({ id: 'appVersion.result.unknown' }));
         if (bean.created === false) {
           notification.warning({
             message: (res && res.msg_show) || '当前没有新的变更，无需创建快照'
           });
           return;
         }
-        dispatch({
-          type: 'application/giveupShare',
-          payload: {
-            team_name: teamName,
-            share_id: shareId
-          },
-          callback: () => {
-            dispatch(
-              routerRedux.replace(
-                `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${appID}/version`
-              )
-            );
-          }
-        });
+        this.closeSnapshotDraft();
         notification.success({
           message: (res && res.msg_show) || '创建快照成功'
         });
       })
       .catch(errs => {
         this.setState({ submitLoading: false });
-        const data = errs && errs.data;
-        const msg = (data && data.msg_show) || '创建快照失败';
+        const data = errs && (errs.data || errs.response && errs.response.data);
+        const msg = (data && data.msg_show) || errs && errs.message || '创建快照失败';
         notification.warning({ message: msg });
       });
   };
 
   handleGiveup = () => {
-    const groupId = this.props.match.params.appID;
+    this.closeSnapshotDraft();
+  };
+
+  closeSnapshotDraft = () => {
     const { dispatch } = this.props;
+    const { teamName, regionName, appID, shareId } = this.props.match.params;
     dispatch({
       type: 'application/giveupShare',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        share_id: this.props.match.params.shareId
-      },
-      callback: () => {
-        dispatch(
-          routerRedux.push(
-            `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${groupId}/version`
-          )
-        );
-      }
+      payload: { team_name: teamName, share_id: shareId }
     });
+    dispatch(routerRedux.replace({ pathname: `/team/${teamName}/region/${regionName}/apps/${appID}/version`,
+      query: { refresh: `${Date.now()}` } }));
   };
 
   renderBasicStage = ({

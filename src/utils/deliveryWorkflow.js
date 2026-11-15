@@ -4,12 +4,13 @@ const listingRequiresReview = item => !item.destination || item.destination.type
 const listingDeployable = item => !['unlisted', 'cancelled'].includes(item.publication_status) && item.status !== 'cancelled' &&
   (item.status === 'approved' || !listingRequiresReview(item) && item.publication_status === 'published');
 function localListingAction(items) {
+  const approved = items.find(item => listingRequiresReview(item) && item.status === 'approved');
+  if (approved) return { kind: 'locked', listing: approved };
   const latest = latestPublications(items);
-  const local = latest.find(item => !item.destination || item.destination.type === 'local');
-  const active = local && ['pending', 'approved'].includes(local.status) && !['cancelled', 'unlisted'].includes(local.publication_status);
-  return active ? { kind: 'withdraw', listing: local, action: local.publication_status === 'published' ? 'unlist' : 'cancel',
-    label: local.status === 'pending' ? 'cancelListingRequest' : 'unlistAction' } :
-    { kind: 'listing', label: local && (local.status === 'cancelled' || ['cancelled', 'unlisted'].includes(local.publication_status)) ?
+  const local = latest.find(item => listingRequiresReview(item));
+  const active = local && local.status === 'pending' && !['cancelled', 'unlisted'].includes(local.publication_status);
+  return active ? { kind: 'withdraw', listing: local, action: 'cancel', label: 'cancelListingRequest' } :
+    { kind: 'listing', label: local && (['cancelled', 'rejected'].includes(local.status) || ['cancelled', 'unlisted'].includes(local.publication_status)) ?
       'relistAction' : latest.some(item => item.destination && item.destination.type === 'market') ? 'listLocalAction' : 'listAction' };
 }
 function latestPublications(items) {

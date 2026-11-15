@@ -67,6 +67,8 @@ export default class AppVersion extends PureComponent {
       appDetail: {},
       overview: {},
       snapshotVersions: [],
+      snapshotVersionsFailed: false,
+      snapshotOverviewFailed: false,
       sourceGroups: [],
       upgradeRecords: [],
       selectedTemplateId: 'personal',
@@ -587,23 +589,27 @@ export default class AppVersion extends PureComponent {
       if (this.unmounted) {
         return;
       }
+      if (!res || !res.bean) throw new Error('快照信息加载失败');
       const overview = (res && res.bean) || {};
       const snapshotCountChanged = Number(this.state.overview.snapshot_count || 0) !== Number(overview.snapshot_count || 0);
-      this.setState({ overview });
+      this.setState({ overview, snapshotOverviewFailed: false });
       if (snapshotCountChanged) {
         this.fetchSnapshotVersions();
       }
     } catch (error) {
+      if (!this.unmounted) this.setState({ snapshotOverviewFailed: true });
       return;
     }
   };
 
   fetchSnapshotVersions = async () => {
+    this.setState({ snapshotVersionsFailed: false });
     try {
       const res = await getAppVersionSnapshots({
         team_name: globalUtil.getCurrTeamName(),
         group_id: this.getAppId()
       });
+      if (!res || !Array.isArray(res.list)) throw new Error('快照历史加载失败');
       const snapshotVersions = await Promise.all(
         ((res && res.list) || []).map(this.attachSnapshotComponentNames)
       );
@@ -618,7 +624,7 @@ export default class AppVersion extends PureComponent {
     } catch (error) {
       if (!this.unmounted) {
         this.setState({
-          snapshotVersions: []
+          snapshotVersions: [], snapshotVersionsFailed: true
         });
       }
     }
@@ -1743,12 +1749,13 @@ export default class AppVersion extends PureComponent {
         team_name: teamName,
         group_id: appID
       });
+      if (!res || !res.bean) throw new Error('无法获取当前快照信息，请稍后重试');
       overview = (res && res.bean) || {};
       if (!this.unmounted) {
         this.setState({ overview });
       }
     } catch (error) {
-      overview = this.state.overview || {};
+      notification.error({ message: formatMessage({ id: 'appVersion.overview.unavailable' }) });return;
     }
     if (!this.canCreateSnapshot(overview)) {
       notification.warning({ message: '当前没有新的变更，无需创建快照' });
@@ -1764,13 +1771,14 @@ export default class AppVersion extends PureComponent {
         snapshot_mode: true,
         snapshot_app_id: overview.template_id || ''
       },
+      onError: () => notification.error({ message: formatMessage({ id: 'appVersion.configuration.unavailable' }) }),
       callback: data => {
         const bean = data && data.bean;
         const recordId = bean && bean.ID;
         const appModelId = (bean && bean.app_id) || overview.template_id;
         const latestSnapshotVersion = getLatestSnapshotVersionSeed(overview);
         if (!recordId) {
-          notification.error({ message: '打开快照配置页失败' });
+          notification.error({ message: formatMessage({ id: 'appVersion.configuration.unavailable' }) });
           return;
         }
         dispatch(
@@ -2041,11 +2049,19 @@ export default class AppVersion extends PureComponent {
         <div className={styles.personalStats}>
           <div className={styles.personalStat}>
             <span className={styles.personalStatLabel}>当前版本</span>
-            <span className={styles.personalStatValue}>{personalTemplate.currentVersion}</span>
+            <span className={styles.personalStatValue}>{this.state.snapshotOverviewFailed ? '—' : personalTemplate.currentVersion}</span>
           </div>
           <div className={styles.personalStat}>
             <span className={styles.personalStatLabel}>快照数量</span>
-            <span className={styles.personalStatValue}>{overview.snapshot_count || 0}</span>
+            <span className={styles.personalStatValue}>{this.state.snapshotOverviewFailed ? '—' : overview.snapshot_count || 0}</span>
+          </div>
+          <div className={styles.personalStat}>
+            <span className={styles.personalStatLabel}>{formatMessage({ id: 'appVersion.meta.sources' })}</span>
+            <span className={styles.personalStatValue}>{this.state.snapshotOverviewFailed || overview.source_template_count == null ? '—' : overview.source_template_count}</span>
+          </div>
+          <div className={styles.personalStat}>
+            <span className={styles.personalStatLabel}>{formatMessage({ id: 'appVersion.meta.lastPublished' })}</span>
+            <span className={styles.personalStatValue}>{this.state.snapshotOverviewFailed ? '—' : overview.latest_publish_time ? this.formatTime(overview.latest_publish_time) : formatMessage({ id: 'appVersion.meta.notPublished' })}</span>
           </div>
         </div>
       </Card>
@@ -2329,7 +2345,8 @@ export default class AppVersion extends PureComponent {
           </div>
         }
       >
-        {timelineData.length ? <Timeline className={styles.historyTimeline}>
+        {this.state.snapshotVersionsFailed ? <Alert type="warning" showIcon message={formatMessage({ id: 'appVersion.history.loadFailed' })}
+          description={<Button onClick={this.fetchSnapshotVersions}>{formatMessage({ id: 'button.retry' })}</Button>} /> : timelineData.length ? <Timeline className={styles.historyTimeline}>
           {timelineData.map(item => {
             const state = item.timelineState;
             const suffix = state === 'runtime' ? 'Runtime' : state === 'upgrade' ? 'Upgrade' : state === 'current' ? 'Current' : 'History';
@@ -2365,7 +2382,9 @@ export default class AppVersion extends PureComponent {
               </Card>
             </Timeline.Item>;
           })}
-        </Timeline> : <Empty description="尚未创建应用快照" />}
+        </Timeline> : <div className={styles.snapshotEmpty}><Empty description={formatMessage({ id: 'appVersion.empty' })}>
+          <Button type="primary" onClick={this.handleCreateSnapshot}>{formatMessage({ id: 'appVersion.action.createFirst' })}</Button>
+        </Empty></div>}
       </Card>
     );
   };

@@ -10,7 +10,8 @@ export async function listDeliveryTemplates(scope) {
 }
 export async function loadDeliverySource(scope, options = {}) {
   return request(`${urlFor(scope)}/source`, { method: 'get', params: { region_name: scope.regionName },
-    ...(options.showMessage === false ? { showMessage: false } : {}) });
+    ...(options.showMessage === false ? { showMessage: false } : {}),
+    ...(options.handleError ? { handleError: options.handleError } : {}) });
 }
 export async function loadDeliveryComponents(scope) {
   const [response, saved] = await Promise.all([loadDeliverySource(scope), listDeliveryTemplates(scope)]);
