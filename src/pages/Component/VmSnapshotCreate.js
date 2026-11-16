@@ -1,13 +1,14 @@
 import React, { PureComponent } from 'react';
-import { Alert, Button, Input, Modal, Select } from 'antd';
+import { Alert, Button, Form, Input, Modal, Select } from 'antd';
 import { formatMessage } from '@/utils/intl';
-import { validateSnapshotPrepare, snapshotAttemptKey, loadSnapshotAttempt, saveSnapshotAttempt,
+import { snapshotFieldErrors, validateSnapshotPrepare, snapshotAttemptKey, loadSnapshotAttempt, saveSnapshotAttempt,
   newSnapshotRequestId } from '../../utils/vmSnapshotCreate';
 
 const text = key => formatMessage({ id: `componentOverview.vmWorkspace.snapshotCreate.${key}` });
 
 export class VmSnapshotCreate extends PureComponent {
-  state = { visible: false, name: '', description: '', power: 'previous', status: 'idle', attempt: null, job: null };
+  state = { visible: false, name: '', description: '', power: 'previous', status: 'idle', attempt: null, job: null,
+    fieldErrors: {}, formError: '' };
   mounted = false;
   sequence = 0;
   key = () => snapshotAttemptKey(this.props.context, this.props.actorId);
@@ -23,18 +24,24 @@ export class VmSnapshotCreate extends PureComponent {
   restore = () => {
     try {
       const attempt = loadSnapshotAttempt(this.storage(), this.key());
-      this.setState({ visible: false, attempt, status: attempt ? 'unknown' : 'idle', job: null, name: '', description: '' });
+      this.setState({ visible: false, attempt, status: attempt ? 'unknown' : 'idle', job: null, name: '', description: '',
+        fieldErrors: {}, formError: '' });
     } catch (_) { this.setState({ visible: false, attempt: null, status: 'unavailable', job: null }); }
   };
   submit = () => {
     if (!this.active() || !this.props.capabilityReady || this.state.attempt || ['pending', 'unavailable'].includes(this.state.status)) return undefined;
+    const fieldErrors = snapshotFieldErrors(this.state);
+    this.setState({ fieldErrors, formError: '' });
+    if (Object.keys(fieldErrors).length) return undefined;
     const key = this.key();
     let payload;
     try {
       payload = validateSnapshotPrepare({ name: this.state.name, description: this.state.description,
         power_after: this.state.power, request_id: (this.props.requestId || newSnapshotRequestId)() });
+    } catch (_) { this.setState({ formError: 'requestUnavailable' }); return undefined; }
+    try {
       saveSnapshotAttempt(this.storage(), key, payload);
-    } catch (_) { this.setState({ status: 'invalid' }); return undefined; }
+    } catch (_) { this.setState({ formError: 'unavailable' }); return undefined; }
     const id = ++this.sequence;
     const current = () => this.active() && this.key() === key && this.sequence === id;
     this.setState({ visible: false, attempt: payload, status: 'pending' });
@@ -89,27 +96,44 @@ export class VmSnapshotCreate extends PureComponent {
     } catch (_) { finish(null, true); return undefined; }
   };
   render() {
-    const { attempt, status, visible, name, description, power } = this.state;
+    const { attempt, status, visible, name, description, power, fieldErrors, formError } = this.state;
     const enabled = this.active();
     return <section aria-label={text('title')}>
       <Button type="primary" disabled={!enabled || !this.props.capabilityReady || !!attempt || status === 'unavailable'}
         loading={this.props.capabilityChecking}
-        onClick={() => this.setState({ visible: true })}>{text('title')}</Button>
+        onClick={() => this.setState({ visible: true, fieldErrors: {}, formError: '' })}>{text('title')}</Button>
+      {this.props.capabilityChecking && <p role="status">{text('capabilityChecking')}</p>}
       {!this.props.capabilityReady && !this.props.capabilityChecking && <p>{text('capabilityRequired')}</p>}
       {status !== 'idle' && <Alert type={status === 'accepted' ? 'info' : 'warning'} showIcon
         message={text(['pending', 'reading', 'accepted', 'unknown', 'rejected', 'unsupported', 'workerUnavailable', 'completed', 'unavailable', 'invalid'].includes(status) ? status : 'unknown')}
         description={attempt ? <span>{attempt.name} <Button disabled={!enabled || ['pending', 'reading'].includes(status)}
           loading={status === 'reading'} onClick={this.readback}>{text('readback')}</Button></span> : undefined} />}
       <Modal visible={visible && enabled} title={text('title')} okText={text('submit')} cancelText={text('cancel')}
+        okButtonProps={{ disabled: !this.props.capabilityReady || !!attempt || status === 'pending' }}
         onOk={this.submit} onCancel={() => this.setState({ visible: false })}>
         <p>{text('offline')}</p>
-        <label>{text('name')}<Input value={name} maxLength={253} onChange={event => this.setState({ name: event.target.value })} /></label>
-        <label>{text('description')}<Input.TextArea value={description} maxLength={2048}
-          onChange={event => this.setState({ description: event.target.value })} /></label>
-        <label>{text('power')}<Select value={power} onChange={value => this.setState({ power: value })} style={{ width: '100%' }}>
+        {formError && <Alert type="error" showIcon message={<span role="alert">{text(formError)}</span>} />}
+        {!this.props.capabilityReady && <Alert type="warning" showIcon message={text('capabilityRequired')} />}
+        <Form.Item label={text('name')} required htmlFor="vm-snapshot-name"
+          validateStatus={fieldErrors.name ? 'error' : undefined}
+          help={<span id="vm-snapshot-name-help" role={fieldErrors.name ? 'alert' : undefined}>{text(fieldErrors.name || 'nameHint')}</span>}>
+          <Input id="vm-snapshot-name" value={name} maxLength={253} placeholder="before-upgrade"
+            aria-invalid={!!fieldErrors.name} aria-describedby="vm-snapshot-name-help"
+            onChange={event => this.setState({ name: event.target.value, fieldErrors: { ...fieldErrors, name: '' }, formError: '' })} />
+        </Form.Item>
+        <Form.Item label={text('description')} htmlFor="vm-snapshot-description"
+          validateStatus={fieldErrors.description ? 'error' : undefined}
+          help={<span id="vm-snapshot-description-help" role={fieldErrors.description ? 'alert' : undefined}>{text(fieldErrors.description || 'descriptionHint')}</span>}>
+          <Input.TextArea id="vm-snapshot-description" value={description} maxLength={2048}
+            aria-invalid={!!fieldErrors.description} aria-describedby="vm-snapshot-description-help"
+            onChange={event => this.setState({ description: event.target.value, fieldErrors: { ...fieldErrors, description: '' }, formError: '' })} />
+        </Form.Item>
+        <Form.Item label={text('power')}>
+          <Select value={power} aria-label={text('power')} onChange={value => this.setState({ power: value })} style={{ width: '100%' }}>
           <Select.Option value="previous">{text('previous')}</Select.Option>
           <Select.Option value="stopped">{text('stopped')}</Select.Option>
-        </Select></label>
+          </Select>
+        </Form.Item>
       </Modal>
     </section>;
   }

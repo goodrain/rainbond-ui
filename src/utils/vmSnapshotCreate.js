@@ -2,11 +2,22 @@ const { validSnapshotName, snapshotReadError } = require('./vmSnapshotRead');
 
 function invalid() { throw new Error('Invalid snapshot Prepare request or result'); }
 function validRequestId(value) { return typeof value === 'string' && /^[a-z0-9][a-z0-9-]{0,62}$/.test(value); }
+function snapshotFieldErrors(value = {}) {
+  const errors = {};
+  if (!value.name) errors.name = 'nameRequired';
+  else if (!validSnapshotName(value.name)) errors.name = 'nameInvalid';
+  const description = value.description === undefined ? '' : value.description;
+  try {
+    if (typeof description !== 'string' || encodeURIComponent(description).replace(/%[A-F\d]{2}/g, 'x').length > 2048) {
+      errors.description = 'descriptionInvalid';
+    }
+  } catch (_) { errors.description = 'descriptionInvalid'; }
+  return errors;
+}
 function validateSnapshotPrepare(value) {
-  if (!value || typeof value !== 'object' || !validSnapshotName(value.name) || !validRequestId(value.request_id) ||
+  if (!value || typeof value !== 'object' || Object.keys(snapshotFieldErrors(value)).length || !validRequestId(value.request_id) ||
       !['previous', 'stopped'].includes(value.power_after)) invalid();
   const description = value.description === undefined ? '' : value.description;
-  if (typeof description !== 'string' || encodeURIComponent(description).replace(/%[A-F\d]{2}/g, 'x').length > 2048) invalid();
   return { name: value.name, description, request_id: value.request_id, power_after: value.power_after };
 }
 function snapshotAttemptKey(context, actorId) {
@@ -86,5 +97,5 @@ function snapshotPrepareError(error) {
   return { kind: [400, 401, 403, 404, 422].includes(status) || workerUnavailable ? 'rejected' : 'unknown',
     status, code: workerUnavailable ? code : '', retryable: false };
 }
-module.exports = { validRequestId, validateSnapshotPrepare, snapshotAttemptKey, loadSnapshotAttempt, saveSnapshotAttempt,
+module.exports = { validRequestId, snapshotFieldErrors, validateSnapshotPrepare, snapshotAttemptKey, loadSnapshotAttempt, saveSnapshotAttempt,
   newSnapshotRequestId, readSnapshotEnqueue, readSnapshotJob, snapshotPrepareError };

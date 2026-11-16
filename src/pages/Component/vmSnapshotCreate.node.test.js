@@ -47,7 +47,7 @@ function harness(extra = {}) {
     '../utils/vmSnapshotRead': reads, '../utils/vmSnapshotCreate': create, '../utils/vmSnapshotRestore': restores,
     '../utils/vmExistingSnapshotCapability': require('../../utils/vmExistingSnapshotCapability') }).default;
   const Component = load('pages/Component/VmSnapshotCreate.js', { react: React,
-    antd: { Alert: 'Alert', Button: 'Button', Input: { TextArea: 'TextArea' }, Modal: 'Modal', Select: { Option: 'Option' } },
+    antd: { Alert: 'Alert', Button: 'Button', Form: { Item: 'FormItem' }, Input: { TextArea: 'TextArea' }, Modal: 'Modal', Select: { Option: 'Option' } },
     '@/utils/intl': { formatMessage: ({ id }) => id }, '../../utils/vmSnapshotCreate': create }).VmSnapshotCreate;
   const props = { context: { team: 'team-a', region: 'region-a', application: '42', alias: 'vm-a', serviceId: 'service-a' },
     actorId: 17, enabled: true, capabilityReady: true, storage: memory,
