@@ -35,13 +35,13 @@ function targetRefToKey(targetRef) {
   // `targetRef.id` read always returned undefined and the "记住选择"
   // policy entries showed up as `service:undefined` / `app:undefined`,
   // never matching subsequent approvals. Pick the right id by kind.
-  let id = null;
+  let id = targetRef.id || null;
   if (targetRef.kind === 'service') {
-    id = targetRef.service_id || targetRef.service_alias;
+    id = targetRef.service_id || targetRef.service_alias || id;
   } else if (targetRef.kind === 'app') {
-    id = targetRef.app_id;
+    id = targetRef.app_id || id;
   } else if (targetRef.kind === 'team') {
-    id = targetRef.team_name;
+    id = targetRef.team_name || id;
   }
   return id ? `${targetRef.kind}:${id}` : null;
 }
@@ -49,6 +49,14 @@ function targetRefToKey(targetRef) {
 function toRememberPolicy(kind) {
   const serverKind = SERVER_POLICY_KINDS[kind];
   return serverKind ? { kind: serverKind } : null;
+}
+
+function canAlwaysAllowApproval(approval = {}) {
+  const input = approval.input || {};
+  if (approval.risk === 'high' || /(?:^|_)(?:delete|remove|cleanup)(?:_|$)/i.test(approval.skillId || '') ||
+      [input.operation, input.op, input.action, input.method].some(value => typeof value === 'string' && /^(delete|remove|cleanup)(?:_|$)/i.test(value.trim()))) return false;
+  // The server owns eligibility; an old pending record without it remains manual.
+  return approval.autoApprovalEligible === true;
 }
 
 function formatServerPolicyLabel(policy) {
@@ -73,4 +81,5 @@ module.exports = {
   formatServerPolicyLabel,
   targetRefToKey,
   toRememberPolicy,
+  canAlwaysAllowApproval,
 };

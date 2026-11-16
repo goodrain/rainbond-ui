@@ -1,4 +1,4 @@
-const TERMINAL_STATUSES = ['done', 'error', 'waiting_approval', 'cancelled'];
+const TERMINAL_STATUSES = ['done', 'error', 'waiting_approval', 'cancelled', 'completed', 'failed'];
 const STREAM_BATCHABLE_EVENT_TYPES = {
   'chat.message.delta': true,
   'chat.message.reasoning.delta': true,
@@ -113,9 +113,10 @@ function createStreamEventDispatcher(onEvent, options = {}) {
 }
 
 async function readSseEvents(response, options = {}) {
-  const { onEvent, skipFirstWaitingApproval } = options;
+  const { onEvent, skipFirstWaitingApproval, keepWaitingApproval } = options;
   let waitingApprovalSeen = false;
   let approvalResolvedSeen = false;
+  let automaticApprovalPending = options.automaticApprovalPending === true;
   const eventDispatcher = createStreamEventDispatcher(onEvent, options);
 
   if (!response.ok) {
@@ -181,8 +182,11 @@ async function readSseEvents(response, options = {}) {
             events.push(parsed);
             eventDispatcher.dispatch(parsed);
 
-            if (parsed.type === 'approval.resolved') {
+            if (parsed.type === 'approval.requested') {
+              automaticApprovalPending = !!(parsed.data && parsed.data.auto_approved === true);
+            } else if (parsed.type === 'approval.resolved') {
               approvalResolvedSeen = true;
+              automaticApprovalPending = false;
             }
 
             if (
@@ -190,7 +194,11 @@ async function readSseEvents(response, options = {}) {
               parsed.data &&
               TERMINAL_STATUSES.indexOf(parsed.data.status) > -1
             ) {
-              if (
+              if (parsed.data.status === 'waiting_approval' && (keepWaitingApproval || automaticApprovalPending)) {
+                // An already approved call needs no user interaction. Its
+                // decision and final output can arrive in later network chunks.
+                // Reattachment also follows historical approval pauses.
+              } else if (
                 parsed.data.status === 'waiting_approval' &&
                 skipFirstWaitingApproval &&
                 !waitingApprovalSeen &&
@@ -272,14 +280,32 @@ async function streamRunWithResume(options = {}) {
 
   let lastSequence = 0;
   let sawTerminal = false;
+  let terminalStatus = null;
+  let automaticApprovalPending = false;
   const collected = [];
 
   const trackingOnEvent = event => {
     if (event && typeof event.sequence === 'number' && event.sequence > lastSequence) {
       lastSequence = event.sequence;
     }
-    if (isResumeTerminalEvent(event)) {
+    if (event && event.type === 'approval.requested') {
+      automaticApprovalPending = !!(event.data && event.data.auto_approved === true);
+    } else if (event && event.type === 'approval.resolved') {
+      automaticApprovalPending = false;
+    }
+    const automaticPause = automaticApprovalPending && event && event.type === 'run.status' &&
+      event.data && event.data.status === 'waiting_approval';
+    if (isResumeTerminalEvent(event) && !automaticPause) {
       sawTerminal = true;
+      terminalStatus = event.type === 'run.status' ? event.data.status : 'error';
+    } else if (terminalStatus === 'waiting_approval' && event && (
+      event.type === 'approval.resolved' ||
+      (event.type === 'run.status' && event.data && event.data.status === 'running')
+    )) {
+      // A historical or automatic pause was followed by a real continuation.
+      // A later dropped connection must resume from the latest cursor.
+      sawTerminal = false;
+      terminalStatus = null;
     }
     if (onEvent) {
       onEvent(event);
@@ -296,6 +322,7 @@ async function streamRunWithResume(options = {}) {
         runId,
         afterSequence,
         onEvent: trackingOnEvent,
+        ...(automaticApprovalPending ? { automaticApprovalPending: true } : {}),
       });
       if (Array.isArray(events)) {
         collected.push(...events);
@@ -349,7 +376,7 @@ async function subscribeToRunEvents(options = {}) {
     signal,
   });
 
-  return readSseEvents(response, { onEvent });
+  return readSseEvents(response, { onEvent, keepWaitingApproval: true });
 }
 
 module.exports = {

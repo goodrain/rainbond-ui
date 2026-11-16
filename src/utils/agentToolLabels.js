@@ -15,6 +15,24 @@
 // node:test suite (`agentTraceHelpers.node.test.js` and friends) can require
 // it without bringing in a UMI runtime.
 
+const SKILL_LABELS = {
+  'rainagent-kubernetes-ops-guard': '集群诊断',
+  'rainbond-kubernetes-ops-guard': '集群诊断',
+  'rainbond-app-assistant': '应用部署',
+  'rainbond-fullstack-troubleshooter': '故障排查',
+  'rainbond-scheduled-task': '定时任务',
+  'rainbond-delivery-verifier': '交付验证',
+  'rainbond-platform-query': '平台查询',
+  'rainbond-project-init': '项目初始化',
+  'rainbond-app-version-assistant': '应用版本管理',
+  'rainbond-template-installer': '模板安装',
+};
+
+function formatSkillLabel(id) {
+  const name = typeof id === 'string' ? id : '';
+  return SKILL_LABELS[name] || name || '任务技能';
+}
+
 const BASE_LABELS = {
   schedule_create_task: '创建定时任务',
   schedule_list_tasks: '查看定时任务',
@@ -155,6 +173,12 @@ const BASE_LABELS = {
   rainbond_update_component_envs: '更新环境变量',
 
   // Kubernetes operations
+  skill: '选择技能',
+  rainbond_kube_get_resource_metrics: '查询资源指标',
+  rainbond_kube_diagnose_cluster: '诊断集群状态',
+  rainbond_kube_diagnose_resource: '诊断资源状态',
+  rainbond_kube_query_resources: '查询 Kubernetes 资源',
+  schedule_check_notification_channel: '检查任务通知渠道',
   rainbond_kube_list_resources: '查询 Kubernetes 资源',
   rainbond_kube_describe_resource: '查看 Kubernetes 资源详情',
   rainbond_kube_get_logs: '查看 Kubernetes 日志',
@@ -306,6 +330,7 @@ function formatToolLabel(toolName, input) {
 
 module.exports = {
   formatToolLabel,
+  formatSkillLabel,
   // exported for tests
   BASE_LABELS,
   humanizeUnknownTool,

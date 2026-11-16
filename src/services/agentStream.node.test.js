@@ -56,7 +56,7 @@ async function main() {
 
   assert.deepStrictEqual(
     TERMINAL_STATUSES,
-    ['done', 'error', 'waiting_approval', 'cancelled'],
+    ['done', 'error', 'waiting_approval', 'cancelled', 'completed', 'failed'],
     'agent stream helper should expose the terminal statuses used to stop consumption'
   );
   assert.deepStrictEqual(

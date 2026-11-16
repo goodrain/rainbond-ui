@@ -17,10 +17,16 @@ function getNextAutoScrollEnabled(
     typeof options.threshold === 'number'
       ? options.threshold
       : BOTTOM_THRESHOLD_PX;
-  if (options.isStreaming) {
-    return true;
+  // Folding a long round can bring the viewport to the bottom without a gesture.
+  if (options.userInitiated === false) return !!currentEnabled;
+  if (options.movingUp) return false;
+  if (isNearBottom(metrics, threshold)) return true;
+  // Content growth, browser scroll anchoring and programmatic scrolling do
+  // not mean the reader asked to stop following the output.
+  if (options.userInitiated === false || (options.isStreaming && options.userInitiated !== true)) {
+    return !!currentEnabled;
   }
-  return isNearBottom(metrics, threshold);
+  return false;
 }
 
 function shouldAttemptAutoScrollUpdate(options = {}) {
@@ -28,24 +34,17 @@ function shouldAttemptAutoScrollUpdate(options = {}) {
   const nextMessages = options.nextMessages || [];
   const wasVisible = !!options.wasVisible;
   const isVisible = !!options.isVisible;
-  const prevLastMessage = prevMessages[prevMessages.length - 1];
-  const nextLastMessage = nextMessages[nextMessages.length - 1];
-  const lastMessageChanged =
-    prevLastMessage &&
-    nextLastMessage &&
-    prevLastMessage.id === nextLastMessage.id &&
-    (
-      prevLastMessage.content !== nextLastMessage.content ||
-      prevLastMessage.streaming !== nextLastMessage.streaming ||
-      prevLastMessage.reasoning !== nextLastMessage.reasoning ||
-      prevLastMessage.reasoningStreaming !== nextLastMessage.reasoningStreaming
-    );
+  const renderedFields = ['id', 'content', 'streaming', 'reasoning', 'reasoningStreaming',
+    'trace', 'approval', 'runStatus', 'isFinalAnswer', 'suggestedActions'];
+  const messagesChanged = prevMessages.length !== nextMessages.length ||
+    nextMessages.some((item, index) => {
+      const previous = prevMessages[index];
+      if (!previous || !item) return previous !== item;
+      return renderedFields.some(field => previous[field] !== item[field]);
+    });
 
-  return (
-    prevMessages.length !== nextMessages.length ||
-    lastMessageChanged ||
-    (!wasVisible && isVisible)
-  );
+  return messagesChanged || (!wasVisible && isVisible) ||
+    options.wasSending !== options.isSending;
 }
 
 module.exports = {

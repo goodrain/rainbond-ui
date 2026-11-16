@@ -84,138 +84,48 @@ function runTests() {
     'deleted component route should include refresh to reload the topology iframe'
   );
 
-  const buildSourcePreRoute = resolvePreActionRoute({
-    toolName: 'rainbond_manage_component_envs',
-    context: {
-      teamName: 'demo',
-      regionName: 'test',
-      appId: '8',
-      componentAlias: 'api',
-    },
-    targetRef: {
-      kind: 'service',
-      team_name: 'demo',
-      region_name: 'test',
-      app_id: '8',
-      service_alias: 'api',
-      operation: 'replace_build_envs',
-    },
-  });
-
-  assert.ok(
-    buildSourcePreRoute.includes('type=components'),
-    'replace_build_envs route should open the component slide panel'
-  );
-  assert.ok(
-    buildSourcePreRoute.includes('componentID=api'),
-    'replace_build_envs route should target the component'
-  );
-  assert.ok(
-    buildSourcePreRoute.includes('tab=advancedSettings'),
-    'replace_build_envs route should open advanced settings'
-  );
-  assert.ok(
-    buildSourcePreRoute.includes('subTab=resource'),
-    'replace_build_envs route should open the build source sub tab'
-  );
-
-  const runtimeEnvPreRoute = resolvePreActionRoute({
-    toolName: 'rainbond_manage_component_envs',
-    context: {
-      teamName: 'demo',
-      regionName: 'test',
-      appId: '8',
-      componentAlias: 'api',
-    },
-    targetRef: {
-      kind: 'service',
-      team_name: 'demo',
-      region_name: 'test',
-      app_id: '8',
-      service_alias: 'api',
-      operation: 'upsert',
-    },
-  });
-
-  assert.ok(
-    runtimeEnvPreRoute.includes('tab=environmentConfiguration'),
-    'runtime env route should still open the environment configuration tab'
-  );
-
-  const updateBuildSourceRoute = resolvePreActionRoute({
-    toolName: 'rainbond_update_component_build_source',
-    context: {
-      teamName: 'demo',
-      regionName: 'test',
-      appId: '8',
-      componentAlias: 'api',
-    },
-  });
-
-  assert.ok(
-    updateBuildSourceRoute.includes('tab=advancedSettings'),
-    'update_component_build_source route should open advanced settings'
-  );
-  assert.ok(
-    updateBuildSourceRoute.includes('subTab=resource'),
-    'update_component_build_source route should open the build source sub tab'
-  );
-
-  const updateBuildSourcePostRoute = resolvePostActionRoute({
-    toolName: 'rainbond_update_component_build_source',
-    context: {
-      teamName: 'demo',
-      regionName: 'test',
-      appId: '8',
-      componentAlias: 'api',
-    },
-  });
-
-  assert.ok(
-    updateBuildSourcePostRoute.includes('tab=advancedSettings'),
-    'update_component_build_source post route should open advanced settings after success'
-  );
-  assert.ok(
-    updateBuildSourcePostRoute.includes('subTab=resource'),
-    'update_component_build_source post route should open the build source sub tab after success'
-  );
-  assert.match(
-    updateBuildSourcePostRoute,
-    /[?&]refresh=\d+/,
-    'update_component_build_source post route should include refresh after success'
-  );
-
-  const buildSourceEnvPostRoute = resolvePostActionRoute({
-    toolName: 'rainbond_manage_component_envs',
-    context: {
-      teamName: 'demo',
-      regionName: 'test',
-      appId: '8',
-      componentAlias: 'api',
-    },
-    resultRef: {
-      kind: 'service',
-      team_name: 'demo',
-      region_name: 'test',
-      app_id: '8',
-      service_alias: 'api',
-      operation: 'replace_build_envs',
-    },
-  });
-
-  assert.ok(
-    buildSourceEnvPostRoute.includes('tab=advancedSettings'),
-    'replace_build_envs post route should open advanced settings after success'
-  );
-  assert.ok(
-    buildSourceEnvPostRoute.includes('subTab=resource'),
-    'replace_build_envs post route should open the build source sub tab after success'
-  );
-  assert.match(
-    buildSourceEnvPostRoute,
-    /[?&]refresh=\d+/,
-    'replace_build_envs post route should include refresh after success'
-  );
+  const componentTools = [
+    'rainbond_build_component',
+    'rainbond_manage_component_envs',
+    'rainbond_manage_component_connection_envs',
+    'rainbond_manage_component_dependency',
+    'rainbond_manage_component_ports',
+    'rainbond_manage_component_storage',
+    'rainbond_manage_component_probe',
+    'rainbond_manage_component_autoscaler',
+    'rainbond_horizontal_scale_component',
+    'rainbond_vertical_scale_component',
+    'rainbond_change_component_image',
+    'rainbond_update_component_build_source',
+  ];
+  for (const toolName of componentTools) {
+    const context = {
+      teamName: 'demo', regionName: 'test', appId: '8', componentAlias: 'api',
+    };
+    assert.strictEqual(
+      resolvePreActionRoute({ toolName, context }),
+      '',
+      `${toolName} should not navigate while waiting for approval`
+    );
+    for (const isThirdParty of [false, true]) {
+      const route = resolvePostActionRoute({
+        toolName,
+        context,
+        appDetail: { is_third: isThirdParty },
+        resultRef: {
+          kind: 'service', team_name: 'demo', region_name: 'test',
+          app_id: '9', service_alias: 'target', operation: 'replace_build_envs',
+        },
+      });
+      const [pathname, query] = route.split('?');
+      const params = new URLSearchParams(query);
+      assert.strictEqual(pathname, '/team/demo/region/test/apps/9/overview');
+      assert.strictEqual(params.get('componentID'), 'target');
+      assert.strictEqual(params.get('tab'), 'overview', `${toolName} should open component home`);
+      assert.strictEqual(params.has('subTab'), false);
+      assert.ok(params.get('refresh'), 'component home should reload the latest state');
+    }
+  }
 
   const buildComponentPostRoute = resolvePostActionRoute({
     toolName: 'rainbond_build_component',

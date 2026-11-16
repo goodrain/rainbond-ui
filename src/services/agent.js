@@ -143,6 +143,13 @@ function normalizeMessages(messages) {
       approval: item.approval || null,
       streamMessageId: item.streamMessageId || '',
       streamRunId: item.streamRunId || '',
+      runStatus: item.runStatus || '',
+      runStartedAt: item.runStartedAt, runFinishedAt: item.runFinishedAt,
+      modelTurn: item.modelTurn, modelStep: item.modelStep, streamAttemptId: item.streamAttemptId,
+      historyIncomplete: !!item.historyIncomplete,
+      isFinalAnswer: !!item.isFinalAnswer,
+      suggestedActions: Array.isArray(item.suggestedActions) ? item.suggestedActions : [],
+      suggestedActionSummary: item.suggestedActionSummary || '',
       reasoning: item.reasoning || '',
       reasoningStreaming: !!item.reasoningStreaming,
       streaming: !!item.streaming
@@ -307,7 +314,7 @@ export async function loadAgentSessionMessages(sessionId) {
     throw new Error('sessionId is required');
   }
   return requestJson(
-    `${await copilotApiBase()}/sessions/${encodeURIComponent(sessionId)}/messages`,
+    `${await copilotApiBase()}/sessions/${encodeURIComponent(sessionId)}/messages?include_execution_history=true`,
     {
       method: 'GET',
       headers: buildRequestHeaders(),
@@ -402,7 +409,12 @@ export function persistAgentSession(snapshot, userId) {
   }
   const storageKey = getStorageKey(userId);
   const persistedSnapshot = buildPersistedSnapshot(snapshot);
-  window.sessionStorage.setItem(storageKey, JSON.stringify(persistedSnapshot));
+  try {
+    window.sessionStorage.setItem(storageKey, JSON.stringify(persistedSnapshot));
+  } catch (error) {
+    // The server transcript remains recoverable if browser storage is full.
+    if (typeof console !== 'undefined') console.warn('[RainAgent] 会话缓存保存失败');
+  }
 }
 
 export function hydrateAgentSession(userId) {
@@ -452,7 +464,8 @@ async function streamRun({
   runId,
   afterSequence,
   onEvent,
-  skipFirstWaitingApproval
+  skipFirstWaitingApproval,
+  automaticApprovalPending
 }) {
   const query = afterSequence > 0 ? `?after_sequence=${afterSequence}` : '';
   const response = await fetch(
@@ -467,7 +480,7 @@ async function streamRun({
     }
   );
 
-  return readSseEvents(response, { onEvent, skipFirstWaitingApproval });
+  return readSseEvents(response, { onEvent, skipFirstWaitingApproval, automaticApprovalPending });
 }
 
 export async function sendAgentMessage(payload = {}) {
@@ -571,7 +584,7 @@ export async function decideAgentApproval(payload = {}) {
   const context = normalizeContext(payload.context);
   const afterSequence = Number(payload.afterSequence || 0);
 
-  await requestJson(`${await copilotApiBase()}/approvals/${approvalId}/decisions`, {
+  const result = await requestJson(`${await copilotApiBase()}/approvals/${approvalId}/decisions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json; charset=utf-8',
@@ -585,6 +598,9 @@ export async function decideAgentApproval(payload = {}) {
         : {})
     })
   });
+
+  // Apply the authoritative POST result before waiting for continuation SSE.
+  if (payload.onDecision && result && result.data) payload.onDecision(result.data);
 
   const events = await streamRun({
     sessionId,

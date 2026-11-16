@@ -7,6 +7,9 @@ function adaptAgentEvent(event = {}) {
   const data = event.data || {};
 
   switch (event.type) {
+    case 'chat.progress':
+      return { type: 'progress_message', sequence, progressId: data.progress_id || '', content: data.content || '',
+        afterMessageId: data.after_message_id || '', afterToolCallId: data.after_tool_call_id || '' };
     case 'chat.message.started':
       return {
         type: 'message_started',
@@ -52,8 +55,10 @@ function adaptAgentEvent(event = {}) {
       return {
         type: 'message',
         sequence,
+        runId: event.runId || '',
         role: data.role === 'user' ? 'user' : 'assistant',
         content: data.content || '',
+        messageKind: data.message_kind || '',
         messageId: data.message_id || '',
       };
     case 'chat.suggested_actions':
@@ -78,8 +83,13 @@ function adaptAgentEvent(event = {}) {
         sessionId: event.sessionId || '',
         runId: event.runId || '',
         approvalId: data.approval_id || '',
+        toolCallId: data.tool_call_id || data.call_id || '',
         description: data.description || '',
         input: data.input,
+        autoApprovalEligible: typeof data.auto_approval_eligible === 'boolean' ? data.auto_approval_eligible : undefined,
+        autoApproved: data.auto_approved === true,
+        decisionSource: data.decision_source || '',
+        policyId: data.policy_id || '',
         risk: data.risk || 'medium',
         scope: data.scope || '',
         scopeLabel: data.scope_label || '',
@@ -97,6 +107,7 @@ function adaptAgentEvent(event = {}) {
         decisionSource: data.decision_source || '',
         policyId: data.policy_id || '',
         resolvedBy: data.resolved_by || '',
+        reason: data.reason || '',
       };
     case 'run.status':
       return {
