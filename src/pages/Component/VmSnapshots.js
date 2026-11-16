@@ -306,22 +306,26 @@ export class VmSnapshots extends PureComponent {
     if (detailStatus !== 'ready' || !detail) return this.renderError(detailError, 'detail');
     const D = Descriptions.Item;
     const yesNo = value => text(value ? 'yes' : 'no');
+    // Ant Design 3.19 clones every child, including conditional null children.
+    const descriptions = [
+      <D key="name" label={text('name')}><span style={{ wordBreak: 'break-all' }}>{detail.snapshot_name}</span></D>,
+      <D key="state" label={text('state')}>{this.phase(detail)}</D>,
+      <D key="description" label={text('description')}>{detail.description || text('notReported')}</D>,
+      <D key="created" label={text('created')}>{detail.creation_time || text('notReported')}</D>,
+      <D key="dataReady" label={text('dataReady')}>{yesNo(detail.ready_to_use)}</D>,
+      <D key="recordSaved" label={text('recordSaved')}>{yesNo(detail.manifest_acked)}</D>,
+      <D key="finalized" label={text('finalized')}>{yesNo(detail.finalized)}</D>,
+      <D key="coverage" label={text('coverage')}>{detail.coverage.included_disks} / {detail.coverage.expected_writable_disks}</D>,
+      <D key="consistency" label={text('consistency')}>{text('offline')}</D>
+    ];
+    if (detail.error_code) descriptions.push(<D key="stateNote" label={text('stateNote')}>{text(`itemError.${detail.error_code}`)}</D>);
+    if (detail.config) descriptions.push(
+      <D key="compute" label={text('compute')}>{detail.config.cpu_milli / 1000} {text('cores')} / {detail.config.memory_mib / 1024} GiB</D>,
+      <D key="bootMode" label={text('bootMode')}>{detail.config.boot_mode || text('notReported')}</D>
+    );
     return <div aria-live="polite">
       <Button size="small" icon="reload" loading={detailRefreshing} onClick={() => this.read('detail')}>{text('refreshDetail')}</Button>
-      <Descriptions size="small" column={2}>
-        <D label={text('name')}><span style={{ wordBreak: 'break-all' }}>{detail.snapshot_name}</span></D>
-        <D label={text('state')}>{this.phase(detail)}</D>
-        <D label={text('description')}>{detail.description || text('notReported')}</D>
-        <D label={text('created')}>{detail.creation_time || text('notReported')}</D>
-        <D label={text('dataReady')}>{yesNo(detail.ready_to_use)}</D>
-        <D label={text('recordSaved')}>{yesNo(detail.manifest_acked)}</D>
-        <D label={text('finalized')}>{yesNo(detail.finalized)}</D>
-        <D label={text('coverage')}>{detail.coverage.included_disks} / {detail.coverage.expected_writable_disks}</D>
-        <D label={text('consistency')}>{text('offline')}</D>
-        {detail.error_code && <D label={text('stateNote')}>{text(`itemError.${detail.error_code}`)}</D>}
-        {detail.config && <D label={text('compute')}>{detail.config.cpu_milli / 1000} {text('cores')} / {detail.config.memory_mib / 1024} GiB</D>}
-        {detail.config && <D label={text('bootMode')}>{detail.config.boot_mode || text('notReported')}</D>}
-      </Descriptions>
+      <Descriptions size="small" column={2}>{descriptions}</Descriptions>
       <Table size="small" rowKey="volume_id" pagination={false} dataSource={detail.disks}
         locale={{ emptyText: text('noDiskData') }} columns={[
           { title: text('disk'), dataIndex: 'disk_key' },

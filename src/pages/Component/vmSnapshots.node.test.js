@@ -4,6 +4,8 @@ const path = require('node:path');
 const vm = require('node:vm');
 const { test } = require('node:test');
 const React = require('react');
+const ReactDOMServer = require('react-dom/server');
+const AntdDescriptions = require('antd/lib/descriptions').default;
 const babel = require('@umijs/deps/compiled/babel/core');
 const helpers = require('../../utils/vmSnapshotRead');
 const polling = require('./componentPolling');
@@ -102,6 +104,23 @@ function harness() {
   h.hide = hidden => { document.hidden = hidden; listeners.forEach(listener => listener()); };
   return h;
 }
+
+test('snapshot details render with actual Ant Design 3.19 when optional fields are missing', async () => {
+  const h = harness();await h.mount();
+  for (const extra of [{}, { config: { cpu_milli: 1000, memory_mib: 1024, boot_mode: 'bios' } },
+    { error_code: 'vm_snapshot_native_failed' }]) {
+    h.panel.setState({ detail: item('snapshot-real', extra), detailStatus: 'ready' });
+    const view = h.panel.renderDetail();
+    const description = view.props.children.find(child => child?.type?.Item === 'D');
+    const children = description.props.children.map((child, index) => React.isValidElement(child)
+      ? React.createElement(AntdDescriptions.Item, { ...child.props, key: `field-${index}` }) : child);
+    let markup;
+    assert.doesNotThrow(() => { markup = ReactDOMServer.renderToStaticMarkup(
+      React.createElement(AntdDescriptions, { ...description.props, children })); });
+    assert.match(markup, /snapshot-real/);
+  }
+  h.panel.componentWillUnmount();
+});
 function elements(element) {
   if (Array.isArray(element)) return element.flatMap(elements);
   if (!element || typeof element !== 'object') return [];
