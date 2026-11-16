@@ -13,6 +13,19 @@ function harness(file, names) {
   const service = vm.runInNewContext(`(function(){${source};return {${names.join(',')}};})()`, context);
   return { service, calls };
 }
+test('VM capture uses its own preparation endpoint and retains the normal container endpoint', async () => {
+  const { service, calls } = harness('templateDelivery', ['publishDeliveryTemplate', 'vmDeliveryPreparation']);
+  const data = { scope, requestId: 'vm-request', values: { version: '1.0.0', service_ids: ['vm'] },
+    configs: { vm: normalizeTemplateConfig({ service_id: 'vm', vm: { disk_layout: [] } }, []) } };
+  await service.publishDeliveryTemplate({ ...data, prepareVM: true });
+  await service.vmDeliveryPreparation({ scope, operation: 'list' });
+  await service.vmDeliveryPreparation({ scope, operation: 'retry', taskId: 'capture' });
+  await service.vmDeliveryPreparation({ scope, operation: 'cancel', taskId: 'capture' });
+  assert.match(calls[0].url, /delivery-templates\/vm-preparations$/);
+  assert.equal(calls[0].options.data.request_id, 'vm-request');
+  assert.deepEqual(calls.slice(1).map(call => call.options.method), ['get', 'post', 'delete']);
+  assert.ok(calls.slice(1).every(call => call.options.params.region_name === 'region'));
+});
 test('sync creation submits component overrides and a request key without snapshot identity', async () => {
   const { service, calls } = harness('templateSync', ['startTemplateSync']);
   await service.startTemplateSync({ scope, requestId: 'request-1', values: { template_name: 'App', version: '1.0.0', service_ids: ['web'] },

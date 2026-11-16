@@ -49,10 +49,16 @@ export async function loadTemplateChanges({ scope }) {
 export async function deleteDeliveryVersion({ scope, templateId }) {
   return request(`${urlFor(scope)}/versions/${encodeURIComponent(templateId)}`, { method: 'delete', params: { region_name: scope.regionName } });
 }
-export async function publishDeliveryTemplate({ scope, values, configs, options, requestId }) {
-  return request(urlFor(scope), { method: 'post', data: {
+export async function publishDeliveryTemplate({ scope, values, configs, options, requestId, prepareVM }) {
+  return request(`${urlFor(scope)}${prepareVM ? '/vm-preparations' : ''}`, { method: 'post', data: {
     ...buildTemplatePayload(values, configs, { ...options, versionOnly: true }), request_id: requestId, region_name: scope.regionName
   } });
+}
+
+export async function vmDeliveryPreparation({ scope, operation = 'list', taskId }) {
+  const url = `${urlFor(scope)}/vm-preparations${taskId ? `/${encodeURIComponent(taskId)}` : ''}`;
+  const method = operation === 'retry' ? 'post' : operation === 'cancel' ? 'delete' : 'get';
+  return request(url, { method, params: { region_name: scope.regionName } });
 }
 export async function loadDeliveryExports({ scope, versionId }) {
   return request(`${urlFor(scope)}/versions/${encodeURIComponent(versionId)}/exports`, {

@@ -10,6 +10,7 @@ import DeliveryFlow from './Flow';
 import ComponentConfig from './ComponentConfig';
 import CreateAppModels from '../../../components/CreateAppModels';
 import TemplateExporter from './TemplateExporter';
+import VMPreparations from './VMPreparations';
 import RecordTimeline from './RecordTimeline';
 import { ListingModal, DeployModal, w, listingStatusLabel } from '../../../components/DeliveryWorkflow';
 import styles from './index.less';
@@ -224,6 +225,8 @@ export default class DeliveryRecords extends PureComponent {
     return <PageHeaderLayout isFooter wrapperClassName={styles.page} title={<span className={styles.pageTitle}>{pageheaderSvg.getPageHeaderSvg('publish', 18)}{t('records')}</span>}
       content={t('recordsHelp')} extraContent={<Button icon="home" onClick={() => dispatch(routerRedux.push(deliveryPath(match.params).replace(/delivery$/, 'overview')))}>{t('backToApplication')}</Button>}>
       <Spin spinning={!!loading}>
+        {user && <VMPreparations key={`${deliveryScope(getScope(match.params, user))}:${user.user_id}`} scope={getScope(match.params, user)}
+          allowed={allowed} onReady={this.load} />}
         {workflowFailed && <Alert type="warning" showIcon message={w('loadFailed')} description={<Button onClick={this.load}>{t('retry')}</Button>} />}
         {failed ? <Alert type="warning" showIcon message={t('recordsUnavailable')} description={<Button onClick={this.load}>{t('retry')}</Button>} /> :
           !groups.length ? <section className={styles.empty}>

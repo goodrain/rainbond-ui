@@ -82,11 +82,13 @@ export default class TemplateEditor extends PureComponent {
     if (this.submitting || this.props.publishing || !canPublishTemplate(this.props.user, this.props.team, this.props.permissions, this.props.match.params)) return;
     this.submitting = true;
     const generation = this.generation;
-    const { values, configs, pluginEnabled, plugin } = this.state;
+    const { values, configs, pluginEnabled, plugin, components } = this.state;
+    const prepareVM = components.some(item => values.service_ids.includes(item.service_id) &&
+      (item.vm || item.extend_method === 'vm' || item.source_type === 'vm_run'));
     const signature = JSON.stringify([values, configs, pluginEnabled, plugin]);
     if (signature !== this.creationSignature) { this.creationSignature = signature;this.requestId = `${Date.now()}-${Math.random().toString(36).slice(2)}`; }
     this.props.dispatch({ type: 'templateDelivery/publish', payload: { scope: this.scope(), values, configs, user: this.props.user,
-      requestId: this.requestId, options: { pluginEnabled, plugin } },
+      requestId: this.requestId, prepareVM, options: { pluginEnabled, plugin } },
       callback: () => { if (this.active(generation)) this.props.dispatch(routerRedux.replace(deliveryPath(this.props.match.params))); },
       onError: key => { if (this.active(generation)) { this.submitting = false;this.setState({ failure: key.replace(/^delivery\./, '') }); } } });
   };
@@ -167,6 +169,8 @@ export default class TemplateEditor extends PureComponent {
                 <div className={styles.editorIntro}>{this.renderBasic()}</div>
                 <section className={styles.configurationSection}>
                 {this.renderComponentSelection()}
+                {components.some(item => values.service_ids.includes(item.service_id) && (item.vm || item.extend_method === 'vm' || item.source_type === 'vm_run')) &&
+                  <Alert type="info" showIcon message={t('vmCaptureHelp')} />}
                 <div className={styles.sectionBody}>
                 <Spin spinning={loadingConfigs}>
                 {!!failedConfigs.length && <Alert type="warning" showIcon message={t('configUnavailable')} description={<Button onClick={this.loadConfigs}>{t('retry')}</Button>} />}
