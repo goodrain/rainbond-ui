@@ -1,2 +1,6 @@
 node_modules
 local_release.sh
+.git
+.github
+.claude
+dist
