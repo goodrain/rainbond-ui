@@ -28,6 +28,31 @@ export class VmSnapshotCreate extends PureComponent {
         fieldErrors: {}, formError: '' });
     } catch (_) { this.setState({ visible: false, attempt: null, status: 'unavailable', job: null }); }
   };
+  open = () => {
+    if (!this.active() || !this.props.capabilityReady || this.state.attempt || this.state.status === 'checkingActive') return;
+    const key = this.key(); const id = ++this.sequence;
+    const current = () => this.active() && this.key() === key && this.sequence === id;
+    const context = this.props.context;
+    this.setState({ status: 'checkingActive' });
+    let finished = false;
+    const finish = (data, error) => {
+      if (finished || !current()) return;
+      finished = true;
+      if (error) { this.setState({ status: 'activeUnavailable' }); return; }
+      if (data.snapshot) {
+        try { saveSnapshotAttempt(this.storage(), key, data.snapshot.selection); }
+        catch (_) { this.setState({ status: 'unavailable' }); return; }
+        this.setState({ attempt: data.snapshot.selection, job: data.snapshot.job, status: 'accepted' });
+      } else this.setState({ status: data.blocked ? 'otherOperation' : 'idle', visible: !data.blocked, fieldErrors: {}, formError: '' });
+    };
+    try {
+      const pending = this.props.dispatch({ type: 'vmSnapshotReads/activeSnapshot',
+        payload: { team_name: context.team, region_name: context.region, app_alias: context.alias },
+        shouldApply: current, callback: data => finish(data), handleError: error => finish(null, error) });
+      if (pending?.then) pending.then(() => { if (!finished) finish(null, true); }, () => finish(null, true));
+      return pending;
+    } catch (_) { finish(null, true); return undefined; }
+  };
   submit = () => {
     if (!this.active() || !this.props.capabilityReady || this.state.attempt || ['pending', 'unavailable'].includes(this.state.status)) return undefined;
     const fieldErrors = snapshotFieldErrors(this.state);
@@ -68,8 +93,21 @@ export class VmSnapshotCreate extends PureComponent {
       return pending;
     } catch (_) { finish(null, { kind: 'unknown' }); return undefined; }
   };
-  readback = () => {
+  confirmRetry = () => {
+    if (!this.active() || !this.state.attempt || this.state.job?.error_code !== 'CONFLICT') return;
+    const key = this.key(); const requestId = this.state.attempt.request_id; const revision = this.state.job.revision;
+    Modal.confirm({ title: `${text('retryTitle')}: ${this.state.attempt.name}`, content: text('retryConfirm'),
+      okText: text('retry'), cancelText: text('cancel'),
+      onOk: () => {
+        if (this.key() === key && this.state.attempt?.request_id === requestId && this.state.job?.revision === revision) {
+          return this.readback(true);
+        }
+        return undefined;
+      } });
+  };
+  readback = (retry = false) => {
     if (!this.active() || !this.state.attempt || this.state.status === 'reading' || this.state.status === 'pending') return undefined;
+    if (retry === true && (this.state.job?.error_code !== 'CONFLICT' || !Number.isSafeInteger(this.state.job.revision))) return undefined;
     const key = this.key(); const id = ++this.sequence;
     const current = () => this.active() && this.key() === key && this.sequence === id;
     const attempt = this.state.attempt;
@@ -81,14 +119,15 @@ export class VmSnapshotCreate extends PureComponent {
       if (!error && data.complete) {
         try { this.storage().removeItem(key); } catch (_) { this.setState({ status: 'unknown' }); return; }
         this.setState({ status: 'completed', attempt: null, job: data });
-      } else this.setState({ status: error ? 'unknown' : 'accepted', job: error ? null : data });
+      } else this.setState({ status: error ? 'unknown' : 'accepted', job: error ? null : retry === true ? data.job : data });
       // Complete comes only from the same scoped durable job, never native flags or a by-name snapshot.
       if (!error && this.props.onAccepted) this.props.onAccepted();
     };
     const context = this.props.context;
     try {
-      const pending = this.props.dispatch({ type: 'vmSnapshotReads/jobStatus',
+      const pending = this.props.dispatch({ type: retry === true ? 'vmSnapshotReads/retrySnapshot' : 'vmSnapshotReads/jobStatus',
         payload: { ...attempt, snapshot_name: attempt.name, expected_request_id: attempt.request_id,
+          ...(retry === true ? { revision: this.state.job.revision } : {}),
           team_name: context.team, region_name: context.region, app_alias: context.alias },
         shouldApply: current, callback: data => finish(data), handleError: error => finish(null, error) });
       if (pending?.then) pending.then(() => { if (!finished) finish(null, true); }, () => finish(null, true));
@@ -96,18 +135,23 @@ export class VmSnapshotCreate extends PureComponent {
     } catch (_) { finish(null, true); return undefined; }
   };
   render() {
-    const { attempt, status, visible, name, description, power, fieldErrors, formError } = this.state;
+    const { attempt, status, visible, name, description, power, fieldErrors, formError, job } = this.state;
     const enabled = this.active();
+    const jobError = { CONFLICT: 'conflict', DEPENDENCY_PENDING: 'dependencyPending', REGION_UNKNOWN: 'regionUnknown',
+      RETRY_EXHAUSTED: 'retryExhausted' }[job?.error_code];
     return <section aria-label={text('title')}>
       <Button type="primary" disabled={!enabled || !this.props.capabilityReady || !!attempt || status === 'unavailable'}
-        loading={this.props.capabilityChecking}
-        onClick={() => this.setState({ visible: true, fieldErrors: {}, formError: '' })}>{text('title')}</Button>
+        loading={this.props.capabilityChecking || status === 'checkingActive'}
+        onClick={this.open}>{text('title')}</Button>
       {this.props.capabilityChecking && <p role="status">{text('capabilityChecking')}</p>}
       {!this.props.capabilityReady && !this.props.capabilityChecking && <p>{text('capabilityRequired')}</p>}
-      {status !== 'idle' && <Alert type={status === 'accepted' ? 'info' : 'warning'} showIcon
-        message={text(['pending', 'reading', 'accepted', 'unknown', 'rejected', 'unsupported', 'workerUnavailable', 'completed', 'unavailable', 'invalid'].includes(status) ? status : 'unknown')}
+      {status !== 'idle' && <Alert type={status === 'completed' ? 'success' : status === 'accepted' && !jobError ? 'info' : 'warning'} showIcon
+        message={text(status === 'accepted' && jobError ? jobError : ['pending', 'reading', 'accepted', 'unknown', 'rejected', 'unsupported', 'workerUnavailable', 'completed', 'unavailable', 'invalid', 'checkingActive', 'activeUnavailable', 'otherOperation'].includes(status) ? status : 'unknown')}
         description={attempt ? <span>{attempt.name} <Button disabled={!enabled || ['pending', 'reading'].includes(status)}
-          loading={status === 'reading'} onClick={this.readback}>{text('readback')}</Button></span> : undefined} />}
+          loading={status === 'reading'} onClick={() => this.readback()}>{text('readback')}</Button>
+          {job?.error_code === 'CONFLICT' && <Button disabled={!enabled || ['pending', 'reading'].includes(status)}
+            onClick={this.confirmRetry}>{text('retry')}</Button>}
+        </span> : undefined} />}
       <Modal visible={visible && enabled} title={text('title')} okText={text('submit')} cancelText={text('cancel')}
         okButtonProps={{ disabled: !this.props.capabilityReady || !!attempt || status === 'pending' }}
         onOk={this.submit} onCancel={() => this.setState({ visible: false })}>

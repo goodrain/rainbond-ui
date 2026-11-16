@@ -40,6 +40,7 @@ async function execute(iterator) {
 function harness(extra = {}) {
   const requests = [], memory = storage();
   const h = { requests, memory, response: accepted, storage: memory };
+  const modal = () => null;modal.confirm = options => { h.confirmation = options; };
   const services = load('services/vmSnapshots.js', { '../../config/api.config': { baseUrl: '' },
     '../utils/vmSnapshotRead': reads, '../utils/vmSnapshotCreate': create, '../utils/vmSnapshotRestore': restores,
     '../utils/request': (url, options) => { requests.push({ url, options }); return h.response(url, options); } });
@@ -47,7 +48,7 @@ function harness(extra = {}) {
     '../utils/vmSnapshotRead': reads, '../utils/vmSnapshotCreate': create, '../utils/vmSnapshotRestore': restores,
     '../utils/vmExistingSnapshotCapability': require('../../utils/vmExistingSnapshotCapability') }).default;
   const Component = load('pages/Component/VmSnapshotCreate.js', { react: React,
-    antd: { Alert: 'Alert', Button: 'Button', Form: { Item: 'FormItem' }, Input: { TextArea: 'TextArea' }, Modal: 'Modal', Select: { Option: 'Option' } },
+    antd: { Alert: 'Alert', Button: 'Button', Form: { Item: 'FormItem' }, Input: { TextArea: 'TextArea' }, Modal: modal, Select: { Option: 'Option' } },
     '@/utils/intl': { formatMessage: ({ id }) => id }, '../../utils/vmSnapshotCreate': create }).VmSnapshotCreate;
   const props = { context: { team: 'team-a', region: 'region-a', application: '42', alias: 'vm-a', serviceId: 'service-a' },
     actorId: 17, enabled: true, capabilityReady: true, storage: memory,
@@ -157,4 +158,44 @@ test('actual shared request.js preserves durable202 and the exact pre-enqueue er
   reply = { status: 503, data: { code: 503, data: { bean: { error: { code: 'vm_snapshot_worker_unavailable' } } } } };
   let failure;await services.enqueueVMSnapshot(input, error => { failure = create.snapshotPrepareError(error); }, () => true);
   assert.equal(failure.kind, 'rejected');assert.equal(failure.code, 'vm_snapshot_worker_unavailable');assert.equal(captured.length, 2);
+});
+
+test('an existing rejected server job is recovered after browser storage loss and retry preserves the original request', async () => {
+  const h = harness();
+  h.response = () => ({ status_code: 200, business_code: 200, bean: { blocked: true,
+    snapshot: { selection: attempt(), job: job({ error_code: 'CONFLICT', revision: 7 }) } } });
+  await h.panel.open();
+  assert.equal(h.requests[0].url, '/console/teams/team-a/apps/vm-a/vm-jobs/active');
+  assert.equal(h.panel.state.visible, false);assert.equal(h.panel.state.job.error_code, 'CONFLICT');
+  assert.equal(h.panel.state.attempt.request_id, 'request-one');assert.equal(h.memory.map.size, 1);
+  h.response = accepted;
+  await h.panel.readback(true);
+  assert.equal(h.requests[1].url, '/console/teams/team-a/apps/vm-a/vm-jobs/request-one/retry');
+  assert.equal(h.requests[1].options.method, 'post');assert.equal(h.requests[1].options.data.revision, 7);
+  assert.equal(h.requests[1].options.data.request_id, 'request-one');assert.equal(h.requests[1].options.data.region_name, 'region-a');
+  assert.equal(h.requests.filter(x => x.url.endsWith('/vm-snapshots')).length, 0);
+  h.response = () => matched({ phase: 'runtime_verified', complete: true });
+  await h.panel.readback();assert.equal(h.panel.state.status, 'completed');assert.equal(h.memory.map.size, 0);
+});
+
+test('unknown server activity blocks a new form and malformed active task cannot be adopted', async () => {
+  const h = harness();h.response = () => { throw new Error('read failed'); };
+  await h.panel.open();assert.equal(h.panel.state.status, 'activeUnavailable');assert.equal(h.panel.state.visible, false);
+  h.response = () => ({ status_code: 200, business_code: 200, bean: { blocked: true, snapshot: null } });
+  await h.panel.open();assert.equal(h.panel.state.status, 'otherOperation');
+  h.response = () => ({ status_code: 200, business_code: 200, bean: { blocked: false, snapshot: null } });
+  await h.panel.open();assert.equal(h.panel.state.visible, true);
+  assert.throws(() => create.readActiveSnapshot({ status_code: 200, business_code: 200, bean: { blocked: true,
+    snapshot: { selection: attempt(), job: job({ request_id: 'foreign' }) } } }));
+});
+
+test('retry confirmation cannot apply after the component context changes', async () => {
+  const h = harness();h.response = () => ({ status_code: 200, business_code: 200, bean: { blocked: true,
+    snapshot: { selection: attempt(), job: job({ error_code: 'CONFLICT', revision: 7 }) } } });
+  await h.panel.open();h.panel.confirmRetry();
+  const previous = h.panel.props;
+  h.panel.props = { ...previous, context: { ...previous.context, alias: 'vm-other' } };
+  h.panel.componentDidUpdate(previous);
+  await h.confirmation.onOk();
+  assert.equal(h.requests.length, 1);assert.equal(h.requests[0].options.method, 'get');
 });

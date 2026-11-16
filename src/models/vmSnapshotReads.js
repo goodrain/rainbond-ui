@@ -1,11 +1,11 @@
 import { getVMSnapshots, getVMSnapshot, getVMExistingSnapshotCapability, enqueueVMSnapshot, getVMSnapshotJob,
-  startVMSnapshotRestore, getVMSnapshotRestore } from '../services/vmSnapshots';
+  startVMSnapshotRestore, getVMSnapshotRestore, getActiveVMSnapshotJob, retryVMSnapshotJob } from '../services/vmSnapshots';
 import { snapshotReadError, readSnapshotList, readSnapshotDetail } from '../utils/vmSnapshotRead';
 import { readExistingSnapshotCapability } from '../utils/vmExistingSnapshotCapability';
-import { readSnapshotEnqueue, readSnapshotJob, snapshotPrepareError } from '../utils/vmSnapshotCreate';
+import { readSnapshotEnqueue, readSnapshotJob, readActiveSnapshot, snapshotPrepareError } from '../utils/vmSnapshotCreate';
 import { readVMRestore, vmRestoreError } from '../utils/vmSnapshotRestore';
 
-function* enqueue(action, { call }, readback = false) {
+function* enqueue(action, { call }, readback = false, retry = false) {
   const active = () => {
     try { return typeof action.shouldApply === 'function' && action.shouldApply(); } catch (_) { return false; }
   };
@@ -13,7 +13,7 @@ function* enqueue(action, { call }, readback = false) {
   let failure;
   let data;
   try {
-    const response = yield call(readback ? getVMSnapshotJob : enqueueVMSnapshot, action.payload, error => {
+    const response = yield call(readback ? getVMSnapshotJob : retry ? retryVMSnapshotJob : enqueueVMSnapshot, action.payload, error => {
       if (active()) failure = snapshotPrepareError(error);
     }, active);
     if (!active()) return;
@@ -80,6 +80,8 @@ export default {
     *capability(action, effects) { yield* read(action, effects, getVMExistingSnapshotCapability, readExistingSnapshotCapability); },
     *enqueue(action, effects) { yield* enqueue(action, effects); },
     *jobStatus(action, effects) { yield* enqueue(action, effects, true); },
+    *activeSnapshot(action, effects) { yield* read(action, effects, getActiveVMSnapshotJob, readActiveSnapshot); },
+    *retrySnapshot(action, effects) { yield* enqueue(action, effects, false, true); },
     *startRestore(action, effects) { yield* restore(action, effects, false); },
     *restoreStatus(action, effects) { yield* restore(action, effects, true); }
   }

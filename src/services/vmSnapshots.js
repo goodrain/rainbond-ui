@@ -36,6 +36,34 @@ export function getVMSnapshotJob(body, handleError, shouldApply) {
   });
 }
 
+export function getActiveVMSnapshotJob(body, handleError, shouldApply) {
+  if (shouldApply && !shouldApply()) return undefined;
+  for (const key of ['team_name', 'region_name', 'app_alias']) {
+    if (typeof body[key] !== 'string' || !body[key] || ['.', '..'].includes(body[key])) throw new Error('Invalid snapshot job scope');
+  }
+  return request(`${apiconfig.baseUrl}/console/teams/${encodeURIComponent(body.team_name)}/apps/${encodeURIComponent(body.app_alias)}/vm-jobs/active`, {
+    method: 'get', params: { region_name: body.region_name },
+    data: { team_name: body.team_name, region_name: body.region_name },
+    showLoading: false, showMessage: false, shouldApply,
+    handleError: error => { if ((!shouldApply || shouldApply()) && handleError) handleError(error); }
+  });
+}
+
+export function retryVMSnapshotJob(body, handleError, shouldApply) {
+  if (shouldApply && !shouldApply()) return undefined;
+  if (!validRequestId(body.request_id) || body.request_id !== body.expected_request_id ||
+      !Number.isSafeInteger(body.revision) || body.revision < 1) throw new Error('Invalid snapshot retry');
+  for (const key of ['team_name', 'region_name', 'app_alias']) {
+    if (typeof body[key] !== 'string' || !body[key] || ['.', '..'].includes(body[key])) throw new Error('Invalid snapshot retry scope');
+  }
+  return request(`${apiconfig.baseUrl}/console/teams/${encodeURIComponent(body.team_name)}/apps/${encodeURIComponent(body.app_alias)}/vm-jobs/${encodeURIComponent(body.request_id)}/retry`, {
+    method: 'post', params: { region_name: body.region_name },
+    data: { request_id: body.request_id, revision: body.revision, team_name: body.team_name, region_name: body.region_name },
+    showLoading: false, showMessage: false, shouldApply,
+    handleError: error => { if ((!shouldApply || shouldApply()) && handleError) handleError(error); }
+  });
+}
+
 export function enqueueVMSnapshot(body, handleError, shouldApply) {
   if (shouldApply && !shouldApply()) return undefined;
   const input = validateSnapshotPrepare(body);

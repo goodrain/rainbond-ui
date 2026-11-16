@@ -89,6 +89,17 @@ function readSnapshotEnqueue(response, submitted) {
   const job = readSnapshotJob(response, submitted, true);
   return { request_id: job.request_id, state: 'accepted', complete: false, job };
 }
+function readActiveSnapshot(response) {
+  if (Number(response?.status_code) !== 200 || Number(response?.business_code) !== 200) invalid();
+  const value = response.bean;
+  if (!value || typeof value.blocked !== 'boolean') invalid();
+  if (value.snapshot === null) return { blocked: value.blocked, snapshot: null };
+  if (!value.blocked || !value.snapshot) invalid();
+  const selection = validateSnapshotPrepare(value.snapshot.selection);
+  const job = readSnapshotJob({ status_code: 200, business_code: 200, bean: value.snapshot.job }, selection);
+  if (job.complete) invalid();
+  return { blocked: true, snapshot: { selection, job } };
+}
 function snapshotPrepareError(error) {
   const status = snapshotReadError(error).status;
   const body = error?.response?.data || error?.response_data || error || {};
@@ -98,4 +109,4 @@ function snapshotPrepareError(error) {
     status, code: workerUnavailable ? code : '', retryable: false };
 }
 module.exports = { validRequestId, snapshotFieldErrors, validateSnapshotPrepare, snapshotAttemptKey, loadSnapshotAttempt, saveSnapshotAttempt,
-  newSnapshotRequestId, readSnapshotEnqueue, readSnapshotJob, snapshotPrepareError };
+  newSnapshotRequestId, readSnapshotEnqueue, readSnapshotJob, readActiveSnapshot, snapshotPrepareError };
