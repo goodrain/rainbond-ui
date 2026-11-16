@@ -51,6 +51,14 @@ function toRememberPolicy(kind) {
   return serverKind ? { kind: serverKind } : null;
 }
 
+function canAlwaysAllowApproval(approval = {}) {
+  const input = approval.input || {};
+  if (approval.risk === 'high' || /(?:^|_)(?:delete|remove|cleanup)(?:_|$)/i.test(approval.skillId || '') ||
+      [input.operation, input.op, input.action, input.method].some(value => typeof value === 'string' && /^(delete|remove|cleanup)(?:_|$)/i.test(value.trim()))) return false;
+  // The server owns eligibility; an old pending record without it remains manual.
+  return approval.autoApprovalEligible === true;
+}
+
 function formatServerPolicyLabel(policy) {
   if (!policy) return '';
   switch (policy.kind) {
@@ -73,4 +81,5 @@ module.exports = {
   formatServerPolicyLabel,
   targetRefToKey,
   toRememberPolicy,
+  canAlwaysAllowApproval,
 };

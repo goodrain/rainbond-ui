@@ -7,11 +7,28 @@ function isWorkflowStatusMessage(item = {}) {
 }
 
 function hasAssistantContent(item = {}) {
-  return typeof item.content === 'string' && item.content.trim().length > 0;
+  return getAssistantDisplayContent(item).trim().length > 0;
+}
+
+function getAssistantDisplayContent(item = {}) {
+  const content = typeof item.content === 'string' ? item.content : '';
+  const normalize = value => String(value || '').replace(/[\s`*_#>\-\[\]()]/g, '');
+  const existing = normalize(content);
+  const legacy = (Array.isArray(item.suggestedActions) ? item.suggestedActions : []).filter(action =>
+    action && action.source === 'llm_fallback' &&
+    (!existing.includes(normalize(action.label)) || !existing.includes(normalize(action.description))));
+  // Preserve older option descriptions as ordinary text, never executable cards.
+  return [content, ...legacy.map(action => `方案 ${action.optionKey || ''}：${action.label || ''}\n${action.description || ''}`)]
+    .filter(Boolean).join('\n\n');
 }
 
 function hasSuggestedActions(item = {}) {
-  return Array.isArray(item.suggestedActions) && item.suggestedActions.length > 0;
+  return getVisibleSuggestedActions(item.suggestedActions).length > 0;
+}
+
+function getVisibleSuggestedActions(actions) {
+  // Old prose-derived guesses remain in storage but are not executable choices.
+  return (Array.isArray(actions) ? actions : []).filter(action => action && action.source !== 'llm_fallback');
 }
 
 function shouldRenderMessageItem(item = {}) {
@@ -22,6 +39,7 @@ function shouldRenderMessageItem(item = {}) {
   if (item.kind === 'context' || isWorkflowStatusMessage(item)) {
     return false;
   }
+  if (item.kind === 'suggested_actions' && !hasSuggestedActions(item)) return false;
 
   return true;
 }
@@ -60,6 +78,8 @@ function shouldRenderWorkflowSummary() {
 
 module.exports = {
   hasAssistantContent,
+  getVisibleSuggestedActions,
+  getAssistantDisplayContent,
   hasSuggestedActions,
   isWorkflowStatusMessage,
   shouldRenderAssistantBubble,
