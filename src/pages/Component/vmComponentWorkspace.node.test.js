@@ -390,6 +390,27 @@ test('overview has two state/connection cards, live resources and original opera
   assert.deepEqual(actions, []);
 });
 
+test('snapshot capability ignores polling metadata and disk order but rechecks power and storage changes', () => {
+  const volumes = [
+    { volume_id: 1, volume_name: 'root', volume_type: 'shared', volume_capacity: 30 },
+    { volume_id: 2, volume_name: 'data', volume_type: 'shared', volume_capacity: 50 }
+  ];
+  const disks = volumes.map(volume => ({ volume_id: volume.volume_id, disk_key: volume.volume_name,
+    volume_name: volume.volume_name, read_only: false, device_type: 'disk' }));
+  const appDetail = { ...realDetail, volumes, vm_profile: { ...realDetail.vm_profile, runtime: { disk_layout: disks } } };
+  const token = extra => treeElements(presenter('snapshots', { appDetail, status: { status: 'running' }, ...extra }).render())
+    .find(node => node.type === modules.VmSnapshots).props.capabilityRefreshToken;
+  const original = token({});
+  assert.equal(token({ status: { status: 'running', timestamp: 2, cpu: 42, memory: 1024 } }), original);
+  assert.equal(token({ appDetail: { ...appDetail, volumes: [...volumes].reverse(),
+    vm_profile: { ...appDetail.vm_profile, runtime: { disk_layout: [...disks].reverse() } } } }), original);
+  assert.notEqual(token({ status: { status: 'closed' } }), original);
+  assert.notEqual(token({ appDetail: { ...appDetail, volumes: [volumes[0]] } }), original);
+  assert.notEqual(token({ appDetail: { ...appDetail, volumes: [{ ...volumes[0], volume_capacity: 60 }, volumes[1]] } }), original);
+  assert.notEqual(token({ appDetail: { ...appDetail, vm_profile: { ...appDetail.vm_profile,
+    runtime: { disk_layout: [{ ...disks[0], read_only: true }, disks[1]] } } } }), original);
+});
+
 test('the real detail refresh passes a scope and generation guard to the shared model', async () => {
   const actions = [];
   const instance = presenter('overview', { dispatch: action => actions.push(action) });

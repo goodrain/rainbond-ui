@@ -75,6 +75,7 @@ function harness() {
   const Component = load('pages/Component/VmSnapshots.js', {
     react: React, antd: { Alert: 'Alert', Badge: 'Badge', Button: 'Button', Card: 'Card', Descriptions: { Item: 'D' }, Empty: 'Empty', Modal: { confirm: options => options.onOk() }, Spin: 'Spin', Table: 'Table' },
     './VmSnapshotCreate': 'SnapshotCreate',
+    './VmSnapshots.less': {},
     dva: { connect: () => component => component }, '@/utils/intl': { formatMessage: ({ id }) => id },
     '@/utils/global': globalUtil, '../../utils/vmSnapshotRead': helpers,
     '../../utils/vmSnapshotRestore': { ...restoreHelpers, newVMRestoreRequestId: () => 'restore-07070707070707070707070707070707' },
@@ -104,7 +105,8 @@ function harness() {
 function elements(element) {
   if (Array.isArray(element)) return element.flatMap(elements);
   if (!element || typeof element !== 'object') return [];
-  return [element, ...elements(element.props?.children), ...elements(element.props?.description), ...elements(element.props?.extra)];
+  const children = typeof element.props?.children === 'function' ? element.props.children(null, null) : element.props?.children;
+  return [element, ...elements(children), ...elements(element.props?.description), ...elements(element.props?.extra)];
 }
 
 test('the real panel/model/service chain reads the frozen list and detail envelope using captured scope', async () => {

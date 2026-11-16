@@ -9,6 +9,7 @@ import { snapshotContextKey, validSnapshotName } from '../../utils/vmSnapshotRea
 import { newVMRestoreRequestId, vmRestoreAttemptKey, loadVMRestoreAttempt, saveVMRestoreAttempt,
   clearVMRestoreAttempt } from '../../utils/vmSnapshotRestore';
 import { createComponentPollingGuard, getComponentPollingDelay } from './componentPolling';
+import styles from './VmSnapshots.less';
 
 const text = key => formatMessage({ id: `componentOverview.vmWorkspace.snapshotRead.${key}` });
 const capText = key => formatMessage({ id: `componentOverview.vmStorageSnapshot.${key}` });
@@ -334,15 +335,21 @@ export class VmSnapshots extends PureComponent {
   render() {
     const { listStatus, items, listRefreshing, listError, selectedName, page, pageSize, total } = this.state;
     const current = this.state.contextKey === this.identity() && this.enabled();
-    return <Card title={formatMessage({ id: 'componentOverview.vmWorkspace.snapshotsTitle' })} size="small"
-      extra={<Button size="small" icon="reload" loading={listRefreshing} disabled={!current} onClick={() => this.read('list')}>{text('refresh')}</Button>}>
-      <p>{text('readOnlyScope')}</p>
-      {this.renderCapability()}
-      <VmSnapshotCreate context={this.props.context} actorId={this.props.snapshotActorId} enabled={current}
+    return <VmSnapshotCreate context={this.props.context} actorId={this.props.snapshotActorId} enabled={current}
+        className={styles.feedback}
         capabilityChecking={current && (this.state.capabilityRefreshing || this.state.capabilityStatus === 'loading')}
         capabilityReady={current && !this.state.capabilityRefreshing && this.state.capabilityStatus === 'ready' &&
           this.state.capability?.supported === true && this.state.capability?.complete === true}
-        dispatch={this.props.dispatch} onAccepted={() => this.read('list')} />
+        dispatch={this.props.dispatch} onAccepted={() => this.read('list')}>
+      {(trigger, feedback) => <Card className={styles.snapshotsCard}
+        title={formatMessage({ id: 'componentOverview.vmWorkspace.snapshotsTitle' })} size="small"
+        extra={<div className={styles.actions}>
+          {trigger}
+          <Button size="small" icon="reload" loading={listRefreshing} disabled={!current} onClick={() => this.read('list')}>{text('refresh')}</Button>
+        </div>}>
+      <p>{text('readOnlyScope')}</p>
+      {this.renderCapability()}
+      {feedback}
       {this.renderRestoreStatus()}
       {!current || listStatus === 'loading' ? <Spin /> : ['ready', 'empty'].includes(listStatus) ?
         <Table size="small" rowKey="snapshot_name" loading={listRefreshing} dataSource={items}
@@ -362,7 +369,8 @@ export class VmSnapshots extends PureComponent {
                 onClick={() => this.confirmRestore(item)}>{text('restoreAction')}</Button>
             </span> }
           ]} /> : this.renderError(listError, 'list')}
-    </Card>;
+      </Card>}
+    </VmSnapshotCreate>;
   }
 }
 export default connect(({ user }) => ({ snapshotActorId: user?.currentUser?.user_id }))(VmSnapshots);

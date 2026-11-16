@@ -139,10 +139,11 @@ export class VmSnapshotCreate extends PureComponent {
     const enabled = this.active();
     const jobError = { CONFLICT: 'conflict', DEPENDENCY_PENDING: 'dependencyPending', REGION_UNKNOWN: 'regionUnknown',
       RETRY_EXHAUSTED: 'retryExhausted' }[job?.error_code];
-    return <section aria-label={text('title')}>
-      <Button type="primary" disabled={!enabled || !this.props.capabilityReady || !!attempt || status === 'unavailable'}
+    const trigger = <Button type="primary" size="small" icon="plus"
+        disabled={!enabled || !this.props.capabilityReady || !!attempt || status === 'unavailable'}
         loading={this.props.capabilityChecking || status === 'checkingActive'}
-        onClick={this.open}>{text('title')}</Button>
+        onClick={this.open}>{text('title')}</Button>;
+    const feedback = <section className={this.props.className} aria-label={text('title')}>
       {this.props.capabilityChecking && <p role="status">{text('capabilityChecking')}</p>}
       {!this.props.capabilityReady && !this.props.capabilityChecking && <p>{text('capabilityRequired')}</p>}
       {status !== 'idle' && <Alert type={status === 'completed' ? 'success' : status === 'accepted' && !jobError ? 'info' : 'warning'} showIcon
@@ -180,6 +181,7 @@ export class VmSnapshotCreate extends PureComponent {
         </Form.Item>
       </Modal>
     </section>;
+    return this.props.children ? this.props.children(trigger, feedback) : <>{trigger}{feedback}</>;
   }
 }
 export default VmSnapshotCreate;
