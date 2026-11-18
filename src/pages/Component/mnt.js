@@ -17,6 +17,7 @@ import handleAPIError from '@/utils/error';
 import globalUtil from '../../utils/global';
 import { formatMessage } from '@/utils/intl';
 import { getVolumeTypeShowName } from '../../utils/utils';
+import styles from './mnt.less';
 
 const {
   getVMStorageAlertKey,
@@ -62,6 +63,7 @@ export default class Index extends PureComponent {
       toDeleteVolume: null,
       editor: null,
       volumeOpts: [],
+      volumeOptsLoaded: false,
       relyComponent: false,
       relyComponentList: [],
       page: 1,
@@ -94,6 +96,7 @@ export default class Index extends PureComponent {
       this.volumeRequestKey = requestKey;
       this.volumeRequestGeneration += 1;
       this.clearVolumeExpansionPolling();
+      this.fetchVolumeOpts();
       if (this.props.method === 'vm') this.fetchVMDiskLayout();
       else this.fetchVolumes();
     }
@@ -245,6 +248,8 @@ export default class Index extends PureComponent {
 
   fetchVolumeOpts = () => {
     const { dispatch, appAlias } = this.props;
+    const requestKey = this.getVolumeRequestKey();
+    this.setState({ volumeOptsLoaded: false });
     dispatch({
       type: 'appControl/fetchVolumeOpts',
       payload: {
@@ -252,8 +257,8 @@ export default class Index extends PureComponent {
         app_alias: appAlias
       },
       callback: data => {
-        if (data) {
-          this.setState({ volumeOpts: data.list || [] });
+        if (data && !this.unmounted && requestKey === this.getVolumeRequestKey()) {
+          this.setState({ volumeOpts: data.list || [], volumeOptsLoaded: true });
         }
       },
       handleError: err => handleAPIError(err)
@@ -692,6 +697,7 @@ export default class Index extends PureComponent {
     {
       title: formatMessage({ id: 'Vm.createVm.Storagename' }),
       dataIndex: 'disk_name',
+      width: '20%',
       render: (text, record) => (
         <span>
           {text}
@@ -706,26 +712,34 @@ export default class Index extends PureComponent {
     {
       title: formatMessage({ id: 'Vm.createVm.Storagetype' }),
       dataIndex: 'volume_path',
+      width: '10%',
       render: (_, data) => <span>{this.handleMountFormat(this.getVmDiskDevicePath(data))}</span>
     },
     {
       title: formatMessage({ id: 'componentOverview.body.mnt.vmDiskSource' }),
       dataIndex: 'source_kind',
+      width: '14%',
       render: text => <span>{this.handleVmDiskSource(text)}</span>
     },
     {
       title: formatMessage({ id: 'componentOverview.body.AddVolumes.image' }),
       dataIndex: 'image',
-      render: text => <span>{text || '-'}</span>
+      render: text => text ? (
+        <Tooltip title={text}>
+          <span className={styles.vmDiskImage}>{text}</span>
+        </Tooltip>
+      ) : <span>-</span>
     },
     {
       title: formatMessage({ id: 'componentOverview.body.mnt.vmDiskOrder' }),
       dataIndex: 'order_index',
+      width: 88,
       render: (_, __, index) => <span>{index + 1}</span>
     },
     {
       title: formatMessage({ id: 'Vm.createVm.capacity' }),
       dataIndex: 'volume_capacity',
+      width: '10%',
       render: (text, record) => {
         if (record.source_kind === 'container_disk' || record.source_kind === 'installer_media') {
           return <span>-</span>;
@@ -736,8 +750,9 @@ export default class Index extends PureComponent {
     {
       title: formatMessage({ id: 'Vm.createVm.handle' }),
       dataIndex: 'action',
+      width: 150,
       render: (_, data, index) => (
-        <div>
+        <div className={styles.vmDiskActions}>
           <a
             onClick={() => this.moveVmDisk(index, -1)}
             href="javascript:;"
@@ -1031,7 +1046,7 @@ export default class Index extends PureComponent {
               </div>
             }
           >
-            {vmAddVolumeOpts.length === 0 ? (
+            {this.state.volumeOptsLoaded && vmAddVolumeOpts.length === 0 ? (
               <Alert
                 showIcon
                 message={formatMessage({ id: 'Vm.createVm.noLiveMigrationStorage' })}
@@ -1048,6 +1063,7 @@ export default class Index extends PureComponent {
             />
             <ScrollerX sm={650}>
               <Table
+                className={styles.vmDiskTable}
                 rowKey={(_, index) => index}
                 pagination={false}
                 dataSource={this.getVmDiskDraft().length > 0 ? this.getVmDiskDraft() : vmDisks}

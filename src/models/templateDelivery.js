@@ -1,12 +1,24 @@
 import { message } from 'antd';
 import { formatMessage } from '@/utils/intl';
-import { listDeliveryTemplates, loadDeliveryComponents, loadDeliveryConfig, loadDeliveryMarkets, publishDeliveryTemplate, loadTemplateChanges, deleteDeliveryVersion, loadDeliveryExports } from '../services/templateDelivery';
+import { listDeliveryTemplates, loadDeliveryComponents, loadDeliveryConfig, loadDeliveryMarkets, publishDeliveryTemplate, loadTemplateChanges, deleteDeliveryVersion, loadDeliveryExports, vmDeliveryPreparation } from '../services/templateDelivery';
 import { startTemplateSync, getTemplateSync, retryTemplateSync, cancelTemplateSync, loadTemplateSyncLogs } from '../services/templateSync';
 
 export default {
   namespace: 'templateDelivery',
   state: { records: [], template: null, activeSyncs: [], failed: false },
   effects: {
+    *vmPreparation({ payload, callback, onError }, { call }) {
+      try {
+        const response = yield call(vmDeliveryPreparation, payload);
+        if (!response || !response.bean || (payload.operation === 'list' && !Array.isArray(response.bean.items))) throw new Error();
+        const tasks = payload.operation === 'list' ? response.bean.items : [response.bean];
+        if (tasks.some(task => !task.id || !['queued', 'running', 'succeeded', 'failed', 'cancelled'].includes(task.status) ||
+          !Array.isArray(task.components) || !task.components.length || task.components.some(component => !component.service_id ||
+            !['queued', 'exporting', 'ready', 'building', 'releasing', 'success', 'failed'].includes(component.status)) ||
+          task.status === 'succeeded' && !task.version_id)) throw new Error();
+        if (callback) callback(response.bean);
+      } catch (error) { if (onError) onError(error); }
+    },
     *exports({ payload, callback, onError }, { call }) {
       try {
         const response = yield call(loadDeliveryExports, payload);
@@ -71,7 +83,10 @@ export default {
       try {
         const response = yield call(publishDeliveryTemplate, payload);
         if (!response || !response.bean) throw new Error('delivery.unavailable');
-        message.success(formatMessage({ id: 'delivery.publishSuccess' }));
+        if (payload.prepareVM) {
+          if (!response.bean.id || !['queued', 'running', 'succeeded'].includes(response.bean.status)) throw new Error('delivery.unavailable');
+          message.info(formatMessage({ id: 'delivery.vmPreparing' }));
+        } else message.success(formatMessage({ id: 'delivery.publishSuccess' }));
         yield put({ type: 'records', payload: payload.scope });
         if (callback) callback(response.bean);
       } catch (error) {

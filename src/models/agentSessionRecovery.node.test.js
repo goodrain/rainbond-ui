@@ -9,6 +9,8 @@ function harness({ snapshot = null, data = {}, onLoad } = {}) {
   const subscriptions = [];
   const context = {
     Date, Math,
+    agentHistory: require('./agentHistory'),
+    applyAgentEvents: () => { throw new Error('unexpected snapshot replay in legacy fixture'); },
     autoApprovalPolicy: { discardLegacyPolicies: () => 0 },
     hydrateAgentSession: () => snapshot,
     listAgentSessions: async () => ({ data: [{ session_id: 's' }] }),

@@ -322,6 +322,12 @@ export default [
         authority: ['admin', 'user'],
         // Routes: ['./src/layouts/TeamPermissions.js'],
         routes: [
+          {
+            path: '/team/:teamName/region/:regionName/recycle-bin',
+            component: './ComponentRecycle',
+            name: 'componentRecycle',
+            authority: ['admin', 'user']
+          },
           // 总览
           {
             path: '/team/:teamName/region/:regionName/index',

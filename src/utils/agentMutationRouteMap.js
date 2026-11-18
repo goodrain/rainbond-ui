@@ -173,48 +173,37 @@ const MUTATION_ROUTE_POLICIES = {
     post: { routeKind: 'team-index' },
   },
   rainbond_manage_component_envs: {
-    pre: { routeKind: 'component', tab: 'environmentConfiguration' },
-    post: { routeKind: 'component-refresh', tab: 'environmentConfiguration' },
+    post: { routeKind: 'component-refresh', tab: 'overview' },
   },
   rainbond_manage_component_connection_envs: {
-    pre: { routeKind: 'component', tab: 'connectionInformation' },
-    post: { routeKind: 'component-refresh', tab: 'connectionInformation' },
+    post: { routeKind: 'component-refresh', tab: 'overview' },
   },
   rainbond_manage_component_dependency: {
-    pre: { routeKind: 'component', tab: 'relation' },
-    post: { routeKind: 'component-refresh', tab: 'relation' },
+    post: { routeKind: 'component-refresh', tab: 'overview' },
   },
   rainbond_manage_component_ports: {
-    pre: { routeKind: 'component-port' },
-    post: { routeKind: 'component-port-refresh' },
+    post: { routeKind: 'component-refresh', tab: 'overview' },
   },
   rainbond_manage_component_storage: {
-    pre: { routeKind: 'component', tab: 'advancedSettings', subTab: 'mnt' },
-    post: { routeKind: 'component-refresh', tab: 'advancedSettings', subTab: 'mnt' },
+    post: { routeKind: 'component-refresh', tab: 'overview' },
   },
   rainbond_manage_component_probe: {
-    pre: { routeKind: 'component', tab: 'advancedSettings', subTab: 'setting' },
-    post: { routeKind: 'component-refresh', tab: 'advancedSettings', subTab: 'setting' },
+    post: { routeKind: 'component-refresh', tab: 'overview' },
   },
   rainbond_manage_component_autoscaler: {
-    pre: { routeKind: 'component', tab: 'expansion' },
-    post: { routeKind: 'component-refresh', tab: 'expansion' },
+    post: { routeKind: 'component-refresh', tab: 'overview' },
   },
   rainbond_horizontal_scale_component: {
-    pre: { routeKind: 'component', tab: 'expansion' },
-    post: { routeKind: 'component-refresh', tab: 'expansion' },
+    post: { routeKind: 'component-refresh', tab: 'overview' },
   },
   rainbond_vertical_scale_component: {
-    pre: { routeKind: 'component', tab: 'expansion' },
-    post: { routeKind: 'component-refresh', tab: 'expansion' },
+    post: { routeKind: 'component-refresh', tab: 'overview' },
   },
   rainbond_change_component_image: {
-    pre: { routeKind: 'component', tab: 'advancedSettings', subTab: 'resource' },
-    post: { routeKind: 'component-refresh', tab: 'advancedSettings', subTab: 'resource' },
+    post: { routeKind: 'component-refresh', tab: 'overview' },
   },
   rainbond_update_component_build_source: {
-    pre: { routeKind: 'component', tab: 'advancedSettings', subTab: 'resource' },
-    post: { routeKind: 'component-refresh', tab: 'advancedSettings', subTab: 'resource' },
+    post: { routeKind: 'component-refresh', tab: 'overview' },
   },
   rainbond_operate_app: {
     post: { routeKind: 'app-overview-refresh' },
@@ -453,33 +442,13 @@ function resolveRouteByKind(kind, context = {}, appDetail, result, routeMeta = {
   }
 }
 
-function isBuildSourceEnvMutation(toolName, ref = null) {
-  const routeRef = extractRouteRef(ref);
-  const operation = routeRef && (routeRef.operation || routeRef.action);
-  return (
-    toolName === 'rainbond_manage_component_envs' &&
-    operation === 'replace_build_envs'
-  );
-}
-
-function resolveRouteMeta(toolName, routeMeta = {}, ref = null) {
-  if (isBuildSourceEnvMutation(toolName, ref)) {
-    return {
-      ...routeMeta,
-      tab: 'advancedSettings',
-      subTab: 'resource',
-    };
-  }
-  return routeMeta;
-}
-
 export function resolvePreActionRoute({ toolName, context, appDetail, targetRef }) {
   if (isKubernetesMutationTool(toolName)) {
     return '';
   }
   const policy = getAgentMutationRoutePolicy(toolName);
   if (!policy || !policy.pre) return '';
-  const routeMeta = resolveRouteMeta(toolName, policy.pre, targetRef);
+  const routeMeta = policy.pre;
   return resolveRouteByKind(
     routeMeta.routeKind,
     context,
@@ -496,7 +465,7 @@ export function resolvePostActionRoute({ toolName, context, appDetail, result, r
   }
   const policy = getAgentMutationRoutePolicy(toolName);
   if (!policy || !policy.post) return '';
-  const routeMeta = resolveRouteMeta(toolName, policy.post, resultRef || (result && result.result_ref));
+  const routeMeta = policy.post;
   return resolveRouteByKind(
     routeMeta.routeKind,
     context,

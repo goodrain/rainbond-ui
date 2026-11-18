@@ -40,6 +40,10 @@ function applyStreamingAssistantEvent(messages, event, createMessage, contextSna
   }
 
   const index = findStreamMessageIndex(nextMessages, messageId, runId);
+  const messageKind = ['progress', 'final'].includes(data.message_kind) ? data.message_kind : '';
+  const presentation = messageKind ? { messageKind, ...(messageKind === 'final' ? { isFinalAnswer: true } : {}) } : {};
+  // Replayed checkpoint fragments must not replace an authoritative final message.
+  if (index >= 0 && nextMessages[index].isFinalAnswer && messageKind === 'progress') return nextMessages;
 
   if (event.type === 'chat.message.started') {
     if (index === -1) {
@@ -53,6 +57,7 @@ function applyStreamingAssistantEvent(messages, event, createMessage, contextSna
             streamMessageId: messageId,
             streamRunId: runId,
             streaming: true,
+            ...presentation,
           }
         )
       );
@@ -61,6 +66,7 @@ function applyStreamingAssistantEvent(messages, event, createMessage, contextSna
         ...nextMessages[index],
         streamRunId: nextMessages[index].streamRunId || runId,
         streaming: true,
+        ...presentation,
       };
     }
     return nextMessages;
@@ -78,6 +84,7 @@ function applyStreamingAssistantEvent(messages, event, createMessage, contextSna
             streamMessageId: messageId,
             streamRunId: runId,
             streaming: true,
+            ...presentation,
           }
         )
       );
@@ -89,6 +96,7 @@ function applyStreamingAssistantEvent(messages, event, createMessage, contextSna
       streamRunId: nextMessages[index].streamRunId || runId,
       content: `${nextMessages[index].content || ''}${data.delta || ''}`,
       streaming: true,
+      ...presentation,
     };
     return nextMessages;
   }
@@ -105,6 +113,7 @@ function applyStreamingAssistantEvent(messages, event, createMessage, contextSna
             streamMessageId: messageId,
             streamRunId: runId,
             streaming: false,
+            ...presentation,
           }
         )
       );
@@ -117,6 +126,7 @@ function applyStreamingAssistantEvent(messages, event, createMessage, contextSna
       content: data.content || nextMessages[index].content || '',
       streaming: false,
       reasoningStreaming: false,
+      ...presentation,
     };
     return nextMessages;
   }
@@ -127,6 +137,7 @@ function applyStreamingAssistantEvent(messages, event, createMessage, contextSna
       streamRunId: nextMessages[index].streamRunId || runId,
       content: data.content || nextMessages[index].content || '',
       streaming: false,
+      ...presentation,
     };
   }
 

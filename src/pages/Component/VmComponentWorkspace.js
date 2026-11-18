@@ -119,8 +119,7 @@ export class VmComponentWorkspace extends PureComponent {
     const badgeStatus = stateKey === 'running' ? 'success' : ['failure', 'failed', 'unusual', 'abnormal', 'build_fail'].includes(stateKey) ? 'error' : 'default';
     const value = (amount, unit) => amount === null || amount === undefined ? text('notReported') : `${amount}${unit ? ` ${unit}` : ''}`;
     const unavailable = !data.guestStatus || data.guestStatus === 'unavailable';
-    const guestMessage = unavailable ? `guest.reason.${data.guestReason}` : `guest.status.${data.guestStatus}`;
-    const toolsMessage = unavailable ? guestMessage : ['powered_off', 'paused', 'starting'].includes(data.guestStatus)
+    const toolsMessage = unavailable ? `guest.reason.${data.guestReason}` : ['powered_off', 'paused', 'starting'].includes(data.guestStatus)
       ? `guest.status.${data.guestStatus}` : data.agentConnected === true ? 'connected'
       : data.agentConnected === false ? 'disconnected' : 'guest.agentNotDetected';
     return <div>
@@ -134,7 +133,6 @@ export class VmComponentWorkspace extends PureComponent {
         <div className={styles.column}>
           <Card title={text('stateTitle')} size="small" extra={<Button size="small" icon="reload" loading={this.state.refreshing} onClick={this.refreshProfile}>{text('refresh')}</Button>}>
             <Descriptions column={1} size="small">
-              <D label={text('guestState')}>{text(guestMessage)}</D>
               <D label={text('guestTools')}>{text(toolsMessage)}</D>
               <D label={text('operatingSystem')}>{data.osName || text('notReported')}</D>
               <D label={text('architecture')}>{data.arch || text('notReported')}</D>
@@ -200,11 +198,11 @@ export class VmComponentWorkspace extends PureComponent {
       {componentPermissions.isPort ? <Port {...this.props} vmWorkspace /> : <Alert type="info" showIcon message={text('portPermissionRequired')} />}
     </div>;
     else if (tab === 'snapshots') content = <VmSnapshots context={{ ...this.currentContext(), serviceId: appDetail?.service?.service_id || '' }}
-      capabilityRefreshToken={JSON.stringify([status, appDetail?.service?.min_cpu, appDetail?.service?.min_memory,
+      capabilityRefreshToken={JSON.stringify([status?.status, appDetail?.service?.min_cpu, appDetail?.service?.min_memory,
         (Array.isArray(profileProps.vmProfile?.runtime?.disk_layout) ? profileProps.vmProfile.runtime.disk_layout : [])
-          .map(disk => [disk.volume_id, disk.disk_key, disk.volume_name, disk.read_only, disk.device_type]),
+          .map(disk => JSON.stringify([disk.volume_id, disk.disk_key, disk.volume_name, disk.read_only, disk.device_type])).sort(),
         (Array.isArray(appDetail?.volumes) ? appDetail.volumes : [])
-          .map(disk => [disk.volume_id, disk.volume_name, disk.volume_type, disk.volume_capacity])])}
+          .map(disk => JSON.stringify([disk.volume_id, disk.volume_name, disk.volume_type, disk.volume_capacity])).sort()])}
       pollingEnabled={this.props.pollingEnabled} dispatch={this.props.dispatch} />;
     else if (tab === 'advancedSettings') content = this.renderAdvanced();
     else if (tab === 'rainbond-vm') content = vmWorkspacePlugins.some(plugin => isPluginBaseId(plugin, 'rainbond-vm'))

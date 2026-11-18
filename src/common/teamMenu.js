@@ -88,7 +88,12 @@ function menuData(teamName, regionName, permissionsInfo, pluginList, enterpriseS
       isTeamRegistryAuth
     } = results();
 
-    const adminItems = [];
+    const adminItems = [{
+      name: formatMessage({ id: 'componentRecycle.title' }),
+      icon: getMenuSvg.getSvg('backup'),
+      path: `team/${teamName}/region/${regionName}/recycle-bin`,
+      authority: ['admin', 'user']
+    }];
 
     // 流水线
     if (setTeamMenu(pluginList, 'pipeline')) {

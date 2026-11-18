@@ -9,6 +9,7 @@ import { snapshotContextKey, validSnapshotName } from '../../utils/vmSnapshotRea
 import { newVMRestoreRequestId, vmRestoreAttemptKey, loadVMRestoreAttempt, saveVMRestoreAttempt,
   clearVMRestoreAttempt } from '../../utils/vmSnapshotRestore';
 import { createComponentPollingGuard, getComponentPollingDelay } from './componentPolling';
+import styles from './VmSnapshots.less';
 
 const text = key => formatMessage({ id: `componentOverview.vmWorkspace.snapshotRead.${key}` });
 const capText = key => formatMessage({ id: `componentOverview.vmStorageSnapshot.${key}` });
@@ -111,7 +112,7 @@ export class VmSnapshots extends PureComponent {
     const context = { ...this.props.context };
     const payload = { team_name: context.team, region_name: context.region, app_alias: context.alias,
       ...(flow === 'list' ? { page: this.state.page, page_size: this.state.pageSize } : { snapshot_name: this.state.selectedName }) };
-    this.setState({ [`${flow}Refreshing`]: true });
+    this.setState({ [`${flow}Refreshing`]: !automatic });
     let finished = false;
     const finish = (data, error) => {
       if (finished || !request.isCurrent()) return;
@@ -133,7 +134,7 @@ export class VmSnapshots extends PureComponent {
       const pending = this.props.dispatch({ type: `vmSnapshotReads/${flow}`, payload,
         shouldApply: request.isCurrent, callback: data => finish(data), handleError: error => finish(null, error) });
       if (pending?.then) pending.then(() => { if (!finished) finish(null, failedRead); }, () => finish(null, failedRead));
-      if (flow === 'list') this.readCapability();
+      if (flow === 'list' && !automatic) this.readCapability();
       return pending;
     } catch (_) { finish(null, failedRead); return undefined; }
   };
@@ -163,6 +164,8 @@ export class VmSnapshots extends PureComponent {
   renderCapability = () => {
     const { capability, capabilityStatus, capabilityRefreshing } = this.state;
     const current = this.state.contextKey === this.identity() && this.enabled();
+    if (current && ((!capability && capabilityStatus === 'loading') ||
+        (capabilityStatus === 'ready' && capability?.supported === true && capability?.complete === true))) return null;
     const state = !current ? 'unknown' : capabilityRefreshing ? 'loading'
       : capabilityStatus === 'ready' ? capability.status : capabilityStatus;
     const stale = !!capability && (capabilityRefreshing || capabilityStatus !== 'ready');
@@ -303,22 +306,26 @@ export class VmSnapshots extends PureComponent {
     if (detailStatus !== 'ready' || !detail) return this.renderError(detailError, 'detail');
     const D = Descriptions.Item;
     const yesNo = value => text(value ? 'yes' : 'no');
+    // Ant Design 3.19 clones every child, including conditional null children.
+    const descriptions = [
+      <D key="name" label={text('name')}><span style={{ wordBreak: 'break-all' }}>{detail.snapshot_name}</span></D>,
+      <D key="state" label={text('state')}>{this.phase(detail)}</D>,
+      <D key="description" label={text('description')}>{detail.description || text('notReported')}</D>,
+      <D key="created" label={text('created')}>{detail.creation_time || text('notReported')}</D>,
+      <D key="dataReady" label={text('dataReady')}>{yesNo(detail.ready_to_use)}</D>,
+      <D key="recordSaved" label={text('recordSaved')}>{yesNo(detail.manifest_acked)}</D>,
+      <D key="finalized" label={text('finalized')}>{yesNo(detail.finalized)}</D>,
+      <D key="coverage" label={text('coverage')}>{detail.coverage.included_disks} / {detail.coverage.expected_writable_disks}</D>,
+      <D key="consistency" label={text('consistency')}>{text('offline')}</D>
+    ];
+    if (detail.error_code) descriptions.push(<D key="stateNote" label={text('stateNote')}>{text(`itemError.${detail.error_code}`)}</D>);
+    if (detail.config) descriptions.push(
+      <D key="compute" label={text('compute')}>{detail.config.cpu_milli / 1000} {text('cores')} / {detail.config.memory_mib / 1024} GiB</D>,
+      <D key="bootMode" label={text('bootMode')}>{detail.config.boot_mode || text('notReported')}</D>
+    );
     return <div aria-live="polite">
       <Button size="small" icon="reload" loading={detailRefreshing} onClick={() => this.read('detail')}>{text('refreshDetail')}</Button>
-      <Descriptions size="small" column={2}>
-        <D label={text('name')}><span style={{ wordBreak: 'break-all' }}>{detail.snapshot_name}</span></D>
-        <D label={text('state')}>{this.phase(detail)}</D>
-        <D label={text('description')}>{detail.description || text('notReported')}</D>
-        <D label={text('created')}>{detail.creation_time || text('notReported')}</D>
-        <D label={text('dataReady')}>{yesNo(detail.ready_to_use)}</D>
-        <D label={text('recordSaved')}>{yesNo(detail.manifest_acked)}</D>
-        <D label={text('finalized')}>{yesNo(detail.finalized)}</D>
-        <D label={text('coverage')}>{detail.coverage.included_disks} / {detail.coverage.expected_writable_disks}</D>
-        <D label={text('consistency')}>{text('offline')}</D>
-        {detail.error_code && <D label={text('stateNote')}>{text(`itemError.${detail.error_code}`)}</D>}
-        {detail.config && <D label={text('compute')}>{detail.config.cpu_milli / 1000} {text('cores')} / {detail.config.memory_mib / 1024} GiB</D>}
-        {detail.config && <D label={text('bootMode')}>{detail.config.boot_mode || text('notReported')}</D>}
-      </Descriptions>
+      <Descriptions size="small" column={2}>{descriptions}</Descriptions>
       <Table size="small" rowKey="volume_id" pagination={false} dataSource={detail.disks}
         locale={{ emptyText: text('noDiskData') }} columns={[
           { title: text('disk'), dataIndex: 'disk_key' },
@@ -332,14 +339,21 @@ export class VmSnapshots extends PureComponent {
   render() {
     const { listStatus, items, listRefreshing, listError, selectedName, page, pageSize, total } = this.state;
     const current = this.state.contextKey === this.identity() && this.enabled();
-    return <Card title={formatMessage({ id: 'componentOverview.vmWorkspace.snapshotsTitle' })} size="small"
-      extra={<Button size="small" icon="reload" loading={listRefreshing} disabled={!current} onClick={() => this.read('list')}>{text('refresh')}</Button>}>
-      <p>{text('readOnlyScope')}</p>
-      {this.renderCapability()}
-      <VmSnapshotCreate context={this.props.context} actorId={this.props.snapshotActorId} enabled={current}
+    return <VmSnapshotCreate context={this.props.context} actorId={this.props.snapshotActorId} enabled={current}
+        className={styles.feedback}
+        capabilityChecking={current && (this.state.capabilityRefreshing || this.state.capabilityStatus === 'loading')}
         capabilityReady={current && !this.state.capabilityRefreshing && this.state.capabilityStatus === 'ready' &&
           this.state.capability?.supported === true && this.state.capability?.complete === true}
-        dispatch={this.props.dispatch} onAccepted={() => this.read('list')} />
+        dispatch={this.props.dispatch} onAccepted={() => this.read('list')}>
+      {(trigger, feedback) => <Card className={styles.snapshotsCard}
+        title={formatMessage({ id: 'componentOverview.vmWorkspace.snapshotsTitle' })} size="small"
+        extra={<div className={styles.actions}>
+          {trigger}
+          <Button size="small" icon="reload" loading={listRefreshing} disabled={!current} onClick={() => this.read('list')}>{text('refresh')}</Button>
+        </div>}>
+      <p>{text('readOnlyScope')}</p>
+      {this.renderCapability()}
+      {feedback}
       {this.renderRestoreStatus()}
       {!current || listStatus === 'loading' ? <Spin /> : ['ready', 'empty'].includes(listStatus) ?
         <Table size="small" rowKey="snapshot_name" loading={listRefreshing} dataSource={items}
@@ -359,7 +373,8 @@ export class VmSnapshots extends PureComponent {
                 onClick={() => this.confirmRestore(item)}>{text('restoreAction')}</Button>
             </span> }
           ]} /> : this.renderError(listError, 'list')}
-    </Card>;
+      </Card>}
+    </VmSnapshotCreate>;
   }
 }
 export default connect(({ user }) => ({ snapshotActorId: user?.currentUser?.user_id }))(VmSnapshots);

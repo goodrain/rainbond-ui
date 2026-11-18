@@ -4,6 +4,8 @@ const path = require('node:path');
 const vm = require('node:vm');
 const { test } = require('node:test');
 const React = require('react');
+const ReactDOMServer = require('react-dom/server');
+const AntdDescriptions = require('antd/lib/descriptions').default;
 const babel = require('@umijs/deps/compiled/babel/core');
 const helpers = require('../../utils/vmSnapshotRead');
 const polling = require('./componentPolling');
@@ -75,6 +77,7 @@ function harness() {
   const Component = load('pages/Component/VmSnapshots.js', {
     react: React, antd: { Alert: 'Alert', Badge: 'Badge', Button: 'Button', Card: 'Card', Descriptions: { Item: 'D' }, Empty: 'Empty', Modal: { confirm: options => options.onOk() }, Spin: 'Spin', Table: 'Table' },
     './VmSnapshotCreate': 'SnapshotCreate',
+    './VmSnapshots.less': {},
     dva: { connect: () => component => component }, '@/utils/intl': { formatMessage: ({ id }) => id },
     '@/utils/global': globalUtil, '../../utils/vmSnapshotRead': helpers,
     '../../utils/vmSnapshotRestore': { ...restoreHelpers, newVMRestoreRequestId: () => 'restore-07070707070707070707070707070707' },
@@ -101,10 +104,28 @@ function harness() {
   h.hide = hidden => { document.hidden = hidden; listeners.forEach(listener => listener()); };
   return h;
 }
+
+test('snapshot details render with actual Ant Design 3.19 when optional fields are missing', async () => {
+  const h = harness();await h.mount();
+  for (const extra of [{}, { config: { cpu_milli: 1000, memory_mib: 1024, boot_mode: 'bios' } },
+    { error_code: 'vm_snapshot_native_failed' }]) {
+    h.panel.setState({ detail: item('snapshot-real', extra), detailStatus: 'ready' });
+    const view = h.panel.renderDetail();
+    const description = view.props.children.find(child => child?.type?.Item === 'D');
+    const children = description.props.children.map((child, index) => React.isValidElement(child)
+      ? React.createElement(AntdDescriptions.Item, { ...child.props, key: `field-${index}` }) : child);
+    let markup;
+    assert.doesNotThrow(() => { markup = ReactDOMServer.renderToStaticMarkup(
+      React.createElement(AntdDescriptions, { ...description.props, children })); });
+    assert.match(markup, /snapshot-real/);
+  }
+  h.panel.componentWillUnmount();
+});
 function elements(element) {
   if (Array.isArray(element)) return element.flatMap(elements);
   if (!element || typeof element !== 'object') return [];
-  return [element, ...elements(element.props?.children), ...elements(element.props?.description), ...elements(element.props?.extra)];
+  const children = typeof element.props?.children === 'function' ? element.props.children(null, null) : element.props?.children;
+  return [element, ...elements(children), ...elements(element.props?.description), ...elements(element.props?.extra)];
 }
 
 test('the real panel/model/service chain reads the frozen list and detail envelope using captured scope', async () => {
@@ -146,12 +167,37 @@ test('current VM checks consume actual Go complete-set outputs without hiding un
     assert.equal(h.panel.state.capability.excluded_volumes.length, data.excluded_volumes.length, name);
     assert.deepEqual(Array.from(h.panel.state.capability.volumes, row => row.read_only), data.volumes.map(row => row.read_only));
     const tables = elements(h.panel.renderCapability()).filter(node => node.type === 'Table');
-    assert.equal(tables[0].props.dataSource.length, data.volumes.length);
+    if (data.supported && data.complete) assert.equal(h.panel.renderCapability(), null, name);
+    else assert.equal(tables[0].props.dataSource.length, data.volumes.length, name);
     assert.equal(h.capabilityRequests[0].url, '/console/teams/team-a/apps/vm-a/vm-snapshot-capability');
     assert.deepEqual(Object.keys(h.capabilityRequests[0].options.params), ['region_name']);
     assert.equal(h.capabilityRequests[0].options.method, 'get');
     h.panel.componentWillUnmount();
   }
+});
+
+test('supported storage stays quiet during background polling and only explicit refresh rechecks capability', async () => {
+  const h = harness(); await h.mount(); await h.settleCapability();
+  assert.equal(h.panel.renderCapability(), null);
+  assert.equal(elements(h.panel.render()).find(node => node.type === 'SnapshotCreate').props.capabilityReady, true);
+  const slowList = deferred();
+  h.request = () => slowList.promise;
+  const polling = h.advance();
+  assert.equal(h.panel.state.listRefreshing, false, 'background reads do not spin the refresh button');
+  assert.equal(h.capabilityRequests.length, 1, 'list polling does not recheck storage');
+  slowList.resolve(list()); await polling;
+  const slowCapability = deferred();
+  h.request = async () => list(); h.capabilityRequest = () => slowCapability.promise;
+  await h.panel.read('list');
+  assert.equal(h.capabilityRequests.length, 2, 'manual refresh still rechecks storage');
+  assert.equal(h.panel.renderCapability(), null, 'previous support does not flash a checking banner');
+  const create = elements(h.panel.render()).find(node => node.type === 'SnapshotCreate');
+  assert.equal(create.props.capabilityChecking, true);
+  assert.equal(create.props.capabilityReady, false);
+  slowCapability.resolve(undefined); await h.settleCapability();
+  assert.ok(h.panel.renderCapability(), 'a failed recheck still exposes the reason');
+  assert.equal(elements(h.panel.render()).find(node => node.type === 'SnapshotCreate').props.capabilityReady, false);
+  h.panel.componentWillUnmount();
 });
 
 test('capability refresh failure invalidates prior support, missing endpoint stays unknown and does not break record reads', async () => {
