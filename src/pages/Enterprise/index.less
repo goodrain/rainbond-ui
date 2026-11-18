@@ -306,6 +306,20 @@
 .platformFact strong.headerSummaryWarning { color: darken(@warning-color, 22%); }
 .platformFact strong > :global(.anticon) { margin-right: 4px; }
 
+.consultingAction {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  margin: 0 16px 0 4px;
+  color: @primary-color;
+  font-size: @rbd-content-size;
+  line-height: 22px;
+}
+
+.consultingAction:hover,
+.consultingAction:focus { color: lighten(@primary-color, 8%); }
+
 .platformLicenseFacts {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

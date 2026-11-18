@@ -18,6 +18,10 @@ import moment from 'moment';
 import React, { PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
 import userUtil from '@/utils/user';
+import {
+  ENTERPRISE_CONSULTING_URL,
+  trackEnterpriseConsulting
+} from '@/utils/enterpriseConsulting';
 import IssueModal from './components/IssueModal';
 import OverviewModule from './components/OverviewModule';
 import PlatformInfoModal from './components/PlatformInfoModal';
@@ -439,6 +443,17 @@ export default class Enterprise extends PureComponent {
         ) : (
           <span className={styles.versionUnknown}><Icon type={upgradeStatus === 'loading' ? 'loading' : 'question-circle'} /> {upgradeStatus === 'loading' ? t('header.upgradeChecking') : t('header.upgradeUnavailable')}</span>
         )}
+        {!enterpriseEdition && currentVersion !== 'cloud' ? (
+          <a
+            className={styles.consultingAction}
+            href={ENTERPRISE_CONSULTING_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackEnterpriseConsulting('enterprise_overview')}
+          >
+            <Icon type="customer-service" /> {t('header.consulting')}
+          </a>
+        ) : null}
       </section>
     );
   }

@@ -4,6 +4,10 @@ import { connect } from 'dva';
 import React, { Component } from 'react';
 import { FormattedMessage } from 'umi';
 import rainskillsAuthorizationAccess from '../../utils/rainskillsAuthorizationAccess';
+import {
+  ENTERPRISE_CONSULTING_URL,
+  trackEnterpriseConsulting
+} from '../../utils/enterpriseConsulting';
 import styles from './index.less';
 
 const { Paragraph, Text, Title } = Typography;
@@ -12,8 +16,6 @@ const {
   resolveRainskillsAccessStatus
 } = rainskillsAuthorizationAccess;
 const USER_CODE_ALPHABET = '23456789BCDFGHJKMNPQRTVWXY';
-const AGENT_ENTERPRISE_EDITION_URL = 'https://rainbond.feishu.cn/share/base/shrcnv2iqnRsNJM6Y3hN5VhTJvg';
-
 function normalizeUserCode(value) {
   const significant = (value || '')
     .toUpperCase()
@@ -217,7 +219,7 @@ export default class DeviceAuthorization extends Component {
             description={
               <div>
                 <div><FormattedMessage id="deviceAuthorization.access.restricted.detail" /></div>
-                <a href={AGENT_ENTERPRISE_EDITION_URL} target="_blank" rel="noopener noreferrer">
+                <a href={ENTERPRISE_CONSULTING_URL} target="_blank" rel="noopener noreferrer" onClick={() => trackEnterpriseConsulting('device_authorization')}>
                   <FormattedMessage id="deviceAuthorization.access.restricted.enterprise" />
                 </a>
               </div>
