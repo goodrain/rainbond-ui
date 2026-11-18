@@ -6,17 +6,20 @@ import {
   buildHashedId,
   buildPostHogDistinctId,
   buildPostHogGroupProperties,
+  buildPostHogGroupSignature,
   buildPostHogUserProperties,
   classifyPostHogInteraction,
   getPostHogConfig,
   inferPostHogCreateStep,
-  sanitizePostHogEvent
+  sanitizePostHogEvent,
+  shouldUpdatePostHogGroup
 } from './posthogConfig';
 
 let initialized = false;
 let historyUnlisten = null;
 let clickTrackingInstalled = false;
 let activeConfig = null;
+let enterpriseGroupSignature = '';
 
 const CLICKABLE_SELECTOR = [
   'button',
@@ -306,8 +309,9 @@ export function identifyPostHogUser(user = {}) {
   const distinctId = buildPostHogDistinctId(user, activeConfig && activeConfig.instanceId);
   posthog.identify(distinctId, buildPostHogUserProperties(user, activeConfig && activeConfig.instanceProperties));
   const group = buildPostHogGroupProperties(user, activeConfig && activeConfig.instanceProperties);
-  if (group.enterpriseIdHash && typeof posthog.group === 'function') {
+  if (typeof posthog.group === 'function' && shouldUpdatePostHogGroup(enterpriseGroupSignature, group)) {
     posthog.group('enterprise', group.enterpriseIdHash, group.enterpriseProperties);
+    enterpriseGroupSignature = buildPostHogGroupSignature(group);
   }
 }
 
@@ -316,6 +320,7 @@ export function resetPostHogUser() {
     return;
   }
   posthog.reset();
+  enterpriseGroupSignature = '';
 }
 
 export function capturePostHogEvent(eventName, properties = {}) {

@@ -251,6 +251,24 @@ function buildPostHogGroupProperties(user = {}, instanceProperties = {}) {
   };
 }
 
+function stableSerialize(value) {
+  if (Array.isArray(value)) {
+    return `[${value.map(item => stableSerialize(item)).join(',')}]`;
+  }
+  if (value && typeof value === 'object') {
+    return `{${Object.keys(value).sort().map(key => `${JSON.stringify(key)}:${stableSerialize(value[key])}`).join(',')}}`;
+  }
+  return JSON.stringify(value);
+}
+
+function buildPostHogGroupSignature(group = {}) {
+  return `${group.enterpriseIdHash || ''}:${stableSerialize(group.enterpriseProperties || {})}`;
+}
+
+function shouldUpdatePostHogGroup(previousSignature, group = {}) {
+  return !!group.enterpriseIdHash && buildPostHogGroupSignature(group) !== previousSignature;
+}
+
 function inferPostHogCreateStep(route = '') {
   const value = String(route || '').toLowerCase();
   if (!value) {
@@ -348,6 +366,8 @@ module.exports = {
   buildPostHogDistinctId,
   buildPostHogUserProperties,
   buildPostHogGroupProperties,
+  buildPostHogGroupSignature,
+  shouldUpdatePostHogGroup,
   classifyPostHogInteraction,
   inferPostHogCreateStep
 };

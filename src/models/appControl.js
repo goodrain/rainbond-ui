@@ -191,6 +191,14 @@ function trackOperationSucceeded(actionType, payload, response) {
   }));
 }
 
+function trackOperationFailed(actionType, payload, error) {
+  captureAppOperation(actionType, 'failed', buildAppControlProperties(payload, {
+    action_type: actionType,
+    error_category: 'request_failed',
+    error_code: error && (error.status || error.code || error.name)
+  }));
+}
+
 function isRunningStatus(status) {
   const normalized = String(status || '').toLowerCase();
   return ['running', 'active', 'ready', 'available', 'deployed', 'succeeded', 'completed'].indexOf(normalized) > -1;
@@ -338,6 +346,8 @@ export default {
       refreshTopology(response);
       if (response) {
         trackOperationSucceeded('deploy', payload, response);
+      } else {
+        trackOperationFailed('deploy', payload);
       }
       if (response && callback) {
         callback(response);
@@ -350,6 +360,8 @@ export default {
       refreshTopology(response);
       if (response) {
         trackOperationSucceeded('upgrade', payload, response);
+      } else {
+        trackOperationFailed('upgrade', payload);
       }
       if (response && callback) {
         callback(response);
@@ -360,6 +372,8 @@ export default {
       const response = yield call(updateRolling, payload);
       if (response) {
         trackOperationSucceeded('rolling_update', payload, response);
+      } else {
+        trackOperationFailed('rolling_update', payload);
       }
       if (response && callback) {
         callback(response);
@@ -394,6 +408,8 @@ export default {
       refreshTopology(response);
       if (response) {
         trackOperationSucceeded('restart', payload, response);
+      } else {
+        trackOperationFailed('restart', payload);
       }
       if (response && callback) {
         callback(response);
@@ -406,6 +422,8 @@ export default {
       refreshTopology(response);
       if (response) {
         trackOperationSucceeded('start', payload, response);
+      } else {
+        trackOperationFailed('start', payload);
       }
       if (response && callback) {
         callback(response);
@@ -418,6 +436,8 @@ export default {
       refreshTopology(response);
       if (response) {
         trackOperationSucceeded('stop', payload, response);
+      } else {
+        trackOperationFailed('stop', payload);
       }
       if (response && callback) {
         callback(response);
@@ -789,6 +809,8 @@ export default {
       const response = yield call(bindDomain, payload);
       if (response) {
         trackOperationSucceeded('bind_domain', payload, response);
+      } else {
+        trackOperationFailed('bind_domain', payload);
       }
       if (response && callback) {
         callback(response);
@@ -859,6 +881,8 @@ export default {
       const response = yield call(addInnerEnvs, payload);
       if (response) {
         trackOperationSucceeded('env_change', payload, response);
+      } else {
+        trackOperationFailed('env_change', payload);
       }
       if (response && callback) {
         callback(response);
@@ -887,6 +911,8 @@ export default {
       const response = yield call(addOuterEnvs, payload);
       if (response) {
         trackOperationSucceeded('env_change', payload, response);
+      } else {
+        trackOperationFailed('env_change', payload);
       }
       if (response && callback) {
         callback(response);
@@ -951,6 +977,8 @@ export default {
       const response = yield call(editEvns, payload);
       if (response) {
         trackOperationSucceeded('env_change', payload, response);
+      } else {
+        trackOperationFailed('env_change', payload);
       }
       if (response && callback) {
         callback(response);
@@ -1055,6 +1083,8 @@ export default {
       const response = yield call(addVolume, payload);
       if (response) {
         trackOperationSucceeded('storage_mount', payload, response);
+      } else {
+        trackOperationFailed('storage_mount', payload);
       }
       if (response && callback) {
         callback(response);
@@ -1400,6 +1430,8 @@ export default {
       refreshTopology(response);
       if (response) {
         trackOperationSucceeded(payload && payload.action ? payload.action : 'batch_operation', payload, response);
+      } else {
+        trackOperationFailed(payload && payload.action ? payload.action : 'batch_operation', payload);
       }
       if (response && callback) {
         callback(response);
@@ -1410,6 +1442,8 @@ export default {
       const response = yield call(horizontal, payload, handleError);
       if (response) {
         trackOperationSucceeded('scale_horizontal', payload, response);
+      } else {
+        trackOperationFailed('scale_horizontal', payload);
       }
       if (response && callback) {
         callback(response);
@@ -1420,6 +1454,8 @@ export default {
       const response = yield call(vertical, payload, handleError);
       if (response) {
         trackOperationSucceeded('scale_vertical', payload, response);
+      } else {
+        trackOperationFailed('scale_vertical', payload);
       }
       if (response && callback) {
         callback(response);
@@ -1430,6 +1466,8 @@ export default {
       const response = yield call(newVertical, payload, handleError);
       if (response) {
         trackOperationSucceeded('scale_vertical', payload, response);
+      } else {
+        trackOperationFailed('scale_vertical', payload);
       }
       if (response && callback) {
         callback(response);

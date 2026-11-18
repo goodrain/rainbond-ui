@@ -152,6 +152,8 @@ export default {
       const data = yield call(installHelmApp, payload);
       if (data) {
         trackCreateSucceeded('helm_app_install', payload);
+      } else {
+        trackCreateFailed('helm_app_install', payload);
       }
       if (data && callback) {
         callback(data);
@@ -162,6 +164,8 @@ export default {
       const data = yield call(createAppByCode, payload);
       if (data) {
         trackCreateSucceeded('source_code_create', payload);
+      } else {
+        trackCreateFailed('source_code_create', payload);
       }
       if (data && callback) {
         setTimeout(() => {
@@ -174,6 +178,8 @@ export default {
       const data = yield call(createThirtAppByCodes, payload);
       if (data) {
         trackCreateSucceeded('third_party_code_create', payload);
+      } else {
+        trackCreateFailed('third_party_code_create', payload);
       }
       if (data && callback) {
         setTimeout(() => {
@@ -187,6 +193,8 @@ export default {
       const data = yield call(createThirdPartyServices, payload);
       if (data) {
         trackCreateSucceeded('third_party_service_create', payload);
+      } else {
+        trackCreateFailed('third_party_service_create', payload);
       }
       if (data && callback) {
         setTimeout(() => {
@@ -272,6 +280,8 @@ export default {
       const data = yield call(createAppByCompose, payload);
       if (data) {
         trackCreateSucceeded('compose_create', payload);
+      } else {
+        trackCreateFailed('compose_create', payload);
       }
       if (data && callback) {
         setTimeout(() => {
@@ -284,6 +294,8 @@ export default {
       const data = yield call(createAppByDockerrun, payload);
       if (data) {
         trackCreateSucceeded('docker_run_create', payload);
+      } else {
+        trackCreateFailed('docker_run_create', payload);
       }
       if (data && callback) {
         setTimeout(() => {
@@ -315,6 +327,8 @@ export default {
         const data = yield call(installHelmAppCmd, payload, handleError);
         if (data) {
           trackCreateSucceeded('helm_cmd_install', payload);
+        } else {
+          trackCreateFailed('helm_cmd_install', payload);
         }
         if (data && callback) {
           callback(data);
@@ -340,6 +354,8 @@ export default {
         const data = yield call(installRamAppCmd, payload, handleError);
         if (data) {
           trackCreateSucceeded('ram_cmd_install', payload);
+        } else {
+          trackCreateFailed('ram_cmd_install', payload);
         }
         if (data && callback) {
           callback(data);
@@ -357,6 +373,8 @@ export default {
         const data = yield call(createAppByVirtualMachine, payload, handleError);
         if (data) {
           trackCreateSucceeded('virtual_machine_create', payload);
+        } else {
+          trackCreateFailed('virtual_machine_create', payload);
         }
         if (data && callback) {
           callback(data);
@@ -428,6 +446,8 @@ export default {
         const data = yield call(installHelmUploadApp, payload, handleError);
         if (data) {
           trackCreateSucceeded('helm_upload_install', payload);
+        } else {
+          trackCreateFailed('helm_upload_install', payload);
         }
         if(data && callback) {
           callback(data);
