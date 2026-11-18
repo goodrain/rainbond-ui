@@ -49,8 +49,8 @@ const formItemLayouts = {
 const NGINX_EXAMPLE = {
   dockerCmd: 'docker run --name mysql -e MYSQL_ROOT_PASSWORD=Pa88Word -d registry.cn-hangzhou.aliyuncs.com/goodrain/mysql:5.7.42',
   saasDockerCmd: 'docker run --name mysql -e MYSQL_ROOT_PASSWORD=Pa88Word -d registry.cn-hangzhou.aliyuncs.com/goodrain/mysql:5.7.42',
-  imageAddress: 'registry.cn-hangzhou.aliyuncs.com/goodrain/nginx:alpine',
-  saasImageAddress: 'registry.cn-hangzhou.aliyuncs.com/goodrain/nginx:alpine'
+  imageAddress: 'registry.cn-hangzhou.aliyuncs.com/goodrain/nginx:1.26',
+  saasImageAddress: 'registry.cn-hangzhou.aliyuncs.com/goodrain/nginx:1.26'
 };
 
 @connect(

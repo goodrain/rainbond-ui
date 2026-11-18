@@ -24,6 +24,7 @@ import React, { Fragment, PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
 import AppState from '../../components/ApplicationState';
 import ConfirmModal from '../../components/ConfirmModal';
+import FirstDeployGuide from '../../components/FirstDeployGuide';
 import RapidCopy from '../../components/RapidCopy';
 import VisterBtn from '../../components/visitBtnForAlllink';
 import { buildApp } from '../../services/createApp';
@@ -72,6 +73,8 @@ export default class Index extends PureComponent {
       serviceIds: [],
       linkList: [],
       jsonDataLength: 0,
+      topologyLoaded: false,
+      marketAvailable: false,
       promptModal: false,
       code: '',
       size: 'large',
@@ -106,6 +109,7 @@ export default class Index extends PureComponent {
     this.handleWaitLevel();
     this.handleGroupAllResource()
     this.getStorageUsed()
+    this.fetchMarketAvailability();
   }
 
   componentWillUnmount() {
@@ -136,6 +140,54 @@ export default class Index extends PureComponent {
     this.setState({
       customSwitch: false
     });
+  };
+  fetchMarketAvailability = () => {
+    const enterpriseId = this.props.currentEnterprise && this.props.currentEnterprise.enterprise_id;
+    if (!enterpriseId) {
+      return;
+    }
+    this.props.dispatch({
+      type: 'market/fetchMarketsTab',
+      payload: { enterprise_id: enterpriseId },
+      callback: res => {
+        const activeStores = res && res.status_code === 200 ? (res.list || []).filter(item => item.status === 1) : [];
+        if (activeStores.length === 0) {
+          this.setState({ marketAvailable: false });
+          return;
+        }
+        let pendingRequests = activeStores.length;
+        let hasMarketApps = false;
+        const finishRequest = () => {
+          pendingRequests -= 1;
+          if (pendingRequests === 0) {
+            this.setState({ marketAvailable: hasMarketApps });
+          }
+        };
+        activeStores.forEach(store => {
+          this.props.dispatch({
+            type: 'market/fetchMarkets',
+            payload: { enterprise_id: enterpriseId, name: store.name, page: 1, pageSize: 1, query: '' },
+            callback: marketRes => {
+              hasMarketApps = hasMarketApps || !!(marketRes && marketRes.status_code === 200 && (marketRes.list || []).length > 0);
+              finishRequest();
+            },
+            handleError: finishRequest
+          });
+        });
+      },
+      handleError: () => this.setState({ marketAvailable: false })
+    });
+  };
+  handleFirstDeployEntry = entry => {
+    const { dispatch } = this.props;
+    const basePath = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create`;
+    const groupId = this.getGroupId();
+    const targetPath = entry === 'market_all' || entry === 'market_featured'
+      ? `${basePath}/market?group_id=${groupId}`
+      : entry === 'source_code'
+        ? `${basePath}/code?group_id=${groupId}`
+        : `${basePath}/image/custom?group_id=${groupId}`;
+    dispatch(routerRedux.push(targetPath));
   };
   getGroupId() {
     return this.props.appID;
@@ -192,6 +244,7 @@ export default class Index extends PureComponent {
         if (res && res.status_code === 200) {
           const data = res.bean;
           if (JSON.stringify(data) === '{}') {
+            this.setState({ jsonDataLength: 0, topologyLoaded: true });
             return;
           }
           const serviceIds = [];
@@ -210,6 +263,7 @@ export default class Index extends PureComponent {
           this.setState(
             {
               jsonDataLength: Object.keys(json_data).length,
+              topologyLoaded: true,
               service_alias,
               serviceIds
             },
@@ -734,6 +788,8 @@ export default class Index extends PureComponent {
       resources,
       rapidCopy,
       jsonDataLength,
+      topologyLoaded,
+      marketAvailable,
       linkList,
       code,
       promptModal,
@@ -1509,6 +1565,13 @@ export default class Index extends PureComponent {
             />
           )}
         </Row>
+        {topologyLoaded && jsonDataLength === 0 && isCreate && (
+          <FirstDeployGuide
+            guideLocation="empty_app"
+            marketAvailable={marketAvailable}
+            onEntry={this.handleFirstDeployEntry}
+          />
+        )}
         {guideStep === 2 &&
           this.handleNewbieGuiding({
             tit: formatMessage({ id: 'teamOther.Group.app' }),

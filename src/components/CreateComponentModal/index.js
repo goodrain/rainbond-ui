@@ -1848,6 +1848,10 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
               setCurrentView('localMarket');
               fetchLocalMarketApps(1, '', 'all');
               break;
+            case 'example-image':
+              setCurrentView('form');
+              setCurrentFormType('docker');
+              break;
             case 'image':
               fetchImageHubs();
               fetchClusters();

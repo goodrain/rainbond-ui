@@ -6,6 +6,7 @@ import { formatMessage } from '@/utils/intl';
 import VisterBtn from '../../../components/visitBtnForAlllink';
 import CreateComponentModal from '../../../components/CreateComponentModal';
 import AppDeteleResource from '../../../components/AppDeteleResource';
+import FirstDeployGuide from '../../../components/FirstDeployGuide';
 import {
   CodeIcon,
   StoreIcon,
@@ -65,6 +66,7 @@ export default class index extends Component {
       toDelete: false,
       toDeleteResource: false,
       deleteResourceList: {},
+      marketAvailable: false,
     };
     // 标记组件是否已挂载
     this._isMounted = false;
@@ -75,6 +77,7 @@ export default class index extends Component {
   componentDidMount() {
     this._isMounted = true;
     this.loadHotApp();
+    this.loadMarketAvailability();
 
     if (typeof ResizeObserver === 'undefined') {
       window.addEventListener('resize', this.handleCardListWindowResize);
@@ -142,6 +145,50 @@ export default class index extends Component {
 
       this.cardListResizeObserver.observe(node);
     }
+  };
+
+  loadMarketAvailability = () => {
+    const enterpriseId = this.props.currentEnterprise && this.props.currentEnterprise.enterprise_id;
+    if (!enterpriseId) {
+      return;
+    }
+    this.props.dispatch({
+      type: 'market/fetchMarketsTab',
+      payload: { enterprise_id: enterpriseId },
+      callback: res => {
+        const activeStores = res && res.status_code === 200 ? (res.list || []).filter(item => item.status === 1) : [];
+        if (activeStores.length === 0) {
+          if (this._isMounted) {
+            this.setState({ marketAvailable: false });
+          }
+          return;
+        }
+        let pendingRequests = activeStores.length;
+        let hasMarketApps = false;
+        const finishRequest = () => {
+          pendingRequests -= 1;
+          if (pendingRequests === 0 && this._isMounted) {
+            this.setState({ marketAvailable: hasMarketApps });
+          }
+        };
+        activeStores.forEach(store => {
+          this.props.dispatch({
+            type: 'market/fetchMarkets',
+            payload: { enterprise_id: enterpriseId, name: store.name, page: 1, pageSize: 1, query: '' },
+            callback: marketRes => {
+              hasMarketApps = hasMarketApps || !!(marketRes && marketRes.status_code === 200 && (marketRes.list || []).length > 0);
+              finishRequest();
+            },
+            handleError: finishRequest
+          });
+        });
+      },
+      handleError: () => {
+        if (this._isMounted) {
+          this.setState({ marketAvailable: false });
+        }
+      }
+    });
   };
 
   handleCardListWindowResize = () => {
@@ -295,6 +342,20 @@ export default class index extends Component {
   handleCloseCreateComponent = () => {
     this.setState({ createComponentVisible: false });
   }
+
+  handleFirstDeployEntry = entry => {
+    const currentViewMap = {
+      example_image: 'example-image',
+      market_all: 'market',
+      market_featured: 'market',
+      image: 'image',
+      source_code: 'code'
+    };
+    this.setState({
+      createComponentVisible: true,
+      currentView: currentViewMap[entry] || null
+    });
+  };
 
   jumpToAppOverview = (groupId, e) => {
     if (e) {
@@ -698,6 +759,7 @@ export default class index extends Component {
       query,
       appListLoading,
       appListTotal,
+      marketAvailable,
       teamAppCreatePermission: {
         isAccess: isAppCreate
       },
@@ -721,11 +783,12 @@ export default class index extends Component {
     const deleteLoading = loadingEffects['application/deleteGroupAllResource'];
     // 应用列表权限
     const isAppList = newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'team_overview')?.isAppList;
+    const isFirstDeployGuide = !appListLoading && isAppList && appListTotal === 0;
 
     return (
       <>
         <div>
-          <div className={styles.appListHeaderTop}>
+          {!isFirstDeployGuide && <div className={styles.appListHeaderTop}>
             <div className={styles.appListToolbar}>
               <Search
                 data-testid="rbd-app-search"
@@ -750,11 +813,17 @@ export default class index extends Component {
                 </Option>
               </Select>
             </div>
-          </div>
+          </div>}
           {!appListLoading && isAppList && (
             <div>
-              {this.renderCardView()}
-              {appListTotal > page_size && (
+              {isFirstDeployGuide ? (
+                <FirstDeployGuide
+                  guideLocation="team_empty"
+                  marketAvailable={marketAvailable}
+                  onEntry={this.handleFirstDeployEntry}
+                />
+              ) : this.renderCardView()}
+              {!isFirstDeployGuide && appListTotal > page_size && (
                 <div className={styles.paginationContainer}>
                   <Pagination
                     current={page}

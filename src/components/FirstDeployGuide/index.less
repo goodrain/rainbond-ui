@@ -1,0 +1,57 @@
+@import '~antd/lib/style/themes/default.less';
+
+.guide {
+  padding: 32px;
+  border: 1px solid @border-color-base;
+  border-radius: 8px;
+  background: @component-background;
+  box-shadow: @rbd-min-card-shadow;
+}
+
+.hero {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 20px;
+
+  h2 {
+    margin: 0 0 4px;
+    color: @heading-color;
+    font-size: @rbd-title-size;
+    line-height: @rbd-title-line-height;
+  }
+
+  p {
+    margin: 0;
+    color: @text-color-secondary;
+    font-size: @rbd-content-size;
+    line-height: @rbd-content-line-height;
+  }
+}
+
+.heroIcon {
+  margin: 4px 12px 0 0;
+  color: @primary-color;
+  font-size: @rbd-title-big-size;
+}
+
+.marketSection,
+.secondaryEntries {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.sectionTitle {
+  width: 100%;
+  color: @heading-color;
+  font-size: @rbd-sub-title-size;
+  line-height: @rbd-sub-title-line-height;
+}
+
+.offlineHint {
+  margin: 16px 0 0;
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  line-height: @rbd-auxiliary-line-height;
+}
