@@ -2,12 +2,14 @@ import { Button, Icon } from 'antd';
 import React, { PureComponent } from 'react';
 import { captureFirstDeployGuide } from '../../posthog';
 import { formatMessage } from '../../utils/intl';
+import { getFeaturedMarketSearchName, resolveFeaturedMarketApp } from './marketApps';
 import styles from './index.less';
 
 export const featuredMarketApps = [
   {
     key: 'mysql',
     label: 'firstDeployGuide.market.mysql',
+    searchNames: { default: 'Mysql' },
     modelKeys: {
       default: '7f0d0509699e4425964c71be4b0fa428'
     }
@@ -16,6 +18,11 @@ export const featuredMarketApps = [
     key: 'redis',
     label: 'firstDeployGuide.market.redis',
     requiresArchitecture: true,
+    searchNames: {
+      amd64: 'Redis',
+      arm64: 'Redis单机版ARM',
+      default: 'Redis'
+    },
     modelKeys: {
       amd64: '6953c50771ae4548b9fed312d220d720',
       arm64: 'd6c01070c6b049dbaf3de6757a1b63ef',
@@ -25,9 +32,12 @@ export const featuredMarketApps = [
   {
     key: 'nacos',
     label: 'firstDeployGuide.market.nacos',
+    searchNames: { default: 'Nacos单机版' },
     modelKeys: {}
   }
 ];
+
+export { getFeaturedMarketSearchName, resolveFeaturedMarketApp };
 
 export default class FirstDeployGuide extends PureComponent {
   componentDidMount() {
@@ -63,18 +73,17 @@ export default class FirstDeployGuide extends PureComponent {
 
   render() {
     const { marketAvailable, marketResolved, guideLocation, featuredApps = [], canCreate } = this.props;
-    const isTeamGuide = guideLocation === 'team_empty';
 
     return (
       <section className={styles.guide} data-testid="rbd-first-deploy-guide">
         <div className={styles.hero}>
           <Icon type="rocket" className={styles.heroIcon} />
           <div>
-            <h2>{formatMessage({ id: isTeamGuide ? 'firstDeployGuide.team.title' : 'firstDeployGuide.app.title' })}</h2>
-            <p>{formatMessage({ id: isTeamGuide ? 'firstDeployGuide.team.description' : 'firstDeployGuide.app.description' })}</p>
+            <h2>{formatMessage({ id: 'firstDeployGuide.team.title' })}</h2>
+            <p>{formatMessage({ id: 'firstDeployGuide.team.description' })}</p>
           </div>
         </div>
-        {isTeamGuide && canCreate && (
+        {canCreate && (
           <Button type="primary" size="large" onClick={() => this.handleEntry('example_image')}>
             {formatMessage({ id: 'firstDeployGuide.exampleImage' })}
           </Button>
@@ -82,7 +91,7 @@ export default class FirstDeployGuide extends PureComponent {
         {marketAvailable && canCreate && (
           <div className={styles.marketSection}>
             <div className={styles.sectionTitle}>{formatMessage({ id: 'firstDeployGuide.market.title' })}</div>
-            {isTeamGuide && featuredApps.map(app => (
+            {featuredApps.map(app => (
               <Button
                 key={app.key}
                 onClick={() => this.handleEntry('market_featured', {

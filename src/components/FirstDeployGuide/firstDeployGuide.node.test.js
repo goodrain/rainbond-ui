@@ -13,6 +13,8 @@ const imageFormSource = fs.readFileSync(path.join(sourceRoot, 'components/ImageN
 const posthogSource = fs.readFileSync(path.join(sourceRoot, 'posthog.js'), 'utf8');
 const marketModelSource = fs.readFileSync(path.join(sourceRoot, 'models/market.js'), 'utf8');
 const marketFixture = JSON.parse(fs.readFileSync(path.join(__dirname, '__fixtures__/market-app-list.response.json'), 'utf8'));
+const marketAppsSource = fs.readFileSync(path.join(__dirname, 'marketApps.js'), 'utf8');
+const marketHelpers = new Function(`${marketAppsSource.replace(/export /g, '')}\nreturn { getFeaturedMarketSearchName, resolveFeaturedMarketApp };`)();
 
 test('first-deploy guide exposes the approved entry points and telemetry fields', () => {
   assert.match(guideSource, /captureFirstDeployGuide\('viewed'/);
@@ -27,7 +29,7 @@ test('first-deploy guide exposes the approved entry points and telemetry fields'
   assert.match(guideSource, /featuredMarketApps/);
 });
 
-test('featured market applications use stable keys and only render resolved market entries', () => {
+test('featured market applications search by name and resolve only matching stable keys', () => {
   assert.match(guideSource, /7f0d0509699e4425964c71be4b0fa428/);
   assert.match(guideSource, /6953c50771ae4548b9fed312d220d720/);
   assert.match(guideSource, /d6c01070c6b049dbaf3de6757a1b63ef/);
@@ -37,12 +39,20 @@ test('featured market applications use stable keys and only render resolved mark
   assert.match(guideSource, /featuredApps\.map/);
   assert.match(guideSource, /market_app: app/);
   assert.match(teamSource, /featuredMarketApps/);
-  assert.match(teamSource, /query: modelKey/);
+  assert.match(teamSource, /query: searchName/);
+  assert.match(teamSource, /pageSize: 10/);
   assert.match(teamSource, /arch:/);
-  assert.match(teamSource, /app\.app_id === modelKey/);
-  assert.match(teamSource, /supportedArchitectures\.includes\(architecture\)/);
-  assert.strictEqual(marketFixture.list[0].app_id, '7f0d0509699e4425964c71be4b0fa428');
-  assert.deepStrictEqual(marketFixture.list[2].arch, ['arm64']);
+  assert.strictEqual(marketHelpers.getFeaturedMarketSearchName({ searchNames: { default: 'Mysql' } }, 'amd64'), 'Mysql');
+  assert.strictEqual(marketHelpers.getFeaturedMarketSearchName({ searchNames: { arm64: 'Redis单机版ARM', default: 'Redis' } }, 'arm64'), 'Redis单机版ARM');
+  const redis = marketHelpers.resolveFeaturedMarketApp({
+    key: 'redis',
+    requiresArchitecture: true,
+    modelKeys: { amd64: '6953c50771ae4548b9fed312d220d720', arm64: 'd6c01070c6b049dbaf3de6757a1b63ef' }
+  }, marketFixture.list, 'arm64');
+  assert.equal(redis.marketApp.app_name, 'Redis单机版ARM');
+  assert.equal(marketHelpers.resolveFeaturedMarketApp({
+    key: 'mysql', modelKeys: { default: '7f0d0509699e4425964c71be4b0fa428' }
+  }, marketFixture.list, 'arm64'), null);
   assert.match(modalSource, /initialMarketApp/);
   assert.match(modalSource, /case 'marketInstall'/);
 });
@@ -51,9 +61,8 @@ test('team guide requires a successful unfiltered empty list and defers market l
   assert.match(teamSource, /appListTotal === 0/);
   assert.match(teamSource, /appListLoaded: false/);
   assert.match(teamSource, /appListLoaded: true/);
-  assert.match(teamSource, /!query\.trim\(\)/);
+  assert.match(teamSource, /!appListQuery\.trim\(\)/);
   assert.match(teamSource, /this\.loadMarketAvailability\(\)/);
-  assert.match(teamSource, /marketLoading: true/);
   assert.match(teamSource, /marketResolved: true/);
   assert.match(teamSource, /<FirstDeployGuide/);
   assert.doesNotMatch(groupSource, /FirstDeployGuide/);
@@ -74,4 +83,16 @@ test('PostHog provides a dedicated guide capture helper after market resolution'
   assert.match(posthogSource, /first_deploy_guide_/);
   assert.match(guideSource, /componentDidUpdate/);
   assert.match(guideSource, /marketResolved/);
+  const captureSource = posthogSource.slice(
+    posthogSource.indexOf('export function captureFirstDeployGuide'),
+    posthogSource.indexOf('export function captureErrorViewed')
+  ).replace('export function', 'function');
+  let captured;
+  const captureFirstDeployGuide = new Function('capturePostHogEvent', 'getCurrentRouteProperties', 'buildContextProperties', `${captureSource}\nreturn captureFirstDeployGuide;`)(
+    (event, properties) => { captured = { event, properties }; },
+    properties => properties,
+    () => ({})
+  );
+  captureFirstDeployGuide('clicked', { featured_app: 'redis' });
+  assert.equal(captured.properties.featured_app, 'redis');
 });

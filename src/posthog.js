@@ -363,7 +363,8 @@ export function captureFirstDeployGuide(action, properties = {}) {
       ...buildContextProperties(properties),
       guide_location: properties.guide_location || '',
       entry: properties.entry || '',
-      market_available: !!properties.market_available
+      market_available: !!properties.market_available,
+      featured_app: properties.featured_app || ''
     })
   );
 }

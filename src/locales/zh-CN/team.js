@@ -49,8 +49,6 @@ const teamOverview = {
   'teamOverview.supportMethods':'支持多种构建方式',
   'firstDeployGuide.team.title': '开始部署第一个应用',
   'firstDeployGuide.team.description': '用示例应用快速验证集群、网络和访问链路。',
-  'firstDeployGuide.app.title': '这个应用还没有组件',
-  'firstDeployGuide.app.description': '添加一个组件，继续完成首次部署。',
   'firstDeployGuide.exampleImage': '用示例镜像创建',
   'firstDeployGuide.market.title': '从应用市场开始',
   'firstDeployGuide.market.all': '查看全部应用市场',

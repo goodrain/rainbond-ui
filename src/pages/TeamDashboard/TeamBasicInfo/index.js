@@ -6,7 +6,11 @@ import { formatMessage } from '@/utils/intl';
 import VisterBtn from '../../../components/visitBtnForAlllink';
 import CreateComponentModal from '../../../components/CreateComponentModal';
 import AppDeteleResource from '../../../components/AppDeteleResource';
-import FirstDeployGuide, { featuredMarketApps as featuredMarketAppConfigs } from '../../../components/FirstDeployGuide';
+import FirstDeployGuide, {
+  featuredMarketApps as featuredMarketAppConfigs,
+  getFeaturedMarketSearchName,
+  resolveFeaturedMarketApp
+} from '../../../components/FirstDeployGuide';
 import {
   CodeIcon,
   StoreIcon,
@@ -54,6 +58,7 @@ export default class index extends Component {
       sortValue: 1,
       appListLoading: true,
       appListLoaded: false,
+      appListQuery: '',
       teamHotAppList: [],
       appListTotal: 0,
       cardLayoutMode: CARD_LAYOUT_MODE.DEFAULT,
@@ -68,7 +73,6 @@ export default class index extends Component {
       toDeleteResource: false,
       deleteResourceList: {},
       marketAvailable: false,
-      marketLoading: false,
       marketResolved: false,
       featuredMarketApps: [],
       featuredMarketApp: null,
@@ -157,8 +161,16 @@ export default class index extends Component {
       return;
     }
     this.marketLoadRequested = true;
-    this.setState({ marketLoading: true, marketResolved: false, marketAvailable: false, featuredMarketApps: [] });
-    this.props.dispatch({
+    this.setState({ marketResolved: false, marketAvailable: false, featuredMarketApps: [] });
+    let archResolved = false;
+    const loadStores = architecture => {
+      if (archResolved) {
+        return;
+      }
+      archResolved = true;
+      this.loadMarketStores(architecture);
+    };
+    const dispatchResult = this.props.dispatch({
       type: 'index/fetchArchOverview',
       payload: {
         region_name: globalUtil.getCurrRegionName(),
@@ -166,15 +178,18 @@ export default class index extends Component {
       },
       callback: res => {
         const architectures = (res && res.list) || [];
-        this.loadMarketStores(architectures.length === 1 ? architectures[0] : '');
+        loadStores(architectures.length === 1 ? architectures[0] : '');
       },
-      handleError: () => this.loadMarketStores('')
+      handleError: () => loadStores('')
     });
+    if (dispatchResult && dispatchResult.then) {
+      dispatchResult.then(() => loadStores(''), () => loadStores(''));
+    }
   };
 
   finishMarketLoading = (marketAvailable, featuredMarketApps = []) => {
     if (this._isMounted) {
-      this.setState({ marketAvailable, featuredMarketApps, marketLoading: false, marketResolved: true });
+      this.setState({ marketAvailable, featuredMarketApps, marketResolved: true });
     }
   };
 
@@ -184,10 +199,18 @@ export default class index extends Component {
       this.finishMarketLoading(false);
       return;
     }
-    this.props.dispatch({
+    let storesHandled = false;
+    const finishStores = () => {
+      if (!storesHandled) {
+        storesHandled = true;
+        this.finishMarketLoading(false);
+      }
+    };
+    const dispatchResult = this.props.dispatch({
       type: 'market/fetchMarketsTab',
       payload: { enterprise_id: enterpriseId, silent: true },
       callback: res => {
+        storesHandled = true;
         const activeStores = res && res.status_code === 200 ? (res.list || []).filter(item => item.status === 1) : [];
         if (activeStores.length === 0) {
           this.finishMarketLoading(false);
@@ -202,7 +225,7 @@ export default class index extends Component {
             this.finishMarketLoading(hasMarketApps, resolvedFeaturedApps);
           }
         };
-        const requestMarketApps = (store, modelKey, onSuccess) => {
+        const requestMarketApps = (store, searchName, onSuccess) => {
           pendingRequests += 1;
           this.props.dispatch({
             type: 'market/fetchMarkets',
@@ -210,8 +233,8 @@ export default class index extends Component {
               enterprise_id: enterpriseId,
               name: store.name,
               page: 1,
-              pageSize: 1,
-              query: modelKey || '',
+              pageSize: 10,
+              query: searchName,
               arch: architecture,
               silent: true
             },
@@ -228,23 +251,25 @@ export default class index extends Component {
           });
           featuredMarketAppConfigs.forEach(config => {
             const modelKey = config.modelKeys[architecture] || config.modelKeys.default;
-            if (!modelKey || (config.requiresArchitecture && !architecture)) {
+            const searchName = getFeaturedMarketSearchName(config, architecture);
+            if (!modelKey || (config.requiresArchitecture && !architecture) || !searchName) {
               return;
             }
-            requestMarketApps(store, modelKey, marketApps => {
-              const marketApp = marketApps.find(app => app.app_id === modelKey);
-              const supportedArchitectures = marketApp && Array.isArray(marketApp.arch) ? marketApp.arch : [];
-              const isArchitectureCompatible = !!marketApp && (!architecture || supportedArchitectures.includes(architecture));
-              if (marketApp && isArchitectureCompatible && !resolvedFeaturedApps.some(item => item.key === config.key)) {
+            requestMarketApps(store, searchName, marketApps => {
+              const featuredMarketApp = resolveFeaturedMarketApp(config, marketApps, architecture);
+              if (featuredMarketApp && !resolvedFeaturedApps.some(item => item.key === config.key)) {
                 hasMarketApps = true;
-                resolvedFeaturedApps.push({ ...config, modelKey, marketApp, marketStore: store });
+                resolvedFeaturedApps.push({ ...featuredMarketApp, marketStore: store });
               }
             });
           });
         });
       },
-      handleError: () => this.finishMarketLoading(false)
+      handleError: finishStores
     });
+    if (dispatchResult && dispatchResult.then) {
+      dispatchResult.then(() => finishStores(), () => finishStores());
+    }
   };
 
   handleCardListWindowResize = () => {
@@ -308,9 +333,14 @@ export default class index extends Component {
             appListTotal,
             appListLoading: false,
             appListLoaded: true,
+            appListQuery: query,
           }, () => {
             if (appListTotal === 0 && !query.trim()) {
-              this.loadMarketAvailability();
+              if (this.state.teamAppCreatePermission.isAccess) {
+                this.loadMarketAvailability();
+              } else {
+                this.finishMarketLoading(false);
+              }
             }
           });
         } else {
@@ -825,6 +855,7 @@ export default class index extends Component {
       query,
       appListLoading,
       appListLoaded,
+      appListQuery,
       appListTotal,
       marketAvailable,
       marketResolved,
@@ -852,7 +883,7 @@ export default class index extends Component {
     const deleteLoading = loadingEffects['application/deleteGroupAllResource'];
     // 应用列表权限
     const isAppList = newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'team_overview')?.isAppList;
-    const isFirstDeployGuide = !appListLoading && appListLoaded && isAppList && !query.trim() && appListTotal === 0;
+    const isFirstDeployGuide = !appListLoading && appListLoaded && isAppList && !appListQuery.trim() && appListTotal === 0;
 
     return (
       <>

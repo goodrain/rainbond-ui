@@ -201,6 +201,7 @@ export default {
       }
     },
     *fetchMarkets({ payload, callback, handleError }, { call, select }) {
+      const shouldHandleError = !!handleError || !!(payload && payload.silent);
       let errorHandled = false;
       const reportError = error => {
         errorHandled = true;
@@ -213,16 +214,18 @@ export default {
         const response = yield call(fetchMarkets, {
           ...payload,
           arch: normalizeMarketArch(payload && payload.arch, archInfo),
-          handleError: reportError
+          ...(shouldHandleError ? { handleError: reportError } : {})
         });
         if (response && callback) {
           callback(response);
-        } else if (!response && !errorHandled && handleError) {
-          handleError();
+        } else if (!response && !errorHandled && shouldHandleError) {
+          reportError();
         }
       } catch (error) {
-        if (!errorHandled) {
+        if (!errorHandled && shouldHandleError) {
           reportError(error);
+        } else if (!shouldHandleError) {
+          throw error;
         }
       }
     },

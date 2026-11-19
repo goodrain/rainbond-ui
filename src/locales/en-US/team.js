@@ -51,8 +51,6 @@ const teamOverview = {
   'teamOverview.supportMethods':'Supports multiple build methods',
   'firstDeployGuide.team.title': 'Deploy your first application',
   'firstDeployGuide.team.description': 'Use a sample application to verify your cluster, network, and access path.',
-  'firstDeployGuide.app.title': 'This application has no components yet',
-  'firstDeployGuide.app.description': 'Add a component to continue your first deployment.',
   'firstDeployGuide.exampleImage': 'Create from sample image',
   'firstDeployGuide.market.title': 'Start from the application market',
   'firstDeployGuide.market.all': 'Browse application market',
