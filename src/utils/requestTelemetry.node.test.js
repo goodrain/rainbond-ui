@@ -56,11 +56,6 @@ failures.forEach(({ name, error, expected }) => {
     undefined,
     `${name} without opt-in should keep the default undefined result`
   );
-  assert.strictEqual(
-    helpers.getRequestFailureResult(error, undefined, {}, 'handled'),
-    'handled',
-    `${name} should preserve the handleError return value without opt-in`
-  );
   assert.deepStrictEqual(
     helpers.getRequestFailureResult(error, undefined, { returnErrorMetadata: true }, 'handled'),
     { __rainbondRequestFailure: true, ...expected },
@@ -68,7 +63,22 @@ failures.forEach(({ name, error, expected }) => {
   );
 });
 
+assert.strictEqual(
+  helpers.getRequestFailureResult(failures[0].error, undefined, {}, undefined),
+  undefined,
+  'HTTP failures with handleError should preserve the main branch undefined result'
+);
+assert.strictEqual(
+  helpers.getRequestFailureResult(failures[3].error, undefined, {}, 'handled'),
+  'handled',
+  'network and timeout failures should preserve the handleError return value'
+);
+
 assert.ok(source.includes('return handleData(response);'), 'successful requests should continue returning response data');
+assert.ok(
+  source.includes('newOptions.handleError(error);\n            return failureResult;'),
+  'HTTP failures with handleError should continue returning undefined without opt-in'
+);
 assert.ok(
   source.includes('captureErrorViewed(failureMetadata.error_category'),
   'error_viewed should use normalized failure metadata'

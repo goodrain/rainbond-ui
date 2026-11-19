@@ -372,7 +372,8 @@ export default function request(url, options) {
         if (!isSpecialCode) {
           // 调用自定义错误处理
           if (newOptions.handleError) {
-            return getRequestFailureResult(error, resData, newOptions, newOptions.handleError(error));
+            newOptions.handleError(error);
+            return failureResult;
           }
 
           // 使用统一错误处理

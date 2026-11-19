@@ -108,6 +108,11 @@ function assertPostHogGroupsUpdateOnlyWhenChanged() {
     fs.readFileSync(posthogPath, 'utf8').includes('posthog.getGroups'),
     'stored signatures should not suppress grouping after the SDK group state is reset'
   );
+  assert.strictEqual(
+    (fs.readFileSync(posthogPath, 'utf8').match(/ensurePostHogInstanceGroup\(\)/g) || []).length,
+    3,
+    'instance grouping should run during SDK load and after a user is identified'
+  );
 }
 
 try {

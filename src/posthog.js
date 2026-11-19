@@ -337,6 +337,21 @@ function sanitizeRouteProperties(captureResult) {
   return sanitized;
 }
 
+function ensurePostHogInstanceGroup() {
+  const config = activeConfig;
+  if (!config || !config.instanceId || typeof posthog.group !== 'function') {
+    return;
+  }
+  const group = {
+    enterpriseIdHash: config.instanceId,
+    enterpriseProperties: config.instanceProperties || {}
+  };
+  if (shouldUpdateStoredPostHogGroup('instance', instanceGroupSignature, group)) {
+    posthog.group('instance', config.instanceId, config.instanceProperties || {});
+    instanceGroupSignature = rememberPostHogGroup('instance', buildPostHogGroupSignature(group));
+  }
+}
+
 export function initPostHog() {
   const config = getPostHogConfig();
   if (!config.enabled || initialized) {
@@ -361,16 +376,7 @@ export function initPostHog() {
     debug: config.debug,
     before_send: sanitizeRouteProperties,
     loaded: () => {
-      if (config.instanceId && typeof posthog.group === 'function') {
-        const group = {
-          enterpriseIdHash: config.instanceId,
-          enterpriseProperties: config.instanceProperties || {}
-        };
-        if (shouldUpdateStoredPostHogGroup('instance', instanceGroupSignature, group)) {
-          posthog.group('instance', config.instanceId, config.instanceProperties || {});
-          instanceGroupSignature = rememberPostHogGroup('instance', buildPostHogGroupSignature(group));
-        }
-      }
+      ensurePostHogInstanceGroup();
       capturePostHogPageview(history && history.location);
     }
   });
@@ -383,6 +389,7 @@ export function identifyPostHogUser(user = {}) {
   if (!initialized || !user || !user.user_id) {
     return;
   }
+  ensurePostHogInstanceGroup();
   const distinctId = buildPostHogDistinctId(user, activeConfig && activeConfig.instanceId);
   posthog.identify(distinctId, buildPostHogUserProperties(user, activeConfig && activeConfig.instanceProperties));
   const group = buildPostHogGroupProperties(user, activeConfig && activeConfig.instanceProperties);
