@@ -53,7 +53,7 @@ const teamOverview = {
   'firstDeployGuide.team.description': 'Use a sample application to verify your cluster, network, and access path.',
   'firstDeployGuide.app.title': 'This application has no components yet',
   'firstDeployGuide.app.description': 'Add a component to continue your first deployment.',
-  'firstDeployGuide.exampleImage': 'Deploy sample web application',
+  'firstDeployGuide.exampleImage': 'Create from sample image',
   'firstDeployGuide.market.title': 'Start from the application market',
   'firstDeployGuide.market.all': 'Browse application market',
   'firstDeployGuide.market.mysql': 'Mysql',
@@ -62,6 +62,7 @@ const teamOverview = {
   'firstDeployGuide.image': 'Create from image',
   'firstDeployGuide.sourceCode': 'Create from source code',
   'firstDeployGuide.market.unavailable': 'The application market is unavailable. Create from an image or source code instead.',
+  'firstDeployGuide.noCreatePermission': 'You do not have permission to create applications. Contact a team administrator.',
   'teamOverview.startCreate':'Start Creating',
   'teamOverview.visitApp':'Access App',
 }

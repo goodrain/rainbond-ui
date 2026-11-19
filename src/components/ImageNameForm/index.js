@@ -49,8 +49,8 @@ const formItemLayouts = {
 const NGINX_EXAMPLE = {
   dockerCmd: 'docker run --name mysql -e MYSQL_ROOT_PASSWORD=Pa88Word -d registry.cn-hangzhou.aliyuncs.com/goodrain/mysql:5.7.42',
   saasDockerCmd: 'docker run --name mysql -e MYSQL_ROOT_PASSWORD=Pa88Word -d registry.cn-hangzhou.aliyuncs.com/goodrain/mysql:5.7.42',
-  imageAddress: 'registry.cn-hangzhou.aliyuncs.com/goodrain/nginx:1.26',
-  saasImageAddress: 'registry.cn-hangzhou.aliyuncs.com/goodrain/nginx:1.26'
+  imageAddress: 'registry.cn-hangzhou.aliyuncs.com/goodrain/nginx:alpine',
+  saasImageAddress: 'registry.cn-hangzhou.aliyuncs.com/goodrain/nginx:alpine'
 };
 
 @connect(
@@ -366,14 +366,14 @@ export default class Index extends PureComponent {
   }
 
   getImageDemoValues = () => {
-    const { pluginsList } = this.props;
+    const { pluginsList, demoImageAddress } = this.props;
     const isCloudProxy = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
     const serviceName = 'nginx';
 
     return {
       service_cname: serviceName,
       k8s_component_name: this.generateEnglishName(serviceName),
-      docker_cmd: isCloudProxy ? NGINX_EXAMPLE.imageAddress : NGINX_EXAMPLE.saasImageAddress
+      docker_cmd: demoImageAddress || (isCloudProxy ? NGINX_EXAMPLE.imageAddress : NGINX_EXAMPLE.saasImageAddress)
     };
   }
 

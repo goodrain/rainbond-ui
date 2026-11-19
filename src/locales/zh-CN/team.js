@@ -51,7 +51,7 @@ const teamOverview = {
   'firstDeployGuide.team.description': '用示例应用快速验证集群、网络和访问链路。',
   'firstDeployGuide.app.title': '这个应用还没有组件',
   'firstDeployGuide.app.description': '添加一个组件，继续完成首次部署。',
-  'firstDeployGuide.exampleImage': '一键部署示例 Web 应用',
+  'firstDeployGuide.exampleImage': '用示例镜像创建',
   'firstDeployGuide.market.title': '从应用市场开始',
   'firstDeployGuide.market.all': '查看全部应用市场',
   'firstDeployGuide.market.mysql': 'Mysql',
@@ -60,6 +60,7 @@ const teamOverview = {
   'firstDeployGuide.image': '从镜像创建',
   'firstDeployGuide.sourceCode': '从源码创建',
   'firstDeployGuide.market.unavailable': '应用市场当前不可用，可从镜像或源码开始创建。',
+  'firstDeployGuide.noCreatePermission': '你没有创建应用的权限，请联系团队管理员。',
   'teamOverview.startCreate':'开始创建',
   'teamOverview.visitApp':'访问应用',
 }

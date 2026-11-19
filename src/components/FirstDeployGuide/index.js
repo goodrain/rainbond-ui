@@ -31,7 +31,19 @@ export const featuredMarketApps = [
 
 export default class FirstDeployGuide extends PureComponent {
   componentDidMount() {
-    const { guideLocation, marketAvailable } = this.props;
+    this.captureViewed();
+  }
+
+  componentDidUpdate() {
+    this.captureViewed();
+  }
+
+  captureViewed = () => {
+    const { guideLocation, marketAvailable, marketResolved } = this.props;
+    if (this.viewed || !marketResolved) {
+      return;
+    }
+    this.viewed = true;
     captureFirstDeployGuide('viewed', {
       guide_location: guideLocation,
       market_available: !!marketAvailable
@@ -44,13 +56,13 @@ export default class FirstDeployGuide extends PureComponent {
       guide_location: guideLocation,
       entry,
       market_available: !!marketAvailable,
-      market_app_key: properties.market_app_key || ''
+      featured_app: properties.featured_app || ''
     });
     onEntry(entry, properties);
   };
 
   render() {
-    const { marketAvailable, guideLocation, featuredApps = [] } = this.props;
+    const { marketAvailable, marketResolved, guideLocation, featuredApps = [], canCreate } = this.props;
     const isTeamGuide = guideLocation === 'team_empty';
 
     return (
@@ -62,19 +74,19 @@ export default class FirstDeployGuide extends PureComponent {
             <p>{formatMessage({ id: isTeamGuide ? 'firstDeployGuide.team.description' : 'firstDeployGuide.app.description' })}</p>
           </div>
         </div>
-        {isTeamGuide && (
+        {isTeamGuide && canCreate && (
           <Button type="primary" size="large" onClick={() => this.handleEntry('example_image')}>
             {formatMessage({ id: 'firstDeployGuide.exampleImage' })}
           </Button>
         )}
-        {marketAvailable && (
+        {marketAvailable && canCreate && (
           <div className={styles.marketSection}>
             <div className={styles.sectionTitle}>{formatMessage({ id: 'firstDeployGuide.market.title' })}</div>
             {isTeamGuide && featuredApps.map(app => (
               <Button
                 key={app.key}
                 onClick={() => this.handleEntry('market_featured', {
-                  market_app_key: app.modelKey,
+                  featured_app: app.key,
                   market_app: app
                 })}
               >
@@ -84,15 +96,16 @@ export default class FirstDeployGuide extends PureComponent {
             <Button onClick={() => this.handleEntry('market_all')}>{formatMessage({ id: 'firstDeployGuide.market.all' })}</Button>
           </div>
         )}
-        <div className={styles.secondaryEntries}>
+        {canCreate && <div className={styles.secondaryEntries}>
           <Button onClick={() => this.handleEntry('image')}>
             <Icon type="container" />{formatMessage({ id: 'firstDeployGuide.image' })}
           </Button>
           <Button onClick={() => this.handleEntry('source_code')}>
             <Icon type="code" />{formatMessage({ id: 'firstDeployGuide.sourceCode' })}
           </Button>
-        </div>
-        {!marketAvailable && <p className={styles.offlineHint}>{formatMessage({ id: 'firstDeployGuide.market.unavailable' })}</p>}
+        </div>}
+        {!canCreate && <p className={styles.offlineHint}>{formatMessage({ id: 'firstDeployGuide.noCreatePermission' })}</p>}
+        {marketResolved && !marketAvailable && canCreate && <p className={styles.offlineHint}>{formatMessage({ id: 'firstDeployGuide.market.unavailable' })}</p>}
       </section>
     );
   }

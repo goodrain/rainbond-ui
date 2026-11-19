@@ -126,6 +126,8 @@ const LocalInstallFormWrapper = Form.create()(
   }
 );
 
+const GUIDE_EXAMPLE_IMAGE = 'registry.cn-hangzhou.aliyuncs.com/goodrain/nginx:1.26';
+
 const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, rainbondInfo, currentUser, groups, pluginsList, agentVisible, currentView: initialView, initialMarketApp }) => {
   const [currentView, setCurrentView] = useState('main'); // 'main', 'market', 'image', 'code', 'yaml', 'form', 'imageRepo', 'marketStore', 'localMarket', 'marketInstall', 'localMarketInstall'
   const [hasInitialized, setHasInitialized] = useState(false); // 标记是否已经初始化过
@@ -3145,7 +3147,8 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                 onSubmit={handleInstallApp}
                 dispatch={dispatch}
                 archInfo={archInfo}
-                autoUseDemo={shouldUseDefaultDemo && !isComponentView}
+                autoUseDemo={(shouldUseDefaultDemo && !isComponentView) || initialView === 'example-image'}
+                demoImageAddress={initialView === 'example-image' ? GUIDE_EXAMPLE_IMAGE : ''}
                 showSubmitBtn={false}
               />
             )}

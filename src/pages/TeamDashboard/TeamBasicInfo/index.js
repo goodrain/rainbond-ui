@@ -53,6 +53,7 @@ export default class index extends Component {
       query: '',
       sortValue: 1,
       appListLoading: true,
+      appListLoaded: false,
       teamHotAppList: [],
       appListTotal: 0,
       cardLayoutMode: CARD_LAYOUT_MODE.DEFAULT,
@@ -67,19 +68,21 @@ export default class index extends Component {
       toDeleteResource: false,
       deleteResourceList: {},
       marketAvailable: false,
+      marketLoading: false,
+      marketResolved: false,
       featuredMarketApps: [],
       featuredMarketApp: null,
     };
     // 标记组件是否已挂载
     this._isMounted = false;
     this.appListRequestId = 0;
+    this.marketLoadRequested = false;
     this.cardListNode = null;
     this.cardListResizeObserver = null;
   }
   componentDidMount() {
     this._isMounted = true;
     this.loadHotApp();
-    this.loadMarketAvailability();
 
     if (typeof ResizeObserver === 'undefined') {
       window.addEventListener('resize', this.handleCardListWindowResize);
@@ -150,6 +153,11 @@ export default class index extends Component {
   };
 
   loadMarketAvailability = () => {
+    if (this.marketLoadRequested) {
+      return;
+    }
+    this.marketLoadRequested = true;
+    this.setState({ marketLoading: true, marketResolved: false, marketAvailable: false, featuredMarketApps: [] });
     this.props.dispatch({
       type: 'index/fetchArchOverview',
       payload: {
@@ -164,60 +172,78 @@ export default class index extends Component {
     });
   };
 
+  finishMarketLoading = (marketAvailable, featuredMarketApps = []) => {
+    if (this._isMounted) {
+      this.setState({ marketAvailable, featuredMarketApps, marketLoading: false, marketResolved: true });
+    }
+  };
+
   loadMarketStores = architecture => {
     const enterpriseId = this.props.currentEnterprise && this.props.currentEnterprise.enterprise_id;
     if (!enterpriseId) {
+      this.finishMarketLoading(false);
       return;
     }
     this.props.dispatch({
       type: 'market/fetchMarketsTab',
-      payload: { enterprise_id: enterpriseId },
+      payload: { enterprise_id: enterpriseId, silent: true },
       callback: res => {
         const activeStores = res && res.status_code === 200 ? (res.list || []).filter(item => item.status === 1) : [];
         if (activeStores.length === 0) {
-          if (this._isMounted) {
-            this.setState({ marketAvailable: false });
-          }
+          this.finishMarketLoading(false);
           return;
         }
-        let pendingRequests = activeStores.length;
+        let pendingRequests = 0;
         let hasMarketApps = false;
         const resolvedFeaturedApps = [];
         const finishRequest = () => {
           pendingRequests -= 1;
-          if (pendingRequests === 0 && this._isMounted) {
-            this.setState({ marketAvailable: hasMarketApps, featuredMarketApps: resolvedFeaturedApps });
+          if (pendingRequests === 0) {
+            this.finishMarketLoading(hasMarketApps, resolvedFeaturedApps);
           }
         };
-        activeStores.forEach(store => {
+        const requestMarketApps = (store, modelKey, onSuccess) => {
+          pendingRequests += 1;
           this.props.dispatch({
             type: 'market/fetchMarkets',
-            payload: { enterprise_id: enterpriseId, name: store.name, page: 1, pageSize: 100, query: '', arch: architecture },
+            payload: {
+              enterprise_id: enterpriseId,
+              name: store.name,
+              page: 1,
+              pageSize: 1,
+              query: modelKey || '',
+              arch: architecture,
+              silent: true
+            },
             callback: marketRes => {
-              const marketApps = (marketRes && marketRes.status_code === 200 && marketRes.list) || [];
-              hasMarketApps = hasMarketApps || marketApps.length > 0;
-              featuredMarketAppConfigs.forEach(config => {
-                const modelKey = config.modelKeys[architecture] || config.modelKeys.default;
-                const marketApp = marketApps.find(app => (app.app_model_key || app.group_key || app.app_id) === modelKey);
-                const supportedArchitectures = marketApp && marketApp.arch;
-                const isArchitectureCompatible = !architecture || !supportedArchitectures ||
-                  supportedArchitectures.length === 0 || supportedArchitectures.includes(architecture);
-                if (marketApp && (!config.requiresArchitecture || architecture) && isArchitectureCompatible &&
-                  !resolvedFeaturedApps.some(item => item.key === config.key)) {
-                  resolvedFeaturedApps.push({ ...config, modelKey, marketApp, marketStore: store });
-                }
-              });
+              onSuccess((marketRes && marketRes.status_code === 200 && marketRes.list) || []);
               finishRequest();
             },
             handleError: finishRequest
           });
+        };
+        activeStores.forEach(store => {
+          requestMarketApps(store, '', marketApps => {
+            hasMarketApps = hasMarketApps || marketApps.length > 0;
+          });
+          featuredMarketAppConfigs.forEach(config => {
+            const modelKey = config.modelKeys[architecture] || config.modelKeys.default;
+            if (!modelKey || (config.requiresArchitecture && !architecture)) {
+              return;
+            }
+            requestMarketApps(store, modelKey, marketApps => {
+              const marketApp = marketApps.find(app => app.app_id === modelKey);
+              const supportedArchitectures = marketApp && Array.isArray(marketApp.arch) ? marketApp.arch : [];
+              const isArchitectureCompatible = !!marketApp && (!architecture || supportedArchitectures.includes(architecture));
+              if (marketApp && isArchitectureCompatible && !resolvedFeaturedApps.some(item => item.key === config.key)) {
+                hasMarketApps = true;
+                resolvedFeaturedApps.push({ ...config, modelKey, marketApp, marketStore: store });
+              }
+            });
+          });
         });
       },
-      handleError: () => {
-        if (this._isMounted) {
-          this.setState({ marketAvailable: false });
-        }
-      }
+      handleError: () => this.finishMarketLoading(false)
     });
   };
 
@@ -276,13 +302,19 @@ export default class index extends Component {
         requestHandled = true;
         if (!this._isMounted || requestId !== this.appListRequestId) return;
         if (res && res.status_code === 200) {
+          const appListTotal = res.bean?.total || 0;
           this.setState({
             teamHotAppList: res.list || [],
-            appListTotal: res.bean?.total || 0,
+            appListTotal,
             appListLoading: false,
+            appListLoaded: true,
+          }, () => {
+            if (appListTotal === 0 && !query.trim()) {
+              this.loadMarketAvailability();
+            }
           });
         } else {
-          this.setState({ appListLoading: false });
+          this.setState({ appListLoading: false, appListLoaded: false });
         }
       },
       handleError: err => {
@@ -300,7 +332,7 @@ export default class index extends Component {
             }
           );
         } else {
-          this.setState({ appListLoading: false });
+          this.setState({ appListLoading: false, appListLoaded: false });
         }
       }
     });
@@ -310,7 +342,7 @@ export default class index extends Component {
         this._isMounted &&
         requestId === this.appListRequestId
       ) {
-        this.setState({ appListLoading: false });
+        this.setState({ appListLoading: false, appListLoaded: false });
       }
     };
     dispatchResult.then(handleRequestSettled, handleRequestSettled);
@@ -323,6 +355,7 @@ export default class index extends Component {
         page,
         page_size,
         appListLoading: true,
+        appListLoaded: false,
       },
       () => {
         this.loadHotApp();
@@ -335,6 +368,7 @@ export default class index extends Component {
       {
         query: value,
         appListLoading: true,
+        appListLoaded: false,
         page: 1,
       },
       () => {
@@ -356,6 +390,7 @@ export default class index extends Component {
   handleSortChange = (value) => {
     this.setState({
       appListLoading: true,
+      appListLoaded: false,
       sortValue: value,
       page: 1,
     }, () => {
@@ -789,8 +824,10 @@ export default class index extends Component {
       page_size,
       query,
       appListLoading,
+      appListLoaded,
       appListTotal,
       marketAvailable,
+      marketResolved,
       featuredMarketApps,
       teamAppCreatePermission: {
         isAccess: isAppCreate
@@ -815,7 +852,7 @@ export default class index extends Component {
     const deleteLoading = loadingEffects['application/deleteGroupAllResource'];
     // 应用列表权限
     const isAppList = newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'team_overview')?.isAppList;
-    const isFirstDeployGuide = !appListLoading && isAppList && appListTotal === 0;
+    const isFirstDeployGuide = !appListLoading && appListLoaded && isAppList && !query.trim() && appListTotal === 0;
 
     return (
       <>
@@ -852,7 +889,9 @@ export default class index extends Component {
                 <FirstDeployGuide
                   guideLocation="team_empty"
                   marketAvailable={marketAvailable}
+                  marketResolved={marketResolved}
                   featuredApps={featuredMarketApps}
+                  canCreate={isAppCreate}
                   onEntry={this.handleFirstDeployEntry}
                 />
               ) : this.renderCardView()}

@@ -200,14 +200,30 @@ export default {
         }
       }
     },
-    *fetchMarkets({ payload, callback }, { call, select }) {
-      const archInfo = yield select(state => state.index.archInfo);
-      const response = yield call(fetchMarkets, {
-        ...payload,
-        arch: normalizeMarketArch(payload && payload.arch, archInfo)
-      });
-      if (response && callback) {
-        callback(response);
+    *fetchMarkets({ payload, callback, handleError }, { call, select }) {
+      let errorHandled = false;
+      const reportError = error => {
+        errorHandled = true;
+        if (handleError) {
+          handleError(error);
+        }
+      };
+      try {
+        const archInfo = yield select(state => state.index.archInfo);
+        const response = yield call(fetchMarkets, {
+          ...payload,
+          arch: normalizeMarketArch(payload && payload.arch, archInfo),
+          handleError: reportError
+        });
+        if (response && callback) {
+          callback(response);
+        } else if (!response && !errorHandled && handleError) {
+          handleError();
+        }
+      } catch (error) {
+        if (!errorHandled) {
+          reportError(error);
+        }
       }
     },
     *createTag({ payload, callback }, { call }) {
