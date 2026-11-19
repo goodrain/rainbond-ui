@@ -29,14 +29,12 @@ import { buildPortalSsoUrl } from '../../utils/portal';
 import { cacheCopilotPluginNameFromList } from '../../services/agent';
 import * as agentLauncherAction from './agentLauncherAction';
 import { isSuccessfulPluginResponse } from '../../utils/pluginInitialization';
-import {
-  ENTERPRISE_CONSULTING_URL,
-  trackEnterpriseConsulting
-} from '../../utils/enterpriseConsulting';
 
 const { resolveAgentLauncherAction, resolveAgentPlatformPolicy } = agentLauncherAction;
 
 const { Header } = Layout;
+const AGENT_ENTERPRISE_EDITION_URL = 'https://rainbond.feishu.cn/share/base/shrcnv2iqnRsNJM6Y3hN5VhTJvg';
+
 // SVG 图标常量
 const SVG_ICONS = {
   // 视图切换器图标 - 平台管理
@@ -923,8 +921,7 @@ class GlobalHeader extends PureComponent {
         defaultMessage: '我知道了'
       }),
       onOk: () => {
-        trackEnterpriseConsulting('global_header_agent');
-        window.open(ENTERPRISE_CONSULTING_URL, '_blank', 'noopener,noreferrer');
+        window.open(AGENT_ENTERPRISE_EDITION_URL, '_blank', 'noopener,noreferrer');
       }
     });
   };

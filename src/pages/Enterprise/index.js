@@ -396,6 +396,7 @@ export default class Enterprise extends PureComponent {
   renderPlatformHeader() {
     const enterprise = this.props.enterprise || {};
     const rainbondInfo = this.props.rainbondInfo || {};
+    const rainbondInfoReady = !!this.props.rainbondInfo;
     const { hasNewVersion, latestVersion, upgradeStatus, license, licenseStatus } = this.state;
     const overview = this.props.overview || {};
     const clusterSummary = overviewData.platformClusterSummary(overview.runtime, overview.errors && overview.errors.runtime);
@@ -443,13 +444,13 @@ export default class Enterprise extends PureComponent {
         ) : (
           <span className={styles.versionUnknown}><Icon type={upgradeStatus === 'loading' ? 'loading' : 'question-circle'} /> {upgradeStatus === 'loading' ? t('header.upgradeChecking') : t('header.upgradeUnavailable')}</span>
         )}
-        {!enterpriseEdition && currentVersion !== 'cloud' ? (
+        {rainbondInfoReady && !enterpriseEdition && currentVersion !== 'cloud' ? (
           <a
             className={styles.consultingAction}
             href={ENTERPRISE_CONSULTING_URL}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => trackEnterpriseConsulting('enterprise_overview')}
+            onClick={() => trackEnterpriseConsulting('console_enterprise_overview')}
           >
             <Icon type="customer-service" /> {t('header.consulting')}
           </a>

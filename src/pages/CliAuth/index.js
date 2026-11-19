@@ -5,10 +5,6 @@ import React, { Component } from 'react';
 import { FormattedMessage, formatMessage } from 'umi';
 import cookie from '../../utils/cookie';
 import rainskillsAuthorizationAccess from '../../utils/rainskillsAuthorizationAccess';
-import {
-  ENTERPRISE_CONSULTING_URL,
-  trackEnterpriseConsulting
-} from '../../utils/enterpriseConsulting';
 import styles from './index.less';
 
 const { Paragraph, Text } = Typography;
@@ -18,6 +14,8 @@ const {
 } = rainskillsAuthorizationAccess;
 
 const CALLBACK_PATTERN = /^http:\/\/127\.0\.0\.1:\d{2,5}(\/[\w\-./]*)?$/;
+const AGENT_ENTERPRISE_EDITION_URL = 'https://rainbond.feishu.cn/share/base/shrcnv2iqnRsNJM6Y3hN5VhTJvg';
+
 @connect(({ user, loading }) => ({
   currentUser: user.currentUser,
   loading: loading.effects['user/fetchCurrent'],
@@ -157,7 +155,7 @@ export default class CliAuth extends Component {
           description={
             <div>
               <div><FormattedMessage id="cliAuth.access.restricted.detail" /></div>
-              <a href={ENTERPRISE_CONSULTING_URL} target="_blank" rel="noopener noreferrer" onClick={() => trackEnterpriseConsulting('cli_auth')}>
+              <a href={AGENT_ENTERPRISE_EDITION_URL} target="_blank" rel="noopener noreferrer">
                 <FormattedMessage id="cliAuth.access.restricted.enterprise" />
               </a>
             </div>

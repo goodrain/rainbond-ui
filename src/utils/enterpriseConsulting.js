@@ -1,7 +1,7 @@
 import { capturePostHogEvent } from '../posthog';
 
 export const ENTERPRISE_CONSULTING_URL =
-  'https://rainbond.feishu.cn/share/base/shrcn4dG9z5zvbZZWd1MFf6ILBg';
+  'https://rainbond.feishu.cn/share/base/shrcn4dG9z5zvbZZWd1MFf6ILBg?from=console&entry=console_enterprise_overview';
 
 export function trackEnterpriseConsulting(entry) {
   capturePostHogEvent('enterprise_consultation_clicked', {

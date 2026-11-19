@@ -30,5 +30,5 @@ test('CLI authorization shows one inline restriction notice without a modal', ()
   assert.doesNotMatch(source, /showAccessRestrictedModal/);
   assert.match(source, /renderAccessDenied\(\)/);
   assert.match(source, /cliAuth\.access\.restricted\.enterprise/);
-  assert.match(source, /href=\{ENTERPRISE_CONSULTING_URL\}/);
+  assert.match(source, /href=\{AGENT_ENTERPRISE_EDITION_URL\}/);
 });

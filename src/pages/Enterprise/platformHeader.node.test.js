@@ -51,6 +51,8 @@ assert.ok(!/dispatch|loadLicense|fetch/.test(header), 'header rendering must not
 assert.ok(/enterprise_edition\.value === true/.test(header) && /enterprise_edition\.value === 'true'/.test(header), 'edition must come from explicit platform configuration');
 assert.ok(!/header\.community|unlimited/.test(header), 'missing license data must not imply community edition or permanent authorization');
 assert.ok(/platformModalVisible: true/.test(header), 'platform identity and license still open the existing modal');
+assert.ok(/rainbondInfoReady && !enterpriseEdition && currentVersion !== 'cloud'/.test(header), 'commercial consultation must wait for platform metadata before applying edition visibility');
+assert.ok(/trackEnterpriseConsulting\('console_enterprise_overview'\)/.test(header), 'commercial consultation must identify its console overview entry');
 const modal = fs.readFileSync(path.join(__dirname, 'components/PlatformInfoModal.js'), 'utf8');
 assert.ok(!/: labels\.unlimited\s*: labels\.notApplicable/.test(modal), 'missing expiry must not be called unlimited in the detail modal either');
 console.log('platform header summary, license availability and rendering checks passed');
