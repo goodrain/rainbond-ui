@@ -56,6 +56,8 @@ const teamOverview = {
   'firstDeployGuide.exampleImage': 'Deploy sample web application',
   'firstDeployGuide.market.title': 'Start from the application market',
   'firstDeployGuide.market.all': 'Browse application market',
+  'firstDeployGuide.market.mysql': 'Mysql',
+  'firstDeployGuide.market.redis': 'Redis',
   'firstDeployGuide.image': 'Create from image',
   'firstDeployGuide.sourceCode': 'Create from source code',
   'firstDeployGuide.market.unavailable': 'The application market is unavailable. Create from an image or source code instead.',

@@ -4,7 +4,25 @@ import { captureFirstDeployGuide } from '../../posthog';
 import { formatMessage } from '../../utils/intl';
 import styles from './index.less';
 
-export const featuredMarketApps = [];
+export const featuredMarketApps = [
+  {
+    key: 'mysql',
+    label: 'firstDeployGuide.market.mysql',
+    modelKeys: {
+      default: '7f0d0509699e4425964c71be4b0fa428'
+    }
+  },
+  {
+    key: 'redis',
+    label: 'firstDeployGuide.market.redis',
+    requiresArchitecture: true,
+    modelKeys: {
+      amd64: '6953c50771ae4548b9fed312d220d720',
+      arm64: 'd6c01070c6b049dbaf3de6757a1b63ef',
+      default: '6953c50771ae4548b9fed312d220d720'
+    }
+  }
+];
 
 export default class FirstDeployGuide extends PureComponent {
   componentDidMount() {
@@ -15,18 +33,19 @@ export default class FirstDeployGuide extends PureComponent {
     });
   }
 
-  handleEntry = entry => {
+  handleEntry = (entry, properties = {}) => {
     const { guideLocation, marketAvailable, onEntry } = this.props;
     captureFirstDeployGuide('clicked', {
       guide_location: guideLocation,
       entry,
-      market_available: !!marketAvailable
+      market_available: !!marketAvailable,
+      market_app_key: properties.market_app_key || ''
     });
-    onEntry(entry);
+    onEntry(entry, properties);
   };
 
   render() {
-    const { marketAvailable, guideLocation } = this.props;
+    const { marketAvailable, guideLocation, featuredApps = [] } = this.props;
     const isTeamGuide = guideLocation === 'team_empty';
 
     return (
@@ -46,9 +65,15 @@ export default class FirstDeployGuide extends PureComponent {
         {marketAvailable && (
           <div className={styles.marketSection}>
             <div className={styles.sectionTitle}>{formatMessage({ id: 'firstDeployGuide.market.title' })}</div>
-            {featuredMarketApps.map(app => (
-              <Button key={app.key} onClick={() => this.handleEntry('market_featured')}>
-                {app.name}
+            {isTeamGuide && featuredApps.map(app => (
+              <Button
+                key={app.key}
+                onClick={() => this.handleEntry('market_featured', {
+                  market_app_key: app.modelKey,
+                  market_app: app
+                })}
+              >
+                {formatMessage({ id: app.label })}
               </Button>
             ))}
             <Button onClick={() => this.handleEntry('market_all')}>{formatMessage({ id: 'firstDeployGuide.market.all' })}</Button>

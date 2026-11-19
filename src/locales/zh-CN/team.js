@@ -54,6 +54,8 @@ const teamOverview = {
   'firstDeployGuide.exampleImage': '一键部署示例 Web 应用',
   'firstDeployGuide.market.title': '从应用市场开始',
   'firstDeployGuide.market.all': '查看全部应用市场',
+  'firstDeployGuide.market.mysql': 'Mysql',
+  'firstDeployGuide.market.redis': 'Redis',
   'firstDeployGuide.image': '从镜像创建',
   'firstDeployGuide.sourceCode': '从源码创建',
   'firstDeployGuide.market.unavailable': '应用市场当前不可用，可从镜像或源码开始创建。',

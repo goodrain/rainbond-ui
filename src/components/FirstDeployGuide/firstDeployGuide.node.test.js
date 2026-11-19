@@ -20,6 +20,23 @@ test('first-deploy guide exposes the approved entry points and telemetry fields'
   assert.match(guideSource, /market_available/);
   assert.match(guideSource, /example_image/);
   assert.match(guideSource, /source_code/);
+  assert.match(guideSource, /market_app_key/);
+  assert.match(guideSource, /featuredMarketApps/);
+});
+
+test('featured market applications use stable keys and only render resolved market entries', () => {
+  assert.match(guideSource, /7f0d0509699e4425964c71be4b0fa428/);
+  assert.match(guideSource, /6953c50771ae4548b9fed312d220d720/);
+  assert.match(guideSource, /d6c01070c6b049dbaf3de6757a1b63ef/);
+  assert.match(guideSource, /requiresArchitecture: true/);
+  assert.match(guideSource, /featuredApps\.map/);
+  assert.match(guideSource, /market_app: app/);
+  assert.match(teamSource, /featuredMarketApps/);
+  assert.match(teamSource, /market\/fetchMarkets/);
+  assert.match(teamSource, /arch:/);
+  assert.match(teamSource, /isArchitectureCompatible/);
+  assert.match(modalSource, /initialMarketApp/);
+  assert.match(modalSource, /case 'marketInstall'/);
 });
 
 test('team and empty-application pages render the guide only after their empty data loads', () => {

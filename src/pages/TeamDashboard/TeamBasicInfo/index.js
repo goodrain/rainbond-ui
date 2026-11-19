@@ -6,7 +6,7 @@ import { formatMessage } from '@/utils/intl';
 import VisterBtn from '../../../components/visitBtnForAlllink';
 import CreateComponentModal from '../../../components/CreateComponentModal';
 import AppDeteleResource from '../../../components/AppDeteleResource';
-import FirstDeployGuide from '../../../components/FirstDeployGuide';
+import FirstDeployGuide, { featuredMarketApps as featuredMarketAppConfigs } from '../../../components/FirstDeployGuide';
 import {
   CodeIcon,
   StoreIcon,
@@ -67,6 +67,8 @@ export default class index extends Component {
       toDeleteResource: false,
       deleteResourceList: {},
       marketAvailable: false,
+      featuredMarketApps: [],
+      featuredMarketApp: null,
     };
     // 标记组件是否已挂载
     this._isMounted = false;
@@ -148,6 +150,21 @@ export default class index extends Component {
   };
 
   loadMarketAvailability = () => {
+    this.props.dispatch({
+      type: 'index/fetchArchOverview',
+      payload: {
+        region_name: globalUtil.getCurrRegionName(),
+        team_name: globalUtil.getCurrTeamName()
+      },
+      callback: res => {
+        const architectures = (res && res.list) || [];
+        this.loadMarketStores(architectures.length === 1 ? architectures[0] : '');
+      },
+      handleError: () => this.loadMarketStores('')
+    });
+  };
+
+  loadMarketStores = architecture => {
     const enterpriseId = this.props.currentEnterprise && this.props.currentEnterprise.enterprise_id;
     if (!enterpriseId) {
       return;
@@ -165,18 +182,31 @@ export default class index extends Component {
         }
         let pendingRequests = activeStores.length;
         let hasMarketApps = false;
+        const resolvedFeaturedApps = [];
         const finishRequest = () => {
           pendingRequests -= 1;
           if (pendingRequests === 0 && this._isMounted) {
-            this.setState({ marketAvailable: hasMarketApps });
+            this.setState({ marketAvailable: hasMarketApps, featuredMarketApps: resolvedFeaturedApps });
           }
         };
         activeStores.forEach(store => {
           this.props.dispatch({
             type: 'market/fetchMarkets',
-            payload: { enterprise_id: enterpriseId, name: store.name, page: 1, pageSize: 1, query: '' },
+            payload: { enterprise_id: enterpriseId, name: store.name, page: 1, pageSize: 100, query: '', arch: architecture },
             callback: marketRes => {
-              hasMarketApps = hasMarketApps || !!(marketRes && marketRes.status_code === 200 && (marketRes.list || []).length > 0);
+              const marketApps = (marketRes && marketRes.status_code === 200 && marketRes.list) || [];
+              hasMarketApps = hasMarketApps || marketApps.length > 0;
+              featuredMarketAppConfigs.forEach(config => {
+                const modelKey = config.modelKeys[architecture] || config.modelKeys.default;
+                const marketApp = marketApps.find(app => (app.app_model_key || app.group_key || app.app_id) === modelKey);
+                const supportedArchitectures = marketApp && marketApp.arch;
+                const isArchitectureCompatible = !architecture || !supportedArchitectures ||
+                  supportedArchitectures.length === 0 || supportedArchitectures.includes(architecture);
+                if (marketApp && (!config.requiresArchitecture || architecture) && isArchitectureCompatible &&
+                  !resolvedFeaturedApps.some(item => item.key === config.key)) {
+                  resolvedFeaturedApps.push({ ...config, modelKey, marketApp, marketStore: store });
+                }
+              });
               finishRequest();
             },
             handleError: finishRequest
@@ -340,20 +370,21 @@ export default class index extends Component {
 
   // 关闭创建组件弹窗
   handleCloseCreateComponent = () => {
-    this.setState({ createComponentVisible: false });
+    this.setState({ createComponentVisible: false, featuredMarketApp: null });
   }
 
-  handleFirstDeployEntry = entry => {
+  handleFirstDeployEntry = (entry, properties = {}) => {
     const currentViewMap = {
       example_image: 'example-image',
       market_all: 'market',
-      market_featured: 'market',
+      market_featured: 'marketInstall',
       image: 'image',
       source_code: 'code'
     };
     this.setState({
       createComponentVisible: true,
-      currentView: currentViewMap[entry] || null
+      currentView: currentViewMap[entry] || null,
+      featuredMarketApp: properties.market_app || null
     });
   };
 
@@ -760,6 +791,7 @@ export default class index extends Component {
       appListLoading,
       appListTotal,
       marketAvailable,
+      featuredMarketApps,
       teamAppCreatePermission: {
         isAccess: isAppCreate
       },
@@ -820,6 +852,7 @@ export default class index extends Component {
                 <FirstDeployGuide
                   guideLocation="team_empty"
                   marketAvailable={marketAvailable}
+                  featuredApps={featuredMarketApps}
                   onEntry={this.handleFirstDeployEntry}
                 />
               ) : this.renderCardView()}
@@ -847,6 +880,7 @@ export default class index extends Component {
             rainbondInfo={this.props.rainbondInfo}
             currentUser={this.props.currentUser}
             currentView={this.state.currentView}
+            initialMarketApp={this.state.featuredMarketApp}
           />
         )}
         {promptModal && (

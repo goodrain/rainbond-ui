@@ -126,7 +126,7 @@ const LocalInstallFormWrapper = Form.create()(
   }
 );
 
-const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, rainbondInfo, currentUser, groups, pluginsList, agentVisible, currentView: initialView }) => {
+const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, rainbondInfo, currentUser, groups, pluginsList, agentVisible, currentView: initialView, initialMarketApp }) => {
   const [currentView, setCurrentView] = useState('main'); // 'main', 'market', 'image', 'code', 'yaml', 'form', 'imageRepo', 'marketStore', 'localMarket', 'marketInstall', 'localMarketInstall'
   const [hasInitialized, setHasInitialized] = useState(false); // 标记是否已经初始化过
   const [firstAppDeployed, setFirstAppDeployed] = useState(null);
@@ -1836,6 +1836,21 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
             case 'marketStore':
               // 需要先获取商店列表
               fetchMarketStores();
+              break;
+            case 'marketInstall':
+              if (initialMarketApp && initialMarketApp.marketApp && initialMarketApp.marketStore) {
+                setSelectedMarketApp(initialMarketApp.marketApp);
+                setSelectedStore(initialMarketApp.marketStore);
+                setMarketIsDeploy(true);
+                setCurrentMarketVersionInfo(
+                  (initialMarketApp.marketApp.versions_info && initialMarketApp.marketApp.versions_info[0]) ||
+                  (initialMarketApp.marketApp.versions && initialMarketApp.marketApp.versions[0]) || {}
+                );
+                fetchGroupsList();
+              } else {
+                setCurrentView('market');
+                fetchMarketStores();
+              }
               break;
             case 'localMarket':
               // 直接获取本地组件库列表
