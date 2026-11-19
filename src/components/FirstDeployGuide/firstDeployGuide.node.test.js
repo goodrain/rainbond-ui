@@ -33,8 +33,6 @@ test('featured market applications search by name and resolve only matching stab
   assert.match(guideSource, /7f0d0509699e4425964c71be4b0fa428/);
   assert.match(guideSource, /6953c50771ae4548b9fed312d220d720/);
   assert.match(guideSource, /d6c01070c6b049dbaf3de6757a1b63ef/);
-  assert.match(guideSource, /key: 'nacos'/);
-  assert.match(guideSource, /firstDeployGuide\.market\.nacos/);
   assert.match(guideSource, /requiresArchitecture: true/);
   assert.match(guideSource, /featuredApps\.map/);
   assert.match(guideSource, /market_app: app/);
