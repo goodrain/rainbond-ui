@@ -53,10 +53,14 @@ export function getPluginAllFilePaths(meta, regionName){
 
 export async function importPluginModule(meta, regionName) {
   const filePaths = getPluginAllFilePaths(meta, regionName);
-  // 直接使用 SystemJS.import，认证头会通过自定义的 fetch hook 自动添加
-  // const path = '/plugins/dist/main.js'
-  const module = await SystemJS.import(filePaths);
-  return module;
+  const moduleId = await SystemJS.resolve(filePaths);
+  try {
+    return await SystemJS.import(moduleId);
+  } catch (err) {
+    // SystemJS 0.20 caches rejected loads; release only this module so retry can refetch it.
+    SystemJS.registry.delete(moduleId);
+    throw err;
+  }
 }
 
 export async function importAppPagePlugin(meta, regionName, type) {

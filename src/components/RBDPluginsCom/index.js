@@ -41,16 +41,18 @@ export default class index extends Component {
     );
   };
 
-  getPluginNamespace = () => {
-    const currentTeamNamespace = this.props?.currentTeam?.namespace;
-    if (currentTeamNamespace) {
-      return currentTeamNamespace;
+  getPluginTeam = (teamName) => {
+    const { currentTeam, currentUser } = this.props;
+    if (currentTeam && currentTeam.team_name === teamName) {
+      return currentTeam;
     }
+    return (currentUser && currentUser.teams || [])
+      .find(item => item.team_name === teamName) || {};
+  };
 
-    const currentTeamName = Global.getCurrTeamName();
-    const teams = this.props?.currentUser?.teams || [];
-    const currentTeam = teams.find((item) => item.team_name === currentTeamName);
-    return currentTeam?.namespace || '';
+  getPluginNamespace = (teamName) => {
+    const name = teamName || this.props.teamName || this.props.team_name || Global.getCurrTeamName();
+    return this.getPluginTeam(name).namespace || '';
   };
 
   // 渲染插件
@@ -75,6 +77,7 @@ export default class index extends Component {
     const appID = this.props.appID || this.props.appId || this.props.app_id || this.props.group_id || Global.getAppID();
     const teamName = this.props.teamName || this.props.team_name || Global.getCurrTeamName();
     const regionName = this.props.regionName || this.props.region_name || Global.getCurrRegionName();
+    const resolvedNamespace = this.getPluginNamespace(teamName);
     return pluginLoading ? (
       <div style={{ width: '100%', height: 500, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <Spin size="large" />
@@ -87,7 +90,7 @@ export default class index extends Component {
             title='加载失败'
             description={`错误信息：${errInfo}`}
             actions={
-              <Button onClick={() => {}}>查看文档</Button>
+              this.props.retryPlugin && <Button onClick={this.props.retryPlugin}>{formatMessage({ id: 'button.retry' })}</Button>
             }
             style={{
               marginTop: 48,
@@ -98,14 +101,15 @@ export default class index extends Component {
       ) : (
         AppPagePlugin ?
           <AppPagePlugin
+            key={JSON.stringify([teamName, regionName, appID, componentID])}
             dispatch={dispatch}
             formatMessage={formatMessage}
             baseInfo={{
               colorPrimary: Global.getPublicColor('primary-color'),
               currentLocale: cookie.get('language') === 'zh-CN' ? 'zh' : 'en',
               cluster_info: this.props.cluster_info,
-              currentTeam: this.props.currentTeam,
-              namespace: this.props.currentTeam && this.props.currentTeam.namespace,
+              currentTeam: this.getPluginTeam(teamName),
+              namespace: resolvedNamespace,
               currentUser: this.props.currentUser,
               token: cookie.get('token'),
               pluginsList: this.props.pluginsList,

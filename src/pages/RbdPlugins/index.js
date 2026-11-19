@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Spin, Card, Button, Icon, Select } from 'antd';
 import { connect } from 'dva';
 import { importAppPagePlugin } from '../../utils/importPlugins';
-import { getRainbondInfo } from '../../services/api';
+import { isSuccessfulPluginResponse } from '../../utils/pluginInitialization';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import RbdPluginsCom from '../../components/RBDPluginsCom'
 import Global from '@/utils/global';
@@ -33,157 +33,114 @@ export default class Index extends Component {
       regionName: null,
     };
     this.isLoading = false; // 防止重复加载的标志
-    this.importingPlugin = null; // 当前正在导入的插件名称
+    this.pluginRequestId = 0;
+    this.disposed = false;
   }
 
+  getPluginScope = (props = this.props) => {
+    const { location, match, user, isCom } = props;
+    const params = match && match.params || {};
+    const search = location?.search || location?.hash?.split('?')[1] || '';
+    const query = new URLSearchParams(search);
+    return {
+      enterpriseId: params.eid || Global.getCurrEnterpriseId() || user?.enterprise_id,
+      teamName: props.teamName || props.team_name || params.teamName || Global.getCurrTeamName(),
+      regionName: props.regionName || props.region_name || params.regionName || params.regionID ||
+        query.get('regionName') || Global.getCurrRegionName(),
+      pluginId: isCom ? query.get('tab') || Global.getSlidePanelTab() : params.pluginId
+    };
+  };
+
   componentDidMount() {
-    // 对于isCom模式，延迟加载以确保URL参数正确更新
-    if (this.props.isCom) {
-      setTimeout(() => {
-        this.getPluginsList();
-      }, 100);
-    } else {
-      this.getPluginsList();
-    }
-    
-    const urlParams = new URLSearchParams(window.location.search || window.location.hash?.split('?')[1]);
-    const showSelect = urlParams.get('showSelect');
-    this.setState({ showSelect });
+    this.getPluginsList();
+    const search = this.props.location?.search || this.props.location?.hash?.split('?')[1] || '';
+    this.setState({ showSelect: new URLSearchParams(search).get('showSelect') });
   }
-  
+
   componentWillUnmount() {
-    // 清理可能的定时器和异步操作
+    this.disposed = true;
+    this.pluginRequestId += 1;
     this.isLoading = false;
-    this.importingPlugin = null;
   }
 
   componentDidUpdate(prevProps) {
-    if (!prevProps.location || !this.props.location) return;
-
-    const prevSearch = prevProps.location.search || prevProps.location.hash?.split('?')[1] || '';
-    const currentSearch = this.props.location.search || this.props.location.hash?.split('?')[1] || '';
-
-    const prevUrlParams = new URLSearchParams(prevSearch);
-    const currentUrlParams = new URLSearchParams(currentSearch);
-
-    const prevRegionName = prevUrlParams.get('regionName');
-    const currentRegionName = currentUrlParams.get('regionName');
-    const prevShowSelect = prevUrlParams.get('showSelect');
-    const currentShowSelect = currentUrlParams.get('showSelect');
-    
-    // 监听tab参数变化
-    const prevTab = prevUrlParams.get('tab');
-    const currentTab = currentUrlParams.get('tab');
-
-    if (prevRegionName !== currentRegionName) {
-      this.isLoading = false; // 允许重新加载
+    if (JSON.stringify(this.getPluginScope(prevProps)) !== JSON.stringify(this.getPluginScope())) {
       this.getPluginsList();
-      return; // 避免同时执行tab切换逻辑
     }
-
-    if (prevShowSelect !== currentShowSelect) {
-      this.setState({ showSelect: currentShowSelect });
-    }
-    
-    // 当tab参数变化时，重新加载对应的插件
-    if (prevTab !== currentTab && this.props.isCom && currentTab && prevTab) {
-      // 清理状态，避免上一个插件的状态影响新插件
-      this.setState({
-        app: {},
-        plugins: {},
-        loading: true,
-        pluginLoading: true,
-        error: false,
-        errInfo: '',
-      });
-      
-      // 重置标志
-      this.isLoading = false;
-      this.importingPlugin = null;
-      
-      this.getPluginsList();
+    const previous = prevProps.location?.search || prevProps.location?.hash?.split('?')[1] || '';
+    const current = this.props.location?.search || this.props.location?.hash?.split('?')[1] || '';
+    if (previous !== current) {
+      this.setState({ showSelect: new URLSearchParams(current).get('showSelect') });
     }
   }
 
-  importPlugin = (meta, regionName) => {
-    // 防止重复导入同一个插件
-    if (this.importingPlugin === meta.name) {
-      return;
-    }
-    
-    this.importingPlugin = meta.name;
-    this.setState({ pluginLoading: true }); // 设置加载状态
-    
-    importAppPagePlugin(meta, regionName, 'enterprise').then(res => {
-      this.importingPlugin = null;
-      this.setState({ app: res, pluginLoading: false })
+  importPlugin = (meta, regionName, isCurrent) => {
+    const type = PluginUtil.getCurrentViewPosition(window.location.href, this.props.viewPosition);
+    importAppPagePlugin(meta, regionName, type === 'Platform' ? 'enterprise' : 'team').then(res => {
+      if (isCurrent()) {
+        this.setState({ app: res, pluginLoading: false, error: false });
+      }
     }).catch(err => {
-      this.importingPlugin = null;
-      this.setState({
-        errInfo: err?.response?.data?.message || err?.message || "An unexpected error occurred.",
-        pluginLoading: false,
-        error: true
-      })
-    })
-  }
+      if (isCurrent()) {
+        this.setState({
+          errInfo: err?.response?.data?.message || err?.message || 'An unexpected error occurred.',
+          pluginLoading: false,
+          error: true
+        });
+      }
+    });
+  };
+
   getPluginsList = () => {
-    if (this.isLoading) {
+    const scope = this.getPluginScope();
+    const scopeKey = JSON.stringify(scope);
+    if (this.disposed || this.isLoading && this.activeScopeKey === scopeKey) {
       return;
     }
     this.isLoading = true;
-    const type = PluginUtil.getCurrentViewPosition(window.location.href, this.props.viewPosition);
-    type === 'Platform' ? this.loadEnterpriseClusters() : this.loadPluginList();
-  };
-
-  loadEnterpriseClusters = () => {
-    const urlParams = new URLSearchParams(window.location.search || window.location.hash.split('?')[1]);
-    const region_name = urlParams.get('regionName');
-    const regionName = Global.getCurrRegionName() || this.props?.match?.params?.regionID || region_name
-    this.setState({ regionName });
-    this.loadPluginList(regionName);
-  };
-
-  loadPluginList = (regionName) => {
-    const {
-      dispatch,
-      match,
-      isCom,
-      user,
-      cluster_info
-    } = this.props;
-    let pluginId = ''
-    if (isCom) {
-      pluginId = Global.getSlidePanelTab()
-    } else {
-      pluginId = match.params.pluginId
+    this.activeScopeKey = scopeKey;
+    const requestId = ++this.pluginRequestId;
+    const isCurrent = () => !this.disposed && requestId === this.pluginRequestId &&
+      scopeKey === JSON.stringify(this.getPluginScope());
+    this.setState({ app: {}, plugins: {}, loading: true, pluginLoading: true,
+      error: false, errInfo: '', regionName: scope.regionName });
+    const fail = (err) => {
+      if (isCurrent()) {
+        this.isLoading = false;
+        this.setState({ plugins: { plugin_type: 'JSInject' }, loading: false, pluginLoading: false,
+          error: true, errInfo: err?.response?.data?.message || err?.message || 'Unable to load plugin.' });
+      }
+    };
+    if (!scope.regionName) {
+      fail(new Error('No region selected.'));
+      return;
     }
-    const enterpriseId = Global.getCurrEnterpriseId() || user?.enterprise_id;
-    const currentRegionName = regionName || Global.getCurrRegionName();
-    dispatch({
+    this.props.dispatch({
       type: 'global/getPluginList',
-      payload: { enterprise_id: enterpriseId, region_name: currentRegionName },
+      payload: { enterprise_id: scope.enterpriseId, region_name: scope.regionName },
+      shouldApply: isCurrent,
       callback: (res) => {
-        this.isLoading = false; // 重置加载标志
-        if (res && res.list) {
-          const plugin = res.list.find((item) =>
-            item.name === pluginId ||
-            getPluginBaseId(item.name) === pluginId ||
-            getPluginBaseId(item.plugin_id) === pluginId
-          ) || {};
-          // 先设置插件信息
-          this.setState({ plugins: plugin, loading: false });
-          // 对于JSInject类型的插件，延迟调用importPlugin避免重复渲染
-          if (plugin.plugin_type === 'JSInject') {
-            setTimeout(() => {
-              this.importPlugin(plugin, currentRegionName);
-            }, 50);
-          }
+        if (!isCurrent()) return;
+        this.isLoading = false;
+        if (!isSuccessfulPluginResponse(res)) {
+          fail(new Error(res?.msg_show || res?.msg || 'Unable to load plugin.'));
+          return;
+        }
+        const plugin = res.list.find(item => item.name === scope.pluginId ||
+          getPluginBaseId(item.name) === scope.pluginId ||
+          getPluginBaseId(item.plugin_id) === scope.pluginId);
+        if (!plugin) {
+          this.setState({ plugins: { plugin_type: 'JSInject' }, loading: false, pluginLoading: false });
+          return;
+        }
+        this.setState({ plugins: plugin, loading: false });
+        if (plugin.plugin_type === 'JSInject') {
+          this.importPlugin(plugin, scope.regionName, isCurrent);
+        } else {
+          this.setState({ pluginLoading: false });
         }
       },
-      handleError: () => {
-        this.isLoading = false; // 重置加载标志
-        this.setState({ plugins: {}, loading: false });
-      },
+      handleError: fail
     });
   };
   getPluginRegions = () => {
@@ -223,7 +180,7 @@ export default class Index extends Component {
       <>
         {!loading ? (
           isCom ?
-            <RbdPluginsCom {...this.props} {...this.state} viewPosition={viewPosition} />
+            <RbdPluginsCom {...this.props} {...this.state} retryPlugin={this.getPluginsList} viewPosition={viewPosition} />
             :
             <PageHeaderLayout
               title={this.getPluginTitle(plugins)}
@@ -258,7 +215,7 @@ export default class Index extends Component {
                   </>
               }
             >
-              <RbdPluginsCom {...this.props} {...this.state} key={regionName} viewPosition={viewPosition} />
+              <RbdPluginsCom {...this.props} {...this.state} retryPlugin={this.getPluginsList} key={regionName} viewPosition={viewPosition} />
             </PageHeaderLayout>
         ) : (
           <div style={{ width: '100%', height: 500, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>

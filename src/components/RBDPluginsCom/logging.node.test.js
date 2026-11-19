@@ -3,17 +3,9 @@ const fs = require('fs');
 const path = require('path');
 
 const source = fs.readFileSync(path.join(__dirname, 'index.js'), 'utf8');
-
-assert.match(
+assert.doesNotMatch(
   source,
-  /console\.info\('\[RBDPluginsCom\] namespace resolution',/,
-  'RBDPluginsCom should log namespace resolution details for plugin debugging'
+  /console\.(?:info|log|warn|debug)\([\s\S]*?(?:baseInfo|currentUser|\.token)/,
+  'plugin context and credentials must not be dumped to the browser console'
 );
-
-assert.match(
-  source,
-  /console\.warn\('\[RBDPluginsCom\] namespace missing for plugin baseInfo',/,
-  'RBDPluginsCom should warn when namespace is missing before rendering the plugin'
-);
-
-console.log('RBDPluginsCom logging test passed');
+console.log('RBDPluginsCom context logging test passed');
