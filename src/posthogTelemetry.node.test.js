@@ -90,6 +90,11 @@ function assertPostHogGroupsUpdateOnlyWhenChanged() {
     }),
     true
   );
+  const sensitiveSignature = buildPostHogGroupSignature({
+    enterpriseIdHash: 'enterprise_hash',
+    enterpriseProperties: { api_key: 'secret-value' }
+  });
+  assert.ok(!sensitiveSignature.includes('secret-value'), 'stored group signatures must not contain raw property values');
   assert.ok(
     fs.readFileSync(posthogPath, 'utf8').includes('rainbond_posthog_group_signature:'),
     'posthog group signatures should be persisted in sessionStorage'

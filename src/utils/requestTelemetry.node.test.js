@@ -1,87 +1,115 @@
-const assert = require('assert');
-const fs = require('fs');
-const path = require('path');
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 const parser = require('@babel/parser');
+const generate = require('@babel/generator').default;
 
 const requestPath = path.join(__dirname, 'request.js');
 const source = fs.readFileSync(requestPath, 'utf8');
-const ast = parser.parse(source, { sourceType: 'module' });
+const program = parser.parse(source, { sourceType: 'module', plugins: ['optionalChaining'] }).program;
 
-function declaration(name) {
-  const exported = ast.program.body.find(statement =>
-    statement.type === 'ExportNamedDeclaration' &&
-    statement.declaration &&
-    statement.declaration.id &&
-    statement.declaration.id.name === name
-  ).declaration;
-  return source.slice(exported.start, exported.end);
+function nodeFor(name) {
+  const statement = program.body.find(item =>
+    (item.type === 'FunctionDeclaration' && item.id.name === name) ||
+    (item.type === 'ExportNamedDeclaration' && item.declaration && item.declaration.id && item.declaration.id.name === name) ||
+    (item.type === 'ExportDefaultDeclaration' && item.declaration && item.declaration.id && item.declaration.id.name === name)
+  );
+  return statement.type === 'ExportNamedDeclaration' || statement.type === 'ExportDefaultDeclaration'
+    ? statement.declaration
+    : statement;
 }
 
-const helpers = new Function(
-  `${declaration('getRequestFailureMetadata')}\n${declaration('getRequestFailureResult')}\nreturn { getRequestFailureMetadata, getRequestFailureResult };`
-)();
+function requestFactory(run) {
+  const declarations = ['checkStatus', 'getRequestFailureMetadata', 'getRequestFailureResult', 'handleStoreDispatch', 'handleSpecialErrorCode', 'handleData', 'request']
+    .map(name => generate(nodeFor(name)).code)
+    .join('\n');
+  const codeMessage = generate(program.body.find(node => node.type === 'VariableDeclaration' && node.declarations[0].id.name === 'codeMessage')).code;
+  const state = { notifications: [], apiErrors: [], viewed: [], requestErrors: [], dispatches: [], handlers: 0 };
+  const axios = options => run(options);
+  axios.defaults = {};
+  axios.isCancel = () => false;
+  const request = new Function(
+    'axios', 'notification', 'Modal', 'globalUtil', 'cookie', 'handleAPIError', 'updateRenewedTokenFromResponse', 'formatMessage', 'history', 'getDvaApp', 'captureRequestError', 'finishSlowRequestTracking', 'startSlowRequestTracking', 'captureErrorViewed', 'trackSlowRequestLifecycle', 'renderPreflightContent', 'location',
+    `${codeMessage}\n${declarations}\nreturn request;`
+  )(
+    axios,
+    { error: payload => state.notifications.push(payload), warning: payload => state.notifications.push(payload) },
+    { error() {} },
+    { getCurrRegionName: () => '', getCurrTeamName: () => '', getAppID: () => '', replaceUrlTeam: value => value, replaceUrlRegion: value => value },
+    { get: () => '', setGuide() {} },
+    error => state.apiErrors.push(error),
+    () => {},
+    message => message.id,
+    { push() {} },
+    () => ({ _store: { dispatch: value => state.dispatches.push(value) } }),
+    error => state.requestErrors.push(error),
+    () => {},
+    () => ({}),
+    (category, properties) => state.viewed.push({ category, properties }),
+    (promise, options) => promise.then(response => options.checkStatus(response)),
+    () => null,
+    { href: '' }
+  );
+  return { request, state };
+}
 
 const failures = [
-  {
-    name: 'business failure',
-    error: { response: { status: 422, data: { code: 10412 } } },
-    expected: { error_code: 'business_10412', error_category: 'business_failure', http_status: 422 }
-  },
-  {
-    name: 'HTTP 4xx failure',
-    error: { response: { status: 404, data: {} } },
-    expected: { error_code: 'http_404', error_category: 'http_4xx', http_status: 404 }
-  },
-  {
-    name: 'HTTP 5xx failure',
-    error: { response: { status: 503, data: {} } },
-    expected: { error_code: 'http_503', error_category: 'http_5xx', http_status: 503 }
-  },
-  {
-    name: 'timeout failure',
-    error: { code: 'ECONNABORTED' },
-    expected: { error_code: 'timeout', error_category: 'timeout', http_status: 0 }
-  },
-  {
-    name: 'network failure',
-    error: { code: 'ERR_NETWORK' },
-    expected: { error_code: 'network_error', error_category: 'network_error', http_status: 0 }
-  }
+  ['business', { response: { status: 422, data: { code: 10499 } } }, { error_code: 'business_10499', error_category: 'business_failure', http_status: 422 }],
+  ['http_4xx', { response: { status: 404, data: {} } }, { error_code: 'http_404', error_category: 'http_4xx', http_status: 404 }],
+  ['http_5xx', { response: { status: 503, data: {} } }, { error_code: 'http_503', error_category: 'http_5xx', http_status: 503 }],
+  ['timeout', { code: 'ECONNABORTED' }, { error_code: 'timeout', error_category: 'timeout', http_status: 0 }],
+  ['network', { code: 'ERR_NETWORK' }, { error_code: 'network_error', error_category: 'network_error', http_status: 0 }]
 ];
 
-failures.forEach(({ name, error, expected }) => {
-  assert.deepStrictEqual(helpers.getRequestFailureMetadata(error), expected, name);
-  assert.strictEqual(
-    helpers.getRequestFailureResult(error, undefined, {}, undefined),
-    undefined,
-    `${name} without opt-in should keep the default undefined result`
-  );
-  assert.deepStrictEqual(
-    helpers.getRequestFailureResult(error, undefined, { returnErrorMetadata: true }, 'handled'),
-    { __rainbondRequestFailure: true, ...expected },
-    `${name} should return the telemetry envelope only when opted in`
-  );
+for (const [name, error, metadata] of failures) {
+  for (const handler of [false, true]) {
+    for (const optIn of [false, true]) {
+      for (const noModels of [false, true]) {
+        test(`request ${name}: handler=${handler}, optIn=${optIn}, noModels=${noModels}`, async () => {
+          const { request, state } = requestFactory(() => Promise.reject(error));
+          const options = { method: 'post', headers: {}, showLoading: false, noModels, returnErrorMetadata: optIn };
+          if (handler) options.handleError = () => { state.handlers += 1; return 'handled'; };
+          const httpFailure = Boolean(error.response);
+          const mustReject = noModels && !handler && !httpFailure ? true : noModels && !handler && httpFailure;
+          if (mustReject) {
+            await assert.rejects(request('/request-test', options), value => value === error);
+          } else {
+            const result = await request('/request-test', options);
+            if (optIn) {
+              assert.deepEqual(result, { __rainbondRequestFailure: true, ...metadata });
+            } else if (!httpFailure && handler) {
+              assert.equal(result, 'handled');
+            } else {
+              assert.equal(result, undefined);
+            }
+          }
+          assert.equal(state.handlers, handler ? 1 : 0);
+          assert.equal(state.viewed.length, 1);
+          assert.deepEqual(state.viewed[0], { category: metadata.error_category, properties: { error_code: metadata.error_code, http_status: metadata.http_status, stage: 'request' } });
+          if (httpFailure && !handler) assert.equal(state.apiErrors.length, 1);
+          if (!httpFailure && !handler && !noModels) assert.equal(state.notifications.length, 1);
+        });
+      }
+    }
+  }
+}
+
+test('request returns normalized data for successful responses', async () => {
+  const { request, state } = requestFactory(() => Promise.resolve({ status: 200, data: { code: 200, data: { id: 'created' } } }));
+  const result = await request('/request-test', { method: 'post', headers: {}, showLoading: false });
+  assert.equal(result.id, 'created');
+  assert.equal(result.status_code, 200);
+  assert.equal(result.business_code, 200);
+  assert.equal(result.response_data.data, result);
+  assert.equal(state.viewed.length, 0);
 });
 
-assert.strictEqual(
-  helpers.getRequestFailureResult(failures[0].error, undefined, {}, undefined),
-  undefined,
-  'HTTP failures with handleError should preserve the main branch undefined result'
-);
-assert.strictEqual(
-  helpers.getRequestFailureResult(failures[3].error, undefined, {}, 'handled'),
-  'handled',
-  'network and timeout failures should preserve the handleError return value'
-);
-
-assert.ok(source.includes('return handleData(response);'), 'successful requests should continue returning response data');
-assert.ok(
-  source.includes('newOptions.handleError(error);\n            return failureResult;'),
-  'HTTP failures with handleError should continue returning undefined without opt-in'
-);
-assert.ok(
-  source.includes('captureErrorViewed(failureMetadata.error_category'),
-  'error_viewed should use normalized failure metadata'
-);
-
-console.log('request telemetry tests passed');
+test('request keeps special-code handling while returning an opt-in failure envelope', async () => {
+  const error = { response: { status: 401, data: { code: 10405 } } };
+  const { request, state } = requestFactory(() => Promise.reject(error));
+  const result = await request('/request-test', { method: 'post', headers: {}, showLoading: false, returnErrorMetadata: true, handleError: () => { state.handlers += 1; } });
+  assert.deepEqual(result, { __rainbondRequestFailure: true, error_code: 'business_10405', error_category: 'business_failure', http_status: 401 });
+  assert.equal(state.handlers, 1);
+  assert.equal(state.apiErrors.length, 0);
+});

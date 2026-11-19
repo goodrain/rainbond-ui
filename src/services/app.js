@@ -154,7 +154,7 @@ export function deploy(body = {}, handleError, telemetryOptions = {}) {
         group_version: body.group_version
       },
       handleError,
-      returnErrorMetadata: telemetryOptions.returnErrorMetadata
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
     }
   );
 }
@@ -168,7 +168,7 @@ export function upgrade(body = {}, handleError, telemetryOptions = {}) {
         group_version: body.group_version
       },
       handleError,
-      returnErrorMetadata: telemetryOptions.returnErrorMetadata
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
     }
   );
 }
@@ -188,7 +188,7 @@ export function updateRolling(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/upgrade`,
     {
       method: 'post',
-      returnErrorMetadata: telemetryOptions.returnErrorMetadata
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
     }
   ).then(response => { refreshTopology(response); return response; });
 }
@@ -225,7 +225,7 @@ export function restart(
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/restart`,
-    { method: 'post', returnErrorMetadata: telemetryOptions.returnErrorMetadata }
+    { method: 'post', returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata }
   );
 }
 
@@ -248,7 +248,7 @@ export function batchOperation(body = {}, handleError, telemetryOptions = {}) {
         service_ids: body.serviceIds
       },
       handleError,
-      returnErrorMetadata: telemetryOptions.returnErrorMetadata
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
     }
   );
 }
@@ -269,7 +269,7 @@ export function start(
     {
       method: 'post',
       handleError,
-      returnErrorMetadata: telemetryOptions.returnErrorMetadata
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
     }
   );
 }
@@ -310,7 +310,7 @@ export function stop(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/stop`,
     {
       method: 'post',
-      returnErrorMetadata: telemetryOptions.returnErrorMetadata
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
     }
   );
 }
@@ -473,7 +473,7 @@ export function horizontal(
         new_node: body.new_node
       },
       handleError,
-      returnErrorMetadata: telemetryOptions.returnErrorMetadata
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
     }
   );
 }
@@ -501,7 +501,7 @@ export function vertical(
         new_cpu: body.new_cpu
       },
       handleError,
-      returnErrorMetadata: telemetryOptions.returnErrorMetadata
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
     }
   );
 }
@@ -531,7 +531,7 @@ export function newVertical(
         new_node: body.new_node
       },
       handleError,
-      returnErrorMetadata: telemetryOptions.returnErrorMetadata
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
     }
   );
 }
@@ -953,7 +953,7 @@ export async function bindDomain(
         rule_extensions:
           body.rule_extensions.length > 0 ? body.rule_extensions : []
       },
-      returnErrorMetadata: telemetryOptions.returnErrorMetadata
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
     }
   );
 }
@@ -1103,7 +1103,7 @@ export async function addInnerEnvs(body = {}, telemetryOptions = {}) {
         scope: body.scope ? body.scope : 'inner',
         is_change: true
       },
-      returnErrorMetadata: telemetryOptions.returnErrorMetadata
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
     }
   );
 }
@@ -1151,7 +1151,7 @@ export async function addOuterEnvs(body = {}, telemetryOptions = {}) {
         attr_value: body.attr_value || '',
         scope: 'outer'
       },
-      returnErrorMetadata: telemetryOptions.returnErrorMetadata
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
     }
   );
 }
@@ -1173,7 +1173,7 @@ export async function editEvns(body = {}, telemetryOptions = {}) {
     {
       method: 'put',
       data,
-      returnErrorMetadata: telemetryOptions.returnErrorMetadata
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
     }
   );
 }
@@ -1702,7 +1702,7 @@ export async function addVolume(
         volume_capacity: new Number(body.volume_capacity),
         file_content: body.volume_type == 'config-file' ? body.file_content : ''
       },
-      returnErrorMetadata: telemetryOptions.returnErrorMetadata
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
     }
   );
 }

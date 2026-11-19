@@ -425,15 +425,20 @@ export default {
     *putStart({ payload, callback, handleError }, { call }) {
       const refreshTopology = captureTopologyOperation(payload);
       captureAppOperation('start', 'started', buildAppControlProperties(payload));
-      const response = yield call(start, payload, handleError, REQUEST_TELEMETRY_OPTIONS);
-      refreshTopology(response);
-      if (response && !isRequestFailure(response)) {
-        trackOperationSucceeded('start', payload, response);
-      } else {
-        trackOperationFailed('start', payload, response);
-      }
-      if (response && !isRequestFailure(response) && callback) {
-        callback(response);
+      try {
+        const response = yield call(start, payload, handleError, REQUEST_TELEMETRY_OPTIONS);
+        refreshTopology(response);
+        if (response && !isRequestFailure(response)) {
+          trackOperationSucceeded('start', payload, response);
+        } else {
+          trackOperationFailed('start', payload, response);
+        }
+        if (response && !isRequestFailure(response) && callback) {
+          callback(response);
+        }
+      } catch (error) {
+        trackOperationFailed('start', payload, error);
+        throw error;
       }
     },
     *putStop({ payload, callback }, { call }) {
@@ -1433,15 +1438,21 @@ export default {
     *batchOperation({ payload, callback, handleError }, { call }) {
       const refreshTopology = captureTopologyOperation(payload);
       captureAppOperation(payload && payload.action ? payload.action : 'batch_operation', 'started', buildAppControlProperties(payload));
-      const response = yield call(batchOperation, payload, handleError, REQUEST_TELEMETRY_OPTIONS);
-      refreshTopology(response);
-      if (response && !isRequestFailure(response)) {
-        trackOperationSucceeded(payload && payload.action ? payload.action : 'batch_operation', payload, response);
-      } else {
-        trackOperationFailed(payload && payload.action ? payload.action : 'batch_operation', payload, response);
-      }
-      if (response && !isRequestFailure(response) && callback) {
-        callback(response);
+      const operation = payload && payload.action ? payload.action : 'batch_operation';
+      try {
+        const response = yield call(batchOperation, payload, handleError, REQUEST_TELEMETRY_OPTIONS);
+        refreshTopology(response);
+        if (response && !isRequestFailure(response)) {
+          trackOperationSucceeded(operation, payload, response);
+        } else {
+          trackOperationFailed(operation, payload, response);
+        }
+        if (response && !isRequestFailure(response) && callback) {
+          callback(response);
+        }
+      } catch (error) {
+        trackOperationFailed(operation, payload, error);
+        throw error;
       }
     },
     *horizontal({ payload, callback, handleError }, { call }) {

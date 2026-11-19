@@ -29,7 +29,7 @@ function assertServiceOptIn(source, name) {
   const body = source.slice(definition, nextDefinition < 0 ? source.length : nextDefinition);
   assert.ok(body.includes('telemetryOptions = {}'), `${name} should default telemetry options`);
   assert.ok(
-    body.includes('returnErrorMetadata: telemetryOptions.returnErrorMetadata'),
+    body.includes('returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata'),
     `${name} should pass telemetry metadata only from its optional argument`
   );
   assert.ok(!body.includes('returnErrorMetadata: true'), `${name} must not opt in direct callers by default`);

@@ -272,7 +272,7 @@ function stableSerialize(value) {
 }
 
 function buildPostHogGroupSignature(group = {}) {
-  return `${group.enterpriseIdHash || ''}:${stableSerialize(group.enterpriseProperties || {})}`;
+  return `${group.enterpriseIdHash || ''}:${hashString(stableSerialize(group.enterpriseProperties || {}))}`;
 }
 
 function shouldUpdatePostHogGroup(previousSignature, group = {}) {
