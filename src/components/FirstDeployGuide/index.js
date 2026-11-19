@@ -21,6 +21,11 @@ export const featuredMarketApps = [
       arm64: 'd6c01070c6b049dbaf3de6757a1b63ef',
       default: '6953c50771ae4548b9fed312d220d720'
     }
+  },
+  {
+    key: 'nacos',
+    label: 'firstDeployGuide.market.nacos',
+    modelKeys: {}
   }
 ];
 

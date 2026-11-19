@@ -58,6 +58,7 @@ const teamOverview = {
   'firstDeployGuide.market.all': 'Browse application market',
   'firstDeployGuide.market.mysql': 'Mysql',
   'firstDeployGuide.market.redis': 'Redis',
+  'firstDeployGuide.market.nacos': 'Nacos Standalone',
   'firstDeployGuide.image': 'Create from image',
   'firstDeployGuide.sourceCode': 'Create from source code',
   'firstDeployGuide.market.unavailable': 'The application market is unavailable. Create from an image or source code instead.',
