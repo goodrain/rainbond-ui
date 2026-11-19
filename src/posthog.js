@@ -85,6 +85,16 @@ function saveGroupSignature(groupType, signature) {
   }
 }
 
+function clearStoredGroupSignature(groupType) {
+  try {
+    const storage = getGroupSignatureStorage();
+    if (storage) {
+      storage.removeItem(`${GROUP_SIGNATURE_STORAGE_PREFIX}${groupType}`);
+    }
+  } catch (error) {
+  }
+}
+
 function shouldUpdateStoredPostHogGroup(groupType, previousSignature, group) {
   const signature = buildPostHogGroupSignature(group);
   return shouldUpdatePostHogGroup(previousSignature, group) && getStoredGroupSignature(groupType) !== signature;
@@ -379,6 +389,8 @@ export function resetPostHogUser() {
   instanceGroupSignature = '';
   enterpriseGroupSignature = '';
   activeEnterpriseGroupId = '';
+  clearStoredGroupSignature('instance');
+  clearStoredGroupSignature('enterprise');
 }
 
 export function capturePostHogEvent(eventName, properties = {}) {

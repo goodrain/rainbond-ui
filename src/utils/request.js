@@ -340,9 +340,10 @@ export default function request(url, options) {
     })
     .catch(error => {
       captureRequestError(error, newOptions);
-      captureErrorViewed(error && error.response ? 'api_response_error' : 'network_error', {
-        error_code: error && (error.name || error.code || error.message),
-        status: error && error.response && error.response.status,
+      const failureMetadata = getRequestFailureMetadata(error);
+      captureErrorViewed(failureMetadata.error_category, {
+        error_code: failureMetadata.error_code,
+        http_status: failureMetadata.http_status,
         stage: 'request'
       });
       if (showLoading) {

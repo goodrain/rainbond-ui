@@ -355,7 +355,7 @@ export default {
       } else {
         trackOperationFailed('deploy', payload, response);
       }
-      if (response && callback) {
+      if (response && !isRequestFailure(response) && callback) {
         callback(response);
       }
     },
@@ -369,7 +369,7 @@ export default {
       } else {
         trackOperationFailed('upgrade', payload, response);
       }
-      if (response && callback) {
+      if (response && !isRequestFailure(response) && callback) {
         callback(response);
       }
     },
@@ -381,7 +381,7 @@ export default {
       } else {
         trackOperationFailed('rolling_update', payload, response);
       }
-      if (response && callback) {
+      if (response && !isRequestFailure(response) && callback) {
         callback(response);
       }
     },
@@ -417,7 +417,7 @@ export default {
       } else {
         trackOperationFailed('restart', payload, response);
       }
-      if (response && callback) {
+      if (response && !isRequestFailure(response) && callback) {
         callback(response);
       }
     },
@@ -431,7 +431,7 @@ export default {
       } else {
         trackOperationFailed('start', payload, response);
       }
-      if (response && callback) {
+      if (response && !isRequestFailure(response) && callback) {
         callback(response);
       }
     },
@@ -445,7 +445,7 @@ export default {
       } else {
         trackOperationFailed('stop', payload, response);
       }
-      if (response && callback) {
+      if (response && !isRequestFailure(response) && callback) {
         callback(response);
       }
     },
@@ -818,7 +818,7 @@ export default {
       } else {
         trackOperationFailed('bind_domain', payload, response);
       }
-      if (response && callback) {
+      if (response && !isRequestFailure(response) && callback) {
         callback(response);
       }
     },
@@ -890,7 +890,7 @@ export default {
       } else {
         trackOperationFailed('env_change', payload, response);
       }
-      if (response && callback) {
+      if (response && !isRequestFailure(response) && callback) {
         callback(response);
       }
     },
@@ -920,7 +920,7 @@ export default {
       } else {
         trackOperationFailed('env_change', payload, response);
       }
-      if (response && callback) {
+      if (response && !isRequestFailure(response) && callback) {
         callback(response);
       }
     },
@@ -986,7 +986,7 @@ export default {
       } else {
         trackOperationFailed('env_change', payload, response);
       }
-      if (response && callback) {
+      if (response && !isRequestFailure(response) && callback) {
         callback(response);
       }
     },
@@ -1092,7 +1092,7 @@ export default {
       } else {
         trackOperationFailed('storage_mount', payload, response);
       }
-      if (response && callback) {
+      if (response && !isRequestFailure(response) && callback) {
         callback(response);
       }
     },
@@ -1439,7 +1439,7 @@ export default {
       } else {
         trackOperationFailed(payload && payload.action ? payload.action : 'batch_operation', payload, response);
       }
-      if (response && callback) {
+      if (response && !isRequestFailure(response) && callback) {
         callback(response);
       }
     },
@@ -1451,7 +1451,7 @@ export default {
       } else {
         trackOperationFailed('scale_horizontal', payload, response);
       }
-      if (response && callback) {
+      if (response && !isRequestFailure(response) && callback) {
         callback(response);
       }
     },
@@ -1463,7 +1463,7 @@ export default {
       } else {
         trackOperationFailed('scale_vertical', payload, response);
       }
-      if (response && callback) {
+      if (response && !isRequestFailure(response) && callback) {
         callback(response);
       }
     },
@@ -1475,7 +1475,7 @@ export default {
       } else {
         trackOperationFailed('scale_vertical', payload, response);
       }
-      if (response && callback) {
+      if (response && !isRequestFailure(response) && callback) {
         callback(response);
       }
     },

@@ -48,4 +48,9 @@ assert.deepStrictEqual(
   { error_code: 'network_error', error_category: 'network_error', http_status: 0 }
 );
 
+assert.ok(
+  source.includes('captureErrorViewed(failureMetadata.error_category'),
+  'error_viewed should use normalized failure metadata'
+);
+
 console.log('request telemetry tests passed');

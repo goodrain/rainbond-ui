@@ -99,6 +99,11 @@ function assertPostHogGroupsUpdateOnlyWhenChanged() {
     3,
     'instance and enterprise groups should both use the persisted change guard'
   );
+  assert.strictEqual(
+    (fs.readFileSync(posthogPath, 'utf8').match(/clearStoredGroupSignature\(/g) || []).length,
+    3,
+    'reset should clear persisted signatures before another user is identified'
+  );
 }
 
 try {
