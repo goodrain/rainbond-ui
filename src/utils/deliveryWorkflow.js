@@ -16,10 +16,14 @@ function localListingAction(items) {
 function latestPublications(items) {
   const destinations = new Map();
   items.slice().sort((a,b) => (Date.parse(b.submitted_at) || 0) - (Date.parse(a.submitted_at) || 0)).forEach(item => {
-    const destination = item.destination || { type: 'local' }, key = `${destination.type}:${destination.market_id || ''}`;
+    const destination = item.destination || { type: 'local' }, key = `${destination.type || 'local'}:${destination.market_id || ''}`;
     if (!destinations.has(key)) destinations.set(key, item);
   });
   return [...destinations.values()];
+}
+function versionPublications(item) {
+  return item ? latestPublications([item, ...(item.history || [])]).sort((a, b) =>
+    Number(listingRequiresReview(b)) - Number(listingRequiresReview(a))) : [];
 }
 function requireValue(value, key = 'workflow.invalid') { if (!value) throw new Error(key); }
 function actor(user, enterprise) {
@@ -86,8 +90,8 @@ function listingGroups(items) {
     });
     const latest = Array.from(versions.values()).map(item => {
       const entries = [item, ...item.history];
-      const pending = latestPublications(entries).find(row => listingRequiresReview(row) && row.status === 'pending');
-      return pending ? { ...pending, history: entries.filter(row => row.id !== pending.id) } : item;
+      const local = latestPublications(entries).find(listingRequiresReview);
+      return local ? { ...local, history: entries.filter(row => row.id !== local.id) } : item;
     });
     return { ...group, versions: latest, pending: latest.filter(version => listingRequiresReview(version) && version.status === 'pending').length };
   }).sort((a, b) => b.latest_at.localeCompare(a.latest_at));
@@ -102,4 +106,4 @@ function successfulDeliveryEnvironments(items) {
   return Array.from(environments.values());
 }
 module.exports = { submitListing, reviewListing, recordDelivery, listingGroups, successfulDeliveryEnvironments,
-  listingRequiresReview, listingDeployable, latestPublications, localListingAction };
+  listingRequiresReview, listingDeployable, latestPublications, versionPublications, localListingAction };

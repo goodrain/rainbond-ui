@@ -5,19 +5,36 @@ import moment from 'moment';
 import { formatMessage } from '@/utils/intl';
 import ComponentConfig from '../../pages/Group/Delivery/ComponentConfig';
 import DeliveryUpgradeAction from './DeliveryUpgradeAction';
-const { listingRequiresReview } = require('../../utils/deliveryWorkflow');
+import workflowStyles from './version.less';
+const { listingRequiresReview, versionPublications } = require('../../utils/deliveryWorkflow');
 export const w = (key, values) => formatMessage({ id: `workflow.${key}` }, values);
 export const deliveryRecordsLabel = (items, normal = 'deliveryRecordsTab') => w(items.some(item => item.kind === 'test') ?
   items.every(item => item.kind === 'test') ? 'testRecordsTab' : 'deliveryAndTestRecords' : normal);
-export const statusLabel = status => <Badge status={{ pending: 'processing', approved: 'success', rejected: 'error', requested: 'processing', queued: 'processing', running: 'processing', publishing: 'processing', published: 'success', succeeded: 'success', failed: 'error' }[status] || 'default'} text={w(status)} />;
+export const statusLabel = (status, label = status) => <Badge status={{ pending: 'processing', approved: 'success', rejected: 'error', requested: 'processing', queued: 'processing', running: 'processing', publishing: 'processing', published: 'success', succeeded: 'success', failed: 'error' }[status] || 'default'} text={w(label)} />;
 
 export const taskStatusLabel = row => row.kind === 'offline' ? <Badge status={row.status === 'succeeded' ? 'success' : row.status === 'failed' ? 'error' : 'processing'}
   text={w(row.status === 'succeeded' ? 'packageReady' : row.status === 'failed' ? 'packageFailed' : 'packaging')} /> : statusLabel(row.status);
 
-export const listingStatusLabel = item => ['unlisted', 'cancelled'].includes(item.publication_status) ? statusLabel(item.publication_status) : !listingRequiresReview(item) ? <span>{statusLabel(item.publication_status || 'not_started')}
-  {item.publication_status === 'failed' && item.publication_task_id && <TaskRetryButton taskId={item.publication_task_id} owner={item.applicant_id} />}</span> : <span>{statusLabel(item.status)}{item.status === 'approved' &&
+const onlineStatusLabel = status => ({ not_started: 'onlineSyncNotStarted', publishing: 'onlineSyncing', published: 'onlineSynced', failed: 'onlineSyncFailed' }[status] || status);
+export const listingStatusLabel = (item, retry = true) => ['unlisted', 'cancelled'].includes(item.publication_status) ? statusLabel(item.publication_status) : !listingRequiresReview(item) ? <span>{statusLabel(item.publication_status || 'not_started', onlineStatusLabel(item.publication_status || 'not_started'))}
+  {retry && item.publication_status === 'failed' && item.publication_task_id && <TaskRetryButton taskId={item.publication_task_id} owner={item.applicant_id} />}</span> : <span>{statusLabel(item.status)}{item.status === 'approved' &&
   <span style={{ marginLeft: 8 }}>{statusLabel(item.publication_status || 'not_started')}
-    {item.publication_status === 'failed' && item.publication_task_id && <TaskRetryButton adminOnly taskId={item.publication_task_id} />}</span>}</span>;
+    {retry && item.publication_status === 'failed' && item.publication_task_id && <TaskRetryButton adminOnly taskId={item.publication_task_id} />}</span>}</span>;
+
+export class PublicationStatuses extends PureComponent {
+  render() {
+    const { item, compact = false, retry = true } = this.props;
+    return <span className={`${workflowStyles.publicationStatuses} ${compact ? workflowStyles.compactPublications : ''}`}>
+      {versionPublications(item).map(row => {
+        const local = listingRequiresReview(row), status = ['unlisted', 'cancelled'].includes(row.publication_status) ? row.publication_status : local ? row.status : row.publication_status || 'not_started';
+        return <span className={workflowStyles.publicationStatus} key={row.id}>
+          <span className={workflowStyles.publicationChannel}>{w(local ? 'localCatalog' : 'onlineMarket')}：</span>
+          {compact ? statusLabel(status, local ? status : onlineStatusLabel(status)) : listingStatusLabel(row, retry)}
+        </span>;
+      })}
+    </span>;
+  }
+}
 
 @connect(({ user, loading }) => ({ currentUser: user.currentUser, retrying: loading.effects['deliveryCenter/retry'] }))
 class TaskRetryButton extends PureComponent {

@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { submitListing, reviewListing, recordDelivery, listingGroups, successfulDeliveryEnvironments,
-  listingRequiresReview, listingDeployable, latestPublications } = require('./deliveryWorkflow');
+  listingRequiresReview, listingDeployable, latestPublications, versionPublications } = require('./deliveryWorkflow');
 const { deliveryScope } = require('./templateDelivery');
 const scope = { enterprise_id: 'enterprise', teamName: 'team', regionName: 'region', appID: '1' };
 const user = { enterprise_id: 'enterprise', user_id: 10, nick_name: 'Applicant' };
@@ -27,6 +27,45 @@ test('online publications do not count as pending review and do not hide a local
   assert.equal(listingGroups([{...online,status:'pending'}])[0].pending,0);
 });
 
+test('online synchronization never replaces a local approval or removes its deployment capability', () => {
+  const local = { ...submit(), destination: { type: 'local' }, status: 'approved', publication_status: 'published' };
+  for (const state of ['publishing', 'failed', 'published']) {
+    const online = { ...local, id: 'online', status: 'not_required', destination: { type: 'market', market_id: 'store' },
+      publication_status: state, submitted_at: '2026-11-07' };
+    const group = listingGroups([online, local])[0], selected = group.versions[0];
+    assert.equal(selected.id, local.id);
+    assert.equal(selected.status, 'approved');
+    assert.equal(listingDeployable(selected), true);
+    assert.equal(group.pending, 0);
+    assert.deepEqual(versionPublications(selected).map(row => [row.id, row.publication_status]),
+      [[local.id, 'published'], [online.id, state]]);
+  }
+});
+test('online success does not approve a pending local request or create an imaginary local review', () => {
+  const local = { ...submit(), destination: { type: 'local' }, publication_status: 'not_started' };
+  const online = { ...local, id: 'online', status: 'not_required', destination: { type: 'market', market_id: 'store' },
+    publication_status: 'published', submitted_at: '2026-11-07' };
+  const group = listingGroups([local, online])[0];
+  assert.equal(group.versions[0].status, 'pending');
+  assert.equal(group.pending, 1);
+  assert.equal(listingDeployable(group.versions[0]), false);
+  assert.equal(versionPublications(listingGroups([online])[0].versions[0]).length, 1);
+  assert.equal(listingGroups([online])[0].pending, 0);
+});
+test('each online store keeps its own latest result and legacy local destinations share the local channel', () => {
+  const old = { ...submit(), destination: {}, submitted_at: '2026-11-01' };
+  const local = { ...old, id: 'approved', status: 'approved', publication_status: 'published',
+    destination: { type: 'local' }, submitted_at: '2026-11-02' };
+  const first = { ...old, id: 'first', status: 'not_required', publication_status: 'failed',
+    destination: { type: 'market', market_id: 'first' }, submitted_at: '2026-11-03' };
+  const second = { ...first, id: 'second', destination: { type: 'market', market_id: 'second' } };
+  const selected = listingGroups([first, old, second, local])[0].versions[0];
+  const publications = versionPublications(selected);
+  assert.equal(selected.id, local.id);
+  assert.equal(publications.length, 3);
+  assert.equal(publications[0].id, local.id);
+  assert.equal(selected.history.length, 3, 'old review attempts remain available in audit history');
+});
 test('listing requests freeze template content and group independent versions of the same template', () => {
   const first = submit();
   assert.notStrictEqual(first.template, template);

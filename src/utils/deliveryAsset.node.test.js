@@ -59,6 +59,8 @@ test('view template resolves only completed local publication of the selected ve
   assert.equal(localMarketTemplatePath('e', current, [current]), '');
   const published = { ...current, publication_status: 'published' };
   assert.equal(localMarketTemplatePath('e', published, [published]), '/enterprise/e/shared/app/abcdef');
+  assert.equal(localMarketTemplatePath('e', { ...published, destination: {} }), '/enterprise/e/shared/app/abcdef');
+  assert.equal(localMarketTemplatePath('e', { ...published, destination: undefined }), '/enterprise/e/shared/app/abcdef');
   assert.equal(localMarketTemplatePath('other', published, [published]), '');
   assert.equal(localMarketTemplatePath('e', current, [{ ...published, template: { ...published.template, id: 'v2' } }]), '');
   const market = { ...published, destination: { type: 'market', market_id: 'remote' }, history: [published] };
