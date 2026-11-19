@@ -172,6 +172,7 @@ import {
 } from './appControlPortState';
 
 let portsRequestSequence = 0;
+const REQUEST_TELEMETRY_OPTIONS = { returnErrorMetadata: true };
 
 function buildAppControlProperties(payload = {}, overrides = {}) {
   return {
@@ -348,7 +349,7 @@ export default {
     *putDeploy({ payload, callback, handleError }, { call }) {
       const refreshTopology = captureTopologyOperation(payload);
       captureAppOperation('deploy', 'started', buildAppControlProperties(payload));
-      const response = yield call(deploy, payload, handleError);
+      const response = yield call(deploy, payload, handleError, REQUEST_TELEMETRY_OPTIONS);
       refreshTopology(response);
       if (response && !isRequestFailure(response)) {
         trackOperationSucceeded('deploy', payload, response);
@@ -362,7 +363,7 @@ export default {
     *putUpgrade({ payload, callback, handleError }, { call }) {
       const refreshTopology = captureTopologyOperation(payload);
       captureAppOperation('upgrade', 'started', buildAppControlProperties(payload));
-      const response = yield call(upgrade, payload, handleError);
+      const response = yield call(upgrade, payload, handleError, REQUEST_TELEMETRY_OPTIONS);
       refreshTopology(response);
       if (response && !isRequestFailure(response)) {
         trackOperationSucceeded('upgrade', payload, response);
@@ -373,9 +374,9 @@ export default {
         callback(response);
       }
     },
-    *putUpdateRolling({ payload, callback, handleError }, { call }) {
+    *putUpdateRolling({ payload, callback }, { call }) {
       captureAppOperation('rolling_update', 'started', buildAppControlProperties(payload));
-      const response = yield call(updateRolling, payload, handleError);
+      const response = yield call(updateRolling, payload, REQUEST_TELEMETRY_OPTIONS);
       if (response && !isRequestFailure(response)) {
         trackOperationSucceeded('rolling_update', payload, response);
       } else {
@@ -407,10 +408,10 @@ export default {
         callback(response);
       }
     },
-    *putReStart({ payload, callback, handleError }, { call }) {
+    *putReStart({ payload, callback }, { call }) {
       const refreshTopology = captureTopologyOperation(payload);
       captureAppOperation('restart', 'started', buildAppControlProperties(payload));
-      const response = yield call(restart, payload, handleError);
+      const response = yield call(restart, payload, REQUEST_TELEMETRY_OPTIONS);
       refreshTopology(response);
       if (response && !isRequestFailure(response)) {
         trackOperationSucceeded('restart', payload, response);
@@ -424,7 +425,7 @@ export default {
     *putStart({ payload, callback, handleError }, { call }) {
       const refreshTopology = captureTopologyOperation(payload);
       captureAppOperation('start', 'started', buildAppControlProperties(payload));
-      const response = yield call(start, payload, handleError);
+      const response = yield call(start, payload, handleError, REQUEST_TELEMETRY_OPTIONS);
       refreshTopology(response);
       if (response && !isRequestFailure(response)) {
         trackOperationSucceeded('start', payload, response);
@@ -435,10 +436,10 @@ export default {
         callback(response);
       }
     },
-    *putStop({ payload, callback, handleError }, { call }) {
+    *putStop({ payload, callback }, { call }) {
       const refreshTopology = captureTopologyOperation(payload);
       captureAppOperation('stop', 'started', buildAppControlProperties(payload));
-      const response = yield call(stop, payload, handleError);
+      const response = yield call(stop, payload, REQUEST_TELEMETRY_OPTIONS);
       refreshTopology(response);
       if (response && !isRequestFailure(response)) {
         trackOperationSucceeded('stop', payload, response);
@@ -810,9 +811,9 @@ export default {
         callback(response);
       }
     },
-    *bindDomain({ payload, callback, handleError }, { call }) {
+    *bindDomain({ payload, callback }, { call }) {
       captureAppOperation('bind_domain', 'started', buildAppControlProperties(payload));
-      const response = yield call(bindDomain, payload, handleError);
+      const response = yield call(bindDomain, payload, REQUEST_TELEMETRY_OPTIONS);
       if (response && !isRequestFailure(response)) {
         trackOperationSucceeded('bind_domain', payload, response);
       } else {
@@ -882,9 +883,9 @@ export default {
         }
       }
     },
-    *addInnerEnvs({ payload, callback, handleError }, { call }) {
+    *addInnerEnvs({ payload, callback }, { call }) {
       captureAppOperation('env_change', 'started', buildAppControlProperties(payload, { stage: 'inner_env' }));
-      const response = yield call(addInnerEnvs, payload, handleError);
+      const response = yield call(addInnerEnvs, payload, REQUEST_TELEMETRY_OPTIONS);
       if (response && !isRequestFailure(response)) {
         trackOperationSucceeded('env_change', payload, response);
       } else {
@@ -912,9 +913,9 @@ export default {
         yield put({ type: 'saveRelationOuterEnvs', payload: response.list });
       }
     },
-    *addOuterEnvs({ payload, callback, handleError }, { call }) {
+    *addOuterEnvs({ payload, callback }, { call }) {
       captureAppOperation('env_change', 'started', buildAppControlProperties(payload, { stage: 'outer_env' }));
-      const response = yield call(addOuterEnvs, payload, handleError);
+      const response = yield call(addOuterEnvs, payload, REQUEST_TELEMETRY_OPTIONS);
       if (response && !isRequestFailure(response)) {
         trackOperationSucceeded('env_change', payload, response);
       } else {
@@ -978,9 +979,9 @@ export default {
         callback(response);
       }
     },
-    *editEvns({ payload, callback, handleError }, { call }) {
+    *editEvns({ payload, callback }, { call }) {
       captureAppOperation('env_change', 'started', buildAppControlProperties(payload, { stage: 'edit_env' }));
-      const response = yield call(editEvns, payload, handleError);
+      const response = yield call(editEvns, payload, REQUEST_TELEMETRY_OPTIONS);
       if (response && !isRequestFailure(response)) {
         trackOperationSucceeded('env_change', payload, response);
       } else {
@@ -1084,9 +1085,9 @@ export default {
         callback(response);
       }
     },
-    *addVolume({ payload, callback, handleError }, { call }) {
+    *addVolume({ payload, callback }, { call }) {
       captureAppOperation('storage_mount', 'started', buildAppControlProperties(payload));
-      const response = yield call(addVolume, payload, handleError);
+      const response = yield call(addVolume, payload, REQUEST_TELEMETRY_OPTIONS);
       if (response && !isRequestFailure(response)) {
         trackOperationSucceeded('storage_mount', payload, response);
       } else {
@@ -1432,7 +1433,7 @@ export default {
     *batchOperation({ payload, callback, handleError }, { call }) {
       const refreshTopology = captureTopologyOperation(payload);
       captureAppOperation(payload && payload.action ? payload.action : 'batch_operation', 'started', buildAppControlProperties(payload));
-      const response = yield call(batchOperation, payload, handleError);
+      const response = yield call(batchOperation, payload, handleError, REQUEST_TELEMETRY_OPTIONS);
       refreshTopology(response);
       if (response && !isRequestFailure(response)) {
         trackOperationSucceeded(payload && payload.action ? payload.action : 'batch_operation', payload, response);
@@ -1445,7 +1446,7 @@ export default {
     },
     *horizontal({ payload, callback, handleError }, { call }) {
       captureAppOperation('scale_horizontal', 'started', buildAppControlProperties(payload));
-      const response = yield call(horizontal, payload, handleError);
+      const response = yield call(horizontal, payload, handleError, REQUEST_TELEMETRY_OPTIONS);
       if (response && !isRequestFailure(response)) {
         trackOperationSucceeded('scale_horizontal', payload, response);
       } else {
@@ -1457,7 +1458,7 @@ export default {
     },
     *vertical({ payload, callback, handleError }, { call }) {
       captureAppOperation('scale_vertical', 'started', buildAppControlProperties(payload));
-      const response = yield call(vertical, payload, handleError);
+      const response = yield call(vertical, payload, handleError, REQUEST_TELEMETRY_OPTIONS);
       if (response && !isRequestFailure(response)) {
         trackOperationSucceeded('scale_vertical', payload, response);
       } else {
@@ -1469,7 +1470,7 @@ export default {
     },
     *newVertical({ payload, callback, handleError }, { call }) {
       captureAppOperation('scale_vertical', 'started', buildAppControlProperties(payload));
-      const response = yield call(newVertical, payload, handleError);
+      const response = yield call(newVertical, payload, handleError, REQUEST_TELEMETRY_OPTIONS);
       if (response && !isRequestFailure(response)) {
         trackOperationSucceeded('scale_vertical', payload, response);
       } else {

@@ -104,6 +104,10 @@ function assertPostHogGroupsUpdateOnlyWhenChanged() {
     3,
     'reset should clear persisted signatures before another user is identified'
   );
+  assert.ok(
+    fs.readFileSync(posthogPath, 'utf8').includes('posthog.getGroups'),
+    'stored signatures should not suppress grouping after the SDK group state is reset'
+  );
 }
 
 try {

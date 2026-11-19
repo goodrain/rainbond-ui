@@ -144,7 +144,7 @@ export function getActionLogDetail(
 /*
   部署应用
 */
-export function deploy(body = {}, handleError) {
+export function deploy(body = {}, handleError, telemetryOptions = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/deploy`,
     {
@@ -154,11 +154,11 @@ export function deploy(body = {}, handleError) {
         group_version: body.group_version
       },
       handleError,
-      returnErrorMetadata: true
+      returnErrorMetadata: telemetryOptions.returnErrorMetadata
     }
   );
 }
-export function upgrade(body = {}, handleError) {
+export function upgrade(body = {}, handleError, telemetryOptions = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/market_service/upgrade`,
     {
@@ -168,7 +168,7 @@ export function upgrade(body = {}, handleError) {
         group_version: body.group_version
       },
       handleError,
-      returnErrorMetadata: true
+      returnErrorMetadata: telemetryOptions.returnErrorMetadata
     }
   );
 }
@@ -181,15 +181,14 @@ export function updateRolling(
     team_name,
     app_alias
   },
-  handleError
+  telemetryOptions = {}
 ) {
   const refreshTopology = captureTopologyOperation(body);
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/upgrade`,
     {
       method: 'post',
-      handleError,
-      returnErrorMetadata: true
+      returnErrorMetadata: telemetryOptions.returnErrorMetadata
     }
   ).then(response => { refreshTopology(response); return response; });
 }
@@ -222,11 +221,11 @@ export function restart(
     team_name,
     app_alias
   },
-  handleError
+  telemetryOptions = {}
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/restart`,
-    { method: 'post', handleError, returnErrorMetadata: true }
+    { method: 'post', returnErrorMetadata: telemetryOptions.returnErrorMetadata }
   );
 }
 
@@ -239,7 +238,7 @@ export function restart(
   upgrade: 更新组件
   deploy: 构建组件
 */
-export function batchOperation(body = {}, handleError) {
+export function batchOperation(body = {}, handleError, telemetryOptions = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/batch_actions`,
     {
@@ -249,7 +248,7 @@ export function batchOperation(body = {}, handleError) {
         service_ids: body.serviceIds
       },
       handleError,
-      returnErrorMetadata: true
+      returnErrorMetadata: telemetryOptions.returnErrorMetadata
     }
   );
 }
@@ -262,14 +261,15 @@ export function start(
     team_name,
     app_alias
   },
-  handleError
+  handleError,
+  telemetryOptions = {}
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/start`,
     {
       method: 'post',
       handleError,
-      returnErrorMetadata: true
+      returnErrorMetadata: telemetryOptions.returnErrorMetadata
     }
   );
 }
@@ -304,14 +304,13 @@ export function stop(
     team_name,
     app_alias
   },
-  handleError
+  telemetryOptions = {}
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/stop`,
     {
       method: 'post',
-      handleError,
-      returnErrorMetadata: true
+      returnErrorMetadata: telemetryOptions.returnErrorMetadata
     }
   );
 }
@@ -463,7 +462,8 @@ export function horizontal(
     app_alias,
     new_node
   },
-  handleError
+  handleError,
+  telemetryOptions = {}
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/horizontal`,
@@ -473,7 +473,7 @@ export function horizontal(
         new_node: body.new_node
       },
       handleError,
-      returnErrorMetadata: true
+      returnErrorMetadata: telemetryOptions.returnErrorMetadata
     }
   );
 }
@@ -488,7 +488,8 @@ export function vertical(
     app_alias,
     new_memory
   },
-  handleError
+  handleError,
+  telemetryOptions = {}
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/vertical`,
@@ -500,7 +501,7 @@ export function vertical(
         new_cpu: body.new_cpu
       },
       handleError,
-      returnErrorMetadata: true
+      returnErrorMetadata: telemetryOptions.returnErrorMetadata
     }
   );
 }
@@ -516,7 +517,8 @@ export function newVertical(
     new_memory,
     new_node
   },
-  handleError
+  handleError,
+  telemetryOptions = {}
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/scaling`,
@@ -529,7 +531,7 @@ export function newVertical(
         new_node: body.new_node
       },
       handleError,
-      returnErrorMetadata: true
+      returnErrorMetadata: telemetryOptions.returnErrorMetadata
     }
   );
 }
@@ -936,7 +938,7 @@ export async function bindDomain(
     group_id,
     rule_extensions
   },
-  handleError
+  telemetryOptions = {}
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/domain`,
@@ -951,8 +953,7 @@ export async function bindDomain(
         rule_extensions:
           body.rule_extensions.length > 0 ? body.rule_extensions : []
       },
-      handleError,
-      returnErrorMetadata: true
+      returnErrorMetadata: telemetryOptions.returnErrorMetadata
     }
   );
 }
@@ -1090,7 +1091,7 @@ export async function deleteVariable(
  添加应用的自定义环境变量
  name ： 说明
 */
-export async function addInnerEnvs(body = {}, handleError) {
+export async function addInnerEnvs(body = {}, telemetryOptions = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/envs`,
     {
@@ -1102,8 +1103,7 @@ export async function addInnerEnvs(body = {}, handleError) {
         scope: body.scope ? body.scope : 'inner',
         is_change: true
       },
-      handleError,
-      returnErrorMetadata: true
+      returnErrorMetadata: telemetryOptions.returnErrorMetadata
     }
   );
 }
@@ -1140,7 +1140,7 @@ export async function getOuterEnvs(
  添加应用的自定义环境变量
  name ： 说明
 */
-export async function addOuterEnvs(body = {}, handleError) {
+export async function addOuterEnvs(body = {}, telemetryOptions = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/envs`,
     {
@@ -1151,8 +1151,7 @@ export async function addOuterEnvs(body = {}, handleError) {
         attr_value: body.attr_value || '',
         scope: 'outer'
       },
-      handleError,
-      returnErrorMetadata: true
+      returnErrorMetadata: telemetryOptions.returnErrorMetadata
     }
   );
 }
@@ -1161,7 +1160,7 @@ export async function addOuterEnvs(body = {}, handleError) {
  修改应用的环境变量
  name ： 说明
 */
-export async function editEvns(body = {}, handleError) {
+export async function editEvns(body = {}, telemetryOptions = {}) {
   const data = {
     name: body.name,
     attr_value: body.attr_value || ''
@@ -1174,8 +1173,7 @@ export async function editEvns(body = {}, handleError) {
     {
       method: 'put',
       data,
-      handleError,
-      returnErrorMetadata: true
+      returnErrorMetadata: telemetryOptions.returnErrorMetadata
     }
   );
 }
@@ -1689,7 +1687,7 @@ export async function addVolume(
     volume_capacity,
     file_content
   },
-  handleError
+  telemetryOptions = {}
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/volumes`,
@@ -1704,8 +1702,7 @@ export async function addVolume(
         volume_capacity: new Number(body.volume_capacity),
         file_content: body.volume_type == 'config-file' ? body.file_content : ''
       },
-      handleError,
-      returnErrorMetadata: true
+      returnErrorMetadata: telemetryOptions.returnErrorMetadata
     }
   );
 }

@@ -95,9 +95,21 @@ function clearStoredGroupSignature(groupType) {
   }
 }
 
+function getCurrentPostHogGroupId(groupType) {
+  try {
+    const groups = typeof posthog.getGroups === 'function' ? posthog.getGroups() : {};
+    return groups && groups[groupType];
+  } catch (error) {
+    return '';
+  }
+}
+
 function shouldUpdateStoredPostHogGroup(groupType, previousSignature, group) {
   const signature = buildPostHogGroupSignature(group);
-  return shouldUpdatePostHogGroup(previousSignature, group) && getStoredGroupSignature(groupType) !== signature;
+  if (!shouldUpdatePostHogGroup(previousSignature, group)) {
+    return false;
+  }
+  return getStoredGroupSignature(groupType) !== signature || getCurrentPostHogGroupId(groupType) !== group.enterpriseIdHash;
 }
 
 function rememberPostHogGroup(groupType, signature) {
