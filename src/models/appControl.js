@@ -192,11 +192,17 @@ function trackOperationSucceeded(actionType, payload, response) {
 }
 
 function trackOperationFailed(actionType, payload, error) {
+  const failure = error || {};
   captureAppOperation(actionType, 'failed', buildAppControlProperties(payload, {
     action_type: actionType,
-    error_category: 'request_failed',
-    error_code: error && (error.status || error.code || error.name)
+    error_category: failure.error_category || 'request_failed',
+    error_code: failure.error_code || failure.status || failure.code || 'request_failed',
+    http_status: failure.http_status || 0
   }));
+}
+
+function isRequestFailure(response) {
+  return !!(response && response.__rainbondRequestFailure);
 }
 
 function isRunningStatus(status) {
@@ -344,10 +350,10 @@ export default {
       captureAppOperation('deploy', 'started', buildAppControlProperties(payload));
       const response = yield call(deploy, payload, handleError);
       refreshTopology(response);
-      if (response) {
+      if (response && !isRequestFailure(response)) {
         trackOperationSucceeded('deploy', payload, response);
       } else {
-        trackOperationFailed('deploy', payload);
+        trackOperationFailed('deploy', payload, response);
       }
       if (response && callback) {
         callback(response);
@@ -358,22 +364,22 @@ export default {
       captureAppOperation('upgrade', 'started', buildAppControlProperties(payload));
       const response = yield call(upgrade, payload, handleError);
       refreshTopology(response);
-      if (response) {
+      if (response && !isRequestFailure(response)) {
         trackOperationSucceeded('upgrade', payload, response);
       } else {
-        trackOperationFailed('upgrade', payload);
+        trackOperationFailed('upgrade', payload, response);
       }
       if (response && callback) {
         callback(response);
       }
     },
-    *putUpdateRolling({ payload, callback }, { call }) {
+    *putUpdateRolling({ payload, callback, handleError }, { call }) {
       captureAppOperation('rolling_update', 'started', buildAppControlProperties(payload));
-      const response = yield call(updateRolling, payload);
-      if (response) {
+      const response = yield call(updateRolling, payload, handleError);
+      if (response && !isRequestFailure(response)) {
         trackOperationSucceeded('rolling_update', payload, response);
       } else {
-        trackOperationFailed('rolling_update', payload);
+        trackOperationFailed('rolling_update', payload, response);
       }
       if (response && callback) {
         callback(response);
@@ -406,10 +412,10 @@ export default {
       captureAppOperation('restart', 'started', buildAppControlProperties(payload));
       const response = yield call(restart, payload, handleError);
       refreshTopology(response);
-      if (response) {
+      if (response && !isRequestFailure(response)) {
         trackOperationSucceeded('restart', payload, response);
       } else {
-        trackOperationFailed('restart', payload);
+        trackOperationFailed('restart', payload, response);
       }
       if (response && callback) {
         callback(response);
@@ -420,10 +426,10 @@ export default {
       captureAppOperation('start', 'started', buildAppControlProperties(payload));
       const response = yield call(start, payload, handleError);
       refreshTopology(response);
-      if (response) {
+      if (response && !isRequestFailure(response)) {
         trackOperationSucceeded('start', payload, response);
       } else {
-        trackOperationFailed('start', payload);
+        trackOperationFailed('start', payload, response);
       }
       if (response && callback) {
         callback(response);
@@ -434,10 +440,10 @@ export default {
       captureAppOperation('stop', 'started', buildAppControlProperties(payload));
       const response = yield call(stop, payload, handleError);
       refreshTopology(response);
-      if (response) {
+      if (response && !isRequestFailure(response)) {
         trackOperationSucceeded('stop', payload, response);
       } else {
-        trackOperationFailed('stop', payload);
+        trackOperationFailed('stop', payload, response);
       }
       if (response && callback) {
         callback(response);
@@ -804,13 +810,13 @@ export default {
         callback(response);
       }
     },
-    *bindDomain({ payload, callback }, { call }) {
+    *bindDomain({ payload, callback, handleError }, { call }) {
       captureAppOperation('bind_domain', 'started', buildAppControlProperties(payload));
-      const response = yield call(bindDomain, payload);
-      if (response) {
+      const response = yield call(bindDomain, payload, handleError);
+      if (response && !isRequestFailure(response)) {
         trackOperationSucceeded('bind_domain', payload, response);
       } else {
-        trackOperationFailed('bind_domain', payload);
+        trackOperationFailed('bind_domain', payload, response);
       }
       if (response && callback) {
         callback(response);
@@ -876,13 +882,13 @@ export default {
         }
       }
     },
-    *addInnerEnvs({ payload, callback }, { call }) {
+    *addInnerEnvs({ payload, callback, handleError }, { call }) {
       captureAppOperation('env_change', 'started', buildAppControlProperties(payload, { stage: 'inner_env' }));
-      const response = yield call(addInnerEnvs, payload);
-      if (response) {
+      const response = yield call(addInnerEnvs, payload, handleError);
+      if (response && !isRequestFailure(response)) {
         trackOperationSucceeded('env_change', payload, response);
       } else {
-        trackOperationFailed('env_change', payload);
+        trackOperationFailed('env_change', payload, response);
       }
       if (response && callback) {
         callback(response);
@@ -906,13 +912,13 @@ export default {
         yield put({ type: 'saveRelationOuterEnvs', payload: response.list });
       }
     },
-    *addOuterEnvs({ payload, callback }, { call }) {
+    *addOuterEnvs({ payload, callback, handleError }, { call }) {
       captureAppOperation('env_change', 'started', buildAppControlProperties(payload, { stage: 'outer_env' }));
-      const response = yield call(addOuterEnvs, payload);
-      if (response) {
+      const response = yield call(addOuterEnvs, payload, handleError);
+      if (response && !isRequestFailure(response)) {
         trackOperationSucceeded('env_change', payload, response);
       } else {
-        trackOperationFailed('env_change', payload);
+        trackOperationFailed('env_change', payload, response);
       }
       if (response && callback) {
         callback(response);
@@ -972,13 +978,13 @@ export default {
         callback(response);
       }
     },
-    *editEvns({ payload, callback }, { call }) {
+    *editEvns({ payload, callback, handleError }, { call }) {
       captureAppOperation('env_change', 'started', buildAppControlProperties(payload, { stage: 'edit_env' }));
-      const response = yield call(editEvns, payload);
-      if (response) {
+      const response = yield call(editEvns, payload, handleError);
+      if (response && !isRequestFailure(response)) {
         trackOperationSucceeded('env_change', payload, response);
       } else {
-        trackOperationFailed('env_change', payload);
+        trackOperationFailed('env_change', payload, response);
       }
       if (response && callback) {
         callback(response);
@@ -1078,13 +1084,13 @@ export default {
         callback(response);
       }
     },
-    *addVolume({ payload, callback }, { call }) {
+    *addVolume({ payload, callback, handleError }, { call }) {
       captureAppOperation('storage_mount', 'started', buildAppControlProperties(payload));
-      const response = yield call(addVolume, payload);
-      if (response) {
+      const response = yield call(addVolume, payload, handleError);
+      if (response && !isRequestFailure(response)) {
         trackOperationSucceeded('storage_mount', payload, response);
       } else {
-        trackOperationFailed('storage_mount', payload);
+        trackOperationFailed('storage_mount', payload, response);
       }
       if (response && callback) {
         callback(response);
@@ -1428,10 +1434,10 @@ export default {
       captureAppOperation(payload && payload.action ? payload.action : 'batch_operation', 'started', buildAppControlProperties(payload));
       const response = yield call(batchOperation, payload, handleError);
       refreshTopology(response);
-      if (response) {
+      if (response && !isRequestFailure(response)) {
         trackOperationSucceeded(payload && payload.action ? payload.action : 'batch_operation', payload, response);
       } else {
-        trackOperationFailed(payload && payload.action ? payload.action : 'batch_operation', payload);
+        trackOperationFailed(payload && payload.action ? payload.action : 'batch_operation', payload, response);
       }
       if (response && callback) {
         callback(response);
@@ -1440,10 +1446,10 @@ export default {
     *horizontal({ payload, callback, handleError }, { call }) {
       captureAppOperation('scale_horizontal', 'started', buildAppControlProperties(payload));
       const response = yield call(horizontal, payload, handleError);
-      if (response) {
+      if (response && !isRequestFailure(response)) {
         trackOperationSucceeded('scale_horizontal', payload, response);
       } else {
-        trackOperationFailed('scale_horizontal', payload);
+        trackOperationFailed('scale_horizontal', payload, response);
       }
       if (response && callback) {
         callback(response);
@@ -1452,10 +1458,10 @@ export default {
     *vertical({ payload, callback, handleError }, { call }) {
       captureAppOperation('scale_vertical', 'started', buildAppControlProperties(payload));
       const response = yield call(vertical, payload, handleError);
-      if (response) {
+      if (response && !isRequestFailure(response)) {
         trackOperationSucceeded('scale_vertical', payload, response);
       } else {
-        trackOperationFailed('scale_vertical', payload);
+        trackOperationFailed('scale_vertical', payload, response);
       }
       if (response && callback) {
         callback(response);
@@ -1464,10 +1470,10 @@ export default {
     *newVertical({ payload, callback, handleError }, { call }) {
       captureAppOperation('scale_vertical', 'started', buildAppControlProperties(payload));
       const response = yield call(newVertical, payload, handleError);
-      if (response) {
+      if (response && !isRequestFailure(response)) {
         trackOperationSucceeded('scale_vertical', payload, response);
       } else {
-        trackOperationFailed('scale_vertical', payload);
+        trackOperationFailed('scale_vertical', payload, response);
       }
       if (response && callback) {
         callback(response);

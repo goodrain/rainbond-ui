@@ -288,3 +288,28 @@ test('sanitizePostHogEvent filters domain and IP instance group keys', function(
     );
   });
 });
+
+test('sanitizePostHogEvent preserves only the matching enterprise group key', function() {
+  const enterpriseGroupId = 'enterprise_0123456789abcdef0123456789abcdef';
+  const captureResult = {
+    event: '$groupidentify',
+    properties: { $group_key: enterpriseGroupId }
+  };
+
+  assert.strictEqual(
+    sanitizePostHogEvent(captureResult, { enterpriseGroupId }).properties.$group_key,
+    enterpriseGroupId
+  );
+  assert.strictEqual(
+    sanitizePostHogEvent(captureResult, {
+      enterpriseGroupId: 'enterprise_not-a-hash'
+    }).properties.$group_key,
+    '[Filtered]'
+  );
+  assert.strictEqual(
+    sanitizePostHogEvent(captureResult, {
+      enterpriseGroupId: 'enterprise_fedcba9876543210fedcba9876543210'
+    }).properties.$group_key,
+    '[Filtered]'
+  );
+});

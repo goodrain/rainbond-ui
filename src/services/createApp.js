@@ -7,7 +7,7 @@ const { sanitizePackageToolPayload } = sourceBuildPayload;
 /*
    源码创建应用
 */
-export async function createAppByCode(body = {}) {
+export async function createAppByCode(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/source_code`,
     {
@@ -28,7 +28,9 @@ export async function createAppByCode(body = {}) {
         k8s_app: body.k8s_app || '',
         is_demo: body.is_demo,
         arch: body.arch,
-      }
+      },
+      handleError,
+      returnErrorMetadata: true
     }
   );
 }
@@ -36,7 +38,7 @@ export async function createAppByCode(body = {}) {
 /*
    源码第三方创建应用
 */
-export async function createThirtAppByCodes(body = {}) {
+export async function createThirtAppByCodes(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/source_code`,
     {
@@ -56,19 +58,23 @@ export async function createThirtAppByCodes(body = {}) {
         full_name: body.full_name,
         k8s_component_name: body.k8s_component_name,
         arch: body.arch,
-      }
+      },
+      handleError,
+      returnErrorMetadata: true
     }
   );
 }
 /*
    源码创建应用
 */
-export async function createThirdPartyServices(body = {}) {
+export async function createThirdPartyServices(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/third_party`,
     {
       method: 'post',
-      data: body
+      data: body,
+      handleError,
+      returnErrorMetadata: true
     }
   );
 }
@@ -185,7 +191,7 @@ export async function createJarWarSubmit(body = {}) {
 /*
    compose创建应用
 */
-export async function createAppByCompose(body = {}) {
+export async function createAppByCompose(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/docker_compose`,
     {
@@ -201,7 +207,9 @@ export async function createAppByCompose(body = {}) {
         group_id: body.group_id,
         // k8s_app: body.k8s_app,
         arch: body.arch,
-      }
+      },
+      handleError,
+      returnErrorMetadata: true
     }
   );
 }
@@ -209,7 +217,7 @@ export async function createAppByCompose(body = {}) {
 /*
    指定镜像或docuer run 创建应用
 */
-export async function createAppByDockerrun(body = {}) {
+export async function createAppByDockerrun(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/docker_run`,
     {
@@ -226,7 +234,9 @@ export async function createAppByDockerrun(body = {}) {
         k8s_app: body.k8s_app || '',
         is_demo: body.is_demo,
         arch: body.arch,
-      }
+      },
+      handleError,
+      returnErrorMetadata: true
     }
   );
 }
@@ -276,7 +286,7 @@ export async function saveTarImageName(body = {}) {
 /*
    虚拟机镜像创建应用
 */
-export async function createAppByVirtualMachine(body = {}) {
+export async function createAppByVirtualMachine(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/vm_run`,
     {
@@ -298,7 +308,9 @@ export async function createAppByVirtualMachine(body = {}) {
         gpu_count: body.gpu_count,
         usb_enabled: body.usb_enabled,
         usb_resources: body.usb_resources,
-      }
+      },
+      handleError,
+      returnErrorMetadata: true
     }
   );
 }
@@ -625,12 +637,14 @@ export async function changeAppVersions(body = {}) {
   );
 }
 
-export async function installHelmApp(body = {}) {
+export async function installHelmApp(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups`,
     {
       method: 'post',
-      data: body
+      data: body,
+      handleError,
+      returnErrorMetadata: true
     }
   );
 }
@@ -716,7 +730,8 @@ export async function installHelmAppCmd(body = {}, handleError) {
         app_id: body.app_id,
         command: body.command
       },
-      handleError
+      handleError,
+      returnErrorMetadata: true
     }
   );
 }
@@ -730,7 +745,8 @@ export async function installRamAppCmd(body = {}, handleError) {
         group_id: body.group_id,
         cmd: body.command
       },
-      handleError
+      handleError,
+      returnErrorMetadata: true
     }
   );
 }
@@ -773,7 +789,9 @@ export async function installHelmUploadApp(body = {}, handleError) {
       data: {
         resource: body.resource,
         app_id: body.group_id
-      }
+      },
+      handleError,
+      returnErrorMetadata: true
     }
   )
 }

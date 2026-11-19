@@ -58,6 +58,44 @@ function checkStatus(response) {
   throw error;
 }
 
+export function getRequestFailureMetadata(error, responseData) {
+  const response = error && error.response;
+  const data = responseData || (response && response.data) || {};
+  const httpStatus = response && Number(response.status) ? Number(response.status) : 0;
+  const businessCode = data && data.code;
+  if (businessCode !== undefined && businessCode !== null && (typeof businessCode === 'number' || /^\d+$/.test(String(businessCode)) || /^[A-Z][A-Z0-9_]*$/.test(String(businessCode)))) {
+    return {
+      error_code: `business_${businessCode}`,
+      error_category: 'business_failure',
+      http_status: httpStatus
+    };
+  }
+  if (httpStatus >= 400 && httpStatus < 500) {
+    return { error_code: `http_${httpStatus}`, error_category: 'http_4xx', http_status: httpStatus };
+  }
+  if (httpStatus >= 500) {
+    return { error_code: `http_${httpStatus}`, error_category: 'http_5xx', http_status: httpStatus };
+  }
+  if (error && (error.code === 'ECONNABORTED' || /timeout/i.test(error.message || ''))) {
+    return { error_code: 'timeout', error_category: 'timeout', http_status: 0 };
+  }
+  return { error_code: 'network_error', error_category: 'network_error', http_status: 0 };
+}
+
+function getRequestFailureResult(error, responseData, options) {
+  const metadata = getRequestFailureMetadata(error, responseData);
+  if (error && typeof error === 'object') {
+    error.requestTelemetry = metadata;
+  }
+  if (!options.returnErrorMetadata) {
+    return undefined;
+  }
+  return {
+    __rainbondRequestFailure: true,
+    ...metadata
+  };
+}
+
 function handleStoreDispatch(type, payload = {}) {
   const app = getDvaApp();
   if (app && app._store) {
@@ -322,15 +360,19 @@ export default function request(url, options) {
           // ignore parse error
         }
         const { code = '' } = resData;
+        const failureResult = getRequestFailureResult(error, resData, newOptions);
 
         // 处理特殊业务错误码（需要特殊处理的错误）
         const isSpecialCode = handleSpecialErrorCode(code, resData, newOptions, error, TEAM_NAME, REGION_NAME, url);
 
+        if (isSpecialCode) {
+          return failureResult;
+        }
         if (!isSpecialCode) {
           // 调用自定义错误处理
           if (newOptions.handleError) {
             newOptions.handleError(error);
-            return;
+            return failureResult;
           }
 
           // 使用统一错误处理
@@ -340,11 +382,14 @@ export default function request(url, options) {
           if (newOptions.noModels) {
             return Promise.reject(error);
           }
+          return failureResult;
         }
       } else {
+        const failureResult = getRequestFailureResult(error, {}, newOptions);
         // 网络错误或请求配置错误
         if (newOptions.handleError) {
-          return newOptions.handleError(error);
+          newOptions.handleError(error);
+          return failureResult;
         }
         if (newOptions.noModels) {
           return Promise.reject(error);
@@ -354,6 +399,7 @@ export default function request(url, options) {
           message: formatMessage({id:'utils.request.warning'}),
           description: formatMessage({id:'utils.request.server_error'})
         });
+        return failureResult;
       }
     });
 }

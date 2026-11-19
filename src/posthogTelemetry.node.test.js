@@ -65,7 +65,7 @@ function assertStartedOperationsTrackFailures() {
   });
 }
 
-function assertEnterpriseGroupUpdatesOnlyWhenChanged() {
+function assertPostHogGroupsUpdateOnlyWhenChanged() {
   const group = {
     enterpriseIdHash: 'enterprise_hash',
     enterpriseProperties: { instance_id: 'instance_hash', team_count: 1 }
@@ -91,14 +91,19 @@ function assertEnterpriseGroupUpdatesOnlyWhenChanged() {
     true
   );
   assert.ok(
-    fs.readFileSync(posthogPath, 'utf8').includes('shouldUpdatePostHogGroup'),
-    'posthog user identification should use the enterprise group change guard'
+    fs.readFileSync(posthogPath, 'utf8').includes('rainbond_posthog_group_signature:'),
+    'posthog group signatures should be persisted in sessionStorage'
+  );
+  assert.strictEqual(
+    (fs.readFileSync(posthogPath, 'utf8').match(/shouldUpdateStoredPostHogGroup\(/g) || []).length,
+    3,
+    'instance and enterprise groups should both use the persisted change guard'
   );
 }
 
 try {
   assertStartedOperationsTrackFailures();
-  assertEnterpriseGroupUpdatesOnlyWhenChanged();
+  assertPostHogGroupsUpdateOnlyWhenChanged();
   console.log('PostHog operation and group telemetry tests passed');
 } catch (error) {
   console.error(error);
