@@ -252,7 +252,9 @@ function installClickTracking() {
 }
 
 function sanitizeRouteProperties(captureResult) {
-  const sanitized = sanitizePostHogEvent(captureResult);
+  const sanitized = sanitizePostHogEvent(captureResult, {
+    instanceId: activeConfig && activeConfig.instanceId
+  });
   if (!sanitized || !sanitized.properties) {
     return sanitized;
   }

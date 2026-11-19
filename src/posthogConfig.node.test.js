@@ -248,3 +248,29 @@ test('classifyPostHogInteraction detects blocking recovery actions', function() 
   });
   assert.strictEqual(classifyPostHogInteraction({ element_text: '确认' }), null);
 });
+
+test('sanitizePostHogEvent preserves only the matching instance group key', function() {
+  const captureResult = {
+    event: '$groupidentify',
+    properties: {
+      $group_key: 'instance-123',
+      api_key: 'secret-value'
+    }
+  };
+
+  assert.deepStrictEqual(
+    sanitizePostHogEvent(captureResult, { instanceId: 'instance-123' }),
+    {
+      event: '$groupidentify',
+      properties: {
+        $group_key: 'instance-123',
+        api_key: '[Filtered]'
+      }
+    }
+  );
+
+  assert.strictEqual(
+    sanitizePostHogEvent(captureResult, { instanceId: 'other-instance' }).properties.$group_key,
+    '[Filtered]'
+  );
+});

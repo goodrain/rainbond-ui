@@ -152,7 +152,7 @@ function sanitizeString(value) {
     .replace(BEARER_VALUE_RE, '$1[Filtered]');
 }
 
-function sanitizeObject(value, depth = 0) {
+function sanitizeObject(value, depth = 0, options = {}) {
   if (typeof value === 'string') {
     return sanitizeString(value);
   }
@@ -163,23 +163,27 @@ function sanitizeObject(value, depth = 0) {
     return '[MaxDepth]';
   }
   if (Array.isArray(value)) {
-    return value.slice(0, 20).map(item => sanitizeObject(item, depth + 1));
+    return value.slice(0, 20).map(item => sanitizeObject(item, depth + 1, options));
   }
   return Object.keys(value).reduce((result, key) => {
+    if (key === '$group_key' && value[key] === options.instanceId) {
+      result[key] = value[key];
+      return result;
+    }
     if (SENSITIVE_KEY_RE.test(key)) {
       result[key] = '[Filtered]';
       return result;
     }
-    result[key] = sanitizeObject(value[key], depth + 1);
+    result[key] = sanitizeObject(value[key], depth + 1, options);
     return result;
   }, {});
 }
 
-function sanitizePostHogEvent(captureResult) {
+function sanitizePostHogEvent(captureResult, options = {}) {
   if (!captureResult || !captureResult.properties) {
     return captureResult;
   }
-  const sanitizedProperties = sanitizeObject(captureResult.properties);
+  const sanitizedProperties = sanitizeObject(captureResult.properties, 0, options);
   Object.keys(POSTHOG_RESERVED_PROPERTIES).forEach(key => {
     if (Object.prototype.hasOwnProperty.call(captureResult.properties, key)) {
       sanitizedProperties[key] = captureResult.properties[key];
@@ -190,10 +194,10 @@ function sanitizePostHogEvent(captureResult) {
     properties: sanitizedProperties
   };
   if (sanitized.$set) {
-    sanitized.$set = sanitizeObject(sanitized.$set);
+    sanitized.$set = sanitizeObject(sanitized.$set, 0, options);
   }
   if (sanitized.$set_once) {
-    sanitized.$set_once = sanitizeObject(sanitized.$set_once);
+    sanitized.$set_once = sanitizeObject(sanitized.$set_once, 0, options);
   }
   return sanitized;
 }
