@@ -250,27 +250,41 @@ test('classifyPostHogInteraction detects blocking recovery actions', function() 
 });
 
 test('sanitizePostHogEvent preserves only the matching instance group key', function() {
+  const instanceId = '0123456789abcdef0123456789abcdef';
   const captureResult = {
     event: '$groupidentify',
     properties: {
-      $group_key: 'instance-123',
+      $group_key: instanceId,
       api_key: 'secret-value'
     }
   };
 
   assert.deepStrictEqual(
-    sanitizePostHogEvent(captureResult, { instanceId: 'instance-123' }),
+    sanitizePostHogEvent(captureResult, { instanceId }),
     {
       event: '$groupidentify',
       properties: {
-        $group_key: 'instance-123',
+        $group_key: instanceId,
         api_key: '[Filtered]'
       }
     }
   );
 
   assert.strictEqual(
-    sanitizePostHogEvent(captureResult, { instanceId: 'other-instance' }).properties.$group_key,
+    sanitizePostHogEvent(captureResult, { instanceId: 'fedcba9876543210fedcba9876543210' }).properties.$group_key,
     '[Filtered]'
   );
+});
+
+test('sanitizePostHogEvent filters domain and IP instance group keys', function() {
+  ['console.example.com', '192.0.2.10'].forEach(instanceId => {
+    assert.strictEqual(
+      sanitizePostHogEvent({
+        event: '$groupidentify',
+        properties: { $group_key: instanceId }
+      }, { instanceId }).properties.$group_key,
+      '[Filtered]',
+      `${instanceId} must not be allowed as an instance group key`
+    );
+  });
 });

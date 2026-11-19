@@ -1,6 +1,7 @@
 const SENSITIVE_KEY_RE = /(token|password|secret|authorization|cookie|key|dsn|email|phone)/i;
 const SENSITIVE_VALUE_RE = /\b((?:token|password|secret|authorization|cookie|dsn|api[_-]?key|access[_-]?key|secret[_-]?key|email|phone)\s*[:=]\s*)(?:bearer\s+)?[^&\s"'<>]+/gi;
 const BEARER_VALUE_RE = /\b(bearer\s+)[a-z0-9._~+/=-]+/gi;
+const INSTANCE_ID_RE = /^[0-9a-f]{32}$/;
 const DEFAULT_PROJECT_TOKEN = 'phc_oCoPwcxutKCU9AZtUT63dMTNhWezUxCXCLtSZE6a4wvE';
 const DEFAULT_API_HOST = '/console/posthog';
 const DEFAULT_UI_HOST = 'https://posthog.goodrain.com';
@@ -166,7 +167,7 @@ function sanitizeObject(value, depth = 0, options = {}) {
     return value.slice(0, 20).map(item => sanitizeObject(item, depth + 1, options));
   }
   return Object.keys(value).reduce((result, key) => {
-    if (key === '$group_key' && value[key] === options.instanceId) {
+    if (key === '$group_key' && INSTANCE_ID_RE.test(options.instanceId) && value[key] === options.instanceId) {
       result[key] = value[key];
       return result;
     }
