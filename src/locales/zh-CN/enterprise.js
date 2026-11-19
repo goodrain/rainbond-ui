@@ -16,6 +16,7 @@ const enterpriseOverview = {
     'platformOverview.header.upgradeChecking': '正在检查版本',
     'platformOverview.header.upgradeUnavailable': '版本状态暂不可用',
     'platformOverview.header.platformVersion': '平台版本',
+    'platformOverview.header.consulting': '商业咨询',
     'platformOverview.header.licenseStatus': '授权状态',
     'platformOverview.header.licenseExpires': '授权到期',
     'platformOverview.header.viewLicense': '查看授权详情',

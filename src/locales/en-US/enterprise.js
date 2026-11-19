@@ -16,6 +16,7 @@ const enterpriseOverview = {
     'platformOverview.header.upgradeChecking': 'Checking for updates',
     'platformOverview.header.upgradeUnavailable': 'Version status unavailable',
     'platformOverview.header.platformVersion': 'Version',
+    'platformOverview.header.consulting': 'Commercial consultation',
     'platformOverview.header.licenseStatus': 'License',
     'platformOverview.header.licenseExpires': 'Expires',
     'platformOverview.header.viewLicense': 'View license details',

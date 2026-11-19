@@ -18,6 +18,10 @@ import moment from 'moment';
 import React, { PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
 import userUtil from '@/utils/user';
+import {
+  ENTERPRISE_CONSULTING_URL,
+  trackEnterpriseConsulting
+} from '@/utils/enterpriseConsulting';
 import IssueModal from './components/IssueModal';
 import OverviewModule from './components/OverviewModule';
 import PlatformInfoModal from './components/PlatformInfoModal';
@@ -392,6 +396,7 @@ export default class Enterprise extends PureComponent {
   renderPlatformHeader() {
     const enterprise = this.props.enterprise || {};
     const rainbondInfo = this.props.rainbondInfo || {};
+    const rainbondInfoReady = !!this.props.rainbondInfo;
     const { hasNewVersion, latestVersion, upgradeStatus, license, licenseStatus } = this.state;
     const overview = this.props.overview || {};
     const clusterSummary = overviewData.platformClusterSummary(overview.runtime, overview.errors && overview.errors.runtime);
@@ -439,6 +444,17 @@ export default class Enterprise extends PureComponent {
         ) : (
           <span className={styles.versionUnknown}><Icon type={upgradeStatus === 'loading' ? 'loading' : 'question-circle'} /> {upgradeStatus === 'loading' ? t('header.upgradeChecking') : t('header.upgradeUnavailable')}</span>
         )}
+        {rainbondInfoReady && !enterpriseEdition && currentVersion !== 'cloud' ? (
+          <a
+            className={styles.consultingAction}
+            href={ENTERPRISE_CONSULTING_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackEnterpriseConsulting('console_enterprise_overview')}
+          >
+            <Icon type="customer-service" /> {t('header.consulting')}
+          </a>
+        ) : null}
       </section>
     );
   }
