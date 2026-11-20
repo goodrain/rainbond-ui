@@ -836,7 +836,6 @@ class Explore extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           this.setState({
-            marketLoading: false,
             marketList: res.list,
             marketPag: {
               ...this.state.marketPag,
@@ -844,8 +843,10 @@ class Explore extends PureComponent {
             }
           });
         }
+        this.setState({ marketLoading: false });
       },
-      handleError: () => {
+      handleError: err => {
+        handleAPIError(err);
         this.setState({
           marketLoading: false,
           marketList: []
