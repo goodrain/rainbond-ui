@@ -123,3 +123,34 @@ test('real DVA start and batch effects report then rethrow page handler errors',
     assert.deepEqual(tracked, [{ action: operation, payload, error }]);
   }
 });
+
+test('real DVA start and batch effects do not report failed after a successful callback throws', () => {
+  const definition = parse('../../models/appControl.js').find(node => node.type === 'ExportDefaultDeclaration').declaration;
+  const effects = definition.properties.find(node => node.key.name === 'effects').value.properties;
+  for (const [name, operation] of [['putStart', 'start'], ['batchOperation', 'stop']]) {
+    const tracked = [];
+    const effect = effects.find(node => node.key.name === name);
+    const execute = new Function('captureTopologyOperation', 'captureAppOperation', 'buildAppControlProperties', 'trackOperationSucceeded', 'REQUEST_TELEMETRY_OPTIONS', 'trackOperationFailed', 'isRequestFailure', 'start', 'batchOperation',
+      `return ({${generate(effect).code}}).${name};`)(() => () => {}, () => {}, () => ({}), action => tracked.push({ status: 'succeeded', action }), { returnErrorMetadata: true }, action => tracked.push({ status: 'failed', action }), () => false, () => {}, () => {});
+    const callbackError = new Error(`${name} callback error`);
+    const iterator = execute({ payload: { team_name: 'team', app_alias: 'component', action: operation }, callback: () => { throw callbackError; } }, { call: () => {} });
+    iterator.next();
+    assert.throws(() => iterator.next({ status_code: 200, business_code: 200 }), value => value === callbackError);
+    assert.deepEqual(tracked, [{ status: 'succeeded', action: operation }]);
+  }
+});
+
+test('trackOperationFailed uses request telemetry from a page handler error', () => {
+  const trackerNode = parse('../../models/appControl.js').find(node => node.type === 'FunctionDeclaration' && node.id.name === 'trackOperationFailed');
+  const events = [];
+  const trackOperationFailed = new Function('captureAppOperation', 'buildAppControlProperties', `${generate(trackerNode).code}; return trackOperationFailed;`)(
+    (...args) => events.push(args),
+    (payload, overrides) => ({ ...payload, ...overrides })
+  );
+  const error = new Error('page handler error');
+  error.requestTelemetry = { error_category: 'business_failure', error_code: 'business_10499', http_status: 422 };
+  trackOperationFailed('start', { team_name: 'team' }, error);
+  assert.deepEqual(events, [['start', 'failed', {
+    team_name: 'team', action_type: 'start', error_category: 'business_failure', error_code: 'business_10499', http_status: 422
+  }]]);
+});

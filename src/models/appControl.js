@@ -193,7 +193,7 @@ function trackOperationSucceeded(actionType, payload, response) {
 }
 
 function trackOperationFailed(actionType, payload, error) {
-  const failure = error || {};
+  const failure = (error && error.requestTelemetry) || error || {};
   captureAppOperation(actionType, 'failed', buildAppControlProperties(payload, {
     action_type: actionType,
     error_category: failure.error_category || 'request_failed',
@@ -425,20 +425,21 @@ export default {
     *putStart({ payload, callback, handleError }, { call }) {
       const refreshTopology = captureTopologyOperation(payload);
       captureAppOperation('start', 'started', buildAppControlProperties(payload));
+      let response;
       try {
-        const response = yield call(start, payload, handleError, REQUEST_TELEMETRY_OPTIONS);
-        refreshTopology(response);
-        if (response && !isRequestFailure(response)) {
-          trackOperationSucceeded('start', payload, response);
-        } else {
-          trackOperationFailed('start', payload, response);
-        }
-        if (response && !isRequestFailure(response) && callback) {
-          callback(response);
-        }
+        response = yield call(start, payload, handleError, REQUEST_TELEMETRY_OPTIONS);
       } catch (error) {
         trackOperationFailed('start', payload, error);
         throw error;
+      }
+      refreshTopology(response);
+      if (response && !isRequestFailure(response)) {
+        trackOperationSucceeded('start', payload, response);
+      } else {
+        trackOperationFailed('start', payload, response);
+      }
+      if (response && !isRequestFailure(response) && callback) {
+        callback(response);
       }
     },
     *putStop({ payload, callback }, { call }) {
@@ -1439,20 +1440,21 @@ export default {
       const refreshTopology = captureTopologyOperation(payload);
       captureAppOperation(payload && payload.action ? payload.action : 'batch_operation', 'started', buildAppControlProperties(payload));
       const operation = payload && payload.action ? payload.action : 'batch_operation';
+      let response;
       try {
-        const response = yield call(batchOperation, payload, handleError, REQUEST_TELEMETRY_OPTIONS);
-        refreshTopology(response);
-        if (response && !isRequestFailure(response)) {
-          trackOperationSucceeded(operation, payload, response);
-        } else {
-          trackOperationFailed(operation, payload, response);
-        }
-        if (response && !isRequestFailure(response) && callback) {
-          callback(response);
-        }
+        response = yield call(batchOperation, payload, handleError, REQUEST_TELEMETRY_OPTIONS);
       } catch (error) {
         trackOperationFailed(operation, payload, error);
         throw error;
+      }
+      refreshTopology(response);
+      if (response && !isRequestFailure(response)) {
+        trackOperationSucceeded(operation, payload, response);
+      } else {
+        trackOperationFailed(operation, payload, response);
+      }
+      if (response && !isRequestFailure(response) && callback) {
+        callback(response);
       }
     },
     *horizontal({ payload, callback, handleError }, { call }) {

@@ -82,11 +82,16 @@ export function getRequestFailureMetadata(error, responseData) {
   return { error_code: 'network_error', error_category: 'network_error', http_status: 0 };
 }
 
-export function getRequestFailureResult(error, responseData, options = {}, handleErrorResult) {
-  const metadata = getRequestFailureMetadata(error, responseData);
+function attachRequestTelemetry(error, metadata) {
   if (error && typeof error === 'object') {
     error.requestTelemetry = metadata;
   }
+  return error;
+}
+
+export function getRequestFailureResult(error, responseData, options = {}, handleErrorResult) {
+  const metadata = getRequestFailureMetadata(error, responseData);
+  attachRequestTelemetry(error, metadata);
   if (!options.returnErrorMetadata) {
     return handleErrorResult;
   }
@@ -372,7 +377,11 @@ export default function request(url, options) {
         if (!isSpecialCode) {
           // 调用自定义错误处理
           if (newOptions.handleError) {
-            newOptions.handleError(error);
+            try {
+              newOptions.handleError(error);
+            } catch (handlerError) {
+              throw attachRequestTelemetry(handlerError, failureMetadata);
+            }
             return failureResult;
           }
 
@@ -389,7 +398,11 @@ export default function request(url, options) {
         const failureResult = getRequestFailureResult(error, {}, newOptions);
         // 网络错误或请求配置错误
         if (newOptions.handleError) {
-          return getRequestFailureResult(error, {}, newOptions, newOptions.handleError(error));
+          try {
+            return getRequestFailureResult(error, {}, newOptions, newOptions.handleError(error));
+          } catch (handlerError) {
+            throw attachRequestTelemetry(handlerError, failureMetadata);
+          }
         }
         if (newOptions.noModels) {
           return Promise.reject(error);

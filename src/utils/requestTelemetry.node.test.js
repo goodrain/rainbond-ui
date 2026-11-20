@@ -21,7 +21,7 @@ function nodeFor(name) {
 }
 
 function requestFactory(run) {
-  const declarations = ['checkStatus', 'getRequestFailureMetadata', 'getRequestFailureResult', 'handleStoreDispatch', 'handleSpecialErrorCode', 'handleData', 'request']
+  const declarations = ['checkStatus', 'getRequestFailureMetadata', 'attachRequestTelemetry', 'getRequestFailureResult', 'handleStoreDispatch', 'handleSpecialErrorCode', 'handleData', 'request']
     .map(name => generate(nodeFor(name)).code)
     .join('\n');
   const codeMessage = generate(program.body.find(node => node.type === 'VariableDeclaration' && node.declarations[0].id.name === 'codeMessage')).code;
@@ -112,4 +112,20 @@ test('request keeps special-code handling while returning an opt-in failure enve
   assert.deepEqual(result, { __rainbondRequestFailure: true, error_code: 'business_10405', error_category: 'business_failure', http_status: 401 });
   assert.equal(state.handlers, 1);
   assert.equal(state.apiErrors.length, 0);
+});
+
+
+test('request preserves failure metadata when a page error handler throws', async () => {
+  for (const [name, error, expected] of [
+    ['HTTP', { response: { status: 422, data: { code: 10499 } } }, { error_code: 'business_10499', error_category: 'business_failure', http_status: 422 }],
+    ['network', { code: 'ERR_NETWORK' }, { error_code: 'network_error', error_category: 'network_error', http_status: 0 }]
+  ]) {
+    const pageError = new Error(`${name} handler error`);
+    const { request } = requestFactory(() => Promise.reject(error));
+    await assert.rejects(
+      request('/request-test', { method: 'post', headers: {}, showLoading: false, handleError: () => { throw pageError; } }),
+      value => value === pageError && assert.deepEqual(value.requestTelemetry, expected) === undefined,
+      `${name} handler errors should retain request telemetry`
+    );
+  }
 });
