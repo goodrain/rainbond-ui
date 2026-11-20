@@ -1,5 +1,13 @@
 @import '~antd/lib/style/themes/default.less';
 
+.publicationStatuses { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; vertical-align: middle; }
+.publicationStatus { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.publicationChannel { color: @text-color-secondary; font-size: @rbd-auxiliary-size; }
+.compactPublications { display: flex; align-items: flex-start; flex-direction: column; gap: 4px; margin-top: 8px;
+  .publicationStatus { gap: 2px; }
+  :global(.ant-badge-status-text) { font-size: @rbd-auxiliary-size; }
+}
+
 .description { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 16px; margin: 16px 0 0; padding: 0 16px;
   > span { color: @text-color-secondary; font-size: @rbd-auxiliary-size; line-height: 22px; }
   p { color: @text-color; font-size: @rbd-content-size; line-height: 22px; white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; }

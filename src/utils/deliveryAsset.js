@@ -145,7 +145,7 @@ function localMarketTemplatePath(enterpriseId, selected, versions = []) {
   if (!selected || selected.template.deleted_at) return '';
   const publications = [selected, ...versions].flatMap(row => [row, ...(row.history || [])]);
   const local = publications.find(row => row.template.id === selected.template.id && row.status === 'approved' &&
-    row.publication_status === 'published' && row.destination && row.destination.type === 'local' &&
+    row.publication_status === 'published' && (!row.destination || !row.destination.type || row.destination.type === 'local') &&
     (!row.enterprise_id || String(row.enterprise_id) === String(enterpriseId)));
   return local && local.template.template_id ? `/enterprise/${encodeURIComponent(enterpriseId)}/shared/app/${encodeURIComponent(local.template.template_id.replace(/-/g, ''))}` : '';
 }

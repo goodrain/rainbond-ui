@@ -3,13 +3,13 @@ import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import { Alert, Avatar, Button, Empty, Icon, Spin } from 'antd';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import { w, statusLabel, ReviewModal, DeployModal } from '../../components/DeliveryWorkflow';
+import { w, PublicationStatuses, ReviewModal, DeployModal } from '../../components/DeliveryWorkflow';
 import SourceSection from './SourceSection';
 import RuntimeSection from './RuntimeSection';
 import VersionsSection from './VersionsSection';
 import styles from './asset.less';
 const { orderedVersions, versionSources, environmentRecords } = require('../../utils/deliveryAsset');
-const { listingDeployable, listingRequiresReview } = require('../../utils/deliveryWorkflow');
+const { listingDeployable, listingRequiresReview, versionPublications } = require('../../utils/deliveryWorkflow');
 const { deliveryTargetPath, deliveryTargetIsCached } = require('../../utils/deliveryNavigation');
 const initialState = () => ({ group: null, deployments: [], loading: true, failed: false, source: [], sourceLoading: false, sourceFailed: false,
   selectedSourceId: '', sourceVersionId: null, histories: {}, targets: [], runtime: null, runtimeLoading: false,
@@ -172,7 +172,7 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
     if (!user || !user.is_enterprise_admin || String(user.enterprise_id) !== String(match.params.eid)) return <Alert type="warning" message={w('forbidden')} />;
     const { group, loading, failed, sourceLoading, sourceFailed, selectedSourceId, histories, targets, runtime, runtimeLoading, review, deployment, activeSection } = this.state;
     const sources = this.sources(), component = sources.find(item => item.service_id === selectedSourceId) || sources[0], version = this.currentVersion(), environment = this.environment();
-    return <PageHeaderLayout isFooter wrapperClassName={styles.assetPage} title={<span className={styles.pageTitle}><Avatar shape="square" size={44} src={group && group.profile && group.profile.logo} icon="appstore" />{group ? group.template_name : w('assetDetail')}{version && <React.Fragment>{statusLabel(listingRequiresReview(version) ? version.status : version.publication_status || "not_started")}<code className={styles.headerVersion}>v{version.template.version}</code></React.Fragment>}</span>}
+    return <PageHeaderLayout isFooter wrapperClassName={styles.assetPage} title={<span className={styles.pageTitle}><Avatar shape="square" size={44} src={group && group.profile && group.profile.logo} icon="appstore" />{group ? group.template_name : w('assetDetail')}{version && <React.Fragment><PublicationStatuses item={version} retry={false} /><code className={styles.headerVersion}>v{version.template.version}</code></React.Fragment>}</span>}
       content={w('assetDetailHelp')} action={<Button onClick={() => dispatch(routerRedux.push(`/enterprise/${match.params.eid}/development-delivery`))}>{w('back')}</Button>}>
       <Spin spinning={loading}>{failed ? <Alert type="warning" showIcon message={w('loadFailed')} description={<Button onClick={() => this.load()}>{w('retry')}</Button>} /> : !group ? !loading && <Empty description={w('notFound')} /> :
         <div className={styles.assetCanvas} ref={node => { this.assetRoot = node; }}>
@@ -199,7 +199,7 @@ export default class DevelopmentDeliveryDetail extends PureComponent {
       </Spin>
       {review && <ReviewModal item={review} busy={busy} onCancel={() => this.setState({ review: null })} onSubmit={(decision, comment) => this.act({ operation: 'review', requestId: review.id, decision, comment })} />}
       {deployment && <DeployModal key={deployment.id} testing={!listingDeployable(deployment)} installation={listingDeployable(deployment)}
-        approved={group.versions.some(item => item.template.id === deployment.template.id && item.publication_status === 'published')}
+        approved={versionPublications(group.versions.find(item => item.template.id === deployment.template.id)).some(item => item.publication_status === 'published')}
         title={listingDeployable(deployment) ? w('deploy') : undefined} template={deployment.template} scope={group.source} user={user} dispatch={dispatch} busy={busy} onCancel={() => this.setState({ deployment: null })}
         onSubmit={values => this.act({ operation: 'deploy', ...values, scope: group.source, template: deployment.template, listingId: deployment.id })} />}
     </PageHeaderLayout>;
