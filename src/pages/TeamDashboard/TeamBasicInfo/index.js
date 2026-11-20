@@ -885,7 +885,7 @@ export default class index extends Component {
     const deleteLoading = loadingEffects['application/deleteGroupAllResource'];
     // 应用列表权限
     const isAppList = newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'team_overview')?.isAppList;
-    const isFirstDeployGuide = shouldShowFirstDeployGuide({
+    const showEmptyTeamGuide = shouldShowFirstDeployGuide({
       appListLoading,
       appListLoaded,
       isAppList,
@@ -896,7 +896,7 @@ export default class index extends Component {
     return (
       <>
         <div>
-          {!isFirstDeployGuide && <div className={styles.appListHeaderTop}>
+          {!showEmptyTeamGuide && <div className={styles.appListHeaderTop}>
             <div className={styles.appListToolbar}>
               <Search
                 data-testid="rbd-app-search"
@@ -924,7 +924,7 @@ export default class index extends Component {
           </div>}
           {!appListLoading && isAppList && (
             <div>
-              {isFirstDeployGuide ? (
+              {showEmptyTeamGuide ? (
                 <FirstDeployGuide
                   guideLocation="team_empty"
                   marketAvailable={marketAvailable}
@@ -934,7 +934,7 @@ export default class index extends Component {
                   onEntry={this.handleFirstDeployEntry}
                 />
               ) : this.renderCardView()}
-              {!isFirstDeployGuide && appListTotal > page_size && (
+              {!showEmptyTeamGuide && appListTotal > page_size && (
                 <div className={styles.paginationContainer}>
                   <Pagination
                     current={page}
