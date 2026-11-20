@@ -46,6 +46,7 @@ import {
   HelmwaRehouseAddCom
 } from '../services/market';
 import { normalizeMarketArch } from './marketArch';
+import { createMarketRequestErrorHandlers } from './marketRequestErrorPolicy';
 
 export default {
   namespace: 'market',
@@ -200,36 +201,22 @@ export default {
         }
       }
     },
-    *fetchMarkets({ payload, callback, handleError }, { call, select }) {
-      const shouldHandleError = !!handleError || !!(payload && payload.silent);
-      let errorHandled = false;
-      const reportError = error => {
-        if (errorHandled) {
-          return;
-        }
-        errorHandled = true;
-        if (handleError) {
-          handleError(error);
-        }
-      };
+    *fetchMarkets({ payload, callback, onError }, { call, select }) {
+      const errorHandlers = createMarketRequestErrorHandlers(payload, onError);
       try {
         const archInfo = yield select(state => state.index.archInfo);
         const response = yield call(fetchMarkets, {
           ...payload,
           arch: normalizeMarketArch(payload && payload.arch, archInfo),
-          ...(shouldHandleError ? { handleError: reportError } : {})
+          ...(errorHandlers.requestHandleError ? { handleError: errorHandlers.requestHandleError } : {})
         });
         if (response && callback) {
           callback(response);
-        } else if (!response && !errorHandled && shouldHandleError) {
-          reportError();
+        } else if (!response) {
+          errorHandlers.handleMissingResponse();
         }
       } catch (error) {
-        if (!errorHandled && shouldHandleError) {
-          reportError(error);
-        } else if (!shouldHandleError) {
-          throw error;
-        }
+        errorHandlers.handleException(error);
       }
     },
     *createTag({ payload, callback }, { call }) {

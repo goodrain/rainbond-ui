@@ -10,7 +10,6 @@ export const featuredMarketApps = [
     key: 'mysql',
     label: 'firstDeployGuide.market.mysql',
     searchNames: { default: 'Mysql' },
-    requiresArchitecture: true,
     modelKeys: {
       default: '7f0d0509699e4425964c71be4b0fa428'
     }
@@ -18,7 +17,6 @@ export const featuredMarketApps = [
   {
     key: 'redis',
     label: 'firstDeployGuide.market.redis',
-    requiresArchitecture: true,
     searchNames: {
       amd64: 'Redis',
       arm64: 'Redis单机版ARM',

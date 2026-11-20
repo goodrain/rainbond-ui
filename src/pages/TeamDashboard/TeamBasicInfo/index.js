@@ -243,7 +243,7 @@ export default class index extends Component {
               onSuccess((marketRes && marketRes.status_code === 200 && marketRes.list) || []);
               finishRequest();
             },
-            handleError: finishRequest
+            onError: finishRequest
           });
         };
         activeStores.forEach(store => {
@@ -335,9 +335,9 @@ export default class index extends Component {
             appListTotal,
             appListLoading: false,
             appListLoaded: true,
-            appListQuery: query,
+            appListQuery: requestQuery,
           }, () => {
-            if (appListTotal === 0 && !requestQuery) {
+            if (appListTotal === 0 && !query) {
               if (this.state.teamAppCreatePermission.isAccess) {
                 this.loadMarketAvailability();
               } else {

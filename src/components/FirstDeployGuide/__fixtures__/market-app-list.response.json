@@ -1,4 +1,5 @@
 {
+  "_fixture_source": "arch field shape verified against rainbond-console/console/services/app.py app_models_serializers (arch: app_arch.keys()).",
   "status_code": 200,
   "list": [
     {

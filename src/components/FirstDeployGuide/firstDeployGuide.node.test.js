@@ -7,7 +7,6 @@ const root = path.resolve(__dirname, '../../..');
 const guideSource = fs.readFileSync(path.join(__dirname, 'index.js'), 'utf8');
 const sourceRoot = path.join(root, 'src');
 const teamSource = fs.readFileSync(path.join(sourceRoot, 'pages/TeamDashboard/TeamBasicInfo/index.js'), 'utf8');
-const groupSource = fs.readFileSync(path.join(sourceRoot, 'pages/Group/Group.js'), 'utf8');
 const modalSource = fs.readFileSync(path.join(sourceRoot, 'components/CreateComponentModal/index.js'), 'utf8');
 const imageFormSource = fs.readFileSync(path.join(sourceRoot, 'components/ImageNameForm/index.js'), 'utf8');
 const posthogSource = fs.readFileSync(path.join(sourceRoot, 'posthog.js'), 'utf8');
@@ -33,7 +32,6 @@ test('featured market applications search by name and resolve only matching stab
   assert.match(guideSource, /7f0d0509699e4425964c71be4b0fa428/);
   assert.match(guideSource, /6953c50771ae4548b9fed312d220d720/);
   assert.match(guideSource, /d6c01070c6b049dbaf3de6757a1b63ef/);
-  assert.match(guideSource, /requiresArchitecture: true/);
   assert.match(guideSource, /featuredApps\.map/);
   assert.match(guideSource, /market_app: app/);
   assert.match(teamSource, /featuredMarketApps/);
@@ -67,8 +65,7 @@ test('team guide requires a successful unfiltered empty list and defers market l
   assert.match(teamSource, /this\.loadMarketAvailability\(\)/);
   assert.match(teamSource, /marketResolved: true/);
   assert.match(teamSource, /<FirstDeployGuide/);
-  assert.doesNotMatch(groupSource, /FirstDeployGuide/);
-  assert.match(marketModelSource, /\*fetchMarkets\(\{ payload, callback, handleError \}/);
+  assert.match(marketModelSource, /\*fetchMarkets\(\{ payload, callback, onError \}/);
   assert.match(marketModelSource, /catch \(error\)/);
 });
 

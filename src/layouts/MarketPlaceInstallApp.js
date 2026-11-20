@@ -8,7 +8,6 @@ import { Link } from 'dva/router';
 import newRole from '@/utils/newRole';
 import cookie from '@/utils/cookie';
 import handleApplicationCreationError from '@/utils/applicationCreationError';
-import handleAPIError from '@/utils/error';
 @connect(({ user }) => ({
   currUser: user.currentUser,
 }))
@@ -76,8 +75,7 @@ export default class MarketPlaceInstallApp extends Component {
         }
         this.setState({ loading: false });
       },
-      handleError: err => {
-        handleAPIError(err);
+      onError: () => {
         this.setState({
           loading: false
         })
