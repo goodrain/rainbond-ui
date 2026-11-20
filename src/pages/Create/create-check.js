@@ -31,6 +31,7 @@ import ModifyImageName from './modify-image-name';
 import ModifyUrl from './modify-url';
 import cookie from '../../utils/cookie';
 import styles from './check.less';
+import withVMCreationRedirect from './withVMCreationRedirect';
 import { closeTeamRegion } from '@/services/team';
 import {
   FRAMEWORK_ICONS
@@ -77,6 +78,7 @@ const readSourceBuildConfig = () => {
   return config ? JSON.parse(config) : null;
 };
 
+@withVMCreationRedirect
 @connect(
   ({ user, appControl, teamControl, global }) => ({
     currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,

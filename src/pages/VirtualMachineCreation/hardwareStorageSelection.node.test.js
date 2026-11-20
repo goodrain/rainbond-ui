@@ -55,7 +55,7 @@ vm.runInNewContext(code, { exports: exportsObject, require: name => {
   if (name === 'antd') return antd;
   if (name === './messages') return { t: key => key };
   if (name === '@/utils/intl') return { formatMessage: ({ id }) => id };
-  if (name === './state') return require('./state');
+  if (name === './formDefaults') return require('./formDefaults');
   if (name === './index.less') return {};
   if (name === './HelpLabel') return ({ label }) => React.createElement('span', null, label);
   throw new Error(`Unexpected dependency ${name}`);

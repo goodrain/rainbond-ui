@@ -24,6 +24,7 @@ vm.runInNewContext(code, { exports: exportsObject, require: name => {
     if (name.endsWith('/vmLoginCredentials')) return require('../../utils/vmLoginCredentials');
   if (name === 'react') return React;
   if (name === 'dva') return { connect: () => Component => Component };
+  if (name === 'dva/router') return { routerRedux: { push: destination => ({ type: 'navigate', destination }) } };
   if (name === 'antd') return { message: { warning() {} }, Button, Alert: Box, Descriptions: Box, Empty: Box, Select: Box, Spin: Box, Steps: Box };
   if (name === '@/utils/global') return {
     getCurrTeamName: () => scope.team, getCurrRegionName: () => scope.region, getAppID: () => scope.application
@@ -141,3 +142,56 @@ test('a failed creation result without an alias still exposes the original clean
   const pendingExit = elements(h.instance.renderQuickStart()).find(node => node.type === Button && node.props.children === 'backToApplication');
   assert.equal(pendingExit.props.disabled, true);
 });
+
+
+function componentLink(instance) {
+  const elements = node => !React.isValidElement(node) ? []
+    : [node, ...React.Children.toArray(node.props.children).flatMap(elements)];
+  return elements(instance.renderQuickStart()).find(node => node.type === Button && node.props.children === 'quickStartOpenComponent');
+}
+
+for (const stage of ['storage', 'configure', 'build']) {
+  test(`opening the component during ${stage} cannot close or interrupt its active creation`, () => {
+    const h = harness();
+    let closed = 0;
+    h.instance.props.onCancel = () => { closed += 1; h.instance.componentWillUnmount(); };
+    h.reads[0].callback({ status: 'ready', options: storage });
+    h.instance.create({ cpu: 4, memory: 8, disk: 80, disk_volume_type: 'ceph-rbd' });
+    const request = h.writes[0];
+    request.onProgress({ stage, serviceAlias: 'gr-native', groupId: '868' });
+    const link = componentLink(h.instance);
+    assert.ok(link);
+    assert.equal(link.props.disabled, true);
+    link.props.onClick();
+    assert.equal(closed, 0);
+    assert.equal(h.writes.length, 1);
+    assert.equal(request.isActive(), true, 'looking at progress must not cancel later configure/build requests');
+    // The synchronous request guard also covers a click before the busy render settles.
+    h.instance.state.quickStartSubmitting = false;
+    h.instance.openQuickStartComponent();
+    assert.equal(closed, 0);
+    assert.equal(h.writes.length, 1);
+    assert.equal(request.isActive(), true);
+  });
+}
+
+for (const status of ['submitted', 'failed']) {
+  test(`the component is available to inspect after creation is ${status}`, () => {
+    const h = harness();
+    let closed = 0;
+    h.instance.props.onCancel = () => { closed += 1; };
+    h.reads[0].callback({ status: 'ready', options: storage });
+    h.instance.create({ cpu: 4, memory: 8, disk: 80, disk_volume_type: 'ceph-rbd' });
+    h.writes[0].callback({ status, stage: 'build', serviceAlias: 'gr-native', groupId: '868',
+      ...(status === 'failed' ? { error: 'quickStartBuildFailed' } : {}) });
+    const link = componentLink(h.instance);
+    assert.equal(link.props.disabled, false);
+    link.props.onClick();
+    assert.equal(closed, 1);
+    assert.equal(h.writes.length, 2);
+    assert.deepEqual(JSON.parse(JSON.stringify(h.writes[1])), {
+      type: 'navigate', destination: { pathname: '/team/team-a/region/region-a/apps/868/overview',
+        query: { type: 'components', componentID: 'gr-native', tab: 'overview' } }
+    });
+  });
+}

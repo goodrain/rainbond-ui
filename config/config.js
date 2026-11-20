@@ -14,10 +14,6 @@ const sentrySourceMapDevtool = process.env.RAINBOND_SENTRY_SOURCEMAP_DEVTOOL || 
 
 export default {
   plugins: ['./config/plugins/consoleNetworkProxy'],
-  define: {
-    RAINBOND_VM_WORKFLOW_DEMO: process.env.VM_DEMO === 'true',
-    RAINBOND_VM_WORKFLOW_BACKEND: new URL(proxyTarget).origin
-  },
   history: { type: isHistory ? 'browser' : 'hash' },
   publicPath: publcPath,
   hash: true,

@@ -93,6 +93,7 @@ const code = babel.transformSync(fs.readFileSync(filename, 'utf8'), {
 const moduleExports = {};
 vm.runInNewContext(code, {
   exports: moduleExports, document, window, URL, setTimeout, clearTimeout, console,
+  process: { env: { NODE_ENV: 'production' } },
   require(name) {
     if (name.endsWith('/vmCreationStorage')) return require('../../utils/vmCreationStorage');
     if (name.endsWith('/vmLoginCredentials')) return require('../../utils/vmLoginCredentials');
@@ -109,11 +110,10 @@ vm.runInNewContext(code, {
       getAppID: () => currentScope.application
     };
     if (name.endsWith('/utils/pulginUtils')) return { isInstallPlugin: () => true, segregatePluginsByHierarchy: () => [] };
-    if (name.endsWith('/utils/vmWorkflowDemo')) return { isVmWorkflowDemoEnabled: () => true };
     if (name.endsWith('/utils/vmQuickStart')) return quickStart;
-    if (name.endsWith('/VirtualMachineDemo/sourceMetadata')) return metadata;
-    if (name.endsWith('/VirtualMachineDemo/messages')) return { t: key => key };
-    if (name.endsWith('/VirtualMachineDemo/Workflow')) return { VmCreateWorkflow: WorkflowFixture };
+    if (name.endsWith('/VirtualMachineCreation/sourceMetadata')) return metadata;
+    if (name.endsWith('/VirtualMachineCreation/messages')) return { t: key => key };
+    if (name.endsWith('/VirtualMachineCreation/Workflow')) return { VmCreateWorkflow: WorkflowFixture };
     if (name === '../ImageVirtualMachineForm') return NativeSourceFixture;
     if (name === './llmEntryHelpers') return require('../../components/CreateComponentModal/llmEntryHelpers');
     if (name.endsWith('/utils/agentVisibility')) return { isRainbondInfoAgentEnabled: () => false };
@@ -128,7 +128,7 @@ const root = document.getElementById('root');
 const host = document.getElementById('vm-creation-workspace');
 const flush = () => new Promise(resolve => setImmediate(resolve));
 
-async function mountChooser() {
+async function mountChooser(expectNative = true) {
   const actions = [], cancellations = [];
   let props = {
     visible: true, initialVmForm: true,
@@ -146,7 +146,7 @@ async function mountChooser() {
     await flush();
   };
   await render({});
-  assert.ok(native);
+  assert.equal(Boolean(native), expectNative);
   return { actions, cancellations, render };
 }
 
@@ -210,4 +210,46 @@ test('parent unmount removes the portal and rejects asynchronous callbacks from 
   act(() => source.pendingFinal());
   assert.deepEqual(results, [null]);
   assert.equal(source.fields.ssh_public_key, undefined);
+});
+
+
+test('production app creation previews real Windows hardware before any create request', async () => {
+  const h = await mountChooser();
+  assert.equal(native.props.deferCreation, true);
+  native.fields = {};
+  native.source = () => ({ service_cname: 'windows-migration', source_type: 'url',
+    vm_url: 'https://images.invalid/windows.qcow2', os_name: 'Windows 10 Education 22H2',
+    arch: 'amd64', format: 'qcow2' });
+  act(() => native.handleSubmit({ preventDefault() {} }));
+  assert.ok(host.querySelector('[data-hardware-portal]'));
+  assert.equal(workflow.props.sourceSummary.name, 'windows-migration');
+  assert.equal(workflow.props.sourceSummary.os, 'Windows 10 Education 22H2');
+  assert.equal(workflow.props.sourceSummary.sshRequired, false);
+  assert.equal(h.actions.some(action => /createVirtualMachineWorkflow|addGroup|createAppByVirtualMachine/.test(action.type)), false);
+  const collected = [];
+  act(() => workflow.props.collectSourcePayload(value => collected.push(value)));
+  assert.equal(collected.length, 1);
+  assert.equal(collected[0].vm_url, 'https://images.invalid/windows.qcow2');
+  assert.equal(collected[0].os_name, 'Windows 10 Education 22H2');
+});
+
+test('a missing application workspace hands off to target selection without the legacy VM form', async () => {
+  host.remove();
+  try {
+    const h = await mountChooser(false);
+    assert.ok(h.actions.includes('/team/team-a/region/region-a/create/vm/VirtualMachine'));
+    assert.equal(h.cancellations.length, 1);
+    assert.equal(document.querySelector('[data-native-source]'), null);
+    assert.equal(document.querySelector('[data-hardware-portal]'), null);
+  } finally {
+    document.body.insertBefore(host, root);
+  }
+});
+
+test('an invalid application scope cannot expose a direct VM creation fallback', async () => {
+  currentScope.application = 'invalid';
+  const h = await mountChooser(false);
+  assert.ok(h.actions.includes('/team/team-a/region/region-a/create/vm/VirtualMachine'));
+  assert.equal(document.querySelector('[data-native-source]'), null);
+  assert.equal(h.actions.some(action => /addGroup|createAppByVirtualMachine/.test(action.type)), false);
 });

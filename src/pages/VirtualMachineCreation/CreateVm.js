@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import VMStorageSnapshotHint from '../../components/VMStorageSnapshotHint';
 import { Alert, Button, Card, Descriptions, Form, Input, InputNumber, Radio, Select, Steps } from 'antd';
 import { formatMessage } from '@/utils/intl';
-import { createValues } from './state';
+import { createValues } from './formDefaults';
 import { t } from './messages';
 import styles from './index.less';
 import HelpLabel from './HelpLabel';

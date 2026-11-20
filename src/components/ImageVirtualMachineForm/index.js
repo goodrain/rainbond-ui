@@ -29,7 +29,7 @@ import globalUtil from '../../utils/global';
 import role from '@/utils/newRole';
 import handleAPIError from '../../utils/error';
 import { isLinuxQcow2QuickStart, createQuickStartImageName, inferVmSourceFormat, inspectVmUploadFormat, normalizeVmSourceFormat, normalizeVmOperatingSystem, getSshUsernameError, getSshPublicKeyError } from '@/utils/vmQuickStart';
-import { t } from '../../pages/VirtualMachineDemo/messages';
+import { t } from '../../pages/VirtualMachineCreation/messages';
 import styles from './index.less';
 import centOS from '../../../public/images/centos.png';
 import ubuntuOS from '../../../public/images/ubuntu.png';

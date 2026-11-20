@@ -81,7 +81,6 @@ async function withOverview(initialSearch, verify, { holdReads = false } = {}) {
       moment: require('moment'),
       '../../layouts/MenuContext': React.createContext(),
       '../../utils/missingResourceHelpers': require('../../utils/missingResourceHelpers'),
-      '../../utils/vmWorkflowDemo': require('../../utils/vmWorkflowDemo'),
       './componentViewPerformance': require('../../components/SlidePanel/components/componentViewPerformance')
     };
     fixtures['../../DeferredComponent'] = (loader, options) => options && options.modal
