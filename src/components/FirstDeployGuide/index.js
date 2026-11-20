@@ -10,6 +10,7 @@ export const featuredMarketApps = [
     key: 'mysql',
     label: 'firstDeployGuide.market.mysql',
     searchNames: { default: 'Mysql' },
+    requiresArchitecture: true,
     modelKeys: {
       default: '7f0d0509699e4425964c71be4b0fa428'
     }
@@ -66,7 +67,7 @@ export default class FirstDeployGuide extends PureComponent {
   };
 
   render() {
-    const { marketAvailable, marketResolved, guideLocation, featuredApps = [], canCreate } = this.props;
+    const { marketAvailable, marketResolved, featuredApps = [], canCreate } = this.props;
 
     return (
       <section className={styles.guide} data-testid="rbd-first-deploy-guide">

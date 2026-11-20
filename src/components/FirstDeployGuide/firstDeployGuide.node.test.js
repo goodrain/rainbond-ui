@@ -51,6 +51,9 @@ test('featured market applications search by name and resolve only matching stab
   assert.equal(marketHelpers.resolveFeaturedMarketApp({
     key: 'mysql', modelKeys: { default: '7f0d0509699e4425964c71be4b0fa428' }
   }, marketFixture.list, 'arm64'), null);
+  assert.equal(marketHelpers.resolveFeaturedMarketApp({
+    key: 'mysql', modelKeys: { default: '7f0d0509699e4425964c71be4b0fa428' }
+  }, marketFixture.list, ''), null);
   assert.match(modalSource, /initialMarketApp/);
   assert.match(modalSource, /case 'marketInstall'/);
 });
@@ -59,7 +62,8 @@ test('team guide requires a successful unfiltered empty list and defers market l
   assert.match(teamSource, /appListTotal === 0/);
   assert.match(teamSource, /appListLoaded: false/);
   assert.match(teamSource, /appListLoaded: true/);
-  assert.match(teamSource, /!appListQuery\.trim\(\)/);
+  assert.match(teamSource, /normalizeAppListQuery/);
+  assert.match(teamSource, /shouldShowFirstDeployGuide/);
   assert.match(teamSource, /this\.loadMarketAvailability\(\)/);
   assert.match(teamSource, /marketResolved: true/);
   assert.match(teamSource, /<FirstDeployGuide/);

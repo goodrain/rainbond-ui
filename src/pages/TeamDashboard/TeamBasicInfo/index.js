@@ -24,6 +24,7 @@ import handleAPIError from '../../../utils/error';
 import { routerRedux } from 'dva/router';
 import cookie from '../../../utils/cookie'
 import moment from 'moment';
+import { normalizeAppListQuery, shouldShowFirstDeployGuide } from './appListState';
 import styles from './index.less';
 const { Search } = Input;
 const { Option } = Select;
@@ -311,6 +312,7 @@ export default class index extends Component {
   // 加载热门应用数据源
   loadHotApp = () => {
     const { page, page_size, query, sortValue } = this.state;
+    const requestQuery = normalizeAppListQuery(query);
     const requestId = ++this.appListRequestId;
     let requestHandled = false;
     const dispatchResult = this.props.dispatch({
@@ -318,7 +320,7 @@ export default class index extends Component {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         region: globalUtil.getCurrRegionName(),
-        query,
+        query: requestQuery,
         page,
         page_size,
         sort: sortValue
@@ -333,9 +335,9 @@ export default class index extends Component {
             appListTotal,
             appListLoading: false,
             appListLoaded: true,
-            appListQuery: query,
+            appListQuery: requestQuery,
           }, () => {
-            if (appListTotal === 0 && !query.trim()) {
+            if (appListTotal === 0 && !requestQuery) {
               if (this.state.teamAppCreatePermission.isAccess) {
                 this.loadMarketAvailability();
               } else {
@@ -883,7 +885,13 @@ export default class index extends Component {
     const deleteLoading = loadingEffects['application/deleteGroupAllResource'];
     // 应用列表权限
     const isAppList = newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'team_overview')?.isAppList;
-    const isFirstDeployGuide = !appListLoading && appListLoaded && isAppList && !appListQuery.trim() && appListTotal === 0;
+    const isFirstDeployGuide = shouldShowFirstDeployGuide({
+      appListLoading,
+      appListLoaded,
+      isAppList,
+      appListQuery,
+      appListTotal
+    });
 
     return (
       <>

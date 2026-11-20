@@ -5,7 +5,7 @@ export function getFeaturedMarketSearchName(app, architecture) {
 
 export function resolveFeaturedMarketApp(app, marketApps, architecture) {
   const modelKey = app.modelKeys[architecture] || app.modelKeys.default;
-  if (!modelKey || (app.requiresArchitecture && !architecture)) {
+  if (!modelKey || !architecture) {
     return null;
   }
   const marketApp = (marketApps || []).find(item => item.app_id === modelKey);
