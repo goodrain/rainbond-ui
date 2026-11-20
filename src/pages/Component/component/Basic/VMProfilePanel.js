@@ -1,5 +1,7 @@
-import { Alert, Button, Card, Col, Form, InputNumber, Modal, Row, Select, Switch, Tag, Tooltip, notification } from 'antd';
+import { Alert, Button, Card, Col, Form, Icon, InputNumber, Modal, Row, Select, Switch, Tag, Tooltip, notification } from 'antd';
 import React, { PureComponent } from 'react';
+import { connect } from 'dva';
+import { routerRedux } from 'dva/router';
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
 import {
@@ -14,10 +16,13 @@ import { getVMCapabilities } from '../../../../services/createApp';
 import { getNsResource } from '../../../../services/teamResource';
 import handleAPIError from '../../../../utils/error';
 import globalUtil from '../../../../utils/global';
-import { getEnabledVMServiceNames, getServiceClusterIP } from '../../vmNetworkHelpers';
+import { readVMInternalAddress, buildVMPortManagementRoute, getVMNetworkRefreshKey, getVMNetworkStatus } from '../../vmNetworkHelpers';
 import styles from './VMProfilePanel.less';
 
 const { Option } = Select;
+const NETWORK_RETRY_DELAYS = [2000, 5000, 10000, 30000];
+const NETWORK_FAILURE_RETRIES = 3;
+const NETWORK_STOPPED_STATUSES = ['closed', 'stopped', 'undeploy', 'failure', 'failed', 'build_fail', 'unusual', 'abnormal'];
 
 const EMPTY_CAPABILITIES = {
   gpu_supported: false,
@@ -65,7 +70,7 @@ const ACCELERATION_DELETE_ORDER = [
   'vm_usb_resources'
 ];
 
-class VMProfilePanel extends PureComponent {
+export class VMProfilePanel extends PureComponent {
   state = {
     editing: false,
     saving: false,
@@ -74,12 +79,19 @@ class VMProfilePanel extends PureComponent {
     currentAttributes: {},
     runtimeDraft: null,
     clusterIP: '',
+    networkStatus: 'loading',
     fixedIPUpdating: false
   };
+  networkRequestGeneration = 0;
+  networkRetryAttempt = 0;
+  networkFailureCount = 0;
+  networkRetryTimer = null;
+
+  includesNetworkSection = () => !['acceleration', 'connections'].includes(this.props.section);
 
   componentDidMount() {
     this.mounted = true;
-    this.fetchClusterIP();
+    if (this.includesNetworkSection()) this.fetchClusterIP();
   }
 
   componentDidUpdate(prevProps) {
@@ -92,13 +104,22 @@ class VMProfilePanel extends PureComponent {
         runtimeDraft: null
       });
     }
-    if (prevProps.serviceAlias !== this.props.serviceAlias) {
+    if (!this.includesNetworkSection()) {
+      if (prevProps.section !== this.props.section) {
+        this.invalidateNetworkRead();
+      }
+      return;
+    }
+    if (prevProps.section !== this.props.section || prevProps.serviceAlias !== this.props.serviceAlias ||
+        (this.networkReadContext && !this.isNetworkContextCurrent(this.networkReadContext)) ||
+        getVMNetworkRefreshKey(prevProps) !== getVMNetworkRefreshKey(this.props)) {
       this.fetchClusterIP();
     }
   }
 
   componentWillUnmount() {
     this.mounted = false;
+    this.invalidateNetworkRead();
   }
 
   getSourceLabel = (sourceType) => {
@@ -168,45 +189,101 @@ class VMProfilePanel extends PureComponent {
     return this.state.runtimeDraft || runtime;
   };
 
-  fetchClusterIP = async () => {
-    const { serviceAlias } = this.props;
-    if (!serviceAlias) {
-      this.setClusterIP('');
-      return;
+  getNetworkContext = () => ({
+    teamName: globalUtil.getCurrTeamName(),
+    regionName: globalUtil.getCurrRegionName(),
+    appId: globalUtil.getAppID() || this.props.appGroupId || '',
+    serviceAlias: this.props.serviceAlias
+  });
+
+  isNetworkContextCurrent = context => {
+    const current = this.getNetworkContext();
+    return ['teamName', 'regionName', 'appId', 'serviceAlias'].every(key => current[key] === context[key]);
+  };
+
+  clearNetworkRetry = () => {
+    if (this.networkRetryTimer !== null) clearTimeout(this.networkRetryTimer);
+    this.networkRetryTimer = null;
+  };
+
+  invalidateNetworkRead = () => {
+    this.clearNetworkRetry();
+    this.networkRequestGeneration += 1;
+    this.networkReadContext = null;
+    this.networkRetryAttempt = 0;
+    this.networkFailureCount = 0;
+  };
+
+  scheduleNetworkRetry = (result, context, isCurrent) => {
+    if (!isCurrent() || !['service-pending', 'read-failed'].includes(result.status) ||
+        !context.teamName || !context.regionName || !context.serviceAlias) return;
+    this.networkFailureCount = result.status === 'read-failed' ? this.networkFailureCount + 1 : 0;
+    if (this.networkFailureCount > NETWORK_FAILURE_RETRIES ||
+        (result.status === 'service-pending' && NETWORK_STOPPED_STATUSES.includes(getVMNetworkStatus(this.props)))) return;
+    const delay = NETWORK_RETRY_DELAYS[Math.min(this.networkRetryAttempt++, NETWORK_RETRY_DELAYS.length - 1)];
+    this.networkRetryTimer = setTimeout(() => {
+      if (!isCurrent()) return undefined;
+      this.networkRetryTimer = null;
+      return this.fetchClusterIP({ automatic: true });
+    }, delay);
+  };
+
+  fetchClusterIP = async (options = {}) => {
+    if (!this.includesNetworkSection()) return;
+    this.clearNetworkRetry();
+    if (options?.automatic !== true) {
+      this.networkRetryAttempt = 0;
+      this.networkFailureCount = 0;
     }
+    const context = this.getNetworkContext();
+    const runtimeKey = getVMNetworkRefreshKey(this.props);
+    const generation = ++this.networkRequestGeneration;
+    this.networkReadContext = context;
+    const isCurrent = () => this.mounted && this.includesNetworkSection() &&
+      generation === this.networkRequestGeneration && this.isNetworkContextCurrent(context) &&
+      runtimeKey === getVMNetworkRefreshKey(this.props);
+    if (!isCurrent()) return;
+    if (options?.automatic !== true) this.setState({ clusterIP: '', networkStatus: 'loading' });
+    let result;
     try {
-      const portsRes = await getPorts({
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: serviceAlias,
-        showLoading: false,
-        showMessage: false
-      });
-      const serviceNames = getEnabledVMServiceNames((portsRes && portsRes.list) || []);
-      if (serviceNames.length === 0) {
-        this.setClusterIP('');
-        return;
-      }
-      const serviceRes = await getNsResource({
-        team: globalUtil.getCurrTeamName(),
-        region: globalUtil.getCurrRegionName(),
-        name: serviceNames[0],
-        group: '',
-        version: 'v1',
-        resource: 'services',
-        showLoading: false,
-        handleError: () => {}
-      });
-      const serviceResource = (serviceRes && serviceRes.bean) || {};
-      this.setClusterIP(getServiceClusterIP(serviceResource));
-    } catch (err) {
-      this.setClusterIP('');
+      result = await readVMInternalAddress(context, { getPorts, getNsResource }, isCurrent);
+    } catch (_) {
+      result = { clusterIP: '', status: 'read-failed' };
+    }
+    if (result && isCurrent()) {
+      this.setState({ clusterIP: result.clusterIP, networkStatus: result.status });
+      this.scheduleNetworkRetry(result, context, isCurrent);
     }
   };
 
-  setClusterIP = clusterIP => {
-    if (this.mounted) {
-      this.setState({ clusterIP });
-    }
+  handleConfigurePorts = () => {
+    const route = buildVMPortManagementRoute({ ...this.getNetworkContext(), refresh: globalUtil.getRefresh() });
+    if (route && this.props.dispatch) this.props.dispatch(routerRedux.push(route));
+  };
+
+  renderInternalAddress = () => {
+    const { clusterIP, networkStatus } = this.state;
+    const statusKeys = {
+      loading: 'vmNetworkLoading',
+      'no-inner-ports': 'vmNetworkNoInnerPorts',
+      'service-pending': 'vmNetworkServicePending',
+      'read-failed': 'vmNetworkReadFailed'
+    };
+    const value = clusterIP || formatMessage({
+      id: `componentOverview.body.tab.overview.${statusKeys[networkStatus] || 'vmNetworkServicePending'}`
+    });
+    const route = buildVMPortManagementRoute(this.getNetworkContext());
+    return <div className={styles.internalAddress} aria-live="polite">
+      {this.renderLine(formatMessage({ id: 'componentOverview.body.tab.overview.vmClusterIP' }), value)}
+      <div className={styles.internalAddressActions}>
+        <Button size="small" type="link" disabled={!route} onClick={this.handleConfigurePorts}>
+          <FormattedMessage id="componentOverview.body.tab.overview.vmNetworkConfigurePorts" />
+        </Button>
+        {['service-pending', 'read-failed'].includes(networkStatus) && <Button size="small" type="link" onClick={this.fetchClusterIP}>
+          <FormattedMessage id="componentOverview.body.tab.overview.vmNetworkRetry" />
+        </Button>}
+      </div>
+    </div>;
   };
 
   getInitialFormValues = (runtime = this.getRuntime()) => ({
@@ -686,186 +763,222 @@ class VMProfilePanel extends PureComponent {
     );
   };
 
-  render() {
+  renderAssetCard = (standalone = false) => {
+    const asset = this.props.vmProfile?.asset || {};
+    return (
+      <Card
+        title={<FormattedMessage id="componentOverview.body.tab.overview.vmAssetInfo" />}
+        bordered={standalone}
+        className={standalone ? `${styles.profileCard} ${styles.sectionPanel}` : styles.profileCard}
+        bodyStyle={{ flex: 1 }}
+      >
+        <div className={styles.profileCardContent}>
+          {this.renderLine(formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetName' }), asset.display_name || asset.name)}
+          {this.renderLine(
+            formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetSource' }),
+            this.getSourceLabel(asset.source_type)
+          )}
+          {this.renderLine(
+            formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetArchFormat' }),
+            `${asset.arch || '-'} / ${asset.format || '-'}`
+          )}
+          {asset.source_asset && this.renderLine(
+            formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetParent' }),
+            asset.source_asset.name
+          )}
+        </div>
+      </Card>
+    );
+  };
+
+  renderNetworkCard = (standalone = false) => {
     const { vmProfile = {} } = this.props;
-    const {
-      editing,
-      saving,
-      loadingEditor
-    } = this.state;
-    const asset = vmProfile.asset || {};
-    const runtime = this.getRuntime();
-    const connections = vmProfile.connections || {};
     const network = vmProfile.network || {};
-    const podIp = network.current_pod_ip || vmProfile?.current_pod_ip || '';
+    const podIp = network.current_pod_ip || vmProfile.current_pod_ip || '';
     const fixedIPEnabled = !!network.fixed_ip_enabled;
     const fixedIP = fixedIPEnabled ? network.fixed_ip || podIp : '';
     const { clusterIP } = this.state;
+    return (
+      <Card
+        title={<span>
+          {this.props.networkTitle || <FormattedMessage id="componentOverview.body.tab.overview.vmNetworkInfo" />}
+          <Tooltip trigger={['hover', 'focus']} title={formatMessage({ id: 'componentOverview.body.tab.overview.vmNetworkInfoHelp' })}>
+            <span className={styles.networkHelp} role="button" tabIndex={0} aria-label={formatMessage({ id: 'componentOverview.body.tab.overview.vmNetworkInfoHelpLabel' })}><Icon type="question-circle" /></span>
+          </Tooltip>
+        </span>}
+        bordered={standalone}
+        className={standalone ? `${styles.profileCard} ${styles.sectionPanel}` : styles.profileCard}
+        bodyStyle={{ flex: 1 }}
+      >
+        <div className={styles.profileCardContent}>
+          {this.renderInternalAddress()}
+          {podIp ? this.renderLine(
+            formatMessage({ id: 'componentOverview.body.tab.overview.vmPodIP' }),
+            podIp
+          ) : null}
+          {fixedIPEnabled ? this.renderLine(
+            formatMessage({ id: 'componentOverview.body.tab.overview.vmFixedIP' }),
+            fixedIP
+          ) : null}
+          <div className={styles.networkAction}>
+            <span className={styles.networkActionLabel}>
+              <FormattedMessage id="componentOverview.body.tab.overview.vmFixedIPSwitch" />
+            </span>
+            <Switch
+              checked={fixedIPEnabled}
+              loading={this.state.fixedIPUpdating}
+              disabled={!podIp && !fixedIPEnabled}
+              onChange={this.handleFixedIPChange}
+            />
+          </div>
+          {!clusterIP && (
+            <div className={styles.profileTip}>
+              <FormattedMessage
+                id={
+                  fixedIPEnabled
+                    ? 'componentOverview.body.tab.overview.vmFixedIPNetworkTip'
+                    : 'componentOverview.body.tab.overview.vmNetworkTip'
+                }
+              />
+            </div>
+          )}
+          {standalone && this.props.includeConnections && <div className={styles.networkConnections}>
+            {this.renderVncAction()}
+            {this.renderConnectionDetails()}
+          </div>}
+        </div>
+      </Card>
+    );
+  };
 
+  renderAccelerationCard = (standalone = false) => {
+    const { editing, saving, loadingEditor } = this.state;
+    const runtime = this.getRuntime();
+    return (
+      <Card
+        title={<FormattedMessage id="componentOverview.body.tab.overview.vmAccelerationInfo" />}
+        bordered={standalone}
+        loading={loadingEditor}
+        className={standalone ? `${styles.profileCard} ${styles.sectionPanel}` : styles.profileCard}
+        bodyStyle={{ flex: 1 }}
+        extra={
+          editing ? (
+            <div>
+              <Button
+                size="small"
+                style={{ marginRight: 8 }}
+                onClick={this.handleCancel}
+                disabled={saving}
+              >
+                {formatMessage({ id: 'componentOverview.body.tab.overview.vmCancelEdit' })}
+              </Button>
+              <Button
+                size="small"
+                type="primary"
+                loading={saving}
+                onClick={this.handleSave}
+              >
+                {formatMessage({ id: 'componentOverview.body.tab.overview.vmSaveConfig' })}
+              </Button>
+            </div>
+          ) : (
+            <Button size="small" onClick={this.handleEdit} loading={loadingEditor}>
+              {formatMessage({ id: 'componentOverview.body.tab.overview.vmEditConfig' })}
+            </Button>
+          )
+        }
+      >
+        <div className={styles.profileCardContent}>
+          {editing ? (
+            this.renderEditor(runtime)
+          ) : (
+            <React.Fragment>
+              <div className={styles.profileSection}>
+                <div className={styles.profileSectionLabel}>
+                  <FormattedMessage id="componentOverview.body.tab.overview.vmGpu" />
+                </div>
+                <div className={styles.profileTagGroup}>{this.renderTagValue(runtime.gpu_enabled, runtime.gpu_resources)}</div>
+              </div>
+              <div>
+                <div className={styles.profileSectionLabel}>
+                  <FormattedMessage id="componentOverview.body.tab.overview.vmUsb" />
+                </div>
+                <div className={styles.profileTagGroup}>{this.renderTagValue(runtime.usb_enabled, runtime.usb_resources)}</div>
+              </div>
+            </React.Fragment>
+          )}
+        </div>
+      </Card>
+    );
+  };
+
+  renderVncAction = () => {
+    if (this.props.connectionUnavailableMessage) return null;
+    const connections = this.props.vmProfile?.connections || {};
+    return connections.vnc_url ? (
+      <Button type="primary" size="small" href={connections.vnc_url} target="_blank">
+        {formatMessage({ id: 'componentOverview.body.tab.overview.vmOpenVnc' })}
+      </Button>
+    ) : null;
+  };
+
+  renderConnectionDetails = () => {
+    const asset = this.props.vmProfile?.asset || {};
+    const connections = this.props.vmProfile?.connections || {};
+    const { connectionUnavailableMessage } = this.props;
+    return <div className={styles.profileCardContent}>
+      {this.renderLine(
+        formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetReferences' }),
+        asset.reference_count
+      )}
+      {connectionUnavailableMessage || !connections.vnc_url ? (
+        <div className={styles.profileCardAction}>
+          <Tag>{connectionUnavailableMessage || <FormattedMessage id="componentOverview.body.tab.overview.vmConnectionPending" />}</Tag>
+        </div>
+      ) : null}
+    </div>;
+  };
+
+  renderConnectionsCard = (standalone = false) => {
+    return (
+      <Card
+        title={<FormattedMessage id="componentOverview.body.tab.overview.vmConnectionInfo" />}
+        bordered={standalone}
+        className={standalone ? `${styles.profileCard} ${styles.sectionPanel}` : styles.profileCard}
+        bodyStyle={{ flex: 1 }}
+        extra={this.renderVncAction()}
+      >
+        {this.renderConnectionDetails()}
+      </Card>
+    );
+  };
+
+  render() {
+    if (this.props.section === 'network') return this.renderNetworkCard(true);
+    if (this.props.section === 'acceleration') return this.renderAccelerationCard(true);
+    if (this.props.section === 'connections') return this.renderConnectionsCard(true);
     return (
       <Card
         title={<FormattedMessage id="componentOverview.body.tab.overview.vmProfile" />}
         className={styles.profilePanel}
       >
         <Row gutter={12} type="flex">
-          <Col xs={24} lg={12} className={styles.profileCol}>
-            <Card
-              title={<FormattedMessage id="componentOverview.body.tab.overview.vmAssetInfo" />}
-              bordered={false}
-              className={styles.profileCard}
-              bodyStyle={{ flex: 1 }}
-            >
-              <div className={styles.profileCardContent}>
-                {this.renderLine(formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetName' }), asset.display_name || asset.name)}
-                {this.renderLine(
-                  formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetSource' }),
-                  this.getSourceLabel(asset.source_type)
-                )}
-                {this.renderLine(
-                  formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetArchFormat' }),
-                  `${asset.arch || '-'} / ${asset.format || '-'}`
-                )}
-                {asset.source_asset && this.renderLine(
-                  formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetParent' }),
-                  asset.source_asset.name
-                )}
-              </div>
-            </Card>
-          </Col>
-          <Col xs={24} lg={12} className={styles.profileCol}>
-            <Card
-              title={<FormattedMessage id="componentOverview.body.tab.overview.vmNetworkInfo" />}
-              bordered={false}
-              className={styles.profileCard}
-              bodyStyle={{ flex: 1 }}
-            >
-              <div className={styles.profileCardContent}>
-                {clusterIP ? this.renderLine(
-                  formatMessage({ id: 'componentOverview.body.tab.overview.vmClusterIP' }),
-                  clusterIP
-                ) : null}
-                {podIp ? this.renderLine(
-                  formatMessage({ id: 'componentOverview.body.tab.overview.vmPodIP' }),
-                  podIp
-                ) : null}
-                {fixedIPEnabled ? this.renderLine(
-                  formatMessage({ id: 'componentOverview.body.tab.overview.vmFixedIP' }),
-                  fixedIP
-                ) : null}
-                <div className={styles.networkAction}>
-                  <span className={styles.networkActionLabel}>
-                    <FormattedMessage id="componentOverview.body.tab.overview.vmFixedIPSwitch" />
-                  </span>
-                  <Switch
-                    checked={fixedIPEnabled}
-                    loading={this.state.fixedIPUpdating}
-                    disabled={!podIp && !fixedIPEnabled}
-                    onChange={this.handleFixedIPChange}
-                  />
-                </div>
-                {!clusterIP && (
-                  <div className={styles.profileTip}>
-                    <FormattedMessage
-                      id={
-                        fixedIPEnabled
-                          ? 'componentOverview.body.tab.overview.vmFixedIPNetworkTip'
-                          : 'componentOverview.body.tab.overview.vmNetworkTip'
-                      }
-                    />
-                  </div>
-                )}
-              </div>
-            </Card>
-          </Col>
+          <Col xs={24} lg={12} className={styles.profileCol}>{this.renderAssetCard()}</Col>
+          <Col xs={24} lg={12} className={styles.profileCol}>{this.renderNetworkCard()}</Col>
         </Row>
         <Row gutter={12} type="flex" className={styles.profileRow}>
-          <Col xs={24} lg={12} className={styles.profileCol}>
-            <Card
-              title={<FormattedMessage id="componentOverview.body.tab.overview.vmAccelerationInfo" />}
-              bordered={false}
-              loading={loadingEditor}
-              className={styles.profileCard}
-              bodyStyle={{ flex: 1 }}
-              extra={
-                editing ? (
-                  <div>
-                    <Button
-                      size="small"
-                      style={{ marginRight: 8 }}
-                      onClick={this.handleCancel}
-                      disabled={saving}
-                    >
-                      {formatMessage({ id: 'componentOverview.body.tab.overview.vmCancelEdit' })}
-                    </Button>
-                    <Button
-                      size="small"
-                      type="primary"
-                      loading={saving}
-                      onClick={this.handleSave}
-                    >
-                      {formatMessage({ id: 'componentOverview.body.tab.overview.vmSaveConfig' })}
-                    </Button>
-                  </div>
-                ) : (
-                  <Button size="small" onClick={this.handleEdit} loading={loadingEditor}>
-                    {formatMessage({ id: 'componentOverview.body.tab.overview.vmEditConfig' })}
-                  </Button>
-                )
-              }
-            >
-              <div className={styles.profileCardContent}>
-                {editing ? (
-                  this.renderEditor(runtime)
-                ) : (
-                  <React.Fragment>
-                    <div className={styles.profileSection}>
-                      <div className={styles.profileSectionLabel}>
-                        <FormattedMessage id="componentOverview.body.tab.overview.vmGpu" />
-                      </div>
-                      <div className={styles.profileTagGroup}>{this.renderTagValue(runtime.gpu_enabled, runtime.gpu_resources)}</div>
-                    </div>
-                    <div>
-                      <div className={styles.profileSectionLabel}>
-                        <FormattedMessage id="componentOverview.body.tab.overview.vmUsb" />
-                      </div>
-                      <div className={styles.profileTagGroup}>{this.renderTagValue(runtime.usb_enabled, runtime.usb_resources)}</div>
-                    </div>
-                  </React.Fragment>
-                )}
-              </div>
-            </Card>
-          </Col>
-          <Col xs={24} lg={12} className={styles.profileCol}>
-            <Card
-              title={<FormattedMessage id="componentOverview.body.tab.overview.vmConnectionInfo" />}
-              bordered={false}
-              className={styles.profileCard}
-              bodyStyle={{ flex: 1 }}
-              extra={
-                connections.vnc_url ? (
-                  <Button type="primary" size="small" href={connections.vnc_url} target="_blank">
-                    {formatMessage({ id: 'componentOverview.body.tab.overview.vmOpenVnc' })}
-                  </Button>
-                ) : null
-              }
-            >
-              <div className={styles.profileCardContent}>
-                {this.renderLine(
-                  formatMessage({ id: 'componentOverview.body.tab.overview.vmAssetReferences' }),
-                  asset.reference_count
-                )}
-                {!connections.vnc_url ? (
-                  <div className={styles.profileCardAction}>
-                    <Tag><FormattedMessage id="componentOverview.body.tab.overview.vmConnectionPending" /></Tag>
-                  </div>
-                ) : null}
-              </div>
-            </Card>
-          </Col>
+          <Col xs={24} lg={12} className={styles.profileCol}>{this.renderAccelerationCard()}</Col>
+          <Col xs={24} lg={12} className={styles.profileCol}>{this.renderConnectionsCard()}</Col>
         </Row>
       </Card>
     );
   }
 }
 
-export default Form.create()(VMProfilePanel);
+export default Form.create()(connect(({ appControl }, ownProps) => {
+  const detail = appControl?.appDetail;
+  const service = detail?.service;
+  return {
+    appGroupId: service?.service_alias === ownProps.serviceAlias ? detail.group_id || service.group_id : ''
+  };
+})(VMProfilePanel));

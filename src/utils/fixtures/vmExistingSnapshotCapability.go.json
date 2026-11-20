@@ -1,0 +1,204 @@
+{
+  "installer": {
+    "supported": true,
+    "status": "supported",
+    "reason_code": "ready",
+    "message": "所有参与磁盘均具备快照配置与就绪证据",
+    "operation": "create_snapshot",
+    "complete": true,
+    "volumes": [
+      {
+        "key": "manual42",
+        "supported": true,
+        "status": "supported",
+        "reason_code": "ready",
+        "message": "驱动、快照类与服务已就绪；实际快照结果以任务终态为准",
+        "storage_class": "fast",
+        "driver": "cephfs.csi.ceph.com",
+        "volume_snapshot_class": "class",
+        "volume_id": 42,
+        "disk_key": "data-1",
+        "role": "data",
+        "read_only": false
+      }
+    ],
+    "excluded_volumes": [
+      {
+        "key": "vmimage",
+        "role": "installation_media",
+        "reason_code": "read_only_installation_media"
+      }
+    ],
+    "control_revision": 1,
+    "binding_generation": 1
+  },
+  "mapped-a": {
+    "supported": true,
+    "status": "supported",
+    "reason_code": "ready",
+    "message": "所有参与磁盘均具备快照配置与就绪证据",
+    "operation": "create_snapshot",
+    "complete": true,
+    "volumes": [
+      {
+        "key": "manual42",
+        "supported": true,
+        "status": "supported",
+        "reason_code": "ready",
+        "message": "驱动、快照类与服务已就绪；实际快照结果以任务终态为准",
+        "storage_class": "fast",
+        "driver": "cephfs.csi.ceph.com",
+        "volume_snapshot_class": "class",
+        "volume_id": 42,
+        "disk_key": "data-1",
+        "role": "data",
+        "read_only": false
+      }
+    ],
+    "excluded_volumes": [],
+    "control_revision": 1,
+    "binding_generation": 1
+  },
+  "mixed": {
+    "supported": false,
+    "status": "unsupported",
+    "reason_code": "participating_volume_unsupported",
+    "message": "至少一块参与磁盘不支持快照，请查看逐盘原因",
+    "operation": "create_snapshot",
+    "complete": true,
+    "volumes": [
+      {
+        "key": "manual42",
+        "supported": true,
+        "status": "supported",
+        "reason_code": "ready",
+        "message": "驱动、快照类与服务已就绪；实际快照结果以任务终态为准",
+        "storage_class": "fast",
+        "driver": "cephfs.csi.ceph.com",
+        "volume_snapshot_class": "class",
+        "volume_id": 42,
+        "disk_key": "data-1",
+        "role": "data",
+        "read_only": false
+      },
+      {
+        "key": "manual43",
+        "supported": false,
+        "status": "unsupported",
+        "reason_code": "csi_driver_not_registered",
+        "message": "该存储提供方没有注册CSI驱动，不支持此VM快照路径",
+        "storage_class": "not-csi",
+        "driver": "legacy.example",
+        "volume_id": 43,
+        "disk_key": "data-2",
+        "role": "data",
+        "read_only": false
+      }
+    ],
+    "excluded_volumes": [],
+    "control_revision": 1,
+    "binding_generation": 1
+  },
+  "mounts-b": {
+    "supported": false,
+    "status": "unknown",
+    "reason_code": "participating_volume_unverified",
+    "message": "至少一块参与磁盘无法核验，请查看逐盘原因",
+    "operation": "create_snapshot",
+    "complete": false,
+    "volumes": [
+      {
+        "key": "manual42",
+        "supported": false,
+        "status": "unknown",
+        "reason_code": "binding_mount_mismatch",
+        "message": "实际挂载与权威当前绑定不一致",
+        "volume_id": 42,
+        "disk_key": "data-1",
+        "role": "data",
+        "read_only": false
+      }
+    ],
+    "excluded_volumes": [],
+    "control_revision": 1,
+    "binding_generation": 1
+  },
+  "read-failed": {
+    "supported": false,
+    "status": "unknown",
+    "reason_code": "participating_volume_unverified",
+    "message": "至少一块参与磁盘无法核验，请查看逐盘原因",
+    "operation": "create_snapshot",
+    "complete": true,
+    "volumes": [
+      {
+        "key": "manual42",
+        "supported": false,
+        "status": "unknown",
+        "reason_code": "storage_class_read_failed",
+        "message": "无法读取当前存储类配置",
+        "volume_id": 42,
+        "disk_key": "data-1",
+        "role": "data",
+        "read_only": false
+      }
+    ],
+    "excluded_volumes": [],
+    "control_revision": 1,
+    "binding_generation": 1
+  },
+  "readonly-data": {
+    "supported": true,
+    "status": "supported",
+    "reason_code": "ready",
+    "message": "所有参与磁盘均具备快照配置与就绪证据",
+    "operation": "create_snapshot",
+    "complete": true,
+    "volumes": [
+      {
+        "key": "manual42",
+        "supported": true,
+        "status": "supported",
+        "reason_code": "ready",
+        "message": "驱动、快照类与服务已就绪；实际快照结果以任务终态为准",
+        "storage_class": "fast",
+        "driver": "cephfs.csi.ceph.com",
+        "volume_snapshot_class": "class",
+        "volume_id": 42,
+        "disk_key": "data-1",
+        "role": "data",
+        "read_only": true
+      }
+    ],
+    "excluded_volumes": [],
+    "control_revision": 1,
+    "binding_generation": 1
+  },
+  "vm-drift": {
+    "supported": false,
+    "status": "unknown",
+    "reason_code": "vm_changed_during_check",
+    "message": "虚拟机身份或规格在查询中改变",
+    "operation": "create_snapshot",
+    "complete": false,
+    "volumes": [
+      {
+        "key": "manual42",
+        "supported": true,
+        "status": "supported",
+        "reason_code": "ready",
+        "message": "驱动、快照类与服务已就绪；实际快照结果以任务终态为准",
+        "storage_class": "fast",
+        "driver": "cephfs.csi.ceph.com",
+        "volume_snapshot_class": "class",
+        "volume_id": 42,
+        "disk_key": "data-1",
+        "role": "data",
+        "read_only": false
+      }
+    ],
+    "excluded_volumes": [],
+    "control_revision": 1,
+    "binding_generation": 1
+  }
+}

@@ -3,6 +3,7 @@ import {
   Alert,
   Button,
   Drawer,
+  Descriptions,
   Form,
   Input,
   message,
@@ -20,6 +21,9 @@ import {
 } from '../../utils/vmVolumeOptions';
 
 
+const { canEditVolumeCapacity, minimumExpansionCapacity, numericCapacity } = require('../../utils/volumeExpansion');
+const { safeOperationMessage } = require('../../utils/componentUpgradeFeedback');
+
 const FormItem = Form.Item;
 const { Option } = Select;
 
@@ -32,7 +36,7 @@ export default class AddVolumes extends PureComponent {
       volumeCapacityValidation: {},
       language: cookie.get('language') === 'zh-CN',
       volume_type: defaultVolumeType,
-      volume_path: this.getDevicePathValue(props)
+      volume_path: this.getDevicePathValue(props.data)
     };
   }
   componentDidMount() {
@@ -72,6 +76,8 @@ export default class AddVolumes extends PureComponent {
           });
           return;
         }
+        // Capacity edits must preserve the persisted indexed device path.
+        if (this.props.editor) values.volume_path = this.props.data.volume_path || values.volume_path;
         const selectedOption = findVolumeOptionByType(volumeOpts, values.volume_type);
         values.access_mode = resolveVMStorageAccessMode(selectedOption);
         onSubmit(values);
@@ -129,13 +135,19 @@ export default class AddVolumes extends PureComponent {
     }
   };
   checkVolumeCapacity = (rules, value, callback) => {
-    if (value) {
-      if (value > 1000) {
-        callback(`${formatMessage({ id: 'componentOverview.body.AddVolumes.Max' })}`);
+    if (value !== undefined && value !== null && value !== '') {
+      const capacity = Number(value);
+      if (!Number.isInteger(capacity) || capacity < 1) {
+        callback(formatMessage({ id: 'componentOverview.body.mnt.vmExpansionPositiveCapacity' }));
         return;
       }
-      if (value < 0) {
-        callback(`${formatMessage({ id: 'componentOverview.body.AddVolumes.Min' })}`);
+      if (capacity > 1000) {
+        callback(formatMessage({ id: 'componentOverview.body.AddVolumes.Max' }));
+        return;
+      }
+      const minimum = minimumExpansionCapacity(this.props.data || {});
+      if (this.props.editor && capacity < minimum) {
+        callback(formatMessage({ id: 'componentOverview.body.AddVolumes.shrink_unsupported' }, { capacity: minimum }));
         return;
       }
     }
@@ -200,10 +212,12 @@ export default class AddVolumes extends PureComponent {
     if (volumeCapacityValidation.default) {
       defaultVolumeCapacity = volumeCapacityValidation.default;
     }
-    const initialVolumeCapacity =
-      !!this.props.editor && data.volume_capacity === 0
-        ? undefined
-        : defaultVolumeCapacity;
+    const editing = !!this.props.editor;
+    const capacityEditable = canEditVolumeCapacity(data, editing);
+    const initialVolumeCapacity = editing ? minimumExpansionCapacity(data) || undefined : defaultVolumeCapacity;
+    const capacityText = value => numericCapacity(value) ? `${numericCapacity(value)}GB` : formatMessage({ id: 'componentOverview.body.mnt.vmExpansionUnknown' });
+    const expansionStatus = ['ready', 'unbound', 'pending', 'resizing', 'filesystem_resize_pending', 'failed', 'unsupported'].includes(data.expansion_status)
+      ? data.expansion_status : 'unknown';
 
     const formItemLayout = {
       labelCol: {
@@ -242,7 +256,7 @@ export default class AddVolumes extends PureComponent {
         }}
       >
         <Form onSubmit={this.handleSubmit}>
-          {volumeOpts.length === 0 && !isCDROM ? (
+          {volumeOpts.length === 0 && !isCDROM && !editing ? (
             <Alert
               type="warning"
               showIcon
@@ -250,6 +264,25 @@ export default class AddVolumes extends PureComponent {
               message={formatMessage({ id: 'Vm.createVm.noLiveMigrationStorage' })}
               description={formatMessage({ id: 'Vm.createVm.noLiveMigrationStorageHint' })}
             />
+          ) : null}
+          {editing && !isCDROM ? (
+            <Fragment>
+              <Descriptions size="small" column={1}>
+                <Descriptions.Item label={formatMessage({ id: 'componentOverview.body.mnt.vmExpansionCapability' })}>
+                  {formatMessage({ id: `componentOverview.body.mnt.vmExpansionSupport.${data.allow_expansion === true ? 'supported' : data.allow_expansion === false ? 'unsupported' : 'unknown'}` })}
+                </Descriptions.Item>
+                <Descriptions.Item label={formatMessage({ id: 'componentOverview.body.mnt.vmExpansionRequested' })}>{capacityText(data.requested_capacity)}</Descriptions.Item>
+                <Descriptions.Item label={formatMessage({ id: 'componentOverview.body.mnt.vmExpansionActual' })}>{capacityText(data.actual_capacity)}</Descriptions.Item>
+                <Descriptions.Item label={formatMessage({ id: 'componentOverview.body.mnt.vmExpansionPVCCount' })}>{Number.isInteger(data.pvc_count) && data.pvc_count >= 0 ? data.pvc_count : '-'}</Descriptions.Item>
+                <Descriptions.Item label={formatMessage({ id: 'componentOverview.body.mnt.vmExpansionStatus' })}>
+                  {formatMessage({ id: `componentOverview.body.mnt.vmExpansionStatus.${expansionStatus}` })}
+                </Descriptions.Item>
+              </Descriptions>
+              <Alert type={capacityEditable ? 'info' : 'warning'} showIcon
+                message={!capacityEditable ? formatMessage({ id: 'componentOverview.body.AddVolumes.expansion_unavailable' }) : formatMessage({ id: 'componentOverview.body.mnt.vmExpansionGuestCheck' })}
+                description={data.expansion_message ? safeOperationMessage(data.expansion_message) : undefined}
+                style={{ marginBottom: 16 }} />
+            </Fragment>
           ) : null}
           <FormItem {...layoutConfig} label={<FormattedMessage id='componentOverview.body.AddVolumes.name' />}>
             {getFieldDecorator('volume_name', {
@@ -288,6 +321,7 @@ export default class AddVolumes extends PureComponent {
               <Select
                 getPopupContainer={triggerNode => triggerNode.parentNode}
                 onChange={this.handleVolumePathChange}
+                disabled={editing}
               >
                 <Option value="/disk"><FormattedMessage id='componentOverview.body.AddVolumes.disk' /></Option>
                 <Option value="/cdrom"><FormattedMessage id='componentOverview.body.AddVolumes.cdrom' /></Option>
@@ -314,6 +348,7 @@ export default class AddVolumes extends PureComponent {
                 {getFieldDecorator('volume_capacity', {
                   initialValue: initialVolumeCapacity,
                   rules: [
+                    { required: true, message: formatMessage({ id: 'componentOverview.body.mnt.vmExpansionPositiveCapacity' }) },
                     {
                       min: 0,
                       message: formatMessage({ id: 'componentOverview.body.AddVolumes.min' })
@@ -330,7 +365,8 @@ export default class AddVolumes extends PureComponent {
                         ? formatMessage({ id: 'componentOverview.body.AddVolumes.unlimited' })
                         : formatMessage({ id: 'componentOverview.body.AddVolumes.input' })
                     }
-                    min={1}
+                    min={editing ? minimumExpansionCapacity(data) || 1 : 1}
+                    disabled={editing && !capacityEditable}
                   />
                 )}
               </FormItem>
@@ -353,6 +389,7 @@ export default class AddVolumes extends PureComponent {
                     onChange={this.handleChange}
                     disabled={!!this.props.editor || volumeOpts.length === 0}
                   >
+                    {editing && !findVolumeOptionByType(volumeOpts, volume_type) ? <Option value={volume_type}>{volume_type}</Option> : null}
                     {volumeOpts.map(item => (
                       <Option key={item.volume_type} value={item.volume_type}>
                         {language ? item.name_show : item.volume_type}
@@ -385,7 +422,7 @@ export default class AddVolumes extends PureComponent {
           >
             <FormattedMessage id='componentOverview.body.AddVolumes.cancel' />
           </Button>
-          <Button onClick={this.handleSubmit} type="primary" disabled={!isCDROM && volumeOpts.length === 0}>
+          <Button onClick={this.handleSubmit} type="primary" disabled={!isCDROM && (editing ? !capacityEditable : volumeOpts.length === 0)}>
             <FormattedMessage id='componentOverview.body.AddVolumes.confirm' />
           </Button>
         </div>

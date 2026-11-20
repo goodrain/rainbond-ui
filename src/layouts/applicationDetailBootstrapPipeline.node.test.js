@@ -17,6 +17,7 @@ const repo = path.resolve(__dirname, '../..');
 const paths = {
   layout: 'src/layouts/TeamLayout.js', overview: 'src/pages/Group/Overview.js',
   header: 'src/components/SlidePanel/components/app.js',
+  deliveryCommon: 'src/pages/Group/Delivery/common.js',
   model: 'src/models/application.js', service: 'src/services/application.js',
   globalUtil: 'src/utils/global.js', context: 'src/layouts/MenuContext.js'
 };
@@ -103,6 +104,7 @@ async function withApplication(verify, options = {}) {
       '../utils/error': { notifyAPIWarning: value => warnings.push(value) },
       '../utils/missingResourceHelpers': require('../utils/missingResourceHelpers'),
       '../../utils/missingResourceHelpers': require('../utils/missingResourceHelpers'),
+      '../../utils/vmWorkflowDemo': require('../utils/vmWorkflowDemo'),
       '../utils/teamOverviewBootstrap': require('../utils/teamOverviewBootstrap'),
       '../components/Team/TeamEventList/helpers': require('../components/Team/TeamEventList/helpers'),
       './customerServiceFloatVisibility': { shouldShowCustomerServiceFloat: () => false },
@@ -128,6 +130,10 @@ async function withApplication(verify, options = {}) {
       }, React);
       return module.exports;
     };
+    // Use the real header permission helper so bootstrap assertions retain their production dependency.
+    fixtures['../../../pages/Group/Delivery/common'] = evaluate('deliveryCommon', {
+      '../../../utils/newRole': fixtures['@/utils/newRole']
+    });
     const globalUtil = evaluate('globalUtil').default;
     fixtures['@/utils/global'] = fixtures['../utils/global'] = globalUtil;
     const MenuContext = evaluate('context').default;

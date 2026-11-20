@@ -17,6 +17,7 @@ import handleAPIError from '@/utils/error';
 import globalUtil from '../../utils/global';
 import { formatMessage } from '@/utils/intl';
 import { getVolumeTypeShowName } from '../../utils/utils';
+import styles from './mnt.less';
 
 const {
   getVMStorageAlertKey,
@@ -62,6 +63,7 @@ export default class Index extends PureComponent {
       toDeleteVolume: null,
       editor: null,
       volumeOpts: [],
+      volumeOptsLoaded: false,
       relyComponent: false,
       relyComponentList: [],
       page: 1,
@@ -94,9 +96,9 @@ export default class Index extends PureComponent {
       this.volumeRequestKey = requestKey;
       this.volumeRequestGeneration += 1;
       this.clearVolumeExpansionPolling();
-      if (this.props.method !== 'vm') {
-        this.fetchVolumes();
-      }
+      this.fetchVolumeOpts();
+      if (this.props.method === 'vm') this.fetchVMDiskLayout();
+      else this.fetchVolumes();
     }
   }
 
@@ -196,36 +198,58 @@ export default class Index extends PureComponent {
       return;
     }
     this.clearVolumeExpansionPolling();
-    if ((volumes || []).some(volume => isExpansionInProgress(volume.expansion_status))) {
+    if ((volumes || []).some(volume => isExpansionInProgress(volume.expansion_status) ||
+      (this.props.method === 'vm' && volume.expansion_status === 'pending'))) {
       this.volumeExpansionTimer = setTimeout(() => {
         this.volumeExpansionTimer = null;
         if (shouldApply()) {
-          this.fetchVolumes();
+          if (this.props.method === 'vm') this.fetchVMDiskLayout();
+          else this.fetchVolumes();
         }
       }, 5000);
     }
   };
 
   fetchVMDiskLayout = () => {
+    if (this.unmounted || this.props.method !== 'vm') return;
+    this.clearVolumeExpansionPolling();
     const { dispatch, appAlias } = this.props;
+    const requestKey = this.getVolumeRequestKey();
+    this.volumeRequestKey = requestKey;
+    const generation = ++this.volumeRequestGeneration;
+    const shouldApply = () => !this.unmounted && generation === this.volumeRequestGeneration && requestKey === this.getVolumeRequestKey();
     dispatch({
       type: 'appControl/fetchVMDiskLayout',
-      payload: {
-        team_name: globalUtil.getCurrTeamName(),
-        app_alias: appAlias
-      },
+      payload: { team_name: globalUtil.getCurrTeamName(), app_alias: appAlias },
+      shouldApply,
       callback: response => {
-        this.setState({
-          vmDiskDraft: (response && response.list) || [],
-          vmDiskChanged: false
+        if (!shouldApply()) return;
+        const disks = (response && response.list) || [];
+        this.setState(current => {
+          const refresh = disk => {
+            const observed = disks.find(item => item.disk_key === disk.disk_key && item.source_kind === disk.source_kind);
+            if (!observed) return disk;
+            const updated = { ...disk };
+            ['allow_expansion', 'actual_capacity', 'requested_capacity', 'expansion_status', 'expansion_message', 'pvc_count', 'volume_capacity'].forEach(field => {
+              if (Object.prototype.hasOwnProperty.call(observed, field)) updated[field] = observed[field];
+            });
+            return updated;
+          };
+          return {
+            vmDiskDraft: current.vmDiskChanged ? current.vmDiskDraft.map(refresh) : disks,
+            ...(current.editor ? { editor: refresh(current.editor), showAddVar: refresh(current.showAddVar) } : {})
+          };
         });
+        this.scheduleVolumeExpansionPolling(disks, shouldApply);
       },
-      handleError: err => handleAPIError(err)
+      handleError: err => { if (shouldApply()) handleAPIError(err); }
     });
   };
 
   fetchVolumeOpts = () => {
     const { dispatch, appAlias } = this.props;
+    const requestKey = this.getVolumeRequestKey();
+    this.setState({ volumeOptsLoaded: false });
     dispatch({
       type: 'appControl/fetchVolumeOpts',
       payload: {
@@ -233,8 +257,8 @@ export default class Index extends PureComponent {
         app_alias: appAlias
       },
       callback: data => {
-        if (data) {
-          this.setState({ volumeOpts: data.list || [] });
+        if (data && !this.unmounted && requestKey === this.getVolumeRequestKey()) {
+          this.setState({ volumeOpts: data.list || [], volumeOptsLoaded: true });
         }
       },
       handleError: err => handleAPIError(err)
@@ -287,7 +311,7 @@ export default class Index extends PureComponent {
       Modal.confirm({
         title: formatMessage({ id: 'componentOverview.body.mnt.expansion_confirm_title' }),
         content: formatMessage(
-          { id: 'componentOverview.body.mnt.expansion_confirm_content' },
+          { id: this.props.method === 'vm' ? 'componentOverview.body.mnt.vmExpansionConfirm' : 'componentOverview.body.mnt.expansion_confirm_content' },
           { current: currentCapacity, target: Number(vals.volume_capacity) }
         ),
         okText: formatMessage({ id: 'componentOverview.body.mnt.expansion_confirm_ok' }),
@@ -314,6 +338,7 @@ export default class Index extends PureComponent {
       editing: !!editor
     });
 
+    const vmExpansion = this.props.method === 'vm' && editor && isCapacityExpansion(editor, vals.volume_capacity);
     const handleSuccess = () => {
       if (this.props.method === 'vm') {
         this.fetchVMDiskLayout();
@@ -321,7 +346,11 @@ export default class Index extends PureComponent {
         this.fetchVolumes();
       }
       this.handleCancelAddVar();
-      onshowRestartTips(shouldShowRestartTips);
+      onshowRestartTips(vmExpansion ? false : shouldShowRestartTips);
+      if (vmExpansion) {
+        notification.info({ message: formatMessage({ id: 'componentOverview.body.mnt.vmExpansionSubmitted' }) });
+        return;
+      }
       if (submitNoticeKey !== 'notification.success.succeeded') {
         notification.success({
           message: formatMessage({ id: submitNoticeKey })
@@ -367,9 +396,12 @@ export default class Index extends PureComponent {
 
   renderExpansionStatus = data => {
     const status = data.expansion_status;
-    if (!status || status === 'ready' || status === 'unbound') {
-      return null;
+    if (this.props.method === 'vm' && status === 'ready') {
+      return <Tooltip title={formatMessage({ id: 'componentOverview.body.mnt.vmExpansionGuestCheck' })}>
+        <Tag color="green">{formatMessage({ id: 'componentOverview.body.mnt.vmExpansionStatus.ready' })}</Tag>
+      </Tooltip>;
     }
+    if (!status || status === 'ready' || status === 'unbound') return null;
     const colorByStatus = {
       pending: 'orange',
       resizing: 'blue',
@@ -665,6 +697,7 @@ export default class Index extends PureComponent {
     {
       title: formatMessage({ id: 'Vm.createVm.Storagename' }),
       dataIndex: 'disk_name',
+      width: '20%',
       render: (text, record) => (
         <span>
           {text}
@@ -679,41 +712,47 @@ export default class Index extends PureComponent {
     {
       title: formatMessage({ id: 'Vm.createVm.Storagetype' }),
       dataIndex: 'volume_path',
+      width: '10%',
       render: (_, data) => <span>{this.handleMountFormat(this.getVmDiskDevicePath(data))}</span>
     },
     {
       title: formatMessage({ id: 'componentOverview.body.mnt.vmDiskSource' }),
       dataIndex: 'source_kind',
+      width: '14%',
       render: text => <span>{this.handleVmDiskSource(text)}</span>
     },
     {
       title: formatMessage({ id: 'componentOverview.body.AddVolumes.image' }),
       dataIndex: 'image',
-      render: text => <span>{text || '-'}</span>
+      render: text => text ? (
+        <Tooltip title={text}>
+          <span className={styles.vmDiskImage}>{text}</span>
+        </Tooltip>
+      ) : <span>-</span>
     },
     {
       title: formatMessage({ id: 'componentOverview.body.mnt.vmDiskOrder' }),
       dataIndex: 'order_index',
+      width: 88,
       render: (_, __, index) => <span>{index + 1}</span>
     },
     {
       title: formatMessage({ id: 'Vm.createVm.capacity' }),
       dataIndex: 'volume_capacity',
+      width: '10%',
       render: (text, record) => {
         if (record.source_kind === 'container_disk' || record.source_kind === 'installer_media') {
           return <span>-</span>;
         }
-        if (text === 0 || text === undefined || text === null) {
-          return <span>{formatMessage({ id: 'appOverview.no_limit' })}</span>;
-        }
-        return <span>{text}GB</span>;
+        return this.renderVolumeCapacity(text, record);
       }
     },
     {
       title: formatMessage({ id: 'Vm.createVm.handle' }),
       dataIndex: 'action',
+      width: 150,
       render: (_, data, index) => (
-        <div>
+        <div className={styles.vmDiskActions}>
           <a
             onClick={() => this.moveVmDisk(index, -1)}
             href="javascript:;"
@@ -731,6 +770,11 @@ export default class Index extends PureComponent {
           >
             ↓
           </a>
+          {data.source_kind === 'volume' && data.disk_role !== 'root' && data.disk_key !== 'disk' && (data.volume_id || data.ID) ? (
+            <a onClick={() => this.onEditVolume({ ...data, ID: data.volume_id || data.ID })} href="javascript:;" style={{ marginRight: 8 }}>
+              {formatMessage({ id: 'componentOverview.body.mnt.edit' })}
+            </a>
+          ) : null}
           {data.source_kind === 'installer_media' ? (
             <a onClick={() => this.removeInstallerDisk(data.disk_key)} href="javascript:;">
               {formatMessage({ id: 'componentOverview.body.mnt.deldete' })}
@@ -1002,7 +1046,7 @@ export default class Index extends PureComponent {
               </div>
             }
           >
-            {vmAddVolumeOpts.length === 0 ? (
+            {this.state.volumeOptsLoaded && vmAddVolumeOpts.length === 0 ? (
               <Alert
                 showIcon
                 message={formatMessage({ id: 'Vm.createVm.noLiveMigrationStorage' })}
@@ -1019,6 +1063,7 @@ export default class Index extends PureComponent {
             />
             <ScrollerX sm={650}>
               <Table
+                className={styles.vmDiskTable}
                 rowKey={(_, index) => index}
                 pagination={false}
                 dataSource={this.getVmDiskDraft().length > 0 ? this.getVmDiskDraft() : vmDisks}

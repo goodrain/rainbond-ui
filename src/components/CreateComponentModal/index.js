@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Modal, Icon, Spin, Form, Button, Empty, Radio, Input, message } from 'antd';
 import { routerRedux } from 'dva/router';
 import { connect } from 'dva';
@@ -19,6 +20,13 @@ import AppMarketContent from '../AppMarketContent';
 import ImageNameForm from '../ImageNameForm';
 import ImageComposeForm from '../ImageComposeForm';
 import ImageVirtualMachineForm from '../ImageVirtualMachineForm';
+import { VmCreateWorkflow } from '../../pages/VirtualMachineDemo/Workflow';
+import { isLinuxQcow2QuickStart, normalizeVmOperatingSystem } from '../../utils/vmQuickStart';
+import { assertNoVmPasswordPayload, resolveVmPasswordReaderOptions, getVmLoginMethod } from '../../utils/vmLoginCredentials';
+import { describeSource, describeUrl } from '../../pages/VirtualMachineDemo/sourceMetadata';
+import { t as vmText } from '../../pages/VirtualMachineDemo/messages';
+import vmStyles from '../../pages/VirtualMachineDemo/index.less';
+import { isVmWorkflowDemoEnabled } from '../../utils/vmWorkflowDemo';
 import AddOrEditImageRegistry from '../AddOrEditImageRegistry';
 import AgentEntryIcon from '../AgentEntryIcon';
 import OauthForm from '../OauthForm';
@@ -126,7 +134,9 @@ const LocalInstallFormWrapper = Form.create()(
   }
 );
 
-const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, rainbondInfo, currentUser, groups, pluginsList, agentVisible, currentView: initialView }) => {
+const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, rainbondInfo, currentUser, groups, pluginsList, agentVisible, currentView: initialView, initialVmForm = false, initialVmSource = 'url' }) => {
+  const vmWorkspaceHost = typeof document !== 'undefined' ? document.getElementById('vm-creation-workspace') : null;
+  const vmWorkflowActive = isVmWorkflowDemoEnabled() && !!vmWorkspaceHost;
   const [currentView, setCurrentView] = useState('main'); // 'main', 'market', 'image', 'code', 'yaml', 'form', 'imageRepo', 'marketStore', 'localMarket', 'marketInstall', 'localMarketInstall'
   const [hasInitialized, setHasInitialized] = useState(false); // 标记是否已经初始化过
   const [firstAppDeployed, setFirstAppDeployed] = useState(null);
@@ -155,6 +165,8 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const [currentDatabaseType, setCurrentDatabaseType] = useState(null);
   const [showDatabaseForm, setShowDatabaseForm] = useState(false);
   const [virtualMachineImages, setVirtualMachineImages] = useState([]);
+  const [vmHardwareOpen, setVmHardwareOpen] = useState(false);
+  const [vmSourceSummary, setVmSourceSummary] = useState(null);
 
   // 插件相关状态
   const [availablePlugins, setAvailablePlugins] = useState([]);
@@ -228,6 +240,58 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const thirdListFormRef = useRef(null);
   const databaseFormRef = useRef(null);
   const vmFormRef = useRef(null);
+  const vmSourceFormContainerRef = useRef(null);
+  const vmSourceScopeRef = useRef(null);
+  const vmScopeForRender = vmSourceScopeRef.current;
+  const vmMountedRef = useRef(true);
+  const vmVisibleRef = useRef(visible);
+  vmVisibleRef.current = visible;
+  const currentVmScope = () => ({
+    team: globalUtil.getCurrTeamName(),
+    region: globalUtil.getCurrRegionName(),
+    application: globalUtil.getAppID()
+  });
+  const vmScopeMatches = () => {
+    const current = currentVmScope();
+    const captured = vmSourceScopeRef.current;
+    return !!captured && ['team', 'region', 'application'].every(key => current[key] === captured[key]);
+  };
+  const captureVmRequestActivity = password => {
+    const scope = currentVmScope();
+    const form = vmFormRef.current;
+    const generation = form?.loginCredentialGeneration;
+    return () => vmMountedRef.current && vmVisibleRef.current && vmFormRef.current === form &&
+      ['team', 'region', 'application'].every(key => currentVmScope()[key] === scope[key]) &&
+      (!password || form?.loginCredentialGeneration === generation);
+  };
+  const clearVmWorkflow = () => {
+    vmFormRef.current?.clearSshFields();
+    vmSourceScopeRef.current = null;
+    setVmHardwareOpen(false);
+    setVmSourceSummary(null);
+  };
+  useEffect(() => () => {
+    vmMountedRef.current = false;
+    vmFormRef.current?.clearSshFields();
+    vmSourceScopeRef.current = null;
+  }, []);
+  useEffect(() => {
+    if (vmSourceScopeRef.current && !vmScopeMatches()) {
+      clearVmWorkflow();
+      setCurrentFormType('');
+      onCancel();
+    }
+  });
+  const vmSourceModalOpen = visible && !vmHardwareOpen && currentView === 'form' && currentFormType === 'vm';
+  useEffect(() => {
+    if (!vmSourceModalOpen) return undefined;
+    // Antd retains the native form and its scroll position between wizard steps.
+    const timer = setTimeout(() => {
+      const body = vmSourceFormContainerRef.current?.closest('.ant-modal-body');
+      if (body) body.scrollTop = 0;
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [vmSourceModalOpen]);
   const marketInstallFormRef = useRef(null);
   const localInstallFormRef = useRef(null);
   const imageRepoFormRef = useRef(null);
@@ -1824,7 +1888,11 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     if (visible) {
       // 只在首次打开弹窗时处理 initialView
       if (!hasInitialized) {
-        if (initialView) {
+        if (initialVmForm) {
+          vmSourceScopeRef.current = currentVmScope();
+          setCurrentFormType('vm');
+          pushViewHistory('form');
+        } else if (initialView) {
           // 根据 initialView 设置对应的视图
           setCurrentView(initialView);
 
@@ -1869,6 +1937,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
         setHasInitialized(true);
       }
     } else {
+      clearVmWorkflow();
       // 弹窗关闭时，重置所有状态
       resetViewHistory();
       setCurrentView('main');
@@ -1964,6 +2033,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     const regionName = globalUtil.getCurrRegionName();
 
     if (hasVmPlugin) {
+      if (vmWorkflowActive) vmSourceScopeRef.current = currentVmScope();
       setCurrentFormType('vm');
       pushViewHistory('form');
       return;
@@ -1988,6 +2058,67 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     Modal.warning({
       title: formatMessage({ id: 'componentOverview.body.CreateComponentModal.vm_contact_admin_title' }),
       content: formatMessage({ id: 'componentOverview.body.CreateComponentModal.vm_contact_admin_desc' })
+    });
+  };
+
+  const handleVmSourceContinue = (value, eventId) => {
+    if (!vmMountedRef.current || vmScopeForRender !== vmSourceScopeRef.current || !vmScopeMatches()) return;
+    const host = document.getElementById('vm-creation-workspace');
+    if (!host) {
+      message.warning(vmText('quickStartNeedsApplication'));
+      return;
+    }
+    if (!archInfo.includes(value.arch)) {
+      message.warning(vmText('architectureRequired'));
+      return;
+    }
+    const sourceType = ['url', 'upload', 'existing'].includes(value.source_type) ? value.source_type : 'url';
+    const fileName = vmFormRef.current?.state?.existFileList?.[0] || '';
+    const asset = virtualMachineImages.find(item => String(item.id) === String(value.asset_id));
+    const descriptor = sourceType === 'url' ? describeUrl(value.vm_url) : describeSource({
+      name: sourceType === 'upload' ? fileName : asset?.name || value.image_name,
+      format: value.format, os: asset?.os_name, architecture: value.arch, firmware: value.boot_mode
+    });
+    // This preview is intentionally a display-only projection. The public key
+    // remains in the same mounted native rc-form until final confirmation.
+    setVmSourceSummary({
+      name: String(value.service_cname || '').slice(0, 128),
+      sourceType,
+      sourceName: String(descriptor.name || value.image_name || '').slice(0, 256),
+      os: normalizeVmOperatingSystem(value.os_name) || normalizeVmOperatingSystem(asset?.os_name) || '',
+      arch: String(value.arch || '').slice(0, 32),
+      format: String(value.format || descriptor.format || '').slice(0, 32),
+      firmware: String(value.boot_mode || descriptor.firmware || '').slice(0, 32),
+      isIso: value.format === 'iso' || descriptor.mediaKind === 'iso',
+      sshRequired: isLinuxQcow2QuickStart(sourceType, value.vm_url),
+      loginMethod: isLinuxQcow2QuickStart(sourceType, value.vm_url) ? getVmLoginMethod(value.login_method) : '',
+      sshUsername: isLinuxQcow2QuickStart(sourceType, value.vm_url)
+        ? String(vmFormRef.current?.props?.form?.getFieldValue('ssh_username') || '').slice(0, 32) : ''
+    });
+    setVmHardwareOpen(true);
+  };
+
+  const collectVmSourcePayload = callback => {
+    const captured = vmSourceScopeRef.current;
+    if (!vmMountedRef.current || !vmScopeMatches() || !vmFormRef.current) {
+      callback(null);
+      return;
+    }
+    vmFormRef.current.handleSubmit({ preventDefault() {} }, {
+      final: true, retainSsh: true,
+      onSubmit: (value, eventId, requestOptions = {}) => {
+        if (!vmMountedRef.current || captured !== vmSourceScopeRef.current || !vmScopeMatches()) {
+          vmFormRef.current?.clearSshFields();
+          callback(null);
+          return;
+        }
+        assertNoVmPasswordPayload(value);
+        callback({ ...value, ...(eventId ? { event_id: eventId } : {}) }, requestOptions);
+      },
+      onInvalid: () => {
+        if (vmMountedRef.current && captured === vmSourceScopeRef.current && vmScopeMatches()) setVmHardwareOpen(false);
+        callback(null);
+      }
     });
   };
 
@@ -2129,6 +2260,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
 
   const handleBack = () => {
     if (currentView === 'form') {
+      if (currentFormType === 'vm') clearVmWorkflow();
       setCurrentFormType('');
       popViewHistory();
     } else if (currentView === 'plugin') {
@@ -2172,6 +2304,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   };
 
   const handleClose = () => {
+    clearVmWorkflow();
     resetViewHistory();
     setCurrentView('main');
     setSelectedPlugin(null);
@@ -2333,7 +2466,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     setImportingPlugin(null);
   };
 
-  const handleFormSubmit = (value, event_id) => {
+  const handleFormSubmit = (value, event_id, requestOptions = {}, vmIsActive) => {
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
 
@@ -2370,6 +2503,16 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     } else if (currentFormType === 'database') {
       dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/database-config/?database_type=${currentDatabaseType}&group_id=${value.group_id}&k8s_component_name=${value.k8s_component_name}&service_cname=${value.service_cname}`));
     } else if (currentFormType === 'vm') {
+      const active = vmIsActive || captureVmRequestActivity(value.login_method === 'password');
+      if (!active()) return;
+      let boundOptions;
+      try {
+        assertNoVmPasswordPayload(value);
+        boundOptions = resolveVmPasswordReaderOptions(requestOptions, value.group_id);
+      } catch (_) {
+        message.warning(vmText('loginPasswordUnavailable'));
+        return;
+      }
       dispatch({
         type: 'createApp/createAppByVirtualMachine',
         payload: {
@@ -2377,9 +2520,14 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
           event_id,
           ...value
         },
+        isActive: active,
+        readCredentials: boundOptions.readCredentials,
+        passwordBootstrapSupported: boundOptions.passwordBootstrapSupported === true,
         callback: data => {
+          if (!active()) return;
           if (data) {
             const appAlias = data.bean.service_alias;
+            vmFormRef.current?.clearSshFields();
             dispatch(routerRedux.push(`/team/${teamName}/region/${regionName}/create/create-check/${appAlias}`));
             onCancel();
           }
@@ -2529,13 +2677,18 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
     }
   };
 
-  const handleInstallApp = (value, event_id) => {
+  const handleInstallApp = (value, event_id, requestOptions = {}) => {
+    if (currentFormType === 'vm' && vmWorkflowActive) return;
     const teamName = globalUtil.getCurrTeamName();
     const regionName = globalUtil.getCurrRegionName();
+    const vmIsActive = currentFormType === 'vm' ? captureVmRequestActivity(value.login_method === 'password') : undefined;
+    if (currentFormType === 'vm') {
+      try { assertNoVmPasswordPayload(value); } catch (_) { return; }
+    }
     const submit = () => {
       if (value.group_id) {
         // 已有应用
-        handleFormSubmit(value, event_id);
+        handleFormSubmit(value, event_id, requestOptions, vmIsActive);
       } else {
         // 新建应用再创建组件
         dispatch({
@@ -2548,9 +2701,10 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
             note: '',
           },
           callback: (res) => {
+            if (vmIsActive && !vmIsActive()) return;
             if (res && res.group_id) {
               value.group_id = res.group_id;
-              handleFormSubmit(value, event_id);
+              handleFormSubmit(value, event_id, requestOptions, vmIsActive);
             }
           },
           handleError: err => {
@@ -2717,7 +2871,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       return (
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <Button data-testid="rbd-comp-create-submit" type="primary" onClick={handleFooterSubmit} loading={false}>
-            {formatMessage({ id: 'componentOverview.body.CreateComponentModal.confirm_create' })}
+            {currentFormType === 'vm' && vmWorkflowActive ? vmText('next') : formatMessage({ id: 'componentOverview.body.CreateComponentModal.confirm_create' })}
           </Button>
         </div>
       );
@@ -2929,7 +3083,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
             {getTitle()}
           </div>
         }
-        visible={visible}
+        visible={visible && !vmHardwareOpen && (!vmWorkflowActive || !vmSourceScopeRef.current || vmScopeMatches())}
         onCancel={handleClose}
         footer={getModalFooter()}
         width={
@@ -2938,6 +3092,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
             : 600
         }
         className={styles.createComponentModal}
+        wrapClassName={currentView === 'form' && currentFormType === 'vm' ? styles.vmSourceModalWrap : undefined}
         bodyStyle={
           (currentView === 'marketStore' || currentView === 'localMarket')
               ? { padding: 0 }
@@ -3117,7 +3272,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
             )}
           </div>
         ) : currentView === 'form' ? (
-          <div className={styles.formWrapper}>
+          <div className={styles.formWrapper} ref={currentFormType === 'vm' ? vmSourceFormContainerRef : undefined}>
             {currentFormType === 'docker' && (
               <ImageNameForm
                 wrappedComponentRef={dockerFormRef}
@@ -3196,7 +3351,9 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
             {currentFormType === 'vm' && (
               <ImageVirtualMachineForm
                 wrappedComponentRef={vmFormRef}
-                onSubmit={handleInstallApp}
+                onSubmit={vmWorkflowActive ? handleVmSourceContinue : handleInstallApp}
+                deferCreation={vmWorkflowActive}
+                initialSourceType={initialVmSource}
                 dispatch={dispatch}
                 archInfo={archInfo}
                 virtualMachineImage={virtualMachineImages}
@@ -3249,6 +3406,15 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
           </>
         )}
       </Modal>
+      {visible && vmWorkflowActive && vmScopeMatches() && vmSourceSummary && createPortal(
+        <div className={vmStyles.vmWorkspaceShell} data-vm-workspace-active={vmHardwareOpen ? 'true' : 'false'} style={{ display: vmHardwareOpen ? undefined : 'none' }}>
+          <VmCreateWorkflow page sourceSummary={vmSourceSummary} collectSourcePayload={collectVmSourcePayload}
+            teamName={vmSourceScopeRef.current.team} regionName={vmSourceScopeRef.current.region} groupId={vmSourceScopeRef.current.application}
+            isSourceScopeCurrent={() => vmMountedRef.current && vmSourceScopeRef.current === vmScopeForRender && vmScopeMatches()}
+            onBackToSource={() => setVmHardwareOpen(false)} onCancel={handleClose}
+            clearSourceCredentials={() => vmFormRef.current?.clearSshFields()} />
+        </div>, vmWorkspaceHost
+      )}
 
       <Modal
         title="部署模型"

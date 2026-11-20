@@ -19,6 +19,7 @@ import deferredComponent from '../../DeferredComponent';
 import sourceUtil from '../../../utils/source-unit';
 import moment from 'moment';
 import styles from './app.less';
+import { canPublishTemplate } from '../../../pages/Group/Delivery/common';
 import ComponentListModal from '../../../pages/Group/ComponentListModal';
 import { shouldLoadStorageUsage } from './componentViewPerformance';
 
@@ -33,6 +34,7 @@ const CreateComponentModal = deferredComponent(() => import('../../CreateCompone
   storeApps: application.apps,
   groupDetail: application.groupDetail || {},
   currentTeam: teamControl.currentTeam,
+  teamPermissions: teamControl.currentTeamPermissionsInfo,
   currentRegionName: teamControl.currentRegionName,
   currentEnterprise: enterprise.currentEnterprise,
   rainbondInfo: global.rainbondInfo,
@@ -72,6 +74,7 @@ export default class app extends Component {
       },
       showComponentList: false,
       showCreateComponentModal: false,
+      vmCreationInitialSource: null,
       headerLeftExpanded: false,
       
     };
@@ -84,12 +87,14 @@ export default class app extends Component {
     this.operatorReadGeneration = 0;
     this.detailReadyIdentity = '';
     this.initializedReadIdentity = '';
+    this.lastVmCreationRequest = 0;
   }
   componentDidMount() {
     if (!globalUtil.getAppID()) {
       return;
     }
     this.componentMounted = true;
+    this.vmCreationScopeIdentity = this.getVmCreationScopeIdentity();
     this.headerReadIdentity = JSON.stringify(this.getApplicationReadSnapshot());
     this.loading(false);
     if (!this.props.initialDetailLoader) {
@@ -97,8 +102,14 @@ export default class app extends Component {
       this.loadStorageUsageIfNeeded(this.props.pluginsList);
     }
     document.addEventListener('visibilitychange', this.handleVisibilityChange);
+    this.handleVmCreationRequest();
   }
   componentDidUpdate(prevProps) {
+    const vmCreationScope = this.getVmCreationScopeIdentity();
+    if (this.vmCreationScopeIdentity !== vmCreationScope) {
+      this.vmCreationScopeIdentity = vmCreationScope;
+      this.setState({ showCreateComponentModal: false, vmCreationInitialSource: null });
+    }
     const identity = JSON.stringify(this.getApplicationReadSnapshot());
     if (this.headerReadIdentity !== identity) {
       this.headerReadIdentity = identity;
@@ -128,6 +139,7 @@ export default class app extends Component {
     if (prevProps.apps !== this.props.apps || prevProps.storeApps !== this.props.storeApps) {
       this.syncComponentSummary(this.getComponents());
     }
+    this.handleVmCreationRequest();
   }
   loading = (force = true) => {
     if (this.props.initialDetailLoader) {
@@ -156,6 +168,10 @@ export default class app extends Component {
       ...(this.props.initialDetailLoader && route && route.pathname
         ? { pathname: route.pathname, refresh: route.refresh || '' } : {})
     };
+  };
+  getVmCreationScopeIdentity = () => {
+    const { team, region, id } = this.getApplicationReadSnapshot();
+    return JSON.stringify([team, region, id]);
   };
   isApplicationReadCurrent = (snapshot, requireDetail = true) => {
     const current = this.getApplicationReadSnapshot();
@@ -611,17 +627,27 @@ export default class app extends Component {
         onClick: () => this.handleJump('version')
       },
       {
+        key: 'delivery',
+        type: 'button',
+        icon: 'export',
+        text: formatMessage({ id: 'delivery.deliver' }),
+        show: !isSlidePanel && this.props.applicationRoute && canPublishTemplate(this.props.currUser, this.props.currentTeam,
+          this.props.teamPermissions, this.props.applicationRoute),
+        onClick: () => this.handleJump('delivery')
+      },
+      {
         key: 'visitor',
-        show: linkList && linkList.length > 0,
+        show: linkList && linkList.some(item => item.access_info && item.access_info[0] && (item.access_info[0].access_urls || []).length > 0),
         type: 'component', // 特殊标识组件类型
         component: <VisterBtnWithIcon linkList={linkList} type={!isSlidePanel ? 'default' : 'primary'} /> // 直接传入组件
       },
       {
         key: 'appUpgrade',
         type: 'badge',
+        showBadge: upgradableNum > 0,
         icon: 'arrow-up',
         text: <FormattedMessage id="versionUpdata_6_4.overview.upgrade" />,
-        show: isAppUpgrade && !isSlidePanel && upgradableNum !== 0,
+        show: isAppUpgrade && !isSlidePanel,
         disabled: false,
         onClick: () => this.handleJump('upgrade')
       },
@@ -721,19 +747,23 @@ export default class app extends Component {
   // 渲染操作按钮
   renderOperations(operations, showDetailButton) {
     let content = [];
-    // 固定展示的按钮key: 添加、访问、升级
-    const fixedKeys = ['addComponent', 'appSnapshot', 'visitor', 'appUpgrade'];
+    const available = [...operations];
+    if (showDetailButton) available.push({ key: 'appDetail', type: 'button', icon: 'profile',
+      text: formatMessage({ id: 'versionUpdata_6_4.overview.detail' }), onClick: () => this.handleOpenAddComponentOrAppDetail('appDetail') });
+    const commonKeys = ['visitor', 'appSnapshot', 'delivery', 'appDetail']
+      .filter(key => available.some(operation => operation.key === key)).slice(0, 3);
+    const fixedKeys = ['addComponent', ...commonKeys, 'appUpgrade'];
 
     // 分离固定展示的按钮和其他按钮
-    const fixedButtons = operations.filter(op => fixedKeys.includes(op.key));
-    const dropdownButtons = operations.filter(op => !fixedKeys.includes(op.key));
+    const fixedButtons = fixedKeys.map(key => available.find(op => op.key === key)).filter(Boolean);
+    const dropdownButtons = available.filter(op => !fixedKeys.includes(op.key));
 
     // 渲染固定按钮
     content = fixedButtons.map((op, index) => {
       if (op.type === 'badge') {
         const buttonElement = (
           <Button
-            type={op.buttonType || (index === 0 ? "primary" : "default")}
+            type={op.buttonType || (op.key === 'addComponent' ? 'primary' : 'default')}
             onClick={op.onClick}
             disabled={op.disabled}
             icon={op.icon}
@@ -745,7 +775,7 @@ export default class app extends Component {
         // 根据 showBadge 属性决定是否显示徽标
         return (
           <span key={op.key} style={{ marginRight: 8, display: 'inline-block' }}>
-            <Badge dot>
+            <Badge dot={op.showBadge !== false}>
               {buttonElement}
             </Badge>
           </span>
@@ -753,7 +783,7 @@ export default class app extends Component {
       } else if (op.type === 'button') {
         const buttonNode = (
           <Button
-            type={op.buttonType || (index === 0 ? "primary" : "default")}
+            type={op.buttonType || (op.key === 'addComponent' ? 'primary' : 'default')}
             key={op.key}
             onClick={op.onClick}
             disabled={op.disabled}
@@ -780,19 +810,6 @@ export default class app extends Component {
         );
       }
     });
-
-    if (showDetailButton) {
-      content.push(
-        <Button
-          key="appDetail"
-          icon="profile"
-          onClick={() => this.handleOpenAddComponentOrAppDetail('appDetail')}
-          style={{marginRight:8}}
-        >
-          <FormattedMessage id="versionUpdata_6_4.overview.detail" defaultMessage="详情" />
-        </Button>
-      );
-    }
 
     // 如果有其他按钮，添加"更多"下拉菜单
     if (dropdownButtons.length > 0) {
@@ -981,7 +998,8 @@ export default class app extends Component {
   handleOpenAddComponentOrAppDetail = (type) => {
     if (type === 'addComponent') {
       this.setState({
-        showCreateComponentModal: true
+        showCreateComponentModal: true,
+        vmCreationInitialSource: null
       });
     } else {
       this.props?.handleAddComponentOrAppDetail(type);
@@ -991,9 +1009,22 @@ export default class app extends Component {
     }
   };
 
+  handleVmCreationRequest = () => {
+    const { vmCreationRequest, vmCreationRequestHandled, vmInitialSource, onVmCreationRequestHandled } = this.props;
+    if (!this.componentMounted || !Number.isInteger(vmCreationRequest) || vmCreationRequest <= 0 ||
+      vmCreationRequest <= this.lastVmCreationRequest || vmCreationRequest <= (vmCreationRequestHandled || 0)) return;
+    this.lastVmCreationRequest = vmCreationRequest;
+    this.setState({
+      showCreateComponentModal: true,
+      vmCreationInitialSource: ['url', 'upload', 'existing'].includes(vmInitialSource) ? vmInitialSource : 'url'
+    });
+    if (onVmCreationRequestHandled) onVmCreationRequestHandled(vmCreationRequest);
+  };
+
   handleCloseCreateComponentModal = () => {
     this.setState({
-      showCreateComponentModal: false
+      showCreateComponentModal: false,
+      vmCreationInitialSource: null
     });
   };
 
@@ -1025,9 +1056,7 @@ export default class app extends Component {
   };
   handleJump = target => {
     const { dispatch } = this.props;
-    const path = target === 'upgrade'
-      ? `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/version`
-      : `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/${target}`;
+    const path = `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/${target}`;
     dispatch(
       routerRedux.push(path)
     );
@@ -1409,6 +1438,8 @@ export default class app extends Component {
         {this.state.showCreateComponentModal && (
           <CreateComponentModal
             visible={this.state.showCreateComponentModal}
+            initialVmForm={Boolean(this.state.vmCreationInitialSource)}
+            initialVmSource={this.state.vmCreationInitialSource || 'url'}
             onCancel={this.handleCloseCreateComponentModal}
             dispatch={this.props.dispatch}
             currentEnterprise={this.props.currentEnterprise}

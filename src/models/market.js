@@ -116,8 +116,8 @@ export default {
         callback(response);
       }
     },
-    *upAppModel({ payload, callback }, { call }) {
-      const response = yield call(upAppModel, payload);
+    *upAppModel({ payload, callback, handleError }, { call }) {
+      const response = yield call(upAppModel, payload, handleError);
       if (response && callback) {
         callback(response);
       }
@@ -158,11 +158,12 @@ export default {
         callback(response);
       }
     },
-    *fetchAppModelsDetails({ payload, callback }, { call }) {
-      const response = yield call(getAppModelsDetails, payload);
-      if (response && callback) {
-        callback(response);
-      }
+    *fetchAppModelsDetails({ payload, callback, onError }, { call }) {
+      try {
+        const response = yield call(getAppModelsDetails, payload);
+        if (response && callback) callback(response);
+        else if (onError) onError();
+      } catch (error) { if (onError) onError(error);else throw error; }
     },
     *upDataAppVersionInfo({ payload, callback }, { call }) {
       const response = yield call(upDataAppVersionInfo, payload);

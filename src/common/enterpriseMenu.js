@@ -71,6 +71,12 @@ function menuData(eid, currentUser, enterprise, pluginList, clusterList, rainbon
         authority: ['admin', 'user']
       },
       {
+        name: formatMessage({ id: 'workflow.center' }),
+        icon: getMenuSvg.getSvg('shareAlt'),
+        path: `/enterprise/${eid}/development-delivery`,
+        authority: ['admin', 'user']
+      },
+      {
         name: formatMessage({ id: 'menu.enterprise.user' }),
         icon: getMenuSvg.getSvg('users'),
         path: `/enterprise/${eid}/users`,

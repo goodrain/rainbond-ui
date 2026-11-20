@@ -289,7 +289,7 @@ class CreateAppModels extends PureComponent {
   };
 
   upAppModel = values => {
-    const { dispatch, eid, appInfo, onOk, team_name } = this.props;
+    const { dispatch, eid, appInfo, onOk, team_name, deliverySource } = this.props;
     const { imageUrl, tagList, isShared } = this.state;
     const scope = this.getResolvedScope(values);
 
@@ -315,8 +315,10 @@ class CreateAppModels extends PureComponent {
       pic: imageUrl,
       tag_ids: arr,
       app_id: appInfo.app_id,
+      ...(deliverySource ? { delivery_source: deliverySource } : {}),
       dev_status: values.dev_status ? 'release' : '',
       describe: values.describe,
+      details: values.details,
       scope: isShared && scope !== 'enterprise' ? 'team' : scope
     };
     if (team_name && scope !== 'enterprise') {
@@ -328,16 +330,17 @@ class CreateAppModels extends PureComponent {
       type: 'market/upAppModel',
       payload: body,
       callback: res => {
+        this.handleSubmitLoading(false);
         if (res && res.status_code === 200 && onOk) {
           onOk(appInfo);
         }
-        this.handleSubmitLoading(false);
-      }
+      },
+      handleError: () => this.handleSubmitLoading(false)
     });
   };
 
   createAppModel = values => {
-    const { dispatch, eid, onOk, currentTeam, marketId } = this.props;
+    const { dispatch, eid, onOk, currentTeam, marketId, deliverySource } = this.props;
     const { imageUrl, tagList, isShared } = this.state;
     const scope = this.getResolvedScope(values);
     const arr = [];
@@ -367,7 +370,7 @@ class CreateAppModels extends PureComponent {
         name: values.name,
         org_id: values.org_id,
         logo: imageUrl,
-        introduction: '',
+        introduction: values.details || '',
         app_classification_id: '',
         team_name: currentTeam && currentTeam.team_name,
         desc: values.describe,
@@ -379,10 +382,10 @@ class CreateAppModels extends PureComponent {
         type: 'market/createMarketAppModel',
         payload: customBody,
         callback: res => {
+          this.handleSubmitLoading(false);
           if (res && res.status_code === 200 && onOk) {
             onOk();
           }
-          this.handleSubmitLoading(false);
         },
         handleError: err => {
           notification.error({ message: err?.data?.msg || formatMessage({ id: 'notification.error.setUp' }) })
@@ -392,13 +395,15 @@ class CreateAppModels extends PureComponent {
       return null;
     }
     customBody = {
+      ...(deliverySource ? { delivery_source: deliverySource } : {}),
       enterprise_id: eid,
       name: values.name,
       pic: imageUrl,
       scope: isShared && scope !== 'enterprise' ? 'team' : scope,
-      team_name: currentTeam && currentTeam.team_name,
+      team_name: deliverySource ? deliverySource.team_name : currentTeam && currentTeam.team_name,
       dev_status: values.dev_status,
       describe: values.describe,
+      details: values.details,
       tag_ids: arr
     };
 
@@ -410,10 +415,10 @@ class CreateAppModels extends PureComponent {
       type: 'market/createAppModel',
       payload: customBody,
       callback: res => {
+        this.handleSubmitLoading(false);
         if (res && res.status_code === 200 && onOk) {
           onOk();
         }
-        this.handleSubmitLoading(false);
       },
       handleError: err => {
         notification.error({ message: err?.data?.msg || formatMessage({ id: 'notification.error.setUp' }) })
@@ -451,6 +456,7 @@ class CreateAppModels extends PureComponent {
       marketId,
       appName,
       marketVersion,
+      deliverySource,
       user
     } = this.props;
     const {
@@ -560,17 +566,17 @@ class CreateAppModels extends PureComponent {
                       message: formatMessage({ id: 'placeholder.appShare.appPublish.name' })
                     },
                     {
-                      max: 16,
-                      message: formatMessage({ id: 'placeholder.max16' })
+                      max: deliverySource ? 64 : 16,
+                      message: formatMessage({ id: deliverySource ? 'delivery.nameRequired' : 'placeholder.max16' })
                     },
                     {
                       pattern: /^[a-z0-9A-Z\u4e00-\u9fa5]([a-zA-Z0-9_\-\u4e00-\u9fa5]*[a-z0-9A-Z\u4e00-\u9fa5])?$/,
                       message: formatMessage({ id: 'placeholder.nameSpaceReg' })
                     }
                   ]
-                })(<Input placeholder={formatMessage({ id: 'placeholder.appShare.appPublish.name' })} />)}
+                })(<Input placeholder={formatMessage({ id: deliverySource ? 'delivery.nameRequired' : 'placeholder.appShare.appPublish.name' })} />)}
                 <div className={styles.conformDesc}>
-                  {formatMessage({ id: 'appPublish.btn.record.creactAppModel.pages.label.max16' })}
+                  {formatMessage({ id: deliverySource ? 'delivery.nameRequired' : 'appPublish.btn.record.creactAppModel.pages.label.max16' })}
                 </div>
               </FormItem>
               {!marketId && !fixedScope && (
@@ -688,6 +694,11 @@ class CreateAppModels extends PureComponent {
                 <div className={styles.conformDesc}>
                   {formatMessage({ id: 'appPublish.btn.record.creactAppModel.pages.label.model_intro' })}
                 </div>
+              </FormItem>
+              <FormItem {...is_formItemLayout} label={formatMessage({ id: 'delivery.fullDescription' })}>
+                {getFieldDecorator('details', { initialValue: appInfo && appInfo.details || '' })(
+                  <TextArea rows={6} autosize={{ minRows: 6, maxRows: 12 }} maxLength={20000}
+                    placeholder={formatMessage({ id: 'delivery.fullDescriptionPlaceholder' })} />)}
               </FormItem>
               <Form.Item {...is_formItemLayout} label={formatMessage({ id: 'appPublish.btn.record.creactAppModel.pages.label.logo' })}>
                 {getFieldDecorator('pic', {

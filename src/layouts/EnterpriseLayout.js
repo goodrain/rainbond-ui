@@ -518,7 +518,7 @@ class EnterpriseLayout extends PureComponent {
                 Authorized={Authorized}
                 menuData={getMenuData(eid, currentUser, enterprise, pluginList, clusterList, rainbondInfo)}
                 showMenu={showMenu}
-                pathname={pathname}
+                pathname={pathname && pathname.startsWith(`/enterprise/${eid}/development-delivery/`) ? `/enterprise/${eid}/development-delivery` : pathname}
                 location={location}
                 isMobile={this.state.isMobile}
                 collapsed={collapsed}

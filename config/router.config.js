@@ -121,6 +121,16 @@ export default [
             authority: ['admin', 'user']
           },
           {
+            path: '/enterprise/:eid/development-delivery/:groupId',
+            component: './EnterpriseDelivery/Detail',
+            authority: ['admin', 'user']
+          },
+          {
+            path: '/enterprise/:eid/development-delivery',
+            component: './EnterpriseDelivery',
+            authority: ['admin', 'user']
+          },
+          {
             path: '/enterprise/:eid/users',
             component: './EnterpriseUsers',
             name: 'EnterpriseUsers',
@@ -312,6 +322,12 @@ export default [
         authority: ['admin', 'user'],
         // Routes: ['./src/layouts/TeamPermissions.js'],
         routes: [
+          {
+            path: '/team/:teamName/region/:regionName/recycle-bin',
+            component: './ComponentRecycle',
+            name: 'componentRecycle',
+            authority: ['admin', 'user']
+          },
           // 总览
           {
             path: '/team/:teamName/region/:regionName/index',
@@ -458,6 +474,18 @@ export default [
             name: 'publish',
             authority: ['admin', 'user'],
             title: '发布管理'
+          },
+          {
+            path: '/team/:teamName/region/:regionName/apps/:appID/delivery/create',
+            component: './Group/Delivery',
+            authority: ['admin', 'user'],
+            title: '创建模板'
+          },
+          {
+            path: '/team/:teamName/region/:regionName/apps/:appID/delivery',
+            component: './Group/Delivery/Records',
+            authority: ['admin', 'user'],
+            title: '交付记录'
           },
 
           {
@@ -764,7 +792,11 @@ export default [
             routes: [
               {
                 path: '/account/center',
-                redirect: '/account/center/binding'
+                redirect: '/account/center/teams'
+              },
+              {
+                path: '/account/center/teams',
+                component: './Account/Center/Teams'
               },
               {
                 path: '/account/center/binding',

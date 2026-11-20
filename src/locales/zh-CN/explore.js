@@ -28,7 +28,7 @@ const explore = {
 
     // 市场页面
     'explore.market.external': '外部市场',
-    'explore.market.local': '本地组件库',
+    'explore.market.local': '本地应用市场',
     'explore.market.unavailable_title': '外部市场暂时不可用',
     'explore.market.unavailable_desc': '当前网络质量较差或平台搭建方式为离线部署，因此无法使用外部市场，请查看网络或平台设置后再试。',
 

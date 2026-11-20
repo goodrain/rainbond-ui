@@ -48,6 +48,7 @@ import RollsBackRecordDetails from './RollbackInfo/details';
 import RollsBackRecordList from './RollbackInfo/index';
 import appIcon from '../../../public/images/app_icon.jpg';
 import infoUtil from './UpgradeInfo/info-util';
+const { prioritizeDeliveryUpgrade } = require('../../utils/deliveryUpgrade');
 
 const { TabPane } = Tabs;
 
@@ -228,7 +229,7 @@ export default class AppList extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           this.setState({
-            dataList: res.list || []
+            dataList: prioritizeDeliveryUpgrade(res.list || [], this.props.location)
           },
             () => {
               const { dataList, versionArr } = this.state;
@@ -945,7 +946,7 @@ export default class AppList extends PureComponent {
                                 size="large"
                               />
                             }
-                            title={
+                            title={item.is_delivery_source ? item.group_name :
                               <a
                                 onClick={() => {
                                   this.showMarketAppDetail(item);

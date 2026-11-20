@@ -20,6 +20,7 @@ class Info extends Component {
     super(props);
     const { match, location, enterprise, currentUser } = props;
     const menuMap = {};
+    menuMap.teams = formatMessage({ id: 'workspace.name' });
     menuMap.personal = (
       <FormattedMessage
         id="app.settings.menuMap.personal"
@@ -95,8 +96,9 @@ class Info extends Component {
     return (
       <>
         <PageHeaderLayout
-          title={formatMessage({ id: 'versionUpdata_6_1.center' })}
-          content={formatMessage({ id: 'versionUpdata_6_1.center.content' })}
+          isFooter
+          title={formatMessage({ id: 'workspace.name' })}
+          content={formatMessage({ id: 'workspace.description' })}
           titleSvg={pageheaderSvg.getPageHeaderSvg('center', 18)}
         >
           <div className={styles.main}>

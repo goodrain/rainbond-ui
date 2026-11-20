@@ -59,6 +59,7 @@ export default class AddPort extends PureComponent {
     const protocols = this.props.protocols || [];
     const { extendMethod } = this.props;
     const isKubeBlocks = extendMethod === 'kubeblocks_component';
+    const isVM = extendMethod === 'vm';
     const layoutConfig = language ? formItemLayout : enFormItemLayout;
     return (
       <Modal
@@ -89,7 +90,7 @@ export default class AddPort extends PureComponent {
           </FormItem>
           <FormItem {...layoutConfig} label={<FormattedMessage id='componentOverview.body.AddPort.label_agreement'/>}>
             {getFieldDecorator('protocol', {
-              initialValue: !isKubeBlocks ? 'http' : 'tcp',
+              initialValue: isKubeBlocks || isVM ? 'tcp' : 'http',
               rules: [{ required: true, message: formatMessage({id:'componentOverview.body.AddPort.add'})}]
             })(
               <Select

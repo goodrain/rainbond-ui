@@ -40,6 +40,7 @@ import styles from './index.less'
 
 const { buildTopologyWebConsolePath } = require('./topologyRouteHelpers');
 const { topologyScope, subscribeTopologyRefresh, postTopologyRefresh } = require('../../utils/topologyRefresh');
+const { isVmWorkflowDemoEnabled } = require('../../utils/vmWorkflowDemo');
 
 const frameCallbackNames = [
   'iframeGetNodeUrl', 'iframeGetTopologyScope', 'iframeGetMonitor', 'getServiceAlias',
@@ -137,6 +138,39 @@ class Index extends React.Component {
 
   bindTopologyRefresh = () => {
     this.unsubscribeTopologyRefresh = subscribeTopologyRefresh(this.frameScope, this.refreshFrame, () => this.props.apps || []);
+  };
+
+  protectVmWorkflowActions = () => {
+    if (!isVmWorkflowDemoEnabled()) return;
+    const names = ['handleClickBuild', 'handleClickUpdate', 'handleClickCloses', 'handleClickStart', 'handleClickDelete', 'handleClickTerminal', 'handleClickService', 'handleClickRelation', 'onEdgeCreated', 'onEdgeDeleted'];
+    names.forEach(name => {
+      const original = window[name];
+      if (typeof original !== 'function') return;
+      const wrapped = (...args) => {
+        const object = args.find(value => value && typeof value === 'object') || {};
+        const edgeAction = name === 'onEdgeCreated' || name === 'onEdgeDeleted';
+        const aliases = edgeAction ? [
+          object.sourceServiceAlias || (this.props.apps || []).find(app => String(app.service_id) === String(object.sourceNodeId))?.service_alias,
+          object.targetServiceAlias || (this.props.apps || []).find(app => String(app.service_id) === String(object.targetNodeId))?.service_alias
+        ] : [object.service_alias];
+        const targets = [...new Set(aliases.filter(Boolean))];
+        if (edgeAction && ((object.sourceNodeId !== 'The Internet' && !aliases[0]) || (object.targetNodeId !== 'The Internet' && !aliases[1]))) {
+          notification.warning({ message: '无法确认连线两端的组件类型，未执行后端操作。' });
+          return;
+        }
+        if (!targets.length) { notification.warning({ message: '无法识别操作目标，未执行操作。' }); return; }
+        const expectedScope = this.frameScope;
+        this.props.dispatch({ type: 'vmDemo/resolveGraphAction', payload: { team: globalUtil.getCurrTeamName(), aliases: targets }, callback: result => {
+          if (expectedScope !== this.frameScope || this.ownedFrameCallbacks?.[name] !== wrapped) return;
+          if (result.error) { notification.warning({ message: '无法确认组件类型，未执行后端操作。' }); return; }
+          if (!result.vm) { original(...args); return; }
+          const tab = edgeAction || name === 'handleClickRelation' ? 'advanced' : name === 'handleClickTerminal' ? 'console' : 'overview';
+          this.props.dispatch(routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview?type=components&componentID=${encodeURIComponent(result.vm)}&tab=${tab}`));
+          notification.info({ message: '请在虚拟机管理页执行该操作。' });
+        } });
+      };
+      window[name] = wrapped;
+    });
   };
 
   installFrameCallbacks = () => {
@@ -509,6 +543,7 @@ class Index extends React.Component {
         });
       };
 
+      this.protectVmWorkflowActions();
       this.ownedFrameCallbacks = {};
       frameCallbackNames.forEach(name => { this.ownedFrameCallbacks[name] = window[name]; });
     } catch (e) {

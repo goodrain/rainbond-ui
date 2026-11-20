@@ -54,6 +54,7 @@ import {
   fetchHelmInstanceDetails,
   fetchInstanceDetails,
   fetchLogContent,
+  getActionLogDetail,
   fetchOperationLog,
   getAnalyzePlugins,
   getAppBuidSource,
@@ -170,6 +171,8 @@ import {
   prepareComponentPortsState,
   saveComponentPortsState
 } from './appControlPortState';
+
+const { observeComponentUpgrade } = require('../utils/componentUpgradeFeedback');
 
 let portsRequestSequence = 0;
 
@@ -355,9 +358,18 @@ export default {
         callback(response);
       }
     },
-    *putUpdateRolling({ payload, callback }, { call }) {
+    *watchUpgrade({ payload, callback, isCurrent }, { call }) {
+      const result = yield call(observeComponentUpgrade, {
+        eventID: payload.event_id,
+        isCurrent,
+        readEvents: () => fetchOperationLog({ ...payload, target: 'service', page: 1, page_size: 30 }, () => {}),
+        readErrorLogs: () => getActionLogDetail({ ...payload, level: 'error' })
+      });
+      if (result && callback && isCurrent()) callback(result);
+    },
+    *putUpdateRolling({ payload, callback, handleError }, { call }) {
       captureAppOperation('rolling_update', 'started', buildAppControlProperties(payload));
-      const response = yield call(updateRolling, payload);
+      const response = yield call(updateRolling, payload, handleError);
       if (response) {
         trackOperationSucceeded('rolling_update', payload, response);
       }
@@ -678,13 +690,21 @@ export default {
         callback(response);
       }
     },
-    *fetchDetail({ payload, callback, handleError }, { call, put }) {
-      const response = yield call(getDetail, payload, handleError);
+    *fetchDetail({ payload, callback, handleError, shouldApply }, { call, put }) {
+      const active = () => {
+        if (shouldApply === undefined) return true;
+        try { return typeof shouldApply === 'function' && Boolean(shouldApply()); } catch (_) { return false; }
+      };
+      if (!active()) return;
+      const readError = shouldApply !== undefined && typeof handleError === 'function'
+        ? error => { if (active()) handleError(error); } : handleError;
+      const response = yield call(getDetail, payload, readError);
+      if (!active()) return;
       if (response) {
         captureMeaningfulActive('view_app', buildAppControlProperties(payload));
         const detail = response.bean || {};
         const statusInfo = detail.status || {};
-        if (isRunningStatus(statusInfo.status || detail.service_status || detail.cur_status)) {
+        if (active() && isRunningStatus(statusInfo.status || detail.service_status || detail.cur_status)) {
           markFirstDeploySuccessOnce(buildAppControlProperties(payload, {
             app_alias: payload && (payload.app_alias || payload.service_alias || (detail.service && detail.service.service_alias)),
             action_type: 'first_app_deploy',
@@ -692,8 +712,9 @@ export default {
             deploy_type: detail.service && detail.service.service_source
           }));
         }
+        if (!active()) return;
         yield put({ type: 'saveDetail', payload: response.bean });
-        if (callback) {
+        if (callback && active()) {
           callback(response.bean);
         }
       }
@@ -1026,14 +1047,14 @@ export default {
         }
       }
     },
-    *fetchVMDiskLayout({ payload, callback }, { call, put }) {
-      const response = yield call(getVMDisks, payload);
-      if (response) {
+    *fetchVMDiskLayout({ payload, callback, shouldApply, handleError }, { call, put }) {
+      const response = yield call(getVMDisks, payload, handleError);
+      if (response && (!shouldApply || shouldApply())) {
         yield put({
           type: 'saveVMDiskLayout',
           payload: response.list || []
         });
-        if (callback) {
+        if (callback && (!shouldApply || shouldApply())) {
           callback(response);
         }
       }

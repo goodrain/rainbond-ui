@@ -220,13 +220,16 @@
         }
     </style>
     <script>
-      let link =
-        document.querySelector("link[rel*='icon']") ||
-        document.createElement('link');
-      link.type = 'image/x-icon';
-      link.rel = 'shortcut icon';
-      link.href = window.localStorage.faviconurl;
-      document.getElementsByTagName('head')[0].appendChild(link);
+      const cachedFavicon = window.localStorage.faviconurl;
+      if (cachedFavicon && cachedFavicon !== 'undefined' && cachedFavicon !== 'null') {
+        const link =
+          document.querySelector("link[rel*='icon']") ||
+          document.createElement('link');
+        link.type = 'image/x-icon';
+        link.rel = 'shortcut icon';
+        link.href = cachedFavicon;
+        document.getElementsByTagName('head')[0].appendChild(link);
+      }
     </script>
     <script id="rainbond-sentry-config" type="application/json">{{ sentry_config_json|default:"{}"|safe }}</script>
     <script id="rainbond-posthog-config" type="application/json">{{ posthog_config_json|default:"{}"|safe }}</script>

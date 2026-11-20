@@ -13,14 +13,13 @@ import {
   Row,
   Select,
   Spin,
-  Table,
   Upload
 } from 'antd';
 import BraftEditor from 'braft-editor';
+import ReactMarkdown from 'react-markdown';
 import 'braft-editor/dist/index.css';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import moment from 'moment';
 import React, { PureComponent } from 'react';
 import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
@@ -35,6 +34,7 @@ import pageheaderSvg from '@/utils/pageHeaderSvg';
 import globalUtil from '../../utils/global';
 import userUtil from '../../utils/user';
 import styless from './index.less';
+import LocalTemplateVersions from './LocalTemplateVersions';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -178,7 +178,7 @@ export default class Main extends PureComponent {
           this.setState({
             imageUrl: res.bean.pic,
             appInfo: res.bean,
-            appList: res.list,
+            appList: res.list || [],
             total: res.total
           });
         }
@@ -818,137 +818,20 @@ export default class Main extends PureComponent {
             >
               <div
                 style={{
-                  padding: '24px'
+                  padding: 0
                 }}
               >
-                <Table
-                  dataSource={appList}
-                  rowKey={(record,index) => index}
-                  scroll={{ x: 1200 }}
-                  style={{ width: '100%', overflowX: 'auto' }}
-                  columns={[
-                    {
-                      title: formatMessage({id:'applicationMarket.appsetting.edition_nmu'}),
-                      dataIndex: 'version',
-                      width: 220,
-                      fixed: 'left',
-                      render: (val, data) => {
-                        return (
-                          <span>
-                            {val}{data.version_alias && <>{data.version_alias}</>}
-                          </span>
-                        );
-                      }
-                    },
-                    {
-                      title: formatMessage({id:'applicationMarket.appsetting.state'}),
-                      dataIndex: 'dev_status',
-                      align: 'center',
-                      width: 100,
-                      fixed: 'left',
-                      render: val => {
-                        return (
-                          <div>
-                            {val ? (
-                              <span className={styless.devStatus}>Release</span>
-                            ) : (
-                              '-'
-                            )}
-                          </div>
-                        );
-                      }
-                    },
-                    {
-                      title: formatMessage({id:'applicationMarket.appsetting.Issued'}),
-                      dataIndex: 'share_user',
-                      align: 'center',
-                      width: 150
-                    },
-                    {
-                      title: formatMessage({id:'applicationMarket.appsetting.msg'}),
-                      dataIndex: 'app_version_info'
-                    },
-                    {
-                      title: formatMessage({id:'applicationMarket.appsetting.time'}),
-                      dataIndex: 'create_time',
-                      width: 190,
-                      align: 'center',
-                      render: val => {
-                        return (
-                          <span>
-                            {moment(val)
-                              .locale('zh-cn')
-                              .format('YYYY-MM-DD HH:mm:ss')}
-                          </span>
-                        );
-                      }
-                    },
-                    {
-                      title: formatMessage({id:'applicationMarket.appsetting.updata_time'}),
-                      dataIndex: 'update_time',
-                      width: 190,
-                      align: 'center',
-                      render: val => {
-                        return (
-                          <span>
-                            {moment(val)
-                              .locale('zh-cn')
-                              .format('YYYY-MM-DD HH:mm:ss')}
-                          </span>
-                        );
-                      }
-                    },
-                    {
-                      title: formatMessage({id:'applicationMarket.appsetting.operation'}),
-                      dataIndex: 'action',
-                      width: 230,
-                      fixed: 'right',
-                      align: 'center',
-                      render: (_data, record) => (
-                        <div>
-                          <div>
-                            {isEditVersionApp && (
-                              <a
-                                style={{ marginRight: '5px' }}
-                                onClick={() => {
-                                  this.handleEditAppVersionInfo(record);
-                                }}
-                              >
-                                <FormattedMessage id='button.edit'/>
-                              </a>
-                            )}
-                            {isEditVersionApp && (
-                              <a
-                                style={{ marginRight: '5px' }}
-                                onClick={() => {
-                                  this.handleIsRelease(record);
-                                }}
-                              >
-                                {record.dev_status
-                                  ? <FormattedMessage id='applicationMarket.appsetting.cancel_release'/>
-                                  : <FormattedMessage id='applicationMarket.appsetting.determine_release'/>}
-                              </a>
-                            )}
-                            {isDeleteAppVersion && (
-                              <a
-                                onClick={() => {
-                                  this.handleToDelete(record);
-                                }}
-                              >
-                                <FormattedMessage id='button.delete'/>
-                              </a>
-                            )}
-                          </div>
-                        </div>
-                      )
-                    }
-                  ]}
-                  pagination={{
-                    current: versionPag,
-                    pageSize: versionPageSize,
-                    total,
-                    onChange: this.onPageChange
-                  }}
+                <LocalTemplateVersions
+                  key={`${this.props.match.params.eid}:${this.props.match.params.appId}:${versionPag}`}
+                  eid={this.props.match.params.eid} appId={this.props.match.params.appId} versions={appList || []}
+                  page={versionPag} pageSize={versionPageSize} total={total} onPageChange={this.onPageChange}
+                  renderActions={record => <React.Fragment>
+                    {isEditVersionApp && <a onClick={() => this.handleEditAppVersionInfo(record)}><FormattedMessage id='button.edit'/></a>}
+                    {isEditVersionApp && <a onClick={() => this.handleIsRelease(record)}>{record.dev_status
+                      ? <FormattedMessage id='applicationMarket.appsetting.cancel_release'/>
+                      : <FormattedMessage id='applicationMarket.appsetting.determine_release'/>}</a>}
+                    {isDeleteAppVersion && <a onClick={() => this.handleToDelete(record)}><FormattedMessage id='button.delete'/></a>}
+                  </React.Fragment>}
                 />
               </div>
             </Card>
@@ -1007,13 +890,10 @@ export default class Main extends PureComponent {
                       )}
                     </FormItem>
                   ) : (
-                    <div
+                    appInfo && /<\/?[a-z][^>]*>/i.test(appInfo.details || '') ? <div
                       className={detailstyles.markdown}
-                      style={{ minHeight: '490px' }}
-                      dangerouslySetInnerHTML={{
-                        __html: appInfo && appInfo.details
-                      }}
-                    />
+                      dangerouslySetInnerHTML={{ __html: appInfo.details }}
+                    /> : <ReactMarkdown className={detailstyles.markdown} source={appInfo && appInfo.details || ''} />
                   )}
                   {isAppDetails && (
                     <div style={{ textAlign: 'center' }}>

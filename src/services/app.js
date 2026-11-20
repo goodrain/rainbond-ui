@@ -22,9 +22,11 @@ export function getAppVersionList(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.service_alias}/version`,
     {
       method: 'get',
+      ...(body.showMessage === false ? { showMessage: false } : {}),
       params: {
         page_num: body.page_num,
-        page_size: body.page_size
+        page_size: body.page_size,
+        ...(body.region_name ? { region_name: body.region_name } : {})
       }
     }
   );
@@ -178,13 +180,15 @@ export function updateRolling(
   body = {
     team_name,
     app_alias
-  }
+  },
+  handleError
 ) {
   const refreshTopology = captureTopologyOperation(body);
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/upgrade`,
     {
-      method: 'post'
+      method: 'post',
+      handleError
     }
   ).then(response => { refreshTopology(response); return response; });
 }
@@ -755,6 +759,20 @@ export async function getPorts(
       showLoading: body.showLoading,
       showMessage: body.showMessage,
       handleError: body.handleError
+    }
+  );
+}
+
+/* 获取单个端口配置，不创建或开放访问入口 */
+export async function getPortDetail(body = {}, handleError) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/ports/${body.port}`,
+    {
+      method: 'get',
+      showLoading: body.showLoading,
+      showMessage: body.showMessage,
+      sensitiveError: body.sensitiveError === true,
+      handleError
     }
   );
 }
@@ -1584,12 +1602,14 @@ export async function getVMDisks(
   body = {
     team_name,
     app_alias
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/vm-disks`,
     {
-      method: 'get'
+      method: 'get',
+      handleError
     }
   );
 }
@@ -1642,12 +1662,15 @@ export async function getVolumeOpts(
   body = {
     team_name,
     app_alias
-  }
+  },
+  handleError
 ) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/volume-opts`,
     {
-      method: 'get'
+      method: 'get',
+      ...(body.sensitiveError === true ? { sensitiveError: true } : {}),
+      ...(handleError ? { handleError } : {})
     }
   );
 }
@@ -2634,11 +2657,13 @@ export async function editAppCreateInfo(
   },
   handleError
 ) {
+  const { sensitiveError, ...data } = body;
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/check_update`,
     {
       method: 'put',
-      data: body,
+      data,
+      ...(sensitiveError === true ? { sensitiveError: true } : {}),
       handleError
     }
   );
