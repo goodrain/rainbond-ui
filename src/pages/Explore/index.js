@@ -29,6 +29,7 @@ import globalUtil from '../../utils/global';
 import role from '../../utils/newRole';
 import userUtil from '../../utils/user';
 import { runMarketInstallPreflight } from '../../utils/marketInstallPreflight';
+import handleAPIError from '../../utils/error';
 import styles from './index.less';
 
 const { Search } = Input;
@@ -336,7 +337,8 @@ class Explore extends PureComponent {
           });
         }
       },
-      handleError: () => {
+      handleError: err => {
+        handleAPIError(err);
         this.setState({
           categoryAppsLoading: false,
           categoryAppsHasMore: false

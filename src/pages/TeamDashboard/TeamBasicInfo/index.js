@@ -335,7 +335,7 @@ export default class index extends Component {
             appListTotal,
             appListLoading: false,
             appListLoaded: true,
-            appListQuery: requestQuery,
+            appListQuery: query,
           }, () => {
             if (appListTotal === 0 && !requestQuery) {
               if (this.state.teamAppCreatePermission.isAccess) {

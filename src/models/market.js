@@ -201,7 +201,7 @@ export default {
       }
     },
     *fetchMarkets({ payload, callback, handleError }, { call, select }) {
-      const shouldHandleError = !!(payload && payload.silent);
+      const shouldHandleError = !!handleError || !!(payload && payload.silent);
       let errorHandled = false;
       const reportError = error => {
         if (errorHandled) {
@@ -221,12 +221,14 @@ export default {
         });
         if (response && callback) {
           callback(response);
-        } else if (!response && !errorHandled) {
+        } else if (!response && !errorHandled && shouldHandleError) {
           reportError();
         }
       } catch (error) {
-        if (!errorHandled) {
+        if (!errorHandled && shouldHandleError) {
           reportError(error);
+        } else if (!shouldHandleError) {
+          throw error;
         }
       }
     },

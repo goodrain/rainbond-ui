@@ -26,6 +26,13 @@ test('shows the first-deploy guide only after a successful unfiltered empty list
   }), false);
   assert.equal(appListState.shouldShowFirstDeployGuide({
     appListLoading: false,
+    appListLoaded: true,
+    isAppList: true,
+    appListQuery: '   ',
+    appListTotal: 0
+  }), false);
+  assert.equal(appListState.shouldShowFirstDeployGuide({
+    appListLoading: false,
     appListLoaded: false,
     isAppList: true,
     appListQuery: '',
