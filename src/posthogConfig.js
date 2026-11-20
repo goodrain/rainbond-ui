@@ -1,6 +1,8 @@
 const SENSITIVE_KEY_RE = /(token|password|secret|authorization|cookie|key|dsn|email|phone)/i;
 const SENSITIVE_VALUE_RE = /\b((?:token|password|secret|authorization|cookie|dsn|api[_-]?key|access[_-]?key|secret[_-]?key|email|phone)\s*[:=]\s*)(?:bearer\s+)?[^&\s"'<>]+/gi;
 const BEARER_VALUE_RE = /\b(bearer\s+)[a-z0-9._~+/=-]+/gi;
+const INSTANCE_ID_RE = /^[0-9a-f]{32}$/;
+const ENTERPRISE_GROUP_ID_RE = /^enterprise_[0-9a-f]{32}$/;
 const DEFAULT_PROJECT_TOKEN = 'phc_oCoPwcxutKCU9AZtUT63dMTNhWezUxCXCLtSZE6a4wvE';
 const DEFAULT_API_HOST = '/console/posthog';
 const DEFAULT_UI_HOST = 'https://posthog.goodrain.com';
@@ -152,7 +154,7 @@ function sanitizeString(value) {
     .replace(BEARER_VALUE_RE, '$1[Filtered]');
 }
 
-function sanitizeObject(value, depth = 0) {
+function sanitizeObject(value, depth = 0, options = {}) {
   if (typeof value === 'string') {
     return sanitizeString(value);
   }
@@ -163,23 +165,31 @@ function sanitizeObject(value, depth = 0) {
     return '[MaxDepth]';
   }
   if (Array.isArray(value)) {
-    return value.slice(0, 20).map(item => sanitizeObject(item, depth + 1));
+    return value.slice(0, 20).map(item => sanitizeObject(item, depth + 1, options));
   }
   return Object.keys(value).reduce((result, key) => {
+    if (
+      key === '$group_key' &&
+      ((INSTANCE_ID_RE.test(options.instanceId) && value[key] === options.instanceId) ||
+        (ENTERPRISE_GROUP_ID_RE.test(options.enterpriseGroupId) && value[key] === options.enterpriseGroupId))
+    ) {
+      result[key] = value[key];
+      return result;
+    }
     if (SENSITIVE_KEY_RE.test(key)) {
       result[key] = '[Filtered]';
       return result;
     }
-    result[key] = sanitizeObject(value[key], depth + 1);
+    result[key] = sanitizeObject(value[key], depth + 1, options);
     return result;
   }, {});
 }
 
-function sanitizePostHogEvent(captureResult) {
+function sanitizePostHogEvent(captureResult, options = {}) {
   if (!captureResult || !captureResult.properties) {
     return captureResult;
   }
-  const sanitizedProperties = sanitizeObject(captureResult.properties);
+  const sanitizedProperties = sanitizeObject(captureResult.properties, 0, options);
   Object.keys(POSTHOG_RESERVED_PROPERTIES).forEach(key => {
     if (Object.prototype.hasOwnProperty.call(captureResult.properties, key)) {
       sanitizedProperties[key] = captureResult.properties[key];
@@ -190,10 +200,10 @@ function sanitizePostHogEvent(captureResult) {
     properties: sanitizedProperties
   };
   if (sanitized.$set) {
-    sanitized.$set = sanitizeObject(sanitized.$set);
+    sanitized.$set = sanitizeObject(sanitized.$set, 0, options);
   }
   if (sanitized.$set_once) {
-    sanitized.$set_once = sanitizeObject(sanitized.$set_once);
+    sanitized.$set_once = sanitizeObject(sanitized.$set_once, 0, options);
   }
   return sanitized;
 }
@@ -249,6 +259,24 @@ function buildPostHogGroupProperties(user = {}, instanceProperties = {}) {
       team_count: Array.isArray(user.teams) ? user.teams.length : 0
     }
   };
+}
+
+function stableSerialize(value) {
+  if (Array.isArray(value)) {
+    return `[${value.map(item => stableSerialize(item)).join(',')}]`;
+  }
+  if (value && typeof value === 'object') {
+    return `{${Object.keys(value).sort().map(key => `${JSON.stringify(key)}:${stableSerialize(value[key])}`).join(',')}}`;
+  }
+  return JSON.stringify(value);
+}
+
+function buildPostHogGroupSignature(group = {}) {
+  return `${group.enterpriseIdHash || ''}:${hashString(stableSerialize(group.enterpriseProperties || {}))}`;
+}
+
+function shouldUpdatePostHogGroup(previousSignature, group = {}) {
+  return !!group.enterpriseIdHash && buildPostHogGroupSignature(group) !== previousSignature;
 }
 
 function inferPostHogCreateStep(route = '') {
@@ -348,6 +376,8 @@ module.exports = {
   buildPostHogDistinctId,
   buildPostHogUserProperties,
   buildPostHogGroupProperties,
+  buildPostHogGroupSignature,
+  shouldUpdatePostHogGroup,
   classifyPostHogInteraction,
   inferPostHogCreateStep
 };

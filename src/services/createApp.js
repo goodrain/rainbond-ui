@@ -7,7 +7,7 @@ const { sanitizePackageToolPayload } = sourceBuildPayload;
 /*
    源码创建应用
 */
-export async function createAppByCode(body = {}) {
+export async function createAppByCode(body = {}, telemetryOptions = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/source_code`,
     {
@@ -28,7 +28,8 @@ export async function createAppByCode(body = {}) {
         k8s_app: body.k8s_app || '',
         is_demo: body.is_demo,
         arch: body.arch,
-      }
+      },
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
     }
   );
 }
@@ -36,7 +37,7 @@ export async function createAppByCode(body = {}) {
 /*
    源码第三方创建应用
 */
-export async function createThirtAppByCodes(body = {}) {
+export async function createThirtAppByCodes(body = {}, telemetryOptions = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/source_code`,
     {
@@ -56,19 +57,21 @@ export async function createThirtAppByCodes(body = {}) {
         full_name: body.full_name,
         k8s_component_name: body.k8s_component_name,
         arch: body.arch,
-      }
+      },
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
     }
   );
 }
 /*
    源码创建应用
 */
-export async function createThirdPartyServices(body = {}) {
+export async function createThirdPartyServices(body = {}, telemetryOptions = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/third_party`,
     {
       method: 'post',
-      data: body
+      data: body,
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
     }
   );
 }
@@ -185,7 +188,7 @@ export async function createJarWarSubmit(body = {}) {
 /*
    compose创建应用
 */
-export async function createAppByCompose(body = {}) {
+export async function createAppByCompose(body = {}, telemetryOptions = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/docker_compose`,
     {
@@ -201,7 +204,8 @@ export async function createAppByCompose(body = {}) {
         group_id: body.group_id,
         // k8s_app: body.k8s_app,
         arch: body.arch,
-      }
+      },
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
     }
   );
 }
@@ -209,7 +213,7 @@ export async function createAppByCompose(body = {}) {
 /*
    指定镜像或docuer run 创建应用
 */
-export async function createAppByDockerrun(body = {}) {
+export async function createAppByDockerrun(body = {}, telemetryOptions = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/docker_run`,
     {
@@ -226,7 +230,8 @@ export async function createAppByDockerrun(body = {}) {
         k8s_app: body.k8s_app || '',
         is_demo: body.is_demo,
         arch: body.arch,
-      }
+      },
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
     }
   );
 }
@@ -276,7 +281,7 @@ export async function saveTarImageName(body = {}) {
 /*
    虚拟机镜像创建应用
 */
-export async function createAppByVirtualMachine(body = {}) {
+export async function createAppByVirtualMachine(body = {}, telemetryOptions = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/vm_run`,
     {
@@ -298,7 +303,8 @@ export async function createAppByVirtualMachine(body = {}) {
         gpu_count: body.gpu_count,
         usb_enabled: body.usb_enabled,
         usb_resources: body.usb_resources,
-      }
+      },
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
     }
   );
 }
@@ -625,12 +631,13 @@ export async function changeAppVersions(body = {}) {
   );
 }
 
-export async function installHelmApp(body = {}) {
+export async function installHelmApp(body = {}, telemetryOptions = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups`,
     {
       method: 'post',
-      data: body
+      data: body,
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
     }
   );
 }
@@ -707,7 +714,7 @@ export async function getHelmVersion(params, handleError) {
   );
 }
 // helm命令行安装
-export async function installHelmAppCmd(body = {}, handleError) {
+export async function installHelmAppCmd(body = {}, handleError, telemetryOptions = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/helm_command`,
     {
@@ -716,12 +723,13 @@ export async function installHelmAppCmd(body = {}, handleError) {
         app_id: body.app_id,
         command: body.command
       },
-      handleError
+      handleError,
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
     }
   );
 }
 // ram命令行安装
-export async function installRamAppCmd(body = {}, handleError) {
+export async function installRamAppCmd(body = {}, handleError, telemetryOptions = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/cmd_create`,
     {
@@ -730,7 +738,8 @@ export async function installRamAppCmd(body = {}, handleError) {
         group_id: body.group_id,
         cmd: body.command
       },
-      handleError
+      handleError,
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
     }
   );
 }
@@ -765,7 +774,7 @@ export async function getHelmChartYaml(body = {}, handleError) {
 }
 
 // 通过helm包上传部署组件
-export async function installHelmUploadApp(body = {}, handleError) {
+export async function installHelmUploadApp(body = {}, handleError, telemetryOptions = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/import_upload_chart_resource`,
     {
@@ -773,7 +782,8 @@ export async function installHelmUploadApp(body = {}, handleError) {
       data: {
         resource: body.resource,
         app_id: body.group_id
-      }
+      },
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
     }
   )
 }

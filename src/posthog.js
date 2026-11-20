@@ -6,17 +6,24 @@ import {
   buildHashedId,
   buildPostHogDistinctId,
   buildPostHogGroupProperties,
+  buildPostHogGroupSignature,
   buildPostHogUserProperties,
   classifyPostHogInteraction,
   getPostHogConfig,
   inferPostHogCreateStep,
-  sanitizePostHogEvent
+  sanitizePostHogEvent,
+  shouldUpdatePostHogGroup
 } from './posthogConfig';
 
 let initialized = false;
 let historyUnlisten = null;
 let clickTrackingInstalled = false;
 let activeConfig = null;
+let instanceGroupSignature = '';
+let enterpriseGroupSignature = '';
+let activeEnterpriseGroupId = '';
+
+const GROUP_SIGNATURE_STORAGE_PREFIX = 'rainbond_posthog_group_signature:';
 
 const CLICKABLE_SELECTOR = [
   'button',
@@ -46,6 +53,68 @@ function getCommonProperties() {
     return {};
   }
   return activeConfig.instanceProperties;
+}
+
+function getGroupSignatureStorage() {
+  try {
+    if (typeof window === 'undefined' || !window.sessionStorage) {
+      return null;
+    }
+    return window.sessionStorage;
+  } catch (error) {
+    return null;
+  }
+}
+
+function getStoredGroupSignature(groupType) {
+  try {
+    const storage = getGroupSignatureStorage();
+    return storage ? storage.getItem(`${GROUP_SIGNATURE_STORAGE_PREFIX}${groupType}`) : '';
+  } catch (error) {
+    return '';
+  }
+}
+
+function saveGroupSignature(groupType, signature) {
+  try {
+    const storage = getGroupSignatureStorage();
+    if (storage) {
+      storage.setItem(`${GROUP_SIGNATURE_STORAGE_PREFIX}${groupType}`, signature);
+    }
+  } catch (error) {
+  }
+}
+
+function clearStoredGroupSignature(groupType) {
+  try {
+    const storage = getGroupSignatureStorage();
+    if (storage) {
+      storage.removeItem(`${GROUP_SIGNATURE_STORAGE_PREFIX}${groupType}`);
+    }
+  } catch (error) {
+  }
+}
+
+function getCurrentPostHogGroupId(groupType) {
+  try {
+    const groups = typeof posthog.getGroups === 'function' ? posthog.getGroups() : {};
+    return groups && groups[groupType];
+  } catch (error) {
+    return '';
+  }
+}
+
+function shouldUpdateStoredPostHogGroup(groupType, previousSignature, group) {
+  const signature = buildPostHogGroupSignature(group);
+  if (!shouldUpdatePostHogGroup(previousSignature, group)) {
+    return false;
+  }
+  return getStoredGroupSignature(groupType) !== signature || getCurrentPostHogGroupId(groupType) !== group.enterpriseIdHash;
+}
+
+function rememberPostHogGroup(groupType, signature) {
+  saveGroupSignature(groupType, signature);
+  return signature;
 }
 
 function inferModule(route) {
@@ -101,6 +170,7 @@ function buildContextProperties(properties = {}) {
     stage: properties.stage || '',
     error_code: properties.error_code || properties.errorCode || '',
     error_category: properties.error_category || properties.errorCategory || '',
+    http_status: properties.http_status || properties.httpStatus || 0,
     duration_ms: properties.duration_ms || properties.durationMs || 0,
     attempt_id: properties.attempt_id || properties.attemptId || '',
     retry_result: properties.retry_result || properties.retryResult || '',
@@ -249,7 +319,10 @@ function installClickTracking() {
 }
 
 function sanitizeRouteProperties(captureResult) {
-  const sanitized = sanitizePostHogEvent(captureResult);
+  const sanitized = sanitizePostHogEvent(captureResult, {
+    instanceId: activeConfig && activeConfig.instanceId,
+    enterpriseGroupId: activeEnterpriseGroupId
+  });
   if (!sanitized || !sanitized.properties) {
     return sanitized;
   }
@@ -262,6 +335,21 @@ function sanitizeRouteProperties(captureResult) {
     }
   });
   return sanitized;
+}
+
+function ensurePostHogInstanceGroup() {
+  const config = activeConfig;
+  if (!config || !config.instanceId || typeof posthog.group !== 'function') {
+    return;
+  }
+  const group = {
+    enterpriseIdHash: config.instanceId,
+    enterpriseProperties: config.instanceProperties || {}
+  };
+  if (shouldUpdateStoredPostHogGroup('instance', instanceGroupSignature, group)) {
+    posthog.group('instance', config.instanceId, config.instanceProperties || {});
+    instanceGroupSignature = rememberPostHogGroup('instance', buildPostHogGroupSignature(group));
+  }
 }
 
 export function initPostHog() {
@@ -288,9 +376,7 @@ export function initPostHog() {
     debug: config.debug,
     before_send: sanitizeRouteProperties,
     loaded: () => {
-      if (config.instanceId && typeof posthog.group === 'function') {
-        posthog.group('instance', config.instanceId, config.instanceProperties || {});
-      }
+      ensurePostHogInstanceGroup();
       capturePostHogPageview(history && history.location);
     }
   });
@@ -303,11 +389,14 @@ export function identifyPostHogUser(user = {}) {
   if (!initialized || !user || !user.user_id) {
     return;
   }
+  ensurePostHogInstanceGroup();
   const distinctId = buildPostHogDistinctId(user, activeConfig && activeConfig.instanceId);
   posthog.identify(distinctId, buildPostHogUserProperties(user, activeConfig && activeConfig.instanceProperties));
   const group = buildPostHogGroupProperties(user, activeConfig && activeConfig.instanceProperties);
-  if (group.enterpriseIdHash && typeof posthog.group === 'function') {
+  if (typeof posthog.group === 'function' && shouldUpdateStoredPostHogGroup('enterprise', enterpriseGroupSignature, group)) {
+    activeEnterpriseGroupId = group.enterpriseIdHash;
     posthog.group('enterprise', group.enterpriseIdHash, group.enterpriseProperties);
+    enterpriseGroupSignature = rememberPostHogGroup('enterprise', buildPostHogGroupSignature(group));
   }
 }
 
@@ -316,6 +405,11 @@ export function resetPostHogUser() {
     return;
   }
   posthog.reset();
+  instanceGroupSignature = '';
+  enterpriseGroupSignature = '';
+  activeEnterpriseGroupId = '';
+  clearStoredGroupSignature('instance');
+  clearStoredGroupSignature('enterprise');
 }
 
 export function capturePostHogEvent(eventName, properties = {}) {
