@@ -11,3 +11,7 @@ export function shouldShowFirstDeployGuide({
 }) {
   return !appListLoading && appListLoaded && isAppList && !appListQuery && appListTotal === 0;
 }
+
+export function shouldLoadFirstDeployMarket(appListTotal, query) {
+  return appListTotal === 0 && !normalizeAppListQuery(query);
+}

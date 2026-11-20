@@ -24,7 +24,7 @@ import handleAPIError from '../../../utils/error';
 import { routerRedux } from 'dva/router';
 import cookie from '../../../utils/cookie'
 import moment from 'moment';
-import { normalizeAppListQuery, shouldShowFirstDeployGuide } from './appListState';
+import { normalizeAppListQuery, shouldLoadFirstDeployMarket, shouldShowFirstDeployGuide } from './appListState';
 import styles from './index.less';
 const { Search } = Input;
 const { Option } = Select;
@@ -337,7 +337,7 @@ export default class index extends Component {
             appListLoaded: true,
             appListQuery: requestQuery,
           }, () => {
-            if (appListTotal === 0 && !query) {
+            if (shouldLoadFirstDeployMarket(appListTotal, query)) {
               if (this.state.teamAppCreatePermission.isAccess) {
                 this.loadMarketAvailability();
               } else {

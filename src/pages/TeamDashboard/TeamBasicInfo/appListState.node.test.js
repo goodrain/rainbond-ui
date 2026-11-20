@@ -7,6 +7,8 @@ const appListState = require(path.join(__dirname, 'appListState.js'));
 test('normalizes whitespace-only searches before requesting the application list', () => {
   assert.equal(appListState.normalizeAppListQuery('   '), '');
   assert.equal(appListState.normalizeAppListQuery('  api  '), 'api');
+  assert.equal(appListState.shouldLoadFirstDeployMarket(0, '   '), true);
+  assert.equal(appListState.shouldLoadFirstDeployMarket(0, 'api'), false);
 });
 
 test('shows the first-deploy guide only after a successful unfiltered empty list', () => {

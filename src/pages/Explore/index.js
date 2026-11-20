@@ -336,7 +336,7 @@ class Explore extends PureComponent {
           });
         }
       },
-      onError: () => {
+      handleError: () => {
         this.setState({
           categoryAppsLoading: false,
           categoryAppsHasMore: false
@@ -834,6 +834,7 @@ class Explore extends PureComponent {
       callback: res => {
         if (res && res.status_code === 200) {
           this.setState({
+            marketLoading: false,
             marketList: res.list,
             marketPag: {
               ...this.state.marketPag,
@@ -841,10 +842,8 @@ class Explore extends PureComponent {
             }
           });
         }
-        this.setState({ marketLoading: false });
       },
-      handleError: err => {
-        handleAPIError(err);
+      handleError: () => {
         this.setState({
           marketLoading: false,
           marketList: []

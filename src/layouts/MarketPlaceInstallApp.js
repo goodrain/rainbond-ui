@@ -70,12 +70,12 @@ export default class MarketPlaceInstallApp extends Component {
         if (res && res.list && res.list.length > 0) {
           const appInfo = res.list.find(item => item.app_id === this.props?.match?.params?.appId);
           this.setState({
-            appInfo: appInfo
+            appInfo: appInfo,
+            loading: false
           })
         }
-        this.setState({ loading: false });
       },
-      onError: () => {
+      handleError: () => {
         this.setState({
           loading: false
         })

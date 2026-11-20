@@ -42,7 +42,6 @@ test('featured market applications search by name and resolve only matching stab
   assert.strictEqual(marketHelpers.getFeaturedMarketSearchName({ searchNames: { arm64: 'Redis单机版ARM', default: 'Redis' } }, 'arm64'), 'Redis单机版ARM');
   const redis = marketHelpers.resolveFeaturedMarketApp({
     key: 'redis',
-    requiresArchitecture: true,
     modelKeys: { amd64: '6953c50771ae4548b9fed312d220d720', arm64: 'd6c01070c6b049dbaf3de6757a1b63ef' }
   }, marketFixture.list, 'arm64');
   assert.equal(redis.marketApp.app_name, 'Redis单机版ARM');
@@ -57,7 +56,6 @@ test('featured market applications search by name and resolve only matching stab
 });
 
 test('team guide requires a successful unfiltered empty list and defers market loading', () => {
-  assert.match(teamSource, /appListTotal === 0/);
   assert.match(teamSource, /appListLoaded: false/);
   assert.match(teamSource, /appListLoaded: true/);
   assert.match(teamSource, /normalizeAppListQuery/);
