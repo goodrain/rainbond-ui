@@ -443,10 +443,7 @@ export default class index extends Component {
   handleFirstDeployEntry = (entry, properties = {}) => {
     const currentViewMap = {
       example_image: 'example-image',
-      market_all: 'market',
-      market_featured: 'marketInstall',
-      image: 'image',
-      source_code: 'code'
+      market_featured: 'marketInstall'
     };
     this.setState({
       createComponentVisible: true,
@@ -691,8 +688,15 @@ export default class index extends Component {
   };
 
   // 添加卡片视图渲染函数
-  renderCardView = () => {
-    const { teamHotAppList, teamAppCreatePermission, cardLayoutMode } = this.state;
+  renderCardView = showStarterCards => {
+    const {
+      teamHotAppList,
+      teamAppCreatePermission,
+      cardLayoutMode,
+      marketAvailable,
+      marketResolved,
+      featuredMarketApps
+    } = this.state;
     const isCompactCards = cardLayoutMode !== CARD_LAYOUT_MODE.DEFAULT;
     const isMiniCards = cardLayoutMode === CARD_LAYOUT_MODE.MINI;
     const isAppCreate = teamAppCreatePermission?.isAccess;
@@ -818,24 +822,42 @@ export default class index extends Component {
           </div>
       );
     } else {
+      const starterCardCount = showStarterCards && isAppCreate ? 1 + featuredMarketApps.length : 0;
       return (
         <div className={teamHotAppListClassName} ref={this.setCardListNode}>
           {/* 居中提示文字 */}
           <div className={styles.emptyTip}>
-            {formatMessage({ id: 'teamOverview.noAppTip' })}
+            {formatMessage({
+              id: showStarterCards && !isAppCreate
+                ? 'firstDeployGuide.noCreatePermission'
+                : 'teamOverview.noAppTip'
+            })}
           </div>
           {/* 新增应用卡片 */}
           {isAppCreate && (
             this.renderCreateAppCard()
           )}
-          {/* 11个白色占位方块 */}
-          {Array.from({ length: 11 }).map((_, index) => {
+          {/* 空团队起步卡片：紧跟「新建应用」卡片，占用原本的占位格 */}
+          {showStarterCards && (
+            <FirstDeployGuide
+              guideLocation="team_empty"
+              marketAvailable={marketAvailable}
+              marketResolved={marketResolved}
+              featuredApps={featuredMarketApps}
+              canCreate={isAppCreate}
+              cardStyles={styles}
+              onEntry={this.handleFirstDeployEntry}
+            />
+          )}
+          {/* 白色占位方块：起步卡片占了几格就少补几格 */}
+          {Array.from({ length: 11 - starterCardCount }).map((_, index) => {
             // 根据位置添加渐变蒙版类
             // 0-2：原色，3-6：变浅，7-10：融入背景
+            const slot = index + starterCardCount;
             let fadeClass = '';
-            if (index >= 3 && index <= 6) {
+            if (slot >= 3 && slot <= 6) {
               fadeClass = styles.fadeRow2;
-            } else if (index >= 7) {
+            } else if (slot >= 7) {
               fadeClass = styles.fadeRow3;
             }
             return (
@@ -859,9 +881,6 @@ export default class index extends Component {
       appListLoaded,
       appListQuery,
       appListTotal,
-      marketAvailable,
-      marketResolved,
-      featuredMarketApps,
       teamAppCreatePermission: {
         isAccess: isAppCreate
       },
@@ -896,7 +915,7 @@ export default class index extends Component {
     return (
       <>
         <div>
-          {!showEmptyTeamGuide && <div className={styles.appListHeaderTop}>
+          <div className={styles.appListHeaderTop}>
             <div className={styles.appListToolbar}>
               <Search
                 data-testid="rbd-app-search"
@@ -921,20 +940,11 @@ export default class index extends Component {
                 </Option>
               </Select>
             </div>
-          </div>}
+          </div>
           {!appListLoading && isAppList && (
             <div>
-              {showEmptyTeamGuide ? (
-                <FirstDeployGuide
-                  guideLocation="team_empty"
-                  marketAvailable={marketAvailable}
-                  marketResolved={marketResolved}
-                  featuredApps={featuredMarketApps}
-                  canCreate={isAppCreate}
-                  onEntry={this.handleFirstDeployEntry}
-                />
-              ) : this.renderCardView()}
-              {!showEmptyTeamGuide && appListTotal > page_size && (
+              {this.renderCardView(showEmptyTeamGuide)}
+              {appListTotal > page_size && (
                 <div className={styles.paginationContainer}>
                   <Pagination
                     current={page}
