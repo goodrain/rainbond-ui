@@ -825,14 +825,16 @@ export default class index extends Component {
       const starterCardCount = showStarterCards && isAppCreate ? 1 + featuredMarketApps.length : 0;
       return (
         <div className={teamHotAppListClassName} ref={this.setCardListNode}>
-          {/* 居中提示文字 */}
-          <div className={styles.emptyTip}>
-            {formatMessage({
-              id: showStarterCards && !isAppCreate
-                ? 'firstDeployGuide.noCreatePermission'
-                : 'teamOverview.noAppTip'
-            })}
-          </div>
+          {/* 居中提示文字：已有起步卡片时不再重复提示 */}
+          {starterCardCount === 0 && (
+            <div className={styles.emptyTip}>
+              {formatMessage({
+                id: showStarterCards && !isAppCreate
+                  ? 'firstDeployGuide.noCreatePermission'
+                  : 'teamOverview.noAppTip'
+              })}
+            </div>
+          )}
           {/* 新增应用卡片 */}
           {isAppCreate && (
             this.renderCreateAppCard()
