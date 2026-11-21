@@ -70,14 +70,14 @@ export default class FirstDeployGuide extends PureComponent {
     return (
       <section className={styles.guide} data-testid="rbd-first-deploy-guide">
         <div className={styles.hero}>
-          <Icon type="rocket" className={styles.heroIcon} />
+          <Icon type="rocket" className={styles.heroIcon} aria-hidden="true" />
           <div>
             <h2>{formatMessage({ id: 'firstDeployGuide.team.title' })}</h2>
             <p>{formatMessage({ id: 'firstDeployGuide.team.description' })}</p>
           </div>
         </div>
         {canCreate && (
-          <Button type="primary" size="large" onClick={() => this.handleEntry('example_image')}>
+          <Button data-testid="rbd-first-deploy-example-image" type="primary" size="large" onClick={() => this.handleEntry('example_image')}>
             {formatMessage({ id: 'firstDeployGuide.exampleImage' })}
           </Button>
         )}
@@ -87,6 +87,7 @@ export default class FirstDeployGuide extends PureComponent {
             {featuredApps.map(app => (
               <Button
                 key={app.key}
+                data-testid={`rbd-first-deploy-market-${app.key}`}
                 onClick={() => this.handleEntry('market_featured', {
                   featured_app: app.key,
                   market_app: app
@@ -99,11 +100,11 @@ export default class FirstDeployGuide extends PureComponent {
           </div>
         )}
         {canCreate && <div className={styles.secondaryEntries}>
-          <Button onClick={() => this.handleEntry('image')}>
-            <Icon type="container" />{formatMessage({ id: 'firstDeployGuide.image' })}
+          <Button data-testid="rbd-first-deploy-image" onClick={() => this.handleEntry('image')}>
+            <Icon type="container" aria-hidden="true" />{formatMessage({ id: 'firstDeployGuide.image' })}
           </Button>
-          <Button onClick={() => this.handleEntry('source_code')}>
-            <Icon type="code" />{formatMessage({ id: 'firstDeployGuide.sourceCode' })}
+          <Button data-testid="rbd-first-deploy-source-code" onClick={() => this.handleEntry('source_code')}>
+            <Icon type="code" aria-hidden="true" />{formatMessage({ id: 'firstDeployGuide.sourceCode' })}
           </Button>
         </div>}
         {!canCreate && <p className={styles.offlineHint}>{formatMessage({ id: 'firstDeployGuide.noCreatePermission' })}</p>}

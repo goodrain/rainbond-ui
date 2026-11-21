@@ -28,6 +28,15 @@ test('first-deploy guide exposes the approved entry points and telemetry fields'
   assert.match(guideSource, /featuredMarketApps/);
 });
 
+test('first-deploy guide exposes stable controls without announcing decorative icons', () => {
+  assert.match(guideSource, /data-testid="rbd-first-deploy-example-image"/);
+  assert.match(guideSource, /data-testid={`rbd-first-deploy-market-\$\{app\.key\}`}/);
+  assert.match(guideSource, /data-testid="rbd-first-deploy-image"/);
+  assert.match(guideSource, /data-testid="rbd-first-deploy-source-code"/);
+  assert.match(guideSource, /type="container" aria-hidden="true"/);
+  assert.match(guideSource, /type="code" aria-hidden="true"/);
+});
+
 test('featured market applications search by name and resolve only matching stable keys', () => {
   assert.match(guideSource, /7f0d0509699e4425964c71be4b0fa428/);
   assert.match(guideSource, /6953c50771ae4548b9fed312d220d720/);
