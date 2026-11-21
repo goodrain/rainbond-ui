@@ -73,13 +73,13 @@ assert.ok(
 );
 
 assert.ok(
-  /type:\s*'global\/getTeamAppList'[\s\S]*?payload:\s*\{[\s\S]*?query,[\s\S]*?page,[\s\S]*?page_size,[\s\S]*?sort:\s*sortValue/.test(loadHotAppSource),
+  /type:\s*'global\/getTeamAppList'[\s\S]*?payload:\s*\{[\s\S]*?query:\s*requestQuery,[\s\S]*?page,[\s\S]*?page_size,[\s\S]*?sort:\s*sortValue/.test(loadHotAppSource),
   'getTeamAppList should preserve query, page, page_size, and sort parameters'
 );
 
 assert.ok(
   /const errorData\s*=\s*err\s*&&\s*\(err\.data\s*\|\|\s*\(err\.response\s*&&\s*err\.response\.data\)\);/.test(loadHotAppSource) &&
-    /errorData\s*&&\s*errorData\.code\s*===\s*10401[\s\S]*?page:\s*1[\s\S]*?this\.loadHotApp\(\);[\s\S]*?else\s*\{\s*this\.setState\(\{\s*appListLoading:\s*false\s*\}\);/.test(loadHotAppSource),
+    /errorData\s*&&\s*errorData\.code\s*===\s*10401[\s\S]*?page:\s*1[\s\S]*?this\.loadHotApp\(\);[\s\S]*?else\s*\{\s*this\.setState\(\{\s*appListLoading:\s*false,\s*appListLoaded:\s*false\s*\}\);/.test(loadHotAppSource),
   '10401 should reset to page one and retry while other errors stop app-list loading'
 );
 
@@ -97,7 +97,7 @@ assert.ok(
 );
 
 assert.ok(
-  /if\s*\(res\s*&&\s*res\.status_code\s*===\s*200\)[\s\S]*?else\s*\{\s*this\.setState\(\{\s*appListLoading:\s*false\s*\}\);\s*\}/.test(loadHotAppSource),
+  /if\s*\(res\s*&&\s*res\.status_code\s*===\s*200\)[\s\S]*?else\s*\{\s*this\.setState\(\{\s*appListLoading:\s*false,\s*appListLoaded:\s*false\s*\}\);\s*\}/.test(loadHotAppSource),
   'TeamBasicInfo should stop app-list loading for non-200 callbacks'
 );
 

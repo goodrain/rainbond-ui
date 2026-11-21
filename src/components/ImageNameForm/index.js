@@ -366,14 +366,14 @@ export default class Index extends PureComponent {
   }
 
   getImageDemoValues = () => {
-    const { pluginsList } = this.props;
+    const { pluginsList, demoImageAddress } = this.props;
     const isCloudProxy = PluginUtil.isInstallPlugin(pluginsList, 'rainbond-bill');
     const serviceName = 'nginx';
 
     return {
       service_cname: serviceName,
       k8s_component_name: this.generateEnglishName(serviceName),
-      docker_cmd: isCloudProxy ? NGINX_EXAMPLE.imageAddress : NGINX_EXAMPLE.saasImageAddress
+      docker_cmd: demoImageAddress || (isCloudProxy ? NGINX_EXAMPLE.imageAddress : NGINX_EXAMPLE.saasImageAddress)
     };
   }
 

@@ -43,7 +43,7 @@ export async function delAppVersion(param) {
 }
 export async function fetchMarkets(params = {}) {
 
-  const { enterprise_id, name, pageSize, page, query, is_plugin, arch } = params;
+  const { enterprise_id, name, pageSize, page, query, is_plugin, arch, silent, handleError } = params;
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${enterprise_id}/cloud/markets/${name}/app-models`,
     {
@@ -54,7 +54,9 @@ export async function fetchMarkets(params = {}) {
         query,
         is_plugin: is_plugin || '',
         arch: arch || ''
-      }
+      },
+      showMessage: !silent,
+      handleError
     }
   );
 }
@@ -68,6 +70,7 @@ export async function fetchMarketsTab(param, handleError) {
         extend: true
       },
       timeout: 90000,
+      showMessage: !param.silent,
       handleError
     }
   );

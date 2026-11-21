@@ -126,7 +126,9 @@ const LocalInstallFormWrapper = Form.create()(
   }
 );
 
-const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, rainbondInfo, currentUser, groups, pluginsList, agentVisible, currentView: initialView }) => {
+const GUIDE_EXAMPLE_IMAGE = 'registry.cn-hangzhou.aliyuncs.com/goodrain/nginx:1.26';
+
+const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, rainbondInfo, currentUser, groups, pluginsList, agentVisible, currentView: initialView, initialMarketApp }) => {
   const [currentView, setCurrentView] = useState('main'); // 'main', 'market', 'image', 'code', 'yaml', 'form', 'imageRepo', 'marketStore', 'localMarket', 'marketInstall', 'localMarketInstall'
   const [hasInitialized, setHasInitialized] = useState(false); // 标记是否已经初始化过
   const [firstAppDeployed, setFirstAppDeployed] = useState(null);
@@ -1837,6 +1839,21 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
               // 需要先获取商店列表
               fetchMarketStores();
               break;
+            case 'marketInstall':
+              if (initialMarketApp && initialMarketApp.marketApp && initialMarketApp.marketStore) {
+                setSelectedMarketApp(initialMarketApp.marketApp);
+                setSelectedStore(initialMarketApp.marketStore);
+                setMarketIsDeploy(true);
+                setCurrentMarketVersionInfo(
+                  (initialMarketApp.marketApp.versions_info && initialMarketApp.marketApp.versions_info[0]) ||
+                  (initialMarketApp.marketApp.versions && initialMarketApp.marketApp.versions[0]) || {}
+                );
+                fetchGroupsList();
+              } else {
+                setCurrentView('market');
+                fetchMarketStores();
+              }
+              break;
             case 'localMarket':
               // 直接获取本地组件库列表
               fetchLocalMarketApps(1, '', 'all');
@@ -1847,6 +1864,10 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
               // 用户需要先在列表中选择一个应用，然后点击安装按钮
               setCurrentView('localMarket');
               fetchLocalMarketApps(1, '', 'all');
+              break;
+            case 'example-image':
+              setCurrentView('form');
+              setCurrentFormType('docker');
               break;
             case 'image':
               fetchImageHubs();
@@ -3126,7 +3147,8 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                 onSubmit={handleInstallApp}
                 dispatch={dispatch}
                 archInfo={archInfo}
-                autoUseDemo={shouldUseDefaultDemo && !isComponentView}
+                autoUseDemo={(shouldUseDefaultDemo && !isComponentView) || initialView === 'example-image'}
+                demoImageAddress={initialView === 'example-image' ? GUIDE_EXAMPLE_IMAGE : ''}
                 showSubmitBtn={false}
               />
             )}
