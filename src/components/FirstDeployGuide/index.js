@@ -72,11 +72,11 @@ export default class FirstDeployGuide extends PureComponent {
   }
 
   captureViewed = () => {
-    const { guideLocation, marketAvailable, marketResolved } = this.props;
-    if (this.viewed || !marketResolved) {
+    const { guideLocation, marketAvailable, marketResolved, onViewed, viewed } = this.props;
+    if (viewed || !marketResolved) {
       return;
     }
-    this.viewed = true;
+    onViewed();
     captureFirstDeployGuide('viewed', {
       guide_location: guideLocation,
       market_available: !!marketAvailable

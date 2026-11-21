@@ -82,6 +82,7 @@ export default class index extends Component {
     this._isMounted = false;
     this.appListRequestId = 0;
     this.marketLoadRequested = false;
+    this.firstDeployGuideViewed = false;
     this.cardListNode = null;
     this.cardListResizeObserver = null;
   }
@@ -195,6 +196,10 @@ export default class index extends Component {
   };
 
   loadMarketStores = architecture => {
+    if (!architecture) {
+      this.finishMarketLoading(false);
+      return;
+    }
     const enterpriseId = this.props.currentEnterprise && this.props.currentEnterprise.enterprise_id;
     if (!enterpriseId) {
       this.finishMarketLoading(false);
@@ -253,7 +258,7 @@ export default class index extends Component {
           featuredMarketAppConfigs.forEach(config => {
             const modelKey = config.modelKeys[architecture] || config.modelKeys.default;
             const searchName = getFeaturedMarketSearchName(config, architecture);
-            if (!modelKey || (config.requiresArchitecture && !architecture) || !searchName) {
+            if (!modelKey || !searchName) {
               return;
             }
             requestMarketApps(store, searchName, marketApps => {
@@ -432,12 +437,12 @@ export default class index extends Component {
 
   // 跳转到向导页
   onJumpToWizard = () => {
-    this.setState({ createComponentVisible: true });
+    this.setState({ createComponentVisible: true, currentView: null, featuredMarketApp: null });
   }
 
   // 关闭创建组件弹窗
   handleCloseCreateComponent = () => {
-    this.setState({ createComponentVisible: false, featuredMarketApp: null });
+    this.setState({ createComponentVisible: false, currentView: null, featuredMarketApp: null });
   }
 
   handleFirstDeployEntry = (entry, properties = {}) => {
@@ -847,6 +852,8 @@ export default class index extends Component {
               marketResolved={marketResolved}
               featuredApps={featuredMarketApps}
               canCreate={isAppCreate}
+              viewed={this.firstDeployGuideViewed}
+              onViewed={() => { this.firstDeployGuideViewed = true; }}
               cardStyles={styles}
               onEntry={this.handleFirstDeployEntry}
             />
