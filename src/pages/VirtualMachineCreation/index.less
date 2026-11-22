@@ -177,13 +177,45 @@
 }
 .nativeConfigCard {
   margin-bottom: 24px;
-  :global(.ant-form-item) { margin-bottom: 16px; }
+  :global(.ant-form-item) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    row-gap: 4px;
+    margin-bottom: 16px;
+    &::before, &::after { display: none; }
+  }
+  :global(.ant-form-item) > :global(.ant-form-item-label) {
+    flex: 0 0 (@rbd-content-size * 13);
+    width: (@rbd-content-size * 13);
+    max-width: 100%;
+    padding-right: @padding-sm;
+    box-sizing: border-box;
+    float: none;
+    overflow: visible;
+    white-space: normal;
+    text-align: left;
+    > label {
+      display: inline-flex;
+      align-items: center;
+      max-width: 100%;
+    }
+  }
+  :global(.ant-form-item) > :global(.ant-form-item-control-wrapper) {
+    flex: 1 1 200px;
+    width: auto;
+    float: none;
+    min-width: 0;
+    max-width: 100%;
+  }
   :global(.ant-input-number), :global(.ant-select), :global(.ant-input[readonly]) {
     width: 200px;
     max-width: 100%;
   }
 }
 .resourcePresets {
+  display: flex;
+  flex-wrap: wrap;
   :global(.ant-radio-button-wrapper) { white-space: nowrap; }
 }
 .creationReview > :global(.ant-form) {
