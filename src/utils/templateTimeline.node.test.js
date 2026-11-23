@@ -94,3 +94,37 @@ test('late change detection cannot replace the result for a newer application', 
   requests[1].callback({ checks: [{ status: 'unchanged', baseline_id: 'current' }] });
   assert.equal(target.state.checks[0].baseline_id, 'current');
 });
+
+test('VM template source metadata retains VMDK rather than defaulting it to QCOW2', () => {
+  const vm = { ...component, vm: { boot_source_format: 'vmdk', architecture: 'amd64' } };
+  const before = sourceBaseline([vm], { web: { ...config(), extend_method: 'vm' } });
+  assert.equal(before.components[0].vm.boot_source_format, 'vmdk');
+  const current = sourceBaseline([{ ...vm, vm: { ...vm.vm, boot_source_format: 'qcow2' } }], { web: { ...config(), extend_method: 'vm' } });
+  assert.equal(compareSource(before, current).status, 'changed');
+});
+
+test('template configuration displays the actual exported root before boot-source provenance', () => {
+  const React = require('react'); const fs = require('fs'); const vm = require('vm');
+  const babel = require('@umijs/deps/compiled/babel/core');
+  const file = require('path').resolve(__dirname, '../pages/Group/Delivery/ComponentConfig.js');
+  const code = babel.transformSync(fs.readFileSync(file, 'utf8'), { filename: file, babelrc: false, configFile: false,
+    presets: [[require('@umijs/deps/compiled/babel/preset-env').default, { targets: { node: 'current' } }],
+      require('@umijs/deps/compiled/babel/preset-react').default],
+    plugins: [[require('@umijs/deps/compiled/babel/plugin-proposal-class-properties').default, { loose: true }]] }).code;
+  const exports = {};
+  vm.runInNewContext(code, { exports, require: name => {
+    if (name === 'react') return React;
+    if (name === 'antd') return { Alert: 'Alert', Empty: 'Empty', Form: { Item: 'FormItem' }, Icon: 'Icon', Input: 'Input',
+      InputNumber: 'InputNumber', Table: 'Table', Tabs: { TabPane: 'TabPane' }, Tooltip: 'Tooltip' };
+    if (name === './common') return { t: key => key };
+    if (name.endsWith('/templateDelivery')) return { validateTemplateConfig: () => ({}), sensitiveName: () => false };
+    if (name.endsWith('/appShareFormHelpers')) return { isNodeScalingDisabled: () => false, getNodeScalingDisabledTip: () => '' };
+    if (name.endsWith('.less')) return {};
+    throw new Error(name);
+  } });
+  const data = { ...config(), service_id: 'web', extend_method: 'vm' };
+  const component = { service_id: 'web', vm: { boot_source_format: 'vmdk', disk_layout: [{ disk_role: 'root', format: 'qcow2' }] } };
+  const instance = new exports.default({ components: [component], configs: { web: data } });
+  const view = instance.renderConfig(data);
+  assert.equal(view.props.children.at(-1).props.children.at(-1).props.children, 'qcow2');
+});

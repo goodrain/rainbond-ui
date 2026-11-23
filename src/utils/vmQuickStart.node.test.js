@@ -5,7 +5,10 @@ const {
   createQuickStartImageName,
   createVmImageName,
   inferVmSourceFormat,
+  getVmSourceImportIssue,
+  VM_UPLOAD_ACCEPT,
   normalizeVmSourceFormat,
+  normalizeVmAssetFormat,
   normalizeVmOperatingSystem,
   SUPPORTED_VM_SOURCE_FORMATS,
   isLinuxQcow2QuickStart,
@@ -111,22 +114,53 @@ test('explicit source suffixes preserve ISO, QCOW2, raw, and generic img hints',
 });
 
 const sourceFormatCases = [
-  ['disk.img', 'img'], ['installer.iso', 'iso'], ['disk.qcow2', 'qcow2'], ['disk.raw', 'raw'],
+  ['disk.img', 'img'], ['installer.iso', 'iso'], ['disk.qcow2', 'qcow2'], ['disk.raw', 'raw'], ['disk.vmdk', 'vmdk'],
   ['archive.tar.gz', 'tar.gz'], ['archive.tar.xz', 'tar.xz'],
   ['archive.gz', 'gz'], ['archive.xz', 'xz'], ['archive.tar', 'tar'],
   ['installer.iso.gz', 'iso'], ['installer.iso.xz', 'iso'],
   ['disk.qcow2.gz', 'qcow2'], ['disk.qcow2.xz', 'qcow2'],
-  ['disk.raw.gz', 'raw'], ['disk.raw.xz', 'raw'], ['disk.img.gz', 'img'], ['disk.img.xz', 'img']
+  ['disk.raw.gz', 'raw.gz'], ['disk.raw.xz', 'raw'], ['disk.img.gz', 'img.gz'], ['disk.img.xz', 'img']
 ];
 
 test('format normalization is finite and preserves compound archive formats', () => {
-  assert.deepEqual(SUPPORTED_VM_SOURCE_FORMATS, ['img', 'iso', 'qcow2', 'raw', 'tar.gz', 'tar.xz', 'gz', 'xz', 'tar']);
+  assert.deepEqual(SUPPORTED_VM_SOURCE_FORMATS, ['img', 'iso', 'qcow2', 'raw', 'vmdk', 'img.gz', 'raw.gz', 'tar.gz', 'tar.xz', 'gz', 'xz', 'tar']);
   sourceFormatCases.forEach(([filename, expected]) => assert.equal(inferVmSourceFormat(filename), expected));
   assert.equal(normalizeVmSourceFormat(' TAR.GZ '), 'tar.gz');
   ['not-format', 'qcow2.extra', 'zip', 'tar.bz2', undefined].forEach(value =>
     assert.equal(normalizeVmSourceFormat(value), ''));
   ['disk.zip', 'disk.tar.bz2', 'disk.qcow2.gz.extra', 'download?filename=disk.raw.gz'].forEach(filename =>
     assert.equal(inferVmSourceFormat(filename), ''));
+});
+
+test('existing asset format uses the actual root disk before source provenance hints', () => {
+  for (const disks of [{ disks: [{ disk_role: 'root', format: 'QCOW2' }] },
+    { extra: { disks: [{ disk_role: 'root', format: 'qcow2' }], source_format: 'vmdk' } }]) {
+    assert.equal(normalizeVmAssetFormat({ format: 'vmdk', ...disks }), 'qcow2');
+  }
+  assert.equal(normalizeVmAssetFormat({ format: ' VMDK ' }), 'vmdk');
+  assert.equal(normalizeVmAssetFormat(null), '');
+});
+
+test('VMDK URL hints preserve source format while known compressed VMDK is refused before creation', async () => {
+  assert.equal(normalizeVmSourceFormat(' VMDK '), 'vmdk');
+  assert.ok(VM_UPLOAD_ACCEPT.split(',').includes('.vmdk'));
+  const url = 'https://images.invalid/Windows%2EVMDK?download=1';
+  assert.equal(inferVmSourceFormat(url), 'vmdk');
+  assert.equal(getVmSourceImportIssue(url), '');
+  const { api, calls } = fakeApi();
+  const result = await runVmCreation({ payload: { team_name: 'team-a', group_id: 868,
+    source_type: 'url', vm_url: url, arch: 'amd64', os_name: 'Windows 10' } }, api);
+  assert.equal(result.status, 'submitted'); assert.equal(calls[0].body.format, 'vmdk');
+  assert.equal(calls[0].body.ssh_username, undefined); assert.equal(calls[0].body.login_method, undefined);
+  for (const name of ['disk.vmdk.gz', 'disk.VMDK.xz', 'disk.vmdk.tar', 'disk.vmdk.tar.gz', 'disk.vmdk.tgz',
+    'disk.vmdk.txz', 'disk.vmdk.gz.xz', 'disk.vmdk.zip']) {
+    assert.equal(getVmSourceImportIssue(`https://images.invalid/${name}?name=plain.qcow2`), 'vmdkCompressedUnsupported');
+    const denied = fakeApi();
+    assert.equal((await runVmCreation({ payload: { team_name: 'team-a', group_id: 868, arch: 'amd64',
+      source_type: 'url', vm_url: `https://images.invalid/${name}` } }, denied.api)).status, 'failed');
+    assert.equal(denied.calls.length, 0);
+  }
+  for (const name of ['disk.qcow2.gz', 'disk.raw.xz', 'ordinary.tar.gz']) assert.equal(getVmSourceImportIssue(name), '');
 });
 
 sourceFormatCases.forEach(([filename, expected]) => {
@@ -709,4 +743,17 @@ test('VM workflow callers without an activity guard retain the existing serial b
   assert.equal(effect.next(result).done, true);
   assert.equal(callbackResult.status, 'submitted');
   assert.deepEqual(fake.calls.map(call => call.name), ['createVm', 'getPortDetail', 'getVolumeOpts', 'configure', 'build']);
+});
+
+test('raw and img gzip preserve their transport in URL requests and never gain an upload source', async () => {
+  for (const format of ['img.gz', 'raw.gz']) {
+    assert.equal(normalizeVmSourceFormat(format.toUpperCase()), format);
+    const { api, calls } = fakeApi();
+    const result = await runVmCreation({ payload: { team_name: 'team-a', group_id: 868, source_type: 'url',
+      vm_url: `https://images.invalid/system.${format}?download=1`, arch: 'amd64' } }, api);
+    assert.equal(result.status, 'submitted');
+    assert.equal(calls[0].body.format, format);
+    assert.equal(calls[0].body.event_id, undefined);
+    assert.equal(calls[0].body.vm_url, `https://images.invalid/system.${format}?download=1`);
+  }
 });

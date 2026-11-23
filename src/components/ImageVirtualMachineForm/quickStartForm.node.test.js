@@ -124,6 +124,8 @@ for (const [label, source, url] of [
     for (const field of ['os_family', 'ssh_username', 'ssh_public_key'])
       assert.equal(Object.hasOwn(payload, field), false, `${field} must be excluded`);
     assert.equal(Object.hasOwn(payload, 'boot_mode'), false);
+    if (source !== 'url') assert.equal(payload.vm_url, undefined, 'non-URL media cannot retain a stale Noble URL');
+    if (source === 'url') assert.equal(payload.event_id, undefined);
     assert.equal(payload.image_name, fixture.fields.image_name);
   });
 }

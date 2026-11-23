@@ -6,7 +6,8 @@ const UBUNTU_NOBLE_QCOW2_URL =
 const PUBLIC_KEY_TYPES = /^(ssh-ed25519|ssh-rsa|ecdsa-sha2-nistp(?:256|384|521))$/;
 const ADDITIONAL_PUBLIC_KEY = /(?:^| )(?:ssh-(?:rsa|ed25519|dss)|ecdsa-sha2-nistp(?:256|384|521)|sk-(?:ssh-ed25519|ecdsa-sha2-nistp256)@openssh\.com) +[A-Za-z0-9+/]+={0,2}(?: |$)/;
 const ALIAS_PATTERN = /^[a-z0-9][a-z0-9-]{0,62}$/;
-const SUPPORTED_VM_SOURCE_FORMATS = Object.freeze(['img', 'iso', 'qcow2', 'raw', 'tar.gz', 'tar.xz', 'gz', 'xz', 'tar']);
+const SUPPORTED_VM_SOURCE_FORMATS = Object.freeze(['img', 'iso', 'qcow2', 'raw', 'vmdk', 'img.gz', 'raw.gz', 'tar.gz', 'tar.xz', 'gz', 'xz', 'tar']);
+const VM_UPLOAD_ACCEPT = SUPPORTED_VM_SOURCE_FORMATS.map(format => `.${format}`).join(',');
 let imageNameSequence = 0;
 
 function uniqueImageName(prefix) {
@@ -31,12 +32,22 @@ function inferVmSourceFormat(fileOrUrl) {
   let path = fileOrUrl;
   try { path = new URL(fileOrUrl).pathname; } catch (_) { path = path.split(/[?#]/)[0]; }
   try { path = decodeURIComponent(path); } catch (_) { /* Keep an undecodable path unchanged. */ }
+  const transport = path.match(/\.(img\.gz|raw\.gz)$/i);
+  if (transport) return transport[1].toLowerCase();
   // A filename can identify the inner media before a supported compression
   // suffix. This is only a source hint, never inspection of archive contents.
-  const media = path.match(/\.(iso|qcow2|raw|img)(?:\.(?:gz|xz))?$/i);
+  const media = path.match(/\.(iso|qcow2|raw|img|vmdk)(?:\.(?:gz|xz))?$/i);
   if (media) return media[1].toLowerCase();
   const archive = path.match(/\.(tar\.gz|tar\.xz|gz|xz|tar)$/i);
   return archive ? archive[1].toLowerCase() : '';
+}
+
+function getVmSourceImportIssue(fileOrUrl) {
+  if (typeof fileOrUrl !== 'string') return '';
+  let path = fileOrUrl;
+  try { path = new URL(fileOrUrl).pathname; } catch (_) { path = path.split(/[?#]/)[0]; }
+  try { path = decodeURIComponent(path); } catch (_) { /* The importer validates undecodable paths. */ }
+  return /\.vmdk(?:\.(?:gz|xz|tar|tgz|txz|zip|bz2|zst))+$/i.test(path) ? 'vmdkCompressedUnsupported' : '';
 }
 
 const VM_UPLOAD_HEADER_BYTES = 64 * 1024;
@@ -61,6 +72,17 @@ async function inspectVmUploadFormat(file) {
   const bytes = new Uint8Array(await readVmUploadHeader(file.slice(0, VM_UPLOAD_HEADER_BYTES)));
   if (bytes.length >= 8 && bytes[0] === 0x51 && bytes[1] === 0x46 && bytes[2] === 0x49 && bytes[3] === 0xfb &&
       bytes[4] === 0 && bytes[5] === 0 && bytes[6] === 0 && [2, 3].includes(bytes[7])) return 'qcow2';
+  // These signatures identify VMDK media, not a verified standalone disk. The
+  // importer checks backing chains/extents before converting it to QCOW2.
+  const magic = String.fromCharCode(...bytes.slice(0, 4));
+  if (magic === 'KDMV' || magic === 'COWD') return 'vmdk';
+  const textStart = bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf ? 3 : 0;
+  const descriptor = String.fromCharCode(...bytes.slice(textStart, textStart + 256)).trimStart();
+  if (descriptor.startsWith('# Disk DescriptorFile')) {
+    const error = new Error('VM image requires a standalone VMDK');
+    error.code = 'vm_vmdk_requires_single_file';
+    throw error;
+  }
   // ISO9660 volume descriptors start at logical sector 16.
   if (bytes.length >= 32775 && String.fromCharCode(...bytes.slice(32769, 32774)) === 'CD001') return 'iso';
   return '';
@@ -70,6 +92,15 @@ function normalizeVmSourceFormat(value) {
   if (typeof value !== 'string') return '';
   const format = value.trim().toLowerCase();
   return SUPPORTED_VM_SOURCE_FORMATS.includes(format) ? format : '';
+}
+
+function normalizeVmAssetFormat(asset = {}) {
+  if (!asset || typeof asset !== 'object' || Array.isArray(asset)) return '';
+  const disks = Array.isArray(asset.disks) ? asset.disks
+    : Array.isArray(asset.extra?.disks) ? asset.extra.disks : [];
+  const roots = disks.filter(disk => disk && disk.disk_role === 'root');
+  const actual = roots.length === 1 ? normalizeVmSourceFormat(roots[0].format) : '';
+  return actual || normalizeVmSourceFormat(asset.format);
 }
 
 function normalizeVmOperatingSystem(value) {
@@ -190,6 +221,7 @@ function ordinaryCreationPayload(payload) {
     creation.os_name = osName;
   }
   if (payload.source_type === 'url') {
+    if (getVmSourceImportIssue(payload.vm_url)) return null;
     try {
       const url = new URL(payload.vm_url);
       if (!['http:', 'https:'].includes(url.protocol) || !url.hostname || url.username || url.password || payload.event_id)
@@ -361,9 +393,12 @@ module.exports = {
   createQuickStartImageName,
   createVmImageName,
   SUPPORTED_VM_SOURCE_FORMATS,
+  VM_UPLOAD_ACCEPT,
   inferVmSourceFormat,
+  getVmSourceImportIssue,
   inspectVmUploadFormat,
   normalizeVmSourceFormat,
+  normalizeVmAssetFormat,
   normalizeVmOperatingSystem,
   safeVmRuntimeFields,
   isLinuxQcow2QuickStart,

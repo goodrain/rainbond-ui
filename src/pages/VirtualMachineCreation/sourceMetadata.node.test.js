@@ -96,12 +96,24 @@ test('compressed source names use the same finite media hints and preserve archi
   const disk = describeSource({ name: 'disk.qcow2.xz' });
   assert.equal(disk.format, 'qcow2');
   assert.equal(disk.mediaKind, 'image');
-  assert.equal(describeSource({ name: 'disk.img.gz' }).format, 'img');
+  assert.equal(describeSource({ name: 'disk.img.gz' }).format, 'img.gz');
+  assert.equal(describeSource({ name: 'disk.img.gz' }).mediaKind, 'image');
+  assert.equal(describeUrl('https://images.invalid/disk.RAW.gz?name=vmdk').format, 'raw.gz');
+  assert.equal(describeUrl('https://images.invalid/disk.RAW.gz?name=vmdk').mediaKind, 'image');
   const [asset] = describeAssets([{
     id: 8, name: 'archived-root', status: 'ready', image_url: 'registry/root', format: 'tar.gz'
   }]);
   assert.equal(asset.creation.format, 'tar.gz');
   assert.equal(asset.source.format, 'tar.gz');
+});
+
+test('exported assets display and submit actual root QCOW2 despite VMDK provenance', () => {
+  const [asset] = describeAssets([{ id: 10, name: 'exported-root', format: 'vmdk', status: 'ready', image_url: 'registry/root',
+    disks: [{ disk_role: 'root', format: 'qcow2', source_type: 'registry', source_uri: 'https://images.invalid/source.vmdk' }],
+    extra: { source_format: 'vmdk' } }]);
+  assert.equal(asset.source.format, 'qcow2');
+  assert.equal(asset.creation.format, 'qcow2');
+  assert.equal(asset.creation.vm_url, undefined);
 });
 
 test('asset firmware falls back to the snapshot only when the top-level value is absent', () => {
@@ -110,4 +122,17 @@ test('asset firmware falls back to the snapshot only when the top-level value is
     extra: { runtime_snapshot: { boot_mode: 'bios' } }
   }]);
   assert.equal(asset.creation.boot_mode, 'bios');
+});
+
+test('VMDK metadata is normalized for ready asset reuse without borrowing Noble login metadata', () => {
+  assert.deepEqual(describeUrl('https://images.invalid/windows.VMDK?download=1'), {
+    name: 'windows.VMDK', mediaKind: 'image', format: 'vmdk'
+  });
+  const [asset] = describeAssets([{ id: 9, name: 'windows-vmdk', format: ' VMDK ', status: 'ready',
+    image_url: 'registry.invalid/converted-root:tag', arch: 'amd64', os_name: 'Windows 10',
+    extra: { runtime_snapshot: { ssh_username: 'must-not-borrow', login_method: 'password' } } }]);
+  assert.equal(asset.selectable, true); assert.equal(asset.source.format, 'vmdk');
+  assert.equal(asset.creation.format, 'vmdk'); assert.equal(asset.creation.asset_id, '9');
+  assert.equal(JSON.stringify(asset).includes('must-not-borrow'), false);
+  assert.equal(asset.source.requiresLoginSetup, undefined);
 });

@@ -100,6 +100,8 @@ export default {
     'Install the OS in the console, then complete installation cleanup.',
   'vmCreation.imageNext':
     'Start the image after creation. Guest readiness is shown separately.',
+  'vmCreation.vmdkNext': 'The platform imports a validated QCOW2 runtime disk converted from VMDK.',
+  'vmCreation.vmdkSingleFileBoundary': 'VMDK requires an uncompressed, self-contained monolithicSparse or streamOptimized file. Split disks, backing chains, external disk dependencies and encryption are unsupported; resolve and consolidate them first. Use the existing guest account; login credentials are not initialized automatically.',
   'vmCreation.cpu': 'CPU (cores)',
   'vmCreation.memory': 'Memory (GiB)',
   'vmCreation.resources': 'CPU / Memory',

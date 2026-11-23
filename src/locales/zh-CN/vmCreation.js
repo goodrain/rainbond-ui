@@ -98,6 +98,8 @@ export default {
   'vmCreation.image': '镜像',
   'vmCreation.isoNext': '创建后进入控制台安装系统，安装完成后执行安装收尾。',
   'vmCreation.imageNext': '创建后启动镜像，来宾系统是否就绪会单独显示。',
+  'vmCreation.vmdkNext': '平台使用经校验、转换后的 QCOW2 运行磁盘完成导入。',
+  'vmCreation.vmdkSingleFileBoundary': 'VMDK 仅支持未压缩的 monolithicSparse 或 streamOptimized 自包含单文件；分片、父链、外部磁盘依赖和加密不支持，请先处理并合并。使用原系统账号登录，平台不会自动配置登录凭据。',
   'vmCreation.cpu': 'CPU（核）',
   'vmCreation.memory': '内存（GiB）',
   'vmCreation.resources': 'CPU / 内存',
