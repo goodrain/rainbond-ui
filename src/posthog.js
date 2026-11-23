@@ -449,6 +449,20 @@ export function captureAppOperation(actionType, status, properties = {}) {
   }
 }
 
+export function captureFirstDeployGuide(action, properties = {}) {
+  const safeAction = action === 'clicked' ? 'clicked' : 'viewed';
+  capturePostHogEvent(
+    `first_deploy_guide_${safeAction}`,
+    getCurrentRouteProperties({
+      ...buildContextProperties(properties),
+      guide_location: properties.guide_location || '',
+      entry: properties.entry || '',
+      market_available: !!properties.market_available,
+      featured_app: properties.featured_app || ''
+    })
+  );
+}
+
 export function captureErrorViewed(errorCategory, properties = {}) {
   capturePostHogEvent(
     'error_viewed',

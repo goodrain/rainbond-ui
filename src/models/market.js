@@ -46,6 +46,7 @@ import {
   HelmwaRehouseAddCom
 } from '../services/market';
 import { normalizeMarketArch } from './marketArch';
+import { createMarketRequestErrorHandlers } from './marketRequestErrorPolicy';
 
 export default {
   namespace: 'market',
@@ -200,14 +201,22 @@ export default {
         }
       }
     },
-    *fetchMarkets({ payload, callback }, { call, select }) {
-      const archInfo = yield select(state => state.index.archInfo);
-      const response = yield call(fetchMarkets, {
-        ...payload,
-        arch: normalizeMarketArch(payload && payload.arch, archInfo)
-      });
-      if (response && callback) {
-        callback(response);
+    *fetchMarkets({ payload, callback, onError }, { call, select }) {
+      const errorHandlers = createMarketRequestErrorHandlers(payload, onError);
+      try {
+        const archInfo = yield select(state => state.index.archInfo);
+        const response = yield call(fetchMarkets, {
+          ...payload,
+          arch: normalizeMarketArch(payload && payload.arch, archInfo),
+          ...(errorHandlers.requestHandleError ? { handleError: errorHandlers.requestHandleError } : {})
+        });
+        if (response && callback) {
+          callback(response);
+        } else if (!response) {
+          errorHandlers.handleMissingResponse();
+        }
+      } catch (error) {
+        errorHandlers.handleException(error);
       }
     },
     *createTag({ payload, callback }, { call }) {

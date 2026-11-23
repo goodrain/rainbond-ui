@@ -1,0 +1,24 @@
+{
+  "_fixture_source": "arch field shape verified against rainbond-console/console/services/app.py app_models_serializers (arch: app_arch.keys()).",
+  "status_code": 200,
+  "list": [
+    {
+      "app_id": "7f0d0509699e4425964c71be4b0fa428",
+      "app_name": "Mysql",
+      "arch": ["amd64"],
+      "versions": [{ "arch": "amd64", "app_version": "8.0.18" }]
+    },
+    {
+      "app_id": "6953c50771ae4548b9fed312d220d720",
+      "app_name": "Redis",
+      "arch": ["amd64"],
+      "versions": [{ "arch": "amd64", "app_version": "5.0.7" }]
+    },
+    {
+      "app_id": "d6c01070c6b049dbaf3de6757a1b63ef",
+      "app_name": "Redis单机版ARM",
+      "arch": ["arm64"],
+      "versions": [{ "arch": "arm64", "app_version": "5.0.14" }]
+    }
+  ]
+}

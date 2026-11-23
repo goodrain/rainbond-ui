@@ -36,6 +36,7 @@ import handleApplicationCreationError from '../../utils/applicationCreationError
 import { getImageRegistryTypeLabel } from '../../utils/imageRegistry';
 import { runMarketInstallPreflight } from '../../utils/marketInstallPreflight';
 import { isRainbondInfoAgentEnabled } from '../../utils/agentVisibility';
+import { shouldUseExampleImagePreset } from './exampleImagePreset';
 import styles from './index.less';
 import mysql from '../../../public/images/mysql.svg';
 import postgresql from '../../../public/images/postgresql.svg';
@@ -126,8 +127,11 @@ const LocalInstallFormWrapper = Form.create()(
   }
 );
 
-const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, rainbondInfo, currentUser, groups, pluginsList, agentVisible, currentView: initialView }) => {
+const GUIDE_EXAMPLE_IMAGE = 'registry.cn-hangzhou.aliyuncs.com/goodrain/nginx:1.26';
+
+const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, rainbondInfo, currentUser, groups, pluginsList, agentVisible, currentView: initialView, initialMarketApp }) => {
   const [currentView, setCurrentView] = useState('main'); // 'main', 'market', 'image', 'code', 'yaml', 'form', 'imageRepo', 'marketStore', 'localMarket', 'marketInstall', 'localMarketInstall'
+  const [exampleImagePresetActive, setExampleImagePresetActive] = useState(false);
   const [hasInitialized, setHasInitialized] = useState(false); // 标记是否已经初始化过
   const [firstAppDeployed, setFirstAppDeployed] = useState(null);
   const [selectedStore, setSelectedStore] = useState(null);
@@ -1837,6 +1841,21 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
               // 需要先获取商店列表
               fetchMarketStores();
               break;
+            case 'marketInstall':
+              if (initialMarketApp && initialMarketApp.marketApp && initialMarketApp.marketStore) {
+                setSelectedMarketApp(initialMarketApp.marketApp);
+                setSelectedStore(initialMarketApp.marketStore);
+                setMarketIsDeploy(true);
+                setCurrentMarketVersionInfo(
+                  (initialMarketApp.marketApp.versions_info && initialMarketApp.marketApp.versions_info[0]) ||
+                  (initialMarketApp.marketApp.versions && initialMarketApp.marketApp.versions[0]) || {}
+                );
+                fetchGroupsList();
+              } else {
+                setCurrentView('market');
+                fetchMarketStores();
+              }
+              break;
             case 'localMarket':
               // 直接获取本地组件库列表
               fetchLocalMarketApps(1, '', 'all');
@@ -1847,6 +1866,11 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
               // 用户需要先在列表中选择一个应用，然后点击安装按钮
               setCurrentView('localMarket');
               fetchLocalMarketApps(1, '', 'all');
+              break;
+            case 'example-image':
+              setCurrentView('form');
+              setCurrentFormType('docker');
+              setExampleImagePresetActive(true);
               break;
             case 'image':
               fetchImageHubs();
@@ -1865,6 +1889,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
           // 如果没有 initialView，重置为主视图
           resetViewHistory();
           setCurrentView('main');
+          setExampleImagePresetActive(false);
         }
         setHasInitialized(true);
       }
@@ -1872,6 +1897,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       // 弹窗关闭时，重置所有状态
       resetViewHistory();
       setCurrentView('main');
+      setExampleImagePresetActive(false);
       setSelectedPlugin(null);
       setSelectedStore(null);
       setSelectedMarketApp(null);
@@ -2130,6 +2156,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
   const handleBack = () => {
     if (currentView === 'form') {
       setCurrentFormType('');
+      setExampleImagePresetActive(false);
       popViewHistory();
     } else if (currentView === 'plugin') {
       setSelectedPlugin(null);
@@ -2923,6 +2950,7 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                 type="arrow-left"
                 className={styles.backIcon}
                 onClick={handleBack}
+                data-testid="rbd-create-back"
               />
             )}
             <Icon type="appstore" className={styles.titleIcon} />
@@ -3126,7 +3154,8 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
                 onSubmit={handleInstallApp}
                 dispatch={dispatch}
                 archInfo={archInfo}
-                autoUseDemo={shouldUseDefaultDemo && !isComponentView}
+                autoUseDemo={(shouldUseDefaultDemo && !isComponentView) || shouldUseExampleImagePreset(initialView, exampleImagePresetActive)}
+                demoImageAddress={shouldUseExampleImagePreset(initialView, exampleImagePresetActive) ? GUIDE_EXAMPLE_IMAGE : ''}
                 showSubmitBtn={false}
               />
             )}
