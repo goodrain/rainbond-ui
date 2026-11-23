@@ -76,7 +76,9 @@ export default class FirstDeployGuide extends PureComponent {
     if (viewed || !marketResolved) {
       return;
     }
-    onViewed();
+    if (onViewed() === false) {
+      return;
+    }
     captureFirstDeployGuide('viewed', {
       guide_location: guideLocation,
       market_available: !!marketAvailable

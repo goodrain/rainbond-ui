@@ -25,6 +25,8 @@ import { routerRedux } from 'dva/router';
 import cookie from '../../../utils/cookie'
 import moment from 'moment';
 import { normalizeAppListQuery, shouldLoadFirstDeployMarket, shouldShowFirstDeployGuide } from './appListState';
+import { getCreateComponentState } from './createComponentState';
+import { createFirstDeployGuideViewTracker } from '../../../components/FirstDeployGuide/viewState';
 import styles from './index.less';
 const { Search } = Input;
 const { Option } = Select;
@@ -82,7 +84,7 @@ export default class index extends Component {
     this._isMounted = false;
     this.appListRequestId = 0;
     this.marketLoadRequested = false;
-    this.firstDeployGuideViewed = false;
+    this.markFirstDeployGuideViewed = createFirstDeployGuideViewTracker();
     this.cardListNode = null;
     this.cardListResizeObserver = null;
   }
@@ -437,12 +439,12 @@ export default class index extends Component {
 
   // 跳转到向导页
   onJumpToWizard = () => {
-    this.setState({ createComponentVisible: true, currentView: null, featuredMarketApp: null });
+    this.setState(getCreateComponentState(true));
   }
 
   // 关闭创建组件弹窗
   handleCloseCreateComponent = () => {
-    this.setState({ createComponentVisible: false, currentView: null, featuredMarketApp: null });
+    this.setState(getCreateComponentState(false));
   }
 
   handleFirstDeployEntry = (entry, properties = {}) => {
@@ -852,8 +854,8 @@ export default class index extends Component {
               marketResolved={marketResolved}
               featuredApps={featuredMarketApps}
               canCreate={isAppCreate}
-              viewed={this.firstDeployGuideViewed}
-              onViewed={() => { this.firstDeployGuideViewed = true; }}
+              viewed={false}
+              onViewed={this.markFirstDeployGuideViewed}
               cardStyles={styles}
               onEntry={this.handleFirstDeployEntry}
             />

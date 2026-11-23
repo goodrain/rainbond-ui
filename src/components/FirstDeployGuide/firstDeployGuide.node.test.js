@@ -9,6 +9,7 @@ const sourceRoot = path.join(root, 'src');
 const teamSource = fs.readFileSync(path.join(sourceRoot, 'pages/TeamDashboard/TeamBasicInfo/index.js'), 'utf8');
 const modalSource = fs.readFileSync(path.join(sourceRoot, 'components/CreateComponentModal/index.js'), 'utf8');
 const imageFormSource = fs.readFileSync(path.join(sourceRoot, 'components/ImageNameForm/index.js'), 'utf8');
+const exampleImagePresetSource = fs.readFileSync(path.join(sourceRoot, 'components/CreateComponentModal/exampleImagePreset.js'), 'utf8');
 const posthogSource = fs.readFileSync(path.join(sourceRoot, 'posthog.js'), 'utf8');
 const marketModelSource = fs.readFileSync(path.join(sourceRoot, 'models/market.js'), 'utf8');
 const marketFixture = JSON.parse(fs.readFileSync(path.join(__dirname, '__fixtures__/market-app-list.response.json'), 'utf8'));
@@ -24,6 +25,7 @@ const readGuideLocale = locale => {
   return messages;
 };
 const marketHelpers = new Function(`${marketAppsSource.replace(/export /g, '')}\nreturn { getFeaturedMarketSearchName, resolveFeaturedMarketApp };`)();
+const exampleImagePreset = new Function(`${exampleImagePresetSource.replace(/export /g, '')}\nreturn { shouldUseExampleImagePreset };`)();
 
 test('first-deploy guide exposes the approved entry points and telemetry fields', () => {
   assert.match(guideSource, /captureFirstDeployGuide\('viewed'/);
@@ -145,7 +147,9 @@ test('the example image is prefilled only for the guide entry', () => {
   assert.match(modalSource, /case 'example-image'/);
   assert.match(modalSource, /setCurrentFormType\('docker'\)/);
   assert.match(modalSource, /registry\.cn-hangzhou\.aliyuncs\.com\/goodrain\/nginx:1\.26/);
-  assert.match(modalSource, /initialView === 'example-image'/);
+  assert.equal(exampleImagePreset.shouldUseExampleImagePreset('example-image', true), true);
+  assert.equal(exampleImagePreset.shouldUseExampleImagePreset('example-image', false), false);
+  assert.equal(exampleImagePreset.shouldUseExampleImagePreset('image', true), false);
   assert.match(imageFormSource, /goodrain\/nginx:alpine/);
 });
 
