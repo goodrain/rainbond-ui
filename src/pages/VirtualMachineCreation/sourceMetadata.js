@@ -3,7 +3,7 @@ const { normalizeAssetRuntimeSnapshot } = require('../../components/ImageVirtual
 const { safeVmRuntimeFields, inferVmSourceFormat, normalizeVmSourceFormat } = require('../../utils/vmQuickStart');
 
 const OFFICIAL_IMAGE_URL =
-  'https://cloud-images.ubuntu.com/minimal/releases/noble/release/ubuntu-24.04-minimal-cloudimg-amd64.img';
+  'https://plugins.tos-cn-beijing.volces.com/vm/ubuntu-24.04-minimal-cloudimg-amd64.img';
 
 function validImageUrl(value) {
   try {

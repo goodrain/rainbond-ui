@@ -44,7 +44,7 @@ const { Option } = Select;
 
 const DEFAULT_VM_IMAGE_SOURCE = 'url';
 const UBUNTU_NOBLE_QCOW2_URL =
-  'https://cloud-images.ubuntu.com/minimal/releases/noble/release/ubuntu-24.04-minimal-cloudimg-amd64.img';
+  'https://plugins.tos-cn-beijing.volces.com/vm/ubuntu-24.04-minimal-cloudimg-amd64.img';
 const UBUNTU_NOBLE_QCOW2_IMAGE_NAME =
   'ubuntu-24.04-minimal-cloudimg-amd64';
 
