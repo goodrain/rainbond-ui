@@ -1697,6 +1697,7 @@ const otherEnterprise = {
     'otherEnterprise.shell.down': 'Close',
     'otherEnterprise.shell.list': 'Cluster list',
     'otherEnterprise.shell.connection': 'Are connected',
+    'otherEnterprise.shell.output_overflow': 'Terminal output is too fast. The connection was closed. Please reconnect and retry.',
     'otherEnterprise.shell.line': 'Command line',
     'otherEnterprise.GitRepository.add': 'Add Git repository',
 }

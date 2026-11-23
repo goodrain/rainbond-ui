@@ -1704,6 +1704,7 @@ const otherEnterprise = {
     'otherEnterprise.shell.down': '关闭',
     'otherEnterprise.shell.list': '集群列表',
     'otherEnterprise.shell.connection': '正在连接',
+    'otherEnterprise.shell.output_overflow': '终端输出过快，连接已断开。请重新连接后重试。',
     'otherEnterprise.shell.line': '命令行',
     'otherEnterprise.GitRepository.add': '新增Git仓库',
 
