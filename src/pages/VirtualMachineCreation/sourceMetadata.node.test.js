@@ -3,7 +3,7 @@ const test = require('node:test');
 const { OFFICIAL_IMAGE_URL, validImageUrl, describeSource, describeUrl, describeAssets } = require('./sourceMetadata');
 
 test('official URL is a known boot-disk candidate with an explicit login boundary', () => {
-  assert.equal(OFFICIAL_IMAGE_URL, 'https://cloud-images.ubuntu.com/minimal/releases/noble/release/ubuntu-24.04-minimal-cloudimg-amd64.img');
+  assert.equal(OFFICIAL_IMAGE_URL, 'https://plugins.tos-cn-beijing.volces.com/vm/ubuntu-24.04-minimal-cloudimg-amd64.img');
   assert.deepEqual(describeUrl(OFFICIAL_IMAGE_URL), {
     name: 'ubuntu-24.04-minimal-cloudimg-amd64.img',
     mediaKind: 'image',

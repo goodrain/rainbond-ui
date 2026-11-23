@@ -2,7 +2,7 @@ const { normalizeVmCreationStorageOptions } = require('./vmCreationStorage');
 const { assertNoVmPasswordPayload, getVmLoginMethod, getVmPasswordUsernameError } = require('./vmLoginCredentials');
 
 const UBUNTU_NOBLE_QCOW2_URL =
-  'https://cloud-images.ubuntu.com/minimal/releases/noble/release/ubuntu-24.04-minimal-cloudimg-amd64.img';
+  'https://plugins.tos-cn-beijing.volces.com/vm/ubuntu-24.04-minimal-cloudimg-amd64.img';
 const PUBLIC_KEY_TYPES = /^(ssh-ed25519|ssh-rsa|ecdsa-sha2-nistp(?:256|384|521))$/;
 const ADDITIONAL_PUBLIC_KEY = /(?:^| )(?:ssh-(?:rsa|ed25519|dss)|ecdsa-sha2-nistp(?:256|384|521)|sk-(?:ssh-ed25519|ecdsa-sha2-nistp256)@openssh\.com) +[A-Za-z0-9+/]+={0,2}(?: |$)/;
 const ALIAS_PATTERN = /^[a-z0-9][a-z0-9-]{0,62}$/;
