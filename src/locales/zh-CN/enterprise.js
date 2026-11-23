@@ -1697,6 +1697,7 @@ const otherEnterprise = {
     'otherEnterprise.AccesstokenForm.max': '最大长度32位',
     'otherEnterprise.AccesstokenForm.time': '过期时间',
     'otherEnterprise.AccesstokenForm.import_time': '请输入时间',
+    'otherEnterprise.AccesstokenForm.expiry_range': '请选择未来且不晚于 {max} 的过期时间',
 
     'otherEnterprise.shell.show': '展开',
     'otherEnterprise.shell.Pack_up': '收起',

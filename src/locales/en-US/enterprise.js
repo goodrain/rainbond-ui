@@ -1691,6 +1691,7 @@ const otherEnterprise = {
     'otherEnterprise.AccesstokenForm.max': 'Maximum length: 32 bits',
     'otherEnterprise.AccesstokenForm.time': 'Expiration time',
     'otherEnterprise.AccesstokenForm.import_time': 'Enter the time',
+    'otherEnterprise.AccesstokenForm.expiry_range': 'Choose an expiration time in the future and no later than {max}.',
     'otherEnterprise.shell.show': 'Unfold',
     'otherEnterprise.shell.Pack_up': 'Pack up',
     'otherEnterprise.shell.new': 'New page',
