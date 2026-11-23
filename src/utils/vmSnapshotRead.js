@@ -2,7 +2,7 @@ const SNAPSHOT_NAME = /^[a-z0-9](?:[-a-z0-9]*[a-z0-9])?(?:\.[a-z0-9](?:[-a-z0-9]
 const ERROR_CODES = new Set(['vm_snapshot_invalid_request', 'vm_snapshot_forbidden', 'vm_snapshot_not_found',
   'vm_restore_busy', 'vm_restore_conflict', 'vm_snapshot_pending', 'vm_snapshot_config_unsupported',
   'vm_snapshot_storage_unsupported', 'vm_snapshot_incomplete', 'vm_snapshot_unsupported',
-  'vm_snapshot_dependency_unavailable', 'vm_snapshot_read_failed']);
+  'vm_snapshot_dependency_unavailable', 'vm_snapshot_read_failed', 'vm_restore_native_configuration_changed']);
 const ITEM_ERRORS = new Set(['vm_snapshot_native_failed', 'vm_snapshot_cleanup_outcome_pending',
   'vm_snapshot_create_outcome_pending', 'vm_snapshot_delete_outcome_pending',
   'vm_snapshot_halt_outcome_pending', 'vm_snapshot_resume_outcome_pending',
