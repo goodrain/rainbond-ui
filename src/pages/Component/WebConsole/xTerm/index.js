@@ -31,6 +31,11 @@ class App extends PureComponent {
   constructor(args) {
     super(args);
     this.inputRef = React.createRef();
+    this.unmounted = false;
+    this.probeSocket = null;
+    this.connectionTimer = null;
+    this.connectionDelay = null;
+    this.messageTimer = null;
     this.state = {
       message: formatMessage({ id: 'otherEnterprise.shell.connection' }),
       bool: 0
@@ -38,25 +43,22 @@ class App extends PureComponent {
   }
 
   componentDidMount() {
-    const { WebsocketURL } = this.props;
-    const websocketURL = normalizeWebSocketURL(WebsocketURL);
-    const xx = new WebSocket(websocketURL);
     const { type = false } = this.props;
     if (type) {
-      const time = setInterval(() => {
-        this.setState({
-          bool: xx.readyState
-        }, () => {
-          if (this.state.bool == 1) {
-            setTimeout(() => {
-              this.EstablishConnection();
-            }, 2000)
-          }
-        })
-        if (xx.readyState == 1) {
-          clearInterval(time)
+      const websocketURL = normalizeWebSocketURL(this.props.WebsocketURL);
+      this.probeSocket = new WebSocket(websocketURL);
+      this.connectionTimer = setInterval(() => {
+        if (this.unmounted || !this.probeSocket) return;
+        this.setState({ bool: this.probeSocket.readyState });
+        if (this.probeSocket.readyState === WebSocket.OPEN) {
+          clearInterval(this.connectionTimer);
+          this.probeSocket.close();
+          this.probeSocket = null;
+          this.connectionDelay = setTimeout(() => {
+            if (!this.unmounted) this.EstablishConnection();
+          }, 2000);
         }
-      }, 1000)
+      }, 1000);
     } else {
       this.EstablishConnection();
     }
@@ -75,7 +77,7 @@ class App extends PureComponent {
         mode,
       } = this.props;
       const websocketURL = normalizeWebSocketURL(WebsocketURL);
-      if (!this.inputRef.current) {
+      if (this.unmounted || !this.inputRef.current) {
         return null;
       }
       const term = this.inputRef.current.getTerminal();
@@ -100,12 +102,16 @@ class App extends PureComponent {
       };
       const xterm = new XTermCustom(term);
       xterm.removeMessage = this.clearMessage;
+      xterm.showMessage = this.showMessage;
       xterm.setWindowTitle = title => {
         if (mode !== 'debug') {
           updateTitle && updateTitle(title);
         }
       };
-      const wt = new WebTTY(xterm, factory, args, gottyAuthToken);
+      const wt = new WebTTY(
+        xterm, factory, args, gottyAuthToken,
+        formatMessage({ id: 'otherEnterprise.shell.output_overflow' })
+      );
       const closer = wt.open();
       this.closer = closer;
       this.clearMessage();
@@ -113,16 +119,31 @@ class App extends PureComponent {
   };
 
   componentWillUnmount() {
+    this.unmounted = true;
+    clearInterval(this.connectionTimer);
+    clearTimeout(this.connectionDelay);
+    clearTimeout(this.messageTimer);
+    if (this.probeSocket) {
+      this.probeSocket.close();
+      this.probeSocket = null;
+    }
     if (this.closer != null) {
       this.closer();
     }
-    if (this.inputRef.current) {
-      this.inputRef.current.componentWillUnmount();
-    }
   }
 
+  showMessage = (message, timeout) => {
+    if (this.unmounted) return;
+    clearTimeout(this.messageTimer);
+    this.setState({ message });
+    if (timeout > 0) {
+      this.messageTimer = setTimeout(this.clearMessage, timeout);
+    }
+  };
+
   clearMessage = () => {
-    this.setState({ message: '' });
+    clearTimeout(this.messageTimer);
+    if (!this.unmounted) this.setState({ message: '' });
   };
 
   render() {

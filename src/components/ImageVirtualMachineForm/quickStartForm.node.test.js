@@ -36,7 +36,7 @@ vm.runInNewContext(code, {
     };
     if (name === '@/utils/vmQuickStart') return quickStart;
     if (name === '@/utils/intl') return { formatMessage: ({ id }) => id };
-    if (name.endsWith('/messages')) return { t: key => `vmDemo.${key}` };
+    if (name.endsWith('/messages')) return { t: key => `vmCreation.${key}` };
     if (name.endsWith('/global')) return { getAppID: () => '868',
       getCurrTeamName: () => 'team-a', getCurrRegionName: () => 'region-a' };
     if (name === './runtimeFieldMerge' || name === './assetReadiness' || name === './imageNameValidation')
@@ -124,6 +124,8 @@ for (const [label, source, url] of [
     for (const field of ['os_family', 'ssh_username', 'ssh_public_key'])
       assert.equal(Object.hasOwn(payload, field), false, `${field} must be excluded`);
     assert.equal(Object.hasOwn(payload, 'boot_mode'), false);
+    if (source !== 'url') assert.equal(payload.vm_url, undefined, 'non-URL media cannot retain a stale Noble URL');
+    if (source === 'url') assert.equal(payload.event_id, undefined);
     assert.equal(payload.image_name, fixture.fields.image_name);
   });
 }
@@ -136,7 +138,7 @@ test('native credential fields default to ubuntu, opt out of capture, and expose
   const untrustedInput = fixture.fields.ssh_public_key;
   fixture.validateSshFields();
   const error = fixture.fieldErrors.ssh_public_key.errors[0];
-  assert.equal(error.message, 'vmDemo.sshPublicKeyInvalid');
+  assert.equal(error.message, 'vmCreation.sshPublicKeyInvalid');
   assert.equal(error.message.includes(untrustedInput), false);
 });
 

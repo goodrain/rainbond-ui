@@ -55,7 +55,7 @@ vm.runInNewContext(code, { exports: exportsObject, require: name => {
   if (name === 'antd') return antd;
   if (name === './messages') return { t: key => key };
   if (name === '@/utils/intl') return { formatMessage: ({ id }) => id };
-  if (name === './state') return require('./state');
+  if (name === './formDefaults') return require('./formDefaults');
   if (name === './index.less') return {};
   if (name === './HelpLabel') return ({ label }) => React.createElement('span', null, label);
   throw new Error(`Unexpected dependency ${name}`);
@@ -245,4 +245,15 @@ test('the native footer abandons or returns to source without submitting a VM', 
   assert.equal(fixture.backs.length, 1);
   assert.equal(fixture.abandons.length, 1);
   assert.equal(fixture.submissions.length, 0);
+});
+
+test('VMDK confirmation describes platform conversion rather than direct VMDK runtime or automatic login', async () => {
+  const h = await mounted(ready);
+  h.render(ready, { ...h.source, isIso: false, sourceName: 'windows.vmdk', format: 'vmdk', sshRequired: false });
+  await flush();
+  act(() => h.instance.props.form.setFieldsValue({ disk_volume_type: 'ceph-rbd' }));
+  act(() => h.instance.next()); await flush();
+  assert.equal(h.instance.state.step, 1);
+  assert.ok(h.root.textContent.includes('vmdkNext'));
+  assert.equal(h.root.textContent.includes('quickStartReviewHelp'), false);
 });

@@ -14,12 +14,14 @@ import globalUtil from '../../utils/global';
 import httpResponseUtil from '../../utils/httpResponse';
 import roleUtil from '../../utils/role';
 import handleAPIError from '../../utils/error';
+import withVMCreationRedirect from './withVMCreationRedirect';
 const SOURCE_BUILD_CONFIG_KEY = 'source_build_config';
 const readSourceBuildConfig = () => {
   const config = window.sessionStorage.getItem(SOURCE_BUILD_CONFIG_KEY);
   return config ? JSON.parse(config) : null;
 };
 
+@withVMCreationRedirect
 @connect(
   ({ loading, teamControl }) => ({
     buildAppsLoading: loading.effects['createApp/buildApps'],

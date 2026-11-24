@@ -23,6 +23,18 @@ test('recognizes the ISO9660 primary descriptor within the bounded header', asyn
   assert.equal(await inspectVmUploadFormat(file(bytes, 'installer.iso')), 'iso');
 });
 
+test('recognizes VMDK signatures behind neutral file names without reading the whole disk', async () => {
+  for (const magic of ['KDMV', 'COWD']) {
+    assert.equal(await inspectVmUploadFormat(file(Uint8Array.from(Buffer.from(magic)), 'renamed.img')), 'vmdk');
+  }
+});
+
+test('a standalone VMDK descriptor is rejected with a safe consolidate instruction code', async () => {
+  const bytes = Uint8Array.from(Buffer.from('# Disk DescriptorFile\nRW 4096 SPARSE "external-test-extent.vmdk"\n'));
+  await assert.rejects(inspectVmUploadFormat(file(bytes, 'disk.vmdk')), error =>
+    error.code === 'vm_vmdk_requires_single_file' && !error.message.includes('external-test-extent'));
+});
+
 test('unknown, raw and compressed headers retain the existing extension hint', async () => {
   for (const [name, bytes] of [
     ['disk.raw', [0, 1, 2, 3]],

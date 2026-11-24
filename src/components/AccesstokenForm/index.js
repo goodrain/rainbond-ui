@@ -12,6 +12,7 @@ import moment from 'moment';
 import React, { Fragment, PureComponent } from 'react';
 import { formatMessage } from '@/utils/intl';
 import styles from '../CreateTeam/index.less';
+import { MAX_ACCESS_TOKEN_EXPIRE_TIME, getAccessTokenExpiration } from './expirationHelpers';
 
 const FormItem = Form.Item;
 const { Paragraph } = Typography;
@@ -43,10 +44,15 @@ class AccesstokenForm extends PureComponent {
     }
     form.validateFields((err, values) => {
       if (!err) {
-        if (values.age) {
-          const endTime = moment(values.age).valueOf();
-          const startTime = moment().valueOf();
-          values.age = moment(endTime).diff(moment(startTime), 'seconds');
+        const selection = getAccessTokenExpiration(values.age);
+        if (!selection.valid) {
+          form.setFields({
+            age: { value: values.age, errors: [new Error(this.getExpiryError())] }
+          });
+          return;
+        }
+        if (!selection.empty) {
+          values.age = selection.age;
         }
         this.addAccesstoken(values);
       }
@@ -92,9 +98,22 @@ class AccesstokenForm extends PureComponent {
     });
   };
 
+  getExpiryError = () => formatMessage(
+    { id: 'otherEnterprise.AccesstokenForm.expiry_range' },
+    { max: moment.unix(MAX_ACCESS_TOKEN_EXPIRE_TIME).format('YYYY-MM-DD HH:mm:ss') }
+  );
+
+  validateExpiry = (rule, value, callback) => {
+    const selection = getAccessTokenExpiration(value);
+    callback(selection.valid ? undefined : this.getExpiryError());
+  };
+
   disabledDate = current => {
     // Can not select days before today and today
-    return current && current < moment().endOf('day');
+    return current && (
+      current < moment().endOf('day') ||
+      current.clone().startOf('day').unix() > MAX_ACCESS_TOKEN_EXPIRE_TIME
+    );
   };
 
   disabledDateTime = () => {
@@ -194,7 +213,10 @@ class AccesstokenForm extends PureComponent {
 
             <FormItem {...formItemLayout} label={formatMessage({id:'otherEnterprise.AccesstokenForm.time'})} extra={formatMessage({id:'versionUpdata_6_1.AccesstokenForm.placeholder'})}>
               {getFieldDecorator('age', {
-                rules: [{ required: false, message: formatMessage({id:'otherEnterprise.AccesstokenForm.import_time'}) }],
+                rules: [
+                  { required: false, message: formatMessage({id:'otherEnterprise.AccesstokenForm.import_time'}) },
+                  { validator: this.validateExpiry }
+                ],
                 initialValue: ''
               })(
                 <DatePicker

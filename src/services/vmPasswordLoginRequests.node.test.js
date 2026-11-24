@@ -144,7 +144,8 @@ test('mixed key/password requests and untrusted source metadata fail before the 
   const secret = opaqueFixture();
   const variants = [
     { ssh_public_key: secret }, { source_type: 'upload' }, { vm_url: 'https://images.invalid/other.qcow2' },
-    { arch: 'arm64' }, { boot_mode: 'bios' }, { format: 'iso' }, { os_family: 'windows' },
+    { arch: 'arm64' }, { boot_mode: 'bios' }, { format: 'iso' }, { format: 'vmdk' },
+    { vm_url: 'https://images.invalid/windows.vmdk' }, { os_family: 'windows' },
     { os_name: 'another-system' }, { ssh_username: 'root' }, { ssh_username: undefined }, { group_id: undefined }, { group_id: 0 }
   ];
   for (const variant of variants) {

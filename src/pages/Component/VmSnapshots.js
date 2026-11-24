@@ -22,7 +22,7 @@ export class VmSnapshots extends PureComponent {
   state = { contextKey: '', listStatus: 'loading', items: null, page: 1, pageSize: 20, total: 0,
     listRefreshing: false, listError: null, selectedName: '', detail: null, detailStatus: 'idle', detailError: null, detailRefreshing: false,
     capability: null, capabilityStatus: 'loading', capabilityRefreshing: false, capabilityError: null,
-    restoreStatus: 'idle', restoreSnapshot: '', restoreRequestId: '', restore: null, restoreError: null };
+    restoreStatus: 'idle', restoreSnapshot: '', restoreRequestId: '', restore: null, restoreError: null, restoreAdvanceReady: false };
   mounted = false;
   timers = { list: null, detail: null, restore: null };
   failures = { list: 0, detail: 0 };
@@ -81,7 +81,7 @@ export class VmSnapshots extends PureComponent {
       listRefreshing: false, listError: null, selectedName: '', detail: null, detailStatus: 'idle', detailError: null, detailRefreshing: false,
       capability: null, capabilityStatus: 'loading', capabilityRefreshing: false, capabilityError: null,
       restoreStatus: attempt ? 'pending' : 'idle', restoreSnapshot: attempt?.snapshot_name || '',
-      restoreRequestId: attempt?.request_id || '', restore: null, restoreError: null },
+      restoreRequestId: attempt?.request_id || '', restore: null, restoreError: null, restoreAdvanceReady: false },
     () => {
       if (!this.enabled()) return;
       this.read('list');
@@ -150,7 +150,8 @@ export class VmSnapshots extends PureComponent {
       finished = true;
       if (!request.complete()) return;
       this.setState({ capabilityRefreshing: false, capabilityError: error || null,
-        capabilityStatus: error ? error.status === 404 || error.kind === 'notFound' ? 'unknown' : 'failed' : 'ready',
+        capabilityStatus: error ? error.status === 404 || error.kind === 'notFound' ? 'unknown'
+          : error.kind === 'unsupported' ? 'unsupported' : 'failed' : 'ready',
         ...(data ? { capability: data } : error && ['forbidden', 'notFound'].includes(error.kind) ? { capability: null } : {}) });
     };
     try {
@@ -162,7 +163,7 @@ export class VmSnapshots extends PureComponent {
     } catch (_) { finish(null, failedRead); return undefined; }
   };
   renderCapability = () => {
-    const { capability, capabilityStatus, capabilityRefreshing } = this.state;
+    const { capability, capabilityStatus, capabilityRefreshing, capabilityError } = this.state;
     const current = this.state.contextKey === this.identity() && this.enabled();
     if (current && ((!capability && capabilityStatus === 'loading') ||
         (capabilityStatus === 'ready' && capability?.supported === true && capability?.complete === true))) return null;
@@ -170,11 +171,16 @@ export class VmSnapshots extends PureComponent {
       : capabilityStatus === 'ready' ? capability.status : capabilityStatus;
     const stale = !!capability && (capabilityRefreshing || capabilityStatus !== 'ready');
     const label = row => row.disk_key || row.key;
+    const reason = value => <span>{value.message && <span>{value.message} </span>}<code>{value.reason_code}</code></span>;
+    const errorMessage = capabilityError?.status === 404 || capabilityError?.kind === 'notFound'
+      ? capText('readError.notFound')
+      : text(capabilityError?.code ? `errorCode.${capabilityError.code}` : `error.${capabilityError?.kind || 'failed'}`);
     return <section aria-label={capText('currentDisks')}>
       <VMStorageSnapshotHint mode="component" state={state} onRetry={current ? this.readCapability : undefined}
         refreshing={capabilityRefreshing} />
+      {current && capabilityError && <p role="alert">{errorMessage} {capabilityError.code && <code>{capabilityError.code}</code>}</p>}
       {current && capability && <div>
-        {stale ? <p>{capText('lastObservation')}</p> : <p>{capability.message} {capText(capability.complete ? 'membershipComplete' : 'membershipUnknown')}</p>}
+        {stale ? <p>{capText('lastObservation')}</p> : <p>{reason(capability)} {capText(capability.complete ? 'membershipComplete' : 'membershipUnknown')}</p>}
         <Table size="small" rowKey={(row, index) => `${row.key}:${index}`} pagination={false} dataSource={capability.volumes}
           locale={{ emptyText: capText('noParticipants') }} columns={[
             { title: capText('disk'), key: 'disk', render: (_, row) => label(row) },
@@ -182,14 +188,14 @@ export class VmSnapshots extends PureComponent {
             { title: capText('readOnly'), dataIndex: 'read_only', render: value => text(value ? 'yes' : 'no') },
             { title: capText('storage'), dataIndex: 'storage_class', render: value => value || text('notReported') },
             { title: capText('result'), dataIndex: 'status', render: value => <Badge status={value === 'supported' ? 'success' : value === 'unsupported' ? 'warning' : 'default'} text={capText(`decision.${value}`)} /> },
-            { title: capText('reason'), dataIndex: 'message' }
+            { title: capText('reason'), key: 'reason', render: (_, row) => reason(row) }
           ]} />
         {capability.excluded_volumes.length > 0 && <div>
           <p>{capText('excluded')}</p>
           <Table size="small" rowKey={(row, index) => `${row.key}:${index}`} pagination={false} dataSource={capability.excluded_volumes}
             columns={[
               { title: capText('disk'), dataIndex: 'key' },
-              { title: capText('reason'), dataIndex: 'reason_code', render: value => capText(['read_only_installation_media', 'auxiliary_media', 'detached_retained_volume'].includes(value) ? `excludedReason.${value}` : 'excludedReason.unknown') }
+              { title: capText('reason'), dataIndex: 'reason_code', render: value => <span>{capText(['read_only_installation_media', 'auxiliary_media', 'detached_retained_volume'].includes(value) ? `excludedReason.${value}` : 'excludedReason.unknown')} <code>{value}</code></span> }
             ]} />
         </div>}
         <p>{capText('advisory')}</p>
@@ -236,12 +242,15 @@ export class VmSnapshots extends PureComponent {
     this.restoreGuard.invalidate();
     this.clearTimer('restore');
     this.setState({ restoreStatus: 'submitting', restoreSnapshot: item.snapshot_name, restoreRequestId: requestId,
-      restore: null, restoreError: null }, () => this.requestRestore(false));
+      restore: null, restoreError: null, restoreAdvanceReady: false }, () => this.requestRestore(false));
   };
   requestRestore = readback => {
     if (!this.enabled() || !validSnapshotName(this.state.restoreSnapshot) || !this.state.restoreRequestId) return;
-    const request = this.restoreGuard.begin(readback ? 'status' : 'start');
+    if (!readback && this.state.restoreStatus !== 'submitting' && !this.state.restoreAdvanceReady) return;
+    const request = this.restoreGuard.begin('restore');
     if (!request) return;
+    this.clearTimer('restore');
+    this.setState({ restoreAdvanceReady: false });
     const context = { ...this.props.context };
     const payload = { team_name: context.team, region_name: context.region, app_alias: context.alias,
       snapshot_name: this.state.restoreSnapshot, request_id: this.state.restoreRequestId };
@@ -254,14 +263,15 @@ export class VmSnapshots extends PureComponent {
         const explicit = [400, 401, 403, 404, 409, 422].includes(Number(error.status));
         if (explicit) {
           try { clearVMRestoreAttempt(this.restoreStorage(), this.restoreKey()); } catch (_) { /* retain UI result */ }
-          this.setState({ restoreStatus: 'failed', restoreError: error });
+          this.setState({ restoreStatus: 'failed', restoreError: error, restoreAdvanceReady: false });
         } else {
-          this.setState({ restoreStatus: 'pending', restoreError: error }, this.scheduleRestore);
+          this.setState({ restoreStatus: 'pending', restoreError: error, restoreAdvanceReady: false }, this.scheduleRestore);
         }
         return;
       }
       const status = data.phase === 'succeeded' ? 'succeeded' : data.phase === 'failed' ? 'failed' : 'pending';
-      this.setState({ restoreStatus: status, restore: data, restoreError: null }, () => {
+      this.setState({ restoreStatus: status, restore: data, restoreError: null,
+        restoreAdvanceReady: readback && status === 'pending' && data.requires_advance === true }, () => {
         if (status === 'pending') this.scheduleRestore();
         else {
           try { clearVMRestoreAttempt(this.restoreStorage(), this.restoreKey()); } catch (_) { /* terminal state remains visible */ }
@@ -285,7 +295,7 @@ export class VmSnapshots extends PureComponent {
     this.timers.restore = setTimeout(() => {
       if (!current()) return;
       this.timers.restore = null;
-      this.requestRestore(true);
+      this.requestRestore(!this.state.restoreAdvanceReady);
     }, getComponentPollingDelay({ status: 'restoring' }));
   };
   renderRestoreStatus = () => {

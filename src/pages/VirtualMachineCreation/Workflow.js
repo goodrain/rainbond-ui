@@ -194,6 +194,7 @@ export class VmCreateWorkflow extends PureComponent {
   };
 
   openQuickStartComponent = () => {
+    if (this.state.quickStartSubmitting || this.quickStartInFlight) return;
     const context = identity(this.props);
     const result = this.state.quickStart;
     if (!result?.serviceAlias || !/^\d+$/.test(String(result.groupId))) return;
@@ -231,7 +232,7 @@ export class VmCreateWorkflow extends PureComponent {
       </div>}
       <div className={`${styles.actions} ${styles.spaced}`}>
         <Button disabled={loading} onClick={this.props.onCancel}>{t('backToApplication')}</Button>
-        {result.serviceAlias && <Button onClick={this.openQuickStartComponent}>{t('quickStartOpenComponent')}</Button>}
+        {result.serviceAlias && <Button disabled={loading} onClick={this.openQuickStartComponent}>{t('quickStartOpenComponent')}</Button>}
         {!loading && result.serviceAlias && result.status !== 'submitted' && <Button type="primary"
           disabled={storageRequired && !selectedStorage} onClick={this.retryQuickStart}>
           {t(storageRequired ? 'quickStartContinue' : 'quickStartRetry')}

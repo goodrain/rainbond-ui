@@ -1697,6 +1697,7 @@ const otherEnterprise = {
     'otherEnterprise.AccesstokenForm.max': '最大长度32位',
     'otherEnterprise.AccesstokenForm.time': '过期时间',
     'otherEnterprise.AccesstokenForm.import_time': '请输入时间',
+    'otherEnterprise.AccesstokenForm.expiry_range': '请选择未来且不晚于 {max} 的过期时间',
 
     'otherEnterprise.shell.show': '展开',
     'otherEnterprise.shell.Pack_up': '收起',
@@ -1704,6 +1705,7 @@ const otherEnterprise = {
     'otherEnterprise.shell.down': '关闭',
     'otherEnterprise.shell.list': '集群列表',
     'otherEnterprise.shell.connection': '正在连接',
+    'otherEnterprise.shell.output_overflow': '终端输出过快，连接已断开。请重新连接后重试。',
     'otherEnterprise.shell.line': '命令行',
     'otherEnterprise.GitRepository.add': '新增Git仓库',
 

@@ -14,8 +14,8 @@ function load(file, dependencies) {
 }
 const hint=load('index.js',{react:React,antd:{Alert:'Alert',Button:'Button'},'@/utils/intl':{formatMessage:({id})=>id}}).default;
 const ui={Alert:'Alert',Button:'Button',Card:'Card',Descriptions:{Item:'D'},Form:{Item:'Item',create:()=>Component=>Component},Input:'Input',InputNumber:'InputNumber',Radio:{Group:'RadioGroup',Button:'RadioButton'},Select:{Option:'Option'},Steps:{Step:'Step'}};
-const Creator=load('../../pages/VirtualMachineDemo/CreateVm.js',{react:React,antd:ui,'../../components/VMStorageSnapshotHint':hint,
- '@/utils/intl':{formatMessage:({id})=>id},'./state':{createValues:()=>({cpu:4,memory:8,disk:30})},'./messages':{t:key=>key},'./index.less':{},'./HelpLabel':()=>null}).default;
+const Creator=load('../../pages/VirtualMachineCreation/CreateVm.js',{react:React,antd:ui,'../../components/VMStorageSnapshotHint':hint,
+ '@/utils/intl':{formatMessage:({id})=>id},'./formDefaults':{createValues:()=>({cpu:4,memory:8,disk:30})},'./messages':{t:key=>key},'./index.less':{},'./HelpLabel':()=>null}).default;
 
 test('only explicit authority presentation state is supported; storage names cannot imply support',()=>{
  for(const storageName of ['nfs','ceph','standard','snapshot-fast']){
