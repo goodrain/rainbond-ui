@@ -1,6 +1,5 @@
 import React, { PureComponent } from 'react';
 import moment from 'moment';
-import VMStorageSnapshotHint from '../../components/VMStorageSnapshotHint';
 import VmSnapshotCreate from './VmSnapshotCreate';
 import { Alert, Badge, Button, Card, Descriptions, Empty, Modal, Spin, Table } from 'antd';
 import { connect } from 'dva';
@@ -167,42 +166,14 @@ export class VmSnapshots extends PureComponent {
   renderCapability = () => {
     const { capability, capabilityStatus, capabilityRefreshing, capabilityError } = this.state;
     const current = this.state.contextKey === this.identity() && this.enabled();
-    if (current && ((!capability && capabilityStatus === 'loading') ||
-        (capabilityStatus === 'ready' && capability?.supported === true && capability?.complete === true))) return null;
-    const state = !current ? 'unknown' : capabilityRefreshing ? 'loading'
-      : capabilityStatus === 'ready' ? capability.status : capabilityStatus;
-    const stale = !!capability && (capabilityRefreshing || capabilityStatus !== 'ready');
-    const label = row => row.disk_key || row.key;
-    const reason = value => <span>{value.message && <span>{value.message} </span>}<code>{value.reason_code}</code></span>;
-    const errorMessage = capabilityError?.status === 404 || capabilityError?.kind === 'notFound'
-      ? capText('readError.notFound')
-      : text(capabilityError?.code ? `errorCode.${capabilityError.code}` : `error.${capabilityError?.kind || 'failed'}`);
-    return <section aria-label={capText('currentDisks')}>
-      <VMStorageSnapshotHint mode="component" state={state} onRetry={current ? this.readCapability : undefined}
-        refreshing={capabilityRefreshing} />
-      {current && capabilityError && <p role="alert">{errorMessage} {capabilityError.code && <code>{capabilityError.code}</code>}</p>}
-      {current && capability && <div>
-        {stale ? <p>{capText('lastObservation')}</p> : <p>{reason(capability)} {capText(capability.complete ? 'membershipComplete' : 'membershipUnknown')}</p>}
-        <Table size="small" rowKey={(row, index) => `${row.key}:${index}`} pagination={false} dataSource={capability.volumes}
-          locale={{ emptyText: capText('noParticipants') }} columns={[
-            { title: capText('disk'), key: 'disk', render: (_, row) => label(row) },
-            { title: capText('role'), dataIndex: 'role', render: value => capText(value === 'root' ? 'rootDisk' : value === 'data' ? 'dataDisk' : 'unknownDisk') },
-            { title: capText('readOnly'), dataIndex: 'read_only', render: value => text(value ? 'yes' : 'no') },
-            { title: capText('storage'), dataIndex: 'storage_class', render: value => value || text('notReported') },
-            { title: capText('result'), dataIndex: 'status', render: value => <Badge status={value === 'supported' ? 'success' : value === 'unsupported' ? 'warning' : 'default'} text={capText(`decision.${value}`)} /> },
-            { title: capText('reason'), key: 'reason', render: (_, row) => reason(row) }
-          ]} />
-        {capability.excluded_volumes.length > 0 && <div>
-          <p>{capText('excluded')}</p>
-          <Table size="small" rowKey={(row, index) => `${row.key}:${index}`} pagination={false} dataSource={capability.excluded_volumes}
-            columns={[
-              { title: capText('disk'), dataIndex: 'key' },
-              { title: capText('reason'), dataIndex: 'reason_code', render: value => <span>{capText(['read_only_installation_media', 'auxiliary_media', 'detached_retained_volume'].includes(value) ? `excludedReason.${value}` : 'excludedReason.unknown')} <code>{value}</code></span> }
-            ]} />
-        </div>}
-        <p>{capText('advisory')}</p>
-      </div>}
-    </section>;
+    if (!current || capabilityRefreshing || capabilityStatus === 'loading' ||
+        (capabilityStatus === 'ready' && capability?.supported === true && capability?.complete === true)) return null;
+    const busy = capabilityStatus === 'ready' && capability?.reason_code === 'component_operation_in_progress';
+    const message = capabilityError?.kind === 'forbidden' ? text('error.forbidden')
+      : busy ? capText('component.busy')
+        : capabilityStatus === 'ready' && capability?.status === 'unsupported' ? capText('component.unsupportedShort')
+          : capText('component.checkUnavailable');
+    return <p className={styles.capabilityNotice} role={capabilityError ? 'alert' : 'status'}>{message}</p>;
   };
   select = (expanded, item) => {
     if (!this.enabled() || this.state.contextKey !== this.identity() ||
@@ -365,7 +336,6 @@ export class VmSnapshots extends PureComponent {
           {trigger}
           <Button size="small" icon="reload" loading={listRefreshing} disabled={!current} onClick={() => this.read('list')}>{text('refresh')}</Button>
         </div>}>
-      <p className={styles.scope}>{text('readOnlyScope')}</p>
       {this.renderCapability()}
       {feedback}
       {this.renderRestoreStatus()}

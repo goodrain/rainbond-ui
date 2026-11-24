@@ -144,8 +144,6 @@ export class VmSnapshotCreate extends PureComponent {
         loading={this.props.capabilityChecking || status === 'checkingActive'}
         onClick={this.open}>{text('title')}</Button>;
     const feedback = <section className={this.props.className} aria-label={text('title')}>
-      {this.props.capabilityChecking && <p role="status">{text('capabilityChecking')}</p>}
-      {!this.props.capabilityReady && !this.props.capabilityChecking && <p>{text('capabilityRequired')}</p>}
       {status !== 'idle' && <Alert type={status === 'completed' ? 'success' : status === 'accepted' && !jobError ? 'info' : 'warning'} showIcon
         message={text(status === 'accepted' && jobError ? jobError : ['pending', 'reading', 'accepted', 'unknown', 'rejected', 'unsupported', 'workerUnavailable', 'completed', 'unavailable', 'invalid', 'checkingActive', 'activeUnavailable', 'otherOperation'].includes(status) ? status : 'unknown')}
         description={attempt ? <span>{attempt.name} <Button disabled={!enabled || ['pending', 'reading'].includes(status)}

@@ -154,7 +154,7 @@ test('the real panel/model/service chain reads the frozen list and detail envelo
   h.panel.componentWillUnmount();
 });
 
-test('current VM checks consume actual Go complete-set outputs without hiding unknown, readonly or excluded disks', async () => {
+test('current VM checks retain complete Go outputs while summarizing capability diagnostics', async () => {
   const cases = require('../../utils/fixtures/vmExistingSnapshotCapability.go.json');
   for (const [name, data] of Object.entries(cases)) {
     const h = harness();
@@ -168,7 +168,7 @@ test('current VM checks consume actual Go complete-set outputs without hiding un
     assert.deepEqual(Array.from(h.panel.state.capability.volumes, row => row.read_only), data.volumes.map(row => row.read_only));
     const tables = elements(h.panel.renderCapability()).filter(node => node.type === 'Table');
     if (data.supported && data.complete) assert.equal(h.panel.renderCapability(), null, name);
-    else assert.equal(tables[0].props.dataSource.length, data.volumes.length, name);
+    assert.equal(tables.length, 0, 'capability diagnostics do not add disk tables to the snapshot list');
     assert.equal(h.capabilityRequests[0].url, '/console/teams/team-a/apps/vm-a/vm-snapshot-capability');
     assert.deepEqual(Object.keys(h.capabilityRequests[0].options.params), ['region_name']);
     assert.equal(h.capabilityRequests[0].options.method, 'get');
@@ -206,8 +206,7 @@ test('capability refresh failure invalidates prior support, missing endpoint sta
   h.capabilityRequest = async () => undefined;
   await h.panel.readCapability();
   assert.equal(h.panel.state.capabilityStatus, 'failed');
-  const hint = elements(h.panel.renderCapability()).find(node => node.props?.mode === 'component');
-  assert.equal(hint.props.state, 'failed');
+  assert.equal(h.panel.renderCapability().props.role, 'alert');
   h.capabilityRequest = async () => ({ status_code: 404, business_code: 404 });
   await h.panel.readCapability();
   assert.equal(h.panel.state.capabilityStatus, 'unknown');
@@ -650,7 +649,7 @@ test('a late GET from another component cannot authorize a restore POST in the c
   h.panel.componentWillUnmount();
 });
 
-test('capability errors expose safe reasons, keep creation closed, and retry only the capability request', async () => {
+test('capability errors use compact messages, keep creation closed, and can be refreshed', async () => {
   const h = harness(); await h.mount();
   for (const [status, code, expected] of [[403, 'vm_snapshot_forbidden', 'failed'], [404, 'vm_snapshot_not_found', 'unknown'],
     [422, 'vm_snapshot_incomplete', 'unsupported'], [503, 'vm_snapshot_dependency_unavailable', 'failed']]) {
@@ -658,29 +657,32 @@ test('capability errors expose safe reasons, keep creation closed, and retry onl
     await h.panel.readCapability();
     assert.equal(h.panel.state.capabilityStatus, expected);
     const view = h.panel.renderCapability(); const serialized = JSON.stringify(view);
-    assert.ok(serialized.includes(code));
-    if (status === 404) assert.ok(serialized.includes('readError.notFound'));
+    assert.equal(serialized.includes(code), false, 'internal error codes are not displayed');
+    assert.ok(serialized.includes(status === 403 ? 'error.forbidden' : 'component.checkUnavailable'));
     assert.equal(elements(h.panel.render()).find(value => value.type === 'SnapshotCreate').props.capabilityReady, false);
     assert.equal(h.panel.state.listStatus, 'ready');
     const requests = h.requests.length; const count = h.capabilityRequests.length;
-    const hint = elements(view).find(value => value.props?.mode === 'component');
-    await hint.props.onRetry();
-    assert.equal(h.capabilityRequests.length, count + 1); assert.equal(h.requests.length, requests);
+    await h.panel.read('list');
+    assert.equal(h.capabilityRequests.length, count + 1); assert.equal(h.requests.length, requests + 1);
   }
   h.panel.componentWillUnmount();
 });
 
-test('aggregate and per-disk reason codes stay visible even when upstream messages are empty', async () => {
+test('busy operations show one notice while excluded media and internal reason codes stay hidden', async () => {
   const h = harness();
-  const value = currentCapability({ status: 'unsupported', supported: false, reason_code: 'active_operation', message: '',
-    excluded_volumes: [{ key: 'cd', role: 'media', reason_code: 'future_exclusion' }] });
+  const value = currentCapability({ status: 'unknown', supported: false, reason_code: 'component_operation_in_progress', message: '',
+    excluded_volumes: [{ key: 'virtio', role: 'media', reason_code: 'read_only_installation_media' }] });
   value.volumes[0].message = ''; value.volumes[0].reason_code = 'future_ready';
   h.capabilityRequest = async () => ok(value); await h.mount(); await h.settleCapability();
-  const view = h.panel.renderCapability(); assert.ok(JSON.stringify(view).includes('active_operation'));
+  const view = h.panel.renderCapability();
+  const rendered = JSON.stringify(view);
+  assert.ok(rendered.includes('component.busy'));
+  for (const hidden of ['component_operation_in_progress', 'future_ready', 'read_only_installation_media', 'virtio', 'restorePlanIndependent']) {
+    assert.equal(rendered.includes(hidden), false, hidden);
+  }
   const tables = elements(view).filter(node => node.type === 'Table');
-  const reason = tables[0].props.columns.find(column => column.key === 'reason');
-  assert.ok(JSON.stringify(reason.render(null, value.volumes[0])).includes('future_ready'));
-  assert.ok(JSON.stringify(tables[1].props.columns[1].render('future_exclusion')).includes('future_exclusion'));
+  assert.equal(tables.length, 0);
+  assert.equal(h.panel.state.capability.excluded_volumes[0].key, 'virtio');
   assert.equal(elements(h.panel.render()).find(node => node.type === 'SnapshotCreate').props.capabilityReady, false);
   h.panel.componentWillUnmount();
 });
