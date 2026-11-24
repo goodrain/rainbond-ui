@@ -49,9 +49,9 @@ test('real DVA operation success boundaries refresh without changing callbacks',
     let count = 0; let callbacks = 0;
     const remove = coordination.subscribeTopologyRefresh(coordination.topologyScope('team', 'region', 31), () => { count += 1; }, () => [{ service_alias: 'component', service_id: 'id' }]);
     const method = effects.find(node => node.key.name === name);
-    const factory = new Function('captureTopologyOperation', 'captureAppOperation', 'buildAppControlProperties', 'trackOperationSucceeded', 'REQUEST_TELEMETRY_OPTIONS', 'trackOperationFailed', 'isRequestFailure', ...services,
+    const factory = new Function('captureTopologyOperation', 'captureAppOperation', 'buildAppControlProperties', 'trackOperationSucceeded', 'REQUEST_TELEMETRY_OPTIONS', 'trackOperationFailed', 'isRequestFailure', 'createAttemptId', 'createRequestTelemetryOptions', ...services,
       `return ({${generate(method).code}}).${name};`);
-    const execute = factory(payload => coordination.captureTopologyOperation(payload, location), () => {}, () => ({}), () => {}, { returnErrorMetadata: true }, () => {}, response => !!(response && response.__rainbondRequestFailure), ...services.map(() => () => {}));
+    const execute = factory(payload => coordination.captureTopologyOperation(payload, location), () => {}, () => ({}), () => {}, { returnErrorMetadata: true }, () => {}, response => !!(response && response.__rainbondRequestFailure), () => '123e4567-e89b-42d3-a456-426614174000', attemptId => ({ returnErrorMetadata: true, attemptId }), ...services.map(() => () => {}));
     const iterator = execute({ payload: { team_name: 'team', app_alias: 'component', serviceIds: ['id'] }, callback: () => { callbacks += 1; } }, { call: (...args) => args });
     iterator.next(); iterator.next({ status_code: 200, business_code: 200 });
     assert.equal(count, 1, name); assert.equal(callbacks, 1, name); remove();

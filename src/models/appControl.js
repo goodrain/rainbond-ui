@@ -177,6 +177,21 @@ const { observeComponentUpgrade } = require('../utils/componentUpgradeFeedback')
 let portsRequestSequence = 0;
 const REQUEST_TELEMETRY_OPTIONS = { returnErrorMetadata: true };
 
+function createAttemptId() {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, character => {
+    const value = Math.floor(Math.random() * 16);
+    const digit = character === 'x' ? value : (value & 0x3) | 0x8;
+    return digit.toString(16);
+  });
+}
+
+function createRequestTelemetryOptions(attemptId) {
+  return { ...REQUEST_TELEMETRY_OPTIONS, attemptId };
+}
+
 function buildAppControlProperties(payload = {}, overrides = {}) {
   return {
     team_name: payload.team_name,
@@ -191,7 +206,8 @@ function buildAppControlProperties(payload = {}, overrides = {}) {
 function trackOperationSucceeded(actionType, payload, response) {
   captureAppOperation(actionType, 'succeeded', buildAppControlProperties(payload, {
     action_type: actionType,
-    event_id: response && response.event_id
+    event_id: response && response.event_id,
+    ...(payload.attempt_id ? { attempt_id: payload.attempt_id } : {})
   }));
 }
 
@@ -201,7 +217,8 @@ function trackOperationFailed(actionType, payload, error) {
     action_type: actionType,
     error_category: failure.error_category || 'request_failed',
     error_code: failure.error_code || failure.status || failure.code || 'request_failed',
-    http_status: failure.http_status || 0
+    http_status: failure.http_status || 0,
+    ...(payload.attempt_id ? { attempt_id: payload.attempt_id } : {})
   }));
 }
 
@@ -351,13 +368,21 @@ export default {
     },
     *putDeploy({ payload, callback, handleError }, { call }) {
       const refreshTopology = captureTopologyOperation(payload);
-      captureAppOperation('deploy', 'started', buildAppControlProperties(payload));
-      const response = yield call(deploy, payload, handleError, REQUEST_TELEMETRY_OPTIONS);
+      const attemptId = createAttemptId();
+      captureAppOperation('deploy', 'started', buildAppControlProperties(payload, { attempt_id: attemptId }));
+      const operationPayload = { ...payload, attempt_id: attemptId };
+      let response;
+      try {
+        response = yield call(deploy, payload, handleError, createRequestTelemetryOptions(attemptId));
+      } catch (error) {
+        trackOperationFailed('deploy', operationPayload, error);
+        throw error;
+      }
       refreshTopology(response);
       if (response && !isRequestFailure(response)) {
-        trackOperationSucceeded('deploy', payload, response);
+        trackOperationSucceeded('deploy', operationPayload, response);
       } else {
-        trackOperationFailed('deploy', payload, response);
+        trackOperationFailed('deploy', operationPayload, response);
       }
       if (response && !isRequestFailure(response) && callback) {
         callback(response);

@@ -6,6 +6,11 @@ import sourceBuildPayload from '../utils/sourceBuildPayload';
 import globalUtil from '../utils/global';
 import { requestVmCreationStorage } from '../utils/vmCreationStorage';
 
+function buildAttemptHeaders(telemetryOptions) {
+  const attemptId = (telemetryOptions || {}).attemptId;
+  return attemptId ? { 'X-Rainbond-Attempt-Id': attemptId } : undefined;
+}
+
 const { sanitizePackageToolPayload } = sourceBuildPayload;
 
 /*
@@ -33,7 +38,8 @@ export async function createAppByCode(body = {}, telemetryOptions = {}) {
         is_demo: body.is_demo,
         arch: body.arch,
       },
-      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata,
+      headers: buildAttemptHeaders(telemetryOptions)
     }
   );
 }
@@ -62,7 +68,8 @@ export async function createThirtAppByCodes(body = {}, telemetryOptions = {}) {
         k8s_component_name: body.k8s_component_name,
         arch: body.arch,
       },
-      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata,
+      headers: buildAttemptHeaders(telemetryOptions)
     }
   );
 }
@@ -75,7 +82,8 @@ export async function createThirdPartyServices(body = {}, telemetryOptions = {})
     {
       method: 'post',
       data: body,
-      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata,
+      headers: buildAttemptHeaders(telemetryOptions)
     }
   );
 }
@@ -211,7 +219,8 @@ export async function createAppByCompose(body = {}, telemetryOptions = {}) {
         // k8s_app: body.k8s_app,
         arch: body.arch,
       },
-      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata,
+      headers: buildAttemptHeaders(telemetryOptions)
     }
   );
 }
@@ -237,7 +246,8 @@ export async function createAppByDockerrun(body = {}, telemetryOptions = {}) {
         is_demo: body.is_demo,
         arch: body.arch,
       },
-      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata,
+      headers: buildAttemptHeaders(telemetryOptions)
     }
   );
 }
@@ -334,7 +344,8 @@ export async function createAppByVirtualMachine(body = {}, handleError, telemetr
       ...(body.login_method !== 'password' && body.ssh_public_key !== undefined ? { ssh_public_key: body.ssh_public_key } : {}),
       ...passwordFields
     },
-    returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
+    returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata,
+    headers: buildAttemptHeaders(telemetryOptions)
   });
 }
 
@@ -672,7 +683,8 @@ export async function installHelmApp(body = {}, telemetryOptions = {}) {
     {
       method: 'post',
       data: body,
-      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata,
+      headers: buildAttemptHeaders(telemetryOptions)
     }
   );
 }
@@ -759,7 +771,8 @@ export async function installHelmAppCmd(body = {}, handleError, telemetryOptions
         command: body.command
       },
       handleError,
-      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata,
+      headers: buildAttemptHeaders(telemetryOptions)
     }
   );
 }
@@ -774,7 +787,8 @@ export async function installRamAppCmd(body = {}, handleError, telemetryOptions 
         cmd: body.command
       },
       handleError,
-      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata,
+      headers: buildAttemptHeaders(telemetryOptions)
     }
   );
 }
@@ -818,7 +832,8 @@ export async function installHelmUploadApp(body = {}, handleError, telemetryOpti
         resource: body.resource,
         app_id: body.group_id
       },
-      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata,
+      headers: buildAttemptHeaders(telemetryOptions)
     }
   )
 }

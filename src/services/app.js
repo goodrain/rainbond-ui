@@ -3,6 +3,11 @@
 import apiconfig from '../../config/api.config';
 import request from '../utils/request';
 import { captureTopologyOperation } from '../utils/topologyRefresh';
+function buildAttemptHeaders(telemetryOptions) {
+  const attemptId = (telemetryOptions || {}).attemptId;
+  return attemptId ? { 'X-Rainbond-Attempt-Id': attemptId } : undefined;
+}
+
 
 /* 删除应用的某个版本 */
 export function delAppVersion(body = { team_name, service_alias, version_id }) {
@@ -156,7 +161,8 @@ export function deploy(body = {}, handleError, telemetryOptions = {}) {
         group_version: body.group_version
       },
       handleError,
-      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata,
+      headers: buildAttemptHeaders(telemetryOptions)
     }
   );
 }
