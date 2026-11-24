@@ -30,7 +30,8 @@ function harness({ target, allowed = true, appAllowed = allowed, appConstruct = 
         push: destination => ({ type: 'navigate', destination })
       } };
       if (name === 'antd') return { Select: Object.assign(() => null, { Option: 'Option' }), Form: Object.assign(() => null, { Item: 'FormItem' }),
-        Card: 'Card', Alert: 'Alert', Button: 'Button', Spin: 'Spin', message: { error: value => errors.push(value) }, Modal: { confirm: value => confirmations.push(value) } };
+        Alert: 'Alert', Button: 'Button', Spin: 'Spin', message: { error: value => errors.push(value) },
+        Modal: Object.assign(() => null, { confirm: value => confirmations.push(value) }) };
       if (name.endsWith('/utils/global')) return { getCurrTeamName: () => scope.team,
         getCurrRegionName: () => scope.region, getAppID: () => scope.application };
       if (name.endsWith('/utils/newRole')) return { queryPermissionsInfo: (data, module, application) => {

@@ -8,7 +8,7 @@ const babel = require('@umijs/deps/compiled/babel/core');
 const quickStart = require('../../utils/vmQuickStart');
 const metadata = require('./sourceMetadata');
 
-const dom = new JSDOM('<!doctype html><div id="vm-creation-workspace"></div><div id="root"></div>', { url: 'http://localhost/' });
+const dom = new JSDOM('<!doctype html><div id="root"></div>', { url: 'http://localhost/' });
 global.window = dom.window;
 global.document = dom.window.document;
 Object.defineProperty(global, 'navigator', { configurable: true, value: dom.window.navigator });
@@ -28,10 +28,10 @@ const Box = ({ children }) => React.createElement('div', null, children);
 const Button = ({ children, onClick, disabled, ...props }) => React.createElement('button', {
   onClick, disabled, 'data-testid': props['data-testid']
 }, children);
-function Modal({ visible, children, footer }) {
+function Modal({ visible, children, footer, title }) {
   // Native Antd Modal retains its form subtree while hidden between source and
   // hardware steps. Keep this lifetime behavior in the lifecycle fixture.
-  return React.createElement('div', { 'data-modal': true, hidden: !visible }, children, footer);
+  return React.createElement('div', { 'data-modal': title === 'createTitle' ? 'hardware' : 'chooser', hidden: !visible }, children, footer);
 }
 Modal.warning = Modal.confirm = Modal.error = () => {};
 const Radio = Box;
@@ -80,7 +80,7 @@ class WorkflowFixture extends React.Component {
   componentDidMount() { workflow = this; }
   componentDidUpdate() { workflow = this; }
   render() {
-    return React.createElement('div', { 'data-hardware-portal': true }, this.props.sourceSummary.name);
+    return React.createElement('div', null, this.props.sourceSummary.name);
   }
 }
 
@@ -114,6 +114,10 @@ vm.runInNewContext(code, {
     if (name.endsWith('/VirtualMachineCreation/sourceMetadata')) return metadata;
     if (name.endsWith('/VirtualMachineCreation/messages')) return { t: key => key };
     if (name.endsWith('/VirtualMachineCreation/Workflow')) return { VmCreateWorkflow: WorkflowFixture };
+    if (name.endsWith('/Create/vmCreationEntry')) return require('../Create/vmCreationEntry');
+    if (name.endsWith('/Create/virtual-machine')) return ({ onCancel }) => React.createElement('button', {
+      'data-target-modal': true, onClick: onCancel
+    });
     if (name === '../ImageVirtualMachineForm') return NativeSourceFixture;
     if (name === './llmEntryHelpers') return require('../../components/CreateComponentModal/llmEntryHelpers');
     if (name.endsWith('/utils/agentVisibility')) return { isRainbondInfoAgentEnabled: () => false };
@@ -125,7 +129,7 @@ vm.runInNewContext(code, {
 }, { filename });
 const Chooser = moduleExports.default;
 const root = document.getElementById('root');
-const host = document.getElementById('vm-creation-workspace');
+const hardwareModal = () => root.querySelector('[data-modal="hardware"]');
 const flush = () => new Promise(resolve => setImmediate(resolve));
 
 async function mountChooser(expectNative = true) {
@@ -157,39 +161,39 @@ test.beforeEach(() => {
 test.afterEach(() => { act(() => { ReactDOM.unmountComponentAtNode(root); }); });
 test.after(() => dom.window.close());
 
-test('external visible=false removes the portal, clears credentials and rejects delayed final collection', async () => {
+test('external visible=false removes the hardware modal, clears credentials and rejects delayed final collection', async () => {
   const h = await mountChooser();
   const source = native;
   act(() => native.handleSubmit({ preventDefault() {} }));
-  assert.ok(host.querySelector('[data-hardware-portal]'));
+  assert.equal(hardwareModal().hidden, false);
   assert.equal(root.querySelector('[data-modal]').hidden, true);
   assert.equal(source.fields.ssh_public_key, 'opaque-native-form-only');
   source.delayFinal = true;
   const results = [];
   act(() => workflow.props.collectSourcePayload(value => results.push(value)));
   await h.render({ visible: false });
-  assert.equal(host.querySelector('[data-hardware-portal]'), null);
+  assert.equal(hardwareModal(), null);
   assert.equal(source.fields.ssh_public_key, undefined);
   act(() => source.pendingFinal());
   assert.deepEqual(results, [null]);
   assert.equal(h.actions.some(action => /createVirtualMachineWorkflow|addGroup|createAppByVirtualMachine/.test(action.type)), false);
 });
 
-test('team, region and application changes clear the native store and portal before stale source callbacks', async t => {
+test('team, region and application changes clear the native store and hardware modal before stale source callbacks', async t => {
   for (const dimension of ['team', 'region', 'application']) {
     await t.test(dimension, async () => {
       const h = await mountChooser();
       const source = native;
       act(() => source.handleSubmit({ preventDefault() {} }));
-      assert.ok(host.querySelector('[data-hardware-portal]'));
+      assert.equal(hardwareModal().hidden, false);
       source.delayNext = true;
       act(() => source.handleSubmit({ preventDefault() {} }));
       currentScope = { ...currentScope, [dimension]: `${currentScope[dimension]}-next` };
       await h.render({});
-      assert.equal(host.querySelector('[data-hardware-portal]'), null);
+      assert.equal(hardwareModal(), null);
       assert.equal(source.fields.ssh_public_key, undefined);
       act(() => source.pendingNext());
-      assert.equal(host.querySelector('[data-hardware-portal]'), null);
+      assert.equal(hardwareModal(), null);
       assert.ok(h.cancellations.length > 0);
       act(() => { ReactDOM.unmountComponentAtNode(root); });
       native = null; workflow = null;
@@ -198,7 +202,7 @@ test('team, region and application changes clear the native store and portal bef
   }
 });
 
-test('parent unmount removes the portal and rejects asynchronous callbacks from the old source', async () => {
+test('parent unmount removes the hardware modal and rejects asynchronous callbacks from the old source', async () => {
   await mountChooser();
   const source = native;
   act(() => source.handleSubmit({ preventDefault() {} }));
@@ -206,7 +210,7 @@ test('parent unmount removes the portal and rejects asynchronous callbacks from 
   const results = [];
   act(() => workflow.props.collectSourcePayload(value => results.push(value)));
   act(() => { ReactDOM.unmountComponentAtNode(root); });
-  assert.equal(host.querySelector('[data-hardware-portal]'), null);
+  assert.equal(hardwareModal(), null);
   act(() => source.pendingFinal());
   assert.deepEqual(results, [null]);
   assert.equal(source.fields.ssh_public_key, undefined);
@@ -221,7 +225,7 @@ test('production app creation previews real Windows hardware before any create r
     vm_url: 'https://images.invalid/windows.qcow2', os_name: 'Windows 10 Education 22H2',
     arch: 'amd64', format: 'qcow2' });
   act(() => native.handleSubmit({ preventDefault() {} }));
-  assert.ok(host.querySelector('[data-hardware-portal]'));
+  assert.equal(hardwareModal().hidden, false);
   assert.equal(workflow.props.sourceSummary.name, 'windows-migration');
   assert.equal(workflow.props.sourceSummary.os, 'Windows 10 Education 22H2');
   assert.equal(workflow.props.sourceSummary.sshRequired, false);
@@ -233,23 +237,24 @@ test('production app creation previews real Windows hardware before any create r
   assert.equal(collected[0].os_name, 'Windows 10 Education 22H2');
 });
 
-test('a missing application workspace hands off to target selection without the legacy VM form', async () => {
-  host.remove();
-  try {
-    const h = await mountChooser(false);
-    assert.ok(h.actions.includes('/team/team-a/region/region-a/create/vm/VirtualMachine'));
-    assert.equal(h.cancellations.length, 1);
-    assert.equal(document.querySelector('[data-native-source]'), null);
-    assert.equal(document.querySelector('[data-hardware-portal]'), null);
-  } finally {
-    document.body.insertBefore(host, root);
-  }
+test('the team entry opens the target modal and can return to the chooser without navigating', async () => {
+  currentScope.application = '';
+  const h = await mountChooser(false);
+  const target = root.querySelector('[data-target-modal]');
+  assert.ok(target);
+  assert.equal(root.querySelector('[data-modal]').hidden, true);
+  assert.equal(h.actions.some(action => typeof action === 'string'), false);
+  assert.equal(hardwareModal(), null);
+  act(() => target.click());
+  assert.equal(root.querySelector('[data-target-modal]'), null);
+  assert.equal(root.querySelector('[data-modal]').hidden, false);
+  assert.equal(h.cancellations.length, 0);
 });
 
 test('an invalid application scope cannot expose a direct VM creation fallback', async () => {
   currentScope.application = 'invalid';
   const h = await mountChooser(false);
-  assert.ok(h.actions.includes('/team/team-a/region/region-a/create/vm/VirtualMachine'));
+  assert.ok(root.querySelector('[data-target-modal]'));
   assert.equal(document.querySelector('[data-native-source]'), null);
   assert.equal(h.actions.some(action => /addGroup|createAppByVirtualMachine/.test(action.type)), false);
 });
