@@ -6,6 +6,11 @@ import { formatMessage } from '@/utils/intl';
 import VisterBtn from '../../../components/visitBtnForAlllink';
 import CreateComponentModal from '../../../components/CreateComponentModal';
 import AppDeteleResource from '../../../components/AppDeteleResource';
+import FirstDeployGuide, {
+  featuredMarketApps as featuredMarketAppConfigs,
+  getFeaturedMarketSearchName,
+  resolveFeaturedMarketApp
+} from '../../../components/FirstDeployGuide';
 import {
   CodeIcon,
   StoreIcon,
@@ -19,6 +24,9 @@ import handleAPIError from '../../../utils/error';
 import { routerRedux } from 'dva/router';
 import cookie from '../../../utils/cookie'
 import moment from 'moment';
+import { normalizeAppListQuery, shouldLoadFirstDeployMarket, shouldShowFirstDeployGuide } from './appListState';
+import { getCreateComponentState } from './createComponentState';
+import { createFirstDeployGuideViewTracker } from '../../../components/FirstDeployGuide/viewState';
 import styles from './index.less';
 const { Search } = Input;
 const { Option } = Select;
@@ -52,6 +60,8 @@ export default class index extends Component {
       query: '',
       sortValue: 1,
       appListLoading: true,
+      appListLoaded: false,
+      appListQuery: '',
       teamHotAppList: [],
       appListTotal: 0,
       cardLayoutMode: CARD_LAYOUT_MODE.DEFAULT,
@@ -65,10 +75,16 @@ export default class index extends Component {
       toDelete: false,
       toDeleteResource: false,
       deleteResourceList: {},
+      marketAvailable: false,
+      marketResolved: false,
+      featuredMarketApps: [],
+      featuredMarketApp: null,
     };
     // 标记组件是否已挂载
     this._isMounted = false;
     this.appListRequestId = 0;
+    this.marketLoadRequested = false;
+    this.markFirstDeployGuideViewed = createFirstDeployGuideViewTracker();
     this.cardListNode = null;
     this.cardListResizeObserver = null;
   }
@@ -144,6 +160,126 @@ export default class index extends Component {
     }
   };
 
+  loadMarketAvailability = () => {
+    if (this.marketLoadRequested) {
+      return;
+    }
+    this.marketLoadRequested = true;
+    this.setState({ marketResolved: false, marketAvailable: false, featuredMarketApps: [] });
+    let archResolved = false;
+    const loadStores = architecture => {
+      if (archResolved) {
+        return;
+      }
+      archResolved = true;
+      this.loadMarketStores(architecture);
+    };
+    const dispatchResult = this.props.dispatch({
+      type: 'index/fetchArchOverview',
+      payload: {
+        region_name: globalUtil.getCurrRegionName(),
+        team_name: globalUtil.getCurrTeamName()
+      },
+      callback: res => {
+        const architectures = (res && res.list) || [];
+        loadStores(architectures.length === 1 ? architectures[0] : '');
+      },
+      handleError: () => loadStores('')
+    });
+    if (dispatchResult && dispatchResult.then) {
+      dispatchResult.then(() => loadStores(''), () => loadStores(''));
+    }
+  };
+
+  finishMarketLoading = (marketAvailable, featuredMarketApps = []) => {
+    if (this._isMounted) {
+      this.setState({ marketAvailable, featuredMarketApps, marketResolved: true });
+    }
+  };
+
+  loadMarketStores = architecture => {
+    if (!architecture) {
+      this.finishMarketLoading(false);
+      return;
+    }
+    const enterpriseId = this.props.currentEnterprise && this.props.currentEnterprise.enterprise_id;
+    if (!enterpriseId) {
+      this.finishMarketLoading(false);
+      return;
+    }
+    let storesHandled = false;
+    const finishStores = () => {
+      if (!storesHandled) {
+        storesHandled = true;
+        this.finishMarketLoading(false);
+      }
+    };
+    const dispatchResult = this.props.dispatch({
+      type: 'market/fetchMarketsTab',
+      payload: { enterprise_id: enterpriseId, silent: true },
+      callback: res => {
+        storesHandled = true;
+        const activeStores = res && res.status_code === 200 ? (res.list || []).filter(item => item.status === 1) : [];
+        if (activeStores.length === 0) {
+          this.finishMarketLoading(false);
+          return;
+        }
+        let pendingRequests = 0;
+        let hasMarketApps = false;
+        const resolvedFeaturedApps = [];
+        const finishRequest = () => {
+          pendingRequests -= 1;
+          if (pendingRequests === 0) {
+            this.finishMarketLoading(hasMarketApps, resolvedFeaturedApps);
+          }
+        };
+        const requestMarketApps = (store, searchName, onSuccess) => {
+          pendingRequests += 1;
+          this.props.dispatch({
+            type: 'market/fetchMarkets',
+            payload: {
+              enterprise_id: enterpriseId,
+              name: store.name,
+              page: 1,
+              pageSize: 10,
+              query: searchName,
+              arch: architecture,
+              silent: true
+            },
+            callback: marketRes => {
+              onSuccess((marketRes && marketRes.status_code === 200 && marketRes.list) || []);
+              finishRequest();
+            },
+            onError: finishRequest
+          });
+        };
+        activeStores.forEach(store => {
+          requestMarketApps(store, '', marketApps => {
+            hasMarketApps = hasMarketApps || marketApps.length > 0;
+          });
+          featuredMarketAppConfigs.forEach(config => {
+            const modelKey = config.modelKeys[architecture] || config.modelKeys.default;
+            const searchName = getFeaturedMarketSearchName(config, architecture);
+            if (!modelKey || !searchName) {
+              return;
+            }
+            requestMarketApps(store, searchName, marketApps => {
+              const featuredMarketApp = resolveFeaturedMarketApp(config, marketApps, architecture);
+              if (featuredMarketApp && !resolvedFeaturedApps.some(item => item.key === config.key)) {
+                hasMarketApps = true;
+                resolvedFeaturedApps.push({ ...featuredMarketApp, marketStore: store });
+              }
+            });
+          });
+        });
+      },
+      handleError: finishStores
+    });
+    if (dispatchResult && dispatchResult.then) {
+      dispatchResult.then(() => finishStores(), () => finishStores());
+    }
+  };
+
   handleCardListWindowResize = () => {
     if (this.cardListNode) {
       this.updateCardLayoutMode(this.cardListNode.getBoundingClientRect().width);
@@ -183,6 +319,7 @@ export default class index extends Component {
   // 加载热门应用数据源
   loadHotApp = () => {
     const { page, page_size, query, sortValue } = this.state;
+    const requestQuery = normalizeAppListQuery(query);
     const requestId = ++this.appListRequestId;
     let requestHandled = false;
     const dispatchResult = this.props.dispatch({
@@ -190,7 +327,7 @@ export default class index extends Component {
       payload: {
         team_name: globalUtil.getCurrTeamName(),
         region: globalUtil.getCurrRegionName(),
-        query,
+        query: requestQuery,
         page,
         page_size,
         sort: sortValue
@@ -199,13 +336,24 @@ export default class index extends Component {
         requestHandled = true;
         if (!this._isMounted || requestId !== this.appListRequestId) return;
         if (res && res.status_code === 200) {
+          const appListTotal = res.bean?.total || 0;
           this.setState({
             teamHotAppList: res.list || [],
-            appListTotal: res.bean?.total || 0,
+            appListTotal,
             appListLoading: false,
+            appListLoaded: true,
+            appListQuery: requestQuery,
+          }, () => {
+            if (shouldLoadFirstDeployMarket(appListTotal, query)) {
+              if (this.state.teamAppCreatePermission.isAccess) {
+                this.loadMarketAvailability();
+              } else {
+                this.finishMarketLoading(false);
+              }
+            }
           });
         } else {
-          this.setState({ appListLoading: false });
+          this.setState({ appListLoading: false, appListLoaded: false });
         }
       },
       handleError: err => {
@@ -223,7 +371,7 @@ export default class index extends Component {
             }
           );
         } else {
-          this.setState({ appListLoading: false });
+          this.setState({ appListLoading: false, appListLoaded: false });
         }
       }
     });
@@ -233,7 +381,7 @@ export default class index extends Component {
         this._isMounted &&
         requestId === this.appListRequestId
       ) {
-        this.setState({ appListLoading: false });
+        this.setState({ appListLoading: false, appListLoaded: false });
       }
     };
     dispatchResult.then(handleRequestSettled, handleRequestSettled);
@@ -246,6 +394,7 @@ export default class index extends Component {
         page,
         page_size,
         appListLoading: true,
+        appListLoaded: false,
       },
       () => {
         this.loadHotApp();
@@ -258,6 +407,7 @@ export default class index extends Component {
       {
         query: value,
         appListLoading: true,
+        appListLoaded: false,
         page: 1,
       },
       () => {
@@ -279,6 +429,7 @@ export default class index extends Component {
   handleSortChange = (value) => {
     this.setState({
       appListLoading: true,
+      appListLoaded: false,
       sortValue: value,
       page: 1,
     }, () => {
@@ -288,13 +439,25 @@ export default class index extends Component {
 
   // 跳转到向导页
   onJumpToWizard = () => {
-    this.setState({ createComponentVisible: true });
+    this.setState(getCreateComponentState(true));
   }
 
   // 关闭创建组件弹窗
   handleCloseCreateComponent = () => {
-    this.setState({ createComponentVisible: false });
+    this.setState(getCreateComponentState(false));
   }
+
+  handleFirstDeployEntry = (entry, properties = {}) => {
+    const currentViewMap = {
+      example_image: 'example-image',
+      market_featured: 'marketInstall'
+    };
+    this.setState({
+      createComponentVisible: true,
+      currentView: currentViewMap[entry] || null,
+      featuredMarketApp: properties.market_app || null
+    });
+  };
 
   jumpToAppOverview = (groupId, e) => {
     if (e) {
@@ -532,8 +695,15 @@ export default class index extends Component {
   };
 
   // 添加卡片视图渲染函数
-  renderCardView = () => {
-    const { teamHotAppList, teamAppCreatePermission, cardLayoutMode } = this.state;
+  renderCardView = showStarterCards => {
+    const {
+      teamHotAppList,
+      teamAppCreatePermission,
+      cardLayoutMode,
+      marketAvailable,
+      marketResolved,
+      featuredMarketApps
+    } = this.state;
     const isCompactCards = cardLayoutMode !== CARD_LAYOUT_MODE.DEFAULT;
     const isMiniCards = cardLayoutMode === CARD_LAYOUT_MODE.MINI;
     const isAppCreate = teamAppCreatePermission?.isAccess;
@@ -659,24 +829,46 @@ export default class index extends Component {
           </div>
       );
     } else {
+      const starterCardCount = showStarterCards && isAppCreate ? 1 + featuredMarketApps.length : 0;
       return (
         <div className={teamHotAppListClassName} ref={this.setCardListNode}>
-          {/* 居中提示文字 */}
-          <div className={styles.emptyTip}>
-            {formatMessage({ id: 'teamOverview.noAppTip' })}
-          </div>
+          {/* 居中提示文字：已有起步卡片时不再重复提示 */}
+          {starterCardCount === 0 && (
+            <div className={styles.emptyTip}>
+              {formatMessage({
+                id: showStarterCards && !isAppCreate
+                  ? 'firstDeployGuide.noCreatePermission'
+                  : 'teamOverview.noAppTip'
+              })}
+            </div>
+          )}
           {/* 新增应用卡片 */}
           {isAppCreate && (
             this.renderCreateAppCard()
           )}
-          {/* 11个白色占位方块 */}
-          {Array.from({ length: 11 }).map((_, index) => {
+          {/* 空团队起步卡片：紧跟「新建应用」卡片，占用原本的占位格 */}
+          {showStarterCards && (
+            <FirstDeployGuide
+              guideLocation="team_empty"
+              marketAvailable={marketAvailable}
+              marketResolved={marketResolved}
+              featuredApps={featuredMarketApps}
+              canCreate={isAppCreate}
+              viewed={false}
+              onViewed={this.markFirstDeployGuideViewed}
+              cardStyles={styles}
+              onEntry={this.handleFirstDeployEntry}
+            />
+          )}
+          {/* 白色占位方块：起步卡片占了几格就少补几格 */}
+          {Array.from({ length: 11 - starterCardCount }).map((_, index) => {
             // 根据位置添加渐变蒙版类
             // 0-2：原色，3-6：变浅，7-10：融入背景
+            const slot = index + starterCardCount;
             let fadeClass = '';
-            if (index >= 3 && index <= 6) {
+            if (slot >= 3 && slot <= 6) {
               fadeClass = styles.fadeRow2;
-            } else if (index >= 7) {
+            } else if (slot >= 7) {
               fadeClass = styles.fadeRow3;
             }
             return (
@@ -697,6 +889,8 @@ export default class index extends Component {
       page_size,
       query,
       appListLoading,
+      appListLoaded,
+      appListQuery,
       appListTotal,
       teamAppCreatePermission: {
         isAccess: isAppCreate
@@ -721,6 +915,13 @@ export default class index extends Component {
     const deleteLoading = loadingEffects['application/deleteGroupAllResource'];
     // 应用列表权限
     const isAppList = newRole.queryPermissionsInfo(this.props.currentTeamPermissionsInfo?.team, 'team_overview')?.isAppList;
+    const showEmptyTeamGuide = shouldShowFirstDeployGuide({
+      appListLoading,
+      appListLoaded,
+      isAppList,
+      appListQuery,
+      appListTotal
+    });
 
     return (
       <>
@@ -753,7 +954,7 @@ export default class index extends Component {
           </div>
           {!appListLoading && isAppList && (
             <div>
-              {this.renderCardView()}
+              {this.renderCardView(showEmptyTeamGuide)}
               {appListTotal > page_size && (
                 <div className={styles.paginationContainer}>
                   <Pagination
@@ -778,6 +979,7 @@ export default class index extends Component {
             rainbondInfo={this.props.rainbondInfo}
             currentUser={this.props.currentUser}
             currentView={this.state.currentView}
+            initialMarketApp={this.state.featuredMarketApp}
           />
         )}
         {promptModal && (

@@ -248,3 +248,68 @@ test('classifyPostHogInteraction detects blocking recovery actions', function() 
   });
   assert.strictEqual(classifyPostHogInteraction({ element_text: '确认' }), null);
 });
+
+test('sanitizePostHogEvent preserves only the matching instance group key', function() {
+  const instanceId = '0123456789abcdef0123456789abcdef';
+  const captureResult = {
+    event: '$groupidentify',
+    properties: {
+      $group_key: instanceId,
+      api_key: 'secret-value'
+    }
+  };
+
+  assert.deepStrictEqual(
+    sanitizePostHogEvent(captureResult, { instanceId }),
+    {
+      event: '$groupidentify',
+      properties: {
+        $group_key: instanceId,
+        api_key: '[Filtered]'
+      }
+    }
+  );
+
+  assert.strictEqual(
+    sanitizePostHogEvent(captureResult, { instanceId: 'fedcba9876543210fedcba9876543210' }).properties.$group_key,
+    '[Filtered]'
+  );
+});
+
+test('sanitizePostHogEvent filters domain and IP instance group keys', function() {
+  ['console.example.com', '192.0.2.10'].forEach(instanceId => {
+    assert.strictEqual(
+      sanitizePostHogEvent({
+        event: '$groupidentify',
+        properties: { $group_key: instanceId }
+      }, { instanceId }).properties.$group_key,
+      '[Filtered]',
+      `${instanceId} must not be allowed as an instance group key`
+    );
+  });
+});
+
+test('sanitizePostHogEvent preserves only the matching enterprise group key', function() {
+  const enterpriseGroupId = 'enterprise_0123456789abcdef0123456789abcdef';
+  const captureResult = {
+    event: '$groupidentify',
+    properties: { $group_key: enterpriseGroupId }
+  };
+
+  assert.strictEqual(
+    sanitizePostHogEvent(captureResult, { enterpriseGroupId }).properties.$group_key,
+    enterpriseGroupId
+  );
+  assert.strictEqual(
+    sanitizePostHogEvent(captureResult, {
+      enterpriseGroupId: 'enterprise_not-a-hash'
+    }).properties.$group_key,
+    '[Filtered]'
+  );
+  assert.strictEqual(
+    sanitizePostHogEvent(captureResult, {
+      enterpriseGroupId: 'enterprise_fedcba9876543210fedcba9876543210'
+    }).properties.$group_key,
+    '[Filtered]'
+  );
+});

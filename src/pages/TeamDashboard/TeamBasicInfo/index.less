@@ -5,6 +5,11 @@
   gap: 16px;
   position: relative;
 
+  // 起步卡片的包裹层只承载 testid，不参与布局，卡片直接落进网格
+  .starterCards {
+    display: contents;
+  }
+
   .emptyTip {
     position: absolute;
     top: 50%;
@@ -16,10 +21,16 @@
     pointer-events: none;
     z-index: 1;
     text-align: center;
-    line-height: 188px;
+    // 提示本身也是网格的直接子 div，需要还原被网格单元格规则写死的宽高
+    width: max-content;
+    max-width: 90%;
+    height: auto;
+    min-height: 0;
+    line-height: 22px;
   }
 
-  >div {
+  >div,
+  >.starterCards>div {
     width: calc((100% - 48px) / 4);
     height: 188px;
 
@@ -273,11 +284,68 @@
   }
 }
 
+// 空团队起步卡片：沿用应用卡片的结构与尺寸，用虚线边框表示「这里可以有一个应用」
+.teamHotAppList >.starterCards >div .starterCard {
+  border-style: dashed;
+  border-color: #c9cfd9;
+
+  .appStatusBar {
+    background: transparent;
+  }
+
+  .appCardContent .appCardHeader .appCardHeaderLeft .appIcon {
+    i {
+      font-size: 22px;
+    }
+
+    &.starterIconPrimary {
+      background-color: fade(@primary-color, 10%);
+      color: @primary-color;
+    }
+
+    &.starterIconNeutral {
+      background-color: fade(@rbd-title-color, 8%);
+      color: @rbd-content-color-secondary;
+    }
+
+    &.starterIconLogo {
+      padding: 0;
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid @border-color-base;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+    }
+  }
+
+  .appCardContent .appCardHeader .appCardHeaderRight .starterTag {
+    background-color: fade(@primary-color, 12%);
+
+    .statusText {
+      color: @primary-color;
+    }
+  }
+
+  .appCardContent .starterCardActions {
+    grid-template-columns: 1fr;
+  }
+
+  &.starterCardRecommended {
+    border-style: solid;
+    border-color: @primary-color;
+  }
+}
+
 .teamHotAppListCompact {
   column-gap: 16px;
   row-gap: 10px;
 
-  >div {
+  >div,
+  >.starterCards>div {
     height: 180px;
     min-height: 180px;
 
@@ -433,7 +501,8 @@
 .teamHotAppListMini {
   row-gap: 12px;
 
-  >div {
+  >div,
+  >.starterCards>div {
     height: auto;
     min-height: 198px;
 
@@ -555,6 +624,27 @@
           display: none;
         }
       }
+    }
+  }
+}
+
+// 最窄的卡片里放不下「推荐」标签和整行说明：隐藏标签（强调边框已足够），说明允许换行
+.teamHotAppListMini >.starterCards >div .starterCard {
+  .appCardContent .appCardHeader {
+    grid-template-columns: minmax(0, 1fr);
+
+    .appCardHeaderRight {
+      display: none;
+    }
+  }
+
+  // 说明行数不同时，分隔线和按钮仍然在各卡片底部对齐
+  .appCardContent .appMetaRow {
+    flex: 1;
+    align-items: flex-start;
+
+    .appMetaItem {
+      white-space: normal;
     }
   }
 }
