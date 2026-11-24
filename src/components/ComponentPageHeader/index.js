@@ -20,6 +20,10 @@ export default class PageHeader extends PureComponent {
     }
   };
   handleClose = () => {    
+    if (this.props.onClose) {
+      this.props.onClose();
+      return;
+    }
     this.props.dispatch(
       routerRedux.push(
         `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/apps/${globalUtil.getAppID()}/overview`
@@ -42,7 +46,9 @@ export default class PageHeader extends PureComponent {
       isSvg,
       titleSvg,
       pluginSVg,
-      status
+      status,
+      showClose = true,
+      closeLabel
     } = this.props;
     const clsString = classNames(styles.pageHeader, className);
     let tabDefaultValue;
@@ -60,9 +66,14 @@ export default class PageHeader extends PureComponent {
         <div className={clsString}>
           <div className={styles.detail}>
             <div className={styles.main}>
-              <div onClick={this.handleClose} className={styles.close} >
+              {showClose && <div onClick={this.handleClose} className={styles.close} role="button" tabIndex={0} aria-label={closeLabel} onKeyDown={event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  this.handleClose();
+                }
+              }}>
                 <Icon type="close" style={{ fontSize: 16 }} />
-              </div>
+              </div>}
               <Row style={{ marginBottom: '4px' }}>
                 <Col span={12} style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', minHeight: 32 }}>
                   {titleSvg && <div className={styles.title_svg}>{titleSvg}</div>}

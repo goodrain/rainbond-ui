@@ -11,6 +11,7 @@ const repo = path.resolve(__dirname, '../../..');
 const targets = {
   drawer: 'src/components/SlidePanel/index.js',
   header: 'src/components/SlidePanel/components/app.js',
+  deliveryCommon: 'src/pages/Group/Delivery/common.js',
   deferred: 'src/components/DeferredComponent/index.js'
 };
 const compiled = Object.fromEntries(Object.entries(targets).map(([name, relative]) => [name,
@@ -96,7 +97,7 @@ async function withParents(verify) {
       } }) };
       chunks.push(record); return promise;
     };
-    const evaluate = (name, extra = {}) => {
+    const evaluate = (name, extra = {}, namedExports = false) => {
       const module = { exports: {} };
       new Function('module', 'exports', 'require', '__loadChunk', compiled[name])(module, module.exports, id => {
         if (Object.prototype.hasOwnProperty.call(extra, id)) return extra[id];
@@ -104,8 +105,12 @@ async function withParents(verify) {
         if (/\.less$/.test(id)) return {};
         return box;
       }, loadChunk);
-      return module.exports.default;
+      return namedExports ? module.exports : module.exports.default;
     };
+    // Use the real header permission helper so bootstrap assertions retain their production dependency.
+    fixtures['../../../pages/Group/Delivery/common'] = evaluate('deliveryCommon', {
+      '../../../utils/newRole': fixtures['@/utils/newRole']
+    }, true);
     const deferred = evaluate('deferred', { umi: require('umi'), antd: require('antd') });
     const Drawer = evaluate('drawer', { '../DeferredComponent': deferred });
     const Header = evaluate('header', { '../../DeferredComponent': deferred });

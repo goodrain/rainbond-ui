@@ -14,6 +14,7 @@ import roleUtil from '../../utils/role';
 import pageheaderSvg from '../../utils/pageHeaderSvg';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import handleAPIError from '../../utils/error';
+import withVMCreationRedirect from './withVMCreationRedirect';
 const {
   getDefaultMirrorEnvByPackageManager
 } = require('../../components/CodeBuildConfig/nodejs-cnb/mirrorConfig');
@@ -41,6 +42,7 @@ const isCnbTargetLanguage = language => [
   'static'
 ].includes((language || '').toLowerCase());
 
+@withVMCreationRedirect
 @connect(
   ({ loading, teamControl, appControl }) => ({
     buildAppsLoading: loading.effects['createApp/buildApps'],

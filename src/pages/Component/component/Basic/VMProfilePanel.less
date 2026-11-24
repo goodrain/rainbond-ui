@@ -19,6 +19,25 @@
 .profileRow {
   margin-top: 12px;
 }
+.networkHelp {
+  display: inline-flex;
+  margin-left: 6px;
+  color: @text-color-secondary;
+  font-size: @rbd-auxiliary-size;
+  cursor: help;
+}
+.internalAddress {
+  margin-bottom: 6px;
+}
+.internalAddressActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  :global(.ant-btn) {
+    padding: 0;
+    font-size: @rbd-auxiliary-size;
+  }
+}
 
 .profileCard {
   width: 100%;
@@ -169,4 +188,19 @@
     flex-basis: 88px;
     max-width: 88px;
   }
+}
+
+
+.sectionPanel {
+  height: auto;
+  border-radius: 12px;
+  overflow: hidden;
+  :global(.ant-card-body) { padding: 12px; }
+}
+
+.networkConnections {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid @border-color-base;
+  > .profileCardContent { margin-top: 8px; }
 }

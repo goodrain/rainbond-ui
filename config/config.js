@@ -13,6 +13,7 @@ const enableSentrySourceMap = /^(true|1|yes|on)$/i.test(process.env.RAINBOND_SEN
 const sentrySourceMapDevtool = process.env.RAINBOND_SENTRY_SOURCEMAP_DEVTOOL || 'hidden-source-map';
 
 export default {
+  plugins: ['./config/plugins/consoleNetworkProxy'],
   history: { type: isHistory ? 'browser' : 'hash' },
   publicPath: publcPath,
   hash: true,
@@ -46,6 +47,10 @@ export default {
 
   routes: routerConfig,
   proxy: {
+    '/static/www': {
+      target: proxyTarget,
+      changeOrigin: true,
+    },
     '/api/v1/ai-engine': {
       target: 'http://127.0.0.1:9090',
       changeOrigin: true,

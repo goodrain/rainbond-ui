@@ -542,7 +542,7 @@ export default class Main extends PureComponent {
           selectedMarketApp: app,
           marketStore: {
             name: currentKey || 'localApplication',
-            alias: '本地组件库',
+            alias: '本地应用市场',
             source: 'local'
           }
         });

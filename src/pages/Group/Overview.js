@@ -15,6 +15,7 @@ import Yun from '../../../public/images/yun.svg'
 import Running from '../../../public/images/running.svg'
 import styles from './Overview.less'
 import MenuContext from '../../layouts/MenuContext';
+import { isVirtualMachineComponent } from '../../utils/virtualMachineComponent';
 
 const { isMissingResourceError } = require('../../utils/missingResourceHelpers');
 
@@ -62,7 +63,7 @@ export default class Overview extends Component {
     this._isMounted = false;
     this.state = {
       isVisible: false,
-      isDev: process.env.NODE_ENV === 'development',  // 直接在初始化时判断环境
+      isDev: process.env.NODE_ENV === 'development',
       components: [],
       apps: [],
       showIcons: false,
@@ -74,7 +75,10 @@ export default class Overview extends Component {
       refresh: globalUtil.getRefresh(),
       tableDataLoading: false,
       guideVisible: false,
-      guideAutoOpened: false
+      guideAutoOpened: false,
+      vmCreationRequest: 0,
+      vmCreationRequestHandled: 0,
+      vmInitialSource: 'url'
     }
   }
 
@@ -209,6 +213,18 @@ export default class Overview extends Component {
     const componentID = globalUtil.getSlidePanelComponentID()
     const type = globalUtil.getSlidePanelType()
     const refresh = globalUtil.getRefresh()
+    const { location, dispatch } = this.props;
+    const query = { ...Object.fromEntries(new URLSearchParams(location.search || '')), ...location.query };
+    if (query.type === 'vm-create' || type === 'vm-create') {
+      const vmInitialSource = ['url', 'upload', 'existing'].includes(query.source_type) ? query.source_type : 'url';
+      ['type', 'source_type', 'created_vm', 'componentID', 'tab'].forEach(key => delete query[key]);
+      this.setState(state => ({
+        componentID: '', type: '', isVisible: false, refresh,
+        vmInitialSource, vmCreationRequest: state.vmCreationRequest + 1
+      }));
+      dispatch(routerRedux.replace({ pathname: location.pathname, query }));
+      return;
+    }
     // 更新状态x    
     this.setState({
       componentID,
@@ -216,6 +232,11 @@ export default class Overview extends Component {
       isVisible: (componentID !== '' || type !== '') && true,
       refresh
     });
+  };
+
+  handleVmCreationRequestHandled = request => {
+    this.setState(state => request > state.vmCreationRequestHandled
+      ? { vmCreationRequestHandled: request } : null);
   };
 
   toggleVisibility = () => {
@@ -240,7 +261,7 @@ export default class Overview extends Component {
       type: 'AppShape'
     })
     const app = this.state.apps.find(app => app.service_alias === k8s_service_name);
-    if (app?.status === "creating" && app.service_source !== 'kubeblocks') {
+    if (app?.status === "creating" && app.service_source !== 'kubeblocks' && !isVirtualMachineComponent(app)) {
       dispatch(
         routerRedux.push(
           `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-check/${k8s_service_name}`
@@ -393,6 +414,10 @@ export default class Overview extends Component {
         <AppHeader
           initialDetailLoader={this.props.initialDetailLoader}
           initialDetailScope={this.props.initialDetailScope}
+          vmCreationRequest={this.state.vmCreationRequest}
+          vmCreationRequestHandled={this.state.vmCreationRequestHandled}
+          vmInitialSource={this.state.vmInitialSource}
+          onVmCreationRequestHandled={this.handleVmCreationRequestHandled}
           applicationRoute={{
             teamName: this.props.match.params.teamName,
             regionName: this.props.match.params.regionName,

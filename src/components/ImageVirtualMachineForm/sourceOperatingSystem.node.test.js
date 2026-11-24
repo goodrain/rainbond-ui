@@ -1,0 +1,471 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
+const test = require('node:test');
+const { JSDOM } = require('jsdom');
+const babel = require('@umijs/deps/compiled/babel/core');
+const quickStart = require('../../utils/vmQuickStart');
+
+const dom = new JSDOM('<!doctype html><div id="source-form"></div>', { url: 'http://localhost/' });
+global.window = dom.window;
+global.document = dom.window.document;
+Object.defineProperty(global, 'navigator', { configurable: true, value: dom.window.navigator });
+global.requestAnimationFrame = window.requestAnimationFrame = callback => setTimeout(callback, 0);
+global.cancelAnimationFrame = window.cancelAnimationFrame = clearTimeout;
+const oldChannel = global.MessageChannel;
+global.MessageChannel = undefined;
+const React = require('react');
+const ReactDOM = require('react-dom');
+const { act, Simulate } = require('react-dom/test-utils');
+const antd = require('antd');
+global.MessageChannel = oldChannel;
+
+const filename = path.join(__dirname, 'index.js');
+const code = babel.transformSync(fs.readFileSync(filename, 'utf8'), {
+  filename, babelrc: false, configFile: false,
+  presets: [[require('@umijs/deps/compiled/babel/preset-env').default, { targets: { node: 'current' } }],
+    require('@umijs/deps/compiled/babel/preset-react').default],
+  plugins: [[require('@umijs/deps/compiled/babel/plugin-proposal-decorators').default, { legacy: true }],
+    [require('@umijs/deps/compiled/babel/plugin-proposal-class-properties').default, { loose: true }]]
+}).code;
+const exported = {};
+vm.runInNewContext(code, {
+  exports: exported, URL, setTimeout, clearTimeout,
+  require(name) {
+    if (name.endsWith('/vmLoginCredentials')) return require('../../utils/vmLoginCredentials');
+    if (name === 'react') return React;
+    if (name === 'antd') return antd;
+    if (name === 'dva') return { connect: () => Component => Component };
+    if (name === 'dva/router') return { routerRedux: { push: value => value } };
+    if (name === '@/utils/vmQuickStart') return quickStart;
+    if (name === '@/utils/intl') return { formatMessage: ({ id }) => id };
+    if (name === '@/utils/newRole') return { queryPermissionsInfo: () => ({ isCreate: true }) };
+    if (name === 'pinyin-pro') return { pinyin: value => value };
+    if (name.endsWith('/global')) return { getAppID: () => '868', getCurrTeamName: () => 'team-a', getCurrRegionName: () => 'region-a' };
+    if (name.endsWith('/messages')) return { t: key => key };
+    if (['./runtimeFieldMerge', './assetReadiness', './imageNameValidation'].includes(name)) return require(name);
+    if (name.endsWith('.png')) return 'ubuntu.png';
+    if (name.endsWith('.less')) return { vmForm: 'vmForm' };
+    return {};
+  }
+}, { filename });
+
+const root = document.getElementById('source-form');
+const flush = () => new Promise(resolve => setImmediate(resolve));
+function mount(extra = {}) {
+  let instance;
+  const submissions = [], requests = [];
+  let props = { archInfo: ['amd64'], currUser: { enterprise_id: 'enterprise-a' },
+    virtualMachineImage: [], groupId: 868, handleType: 'Service', showSubmitBtn: false,
+    dispatch: action => requests.push(action), onSubmit: value => submissions.push(value),
+    wrappedComponentRef: value => { instance = value; }, ...extra };
+  const render = update => {
+    props = { ...props, ...update };
+    act(() => { ReactDOM.render(React.createElement(exported.default, props), root); });
+  };
+  render({});
+  return { get instance() { return instance; }, submissions, requests, render };
+}
+const setFields = (h, fields) => act(() => h.instance.props.form.setFieldsValue(fields));
+const submit = async h => {
+  act(() => h.instance.handleSubmit({ preventDefault() {} }));
+  await flush();
+};
+function startUploadSession(h, eventId, create = false) {
+  if (create) act(() => h.instance.handleJarWarUpload());
+  const request = h.requests.filter(action => action.type === 'createApp/createJarWarServices').at(-1);
+  assert.ok(request);
+  act(() => request.callback({ status_code: 200, bean: { event_id: eventId,
+    region: request.payload.region, team_name: request.payload.team_name,
+    upload_url: 'https://uploads.example.invalid/' + eventId } }));
+}
+function selectUpload(h, file) {
+  act(() => {
+    assert.equal(h.instance.beforeUpload(file), true);
+    h.instance.onChangeUpload({ file, fileList: [file] });
+  });
+}
+test.afterEach(() => { act(() => { ReactDOM.unmountComponentAtNode(root); }); });
+test.after(() => dom.window.close());
+
+test('fresh native recommendation hides duplicate details while retaining registered OS/firmware in submission', async () => {
+  const h = mount();
+  const form = h.instance.props.form;
+  assert.equal(form.getFieldValue('vm_url'), quickStart.UBUNTU_NOBLE_QCOW2_URL);
+  assert.equal(form.getFieldValue('image_name'), 'ubuntu-24.04-minimal-cloudimg-amd64');
+  assert.equal(form.getFieldValue('os_name'), 'Ubuntu 24.04');
+  assert.equal(form.getFieldValue('boot_mode'), 'uefi');
+  assert.equal(root.querySelector('[data-testid="vm-source-ubuntu-recommended"]').getAttribute('aria-pressed'), 'true');
+  assert.equal(root.querySelector('[data-testid="vm-source-operating-system"]').readOnly, true);
+  assert.equal(root.querySelector('[data-testid="vm-source-link-details"]').hidden, true);
+  assert.ok(root.querySelector('[data-testid="vm-source-ubuntu-recommended"] img'));
+  assert.equal(root.textContent.includes('248 MB'), false);
+  assert.equal(h.requests.some(action => /createAppByVirtualMachine|createVirtualMachineWorkflow/.test(action.type)), false);
+  h.instance.validateSshFields = () => true; // Transport-only sentinel, never a usable SSH key.
+  setFields(h, { service_cname: 'recommended-vm', k8s_component_name: 'recommended-vm',
+    ssh_username: 'ubuntu', ssh_public_key: 'opaque-form-only-input' });
+  await submit(h);
+  assert.equal(h.submissions.length, 1);
+  assert.equal(h.submissions[0].os_name, 'Ubuntu 24.04');
+  assert.equal(h.submissions[0].boot_mode, 'uefi');
+  assert.equal(h.submissions[0].format, 'qcow2');
+  assert.equal(h.submissions[0].vm_url, quickStart.UBUNTU_NOBLE_QCOW2_URL);
+});
+
+test('custom link clears sample metadata and keys; explicit OS is required and preserved without Linux defaults', async () => {
+  const h = mount();
+  setFields(h, { ssh_username: 'ubuntu', ssh_public_key: 'opaque-form-only-input' });
+  act(() => h.instance.selectCustomLink());
+  const form = h.instance.props.form;
+  assert.equal(root.querySelector('[data-testid="vm-source-link-details"]').hidden, false);
+  assert.equal(root.querySelector('input[id="vm_url"]').readOnly, false);
+  assert.equal(form.getFieldValue('os_name'), undefined);
+  assert.equal(form.getFieldValue('boot_mode'), undefined);
+  assert.equal(form.getFieldValue('ssh_public_key'), undefined);
+  setFields(h, { service_cname: 'custom-vm', k8s_component_name: 'custom-vm', image_name: 'ubuntu-filename',
+    vm_url: 'https://images.example.invalid/ubuntu.iso' });
+  const originalError = console.error;
+  console.error = () => {}; // rc-form reports the deliberate required-field rejection in development.
+  try {
+    await submit(h);
+    for (const osName of ['Ubuntu\n24.04', 'bad\u0000OS', 'x'.repeat(129)]) {
+      setFields(h, { os_name: osName });
+      await submit(h);
+    }
+  } finally { console.error = originalError; }
+  assert.equal(h.submissions.length, 0);
+  assert.ok(form.getFieldError('os_name'));
+  setFields(h, { os_name: ' Windows Server 2025 ' });
+  await submit(h);
+  assert.equal(h.submissions.length, 1);
+  assert.equal(h.submissions[0].os_name, 'Windows Server 2025');
+  assert.equal(h.submissions[0].format, 'iso');
+  for (const field of ['ssh_username', 'ssh_public_key', 'os_family']) assert.equal(Object.hasOwn(h.submissions[0], field), false);
+  assert.notEqual(h.submissions[0].boot_mode, 'uefi');
+});
+
+test('pasting the exact canonical URL in custom mode supplies trusted OS and then clears it on another URL', () => {
+  const h = mount();
+  act(() => h.instance.selectCustomLink());
+  const input = root.querySelector('input[id="vm_url"]');
+  act(() => Simulate.change(input, { target: { value: quickStart.UBUNTU_NOBLE_QCOW2_URL } }));
+  assert.equal(h.instance.props.form.getFieldValue('os_name'), 'Ubuntu 24.04');
+  assert.equal(h.instance.props.form.getFieldValue('boot_mode'), 'uefi');
+  assert.equal(root.querySelector('[data-testid="vm-source-operating-system"]').readOnly, true);
+  setFields(h, { ssh_username: 'ubuntu', ssh_public_key: 'opaque-new-input' });
+  act(() => Simulate.change(input, { target: { value: 'https://images.example.invalid/custom.qcow2' } }));
+  assert.equal(h.instance.props.form.getFieldValue('os_name'), undefined);
+  assert.equal(h.instance.props.form.getFieldValue('boot_mode'), undefined);
+  assert.equal(h.instance.props.form.getFieldValue('ssh_public_key'), undefined);
+  assert.equal(root.querySelector('[data-testid="vm-source-operating-system"]').readOnly, false);
+});
+
+test('reselecting custom link preserves the entered URL, image label and explicit OS', () => {
+  const h = mount();
+  act(() => Simulate.click(root.querySelector('[data-testid="vm-source-custom-link"]')));
+  const fields = { vm_url: 'https://images.example.invalid/server.iso', image_name: 'server-image', os_name: 'Windows Server 2025' };
+  setFields(h, fields);
+  act(() => Simulate.click(root.querySelector('[data-testid="vm-source-custom-link"]')));
+  for (const [name, value] of Object.entries(fields)) assert.equal(h.instance.props.form.getFieldValue(name), value);
+  assert.equal(root.querySelector('[data-testid="vm-source-link-details"]').hidden, false);
+  assert.equal(h.submissions.length, 0);
+});
+
+test('reselecting the Noble card and switching its canonical URL from custom preserve bound login fields', () => {
+  const h = mount();
+  const login = { ssh_username: 'vmuser', ssh_public_key: 'opaque-current-image-input' };
+  setFields(h, login);
+  act(() => Simulate.click(root.querySelector('[data-testid="vm-source-ubuntu-recommended"]')));
+  for (const [name, value] of Object.entries(login)) assert.equal(h.instance.props.form.getFieldValue(name), value);
+  act(() => h.instance.selectCustomLink());
+  act(() => Simulate.change(root.querySelector('input[id="vm_url"]'), { target: { value: quickStart.UBUNTU_NOBLE_QCOW2_URL } }));
+  setFields(h, { ...login, image_name: 'my-noble-image' });
+  act(() => Simulate.click(root.querySelector('[data-testid="vm-source-ubuntu-recommended"]')));
+  for (const [name, value] of Object.entries(login)) assert.equal(h.instance.props.form.getFieldValue(name), value);
+  assert.equal(h.instance.props.form.getFieldValue('image_name'), 'my-noble-image');
+  assert.equal(h.instance.props.form.getFieldValue('os_name'), 'Ubuntu 24.04');
+  assert.equal(root.querySelector('[data-testid="vm-source-link-details"]').hidden, true);
+  assert.equal(h.submissions.length, 0);
+});
+
+test('unsupported architecture never auto-selects Noble, and delayed architecture discovery preserves user edits', () => {
+  const h = mount({ archInfo: ['arm64'] });
+  assert.equal(h.instance.props.form.getFieldValue('vm_url'), undefined);
+  assert.equal(root.querySelector('[data-testid="vm-source-ubuntu-recommended"]').disabled, true);
+  h.render({ archInfo: [] });
+  setFields(h, { vm_url: 'https://images.example.invalid/custom.raw', image_name: 'custom', os_name: 'Debian 13' });
+  h.render({ archInfo: ['amd64'] });
+  assert.equal(h.instance.props.form.getFieldValue('vm_url'), 'https://images.example.invalid/custom.raw');
+  assert.equal(h.instance.props.form.getFieldValue('os_name'), 'Debian 13');
+});
+
+test('a fresh form waits for a reported amd64 architecture before selecting the recommendation', () => {
+  const h = mount({ archInfo: [] });
+  assert.equal(h.instance.props.form.getFieldValue('vm_url'), undefined);
+  h.render({ archInfo: ['amd64'] });
+  assert.equal(h.instance.props.form.getFieldValue('vm_url'), quickStart.UBUNTU_NOBLE_QCOW2_URL);
+  assert.equal(h.instance.props.form.getFieldValue('os_name'), 'Ubuntu 24.04');
+});
+
+test('clicking the active custom choice records intent before delayed architecture discovery', () => {
+  const h = mount({ archInfo: [] });
+  act(() => Simulate.click(root.querySelector('[data-testid="vm-source-custom-link"]')));
+  h.render({ archInfo: ['amd64'] });
+  assert.equal(h.instance.props.form.getFieldValue('vm_url'), undefined);
+  assert.equal(h.instance.props.form.getFieldValue('os_name'), undefined);
+  assert.equal(root.querySelector('[data-testid="vm-source-custom-link"]').getAttribute('aria-pressed'), 'true');
+  assert.equal(root.querySelector('[data-testid="vm-source-link-details"]').hidden, false);
+});
+
+test('pasting the canonical URL before architecture discovery fills fixed metadata without bypassing architecture checks', async () => {
+  const h = mount({ archInfo: [] });
+  act(() => h.instance.selectCustomLink());
+  const input = root.querySelector('input[id="vm_url"]');
+  act(() => Simulate.change(input, { target: { value: quickStart.UBUNTU_NOBLE_QCOW2_URL } }));
+  assert.equal(h.instance.props.form.getFieldValue('os_name'), 'Ubuntu 24.04');
+  assert.equal(h.instance.props.form.getFieldValue('boot_mode'), 'uefi');
+  assert.equal(root.querySelector('[data-testid="vm-source-operating-system"]').readOnly, true);
+  setFields(h, { ssh_username: 'ubuntu', ssh_public_key: 'opaque-form-only-input' });
+  h.render({ archInfo: ['amd64'] });
+  assert.equal(h.instance.props.form.getFieldValue('os_name'), 'Ubuntu 24.04');
+  assert.equal(h.instance.props.form.getFieldValue('boot_mode'), 'uefi');
+  act(() => Simulate.change(input, { target: { value: 'https://images.example.invalid/other.qcow2' } }));
+  assert.equal(h.instance.props.form.getFieldValue('os_name'), undefined);
+  assert.equal(h.instance.props.form.getFieldValue('ssh_public_key'), undefined);
+  act(() => Simulate.change(input, { target: { value: quickStart.UBUNTU_NOBLE_QCOW2_URL } }));
+  assert.equal(h.instance.props.form.getFieldValue('ssh_public_key'), undefined);
+  h.render({ archInfo: ['arm64'] });
+  h.instance.validateSshFields = () => true; // Exercise the actual architecture guard beyond credential syntax.
+  setFields(h, { service_cname: 'unsupported-vm', k8s_component_name: 'unsupported-vm', image_name: 'canonical-image' });
+  await submit(h);
+  assert.equal(h.submissions.length, 0);
+  assert.equal(h.requests.some(action => /createAppByVirtualMachine|createVirtualMachineWorkflow/.test(action.type)), false);
+});
+
+test('local source pre-fills only real OS metadata and keeps it editable; upload retains explicit OS', async () => {
+  const asset = { id: 42, name: 'ubuntu-label', status: 'ready', image_url: 'internal-image',
+    os_name: 'Windows Server 2025', extra: { runtime_snapshot: { os_name: 'Older metadata', boot_mode: 'bios' } } };
+  const h = mount({ virtualMachineImage: [asset] });
+  act(() => h.instance.handleChangeImageSource({ target: { value: 'existing' } }));
+  act(() => h.instance.applyLocalImageSelection(asset));
+  assert.equal(h.instance.props.form.getFieldValue('os_name'), 'Windows Server 2025');
+  assert.equal(root.querySelector('[data-testid="vm-source-operating-system"]').readOnly, false);
+  act(() => h.instance.applyLocalImageSelection({ ...asset, os_name: undefined,
+    extra: { runtime_snapshot: { os_name: 'Debian 13' } } }));
+  assert.equal(h.instance.props.form.getFieldValue('os_name'), 'Debian 13');
+  act(() => h.instance.applyLocalImageSelection({ ...asset, os_name: undefined, extra: {} }));
+  assert.equal(h.instance.props.form.getFieldValue('os_name'), undefined, 'a filename is not OS metadata');
+  act(() => h.instance.handleChangeImageSource({ target: { value: 'upload' } }));
+  startUploadSession(h, 'event-current');
+  setFields(h, { service_cname: 'upload-vm', k8s_component_name: 'upload-vm', image_name: 'ubuntu-label', os_name: 'Windows Server 2025' });
+  act(() => h.instance.setState({ event_id: 'event-current', fileList: [{ uid: 'upload-current', name: 'ubuntu.iso', status: 'done' }], existFileList: ['ubuntu.iso'] }));
+  await submit(h);
+  assert.equal(h.submissions.length, 1);
+  assert.equal(h.submissions[0].os_name, 'Windows Server 2025');
+  assert.equal(h.submissions[0].format, 'iso');
+});
+
+test('the actual upload submission waits for its header and uses QCOW2 content behind IMG', async () => {
+  const h = mount({ initialSourceType: 'upload' });
+  startUploadSession(h, 'header-event');
+  setFields(h, { service_cname: 'upload-vm', k8s_component_name: 'upload-vm', image_name: 'cirros-image', os_name: 'CirrOS 0.6.3' });
+  act(() => h.instance.setState({ event_id: 'header-event', existFileList: ['disk.img'] }));
+  let finish;
+  h.instance.readUploadFormat = () => new Promise(resolve => { finish = resolve; });
+  const file = { uid: 'header-file', name: 'disk.img', status: 'done', originFileObj: { slice() {} } };
+  selectUpload(h, file);
+  await flush();
+  await submit(h);
+  assert.equal(h.submissions.length, 0, 'a pending read must not submit an extension guess');
+  finish('qcow2');
+  await flush();
+  await submit(h);
+  assert.equal(h.submissions.length, 1);
+  assert.equal(h.submissions[0].format, 'qcow2');
+  assert.equal(h.submissions[0].os_name, 'CirrOS 0.6.3');
+});
+
+test('late headers cannot overwrite another file, upload event or removed selection', async () => {
+  const h = mount({ initialSourceType: 'upload' });
+  startUploadSession(h, 'race-event');
+  act(() => h.instance.setState({ event_id: 'race-event' }));
+  const finish = new Map();
+  h.instance.readUploadFormat = file => new Promise(resolve => finish.set(file.name, resolve));
+  const file = name => ({ uid: name, name, status: 'uploading', originFileObj: { name, slice() {} } });
+  const first = file('first.img'), second = file('second.iso');
+  selectUpload(h, first);
+  await flush();
+  selectUpload(h, second);
+  await flush();
+  finish.get('first.img')('qcow2');
+  await flush();
+  assert.equal(h.instance.getCurrentUploadHeader(second).status, 'reading');
+  finish.get('second.iso')('iso');
+  await flush();
+  assert.equal(h.instance.getCurrentUploadHeader(second).format, 'iso');
+  const third = file('third.img');
+  selectUpload(h, third);
+  await flush();
+  startUploadSession(h, 'new-event', true);
+  finish.get('third.img')('qcow2');
+  await flush();
+  assert.equal(h.instance.getCurrentUploadHeader(third), null);
+  const fourth = file('fourth.img');
+  selectUpload(h, fourth);
+  await flush();
+  act(() => h.instance.onRemove());
+  finish.get('fourth.img')('qcow2');
+  await flush();
+  assert.equal(h.instance.uploadHeader, null);
+});
+
+test('a header from a previous application scope cannot be reused', async () => {
+  const h = mount({ initialSourceType: 'upload' });
+  startUploadSession(h, 'scope-event');
+  act(() => h.instance.setState({ event_id: 'scope-event' }));
+  let finish;
+  h.instance.readUploadFormat = () => new Promise(resolve => { finish = resolve; });
+  const file = { uid: 'scope-file', name: 'disk.img', status: 'done', originFileObj: { slice() {} } };
+  selectUpload(h, file);
+  await flush();
+  h.instance.getLoginScope = () => ({ team: 'team-b', region: 'region-a', application: '869', target: '869' });
+  finish('qcow2');
+  await flush();
+  assert.equal(h.instance.getCurrentUploadHeader(file), null);
+  assert.equal(h.instance.getConfirmedUpload(), null);
+});
+
+test('scope change invalidates the upload session and ignores all old completion callbacks', async () => {
+  const h = mount({ initialSourceType: 'upload' });
+  const firstCreate = h.requests.filter(action => action.type === 'createApp/createJarWarServices').at(-1);
+  startUploadSession(h, 'event-owned-by-a');
+  const firstStatus = h.requests.filter(action => action.type === 'createApp/createJarWarUploadStatus').at(-1);
+  const file = { uid: 'owned-by-a', name: 'old.img', status: 'uploading' };
+  selectUpload(h, file);
+  act(() => h.instance.handleJarWarUploadDelete());
+  const firstDelete = h.requests.filter(action => action.type === 'createApp/deleteJarWarUploadStatus').at(-1);
+  h.instance.getLoginScope = () => ({ team: 'team-b', region: 'region-a', application: '869', target: '869' });
+  h.render({ groupId: 869 });
+  const nextCreate = h.requests.filter(action => action.type === 'createApp/createJarWarServices').at(-1);
+  assert.notEqual(nextCreate, firstCreate);
+  assert.equal(nextCreate.payload.team_name, 'team-b');
+  assert.equal(h.instance.state.event_id, '');
+  assert.equal(h.instance.state.fileList.length, 0);
+  startUploadSession(h, 'event-owned-by-b');
+  act(() => {
+    firstCreate.callback({ status_code: 200, bean: { event_id: 'event-owned-by-a' } });
+    firstStatus.callback({ bean: { package_name: ['old.img'] } });
+    firstDelete.callback({ bean: { res: 'ok' } });
+    h.instance.onChangeUpload({ file: { ...file, status: 'done' }, fileList: [{ ...file, status: 'done' }] });
+  });
+  assert.equal(h.instance.state.event_id, 'event-owned-by-b');
+  assert.equal(h.instance.state.existFileList.length, 0);
+  assert.equal(h.instance.state.fileList.length, 0);
+  assert.equal(h.instance.getConfirmedUpload(), null);
+  setFields(h, { service_cname: 'scope-b-vm', k8s_component_name: 'scope-b-vm', image_name: 'scope-b-image', os_name: 'CirrOS' });
+  await submit(h);
+  assert.equal(h.submissions.length, 0);
+});
+
+test('VMDK URL and local asset submissions preserve source format and never initialize Noble credentials', async () => {
+  const h = mount();
+  act(() => h.instance.selectCustomLink());
+  setFields(h, { service_cname: 'vmdk-vm', k8s_component_name: 'vmdk-vm', image_name: 'windows-vmdk',
+    vm_url: 'https://images.invalid/Windows.VMDK', os_name: 'Windows 10' });
+  await submit(h);
+  assert.equal(h.submissions[0].format, 'vmdk');
+  assert.equal(h.submissions[0].source_type, 'url');
+  for (const key of ['login_method', 'ssh_username', 'ssh_public_key', 'os_family']) assert.equal(h.submissions[0][key], undefined);
+  const asset = { id: 9, name: 'windows-vmdk', status: 'ready', image_url: 'registry.invalid/converted-root:tag',
+    format: 'VMDK', arch: 'amd64', os_name: 'Windows 10' };
+  h.render({ virtualMachineImage: [asset] });
+  act(() => h.instance.handleChangeImageSource({ target: { value: 'existing' } }));
+  act(() => h.instance.applyLocalImageSelection(asset));
+  await submit(h);
+  assert.equal(h.submissions[1].format, 'vmdk');
+  assert.equal(h.submissions[1].asset_id, 9);
+  assert.equal(h.submissions[1].source_type, 'existing');
+  assert.equal(h.submissions[1].login_method, undefined);
+});
+
+test('the upload picker offers VMDK and a neutral filename uses the actual VMDK header', async () => {
+  const h = mount({ initialSourceType: 'upload' });
+  startUploadSession(h, 'vmdk-upload');
+  assert.ok(root.querySelector('input[type="file"]').getAttribute('accept').split(',').includes('.vmdk'));
+  setFields(h, { service_cname: 'upload-vm', k8s_component_name: 'upload-vm', image_name: 'windows-image', os_name: 'Windows 10' });
+  act(() => h.instance.setState({ existFileList: ['neutral.img'] }));
+  const bytes = Uint8Array.from([0x4b, 0x44, 0x4d, 0x56, 1, 0, 0, 0]);
+  const file = { uid: 'vmdk-header', name: 'neutral.img', status: 'done', originFileObj: {
+    slice(start, end) { assert.equal(start, 0); assert.equal(end, 64 * 1024); return { arrayBuffer: async () => bytes.buffer }; }
+  } };
+  selectUpload(h, file); await flush(); await submit(h);
+  assert.equal(h.submissions.length, 1); assert.equal(h.submissions[0].format, 'vmdk');
+  assert.equal(h.submissions[0].source_type, 'upload'); assert.equal(h.submissions[0].ssh_username, undefined);
+});
+
+test('known compressed VMDK is blocked before upload or URL submission', async () => {
+  const h = mount({ initialSourceType: 'upload' }); startUploadSession(h, 'compressed-vmdk');
+  act(() => h.instance.setState({ existFileList: ['previous.qcow2'] }));
+  selectUpload(h, { uid: 'previous', name: 'previous.qcow2', status: 'done' });
+  assert.ok(h.instance.getConfirmedUpload());
+  let accepted;
+  act(() => { accepted = h.instance.beforeUpload({ uid: 'compressed', name: 'disk.vmdk.gz' }); });
+  assert.equal(accepted, false);
+  assert.equal(h.instance.uploadFileOwners.has('compressed'), false);
+  assert.equal(h.instance.getConfirmedUpload(), null, 'a rejected new selection cannot submit the previous artifact');
+  act(() => h.instance.handleChangeImageSource({ target: { value: 'url' } }));
+  act(() => h.instance.selectCustomLink());
+  setFields(h, { service_cname: 'vmdk-vm', k8s_component_name: 'vmdk-vm', image_name: 'windows-vmdk',
+    vm_url: 'https://images.invalid/disk.vmdk.xz', os_name: 'Windows 10' });
+  await submit(h); assert.equal(h.submissions.length, 0);
+});
+
+test('descriptor-only uploads expose the consolidate instruction and remain unsubmitted', async () => {
+  const h = mount({ initialSourceType: 'upload' }); startUploadSession(h, 'descriptor-vmdk');
+  setFields(h, { service_cname: 'vmdk-vm', k8s_component_name: 'vmdk-vm', image_name: 'windows-vmdk', os_name: 'Windows 10' });
+  act(() => h.instance.setState({ existFileList: ['disk.vmdk'] }));
+  const bytes = Uint8Array.from(Buffer.from('# Disk DescriptorFile\nRW 4096 FLAT "external-fixture-flat.vmdk" 0\n'));
+  selectUpload(h, { uid: 'descriptor', name: 'disk.vmdk', status: 'done', originFileObj: {
+    slice() { return { arrayBuffer: async () => bytes.buffer }; }
+  } });
+  await flush(); assert.equal(h.instance.uploadHeader.errorKey, 'vmdkSingleFileRequired');
+  assert.equal(JSON.stringify(h.instance.uploadHeader).includes('external-fixture-flat'), false);
+  await submit(h); assert.equal(h.submissions.length, 0);
+});
+
+test('real URL and upload forms preserve gzip transport and keep source qualifiers separate', async () => {
+  const h = mount();
+  act(() => h.instance.selectCustomLink());
+  setFields(h, { service_cname: 'wrapped-vm', k8s_component_name: 'wrapped-vm', image_name: 'wrapped-disk',
+    vm_url: 'https://images.invalid/system.img.gz', os_name: 'Linux guest' });
+  await submit(h);
+  assert.equal(h.submissions[0].format, 'img.gz');
+  assert.equal(h.submissions[0].event_id, undefined);
+  act(() => h.instance.handleChangeImageSource({ target: { value: 'upload' } }));
+  startUploadSession(h, 'wrapper-event');
+  setFields(h, { image_name: 'wrapped-disk', os_name: 'Linux guest' });
+  act(() => h.instance.setState({ existFileList: ['system.raw.gz'] }));
+  const bytes = Uint8Array.from([0x1f, 0x8b, 8, 0]);
+  selectUpload(h, { uid: 'wrapper-file', name: 'system.raw.gz', status: 'done', originFileObj: {
+    slice() { return { arrayBuffer: async () => bytes.buffer }; }
+  } });
+  await flush(); await submit(h);
+  assert.equal(h.submissions[1].format, 'raw.gz');
+  assert.equal(h.submissions[1].source_type, 'upload');
+  assert.equal(h.submissions[1].vm_url, undefined);
+});
+
+test('actual exported root format wins over VMDK provenance during local selection', async () => {
+  const asset = { id: 10, name: 'exported-root', status: 'ready', image_url: 'registry.invalid/root:tag',
+    source_uri: 'https://images.invalid/original.vmdk', format: 'vmdk', arch: 'amd64', os_name: 'Windows 10',
+    disks: [{ disk_role: 'root', source_type: 'registry', format: 'qcow2' }] };
+  const h = mount({ initialSourceType: 'existing', virtualMachineImage: [asset] });
+  act(() => h.instance.applyLocalImageSelection(asset));
+  setFields(h, { service_cname: 'exported-vm', k8s_component_name: 'exported-vm' });
+  await submit(h);
+  assert.equal(h.submissions[0].asset_id, 10);
+  assert.equal(h.submissions[0].format, 'qcow2');
+  assert.equal(h.submissions[0].vm_url, undefined);
+  assert.equal(h.submissions[0].login_method, undefined);
+});

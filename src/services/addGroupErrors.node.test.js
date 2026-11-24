@@ -80,12 +80,12 @@ const notification = {
 };
 const formatMessage = ({ id }) => id;
 const handleAPIError = new Function(
-  'notification', 'formatMessage', 'errorMessage',
-  `${withoutImports(readSource('utils/error.js')).replace('export default function', 'function')}\nreturn handleAPIError;`
-)(notification, formatMessage, require('../utils/errorMessage'));
+  'notification', 'formatMessage', 'errorMessage', 'Date',
+  `${withoutImports(readSource('utils/error.js')).replace(/export (?:default )?function/g, 'function')}\nreturn handleAPIError;`
+)(notification, formatMessage, require('../utils/errorMessage'), { now: (() => { let time = 0; return () => { time += 3000; return time; }; })() });
 const handleApplicationCreationError = new Function(
   'notification', 'formatMessage', 'handleAPIError',
-  `${withoutImports(readSource('utils/applicationCreationError.js')).replace('export default function', 'function')}\nreturn handleApplicationCreationError;`
+  `${withoutImports(readSource('utils/applicationCreationError.js')).replace(/export (?:default )?function/g, 'function')}\nreturn handleApplicationCreationError;`
 )(notification, formatMessage, handleAPIError);
 
 const axios = axiosModule.create({ proxy: false });
@@ -117,7 +117,7 @@ const requestDependencies = {
 };
 const request = new Function(
   ...Object.keys(requestDependencies),
-  `${withoutImports(readSource('utils/request.js')).replace('export default function', 'function')}\nreturn request;`
+  `${withoutImports(readSource('utils/request.js')).replace(/export (?:default )?function/g, 'function')}\nreturn request;`
 )(...Object.values(requestDependencies));
 
 const serviceSource = readSource('services/application.js');

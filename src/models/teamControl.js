@@ -301,16 +301,16 @@ export default {
         callback(response);
       }
     },
-    *fetchPluginUrl({ payload, callback, handleError }, { call, put }) {
+    *fetchPluginUrl({ payload, callback, handleError, shouldApply }, { call, put }) {
+      if (shouldApply && !shouldApply()) return;
       const response = yield call(fetchPluginUrl, payload, handleError);
+      if (shouldApply && !shouldApply()) return;
       if (response && callback) {
         yield put({
           type: 'savePluginList',
           payload: response
         });
-        if(callback){
-          callback(response);
-        }
+        if (!shouldApply || shouldApply()) callback(response);
       }
     },
     *fetchServiceID({ payload, callback, handleError }, { call }) {

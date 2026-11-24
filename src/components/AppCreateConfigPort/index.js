@@ -299,6 +299,7 @@ class Ports extends PureComponent {
           <AddPort
             isImageApp={isImageApp}
             isDockerfile={isDockerfile}
+            extendMethod={this.props.appDetail?.service?.extend_method}
             onCancel={this.onCancelAddPort}
             onOk={this.handleAddPort}
           />

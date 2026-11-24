@@ -38,7 +38,7 @@ const utils ={
 'utils.app.Yunshi':'Cloud Market',
 'utils.app.image':'Image',
 'utils.app.store':'Cloud Market',
-'utils.app.Local':'Local Market',
+'utils.app.Local':'Local Application Market',
 'utils.app.Local_file':'Local file',
 // cloud
 'utils.cloud.createKubernetesSteps.Init.Title':'Controller initialization',

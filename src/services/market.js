@@ -172,12 +172,13 @@ export async function fetchAppModels(param) {
 
 
 /* 编辑本地应用 */
-export async function upAppModel(body) {
+export async function upAppModel(body, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/enterprise/${body.enterprise_id}/app-model/${body.app_id}`,
     {
       method: 'PUT',
       data: {
+        ...(body.delivery_source ? { delivery_source: body.delivery_source } : {}),
         scope: body.scope,
         create_team: body.create_team,
         team_name: body.team_name,
@@ -185,8 +186,9 @@ export async function upAppModel(body) {
         pic: body.pic,
         describe: body.describe,
         tag_ids: body.tag_ids,
-        details: body.details || 'This is a default description'
-      }
+        details: body.details == null ? '' : body.details
+      },
+      handleError
     }
   );
 }
@@ -323,6 +325,7 @@ export async function createAppModel(body, handleError) {
     {
       method: 'post',
       data: {
+        ...(body.delivery_source ? { delivery_source: body.delivery_source } : {}),
         source: body.source,
         create_team: body.create_team,
         team_name: body.team_name,
@@ -331,7 +334,7 @@ export async function createAppModel(body, handleError) {
         dev_status: body.dev_status ? body.dev_status : '',
         name: body.name,
         pic: body.pic,
-        details: 'This is a default description',
+        details: body.details == null ? '' : body.details,
         describe: body.describe,
         tag_ids: body.tag_ids
       },

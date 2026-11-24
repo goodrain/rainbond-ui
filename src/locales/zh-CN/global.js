@@ -62,7 +62,7 @@ const global = {
     'global.fetchOperation.success':'成功',
     'global.fetchOperation.lose':'失败',
     'global.vmRestoreStage.downloading':'下载中',
-    'global.vmRestoreStage.restoring':'正在恢复',
+    'global.vmRestoreStage.restoring':'准备磁盘中',
 
     // fetchReason
     'global.fetchReason.tenant_lack_of_memory':'超过租户限额',
@@ -185,7 +185,7 @@ const global = {
     'global.fetchStateOptTypeText.app-restore-deps':'重新加载应用依赖',
     'global.fetchStateOptTypeText.app-restore-depvols':'重新加载应用依赖存储',
     'global.fetchStateOptTypeText.app-restore-plugins':'重新加载应用插件',
-    'global.fetchStateOptTypeText.vm-disk-restore':'恢复虚拟机磁盘',
+    'global.fetchStateOptTypeText.vm-disk-restore':'准备虚拟机磁盘',
     'global.fetchStateOptTypeText.vm-fixed-ip':'固定虚拟机 IP',
     'global.fetchStateOptTypeText.create-service-plugin':'创建组件插件',
     'global.fetchStateOptTypeText.update-service-plugin':'更新组件插件',

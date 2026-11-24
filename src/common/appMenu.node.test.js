@@ -16,3 +16,17 @@ assert.ok(
 );
 
 console.log('app menu plugin title tests passed');
+
+const vm = require('vm');
+const menuBody = source.slice(source.indexOf('function menuData('), source.indexOf('/**\n * 格式化菜单项路径'));
+const flags = { isAppUpgrade: true };
+const makeMenu = vm.runInNewContext(`(function(){${menuBody};return menuData;})()`, {
+  PluginUtil: { segregatePluginsByHierarchy: () => [], isInstallEnterprisePlugin: () => false }, roleUtil: { queryTeamOrAppPermissionsInfo: () => flags },
+  formatMessage: ({ id }) => id, getMenuSvg: { getSvg: name => name }
+});
+let items = makeMenu('team', 'region', 'app', { team: {} }, [], {}, {}).flatMap(group => group.items);
+assert.ok(items.some(item => item.path.endsWith('/upgrade') && item.name === 'menu.app.upgrade'));
+flags.isAppUpgrade = false;
+items = makeMenu('team', 'region', 'app', { team: {} }, [], {}, {}).flatMap(group => group.items);
+assert.ok(!items.some(item => item.path.endsWith('/upgrade')));
+console.log('app upgrade navigation permission tests passed');

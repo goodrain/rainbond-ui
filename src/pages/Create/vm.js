@@ -1,123 +1,27 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { FormattedMessage } from 'umi';
-import { formatMessage } from '@/utils/intl';
 import { routerRedux } from 'dva/router';
-import PageHeaderLayout from '../../layouts/PageHeaderLayout';
-import VirtualMachine from './virtual-machine'
+import VirtualMachine from './virtual-machine';
 import roleUtil from '../../utils/newRole';
-import pageheaderSvg from '@/utils/pageHeaderSvg';
-import { Icon, Button } from 'antd';
 import globalUtil from '../../utils/global';
+import { requestedVmTargetGroup, vmCreationEntryPermissions } from './vmCreationEntry';
 
-import { createEnterprise, createTeam } from '../../utils/breadcrumb';
-
-@connect(
-  ({ teamControl, enterprise }) => ({
-    currentTeam: teamControl.currentTeam,
-    currentRegionName: teamControl.currentRegionName,
-    currentEnterprise: enterprise.currentEnterprise,
-    currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo,
-  }),
-  null,
-  null,
-  { pure: false }
-)
+@connect(({ teamControl, enterprise }) => ({
+  currentEnterprise: enterprise.currentEnterprise,
+  currentTeamPermissionsInfo: teamControl.currentTeamPermissionsInfo
+}), null, null, { pure: false })
 export default class Main extends PureComponent {
-  constructor(props){
-    super(props)
-    this.state = {
-      archInfo: [],
-      teamAppCreatePermission: roleUtil.queryPermissionsInfo(this.props.currentTeamPermissionsInfo && this.props.currentTeamPermissionsInfo.team, 'team_app_create')
-    }
-  }
-  componentWillMount() {
-    this.handleArchCpuInfo()
-  }
-  handleArchCpuInfo = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'index/fetchArchOverview',
-      payload: {
-        region_name: globalUtil.getCurrRegionName(),
-        team_name: globalUtil.getCurrTeamName()
-      },
-      callback: res => {
-        if (res && res.bean) {
-          this.setState({
-            archInfo: res.list
-          })
-        }
-      }
-    });
-  }
-  handleTabChange = key => {
-    const { dispatch } = this.props;
-    const group_id = globalUtil.getAppID()  
-    dispatch(
-      routerRedux.push(
-        `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/image/${key}?group_id=${group_id}`
-      )
-    );
-  };
   render() {
-    const map = {
-      VirtualMachine: VirtualMachine
-    };
-
-    const tabList = [
-      {
-        key: 'VirtualMachine',
-        tab: formatMessage({id:'Vm.createVm.VmImg'}),
-      },
-    ];
-    const {
-      currentEnterprise,
-      currentTeam,
-      currentRegionName,
-      match,
-    } = this.props;
-    const { archInfo, teamAppCreatePermission: { isAccess } } = this.state
-    if(!isAccess){
-      return roleUtil.noPermission()
-    }
-    let { type } = match.params;
-    type = type.split('?')[0];
-    if (!type) {
-      type = 'VirtualMachine';
-    }
-    const Com = map[type];
-    let breadcrumbList = [];
-    breadcrumbList = createTeam(
-      createEnterprise(breadcrumbList, currentEnterprise),
-      currentTeam,
-      currentRegionName
-    );
-    breadcrumbList.push({ title: formatMessage({id: 'teamAdd.create.createComponentTitle'}) });
-    const group_id = globalUtil.getAppID()
-    const isAppOverview = this.props.location?.query?.type || '';
-    return (
-      <PageHeaderLayout
-        breadcrumbList={breadcrumbList}
-        title={formatMessage({id: 'Vm.createVm.creatCom'})}
-        onTabChange={this.handleTabChange}
-        content={formatMessage({id: 'Vm.createVm.creatApp'})}
-        tabActiveKey={type}
-        tabList={tabList}
-        titleSvg={pageheaderSvg.getPageHeaderSvg('vm',18)}
-        extraContent={
-          <Button onClick={() => {
-              const { dispatch } = this.props;
-              dispatch(
-                  routerRedux.push(`/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard?group_id=${group_id}&type=${isAppOverview}`)
-              );
-          }} type="default">
-            <Icon type="rollback" />{formatMessage({ id: 'button.return' })}
-          </Button>
-      }
-      >
-        {Com ? <Com archInfo={archInfo} {...this.props} /> : <FormattedMessage id="teamAdd.create.error" />}
-      </PageHeaderLayout>
-    );
+    const { match = {} } = this.props;
+    const groupId = requestedVmTargetGroup(this.props, globalUtil.getAppID());
+    const permission = vmCreationEntryPermissions(roleUtil, this.props.currentTeamPermissionsInfo?.team, groupId);
+    if (!(groupId ? permission.canCreateInApplication : permission.canCreateApplication)) return roleUtil.noPermission();
+    const type = (match.params?.type || 'VirtualMachine').split('?')[0];
+    if (type !== 'VirtualMachine') return <FormattedMessage id="teamAdd.create.error" />;
+    return <VirtualMachine {...this.props} onCancel={() => this.props.dispatch(routerRedux.replace({
+        pathname: `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/wizard`,
+        query: groupId ? { group_id: groupId } : {}
+      }))} />;
   }
 }

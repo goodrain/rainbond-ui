@@ -25,6 +25,7 @@ import ScrollerX from '@/components/ScrollerX'
 import React, { PureComponent } from 'react';
 import ConfirmModal from '../../components/ConfirmModal';
 import CreateTeam from '../../components/CreateTeam';
+import TeamApplications from '../../components/TeamApplications';
 import OpenRegion from '../../components/OpenRegion';
 import PageHeaderLayout from '../../layouts/PageHeaderLayout';
 import userUtil from '../../utils/user';
@@ -651,8 +652,15 @@ export default class EnterpriseTeams extends PureComponent {
 
     const title = <FormattedMessage id='enterpriseTeamManagement.PageHeaderLayout.title.admin' />;
     const content = <FormattedMessage id='enterpriseTeamManagement.PageHeaderLayout.context' />;
+    const activeTab = new URLSearchParams(this.props.location.search).get('tab') === 'reviews' ? 'reviews' : 'teams';
     return (
-      <PageHeaderLayout title={title} content={content} titleSvg={pageheaderSvg.getPageHeaderSvg('teams', 20)}>
+      <PageHeaderLayout title={title} content={content} titleSvg={pageheaderSvg.getPageHeaderSvg('teams', 20)}
+        tabList={[
+          { key: 'teams', tab: formatMessage({ id: 'workspace.teamTab' }) },
+          { key: 'reviews', tab: formatMessage({ id: 'workspace.reviewTab' }) }
+        ]}
+        tabActiveKey={activeTab}
+        onTabChange={key => this.props.dispatch(routerRedux.replace(`/enterprise/${eid}/teams?tab=${key}`))}>
         {showCloseAllComponent && (
           <ConfirmModal
             onOk={this.handleCloseAllComponentInTeam}
@@ -670,7 +678,7 @@ export default class EnterpriseTeams extends PureComponent {
             onCancel={this.cancelCreateTeam}
           />
         )}
-        {initShow && (
+        {initShow && activeTab === 'teams' && (
           <CreateTeam
             title={<FormattedMessage id='enterpriseTeamManagement.allProject.title' />}
             enterprise_id={eid}
@@ -696,7 +704,7 @@ export default class EnterpriseTeams extends PureComponent {
           />
         )}
 
-        {enterpriseTeamsLoading ? (
+        {activeTab === 'reviews' ? <TeamApplications admin /> : enterpriseTeamsLoading ? (
           <div className={styles.example}>
             <Spin />
           </div>

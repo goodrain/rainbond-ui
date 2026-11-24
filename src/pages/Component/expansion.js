@@ -63,6 +63,10 @@ const { Option } = Select;
 export default class Index extends PureComponent {
   constructor(arg) {
     super(arg);
+    this.vmWorkspaceEditorMounted = false;
+    this.vmWorkspaceEditorCancelled = false;
+    this.vmWorkspaceEditorScope = arg.method === 'vm' && arg.vmWorkspaceEditor
+      ? this.getVmWorkspaceEditorContext(arg) : null;
     this.state = {
       new_pods:
         this.props.instances && this.props.instances.new_pods
@@ -88,6 +92,7 @@ export default class Index extends PureComponent {
       toDeleteMnt: false,
       deleteType: '',
       editInfo: false,
+      editBillInfo: arg.method === 'vm' && !!arg.vmWorkspaceEditor,
       automaLoading: true,
       errorMinNum: '',
       errorMaxNum: '',
@@ -149,7 +154,46 @@ export default class Index extends PureComponent {
       memoryValue: 0
     };
   }
+  isVmWorkspaceEditor = () => this.props.method === 'vm' && !!this.props.vmWorkspaceEditor;
+
+  getVmWorkspaceEditorContext = (props = this.props) => {
+    const team = globalUtil.getCurrTeamName();
+    const region = globalUtil.getCurrRegionName();
+    return {
+      team,
+      region,
+      application: String(globalUtil.getAppID() || ''),
+      alias: props.appAlias,
+      visibleAlias: globalUtil.getSlidePanelComponentID() || props.appAlias,
+      requestedTeam: props.teamName || team,
+      requestedRegion: props.regionName || region
+    };
+  };
+
+  isVmWorkspaceEditorActive = (props = this.props) => {
+    const scope = this.vmWorkspaceEditorScope;
+    if (!scope) return !(props.method === 'vm' && props.vmWorkspaceEditor);
+    if (!this.vmWorkspaceEditorMounted || this.vmWorkspaceEditorCancelled) return false;
+    const current = this.getVmWorkspaceEditorContext(props);
+    const matches = props.method === 'vm' && props.vmWorkspaceEditor && props.vmWorkspaceEditorActive !== false &&
+      current.alias === current.visibleAlias && current.requestedTeam === current.team && current.requestedRegion === current.region &&
+      Object.keys(scope).every(key => scope[key] === current[key]);
+    if (!matches) this.vmWorkspaceEditorCancelled = true;
+    return !!matches;
+  };
+
+  handleCancelResourceEdit = () => {
+    if (this.vmWorkspaceEditorScope) this.vmWorkspaceEditorCancelled = true;
+    const { form } = this.props;
+    const values = this.initializeConfigValues();
+    this.setState({ ...values, editBillInfo: false }, () => {
+      form.setFieldsValue({ new_memory: values.memoryValue, new_cpu: values.cpuValue });
+      if (this.isVmWorkspaceEditor() && this.props.onCancelVmWorkspaceEditor) this.props.onCancelVmWorkspaceEditor();
+    });
+  };
+
   componentWillReceiveProps(nextProps) {
+    if (this.vmWorkspaceEditorScope) this.isVmWorkspaceEditorActive(nextProps);
     if (
       nextProps.instances.new_pods !== this.state.new_pods ||
       nextProps.instances.old_pods !== this.state.old_pods
@@ -265,6 +309,7 @@ export default class Index extends PureComponent {
     );
   }
   componentDidMount() {
+    this.vmWorkspaceEditorMounted = true;
     if (!this.canView()) return;
     if (!this.state.showBill) {      
       this.setState({
@@ -301,6 +346,8 @@ export default class Index extends PureComponent {
     }
   }
   componentWillUnmount() {
+    this.vmWorkspaceEditorMounted = false;
+    this.vmWorkspaceEditorCancelled = true;
     const { dispatch } = this.props;
     dispatch({ type: 'appControl/clearExtendInfo' });
     this.timeClick && clearInterval(this.timeClick);
@@ -920,9 +967,11 @@ export default class Index extends PureComponent {
   };
 
   handleFromData = () => {
+    if (!this.isVmWorkspaceEditorActive()) return;
     const { form, appAlias, appDetail, extendInfo, dispatch, method, status } = this.props;
     const { cpuMarksObj, memoryMarksObj, isCustomMemory, isCustomCpu, customMemoryValue, customCpuValue, customMemoryUnit } = this.state;
     form.validateFields((err, values) => {
+      if (!this.isVmWorkspaceEditorActive()) return;
       if (err) return;
       const isVmGpuScalingLocked = isVmGpuPassthroughScalingLocked({
         method,
@@ -1023,10 +1072,12 @@ export default class Index extends PureComponent {
         payload.new_node = values.node;
       }
 
+      if (!this.isVmWorkspaceEditorActive()) return;
       dispatch({
         type: 'appControl/newVertical',
         payload,
         callback: () => {
+          if (!this.isVmWorkspaceEditorActive()) return;
           notification.success({
             message:
               method === 'vm'
@@ -1037,9 +1088,17 @@ export default class Index extends PureComponent {
                     : formatMessage({ id: 'componentOverview.body.tab.overview.vmHotUpdateRestarting' }))
                 : formatMessage({ id: 'notification.success.operationImplement' })
           });
-          this.setState({ editBillInfo: false });
+          this.setState({ editBillInfo: false }, () => {
+            if (!this.isVmWorkspaceEditorActive()) return;
+            if (this.isVmWorkspaceEditor()) {
+              if (this.props.onVmWorkspaceResourceSaved) this.props.onVmWorkspaceResourceSaved();
+              this.vmWorkspaceEditorCancelled = true;
+              if (this.props.onCancelVmWorkspaceEditor) this.props.onCancelVmWorkspaceEditor();
+            }
+          });
         },
         handleError: (err) => {
+          if (!this.isVmWorkspaceEditorActive()) return;
           handleAPIError(err);
           this.setState({ editBillInfo: false });
         }
@@ -1264,6 +1323,7 @@ export default class Index extends PureComponent {
   render() {
     if (!this.canView()) return <NoPermTip />;
     const { extendInfo, appAlias, form, appDetail, method, status } = this.props;
+    const vmWorkspaceEditor = this.isVmWorkspaceEditor();
     let notAllowScaling = false;
     if (appDetail) {
       if (globalUtil.isSingletonComponent(method)) {
@@ -1413,7 +1473,7 @@ export default class Index extends PureComponent {
             style={{ marginBottom: 24 }}
           />
         )}
-        <Card
+        {!vmWorkspaceEditor && <Card
           className={styles.InstancesCard}
           title={<FormattedMessage id='componentOverview.body.Expansion.instance' />}
           extra={
@@ -1451,9 +1511,9 @@ export default class Index extends PureComponent {
               />
             </div>
           )}
-        </Card>
+        </Card>}
 
-        {notAllowScaling && (
+        {!vmWorkspaceEditor && notAllowScaling && (
           <Alert
             style={{ marginTop: '16px' }}
             message={
@@ -1483,7 +1543,7 @@ export default class Index extends PureComponent {
         <Card
           className={styles.clerBorder}
           border={false}
-          title={<FormattedMessage id='componentOverview.body.Expansion.telescopic' />}
+          title={<FormattedMessage id={vmWorkspaceEditor ? 'componentOverview.vmWorkspace.computeTitle' : 'componentOverview.body.Expansion.telescopic'} />}
           extra={
             <div style={{ display: 'flex', alignItems: 'center' }}>
               {this.state.editBillInfo && showBill &&
@@ -1505,20 +1565,7 @@ export default class Index extends PureComponent {
                       })
                       : formatMessage({ id: 'appPublish.table.btn.confirm' })}
                   </Button>
-                  <Button icon='close-circle' onClick={() => {
-                    const { form } = this.props;
-                    const values = this.initializeConfigValues();
-
-                    this.setState({
-                      ...values,
-                      editBillInfo: false
-                    }, () => {
-                      form.setFieldsValue({
-                        new_memory: values.memoryValue,
-                        new_cpu: values.cpuValue
-                      });
-                    });
-                  }}>
+                  <Button icon='close-circle' onClick={this.handleCancelResourceEdit}>
                     {formatMessage({ id: 'appPublish.table.btn.cancel' })}
                   </Button>
                 </div>

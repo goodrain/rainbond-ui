@@ -17,6 +17,7 @@ import roleUtil from '../../utils/role';
 import pluginUtile from '../../utils/pulginUtils';
 import handleAPIError from '../../utils/error';
 import resourceSnapshot from './resourceSnapshot';
+import withVMCreationRedirect from './withVMCreationRedirect';
 
 const {
   evaluateResourceAvailability,
@@ -32,6 +33,7 @@ const saveSourceBuildConfig = (config) => {
   window.sessionStorage.setItem(SOURCE_BUILD_CONFIG_KEY, JSON.stringify(config));
 };
 
+@withVMCreationRedirect
 @connect(
   ({ loading, teamControl, user }) => ({
     currUser: user.currentUser,

@@ -62,7 +62,7 @@ const global = {
     'global.fetchOperation.success':'Success',
     'global.fetchOperation.lose':'Fail',
     'global.vmRestoreStage.downloading':'Downloading',
-    'global.vmRestoreStage.restoring':'Restoring',
+    'global.vmRestoreStage.restoring':'Preparing disks',
 
     // fetchReason
     'global.fetchReason.tenant_lack_of_memory':'Tenant quota exceeded',
@@ -185,7 +185,7 @@ const global = {
     'global.fetchStateOptTypeText.app-restore-deps':'Reload application dependencies',
     'global.fetchStateOptTypeText.app-restore-depvols':'Reload application dependent storage',
     'global.fetchStateOptTypeText.app-restore-plugins':'Reload application plugin',
-    'global.fetchStateOptTypeText.vm-disk-restore':'Restore VM disks',
+    'global.fetchStateOptTypeText.vm-disk-restore':'Prepare VM disks',
     'global.fetchStateOptTypeText.vm-fixed-ip':'Pin VM IP',
     'global.fetchStateOptTypeText.create-service-plugin':'Create component plugin',
     'global.fetchStateOptTypeText.update-service-plugin':'Update component plugin',

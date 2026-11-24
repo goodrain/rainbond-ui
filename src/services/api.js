@@ -538,6 +538,7 @@ export async function createAppVersionSnapshot(body = {}) {
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/app-versions`,
     {
       method: 'post',
+      noModels: true,
       data: {
         version: body.version || '',
         version_alias: body.version_alias || '',
@@ -615,11 +616,12 @@ export async function getUpgradeRecordsHelmList(body = {}) {
 
 /* 查询某应用的更新记录列表 */
 
-export async function getUpdateRecordsInfo(body = {}) {
+export async function getUpdateRecordsInfo(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records/${body.record_id}`,
     {
       method: 'get',
+      handleError,
       params: {
         record_id: body.record_id
       }

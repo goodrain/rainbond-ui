@@ -1,0 +1,28 @@
+@import '~antd/lib/style/themes/default.less';
+
+.timeline {
+  > :global(.ant-timeline-item) > :global(.ant-timeline-item-head) { left: 112px; top: 26px; width: 8px; height: 8px; }
+  > :global(.ant-timeline-item) > :global(.ant-timeline-item-tail) { left: 115px; top: 34px; }
+  > :global(.ant-timeline-item) > :global(.ant-timeline-item-content) { margin-left: 144px; top: 0; }
+}
+.time { position: absolute; top: 16px; left: -144px; width: 96px; text-align: right; font-variant-numeric: tabular-nums;
+  span, small { display: block; font-size: @rbd-auxiliary-size; line-height: 20px; }
+  span { color: @heading-color; }
+  small { color: @text-color-secondary; }
+}
+@media (max-width: @screen-md) {
+  .timeline {
+    > :global(.ant-timeline-item) > :global(.ant-timeline-item-head) { left: 88px; }
+    > :global(.ant-timeline-item) > :global(.ant-timeline-item-tail) { left: 91px; }
+    > :global(.ant-timeline-item) > :global(.ant-timeline-item-content) { margin-left: 112px; }
+  }
+  .time { left: -112px; width: 76px; }
+}
+@media (max-width: @screen-sm) {
+  .timeline {
+    > :global(.ant-timeline-item) > :global(.ant-timeline-item-head) { left: 0; top: 35px; }
+    > :global(.ant-timeline-item) > :global(.ant-timeline-item-tail) { left: 3px; top: 43px; }
+    > :global(.ant-timeline-item) > :global(.ant-timeline-item-content) { margin-left: 20px; }
+  }
+  .time { position: static; display: flex; width: auto; gap: 8px; text-align: left; margin-bottom: 8px; }
+}

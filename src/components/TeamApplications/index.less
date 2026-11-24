@@ -1,0 +1,29 @@
+@import '~antd/lib/style/themes/default.less';
+
+.root { min-width: 0; color: @text-color; }
+.welcome { padding: 32px 16px; margin-bottom: 24px; text-align: center; background: @rbd-background-color; border-radius: @border-radius-base;
+  h3 { font-size: @rbd-sub-title-size; margin: 12px 0 8px; }
+  p { color: @text-color-secondary; font-size: @rbd-content-size; margin-bottom: 20px; }
+}
+.welcomeIcon { font-size: @rbd-display-size; color: @primary-color; }
+.toolbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px;
+  :global(.ant-input-search) { width: 280px; max-width: 100%; }
+  :global(.ant-select) { width: 140px; }
+}
+.actions { display: flex; gap: 16px; }
+.workspaceTable, .reviewTable { overflow-x: auto; }
+.loadError { margin-bottom: 16px; }
+.reviewForm {
+  margin-top: 24px;
+  :global(.ant-form-item) { margin-bottom: 0; }
+  :global(textarea.ant-input) { min-height: 96px; }
+}
+.multiline { white-space: pre-wrap; overflow-wrap: anywhere; }
+.detailModal { max-width: calc(100vw - 32px); :global(.ant-descriptions-item-content) { word-break: break-word; } }
+
+@media (max-width: @screen-sm) {
+  .workspaceTable :global(.ant-table) { min-width: 805px; }
+  .reviewTable :global(.ant-table) { min-width: 860px; }
+  .welcome { padding: 24px 12px; }
+  .toolbar { :global(.ant-input-search) { width: 100%; } }
+}

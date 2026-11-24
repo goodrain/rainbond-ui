@@ -40,6 +40,7 @@ import styles from './index.less'
 
 const { buildTopologyWebConsolePath } = require('./topologyRouteHelpers');
 const { topologyScope, subscribeTopologyRefresh, postTopologyRefresh } = require('../../utils/topologyRefresh');
+const { isVirtualMachineComponent } = require('../../utils/virtualMachineComponent');
 
 const frameCallbackNames = [
   'iframeGetNodeUrl', 'iframeGetTopologyScope', 'iframeGetMonitor', 'getServiceAlias',
@@ -193,7 +194,7 @@ class Index extends React.Component {
           )
         } else {
           const app = (that.props.apps || []).find(app => app.service_alias === componentID);
-          if (app?.status === "creating" && app.service_source !== 'kubeblocks') {
+          if (app?.status === "creating" && app.service_source !== 'kubeblocks' && !isVirtualMachineComponent(app)) {
             dispatch(
               routerRedux.push(
                 `/team/${teamName}/region/${regionName}/create/create-check/${componentID}`

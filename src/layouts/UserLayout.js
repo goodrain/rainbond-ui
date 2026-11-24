@@ -1,6 +1,7 @@
 import { connect } from 'dva';
 import { Link } from 'dva/router';
 import React from 'react';
+import DocumentTitle from 'react-document-title';
 import { FormattedMessage } from 'umi';
 import logo from '../../public/logo-white.png';
 import globalUtil from '../utils/global';
@@ -178,6 +179,7 @@ class UserLayout extends React.PureComponent {
     const serviceAgreementUrl = rainbondInfo && rainbondInfo.service_agreement_url && rainbondInfo.service_agreement_url.value || '';
     const privacyPolicyUrl = rainbondInfo && rainbondInfo.privacy_policy_url && rainbondInfo.privacy_policy_url.value || '';
     return (
+      <DocumentTitle title={rainbondUtil.fetchSiteTitle(rainbondInfo)}>
       <div style={{ height:'100%' }}>
         {isSaas ? (
           <div className={styles.saasContainer}>
@@ -253,7 +255,7 @@ class UserLayout extends React.PureComponent {
         )
         }
       </div>
-
+      </DocumentTitle>
     );
   }
 }

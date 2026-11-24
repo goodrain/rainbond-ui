@@ -5,6 +5,7 @@ const path = require('node:path');
 const parser = require('@babel/parser');
 const generate = require('@babel/generator').default;
 const coordination = require('../../utils/topologyRefresh');
+const { isVirtualMachineComponent } = require('../../utils/virtualMachineComponent');
 const location = { hash: '#/team/team/region/region/apps/31/overview', origin: 'http://fixture' };
 
 function parse(relative) {
@@ -63,16 +64,22 @@ test('real topology lifecycle replaces scope callbacks, resets iframe graph and 
   const selected = ['componentWillMount', 'componentDidMount', 'componentDidUpdate', 'componentWillUnmount', 'installFrameCallbacks', 'bindTopologyRefresh', 'refreshFrame', 'triggerTopologyRefresh'];
   const methods = declaration.body.body.filter(node => selected.includes(node.key.name)).map(node => generate(node).code).join('\n');
   const callbackNames = source.find(node => node.type === 'VariableDeclaration' && node.declarations[0].id.name === 'frameCallbackNames');
-  const window = { location }; const posts = [];
+  const window = { location }; const posts = [], navigation = [];
   const globalUtil = { getCurrTeamName: () => 'team', getCurrRegionName: () => 'region', getAppID: () => 31, getSlidePanelComponentID: () => 'component' };
-  const Topology = new Function('window', 'globalUtil', 'apiconfig', 'topologyScope', 'subscribeTopologyRefresh', 'postTopologyRefresh',
+  const Topology = new Function('window', 'globalUtil', 'apiconfig', 'topologyScope', 'subscribeTopologyRefresh', 'postTopologyRefresh', 'isVirtualMachineComponent', 'routerRedux',
     `${generate(callbackNames).code}; return class { ${methods} };`)(window, globalUtil, { baseUrl: '' }, coordination.topologyScope, coordination.subscribeTopologyRefresh,
-    (frame, scope, type) => coordination.postTopologyRefresh(frame, scope, type, location.origin));
-  const instance = new Topology(); instance.props = { group_id: 31, apps: [{ service_alias: 'component' }], dispatch() {} };
+    (frame, scope, type) => coordination.postTopologyRefresh(frame, scope, type, location.origin), isVirtualMachineComponent, { push: payload => ({ type: 'navigate', payload }) });
+  const instance = new Topology(); instance.props = { group_id: 31, apps: [{ service_alias: 'component' }], dispatch: action => navigation.push(action.payload) };
   instance.state = { keyes: false }; instance.setState = update => Object.assign(instance.state, typeof update === 'function' ? update(instance.state) : update);
   instance.topologyFrame = { src: 'http://fixture/static/www/weavescope-topolog/index.html', contentWindow: { postMessage: (...args) => posts.push(args) } };
   instance.componentWillMount(); instance.componentDidMount();
   assert.match(window.iframeGetNodeUrl(), /group_id=31$/);
+  instance.props.apps = [{ service_alias: 'vm-draft', status: 'creating', extend_method: 'vm' },
+    { service_alias: 'container-draft', status: 'creating', extend_method: 'stateless_multiple', service_source: 'docker_run' }];
+  window.clickNode('vm-node', 'vm-draft');
+  assert.match(navigation.at(-1), /apps\/31\/overview\?type=components&componentID=vm-draft&tab=overview$/);
+  window.clickNode('container-node', 'container-draft');
+  assert.match(navigation.at(-1), /create\/create-check\/container-draft$/);
   const oldCompletion = coordination.captureTopologyOperation({ team_name: 'team', app_alias: 'component' }, location);
   instance.props = { ...instance.props, group_id: 32 }; instance.componentDidUpdate();
   assert.match(window.iframeGetNodeUrl(), /group_id=32$/); assert.equal(instance.state.keyes, true);

@@ -1,0 +1,99 @@
+import { message } from 'antd';
+import { formatMessage } from '@/utils/intl';
+import { listDeliveryTemplates, loadDeliveryComponents, loadDeliveryConfig, loadDeliveryMarkets, publishDeliveryTemplate, loadTemplateChanges, deleteDeliveryVersion, loadDeliveryExports, vmDeliveryPreparation } from '../services/templateDelivery';
+import { startTemplateSync, getTemplateSync, retryTemplateSync, cancelTemplateSync, loadTemplateSyncLogs } from '../services/templateSync';
+
+export default {
+  namespace: 'templateDelivery',
+  state: { records: [], template: null, activeSyncs: [], failed: false },
+  effects: {
+    *vmPreparation({ payload, callback, onError }, { call }) {
+      try {
+        const response = yield call(vmDeliveryPreparation, payload);
+        if (!response || !response.bean || (payload.operation === 'list' && !Array.isArray(response.bean.items))) throw new Error();
+        const tasks = payload.operation === 'list' ? response.bean.items : [response.bean];
+        if (tasks.some(task => !task.id || !['queued', 'running', 'succeeded', 'failed', 'cancelled'].includes(task.status) ||
+          !Array.isArray(task.components) || !task.components.length || task.components.some(component => !component.service_id ||
+            !['queued', 'exporting', 'ready', 'building', 'releasing', 'success', 'failed'].includes(component.status)) ||
+          task.status === 'succeeded' && !task.version_id)) throw new Error();
+        if (callback) callback(response.bean);
+      } catch (error) { if (onError) onError(error); }
+    },
+    *exports({ payload, callback, onError }, { call }) {
+      try {
+        const response = yield call(loadDeliveryExports, payload);
+        if (!response || !response.bean) throw new Error();
+        if (callback) callback(response.bean);
+      } catch (error) { if (onError) onError(error); }
+    },
+    *synchronize({ payload, callback, onError }, { call }) {
+      try {
+        const operations = { start: startTemplateSync, status: getTemplateSync, retry: retryTemplateSync, cancel: cancelTemplateSync, logs: loadTemplateSyncLogs };
+        if (!operations[payload.operation]) throw new Error('delivery.syncUnavailable');
+        const response = yield call(operations[payload.operation], payload);
+        if (!response || !response.bean) throw new Error('delivery.syncUnavailable');
+        if (payload.operation !== 'logs') {
+          const job = response.bean;
+          if (!job.id || !['syncing', 'success', 'failed', 'cancelled'].includes(job.status) || !Array.isArray(job.components) || !job.components.length ||
+            job.components.some(item => !item.service_id || !['queued', 'syncing', 'success', 'failed'].includes(item.status)) ||
+            payload.syncId && job.id !== payload.syncId || job.status === 'success' && job.components.some(item => item.status !== 'success')) {
+            throw new Error('delivery.syncUnavailable');
+          }
+        }
+        if (callback) callback(response.bean);
+      } catch (error) {
+        if (onError) onError(error && /^delivery\./.test(error.message) ? error.message.replace(/^delivery\./, '') : 'syncUnavailable');
+      }
+    },
+    *changes({ payload, callback, onError }, { call }) {
+      try {
+        const response = yield call(loadTemplateChanges, payload);
+        if (!response || !response.bean || !Array.isArray(response.bean.checks) || response.bean.checks.some(check =>
+          !check.baseline_id || !['changed', 'unchanged', 'unknown'].includes(check.status) || !Array.isArray(check.details) || !check.summary ||
+          check.details.some(item => !item.service_id || !['added', 'updated', 'removed'].includes(item.type) || !Array.isArray(item.fields)))) throw new Error();
+        if (callback) callback(response.bean);
+      } catch (error) { if (onError) onError(error); }
+    },
+    *deleteVersion({ payload, callback, onError }, { call }) {
+      try {
+        const response = yield call(deleteDeliveryVersion, payload);
+        if (!response || !response.bean) throw new Error('delivery.unavailable');
+        message.success(formatMessage({ id: 'delivery.versionDeleted' }));
+        if (callback) callback();
+      } catch (error) { message.error(formatMessage({ id: error && /^delivery\./.test(error.message) ? error.message : 'delivery.unavailable' }));if (onError) onError(error); }
+    },
+    records: [function* ({ payload, callback }, { call, put }) {
+      yield put({ type: 'save', payload: { records: [], template: null, failed: false } });
+      try {
+        const response = yield call(listDeliveryTemplates, payload);
+        if (!response || !response.bean || !Array.isArray(response.bean.items)) throw new Error();
+        yield put({ type: 'save', payload: { records: response.bean.items, template: response.bean.template || null, activeSyncs: response.bean.active_syncs || [] } });
+        if (callback) callback(response.bean.items, response.bean.active_syncs || []);
+      } catch (error) { yield put({ type: 'save', payload: { failed: true } }); }
+    }, { type: 'takeLatest' }],
+    *load({ payload, callback, onError }, { call }) {
+      try {
+        const operation = payload.kind === 'config' ? loadDeliveryConfig : payload.kind === 'markets' ? loadDeliveryMarkets : loadDeliveryComponents;
+        const response = yield call(operation, payload.kind === 'config' ? payload : payload.scope);
+        if (!response || !response.bean) throw new Error('delivery.unavailable');
+        if (callback) callback(response.bean);
+      } catch (error) { if (onError) onError(error); }
+    },
+    *publish({ payload, callback, onError }, { call, put }) {
+      try {
+        const response = yield call(publishDeliveryTemplate, payload);
+        if (!response || !response.bean) throw new Error('delivery.unavailable');
+        if (payload.prepareVM) {
+          if (!response.bean.id || !['queued', 'running', 'succeeded'].includes(response.bean.status)) throw new Error('delivery.unavailable');
+          message.info(formatMessage({ id: 'delivery.vmPreparing' }));
+        } else message.success(formatMessage({ id: 'delivery.publishSuccess' }));
+        yield put({ type: 'records', payload: payload.scope });
+        if (callback) callback(response.bean);
+      } catch (error) {
+        const key = error && /^delivery\./.test(error.message) ? error.message : 'delivery.publishFailed';
+        if (onError) onError(key);
+      }
+    }
+  },
+  reducers: { save(state, { payload }) { return { ...state, ...payload }; }, reset() { return { records: [], template: null, activeSyncs: [], failed: false }; } }
+};

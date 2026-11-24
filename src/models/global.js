@@ -610,8 +610,8 @@ export default {
         });
       }
     },
-    *CloudAppUpdateRecordsInfo({ payload, callback }, { call }) {
-      const response = yield call(getUpdateRecordsInfo, payload);
+    *CloudAppUpdateRecordsInfo({ payload, callback, handleError }, { call }) {
+      const response = yield call(getUpdateRecordsInfo, payload, handleError);
       if (response && callback) {
         setTimeout(() => {
           callback(response);
