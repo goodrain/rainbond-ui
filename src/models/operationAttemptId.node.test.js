@@ -125,7 +125,7 @@ function runDeployEffect(response, thrownError) {
     'buildAppControlProperties', 'trackOperationSucceeded', 'trackOperationFailed', 'isRequestFailure'
   ].map(name => generate(functionNode(appProgram, name)).code).join('\n');
   const putDeploy = effectNode(appProgram, 'putDeploy');
-  const execute = new Function('REQUEST_TELEMETRY_OPTIONS', 'captureAppOperation', 'captureTopologyOperation', 'deploy', 'startServiceAttempt', 'createRequestTelemetryOptions', 'getDeployType',
+  const execute = new Function('REQUEST_TELEMETRY_OPTIONS', 'captureAppOperation', 'captureTopologyOperation', 'deploy', 'createAttemptId', 'createRequestTelemetryOptions', 'getDeployType',
     `${declarations}\nreturn ({${generate(putDeploy).code}}).putDeploy;`)({ returnErrorMetadata: true },
     (...args) => events.push(args),
     () => () => {},
@@ -165,10 +165,11 @@ function runCreateEffect(response) {
   const declarations = ['buildCreateAppProperties', 'getOperationDeployType', 'trackCreateStarted', 'trackCreateSucceeded', 'trackCreateFailed', 'isRequestFailure']
     .map(name => generate(functionNode(program, name)).code).join('\n');
   const effect = effectNode(program, 'createAppByCode');
-  const execute = new Function('captureAppOperation', 'startServiceAttempt', 'createRequestTelemetryOptions', 'getDeployType', 'createAppByCode',
+  const execute = new Function('captureAppOperation', 'startServiceAttempt', 'bindServiceAttempt', 'createRequestTelemetryOptions', 'getDeployType', 'createAppByCode',
     `${declarations}\nreturn ({${generate(effect).code}}).createAppByCode;`)(
     (...args) => events.push(args),
     () => '123e4567-e89b-42d3-a456-426614174000',
+    () => {},
     attemptId => ({ returnErrorMetadata: true, attemptId }),
     () => 'source_code',
     () => {}

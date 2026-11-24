@@ -160,7 +160,7 @@ import {
 } from '../services/app';
 import { getGroupApps } from '../services/application';
 import { captureTopologyOperation } from '../utils/topologyRefresh';
-import { createRequestTelemetryOptions, getDeployType, startServiceAttempt } from '../utils/operationAttempt';
+import { createAttemptId, createRequestTelemetryOptions, getDeployType } from '../utils/operationAttempt';
 import { addCertificate, getCertificates } from '../services/team';
 import {
   captureAppOperation,
@@ -355,7 +355,7 @@ export default {
     },
     *putDeploy({ payload, callback, handleError }, { call }) {
       const refreshTopology = captureTopologyOperation(payload);
-      const attemptId = startServiceAttempt(payload);
+      const attemptId = createAttemptId();
       captureAppOperation('deploy', 'started', buildAppControlProperties(payload, { attempt_id: attemptId }));
       const operationPayload = { ...payload, attempt_id: attemptId };
       let response;

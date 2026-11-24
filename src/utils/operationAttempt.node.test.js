@@ -8,7 +8,7 @@ const filename = path.join(__dirname, 'operationAttempt.js');
 
 function loadOperationAttempt({ storage = new Map(), crypto } = {}) {
   const source = fs.readFileSync(filename, 'utf8').replace(/export function /g, 'function ');
-  const code = `${source}\nmodule.exports = { createAttemptId, createRequestTelemetryOptions, buildAttemptHeaders, startServiceAttempt, getServiceAttempt, clearServiceAttempt, startComposeAttempt, getComposeAttempt, clearComposeAttempt };`;
+  const code = `${source}\nmodule.exports = { createAttemptId, createRequestTelemetryOptions, buildAttemptHeaders, startServiceAttempt, getServiceAttempt, clearServiceAttempt, bindServiceAttempt, startComposeAttempt, getComposeAttempt, clearComposeAttempt, bindComposeAttempt, getDeployType };`;
   const sessionStorage = {
     getItem: key => storage.has(key) ? storage.get(key) : null,
     setItem: (key, value) => storage.set(key, value),
@@ -40,4 +40,20 @@ test('uses getRandomValues fallback and keeps attempt ids out of request bodies'
   assert.equal(api.createRequestTelemetryOptions(attemptId).attemptId, attemptId);
   assert.equal(api.createRequestTelemetryOptions(attemptId).returnErrorMetadata, true);
   assert.equal(api.buildAttemptHeaders(attemptId)['X-Rainbond-Attempt-Id'], attemptId);
+});
+
+test('binds backend aliases after creation and maps backend deploy type values', () => {
+  const { api } = loadOperationAttempt({ crypto: { getRandomValues: values => values.fill(2) } });
+  const attemptId = api.startServiceAttempt({ team_name: 'team', k8s_component_name: 'my-api' });
+  api.bindServiceAttempt({ team_name: 'team', service_alias: 'gr12ab34' }, attemptId);
+  assert.equal(api.getServiceAttempt({ team_name: 'team', app_alias: 'gr12ab34' }), attemptId);
+  api.clearServiceAttempt({ team_name: 'team', app_alias: 'gr12ab34' });
+  assert.equal(api.getServiceAttempt({ team_name: 'team', app_alias: 'gr12ab34' }), null);
+
+  const composeAttempt = api.startComposeAttempt({ team_name: 'team' });
+  api.bindComposeAttempt({ team_name: 'team', group_id: 'group', compose_id: 'compose-1' }, composeAttempt);
+  assert.equal(api.getComposeAttempt({ team_name: 'team', group_id: 'group', compose_id: 'compose-1' }), composeAttempt);
+  assert.equal(api.getDeployType({ source_type: 'vm_run' }), 'virtual_machine');
+  assert.equal(api.getDeployType({ source_type: 'package_build' }), 'source_code');
+  assert.equal(api.getDeployType({ source_type: 'third_party' }), 'image');
 });

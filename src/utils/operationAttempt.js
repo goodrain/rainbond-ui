@@ -46,14 +46,9 @@ export function createAttemptId() {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
     return crypto.randomUUID();
   }
+  if (typeof crypto === 'undefined' || typeof crypto.getRandomValues !== 'function') return '';
   const values = new Uint8Array(16);
-  if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
-    crypto.getRandomValues(values);
-  } else {
-    for (let index = 0; index < values.length; index += 1) {
-      values[index] = Math.floor(Math.random() * 256);
-    }
-  }
+  crypto.getRandomValues(values);
   values[6] = (values[6] & 0x0f) | 0x40;
   values[8] = (values[8] & 0x3f) | 0x80;
   const hex = Array.from(values, value => value.toString(16).padStart(2, '0')).join('');
@@ -81,6 +76,11 @@ export function startServiceAttempt(payload = {}) {
   return attemptId;
 }
 
+export function bindServiceAttempt(payload = {}, attemptId) {
+  const identifier = getIdentifier(payload);
+  if (identifier) writeAttempt(getKey('service', [payload.team_name || '', identifier]), attemptId);
+}
+
 export function clearServiceAttempt(payload = {}) {
   const identifier = getIdentifier(payload);
   if (identifier) removeAttempt(getKey('service', [payload.team_name || '', identifier]));
@@ -97,6 +97,12 @@ export function startComposeAttempt(payload = {}) {
     writeAttempt(getKey('compose', [payload.team_name || '', payload.group_id, payload.compose_id]), attemptId);
   }
   return attemptId;
+}
+
+export function bindComposeAttempt(payload = {}, attemptId) {
+  if (payload.group_id && payload.compose_id) {
+    writeAttempt(getKey('compose', [payload.team_name || '', payload.group_id, payload.compose_id]), attemptId);
+  }
 }
 
 export function clearComposeAttempt(payload = {}) {
@@ -119,7 +125,10 @@ export function getDeployType(payload = {}) {
     database: 'database',
     kubeblocks: 'database',
     vm: 'virtual_machine',
+    vm_run: 'virtual_machine',
     virtual_machine: 'virtual_machine',
+    package_build: 'source_code',
+    third_party: 'image',
     k8s: 'k8s_resource',
     k8s_resource: 'k8s_resource',
     yaml: 'yaml',

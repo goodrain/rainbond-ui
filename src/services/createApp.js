@@ -158,7 +158,7 @@ export async function createJarWarUploadRecord(
 /*
    Jar、War创建应用提交表单
 */
-export async function createJarWarFormSubmit(body = {}) {
+export async function createJarWarFormSubmit(body = {}, telemetryOptions = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/package_build`,
     {
@@ -170,7 +170,9 @@ export async function createJarWarFormSubmit(body = {}) {
         service_cname: body.service_cname,
         k8s_component_name: body.k8s_component_name,
         arch: body.arch,
-      }
+      },
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata,
+      headers: getAttemptHeaders(body, telemetryOptions)
     }
   );
 }
