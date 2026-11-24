@@ -160,6 +160,7 @@ import {
 } from '../services/app';
 import { getGroupApps } from '../services/application';
 import { captureTopologyOperation } from '../utils/topologyRefresh';
+import { createRequestTelemetryOptions, getDeployType, startServiceAttempt } from '../utils/operationAttempt';
 import { addCertificate, getCertificates } from '../services/team';
 import {
   captureAppOperation,
@@ -175,22 +176,8 @@ import {
 const { observeComponentUpgrade } = require('../utils/componentUpgradeFeedback');
 
 let portsRequestSequence = 0;
+
 const REQUEST_TELEMETRY_OPTIONS = { returnErrorMetadata: true };
-
-function createAttemptId() {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-    return crypto.randomUUID();
-  }
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, character => {
-    const value = Math.floor(Math.random() * 16);
-    const digit = character === 'x' ? value : (value & 0x3) | 0x8;
-    return digit.toString(16);
-  });
-}
-
-function createRequestTelemetryOptions(attemptId) {
-  return { ...REQUEST_TELEMETRY_OPTIONS, attemptId };
-}
 
 function buildAppControlProperties(payload = {}, overrides = {}) {
   return {
@@ -198,7 +185,7 @@ function buildAppControlProperties(payload = {}, overrides = {}) {
     app_alias: payload.app_alias || payload.service_alias,
     app_id: payload.app_id || payload.group_id,
     component_id: payload.service_id,
-    deploy_type: payload.deploy_type,
+    deploy_type: getDeployType(payload),
     ...overrides
   };
 }
@@ -368,7 +355,7 @@ export default {
     },
     *putDeploy({ payload, callback, handleError }, { call }) {
       const refreshTopology = captureTopologyOperation(payload);
-      const attemptId = createAttemptId();
+      const attemptId = startServiceAttempt(payload);
       captureAppOperation('deploy', 'started', buildAppControlProperties(payload, { attempt_id: attemptId }));
       const operationPayload = { ...payload, attempt_id: attemptId };
       let response;
@@ -767,7 +754,7 @@ export default {
             app_alias: payload && (payload.app_alias || payload.service_alias || (detail.service && detail.service.service_alias)),
             action_type: 'first_app_deploy',
             stage: 'detail_running',
-            deploy_type: detail.service && detail.service.service_source
+            deploy_type: getDeployType({ source_type: detail.service && detail.service.service_source })
           }));
         }
         if (!active()) return;

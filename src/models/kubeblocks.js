@@ -16,6 +16,8 @@ import {
     updateClusterParameters,
     restoreClusterFromBackup
 } from '../services/kubeblocks';
+import { captureAppOperation } from '../posthog';
+import { clearServiceAttempt, createRequestTelemetryOptions, getDeployType, startServiceAttempt } from '../utils/operationAttempt';
 
 export default {
     namespace: 'kubeblocks',
@@ -54,12 +56,22 @@ export default {
                 payload: true
             });
 
-            const response = yield call(createDatabaseCluster, payload, handleError);
-
-            yield put({
-                type: 'setCreateLoading',
-                payload: false
-            });
+            const attemptId = startServiceAttempt({ ...payload, ...(payload.config || {}) });
+            captureAppOperation('kubeblocks_create', 'started', { team_name: payload.team_name, group_id: payload.config && payload.config.group_id, attempt_id: attemptId, deploy_type: getDeployType({ source_type: 'kubeblocks' }) });
+            let response;
+            try {
+                response = yield call(createDatabaseCluster, payload, handleError, createRequestTelemetryOptions(attemptId));
+                captureAppOperation('kubeblocks_create', response && !response.__rainbondRequestFailure ? 'succeeded' : 'failed', { team_name: payload.team_name, group_id: payload.config && payload.config.group_id, attempt_id: attemptId, deploy_type: getDeployType({ source_type: 'kubeblocks' }) });
+            } catch (error) {
+                captureAppOperation('kubeblocks_create', 'failed', { team_name: payload.team_name, group_id: payload.config && payload.config.group_id, attempt_id: attemptId, deploy_type: getDeployType({ source_type: 'kubeblocks' }) });
+                throw error;
+            } finally {
+                clearServiceAttempt({ ...payload, ...(payload.config || {}) });
+                yield put({
+                    type: 'setCreateLoading',
+                    payload: false
+                });
+            }
 
             if (callback) {
                 callback(response);

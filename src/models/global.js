@@ -160,6 +160,7 @@ import cookie from '../utils/cookie';
 import rainbondUtil from '../utils/rainbond';
 import { getDvaApp } from 'umi';
 import { isSuccessfulPluginResponse } from '../utils/pluginInitialization';
+import { createAttemptId, createRequestTelemetryOptions } from '../utils/operationAttempt';
 
 export default {
   namespace: 'global',
@@ -587,7 +588,8 @@ export default {
       }
     },
     *fetchAppRedeploy({ payload, callback, handleError }, { call }) {
-      const response = yield call(getAppRedeploy, payload, handleError);
+      const attemptId = createAttemptId();
+      const response = yield call(getAppRedeploy, payload, handleError, createRequestTelemetryOptions(attemptId));
       if (response && callback) {
         setTimeout(() => {
           callback(response);

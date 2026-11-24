@@ -22,6 +22,7 @@ import {
   getCreateComposeCheckResult
 } from '../../services/createApp';
 import globalUtil from '../../utils/global';
+import { clearComposeAttempt } from '../../utils/operationAttempt';
 import rainbondUtil from '../../utils/rainbond';
 import regionUtil from '../../utils/region';
 import userUtil from '../../utils/user';
@@ -149,6 +150,7 @@ export default class CreateCheck extends PureComponent {
   componentWillUnmount() {
     this.mount = false;
     this.unbindEvent();
+    clearComposeAttempt({ team_name: globalUtil.getCurrTeamName(), ...this.getParams() });
   }
   getCheckuuid = () => {
     const team_name = globalUtil.getCurrTeamName();

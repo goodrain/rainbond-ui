@@ -1,14 +1,10 @@
-import { VM_LOGIN_METHODS, assertNoVmPasswordPayload, safeVmCredentialError, getVmPasswordUsernameError, getVmLoginPasswordError, normalizeVmLoginGroupId } from '../utils/vmLoginCredentials';
-import { isLinuxQcow2QuickStart } from '../utils/vmQuickStart';
 import apiconfig from '../../config/api.config';
 import request from '../utils/request';
 import sourceBuildPayload from '../utils/sourceBuildPayload';
-import globalUtil from '../utils/global';
-import { requestVmCreationStorage } from '../utils/vmCreationStorage';
+import { buildAttemptHeaders, getComposeAttempt, getServiceAttempt } from '../utils/operationAttempt';
 
-function buildAttemptHeaders(telemetryOptions) {
-  const attemptId = (telemetryOptions || {}).attemptId;
-  return attemptId ? { 'X-Rainbond-Attempt-Id': attemptId } : undefined;
+function getAttemptHeaders(body, telemetryOptions) {
+  return buildAttemptHeaders((telemetryOptions || {}).attemptId || getServiceAttempt(body));
 }
 
 const { sanitizePackageToolPayload } = sourceBuildPayload;
@@ -39,7 +35,7 @@ export async function createAppByCode(body = {}, telemetryOptions = {}) {
         arch: body.arch,
       },
       returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata,
-      headers: buildAttemptHeaders(telemetryOptions)
+      headers: getAttemptHeaders(body, telemetryOptions)
     }
   );
 }
@@ -69,7 +65,7 @@ export async function createThirtAppByCodes(body = {}, telemetryOptions = {}) {
         arch: body.arch,
       },
       returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata,
-      headers: buildAttemptHeaders(telemetryOptions)
+      headers: getAttemptHeaders(body, telemetryOptions)
     }
   );
 }
@@ -83,19 +79,18 @@ export async function createThirdPartyServices(body = {}, telemetryOptions = {})
       method: 'post',
       data: body,
       returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata,
-      headers: buildAttemptHeaders(telemetryOptions)
+      headers: getAttemptHeaders(body, telemetryOptions)
     }
   );
 }
 /*
    Jar、War包上传文件获取事件记录
 */
-export async function createJarWarServices(body = {}, handleError) {
+export async function createJarWarServices(body = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/package_build/record`,
     {
       method: 'post',
-      handleError,
       data: {
         region: body.region,
         component_id: body && body.component_id ? body.component_id : ''
@@ -103,7 +98,6 @@ export async function createJarWarServices(body = {}, handleError) {
     }
   );
 }
-
 /*
    Jar、War包上传文件状态
 */
@@ -220,7 +214,7 @@ export async function createAppByCompose(body = {}, telemetryOptions = {}) {
         arch: body.arch,
       },
       returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata,
-      headers: buildAttemptHeaders(telemetryOptions)
+      headers: getAttemptHeaders(body, telemetryOptions)
     }
   );
 }
@@ -247,7 +241,7 @@ export async function createAppByDockerrun(body = {}, telemetryOptions = {}) {
         arch: body.arch,
       },
       returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata,
-      headers: buildAttemptHeaders(telemetryOptions)
+      headers: getAttemptHeaders(body, telemetryOptions)
     }
   );
 }
@@ -297,56 +291,33 @@ export async function saveTarImageName(body = {}) {
 /*
    虚拟机镜像创建应用
 */
-function vmPasswordFieldsAtHttpBoundary(body, options) {
-  if (body.login_method !== 'password') return {};
-  try {
-    const active = () => typeof options.isActive === 'function' && options.isActive() === true;
-    if (!active() || options.passwordBootstrapSupported !== true ||
-        typeof options.readCredentials !== 'function' ||
-        !normalizeVmLoginGroupId(body.group_id) ||
-        !isLinuxQcow2QuickStart(body.source_type, body.vm_url) ||
-        body.format !== 'qcow2' || body.arch !== 'amd64' || body.boot_mode !== 'uefi' ||
-        body.os_family !== 'linux' || body.os_name !== 'Ubuntu 24.04' ||
-        Object.prototype.hasOwnProperty.call(body, 'ssh_public_key') ||
-        getVmPasswordUsernameError(body.ssh_username)) throw safeVmCredentialError();
-    const credential = options.readCredentials({
-      login_method: 'password', ssh_username: body.ssh_username,
-      team_name: body.team_name, group_id: body.group_id, vm_url: body.vm_url
-    });
-    if (!active() || !credential || Object.keys(credential).length !== 1 ||
-        getVmLoginPasswordError(credential.login_password)) throw safeVmCredentialError();
-    return { login_password: credential.login_password };
-  } catch (_) {
-    // Provider or active-predicate errors can themselves contain input. Never propagate them.
-    throw safeVmCredentialError();
-  }
-}
-
-export async function createAppByVirtualMachine(body = {}, handleError, telemetryOptions = {}) {
-  assertNoVmPasswordPayload(body);
-  if (body.login_method !== undefined && !VM_LOGIN_METHODS.includes(body.login_method)) throw safeVmCredentialError();
-  const passwordFields = vmPasswordFieldsAtHttpBoundary(body, telemetryOptions);
-  return request(`${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/vm_run`, {
-    method: 'post', handleError,
-    sensitiveError: body.sensitiveError === true || body.login_method === 'password' ||
-      typeof telemetryOptions.readCredentials === 'function' || body.ssh_username !== undefined || body.ssh_public_key !== undefined,
-    data: {
-      group_id: body.group_id, service_cname: body.service_cname,
-      k8s_component_name: body.k8s_component_name, image_name: body.image_name,
-      source_type: body.source_type, asset_id: body.asset_id, arch: body.arch,
-      vm_url: body.vm_url, event_id: body.event_id, format: body.format, boot_mode: body.boot_mode,
-      gpu_enabled: body.gpu_enabled, gpu_resources: body.gpu_resources, gpu_count: body.gpu_count,
-      usb_enabled: body.usb_enabled, usb_resources: body.usb_resources,
-      ...(body.os_name !== undefined ? { os_name: body.os_name } : {}),
-      ...(body.os_family !== undefined ? { os_family: body.os_family } : {}),
-      ...(body.login_method !== undefined ? { login_method: body.login_method } : {}),
-      ...(body.ssh_username !== undefined ? { ssh_username: body.ssh_username } : {}),
-      ...(body.login_method !== 'password' && body.ssh_public_key !== undefined ? { ssh_public_key: body.ssh_public_key } : {}),
-      ...passwordFields
-    },
-    returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata,
-    headers: buildAttemptHeaders(telemetryOptions)
-  });
+export async function createAppByVirtualMachine(body = {}, telemetryOptions = {}) {
+  return request(
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/vm_run`,
+    {
+      method: 'post',
+      data: {
+        group_id: body.group_id,
+        service_cname: body.service_cname,
+        k8s_component_name: body.k8s_component_name,
+        image_name: body.image_name,
+        source_type: body.source_type,
+        asset_id: body.asset_id,
+        arch: body.arch,
+        vm_url: body.vm_url,
+        event_id: body.event_id,
+        format: body.format,
+        boot_mode: body.boot_mode,
+        gpu_enabled: body.gpu_enabled,
+        gpu_resources: body.gpu_resources,
+        gpu_count: body.gpu_count,
+        usb_enabled: body.usb_enabled,
+        usb_resources: body.usb_resources,
+      },
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata,
+      headers: getAttemptHeaders(body, telemetryOptions)
+    }
+  );
 }
 
 /*
@@ -378,16 +349,11 @@ export async function deleteVirtualMachineImageAsset(body = {}, handleError) {
 /*
    虚拟机能力探测
 */
-export async function getVMCapabilities(body = {}, handleError) {
-  const url = `${apiconfig.baseUrl}/console/teams/${body.team_name}/vm/capabilities`;
-  if (body.creationStorageRead === true) return requestVmCreationStorage(request, url, body, handleError, {
-    team_name: globalUtil.getCurrTeamName(), region_name: globalUtil.getCurrRegionName()
-  });
+export async function getVMCapabilities(body = {}) {
   return request(
-    url,
+    `${apiconfig.baseUrl}/console/teams/${body.team_name}/vm/capabilities`,
     {
       method: 'get',
-      ...(handleError ? { handleError } : {})
     }
   );
 }
@@ -403,7 +369,8 @@ export function getCreateCheckId(body = {}, handleError) {
       data: {
         event_id: body.event_id
       },
-      handleError
+      handleError,
+      headers: buildAttemptHeaders(getServiceAttempt(body))
     }
   );
 }
@@ -419,7 +386,8 @@ export function getCreateCheckResult(body = {}) {
       params: {
         check_uuid: body.check_uuid,
         event_id: body.event_id
-      }
+      },
+      headers: buildAttemptHeaders(getServiceAttempt(body))
     }
   );
 }
@@ -434,7 +402,8 @@ export function getCreateComposeCheckInfo(body = {}) {
       method: 'post',
       data: {
         compose_id: body.compose_id
-      }
+      },
+      headers: buildAttemptHeaders(getComposeAttempt(body))
     }
   );
 }
@@ -454,7 +423,8 @@ export function getCreateComposeCheckResult(body = {}) {
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/check`,
     {
       method: 'get',
-      params
+      params,
+      headers: buildAttemptHeaders(getComposeAttempt(body))
     }
   );
 }
@@ -467,14 +437,14 @@ export function buildApp(body = {}, handleError) {
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/build`,
     {
       method: 'post',
-      sensitiveError: body.sensitiveError === true,
       data: {
         is_deploy: body.is_deploy,
         nodejs_type: body.nodejs_type,
         nodejs_dependency: body.nodejs_dependency,
         ...(body.region_name ? { team_name: body.team_name, region_name: body.region_name } : {}),
       },
-      handleError
+      handleError,
+      headers: buildAttemptHeaders(getServiceAttempt(body))
     }
   );
 }
@@ -606,7 +576,7 @@ export async function preflightInstallApp(body = {}, handleError) {
   );
 }
 
-export async function installApp(body = {}, handleError) {
+export async function installApp(body = {}, handleError, telemetryOptions = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/market_create`,
     {
@@ -626,7 +596,8 @@ export async function installApp(body = {}, handleError) {
       params: {
         region_name: body.region_name
       },
-      handleError
+      handleError,
+      headers: getAttemptHeaders(body, telemetryOptions)
     }
   );
 }
@@ -684,7 +655,7 @@ export async function installHelmApp(body = {}, telemetryOptions = {}) {
       method: 'post',
       data: body,
       returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata,
-      headers: buildAttemptHeaders(telemetryOptions)
+      headers: getAttemptHeaders(body, telemetryOptions)
     }
   );
 }
@@ -772,7 +743,7 @@ export async function installHelmAppCmd(body = {}, handleError, telemetryOptions
       },
       handleError,
       returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata,
-      headers: buildAttemptHeaders(telemetryOptions)
+      headers: getAttemptHeaders(body, telemetryOptions)
     }
   );
 }
@@ -788,7 +759,7 @@ export async function installRamAppCmd(body = {}, handleError, telemetryOptions 
       },
       handleError,
       returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata,
-      headers: buildAttemptHeaders(telemetryOptions)
+      headers: getAttemptHeaders(body, telemetryOptions)
     }
   );
 }
@@ -833,7 +804,7 @@ export async function installHelmUploadApp(body = {}, handleError, telemetryOpti
         app_id: body.group_id
       },
       returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata,
-      headers: buildAttemptHeaders(telemetryOptions)
+      headers: getAttemptHeaders(body, telemetryOptions)
     }
   )
 }

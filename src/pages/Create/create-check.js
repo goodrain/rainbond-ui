@@ -22,6 +22,7 @@ import {
   setNodeLanguage,
 } from '../../services/createApp';
 import globalUtil from '../../utils/global';
+import { clearServiceAttempt } from '../../utils/operationAttempt';
 import rainbondUtil from '../../utils/rainbond';
 import regionUtil from '../../utils/region';
 import roleUtil from '../../utils/role';
@@ -155,6 +156,7 @@ export default class CreateCheck extends React.Component {
   componentWillUnmount() {
     this.mount = false;
     this.unbindEvent();
+    clearServiceAttempt({ team_name: globalUtil.getCurrTeamName(), app_alias: this.getAppAlias() });
   }
   /**
    * handleCurrentTeamPermissions 函数：

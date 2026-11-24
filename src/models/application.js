@@ -69,6 +69,7 @@ import {
   fetchGroupAllResource,
   deleteGroupAllResource
 } from '../services/application';
+import { clearComposeAttempt } from '../utils/operationAttempt';
 
 export default {
   namespace: 'application',
@@ -388,9 +389,13 @@ export default {
     },
     // 构建compose应用
     *buildCompose({ payload, callback }, { call }) {
-      const response = yield call(buildCompose, payload);
-      if (response && callback) {
-        callback(response);
+      try {
+        const response = yield call(buildCompose, payload);
+        if (response && callback) {
+          callback(response);
+        }
+      } finally {
+        clearComposeAttempt(payload);
       }
     },
     *getShareEventInfo({ payload, callback }, { call }) {

@@ -482,10 +482,10 @@ export function captureFirstAppDeploySuccess(properties = {}) {
     'first_app_deploy_success',
     getCurrentRouteProperties({
       ...buildContextProperties(properties),
-      action_type: 'first_app_deploy'
+      action_type: 'first_app_deploy',
+      source: 'frontend'
     })
   );
-  captureMeaningfulActive('first_app_deploy', properties);
 }
 
 export function captureMarketInstall(status, properties = {}) {

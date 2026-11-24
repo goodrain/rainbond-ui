@@ -9,6 +9,9 @@ const createModelPath = path.join(__dirname, 'createApp.js');
 const appModelPath = path.join(__dirname, 'appControl.js');
 const createServicePath = path.join(__dirname, '../services/createApp.js');
 const appServicePath = path.join(__dirname, '../services/app.js');
+const applicationServicePath = path.join(__dirname, '../services/application.js');
+const kubeBlocksServicePath = path.join(__dirname, '../services/kubeblocks.js');
+const apiServicePath = path.join(__dirname, '../services/api.js');
 
 function parse(file) {
   return parser.parse(fs.readFileSync(file, 'utf8'), {
@@ -54,24 +57,8 @@ function assertEffectUsesAttempt(program, effectName, serviceName) {
 
 const createModel = parse(createModelPath);
 const appModel = parse(appModelPath);
-const createAttemptId = functionNode(createModel, 'createAttemptId');
-const createRequestTelemetryOptions = functionNode(createModel, 'createRequestTelemetryOptions');
-const buildCreateAppProperties = functionNode(createModel, 'buildCreateAppProperties');
-const trackCreateStarted = functionNode(createModel, 'trackCreateStarted');
-
-const events = [];
-const helpers = new Function(
-  'REQUEST_TELEMETRY_OPTIONS',
-  'captureAppOperation',
-  `${generate(createAttemptId).code}\n${generate(createRequestTelemetryOptions).code}\n${generate(buildCreateAppProperties).code}\n${generate(trackCreateStarted).code}\nreturn { createAttemptId, createRequestTelemetryOptions, trackCreateStarted };`
-)({ returnErrorMetadata: true }, (...args) => events.push(args));
-const attemptId = helpers.createAttemptId();
-assert.match(attemptId, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
-assert.deepEqual(helpers.createRequestTelemetryOptions(attemptId), { returnErrorMetadata: true, attemptId });
-helpers.trackCreateStarted('source_code_create', { team_name: 'team' }, attemptId);
-assert.equal(events[0][0], 'source_code_create');
-assert.equal(events[0][1], 'started');
-assert.equal(events[0][2].attempt_id, attemptId);
+assert.match(fs.readFileSync(createModelPath, 'utf8'), /from '..\/utils\/operationAttempt'/);
+assert.match(fs.readFileSync(appModelPath, 'utf8'), /from '..\/utils\/operationAttempt'/);
 
 [
   ['installHelmApp', 'installHelmApp'],
@@ -87,13 +74,17 @@ assert.equal(events[0][2].attempt_id, attemptId);
 ].forEach(([effectName, serviceName]) => assertEffectUsesAttempt(createModel, effectName, serviceName));
 assertEffectUsesAttempt(appModel, 'putDeploy', 'deploy');
 
-function assertServiceAttemptHeader(file, name, args) {
+function assertServiceAttemptHeader(file, name, args, storedAttemptType) {
   const program = parse(file);
-  const helper = functionNode(program, 'buildAttemptHeaders');
   const exported = program.body.find(item => item.type === 'ExportNamedDeclaration' && item.declaration && item.declaration.id.name === name).declaration;
+  const helper = program.body.find(item => item.type === 'FunctionDeclaration' && item.id.name === 'getAttemptHeaders');
   const calls = [];
-  const service = new Function('request', 'apiconfig', `${generate(helper).code}\n${generate(exported).code}\nreturn ${name};`)(
-    (url, options) => { calls.push({ url, options }); return Promise.resolve({}); }, { baseUrl: '' }
+  const service = new Function('request', 'apiconfig', 'buildAttemptHeaders', 'getServiceAttempt', 'getComposeAttempt',
+    `${helper ? generate(helper).code : ''}
+${generate(exported).code}
+return ${name};`)(
+    (url, options) => { calls.push({ url, options }); return Promise.resolve({}); }, { baseUrl: '' },
+    attemptId => attemptId ? { 'X-Rainbond-Attempt-Id': attemptId } : undefined, () => storedAttemptType === 'service' ? attempt : null, () => storedAttemptType === 'compose' ? attempt : null
   );
   const attempt = '123e4567-e89b-42d3-a456-426614174000';
   return Promise.resolve(service(...args(attempt))).then(() => {
@@ -110,25 +101,38 @@ const createServices = [
 ];
 const commandCreateServices = ['installHelmAppCmd', 'installRamAppCmd', 'installHelmUploadApp'];
 
-Promise.all([
-  ...createServices.map(name => assertServiceAttemptHeader(createServicePath, name, attempt => [{ team_name: 'team' }, { returnErrorMetadata: true, attemptId: attempt }])),
-  ...commandCreateServices.map(name => assertServiceAttemptHeader(createServicePath, name, attempt => [{ team_name: 'team' }, undefined, { returnErrorMetadata: true, attemptId: attempt }])),
-  assertServiceAttemptHeader(appServicePath, 'deploy', attempt => [{ team_name: 'team', app_alias: 'app' }, undefined, { returnErrorMetadata: true, attemptId: attempt }])
-]).then(() => console.log('operation attempt id tests passed'));
+test('create and deploy services send attempt IDs only in headers', async () => {
+  await Promise.all([
+    ...createServices.map(name => assertServiceAttemptHeader(createServicePath, name, attempt => [{ team_name: 'team' }, { returnErrorMetadata: true, attemptId: attempt }])),
+    ...commandCreateServices.map(name => assertServiceAttemptHeader(createServicePath, name, attempt => [{ team_name: 'team' }, undefined, { returnErrorMetadata: true, attemptId: attempt }])),
+    assertServiceAttemptHeader(appServicePath, 'deploy', attempt => [{ team_name: 'team', app_alias: 'app' }, undefined, { returnErrorMetadata: true, attemptId: attempt }]),
+    assertServiceAttemptHeader(createServicePath, 'installApp', attempt => [{ team_name: 'team', app_id: 'market' }, undefined, { returnErrorMetadata: true, attemptId: attempt }]),
+    assertServiceAttemptHeader(createServicePath, 'getCreateCheckId', () => [{ team_name: 'team', app_alias: 'app', event_id: 'event' }], 'service'),
+    assertServiceAttemptHeader(createServicePath, 'getCreateCheckResult', () => [{ team_name: 'team', app_alias: 'app', check_uuid: 'check', event_id: 'event' }], 'service'),
+    assertServiceAttemptHeader(createServicePath, 'buildApp', () => [{ team_name: 'team', app_alias: 'app' }], 'service'),
+    assertServiceAttemptHeader(createServicePath, 'getCreateComposeCheckInfo', () => [{ team_name: 'team', group_id: 'group', compose_id: 'compose' }], 'compose'),
+    assertServiceAttemptHeader(createServicePath, 'getCreateComposeCheckResult', () => [{ team_name: 'team', group_id: 'group', compose_id: 'compose', check_uuid: 'check' }], 'compose'),
+    assertServiceAttemptHeader(applicationServicePath, 'buildCompose', () => [{ team_name: 'team', group_id: 'group', compose_id: 'compose' }], 'compose'),
+    assertServiceAttemptHeader(kubeBlocksServicePath, 'createDatabaseCluster', attempt => [{ team_name: 'team', config: {} }, undefined, { attemptId: attempt }]),
+    assertServiceAttemptHeader(apiServicePath, 'getAppRedeploy', attempt => [{ team_name: 'team', group_id: 'group', record_id: 'record' }, undefined, { attemptId: attempt }])
+  ]);
+});
 
 function runDeployEffect(response, thrownError) {
   const events = [];
   const appProgram = parse(appModelPath);
   const declarations = [
-    'createAttemptId', 'createRequestTelemetryOptions', 'buildAppControlProperties',
-    'trackOperationSucceeded', 'trackOperationFailed', 'isRequestFailure'
+    'buildAppControlProperties', 'trackOperationSucceeded', 'trackOperationFailed', 'isRequestFailure'
   ].map(name => generate(functionNode(appProgram, name)).code).join('\n');
   const putDeploy = effectNode(appProgram, 'putDeploy');
-  const execute = new Function('REQUEST_TELEMETRY_OPTIONS', 'captureAppOperation', 'captureTopologyOperation', 'deploy',
+  const execute = new Function('REQUEST_TELEMETRY_OPTIONS', 'captureAppOperation', 'captureTopologyOperation', 'deploy', 'startServiceAttempt', 'createRequestTelemetryOptions', 'getDeployType',
     `${declarations}\nreturn ({${generate(putDeploy).code}}).putDeploy;`)({ returnErrorMetadata: true },
     (...args) => events.push(args),
     () => () => {},
-    () => {}
+    () => {},
+    () => '123e4567-e89b-42d3-a456-426614174000',
+    attemptId => ({ returnErrorMetadata: true, attemptId }),
+    () => 'other'
   );
   const iterator = execute({ payload: { team_name: 'team', app_alias: 'app' } }, { call: (...args) => args });
   const requestCall = iterator.next().value;
@@ -153,4 +157,67 @@ test('deploy started, terminal event, and request header share one attempt id', 
   assert.equal(failure.events[1][1], 'failed');
   assert.equal(failure.events[1][2].attempt_id, failureAttempt);
   assert.equal(failure.requestCall[3].attemptId, failureAttempt);
+});
+
+function runCreateEffect(response) {
+  const events = [];
+  const program = parse(createModelPath);
+  const declarations = ['buildCreateAppProperties', 'getOperationDeployType', 'trackCreateStarted', 'trackCreateSucceeded', 'trackCreateFailed', 'isRequestFailure']
+    .map(name => generate(functionNode(program, name)).code).join('\n');
+  const effect = effectNode(program, 'createAppByCode');
+  const execute = new Function('captureAppOperation', 'startServiceAttempt', 'createRequestTelemetryOptions', 'getDeployType', 'createAppByCode',
+    `${declarations}\nreturn ({${generate(effect).code}}).createAppByCode;`)(
+    (...args) => events.push(args),
+    () => '123e4567-e89b-42d3-a456-426614174000',
+    attemptId => ({ returnErrorMetadata: true, attemptId }),
+    () => 'source_code',
+    () => {}
+  );
+  const iterator = execute({ payload: { team_name: 'team', service_cname: 'app' } }, { call: (...args) => args });
+  const requestCall = iterator.next().value;
+  iterator.next(response);
+  return { events, requestCall };
+}
+
+test('create success and failure reuse the started attempt id', () => {
+  const success = runCreateEffect({ status_code: 200 });
+  assert.equal(success.events[0][1], 'started');
+  assert.equal(success.events[1][1], 'succeeded');
+  assert.equal(success.events[0][2].attempt_id, success.events[1][2].attempt_id);
+  assert.equal(success.requestCall[2].attemptId, success.events[0][2].attempt_id);
+
+  const failure = runCreateEffect({ __rainbondRequestFailure: true });
+  assert.equal(failure.events[0][1], 'started');
+  assert.equal(failure.events[1][1], 'failed');
+  assert.equal(failure.events[0][2].attempt_id, failure.events[1][2].attempt_id);
+  assert.equal(failure.requestCall[2].attemptId, failure.events[0][2].attempt_id);
+});
+
+function runMarketInstallEffect(response) {
+  const events = [];
+  let callbacks = 0;
+  const program = parse(createModelPath);
+  const declarations = ['buildCreateAppProperties', 'isRequestFailure']
+    .map(name => generate(functionNode(program, name)).code).join('\n');
+  const effect = effectNode(program, 'installApp');
+  const execute = new Function('captureMarketInstall', 'startServiceAttempt', 'createRequestTelemetryOptions', 'getDeployType', 'installApp',
+    `${declarations}\nreturn ({${generate(effect).code}}).installApp;`)(
+    (...args) => events.push(args),
+    () => '123e4567-e89b-42d3-a456-426614174000',
+    attemptId => ({ returnErrorMetadata: true, attemptId }),
+    () => 'app_market',
+    () => {}
+  );
+  const iterator = execute({ payload: { team_name: 'team', app_id: 'market' }, callback: () => { callbacks += 1; } }, { call: (...args) => args });
+  const requestCall = iterator.next().value;
+  iterator.next(response);
+  return { events, callbacks, requestCall };
+}
+
+test('market install failure metadata is not reported or handled as success', () => {
+  const result = runMarketInstallEffect({ __rainbondRequestFailure: true, error_category: 'network_error', error_code: 'network_error' });
+  assert.equal(result.events[0][0], 'started');
+  assert.equal(result.events[1][0], 'failed');
+  assert.equal(result.callbacks, 0);
+  assert.equal(result.requestCall[3].attemptId, result.events[0][1].attempt_id);
 });
