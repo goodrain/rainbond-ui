@@ -1,13 +1,12 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
-import { Alert, Button, Card, Form, Modal, Select, Spin, message } from 'antd';
+import { Alert, Button, Form, Modal, Select, Spin, message } from 'antd';
 import { formatMessage } from '@/utils/intl';
 import AddGroup from '../../components/AddOrEditGroup';
 import globalUtil from '../../utils/global';
 import roleUtil from '../../utils/newRole';
 import PluginUtils from '../../utils/pulginUtils';
-import styles from './Index.less';
 import { normalizeVmTargetGroupId, requestedVmTargetGroup, vmCreationEntryDestination, vmCreationTargetGroups, vmEntryQuery, vmCreationEntryPermissions } from './vmCreationEntry';
 
 const { Option } = Select;
@@ -103,10 +102,11 @@ export default class Index extends PureComponent {
   openTarget = (groupId, scope = this.scope, newlyCreated = false) => {
     if (!this.isCurrent(scope) || this.navigating || this.state.pluginStatus !== 'ready' ||
         !(newlyCreated ? this.canCreateApplication() : this.canAddToGroup(groupId))) return;
-    const destination = vmCreationEntryDestination(scope, groupId, vmEntryQuery(this.props.location).source_type);
+    const destination = vmCreationEntryDestination(scope, groupId, this.props.sourceType || vmEntryQuery(this.props.location).source_type);
     if (!destination) return;
     this.navigating = true;
-    this.props.dispatch(routerRedux.replace(destination));
+    if (this.props.onSelectTarget) this.props.onSelectTarget(destination);
+    else this.props.dispatch(routerRedux.replace(destination));
   };
 
   handleContinue = () => {
@@ -182,14 +182,19 @@ export default class Index extends PureComponent {
   };
 
   render() {
-    if (!this.canCreate()) return roleUtil.noPermission();
+    if (!this.canCreate()) {
+      if (!this.props.onCancel) return roleUtil.noPermission();
+      return <Modal visible title={formatMessage({ id: 'vmCreation.targetApplicationTitle' })}
+        onCancel={this.props.onCancel} footer={null}>{roleUtil.noPermission()}</Modal>;
+    }
     const { groups, groupsStatus, pluginStatus, selectedGroupId, addGroup, addGroupSubmitting, invalidTarget } = this.state;
     const addGroupSession = this.addGroupSession;
     const loading = groupsStatus === 'loading' || pluginStatus === 'loading';
     const failed = groupsStatus === 'failed' || pluginStatus === 'failed';
     const ready = groupsStatus === 'ready' && pluginStatus === 'ready';
-    return <Card bordered={this.props.handleType !== 'Service'} title={formatMessage({ id: 'vmCreation.targetApplicationTitle' })}>
-      <div className={styles.formWrap}>
+    return <Modal visible title={formatMessage({ id: 'vmCreation.targetApplicationTitle' })}
+      onCancel={this.props.onCancel} footer={null} maskClosable={false}>
+      <div>
         <p>{formatMessage({ id: 'vmCreation.targetApplicationHelp' })}</p>
         {loading && <Spin />}
         {failed && <>
@@ -221,6 +226,6 @@ export default class Index extends PureComponent {
       {addGroup && addGroupSession && <AddGroup teamName={addGroupSession.scope.team} regionName={addGroupSession.scope.region}
         isAddGroup={false} isEditEnglishName loading={addGroupSubmitting}
         onCancel={() => this.cancelAddGroup(addGroupSession)} onOk={values => this.handleCreateGroup(values, addGroupSession)} />}
-    </Card>;
+    </Modal>;
   }
 }

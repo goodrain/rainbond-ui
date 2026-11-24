@@ -450,7 +450,6 @@ export default class Overview extends Component {
     )
     return (
       <div className={`${styles.container} ${collapsed ? styles.collapsed : ''}`} key={refresh}>
-        <div id="vm-creation-workspace" className={styles.vmCreationWorkspace} />
         <button
           type="button"
           className={styles.guideEntryButton}

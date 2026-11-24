@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import VMStorageSnapshotHint from '../../components/VMStorageSnapshotHint';
+import moment from 'moment';
 import VmSnapshotCreate from './VmSnapshotCreate';
 import { Alert, Badge, Button, Card, Descriptions, Empty, Modal, Spin, Table } from 'antd';
 import { connect } from 'dva';
@@ -11,12 +11,13 @@ import { newVMRestoreRequestId, vmRestoreAttemptKey, loadVMRestoreAttempt, saveV
 import { createComponentPollingGuard, getComponentPollingDelay } from './componentPolling';
 import styles from './VmSnapshots.less';
 
-const text = key => formatMessage({ id: `componentOverview.vmWorkspace.snapshotRead.${key}` });
+const text = (key, values) => formatMessage({ id: `componentOverview.vmWorkspace.snapshotRead.${key}` }, values);
 const capText = key => formatMessage({ id: `componentOverview.vmStorageSnapshot.${key}` });
 const PHASES = ['prepared', 'stopping', 'creating', 'snapshotting', 'manifest-acked', 'resuming',
   'ready', 'failed', 'cancelling', 'cancelled', 'deleting', 'deleted'];
 const terminal = phase => ['ready', 'failed', 'cancelled', 'deleted'].includes(phase);
 const failedRead = { kind: 'failed', status: 0, code: '', retryable: true };
+const snapshotTime = value => value && moment(value).isValid() ? moment(value).format('YYYY-MM-DD HH:mm:ss') : text('notReported');
 
 export class VmSnapshots extends PureComponent {
   state = { contextKey: '', listStatus: 'loading', items: null, page: 1, pageSize: 20, total: 0,
@@ -165,42 +166,14 @@ export class VmSnapshots extends PureComponent {
   renderCapability = () => {
     const { capability, capabilityStatus, capabilityRefreshing, capabilityError } = this.state;
     const current = this.state.contextKey === this.identity() && this.enabled();
-    if (current && ((!capability && capabilityStatus === 'loading') ||
-        (capabilityStatus === 'ready' && capability?.supported === true && capability?.complete === true))) return null;
-    const state = !current ? 'unknown' : capabilityRefreshing ? 'loading'
-      : capabilityStatus === 'ready' ? capability.status : capabilityStatus;
-    const stale = !!capability && (capabilityRefreshing || capabilityStatus !== 'ready');
-    const label = row => row.disk_key || row.key;
-    const reason = value => <span>{value.message && <span>{value.message} </span>}<code>{value.reason_code}</code></span>;
-    const errorMessage = capabilityError?.status === 404 || capabilityError?.kind === 'notFound'
-      ? capText('readError.notFound')
-      : text(capabilityError?.code ? `errorCode.${capabilityError.code}` : `error.${capabilityError?.kind || 'failed'}`);
-    return <section aria-label={capText('currentDisks')}>
-      <VMStorageSnapshotHint mode="component" state={state} onRetry={current ? this.readCapability : undefined}
-        refreshing={capabilityRefreshing} />
-      {current && capabilityError && <p role="alert">{errorMessage} {capabilityError.code && <code>{capabilityError.code}</code>}</p>}
-      {current && capability && <div>
-        {stale ? <p>{capText('lastObservation')}</p> : <p>{reason(capability)} {capText(capability.complete ? 'membershipComplete' : 'membershipUnknown')}</p>}
-        <Table size="small" rowKey={(row, index) => `${row.key}:${index}`} pagination={false} dataSource={capability.volumes}
-          locale={{ emptyText: capText('noParticipants') }} columns={[
-            { title: capText('disk'), key: 'disk', render: (_, row) => label(row) },
-            { title: capText('role'), dataIndex: 'role', render: value => capText(value === 'root' ? 'rootDisk' : value === 'data' ? 'dataDisk' : 'unknownDisk') },
-            { title: capText('readOnly'), dataIndex: 'read_only', render: value => text(value ? 'yes' : 'no') },
-            { title: capText('storage'), dataIndex: 'storage_class', render: value => value || text('notReported') },
-            { title: capText('result'), dataIndex: 'status', render: value => <Badge status={value === 'supported' ? 'success' : value === 'unsupported' ? 'warning' : 'default'} text={capText(`decision.${value}`)} /> },
-            { title: capText('reason'), key: 'reason', render: (_, row) => reason(row) }
-          ]} />
-        {capability.excluded_volumes.length > 0 && <div>
-          <p>{capText('excluded')}</p>
-          <Table size="small" rowKey={(row, index) => `${row.key}:${index}`} pagination={false} dataSource={capability.excluded_volumes}
-            columns={[
-              { title: capText('disk'), dataIndex: 'key' },
-              { title: capText('reason'), dataIndex: 'reason_code', render: value => <span>{capText(['read_only_installation_media', 'auxiliary_media', 'detached_retained_volume'].includes(value) ? `excludedReason.${value}` : 'excludedReason.unknown')} <code>{value}</code></span> }
-            ]} />
-        </div>}
-        <p>{capText('advisory')}</p>
-      </div>}
-    </section>;
+    if (!current || capabilityRefreshing || capabilityStatus === 'loading' ||
+        (capabilityStatus === 'ready' && capability?.supported === true && capability?.complete === true)) return null;
+    const busy = capabilityStatus === 'ready' && capability?.reason_code === 'component_operation_in_progress';
+    const message = capabilityError?.kind === 'forbidden' ? text('error.forbidden')
+      : busy ? capText('component.busy')
+        : capabilityStatus === 'ready' && capability?.status === 'unsupported' ? capText('component.unsupportedShort')
+          : capText('component.checkUnavailable');
+    return <p className={styles.capabilityNotice} role={capabilityError ? 'alert' : 'status'}>{message}</p>;
   };
   select = (expanded, item) => {
     if (!this.enabled() || this.state.contextKey !== this.identity() ||
@@ -303,7 +276,9 @@ export class VmSnapshots extends PureComponent {
     if (restoreStatus === 'idle') return null;
     const type = restoreStatus === 'succeeded' ? 'success' : restoreStatus === 'failed' ? 'error' : 'info';
     const key = restoreStatus === 'failed' && restoreError?.code ? `errorCode.${restoreError.code}` : `restore.${restoreStatus}`;
-    return <Alert type={type} showIcon message={text(key)} description={restoreSnapshot} />;
+    return <Alert className={styles.restoreFeedback} type={type} showIcon
+      closable={restoreStatus === 'succeeded'} onClose={() => this.setState({ restoreStatus: 'idle' })}
+      message={<span className={styles.restoreMessage}><span>{text(key)}</span><span className={styles.restoreSnapshot}>{restoreSnapshot}</span></span>} />;
   };
   renderError = (error, flow) => <Alert type={error?.kind === 'unsupported' ? 'info' : 'warning'} showIcon
     message={text(error?.code ? `errorCode.${error.code}` : `error.${error?.kind || 'failed'}`)}
@@ -321,7 +296,7 @@ export class VmSnapshots extends PureComponent {
       <D key="name" label={text('name')}><span style={{ wordBreak: 'break-all' }}>{detail.snapshot_name}</span></D>,
       <D key="state" label={text('state')}>{this.phase(detail)}</D>,
       <D key="description" label={text('description')}>{detail.description || text('notReported')}</D>,
-      <D key="created" label={text('created')}>{detail.creation_time || text('notReported')}</D>,
+      <D key="created" label={text('created')}>{snapshotTime(detail.creation_time)}</D>,
       <D key="dataReady" label={text('dataReady')}>{yesNo(detail.ready_to_use)}</D>,
       <D key="recordSaved" label={text('recordSaved')}>{yesNo(detail.manifest_acked)}</D>,
       <D key="finalized" label={text('finalized')}>{yesNo(detail.finalized)}</D>,
@@ -355,27 +330,27 @@ export class VmSnapshots extends PureComponent {
         capabilityReady={current && !this.state.capabilityRefreshing && this.state.capabilityStatus === 'ready' &&
           this.state.capability?.supported === true && this.state.capability?.complete === true}
         dispatch={this.props.dispatch} onAccepted={() => this.read('list')}>
-      {(trigger, feedback) => <Card className={styles.snapshotsCard}
+      {(trigger, feedback) => <Card className={styles.snapshotsCard} bordered={false}
         title={formatMessage({ id: 'componentOverview.vmWorkspace.snapshotsTitle' })} size="small"
         extra={<div className={styles.actions}>
           {trigger}
           <Button size="small" icon="reload" loading={listRefreshing} disabled={!current} onClick={() => this.read('list')}>{text('refresh')}</Button>
         </div>}>
-      <p>{text('readOnlyScope')}</p>
       {this.renderCapability()}
       {feedback}
       {this.renderRestoreStatus()}
       {!current || listStatus === 'loading' ? <Spin /> : ['ready', 'empty'].includes(listStatus) ?
-        <Table size="small" rowKey="snapshot_name" loading={listRefreshing} dataSource={items}
+        <Table size="small" rowKey="snapshot_name" loading={listRefreshing} dataSource={items} scroll={{ x: 760 }}
           locale={{ emptyText: <Empty description={text('empty')} /> }}
-          pagination={{ current: page, pageSize, total, showSizeChanger: false, onChange: this.changePage }}
+          pagination={{ current: page, pageSize, total, hideOnSinglePage: true, size: 'small', showSizeChanger: false, onChange: this.changePage }}
           expandedRowKeys={selectedName ? [selectedName] : []} expandedRowRender={this.renderDetail}
+          expandIconAsCell={false} expandIconColumnIndex={-1}
           onExpand={this.select} columns={[
             { title: text('name'), dataIndex: 'snapshot_name', render: name => <span title={name} style={{ wordBreak: 'break-all' }}>{name}</span> },
             { title: text('state'), key: 'phase', render: (_, item) => this.phase(item) },
-            { title: text('created'), dataIndex: 'creation_time', render: value => value || text('notReported') },
-            { title: text('coverage'), key: 'coverage', render: (_, item) => `${item.coverage.included_disks} / ${item.coverage.expected_writable_disks}` },
-            { title: text('details'), key: 'details', render: (_, item) => <span>
+            { title: text('created'), dataIndex: 'creation_time', width: 180, render: value => <span className={styles.created} title={value}>{snapshotTime(value)}</span> },
+            { title: text('coverage'), key: 'coverage', width: 140, render: (_, item) => text('coverageValue', { included: item.coverage.included_disks, total: item.coverage.expected_writable_disks }) },
+            { title: text('actions'), key: 'details', width: 150, align: 'right', render: (_, item) => <span className={styles.rowActions}>
               <Button size="small" type="link" onClick={() => this.select(selectedName !== item.snapshot_name, item)}>
                 {text(selectedName === item.snapshot_name ? 'collapse' : 'details')}
               </Button>
