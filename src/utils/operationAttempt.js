@@ -76,9 +76,14 @@ export function startServiceAttempt(payload = {}) {
   return attemptId;
 }
 
-export function bindServiceAttempt(payload = {}, attemptId) {
+export function bindServiceAttempt(payload = {}, attemptId, previousPayload = {}) {
   const identifier = getIdentifier(payload);
-  if (identifier) writeAttempt(getKey('service', [payload.team_name || '', identifier]), attemptId);
+  const previousIdentifier = getIdentifier(previousPayload);
+  const teamName = payload.team_name || previousPayload.team_name || '';
+  if (previousIdentifier && previousIdentifier !== identifier) {
+    removeAttempt(getKey('service', [teamName, previousIdentifier]));
+  }
+  if (identifier) writeAttempt(getKey('service', [teamName, identifier]), attemptId);
 }
 
 export function clearServiceAttempt(payload = {}) {
@@ -112,7 +117,7 @@ export function clearComposeAttempt(payload = {}) {
 }
 
 export function getDeployType(payload = {}) {
-  const value = String(payload.deploy_type || payload.source_type || payload.image_type || payload.install_type || '').toLowerCase();
+  const value = String(payload.deploy_type || payload.service_source || payload.source_type || payload.image_type || payload.install_type || '').toLowerCase();
   const aliases = {
     source: 'source_code',
     source_code: 'source_code',
@@ -124,6 +129,7 @@ export function getDeployType(payload = {}) {
     image: 'image',
     database: 'database',
     kubeblocks: 'database',
+    kubeblocks_component: 'database',
     vm: 'virtual_machine',
     vm_run: 'virtual_machine',
     virtual_machine: 'virtual_machine',
@@ -136,5 +142,5 @@ export function getDeployType(payload = {}) {
     docker_compose: 'docker_compose',
     compose: 'docker_compose'
   };
-  return aliases[value] || 'other';
+  return aliases[value] || 'image';
 }

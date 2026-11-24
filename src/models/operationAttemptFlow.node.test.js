@@ -34,7 +34,7 @@ function effect(program, name) {
 
 function loadAttempts(storage) {
   const source = fs.readFileSync(operationAttemptPath, 'utf8').replace(/export function /g, 'function ');
-  const code = `${source}\nmodule.exports = { startServiceAttempt, bindServiceAttempt, getServiceAttempt, clearServiceAttempt, startComposeAttempt, bindComposeAttempt, getComposeAttempt, clearComposeAttempt, createRequestTelemetryOptions, getDeployType };`;
+  const code = `${source}\nmodule.exports = { startServiceAttempt, bindServiceAttempt, getServiceAttempt, clearServiceAttempt, startComposeAttempt, bindComposeAttempt, getComposeAttempt, clearComposeAttempt, createAttemptId, createRequestTelemetryOptions, getDeployType };`;
   const context = {
     module: { exports: {} },
     exports: {},
@@ -43,7 +43,7 @@ function loadAttempts(storage) {
       setItem: (key, value) => storage.set(key, value),
       removeItem: key => storage.delete(key)
     } },
-    crypto: { getRandomValues: values => values.fill(7) }
+    crypto: { getRandomValues: (() => { let value = 0; return values => values.fill(++value); })() }
   };
   vm.runInNewContext(code, context, { filename: operationAttemptPath });
   return context.module.exports;
@@ -66,7 +66,7 @@ function loadCreateEffect(name, dependencies, attempts, events) {
   const program = parse(createModelPath);
   const helpers = ['buildCreateAppProperties', 'getOperationDeployType', 'trackCreateStarted', 'trackCreateSucceeded', 'trackCreateFailed', 'isRequestFailure']
     .map(helper => generate(declaration(program, helper)).code).join('\n');
-  const names = ['captureAppOperation', 'startServiceAttempt', 'bindServiceAttempt', 'startComposeAttempt', 'bindComposeAttempt', 'clearServiceAttempt', 'createRequestTelemetryOptions', 'getDeployType', ...Object.keys(dependencies)];
+  const names = ['captureAppOperation', 'startServiceAttempt', 'bindServiceAttempt', 'startComposeAttempt', 'bindComposeAttempt', 'clearServiceAttempt', 'createAttemptId', 'createRequestTelemetryOptions', 'getDeployType', ...Object.keys(dependencies)];
   return new Function(...names, `${helpers}\nreturn ({${generate(effect(program, name)).code}}).${name};`)(
     (...args) => events.push(args),
     attempts.startServiceAttempt,
@@ -74,6 +74,7 @@ function loadCreateEffect(name, dependencies, attempts, events) {
     attempts.startComposeAttempt,
     attempts.bindComposeAttempt,
     attempts.clearServiceAttempt,
+    attempts.createAttemptId,
     attempts.createRequestTelemetryOptions,
     attempts.getDeployType,
     ...Object.values(dependencies)
@@ -102,11 +103,13 @@ function expectedHeader(calls, suffix) {
   return requestHeaders(calls, suffix)[0];
 }
 
-test('source/image/vm create responses bind generated aliases through check and build until build finishes', async () => {
+test('source, image, VM, OAuth, and package creates bind generated aliases through check and build until build finishes', async () => {
   for (const [effectName, createServiceName, createSuffix] of [
     ['createAppByCode', 'createAppByCode', '/apps/source_code'],
     ['createAppByDockerrun', 'createAppByDockerrun', '/apps/docker_run'],
-    ['createAppByVirtualMachine', 'createAppByVirtualMachine', '/apps/vm_run']
+    ['createAppByVirtualMachine', 'createAppByVirtualMachine', '/apps/vm_run'],
+    ['createThirtAppByCode', 'createThirtAppByCodes', '/apps/source_code'],
+    ['createJarWarFormSubmit', 'createJarWarFormSubmit', '/apps/package_build']
   ]) {
     const storage = new Map();
     const attempts = loadAttempts(storage);

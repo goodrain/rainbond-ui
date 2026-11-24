@@ -185,7 +185,7 @@ function buildAppControlProperties(payload = {}, overrides = {}) {
     app_alias: payload.app_alias || payload.service_alias,
     app_id: payload.app_id || payload.group_id,
     component_id: payload.service_id,
-    deploy_type: getDeployType(payload),
+    deploy_type: payload.service_source ? getDeployType(payload) : 'other',
     ...overrides
   };
 }

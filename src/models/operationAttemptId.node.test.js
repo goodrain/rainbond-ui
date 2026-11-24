@@ -12,6 +12,8 @@ const appServicePath = path.join(__dirname, '../services/app.js');
 const applicationServicePath = path.join(__dirname, '../services/application.js');
 const kubeBlocksServicePath = path.join(__dirname, '../services/kubeblocks.js');
 const apiServicePath = path.join(__dirname, '../services/api.js');
+const kubeBlocksModelPath = path.join(__dirname, 'kubeblocks.js');
+const globalModelPath = path.join(__dirname, 'global.js');
 
 function parse(file) {
   return parser.parse(fs.readFileSync(file, 'utf8'), {
@@ -57,6 +59,8 @@ function assertEffectUsesAttempt(program, effectName, serviceName) {
 
 const createModel = parse(createModelPath);
 const appModel = parse(appModelPath);
+const kubeBlocksModel = parse(kubeBlocksModelPath);
+const globalModel = parse(globalModelPath);
 assert.match(fs.readFileSync(createModelPath, 'utf8'), /from '..\/utils\/operationAttempt'/);
 assert.match(fs.readFileSync(appModelPath, 'utf8'), /from '..\/utils\/operationAttempt'/);
 
@@ -73,6 +77,7 @@ assert.match(fs.readFileSync(appModelPath, 'utf8'), /from '..\/utils\/operationA
   ['installHelmUploadApp', 'installHelmUploadApp']
 ].forEach(([effectName, serviceName]) => assertEffectUsesAttempt(createModel, effectName, serviceName));
 assertEffectUsesAttempt(appModel, 'putDeploy', 'deploy');
+assertEffectUsesAttempt(globalModel, 'fetchAppRedeploy', 'getAppRedeploy');
 
 function assertServiceAttemptHeader(file, name, args, storedAttemptType) {
   const program = parse(file);
@@ -221,4 +226,50 @@ test('market install failure metadata is not reported or handled as success', ()
   assert.equal(result.events[1][0], 'failed');
   assert.equal(result.callbacks, 0);
   assert.equal(result.requestCall[3].attemptId, result.events[0][1].attempt_id);
+});
+
+test('attempt lifecycle guards preserve check-page attempts and avoid Helm storage writes', () => {
+  const checkPage = fs.readFileSync(path.join(__dirname, '../pages/Create/create-check.js'), 'utf8');
+  const composeCheckPage = fs.readFileSync(path.join(__dirname, '../pages/Create/create-compose-check.js'), 'utf8');
+  assert.doesNotMatch(checkPage, /clearServiceAttempt/);
+  assert.doesNotMatch(composeCheckPage, /clearComposeAttempt/);
+
+  ['installHelmApp', 'installHelmAppCmd', 'installRamAppCmd', 'installHelmUploadApp'].forEach(effectName => {
+    const calls = callExpressions(effectNode(createModel, effectName).body);
+    assert.ok(calls.some(call => call.callee.name === 'createAttemptId'), `${effectName} should create a non-stored attempt`);
+    assert.equal(calls.some(call => call.callee.name === 'startServiceAttempt'), false, `${effectName} should not store an attempt`);
+  });
+});
+
+test('deploy classification uses component service_source and only falls back to other when absent', () => {
+  const properties = new Function('getDeployType', `${generate(functionNode(appModel, 'buildAppControlProperties')).code}\nreturn buildAppControlProperties;`)(payload => ({ docker_run: 'image', kubeblocks_component: 'database' }[payload.service_source] || 'image'));
+  assert.equal(properties({ service_source: 'docker_run' }).deploy_type, 'image');
+  assert.equal(properties({ service_source: 'kubeblocks_component' }).deploy_type, 'database');
+  assert.equal(properties({}).deploy_type, 'other');
+});
+
+test('kubeblocks terminal event and request reuse the started attempt id', () => {
+  const events = [];
+  const execute = new Function('captureAppOperation', 'startServiceAttempt', 'clearServiceAttempt', 'createRequestTelemetryOptions', 'getDeployType', 'createDatabaseCluster',
+    `return ({${generate(effectNode(kubeBlocksModel, 'createDatabaseCluster')).code}}).createDatabaseCluster;`)(
+    (...args) => events.push(args),
+    () => '123e4567-e89b-42d3-a456-426614174000',
+    () => {},
+    attemptId => ({ returnErrorMetadata: true, attemptId }),
+    () => 'database',
+    () => {}
+  );
+  const iterator = execute({ payload: { team_name: 'team', config: { k8s_component_name: 'db' } } }, { call: (...args) => args, put: (...args) => args });
+  iterator.next();
+  const requestCall = iterator.next().value;
+  iterator.next({ status_code: 200 });
+  assert.equal(events[0][1], 'started');
+  assert.equal(events[1][1], 'succeeded');
+  assert.equal(events[0][2].attempt_id, events[1][2].attempt_id);
+  assert.equal(requestCall[3].attemptId, events[0][2].attempt_id);
+});
+
+test('component detail deploy forwards service_source to the deploy effect', () => {
+  const componentPage = fs.readFileSync(path.join(__dirname, '../pages/Component/index.js'), 'utf8');
+  assert.match(componentPage, /service_source:\s*appDetail\s*&&\s*appDetail\.service\s*&&\s*appDetail\.service\.service_source/);
 });

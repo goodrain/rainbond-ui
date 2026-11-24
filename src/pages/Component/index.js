@@ -796,7 +796,8 @@ class Main extends PureComponent {
         team_name,
         app_alias,
         group_version: groupVersion || '',
-        is_upgrate: build_upgrade
+        is_upgrate: build_upgrade,
+        service_source: appDetail && appDetail.service && appDetail.service.service_source
       },
       callback: res => {
         if (res) {
