@@ -78,7 +78,7 @@ function requestHarness(outcome) {
   const imports = parse(source).program.body.filter(node => node.type === 'ImportDeclaration');
   const executable = imports.reverse().reduce(
     (value, node) => value.slice(0, node.start) + value.slice(node.end), source
-  ).replace('export default function', 'function');
+  ).replace(/export (?:default )?function/g, 'function');
   const request = new Function(...Object.keys(dependencies), `${executable}\nreturn request;`)(
     ...Object.values(dependencies)
   );

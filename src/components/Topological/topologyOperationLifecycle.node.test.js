@@ -49,9 +49,9 @@ test('real DVA operation success boundaries refresh without changing callbacks',
     let count = 0; let callbacks = 0;
     const remove = coordination.subscribeTopologyRefresh(coordination.topologyScope('team', 'region', 31), () => { count += 1; }, () => [{ service_alias: 'component', service_id: 'id' }]);
     const method = effects.find(node => node.key.name === name);
-    const factory = new Function('captureTopologyOperation', 'captureAppOperation', 'buildAppControlProperties', 'trackOperationSucceeded', ...services,
+    const factory = new Function('captureTopologyOperation', 'captureAppOperation', 'buildAppControlProperties', 'trackOperationSucceeded', 'REQUEST_TELEMETRY_OPTIONS', 'trackOperationFailed', 'isRequestFailure', ...services,
       `return ({${generate(method).code}}).${name};`);
-    const execute = factory(payload => coordination.captureTopologyOperation(payload, location), () => {}, () => ({}), () => {}, ...services.map(() => () => {}));
+    const execute = factory(payload => coordination.captureTopologyOperation(payload, location), () => {}, () => ({}), () => {}, { returnErrorMetadata: true }, () => {}, response => !!(response && response.__rainbondRequestFailure), ...services.map(() => () => {}));
     const iterator = execute({ payload: { team_name: 'team', app_alias: 'component', serviceIds: ['id'] }, callback: () => { callbacks += 1; } }, { call: (...args) => args });
     iterator.next(); iterator.next({ status_code: 200, business_code: 200 });
     assert.equal(count, 1, name); assert.equal(callbacks, 1, name); remove();
@@ -94,8 +94,8 @@ for (const caller of ['../../pages/Group/ComponentList.js', '../../pages/Group/C
   test(`real ${path.basename(caller)} caller → DVA → subscription accepts comma-separated IDs`, () => {
     const definition = parse('../../models/appControl.js').find(node => node.type === 'ExportDefaultDeclaration').declaration;
     const effect = definition.properties.find(node => node.key.name === 'effects').value.properties.find(node => node.key.name === 'batchOperation');
-    const execute = new Function('captureTopologyOperation', 'captureAppOperation', 'buildAppControlProperties', 'trackOperationSucceeded', 'batchOperation',
-      `return ({${generate(effect).code}}).batchOperation;`)(payload => coordination.captureTopologyOperation(payload, location), () => {}, () => ({}), () => {}, () => {});
+    const execute = new Function('captureTopologyOperation', 'captureAppOperation', 'buildAppControlProperties', 'trackOperationSucceeded', 'REQUEST_TELEMETRY_OPTIONS', 'trackOperationFailed', 'isRequestFailure', 'batchOperation',
+      `return ({${generate(effect).code}}).batchOperation;`)(payload => coordination.captureTopologyOperation(payload, location), () => {}, () => ({}), () => {}, { returnErrorMetadata: true }, () => {}, response => !!(response && response.__rainbondRequestFailure), () => {});
     const callerNodes = parse(caller);
     const callerClass = callerNodes.find(node => node.type === 'ClassDeclaration') ||
       callerNodes.find(node => node.type === 'ExportDefaultDeclaration').declaration;
@@ -113,3 +113,51 @@ for (const caller of ['../../pages/Group/ComponentList.js', '../../pages/Group/C
     }
   });
 }
+
+test('real DVA start and batch effects report then rethrow page handler errors', () => {
+  const definition = parse('../../models/appControl.js').find(node => node.type === 'ExportDefaultDeclaration').declaration;
+  const effects = definition.properties.find(node => node.key.name === 'effects').value.properties;
+  for (const [name, operation] of [['putStart', 'start'], ['batchOperation', 'stop']]) {
+    const tracked = [];
+    const effect = effects.find(node => node.key.name === name);
+    const execute = new Function('captureTopologyOperation', 'captureAppOperation', 'buildAppControlProperties', 'trackOperationSucceeded', 'REQUEST_TELEMETRY_OPTIONS', 'trackOperationFailed', 'isRequestFailure', 'start', 'batchOperation',
+      `return ({${generate(effect).code}}).${name};`)(() => () => {}, () => {}, () => ({}), () => {}, { returnErrorMetadata: true }, (action, payload, error) => tracked.push({ action, payload, error }), () => false, () => {}, () => {});
+    const payload = { team_name: 'team', app_alias: 'component', action: operation };
+    const iterator = execute({ payload, handleError: () => { throw new Error('page handler error'); } }, { call: () => {} });
+    iterator.next();
+    const error = new Error(`${name} request rejected`);
+    assert.throws(() => iterator.throw(error), value => value === error);
+    assert.deepEqual(tracked, [{ action: operation, payload, error }]);
+  }
+});
+
+test('real DVA start and batch effects do not report failed after a successful callback throws', () => {
+  const definition = parse('../../models/appControl.js').find(node => node.type === 'ExportDefaultDeclaration').declaration;
+  const effects = definition.properties.find(node => node.key.name === 'effects').value.properties;
+  for (const [name, operation] of [['putStart', 'start'], ['batchOperation', 'stop']]) {
+    const tracked = [];
+    const effect = effects.find(node => node.key.name === name);
+    const execute = new Function('captureTopologyOperation', 'captureAppOperation', 'buildAppControlProperties', 'trackOperationSucceeded', 'REQUEST_TELEMETRY_OPTIONS', 'trackOperationFailed', 'isRequestFailure', 'start', 'batchOperation',
+      `return ({${generate(effect).code}}).${name};`)(() => () => {}, () => {}, () => ({}), action => tracked.push({ status: 'succeeded', action }), { returnErrorMetadata: true }, action => tracked.push({ status: 'failed', action }), () => false, () => {}, () => {});
+    const callbackError = new Error(`${name} callback error`);
+    const iterator = execute({ payload: { team_name: 'team', app_alias: 'component', action: operation }, callback: () => { throw callbackError; } }, { call: () => {} });
+    iterator.next();
+    assert.throws(() => iterator.next({ status_code: 200, business_code: 200 }), value => value === callbackError);
+    assert.deepEqual(tracked, [{ status: 'succeeded', action: operation }]);
+  }
+});
+
+test('trackOperationFailed uses request telemetry from a page handler error', () => {
+  const trackerNode = parse('../../models/appControl.js').find(node => node.type === 'FunctionDeclaration' && node.id.name === 'trackOperationFailed');
+  const events = [];
+  const trackOperationFailed = new Function('captureAppOperation', 'buildAppControlProperties', `${generate(trackerNode).code}; return trackOperationFailed;`)(
+    (...args) => events.push(args),
+    (payload, overrides) => ({ ...payload, ...overrides })
+  );
+  const error = new Error('page handler error');
+  error.requestTelemetry = { error_category: 'business_failure', error_code: 'business_10499', http_status: 422 };
+  trackOperationFailed('start', { team_name: 'team' }, error);
+  assert.deepEqual(events, [['start', 'failed', {
+    team_name: 'team', action_type: 'start', error_category: 'business_failure', error_code: 'business_10499', http_status: 422
+  }]]);
+});
