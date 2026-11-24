@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react';
+import moment from 'moment';
 import VMStorageSnapshotHint from '../../components/VMStorageSnapshotHint';
 import VmSnapshotCreate from './VmSnapshotCreate';
 import { Alert, Badge, Button, Card, Descriptions, Empty, Modal, Spin, Table } from 'antd';
@@ -11,12 +12,13 @@ import { newVMRestoreRequestId, vmRestoreAttemptKey, loadVMRestoreAttempt, saveV
 import { createComponentPollingGuard, getComponentPollingDelay } from './componentPolling';
 import styles from './VmSnapshots.less';
 
-const text = key => formatMessage({ id: `componentOverview.vmWorkspace.snapshotRead.${key}` });
+const text = (key, values) => formatMessage({ id: `componentOverview.vmWorkspace.snapshotRead.${key}` }, values);
 const capText = key => formatMessage({ id: `componentOverview.vmStorageSnapshot.${key}` });
 const PHASES = ['prepared', 'stopping', 'creating', 'snapshotting', 'manifest-acked', 'resuming',
   'ready', 'failed', 'cancelling', 'cancelled', 'deleting', 'deleted'];
 const terminal = phase => ['ready', 'failed', 'cancelled', 'deleted'].includes(phase);
 const failedRead = { kind: 'failed', status: 0, code: '', retryable: true };
+const snapshotTime = value => value && moment(value).isValid() ? moment(value).format('YYYY-MM-DD HH:mm:ss') : text('notReported');
 
 export class VmSnapshots extends PureComponent {
   state = { contextKey: '', listStatus: 'loading', items: null, page: 1, pageSize: 20, total: 0,
@@ -303,7 +305,9 @@ export class VmSnapshots extends PureComponent {
     if (restoreStatus === 'idle') return null;
     const type = restoreStatus === 'succeeded' ? 'success' : restoreStatus === 'failed' ? 'error' : 'info';
     const key = restoreStatus === 'failed' && restoreError?.code ? `errorCode.${restoreError.code}` : `restore.${restoreStatus}`;
-    return <Alert type={type} showIcon message={text(key)} description={restoreSnapshot} />;
+    return <Alert className={styles.restoreFeedback} type={type} showIcon
+      closable={restoreStatus === 'succeeded'} onClose={() => this.setState({ restoreStatus: 'idle' })}
+      message={<span className={styles.restoreMessage}><span>{text(key)}</span><span className={styles.restoreSnapshot}>{restoreSnapshot}</span></span>} />;
   };
   renderError = (error, flow) => <Alert type={error?.kind === 'unsupported' ? 'info' : 'warning'} showIcon
     message={text(error?.code ? `errorCode.${error.code}` : `error.${error?.kind || 'failed'}`)}
@@ -321,7 +325,7 @@ export class VmSnapshots extends PureComponent {
       <D key="name" label={text('name')}><span style={{ wordBreak: 'break-all' }}>{detail.snapshot_name}</span></D>,
       <D key="state" label={text('state')}>{this.phase(detail)}</D>,
       <D key="description" label={text('description')}>{detail.description || text('notReported')}</D>,
-      <D key="created" label={text('created')}>{detail.creation_time || text('notReported')}</D>,
+      <D key="created" label={text('created')}>{snapshotTime(detail.creation_time)}</D>,
       <D key="dataReady" label={text('dataReady')}>{yesNo(detail.ready_to_use)}</D>,
       <D key="recordSaved" label={text('recordSaved')}>{yesNo(detail.manifest_acked)}</D>,
       <D key="finalized" label={text('finalized')}>{yesNo(detail.finalized)}</D>,
@@ -355,27 +359,28 @@ export class VmSnapshots extends PureComponent {
         capabilityReady={current && !this.state.capabilityRefreshing && this.state.capabilityStatus === 'ready' &&
           this.state.capability?.supported === true && this.state.capability?.complete === true}
         dispatch={this.props.dispatch} onAccepted={() => this.read('list')}>
-      {(trigger, feedback) => <Card className={styles.snapshotsCard}
+      {(trigger, feedback) => <Card className={styles.snapshotsCard} bordered={false}
         title={formatMessage({ id: 'componentOverview.vmWorkspace.snapshotsTitle' })} size="small"
         extra={<div className={styles.actions}>
           {trigger}
           <Button size="small" icon="reload" loading={listRefreshing} disabled={!current} onClick={() => this.read('list')}>{text('refresh')}</Button>
         </div>}>
-      <p>{text('readOnlyScope')}</p>
+      <p className={styles.scope}>{text('readOnlyScope')}</p>
       {this.renderCapability()}
       {feedback}
       {this.renderRestoreStatus()}
       {!current || listStatus === 'loading' ? <Spin /> : ['ready', 'empty'].includes(listStatus) ?
-        <Table size="small" rowKey="snapshot_name" loading={listRefreshing} dataSource={items}
+        <Table size="small" rowKey="snapshot_name" loading={listRefreshing} dataSource={items} scroll={{ x: 760 }}
           locale={{ emptyText: <Empty description={text('empty')} /> }}
-          pagination={{ current: page, pageSize, total, showSizeChanger: false, onChange: this.changePage }}
+          pagination={{ current: page, pageSize, total, hideOnSinglePage: true, size: 'small', showSizeChanger: false, onChange: this.changePage }}
           expandedRowKeys={selectedName ? [selectedName] : []} expandedRowRender={this.renderDetail}
+          expandIconAsCell={false} expandIconColumnIndex={-1}
           onExpand={this.select} columns={[
             { title: text('name'), dataIndex: 'snapshot_name', render: name => <span title={name} style={{ wordBreak: 'break-all' }}>{name}</span> },
             { title: text('state'), key: 'phase', render: (_, item) => this.phase(item) },
-            { title: text('created'), dataIndex: 'creation_time', render: value => value || text('notReported') },
-            { title: text('coverage'), key: 'coverage', render: (_, item) => `${item.coverage.included_disks} / ${item.coverage.expected_writable_disks}` },
-            { title: text('details'), key: 'details', render: (_, item) => <span>
+            { title: text('created'), dataIndex: 'creation_time', width: 180, render: value => <span className={styles.created} title={value}>{snapshotTime(value)}</span> },
+            { title: text('coverage'), key: 'coverage', width: 140, render: (_, item) => text('coverageValue', { included: item.coverage.included_disks, total: item.coverage.expected_writable_disks }) },
+            { title: text('actions'), key: 'details', width: 150, align: 'right', render: (_, item) => <span className={styles.rowActions}>
               <Button size="small" type="link" onClick={() => this.select(selectedName !== item.snapshot_name, item)}>
                 {text(selectedName === item.snapshot_name ? 'collapse' : 'details')}
               </Button>

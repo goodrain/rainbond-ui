@@ -75,7 +75,7 @@ function harness(previousRestoreStorage) {
   const globalUtil = { getCurrTeamName: () => scope.team, getCurrRegionName: () => scope.region,
     getAppID: () => scope.application, getSlidePanelComponentID: () => scope.alias };
   const Component = load('pages/Component/VmSnapshots.js', {
-    react: React, antd: { Alert: 'Alert', Badge: 'Badge', Button: 'Button', Card: 'Card', Descriptions: { Item: 'D' }, Empty: 'Empty', Modal: { confirm: options => options.onOk() }, Spin: 'Spin', Table: 'Table' },
+    react: React, moment: require('moment'), antd: { Alert: 'Alert', Badge: 'Badge', Button: 'Button', Card: 'Card', Descriptions: { Item: 'D' }, Empty: 'Empty', Modal: { confirm: options => options.onOk() }, Spin: 'Spin', Table: 'Table' },
     './VmSnapshotCreate': 'SnapshotCreate',
     './VmSnapshots.less': {},
     dva: { connect: () => component => component }, '@/utils/intl': { formatMessage: ({ id }) => id },
@@ -702,7 +702,7 @@ test('restore configuration changes retain the safe 422 code and never retry aut
   await h.mount(); h.panel.confirmRestore(ready); await h.settle();
   assert.equal(h.panel.state.restoreStatus, 'failed');
   assert.equal(h.panel.state.restoreError.code, code);
-  assert.ok(h.panel.renderRestoreStatus().props.message.endsWith(`errorCode.${code}`));
+  assert.ok(ReactDOMServer.renderToStaticMarkup(h.panel.renderRestoreStatus().props.message).includes(`errorCode.${code}`));
   assert.equal(h.panel.timers.restore, null);
   assert.equal(h.requests.filter(value => value.url.includes('/restore')).length, 1);
   assert.equal(JSON.stringify(h.panel.renderRestoreStatus()).includes('PRIVATE_RESTORE_CONFIGURATION_SENTINEL'), false);

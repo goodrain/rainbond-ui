@@ -1,4 +1,15 @@
+@import '~antd/lib/style/themes/default.less';
+
 .snapshotsCard {
+  :global(.ant-card-head) {
+    padding: 0;
+    border-bottom: 0;
+  }
+
+  :global(.ant-card-body) {
+    padding: 0;
+  }
+
   :global(.ant-card-head-wrapper) {
     flex-wrap: wrap;
     column-gap: 16px;
@@ -10,6 +21,46 @@
 
   :global(.ant-card-extra) {
     margin-left: 0;
+  }
+}
+
+.scope {
+  margin: 0 0 16px;
+  color: @text-color-secondary;
+  font-size: @rbd-content-size;
+  line-height: @rbd-content-line-height;
+}
+
+.restoreFeedback {
+  margin-bottom: 16px;
+}
+
+.restoreMessage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+}
+
+.restoreSnapshot {
+  color: @text-color-secondary;
+  overflow-wrap: anywhere;
+}
+
+.created {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.rowActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+
+  :global(.ant-btn-link) {
+    padding-right: 0;
+    padding-left: 0;
   }
 }
 
