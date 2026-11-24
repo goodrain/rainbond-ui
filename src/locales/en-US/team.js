@@ -47,6 +47,8 @@ const teamOverview = {
   'teamOverview.resourceOccupied':'Resource occupied',
   'teamOverview.memory':'Memory',
   'teamOverview.noAppTip':'You have not created any applications yet',
+  'teamOverview.noSearchResult': 'No matching applications found',
+  'teamOverview.clearSearch': 'Clear search',
   'teamOverview.selectMethodTip':'Quick create by selecting method',
   'teamOverview.supportMethods':'Supports multiple build methods',
   'firstDeployGuide.recommended': 'Recommended',
