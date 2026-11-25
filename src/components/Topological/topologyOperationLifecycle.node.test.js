@@ -5,7 +5,7 @@ const path = require('node:path');
 const parser = require('@babel/parser');
 const generate = require('@babel/generator').default;
 const coordination = require('../../utils/topologyRefresh');
-const { isVmWorkflowDemoEnabled } = require('../../utils/vmWorkflowDemo');
+const { isVirtualMachineComponent } = require('../../utils/virtualMachineComponent');
 const location = { hash: '#/team/team/region/region/apps/31/overview', origin: 'http://fixture' };
 
 function parse(relative) {
@@ -49,9 +49,9 @@ test('real DVA operation success boundaries refresh without changing callbacks',
     let count = 0; let callbacks = 0;
     const remove = coordination.subscribeTopologyRefresh(coordination.topologyScope('team', 'region', 31), () => { count += 1; }, () => [{ service_alias: 'component', service_id: 'id' }]);
     const method = effects.find(node => node.key.name === name);
-    const factory = new Function('captureTopologyOperation', 'captureAppOperation', 'buildAppControlProperties', 'trackOperationSucceeded', ...services,
+    const factory = new Function('captureTopologyOperation', 'captureAppOperation', 'buildAppControlProperties', 'trackOperationSucceeded', 'REQUEST_TELEMETRY_OPTIONS', 'trackOperationFailed', 'isRequestFailure', ...services,
       `return ({${generate(method).code}}).${name};`);
-    const execute = factory(payload => coordination.captureTopologyOperation(payload, location), () => {}, () => ({}), () => {}, ...services.map(() => () => {}));
+    const execute = factory(payload => coordination.captureTopologyOperation(payload, location), () => {}, () => ({}), () => {}, { returnErrorMetadata: true }, () => {}, response => !!(response && response.__rainbondRequestFailure), ...services.map(() => () => {}));
     const iterator = execute({ payload: { team_name: 'team', app_alias: 'component', serviceIds: ['id'] }, callback: () => { callbacks += 1; } }, { call: (...args) => args });
     iterator.next(); iterator.next({ status_code: 200, business_code: 200 });
     assert.equal(count, 1, name); assert.equal(callbacks, 1, name); remove();
@@ -61,19 +61,25 @@ test('real DVA operation success boundaries refresh without changing callbacks',
 test('real topology lifecycle replaces scope callbacks, resets iframe graph and removes only its own callbacks', () => {
   const source = parse('index.js');
   const declaration = source.find(node => node.type === 'ClassDeclaration');
-  const selected = ['componentWillMount', 'componentDidMount', 'componentDidUpdate', 'componentWillUnmount', 'installFrameCallbacks', 'protectVmWorkflowActions', 'bindTopologyRefresh', 'refreshFrame', 'triggerTopologyRefresh'];
+  const selected = ['componentWillMount', 'componentDidMount', 'componentDidUpdate', 'componentWillUnmount', 'installFrameCallbacks', 'bindTopologyRefresh', 'refreshFrame', 'triggerTopologyRefresh'];
   const methods = declaration.body.body.filter(node => selected.includes(node.key.name)).map(node => generate(node).code).join('\n');
   const callbackNames = source.find(node => node.type === 'VariableDeclaration' && node.declarations[0].id.name === 'frameCallbackNames');
-  const window = { location }; const posts = [];
+  const window = { location }; const posts = [], navigation = [];
   const globalUtil = { getCurrTeamName: () => 'team', getCurrRegionName: () => 'region', getAppID: () => 31, getSlidePanelComponentID: () => 'component' };
-  const Topology = new Function('window', 'globalUtil', 'apiconfig', 'topologyScope', 'subscribeTopologyRefresh', 'postTopologyRefresh', 'isVmWorkflowDemoEnabled',
+  const Topology = new Function('window', 'globalUtil', 'apiconfig', 'topologyScope', 'subscribeTopologyRefresh', 'postTopologyRefresh', 'isVirtualMachineComponent', 'routerRedux',
     `${generate(callbackNames).code}; return class { ${methods} };`)(window, globalUtil, { baseUrl: '' }, coordination.topologyScope, coordination.subscribeTopologyRefresh,
-    (frame, scope, type) => coordination.postTopologyRefresh(frame, scope, type, location.origin), isVmWorkflowDemoEnabled);
-  const instance = new Topology(); instance.props = { group_id: 31, apps: [{ service_alias: 'component' }], dispatch() {} };
+    (frame, scope, type) => coordination.postTopologyRefresh(frame, scope, type, location.origin), isVirtualMachineComponent, { push: payload => ({ type: 'navigate', payload }) });
+  const instance = new Topology(); instance.props = { group_id: 31, apps: [{ service_alias: 'component' }], dispatch: action => navigation.push(action.payload) };
   instance.state = { keyes: false }; instance.setState = update => Object.assign(instance.state, typeof update === 'function' ? update(instance.state) : update);
   instance.topologyFrame = { src: 'http://fixture/static/www/weavescope-topolog/index.html', contentWindow: { postMessage: (...args) => posts.push(args) } };
   instance.componentWillMount(); instance.componentDidMount();
   assert.match(window.iframeGetNodeUrl(), /group_id=31$/);
+  instance.props.apps = [{ service_alias: 'vm-draft', status: 'creating', extend_method: 'vm' },
+    { service_alias: 'container-draft', status: 'creating', extend_method: 'stateless_multiple', service_source: 'docker_run' }];
+  window.clickNode('vm-node', 'vm-draft');
+  assert.match(navigation.at(-1), /apps\/31\/overview\?type=components&componentID=vm-draft&tab=overview$/);
+  window.clickNode('container-node', 'container-draft');
+  assert.match(navigation.at(-1), /create\/create-check\/container-draft$/);
   const oldCompletion = coordination.captureTopologyOperation({ team_name: 'team', app_alias: 'component' }, location);
   instance.props = { ...instance.props, group_id: 32 }; instance.componentDidUpdate();
   assert.match(window.iframeGetNodeUrl(), /group_id=32$/); assert.equal(instance.state.keyes, true);
@@ -84,30 +90,12 @@ test('real topology lifecycle replaces scope callbacks, resets iframe graph and 
   assert.equal(window.clickNode, replacementCallback); assert.equal(posts.at(-1)[0].type, 'rainbond:topology-stop');
 });
 
-test('VM workflow demo redirects VM actions without changing container actions and discards stale reads', () => {
-  const declaration = parse('index.js').find(node => node.type === 'ClassDeclaration');
-  const method = declaration.body.body.find(node => node.key.name === 'protectVmWorkflowActions');
-  const callbacks = []; const navigation = []; const originalCalls = [];
-  const window = { handleClickStart: (...args) => originalCalls.push(args) };
-  const globalUtil = { getCurrTeamName: () => 'team', getCurrRegionName: () => 'region', getAppID: () => 31 };
-  const Topology = new Function('window', 'globalUtil', 'isVmWorkflowDemoEnabled', 'routerRedux', 'notification', `return class { ${generate(method).code} };`)(window, globalUtil, () => true, { push: path => ({ type: 'navigate', path }) }, { warning() {}, info() {} });
-  const instance = new Topology(); instance.frameScope = 'scope-a';
-  instance.props = { apps: [], dispatch: action => action.type === 'vmDemo/resolveGraphAction' ? callbacks.push(action.callback) : navigation.push(action.path) };
-  instance.protectVmWorkflowActions(); instance.ownedFrameCallbacks = { handleClickStart: window.handleClickStart };
-  window.handleClickStart('start', { service_alias: 'vm' }); callbacks.shift()({ vm: 'vm' });
-  assert.equal(originalCalls.length, 0); assert.match(navigation[0], /componentID=vm&tab=overview$/);
-  window.handleClickStart('start', { service_alias: 'container' }); callbacks.shift()({ vm: null });
-  assert.equal(originalCalls.length, 1); assert.equal(originalCalls[0][1].service_alias, 'container');
-  window.handleClickStart('start', { service_alias: 'stale' }); instance.frameScope = 'scope-b'; callbacks.shift()({ vm: null });
-  assert.equal(originalCalls.length, 1);
-});
-
 for (const caller of ['../../pages/Group/ComponentList.js', '../../pages/Group/ComponentListModal.js']) {
   test(`real ${path.basename(caller)} caller → DVA → subscription accepts comma-separated IDs`, () => {
     const definition = parse('../../models/appControl.js').find(node => node.type === 'ExportDefaultDeclaration').declaration;
     const effect = definition.properties.find(node => node.key.name === 'effects').value.properties.find(node => node.key.name === 'batchOperation');
-    const execute = new Function('captureTopologyOperation', 'captureAppOperation', 'buildAppControlProperties', 'trackOperationSucceeded', 'batchOperation',
-      `return ({${generate(effect).code}}).batchOperation;`)(payload => coordination.captureTopologyOperation(payload, location), () => {}, () => ({}), () => {}, () => {});
+    const execute = new Function('captureTopologyOperation', 'captureAppOperation', 'buildAppControlProperties', 'trackOperationSucceeded', 'REQUEST_TELEMETRY_OPTIONS', 'trackOperationFailed', 'isRequestFailure', 'batchOperation',
+      `return ({${generate(effect).code}}).batchOperation;`)(payload => coordination.captureTopologyOperation(payload, location), () => {}, () => ({}), () => {}, { returnErrorMetadata: true }, () => {}, response => !!(response && response.__rainbondRequestFailure), () => {});
     const callerNodes = parse(caller);
     const callerClass = callerNodes.find(node => node.type === 'ClassDeclaration') ||
       callerNodes.find(node => node.type === 'ExportDefaultDeclaration').declaration;
@@ -125,3 +113,51 @@ for (const caller of ['../../pages/Group/ComponentList.js', '../../pages/Group/C
     }
   });
 }
+
+test('real DVA start and batch effects report then rethrow page handler errors', () => {
+  const definition = parse('../../models/appControl.js').find(node => node.type === 'ExportDefaultDeclaration').declaration;
+  const effects = definition.properties.find(node => node.key.name === 'effects').value.properties;
+  for (const [name, operation] of [['putStart', 'start'], ['batchOperation', 'stop']]) {
+    const tracked = [];
+    const effect = effects.find(node => node.key.name === name);
+    const execute = new Function('captureTopologyOperation', 'captureAppOperation', 'buildAppControlProperties', 'trackOperationSucceeded', 'REQUEST_TELEMETRY_OPTIONS', 'trackOperationFailed', 'isRequestFailure', 'start', 'batchOperation',
+      `return ({${generate(effect).code}}).${name};`)(() => () => {}, () => {}, () => ({}), () => {}, { returnErrorMetadata: true }, (action, payload, error) => tracked.push({ action, payload, error }), () => false, () => {}, () => {});
+    const payload = { team_name: 'team', app_alias: 'component', action: operation };
+    const iterator = execute({ payload, handleError: () => { throw new Error('page handler error'); } }, { call: () => {} });
+    iterator.next();
+    const error = new Error(`${name} request rejected`);
+    assert.throws(() => iterator.throw(error), value => value === error);
+    assert.deepEqual(tracked, [{ action: operation, payload, error }]);
+  }
+});
+
+test('real DVA start and batch effects do not report failed after a successful callback throws', () => {
+  const definition = parse('../../models/appControl.js').find(node => node.type === 'ExportDefaultDeclaration').declaration;
+  const effects = definition.properties.find(node => node.key.name === 'effects').value.properties;
+  for (const [name, operation] of [['putStart', 'start'], ['batchOperation', 'stop']]) {
+    const tracked = [];
+    const effect = effects.find(node => node.key.name === name);
+    const execute = new Function('captureTopologyOperation', 'captureAppOperation', 'buildAppControlProperties', 'trackOperationSucceeded', 'REQUEST_TELEMETRY_OPTIONS', 'trackOperationFailed', 'isRequestFailure', 'start', 'batchOperation',
+      `return ({${generate(effect).code}}).${name};`)(() => () => {}, () => {}, () => ({}), action => tracked.push({ status: 'succeeded', action }), { returnErrorMetadata: true }, action => tracked.push({ status: 'failed', action }), () => false, () => {}, () => {});
+    const callbackError = new Error(`${name} callback error`);
+    const iterator = execute({ payload: { team_name: 'team', app_alias: 'component', action: operation }, callback: () => { throw callbackError; } }, { call: () => {} });
+    iterator.next();
+    assert.throws(() => iterator.next({ status_code: 200, business_code: 200 }), value => value === callbackError);
+    assert.deepEqual(tracked, [{ status: 'succeeded', action: operation }]);
+  }
+});
+
+test('trackOperationFailed uses request telemetry from a page handler error', () => {
+  const trackerNode = parse('../../models/appControl.js').find(node => node.type === 'FunctionDeclaration' && node.id.name === 'trackOperationFailed');
+  const events = [];
+  const trackOperationFailed = new Function('captureAppOperation', 'buildAppControlProperties', `${generate(trackerNode).code}; return trackOperationFailed;`)(
+    (...args) => events.push(args),
+    (payload, overrides) => ({ ...payload, ...overrides })
+  );
+  const error = new Error('page handler error');
+  error.requestTelemetry = { error_category: 'business_failure', error_code: 'business_10499', http_status: 422 };
+  trackOperationFailed('start', { team_name: 'team' }, error);
+  assert.deepEqual(events, [['start', 'failed', {
+    team_name: 'team', action_type: 'start', error_category: 'business_failure', error_code: 'business_10499', http_status: 422
+  }]]);
+});

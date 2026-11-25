@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import VMStorageSnapshotHint from '../../components/VMStorageSnapshotHint';
 import { Alert, Button, Card, Descriptions, Form, Input, InputNumber, Radio, Select, Steps } from 'antd';
 import { formatMessage } from '@/utils/intl';
-import { createValues } from './state';
+import { createValues } from './formDefaults';
 import { t } from './messages';
 import styles from './index.less';
 import HelpLabel from './HelpLabel';
@@ -185,8 +185,10 @@ class CreateVm extends PureComponent {
               <Descriptions.Item label={t('sshUsername')}>{source.sshUsername}</Descriptions.Item>
               <Descriptions.Item label={t('quickStartFirmware')}>UEFI</Descriptions.Item>
             </Descriptions>}
-            <Alert className={styles.spaced} showIcon type="info" message={source.isIso ? t('isoNext') : t('imageNext')}
-              description={source.sshRequired ? t('quickStartReviewHelp') : !source.isIso ? t('cloudLoginBoundary') : undefined} />
+            <Alert className={styles.spaced} showIcon type="info" message={source.format === 'vmdk' ? t('vmdkNext')
+              : source.isIso ? t('isoNext') : t('imageNext')}
+              description={source.format === 'vmdk' ? t('vmdkSingleFileBoundary')
+                : source.sshRequired ? t('quickStartReviewHelp') : !source.isIso ? t('cloudLoginBoundary') : undefined} />
             <section className={`${styles.formSection} ${styles.spaced}`}>
               <h2><HelpLabel label={t('networkAccess')} help="help.network" /></h2>
               <p className={styles.hint}>{t('defaultNetworkHelp')}</p>

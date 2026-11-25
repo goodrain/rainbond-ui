@@ -28,8 +28,8 @@ import { pinyin } from 'pinyin-pro';
 import globalUtil from '../../utils/global';
 import role from '@/utils/newRole';
 import handleAPIError from '../../utils/error';
-import { isLinuxQcow2QuickStart, createQuickStartImageName, inferVmSourceFormat, inspectVmUploadFormat, normalizeVmSourceFormat, normalizeVmOperatingSystem, getSshUsernameError, getSshPublicKeyError } from '@/utils/vmQuickStart';
-import { t } from '../../pages/VirtualMachineDemo/messages';
+import { isLinuxQcow2QuickStart, createQuickStartImageName, VM_UPLOAD_ACCEPT, inferVmSourceFormat, getVmSourceImportIssue, inspectVmUploadFormat, normalizeVmSourceFormat, normalizeVmAssetFormat, normalizeVmOperatingSystem, getSshUsernameError, getSshPublicKeyError } from '@/utils/vmQuickStart';
+import { t } from '../../pages/VirtualMachineCreation/messages';
 import styles from './index.less';
 import centOS from '../../../public/images/centos.png';
 import ubuntuOS from '../../../public/images/ubuntu.png';
@@ -44,7 +44,7 @@ const { Option } = Select;
 
 const DEFAULT_VM_IMAGE_SOURCE = 'url';
 const UBUNTU_NOBLE_QCOW2_URL =
-  'https://cloud-images.ubuntu.com/minimal/releases/noble/release/ubuntu-24.04-minimal-cloudimg-amd64.img';
+  'https://plugins.tos-cn-beijing.volces.com/vm/ubuntu-24.04-minimal-cloudimg-amd64.img';
 const UBUNTU_NOBLE_QCOW2_IMAGE_NAME =
   'ubuntu-24.04-minimal-cloudimg-amd64';
 
@@ -537,6 +537,14 @@ export default class Index extends PureComponent {
           return;
         }
 
+        const sourceIssue = getVmSourceImportIssue(radioKey === 'url' ? fieldsValue.vm_url
+          : radioKey === 'upload' ? uploadedFile?.name : '');
+        if (sourceIssue) {
+          message.warning(formatMessage({ id: `Vm.createVm.${sourceIssue}` }));
+          if (options.onInvalid) options.onInvalid();
+          return;
+        }
+
         const usesUbuntuNobleQcow2Example =
           isLinuxQcow2QuickStart(radioKey, fieldsValue.vm_url);
         if (
@@ -593,17 +601,20 @@ export default class Index extends PureComponent {
             this.findAssetByName(selectedPublicVm.image_name)?.id || '';
         } else if (radioKey === 'url') {
           fieldsValue.source_type = 'url';
+          delete fieldsValue.event_id;
           fieldsValue.format = this.inferSourceFormat(fieldsValue.vm_url, fieldsValue.image_name);
           fieldsValue.asset_id = '';
         } else if (radioKey === 'upload') {
           const header = this.getCurrentUploadHeader(uploadedFile);
           if (header && header.status !== 'ready') {
-            message.warning(formatMessage({ id: header.status === 'reading'
-              ? 'Vm.createVm.uploadFormatReading' : 'Vm.createVm.uploadFormatFailed' }));
+            message.warning(formatMessage({ id: header.errorKey === 'vmdkSingleFileRequired'
+              ? 'Vm.createVm.vmdkSingleFileRequired' : header.status === 'reading'
+                ? 'Vm.createVm.uploadFormatReading' : 'Vm.createVm.uploadFormatFailed' }));
             if (options.onInvalid) options.onInvalid();
             return;
           }
           fieldsValue.source_type = 'upload';
+          delete fieldsValue.vm_url;
           fieldsValue.format = header?.format || this.inferSourceFormat(
             uploadedFile.name,
             fieldsValue.image_name
@@ -622,9 +633,11 @@ export default class Index extends PureComponent {
             return;
           }
           fieldsValue.source_type = 'existing';
+          delete fieldsValue.vm_url;
+          delete fieldsValue.event_id;
           fieldsValue.format = selectedAsset
             ? this.inferSourceFormat(
-              selectedAsset.format,
+              normalizeVmAssetFormat(selectedAsset),
               selectedAsset.source_uri,
               selectedAsset.image_url,
               selectedAsset.name
@@ -1160,6 +1173,12 @@ export default class Index extends PureComponent {
       message.warning(formatMessage({ id: 'Vm.createVm.uploadSessionPreparing' }));
       return false;
     }
+    const sourceIssue = getVmSourceImportIssue(file.name);
+    if (sourceIssue) {
+      this.onRemove();
+      message.warning(formatMessage({ id: `Vm.createVm.${sourceIssue}` }));
+      return false;
+    }
     this.uploadFileOwners.set(file.uid, { ...session, uid: file.uid, name: file.name });
     return true;
   };
@@ -1185,8 +1204,12 @@ export default class Index extends PureComponent {
       this.getCurrentUploadHeader(this.currentUploadSelection) === header;
     Promise.resolve().then(() => this.readUploadFormat(source)).then(format => {
       if (current()) this.uploadHeader = { ...header, status: 'ready', format };
-    }, () => {
-      if (current()) this.uploadHeader = { ...header, status: 'failed', format: '' };
+    }, error => {
+      if (current()) {
+        const errorKey = error?.code === 'vm_vmdk_requires_single_file' ? 'vmdkSingleFileRequired' : '';
+        this.uploadHeader = { ...header, status: 'failed', format: '', errorKey };
+        if (errorKey) message.warning(formatMessage({ id: `Vm.createVm.${errorKey}` }));
+      }
     });
   };
 
@@ -1410,7 +1433,7 @@ export default class Index extends PureComponent {
         width: 100,
         render: (_, record) => (
           <span className={styles.assetCatalogCompactText}>
-            {`${record.arch || '-'} / ${record.format || '-'}`}
+            {`${record.arch || '-'} / ${normalizeVmAssetFormat(record) || record.format || '-'}`}
           </span>
         )
       },
@@ -1608,6 +1631,7 @@ export default class Index extends PureComponent {
             {getFieldDecorator('packageTarFile', { initialValue: [] })(
               <div className={styles.uploadPanel}>
                 <Upload
+                  accept={VM_UPLOAD_ACCEPT}
                   key={this.state.event_id || 'upload-session-pending'}
                   beforeUpload={this.beforeUpload}
                   fileList={this.state.fileList}

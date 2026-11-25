@@ -78,7 +78,7 @@ function requestHarness(outcome) {
   const imports = parse(source).program.body.filter(node => node.type === 'ImportDeclaration');
   const executable = imports.reverse().reduce(
     (value, node) => value.slice(0, node.start) + value.slice(node.end), source
-  ).replace('export default function', 'function');
+  ).replace(/export (?:default )?function/g, 'function');
   const request = new Function(...Object.keys(dependencies), `${executable}\nreturn request;`)(
     ...Object.values(dependencies)
   );
@@ -313,4 +313,39 @@ test('sensitive successful calls still return normal flattened Console responses
   assert.equal(result.bean.service_alias, 'vm-a');
   assert.deepEqual(calls.telemetry, []);
   assert.deepEqual(calls.notifications, []);
+});
+
+test('VMDK source formats reach the real VM create service unchanged without login initialization', async () => {
+  const calls = [];
+  const createVM = loadService('createApp.js', 'createAppByVirtualMachine', (url, options) => calls.push({ url, options }));
+  for (const source of [
+    { source_type: 'url', vm_url: 'https://images.invalid/windows.vmdk' },
+    { source_type: 'upload', event_id: 'vmdk-upload-event' },
+    { source_type: 'existing', asset_id: '9', image_name: 'windows-vmdk' }
+  ]) await createVM({ team_name: 'team-a', group_id: 7, arch: 'amd64', format: 'vmdk', os_name: 'Windows 10', ...source });
+  assert.equal(calls.length, 3);
+  for (const call of calls) {
+    assert.equal(call.url, '/backend/console/teams/team-a/apps/vm_run');
+    assert.equal(call.options.data.format, 'vmdk');
+    assert.equal(call.options.data.login_method, undefined);
+    assert.equal(call.options.data.ssh_public_key, undefined);
+    assert.equal(call.options.data.login_password, undefined);
+  }
+});
+
+test('URL and event uploads preserve img/raw gzip transport at the HTTP boundary', async () => {
+  const calls = [];
+  const createVM = loadService('createApp.js', 'createAppByVirtualMachine', (url, options) => calls.push({ url, options }));
+  for (const format of ['img.gz', 'raw.gz']) {
+    await createVM({ team_name: 'team-a', source_type: 'url', format, vm_url: `https://images.invalid/system.${format}` });
+    await createVM({ team_name: 'team-a', source_type: 'upload', format, event_id: 'upload-with-no-filename' });
+  }
+  assert.equal(calls.length, 4);
+  for (let index = 0; index < calls.length; index += 1) {
+    const data = calls[index].options.data;
+    assert.equal(data.format, index < 2 ? 'img.gz' : 'raw.gz');
+    assert.equal(data.source_type, index % 2 ? 'upload' : 'url');
+    assert.equal(data.vm_url === undefined, index % 2 === 1);
+    assert.equal(data.event_id === undefined, index % 2 === 0);
+  }
 });

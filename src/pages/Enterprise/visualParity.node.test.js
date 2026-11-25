@@ -20,6 +20,10 @@ new Function('require', 'module', 'exports', code)(name => {
   if (name === 'dva/router') return { routerRedux: { replace: route => ({ route }) } };
   if (name === '@/utils/intl') return { formatMessage: ({ id }, values) => { translations.push({ id, values }); return id; } };
   if (name === '@/utils/user') return {};
+  if (name === '@/utils/enterpriseConsulting') return {
+    ENTERPRISE_CONSULTING_URL: 'https://example.invalid/enterprise-consulting',
+    trackEnterpriseConsulting() {}
+  };
   if (name === './overviewData') return data;
   if (name === './index.less') return new Proxy({}, { get: (target, key) => key });
   if (name.startsWith('./components/')) return function ComponentStub() {};

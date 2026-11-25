@@ -35,6 +35,8 @@ export default class ComponentConfig extends PureComponent {
     const { disabled, layout } = this.props;
     const errors = this.state.errors[config.service_id] || {};
     const component = this.props.components.find(item => item.service_id === config.service_id) || {};
+    const rootDisk = Array.isArray(component.vm?.disk_layout)
+      ? component.vm.disk_layout.find(disk => disk && disk.disk_role === 'root') : undefined;
     const columns = [
       { title: t('variableName'), dataIndex: 'attr_name', width: '34%', render: value => <span className={styles.preWrap}>{value}</span> },
       { title: t('variableValue'), dataIndex: 'attr_value', render: (value, item, index) => {
@@ -68,7 +70,7 @@ export default class ComponentConfig extends PureComponent {
             </Form.Item>;
           })}</div><p className={styles.muted}>{t('zeroQuotaHelp')}</p>
         </Form></section>}
-      {component.vm && <section className={styles.configSection}><h3>{t('systemDisk')}</h3><p>{component.vm.boot_source_format || 'qcow2'}</p></section>}
+      {component.vm && <section className={styles.configSection}><h3>{t('systemDisk')}</h3><p>{rootDisk?.format || component.vm.boot_source_format || 'qcow2'}</p></section>}
     </div>;
   };
   render() {

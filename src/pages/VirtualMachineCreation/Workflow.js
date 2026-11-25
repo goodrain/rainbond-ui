@@ -3,8 +3,6 @@ import { Alert, Button, Descriptions, Empty, Select, Spin, Steps, message } from
 import { connect } from 'dva';
 import { routerRedux } from 'dva/router';
 import globalUtil from '@/utils/global';
-import PageHeader from '@/components/PageHeader';
-import pageHeaderSvg from '@/utils/pageHeaderSvg';
 import { isLinuxQcow2QuickStart } from '@/utils/vmQuickStart';
 import { assertNoVmPasswordPayload, resolveVmPasswordReaderOptions } from '@/utils/vmLoginCredentials';
 import { normalizeStorageChoice } from '../../utils/vmCreationStorage';
@@ -194,6 +192,7 @@ export class VmCreateWorkflow extends PureComponent {
   };
 
   openQuickStartComponent = () => {
+    if (this.state.quickStartSubmitting || this.quickStartInFlight) return;
     const context = identity(this.props);
     const result = this.state.quickStart;
     if (!result?.serviceAlias || !/^\d+$/.test(String(result.groupId))) return;
@@ -231,7 +230,7 @@ export class VmCreateWorkflow extends PureComponent {
       </div>}
       <div className={`${styles.actions} ${styles.spaced}`}>
         <Button disabled={loading} onClick={this.props.onCancel}>{t('backToApplication')}</Button>
-        {result.serviceAlias && <Button onClick={this.openQuickStartComponent}>{t('quickStartOpenComponent')}</Button>}
+        {result.serviceAlias && <Button disabled={loading} onClick={this.openQuickStartComponent}>{t('quickStartOpenComponent')}</Button>}
         {!loading && result.serviceAlias && result.status !== 'submitted' && <Button type="primary"
           disabled={storageRequired && !selectedStorage} onClick={this.retryQuickStart}>
           {t(storageRequired ? 'quickStartContinue' : 'quickStartRetry')}
@@ -243,7 +242,6 @@ export class VmCreateWorkflow extends PureComponent {
   render() {
     return <div className={`${styles.workflowCreate} ${styles.workflowCreatePage}`}>
       <div className={styles.creationWorkspace}>
-        <PageHeader title={t('createTitle')} titleSvg={pageHeaderSvg.getPageHeaderSvg('vm', 18)} />
         {this.state.quickStart ? this.renderQuickStart() : this.props.sourceSummary ? <CreateVm
           sourceSummary={this.props.sourceSummary} onBackToSource={this.props.onBackToSource}
           creationStorage={this.state.creationStorage} onRetryStorage={this.loadCreationStorage}

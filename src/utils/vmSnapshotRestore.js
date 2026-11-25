@@ -55,8 +55,12 @@ function readVMRestore(response, submitted, accepted) {
       !['pending', 'succeeded', 'failed'].includes(value.phase) || typeof value.complete !== 'boolean' ||
       value.complete !== (value.phase === 'succeeded') || !Array.isArray(value.volumes)) invalid();
   if (value.error_code !== undefined && value.error_code !== 'vm_restore_native_failed') invalid();
+  const hasAdvance = Object.hasOwn(value, 'requires_advance');
+  if (hasAdvance && (typeof value.requires_advance !== 'boolean' ||
+      (value.requires_advance && (value.phase !== 'pending' || value.complete)))) invalid();
   return { restore_name: value.restore_name, snapshot_name: value.snapshot_name, request_id: value.request_id,
     phase: value.phase, complete: value.complete, ...(value.error_code ? { error_code: value.error_code } : {}),
+    ...(hasAdvance ? { requires_advance: value.requires_advance } : {}),
     volumes: value.volumes.map(volume => {
       if (!volume || typeof volume !== 'object' || ['volume_name', 'pvc_name', 'volume_snapshot_name']
         .some(key => typeof volume[key] !== 'string' || !volume[key])) invalid();

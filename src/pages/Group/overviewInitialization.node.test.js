@@ -40,7 +40,7 @@ async function withOverview(initialSearch, verify, { holdReads = false } = {}) {
   const previous = Object.fromEntries(Object.keys(globals).map(key => [key, Object.getOwnPropertyDescriptor(global, key)]));
   Object.entries(globals).forEach(([key, value]) => Object.defineProperty(global, key, { configurable: true, writable: true, value }));
   const tasks = new Set(), requests = [], errors = [], topologies = [], actions = [], headers = [], writes = [], warnings = [], slidePanels = [], modalConfigs = [];
-  let ReactDOM, portalContainer, currentApp = '35', search = initialSearch, store;
+  let ReactDOM, currentApp = '35', search = initialSearch, store;
   try {
     const React = require('react');
     ReactDOM = require('react-dom');
@@ -81,7 +81,6 @@ async function withOverview(initialSearch, verify, { holdReads = false } = {}) {
       moment: require('moment'),
       '../../layouts/MenuContext': React.createContext(),
       '../../utils/missingResourceHelpers': require('../../utils/missingResourceHelpers'),
-      '../../utils/vmWorkflowDemo': require('../../utils/vmWorkflowDemo'),
       './componentViewPerformance': require('../../components/SlidePanel/components/componentViewPerformance')
     };
     fixtures['../../DeferredComponent'] = (loader, options) => options && options.modal
@@ -164,20 +163,6 @@ async function withOverview(initialSearch, verify, { holdReads = false } = {}) {
     });
     mount(); await flush();
     await verify({ requests, errors, topologies, actions, headers, writes, warnings, slidePanels, modalConfigs, counts, complete, flush,
-      workspace: () => dom.window.document.getElementById('vm-creation-workspace'),
-      showWorkspace: () => {
-        portalContainer = dom.window.document.createElement('div');
-        dom.window.document.body.appendChild(portalContainer);
-        ReactDOM.render(ReactDOM.createPortal(React.createElement('section', {
-          'data-testid': 'vm-hardware-page', 'data-vm-workspace-active': 'true'
-        },
-          'VM hardware configuration'), dom.window.document.getElementById('vm-creation-workspace')), portalContainer);
-      },
-      hideWorkspace: () => {
-        ReactDOM.unmountComponentAtNode(portalContainer);
-        portalContainer.remove();
-        portalContainer = null;
-      },
       renderStandaloneHeader: async (app, { scope, refresh = '', withLoader = false } = {}) => {
         currentApp = app;
         const pathname = `/team/test-team/region/test-region/apps/${app}/overview`;
@@ -198,7 +183,6 @@ async function withOverview(initialSearch, verify, { holdReads = false } = {}) {
       unmount: () => ReactDOM.unmountComponentAtNode(container) });
     assert.deepEqual(errors, []);
   } finally {
-    if (ReactDOM && portalContainer) ReactDOM.unmountComponentAtNode(portalContainer);
     if (ReactDOM) ReactDOM.unmountComponentAtNode(dom.window.document.getElementById('root'));
     tasks.forEach(task => task.cancel());
     dom.window.close();
@@ -207,24 +191,6 @@ async function withOverview(initialSearch, verify, { holdReads = false } = {}) {
 }
 
 const expected = count => ({ status: count, 'operator-managed': count, upgradable_num: count });
-
-test('VM workspace portal preserves the application header and topology while opening and closing',
-  () => withOverview('', async h => {
-    const host = h.workspace();
-    assert(host);
-    assert.equal(host.childNodes.length, 0);
-    h.showWorkspace();
-    assert.equal(host.querySelector('[data-testid="vm-hardware-page"]').textContent, 'VM hardware configuration');
-    await h.navigate('?type=components&componentID=fixture-component&tab=overview');
-    assert.equal(h.workspace(), host);
-    assert.equal(host.childNodes.length, 1);
-    assert.equal(h.headers.length, 1);
-    assert.deepEqual(h.topologies, [{ event: 'mount', app: '35' }]);
-    h.hideWorkspace();
-    assert.equal(host.childNodes.length, 0);
-    assert.deepEqual(h.counts(), expected(1));
-    h.complete(); await h.flush();
-  }));
 
 test('legacy VM source-page query opens the native VM modal once without an unsupported drawer',
   () => withOverview('?source_type=upload&type=vm-create&created_vm=vm-2&refresh=initial-token', async h => {
@@ -239,7 +205,6 @@ test('legacy VM source-page query opens the native VM modal once without an unsu
     assert.equal(h.headers[0].props.vmCreationRequestHandled, 1);
     assert.equal(h.modalConfigs.at(-1).initialVmForm, true);
     assert.equal(h.modalConfigs.at(-1).initialVmSource, 'upload');
-    assert.equal(h.workspace().childNodes.length, 0);
     assert.deepEqual(h.topologies, [{ event: 'mount', app: '35' }]);
     h.headers[0].handleCloseCreateComponentModal();
     await h.navigate('?refresh=initial-token');

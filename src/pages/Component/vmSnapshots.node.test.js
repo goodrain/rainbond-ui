@@ -52,9 +52,9 @@ async function execute(iterator) {
   }
   return step.value;
 }
-function harness() {
+function harness(previousRestoreStorage) {
   const scope = { team: 'team-a', region: 'region-a', application: '42', alias: 'vm-a', serviceId: 'service-a' };
-  const restoreStorage = storage();
+  const restoreStorage = previousRestoreStorage || storage();
   const requests = [], actions = [], pending = [], capabilityRequests = [], capabilityActions = [], capabilityPending = [], timers = new Map(), listeners = new Set();
   let timerId = 0;
   const document = { hidden: false, addEventListener: (_, callback) => listeners.add(callback), removeEventListener: (_, callback) => listeners.delete(callback) };
@@ -75,7 +75,7 @@ function harness() {
   const globalUtil = { getCurrTeamName: () => scope.team, getCurrRegionName: () => scope.region,
     getAppID: () => scope.application, getSlidePanelComponentID: () => scope.alias };
   const Component = load('pages/Component/VmSnapshots.js', {
-    react: React, antd: { Alert: 'Alert', Badge: 'Badge', Button: 'Button', Card: 'Card', Descriptions: { Item: 'D' }, Empty: 'Empty', Modal: { confirm: options => options.onOk() }, Spin: 'Spin', Table: 'Table' },
+    react: React, moment: require('moment'), antd: { Alert: 'Alert', Badge: 'Badge', Button: 'Button', Card: 'Card', Descriptions: { Item: 'D' }, Empty: 'Empty', Modal: { confirm: options => options.onOk() }, Spin: 'Spin', Table: 'Table' },
     './VmSnapshotCreate': 'SnapshotCreate',
     './VmSnapshots.less': {},
     dva: { connect: () => component => component }, '@/utils/intl': { formatMessage: ({ id }) => id },
@@ -154,7 +154,7 @@ test('the real panel/model/service chain reads the frozen list and detail envelo
   h.panel.componentWillUnmount();
 });
 
-test('current VM checks consume actual Go complete-set outputs without hiding unknown, readonly or excluded disks', async () => {
+test('current VM checks retain complete Go outputs while summarizing capability diagnostics', async () => {
   const cases = require('../../utils/fixtures/vmExistingSnapshotCapability.go.json');
   for (const [name, data] of Object.entries(cases)) {
     const h = harness();
@@ -168,7 +168,7 @@ test('current VM checks consume actual Go complete-set outputs without hiding un
     assert.deepEqual(Array.from(h.panel.state.capability.volumes, row => row.read_only), data.volumes.map(row => row.read_only));
     const tables = elements(h.panel.renderCapability()).filter(node => node.type === 'Table');
     if (data.supported && data.complete) assert.equal(h.panel.renderCapability(), null, name);
-    else assert.equal(tables[0].props.dataSource.length, data.volumes.length, name);
+    assert.equal(tables.length, 0, 'capability diagnostics do not add disk tables to the snapshot list');
     assert.equal(h.capabilityRequests[0].url, '/console/teams/team-a/apps/vm-a/vm-snapshot-capability');
     assert.deepEqual(Object.keys(h.capabilityRequests[0].options.params), ['region_name']);
     assert.equal(h.capabilityRequests[0].options.method, 'get');
@@ -206,8 +206,7 @@ test('capability refresh failure invalidates prior support, missing endpoint sta
   h.capabilityRequest = async () => undefined;
   await h.panel.readCapability();
   assert.equal(h.panel.state.capabilityStatus, 'failed');
-  const hint = elements(h.panel.renderCapability()).find(node => node.props?.mode === 'component');
-  assert.equal(hint.props.state, 'failed');
+  assert.equal(h.panel.renderCapability().props.role, 'alert');
   h.capabilityRequest = async () => ({ status_code: 404, business_code: 404 });
   await h.panel.readCapability();
   assert.equal(h.panel.state.capabilityStatus, 'unknown');
@@ -515,5 +514,199 @@ test('an uncertain restore submission keeps its durable request and reads status
   assert.equal(h.panel.state.restoreStatus, 'succeeded');
   assert.equal(posts, 1);
   assert.equal(h.restoreStorage.map.size, 0);
+  h.panel.componentWillUnmount();
+});
+
+function readySnapshot() {
+  return item('point-a', { phase: 'ready', ready_to_use: true, manifest_acked: true, finalized: true,
+    coverage: { complete: true, expected_writable_disks: 1, included_disks: 1, missing_disk_keys: [], excluded_read_only: [] } });
+}
+function restoreResponse(options, url, extra = {}) {
+  const status = options.method === 'post' ? 202 : 200;
+  return { status_code: status, business_code: status, bean: { restore_name: 'vmr-aaaaaaaaaaaaaaaaaaaaaaaa',
+    snapshot_name: 'point-a', request_id: options.method === 'post' ? options.data.request_id : url.split('/').pop(),
+    phase: 'pending', complete: false, volumes: [], ...extra } };
+}
+async function tickRestore(h) {
+  const id = h.panel.timers.restore;
+  const timer = h.timers.get(id);
+  assert.ok(timer, 'restore has a separate scheduled request');
+  h.timers.delete(id); timer.callback(); await h.settle();
+}
+
+test('native restore advance is optional, boolean and restricted to pending results', () => {
+  const input = { snapshot_name: 'point-a', request_id: 'restore-a' };
+  const response = ok({ restore_name: 'vmr-aaaaaaaaaaaaaaaaaaaaaaaa', ...input, phase: 'pending', complete: false, volumes: [] });
+  assert.equal(Object.hasOwn(restoreHelpers.readVMRestore(response, input, false), 'requires_advance'), false);
+  for (const requires_advance of [false, true]) {
+    assert.equal(restoreHelpers.readVMRestore({ ...response, bean: { ...response.bean, requires_advance } }, input, false).requires_advance,
+      requires_advance);
+  }
+  for (const phase of ['succeeded', 'failed']) {
+    const bean = { ...response.bean, phase, complete: phase === 'succeeded', requires_advance: false };
+    assert.equal(restoreHelpers.readVMRestore({ ...response, bean }, input, false).phase, phase);
+  }
+  for (const extra of [{ requires_advance: 1 }, { requires_advance: 'true' }, { requires_advance: null },
+    { requires_advance: true, phase: 'succeeded', complete: true }, { requires_advance: true, phase: 'failed' }]) {
+    assert.throws(() => restoreHelpers.readVMRestore({ ...response, bean: { ...response.bean, ...extra } }, input, false));
+  }
+});
+
+test('only a GET pending advance result authorizes the next POST with the same durable request', async () => {
+  const h = harness(); const ready = readySnapshot(); const methods = [];
+  h.request = async (url, options) => {
+    if (!url.includes('/restore')) return list([ready]);
+    methods.push(options.method);
+    assert.equal(options.method === 'post' ? options.data.request_id : url.split('/').pop(), 'restore-07070707070707070707070707070707');
+    return restoreResponse(options, url, methods.length === 4
+      ? { phase: 'succeeded', complete: true, requires_advance: false } : { requires_advance: true });
+  };
+  await h.mount(); h.panel.confirmRestore(ready); await h.settle();
+  assert.equal(h.panel.state.restoreAdvanceReady, false, 'POST response alone cannot authorize another POST');
+  await tickRestore(h);
+  assert.equal(h.panel.state.restoreAdvanceReady, true);
+  await tickRestore(h);
+  assert.equal(h.panel.state.restoreAdvanceReady, false);
+  await tickRestore(h);
+  assert.deepEqual(methods, ['post', 'get', 'post', 'get']);
+  assert.equal(h.panel.state.restoreStatus, 'succeeded');
+  assert.equal(h.restoreStorage.map.size, 0);
+  h.panel.componentWillUnmount();
+});
+
+test('uncertain advance cannot overlap another request and must GET before any further POST', async () => {
+  const h = harness(); const ready = readySnapshot(); const methods = []; const slow = deferred();
+  h.request = async (url, options) => {
+    if (!url.includes('/restore')) return list([ready]);
+    methods.push(options.method);
+    if (methods.length === 3) {
+      await slow.promise;
+      options.handleError({ response: { status: 503, data: { data: { bean: { error: {
+        code: 'vm_restore_outcome_unknown', retryable: true } } } } } });
+      return undefined;
+    }
+    return restoreResponse(options, url, methods.length === 6
+      ? { phase: 'succeeded', complete: true } : { requires_advance: true });
+  };
+  await h.mount(); h.panel.confirmRestore(ready); await h.settle(); await tickRestore(h);
+  const timerId = h.panel.timers.restore; const timer = h.timers.get(timerId);
+  h.timers.delete(timerId); timer.callback();
+  h.panel.requestRestore(false); h.panel.requestRestore(true);
+  assert.deepEqual(methods, ['post', 'get', 'post'], 'one restore read or write is allowed in flight');
+  slow.resolve(); await h.settle();
+  assert.equal(h.panel.state.restoreAdvanceReady, false);
+  assert.equal(h.restoreStorage.map.size, 1);
+  await tickRestore(h); await tickRestore(h); await tickRestore(h);
+  assert.deepEqual(methods, ['post', 'get', 'post', 'get', 'post', 'get']);
+  assert.equal(h.panel.state.restoreStatus, 'succeeded');
+  h.panel.componentWillUnmount();
+});
+
+test('late advance authorization is isolated after unmount and re-entry GETs the saved request first', async () => {
+  const h = harness(); const ready = readySnapshot(); const slow = deferred();
+  h.request = async (url, options) => {
+    if (!url.includes('/restore')) return list([ready]);
+    if (options.method === 'get') await slow.promise;
+    return restoreResponse(options, url, { requires_advance: true });
+  };
+  await h.mount(); h.panel.confirmRestore(ready); await h.settle();
+  const timer = h.timers.get(h.panel.timers.restore); timer.callback();
+  h.panel.componentWillUnmount(); slow.resolve(); await h.settle();
+  assert.equal(h.panel.state.restoreAdvanceReady, false);
+  assert.equal(h.requests.filter(value => value.options.method === 'post').length, 1);
+  const next = harness(h.restoreStorage); const methods = [];
+  next.request = async (url, options) => {
+    if (!url.includes('/restore')) return list([ready]);
+    methods.push(options.method);
+    assert.equal(options.method === 'post' ? options.data.request_id : url.split('/').pop(),
+      'restore-07070707070707070707070707070707');
+    return restoreResponse(options, url, methods.length === 2
+      ? { phase: 'succeeded', complete: true } : { requires_advance: true });
+  };
+  await next.mount(); assert.deepEqual(methods, ['get']);
+  await tickRestore(next); assert.deepEqual(methods, ['get', 'post']);
+  assert.equal(next.panel.state.restoreStatus, 'succeeded');
+  next.panel.componentWillUnmount();
+});
+
+test('a late GET from another component cannot authorize a restore POST in the current component', async () => {
+  const h = harness(); const ready = readySnapshot(); const slow = deferred();
+  h.request = async (url, options) => {
+    if (!url.includes('/restore')) return list([ready]);
+    if (options.method === 'get') await slow.promise;
+    return restoreResponse(options, url, { requires_advance: true });
+  };
+  await h.mount(); h.panel.confirmRestore(ready); await h.settle();
+  h.timers.get(h.panel.timers.restore).callback();
+  const oldRead = h.pending[h.pending.length - 1];
+  h.scope.alias = 'vm-b'; h.scope.serviceId = 'service-b';
+  await h.update({ context: { ...h.scope } });
+  slow.resolve(); await oldRead;
+  assert.equal(h.panel.state.restoreStatus, 'idle');
+  assert.equal(h.panel.state.restoreAdvanceReady, false);
+  h.panel.requestRestore(false);
+  assert.equal(h.requests.filter(value => value.options.method === 'post').length, 1);
+  h.panel.componentWillUnmount();
+});
+
+test('capability errors use compact messages, keep creation closed, and can be refreshed', async () => {
+  const h = harness(); await h.mount();
+  for (const [status, code, expected] of [[403, 'vm_snapshot_forbidden', 'failed'], [404, 'vm_snapshot_not_found', 'unknown'],
+    [422, 'vm_snapshot_incomplete', 'unsupported'], [503, 'vm_snapshot_dependency_unavailable', 'failed']]) {
+    h.capabilityRequest = async () => ({ status_code: status, business_code: status, bean: { error: { code, retryable: status === 503 } } });
+    await h.panel.readCapability();
+    assert.equal(h.panel.state.capabilityStatus, expected);
+    const view = h.panel.renderCapability(); const serialized = JSON.stringify(view);
+    assert.equal(serialized.includes(code), false, 'internal error codes are not displayed');
+    assert.ok(serialized.includes(status === 403 ? 'error.forbidden' : 'component.checkUnavailable'));
+    assert.equal(elements(h.panel.render()).find(value => value.type === 'SnapshotCreate').props.capabilityReady, false);
+    assert.equal(h.panel.state.listStatus, 'ready');
+    const requests = h.requests.length; const count = h.capabilityRequests.length;
+    await h.panel.read('list');
+    assert.equal(h.capabilityRequests.length, count + 1); assert.equal(h.requests.length, requests + 1);
+  }
+  h.panel.componentWillUnmount();
+});
+
+test('busy operations show one notice while excluded media and internal reason codes stay hidden', async () => {
+  const h = harness();
+  const value = currentCapability({ status: 'unknown', supported: false, reason_code: 'component_operation_in_progress', message: '',
+    excluded_volumes: [{ key: 'virtio', role: 'media', reason_code: 'read_only_installation_media' }] });
+  value.volumes[0].message = ''; value.volumes[0].reason_code = 'future_ready';
+  h.capabilityRequest = async () => ok(value); await h.mount(); await h.settleCapability();
+  const view = h.panel.renderCapability();
+  const rendered = JSON.stringify(view);
+  assert.ok(rendered.includes('component.busy'));
+  for (const hidden of ['component_operation_in_progress', 'future_ready', 'read_only_installation_media', 'virtio', 'restorePlanIndependent']) {
+    assert.equal(rendered.includes(hidden), false, hidden);
+  }
+  const tables = elements(view).filter(node => node.type === 'Table');
+  assert.equal(tables.length, 0);
+  assert.equal(h.panel.state.capability.excluded_volumes[0].key, 'virtio');
+  assert.equal(elements(h.panel.render()).find(node => node.type === 'SnapshotCreate').props.capabilityReady, false);
+  h.panel.componentWillUnmount();
+});
+
+test('restore configuration changes retain the safe 422 code and never retry automatically', async () => {
+  const code = 'vm_restore_native_configuration_changed';
+  const error = { response: { status: 422, data: { data: { bean: { error: { code, retryable: false } } },
+    msg: 'PRIVATE_RESTORE_CONFIGURATION_SENTINEL' } } };
+  assert.deepEqual(restoreHelpers.vmRestoreError(error), { kind: 'unsupported', status: 422, code, retryable: false });
+  assert.throws(() => restoreHelpers.readVMRestore(ok({ restore_name: 'vmr-aaaaaaaaaaaaaaaaaaaaaaaa',
+    snapshot_name: 'point-a', request_id: 'restore-a', phase: 'failed', complete: false, volumes: [], error_code: code }),
+  { snapshot_name: 'point-a', request_id: 'restore-a' }, false), 'HTTP admission code is not a native restore DTO error');
+  const h = harness(); const ready = readySnapshot();
+  h.request = async (url, options) => {
+    if (!url.includes('/restore')) return list([ready]);
+    options.handleError(error);
+    return undefined;
+  };
+  await h.mount(); h.panel.confirmRestore(ready); await h.settle();
+  assert.equal(h.panel.state.restoreStatus, 'failed');
+  assert.equal(h.panel.state.restoreError.code, code);
+  assert.ok(ReactDOMServer.renderToStaticMarkup(h.panel.renderRestoreStatus().props.message).includes(`errorCode.${code}`));
+  assert.equal(h.panel.timers.restore, null);
+  assert.equal(h.requests.filter(value => value.url.includes('/restore')).length, 1);
+  assert.equal(JSON.stringify(h.panel.renderRestoreStatus()).includes('PRIVATE_RESTORE_CONFIGURATION_SENTINEL'), false);
   h.panel.componentWillUnmount();
 });

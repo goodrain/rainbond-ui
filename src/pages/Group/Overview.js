@@ -15,7 +15,7 @@ import Yun from '../../../public/images/yun.svg'
 import Running from '../../../public/images/running.svg'
 import styles from './Overview.less'
 import MenuContext from '../../layouts/MenuContext';
-import { isVmWorkflowDemoEnabled } from '../../utils/vmWorkflowDemo';
+import { isVirtualMachineComponent } from '../../utils/virtualMachineComponent';
 
 const { isMissingResourceError } = require('../../utils/missingResourceHelpers');
 
@@ -63,7 +63,7 @@ export default class Overview extends Component {
     this._isMounted = false;
     this.state = {
       isVisible: false,
-      isDev: process.env.NODE_ENV === 'development' && !isVmWorkflowDemoEnabled(),
+      isDev: process.env.NODE_ENV === 'development',
       components: [],
       apps: [],
       showIcons: false,
@@ -261,7 +261,7 @@ export default class Overview extends Component {
       type: 'AppShape'
     })
     const app = this.state.apps.find(app => app.service_alias === k8s_service_name);
-    if (app?.status === "creating" && app.service_source !== 'kubeblocks') {
+    if (app?.status === "creating" && app.service_source !== 'kubeblocks' && !isVirtualMachineComponent(app)) {
       dispatch(
         routerRedux.push(
           `/team/${globalUtil.getCurrTeamName()}/region/${globalUtil.getCurrRegionName()}/create/create-check/${k8s_service_name}`
@@ -450,7 +450,6 @@ export default class Overview extends Component {
     )
     return (
       <div className={`${styles.container} ${collapsed ? styles.collapsed : ''}`} key={refresh}>
-        <div id="vm-creation-workspace" className={styles.vmCreationWorkspace} />
         <button
           type="button"
           className={styles.guideEntryButton}
@@ -487,7 +486,6 @@ export default class Overview extends Component {
           componentID={componentID}
           type={type}
           location={this.props.location}
-          demoComponents={apps}
         />
         <GuideCarousel
           visible={guideVisible}

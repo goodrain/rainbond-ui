@@ -99,7 +99,7 @@ function loadProduction(relative, dependencies = {}) {
       if (name === '@/utils/intl') return { formatMessage: ({ id }) => id };
       if (name.endsWith('/vmCreationStorage')) return require('../../utils/vmCreationStorage');
       if (name === '@/utils/vmQuickStart') return quickStart;
-      if (name === './messages') return { t: key => `vmDemo.${key}` };
+      if (name === './messages') return { t: key => `vmCreation.${key}` };
       if (name.endsWith('.less')) return {};
       if (name.startsWith('@/utils/')) return require(path.join(sourceRoot, 'utils', name.slice('@/utils/'.length)));
       if (name.startsWith('.')) return require(path.resolve(path.dirname(filename), name));
@@ -113,7 +113,7 @@ function workflowHarness(fixture, extra = {}) {
   const actions = [], collectors = [], warnings = [];
   const scope = { team: 'team-a', region: 'region-a', application: '868' };
   let cleared = 0;
-  const exports = loadProduction('pages/VirtualMachineDemo/Workflow.js', {
+  const exports = loadProduction('pages/VirtualMachineCreation/Workflow.js', {
     antd: { message: { warning: value => warnings.push(value) } },
     '@/utils/global': {
       getCurrTeamName: () => scope.team, getCurrRegionName: () => scope.region,
@@ -391,7 +391,7 @@ secureTest('password confirmation renders only the selected login method and use
   const Form = Object.assign(Box, { create: () => Component => Component, Item: Box });
   const Radio = Object.assign(Box, { Group: Box, Button: Box });
   const Select = Object.assign(Box, { Option: Box });
-  const View = loadProduction('pages/VirtualMachineDemo/CreateVm.js', {
+  const View = loadProduction('pages/VirtualMachineCreation/CreateVm.js', {
     antd: { Alert: ({ message, description }) => React.createElement('div', null, message, description),
       Form, Radio, Select, Card: Box, Button: Box, Descriptions: Object.assign(Box, { Item: Box }),
       Steps: Object.assign(Box, { Step: Box }), Input: () => null, InputNumber: () => null },
@@ -411,9 +411,9 @@ secureTest('password confirmation renders only the selected login method and use
     });
     view.state.step = 1;
     const markup = ReactDOMServer.renderToStaticMarkup(view.render());
-    assert.ok(markup.includes(`vmDemo.${method === 'password' ? 'loginMethodPassword' : 'loginMethodKey'}`), 'Confirmation must identify the selected login method');
+    assert.ok(markup.includes(`vmCreation.${method === 'password' ? 'loginMethodPassword' : 'loginMethodKey'}`), 'Confirmation must identify the selected login method');
     assert.ok(markup.includes('ubuntu') && markup.includes('UEFI'), 'Confirmation must retain username and trusted firmware');
-    assert.ok(!markup.includes('vmDemo.publicKeyConfigured'), 'Password confirmation must not claim that a public key was configured');
+    assert.ok(!markup.includes('vmCreation.publicKeyConfigured'), 'Password confirmation must not claim that a public key was configured');
     assert.ok(fixture.all.every(item => !markup.includes(item)), 'Confirmation must not display a credential or hash');
     assertNoCredentials(view.state, fixture);
   }

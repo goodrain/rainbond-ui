@@ -25,8 +25,8 @@ function load(relative, dependencies = {}) {
 }
 
 function renderGuidance(locale, sshRequired = false, step = 0) {
-  const messages = load(`../../locales/${locale}/vmDemo.js`);
-  const translate = (key, values = {}) => String(messages[`vmDemo.${key}`] || key)
+  const messages = load(`../../locales/${locale}/vmCreation.js`);
+  const translate = (key, values = {}) => String(messages[`vmCreation.${key}`] || key)
     .replace(/\{(\w+)\}/g, (_, name) => values[name] || name);
   const box = ({ children, title }) => React.createElement('div', null, title, children);
   const Radio = {
@@ -62,7 +62,7 @@ function renderGuidance(locale, sshRequired = false, step = 0) {
     '@/utils/intl': { formatMessage: ({ id }) => teamMessages[id] || messages[id] || id } };
   const HelpLabel = load('HelpLabel.js', shared);
   const Hint = load('../../components/VMStorageSnapshotHint/index.js', shared);
-  const CreateVm = load('CreateVm.js', { ...shared, '../../components/VMStorageSnapshotHint': Hint, './HelpLabel': HelpLabel, './state': require('./state') });
+  const CreateVm = load('CreateVm.js', { ...shared, '../../components/VMStorageSnapshotHint': Hint, './HelpLabel': HelpLabel, './formDefaults': require('./formDefaults') });
   const values = { cpu: 4, memory: 8, disk: 80, disk_volume_type: 'actual-platform-type' };
   const form = {
     getFieldDecorator: (name, options) => element => { if (!Object.hasOwn(values, name)) values[name] = options?.initialValue; return element; },
@@ -82,13 +82,13 @@ test('the native config card keeps storage guidance with Storage and defers all 
   const { dom, document, messages } = renderGuidance('zh-CN');
   try {
     const hardware = document.querySelector('[data-card]');
-    assert.equal(document.body.textContent.includes(messages['vmDemo.hardwareNetwork']), false);
-    assert.ok(document.body.textContent.includes(messages['vmDemo.vmConfiguration']));
+    assert.equal(document.body.textContent.includes(messages['vmCreation.hardwareNetwork']), false);
+    assert.ok(document.body.textContent.includes(messages['vmCreation.vmConfiguration']));
     assert.ok([...hardware.querySelectorAll('label')].some(label => label.textContent.includes('系统盘（GiB）')));
     const storageItem = [...hardware.querySelectorAll('[data-form-item]')].find(item =>
-      item.querySelector('label')?.textContent.includes(messages['vmDemo.storage']));
+      item.querySelector('label')?.textContent.includes(messages['vmCreation.storage']));
     assert.ok(storageItem);
-    assert.equal(storageItem.querySelector('[data-form-extra]').textContent, messages['vmDemo.quickStartStorageHelp']);
+    assert.equal(storageItem.querySelector('[data-form-extra]').textContent, messages['vmCreation.quickStartStorageHelp']);
     assert.equal(document.querySelector('section:not([data-card])'), null);
     assert.equal(document.body.textContent.includes('自动接入集群网络，可与容器互通'), false);
     assert.equal(document.querySelectorAll('input[type=file]').length, 0);
@@ -129,7 +129,7 @@ test('English config/review retain native presets and use Hardware/Network manag
   const config = renderGuidance('en-US');
   const review = renderGuidance('en-US', false, 1);
   try {
-    assert.ok(config.document.querySelector('[data-form-extra]').textContent.includes(config.messages['vmDemo.quickStartStorageHelp']));
+    assert.ok(config.document.querySelector('[data-form-extra]').textContent.includes(config.messages['vmCreation.quickStartStorageHelp']));
     assert.equal(config.document.querySelector('section:not([data-card])'), null);
     assert.ok(config.document.body.textContent.includes('Hardware → Storage'));
     assert.ok(config.document.body.textContent.includes('System disk (GiB)'));

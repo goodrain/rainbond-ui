@@ -26,13 +26,13 @@ import workspace from './en-US/workspace';
 import delivery from './en-US/delivery';
 
 import workflow from './en-US/workflow';
-import vmDemo from './en-US/vmDemo';
+import vmCreation from './en-US/vmCreation';
 export default {
   ...agentExecution,
   ...workflow,
   ...delivery,
   ...workspace,
-  ...vmDemo,
+  ...vmCreation,
   'navBar.lang': 'lang',
   'layout.user.link.help': 'help',
   'layout.user.link.privacy': 'privacy',

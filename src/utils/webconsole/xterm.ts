@@ -10,6 +10,8 @@ export class Xterm {
   resizeListener: () => void;
   decoder: lib.UTF8Decoder;
   messageTimeout: number;
+  inputListener: { dispose(): void } | undefined;
+  terminalResizeListener: { dispose(): void } | undefined;
 
   constructor(term: Terminal) {
     this.term = term;
@@ -22,9 +24,7 @@ export class Xterm {
       );
     };
     this.resizeListener();
-    window.addEventListener('resize', () => {
-      this.resizeListener();
-    });
+    window.addEventListener('resize', this.resizeListener);
     this.decoder = new lib.UTF8Decoder();
   }
 
@@ -32,8 +32,8 @@ export class Xterm {
     return { columns: this.term.cols, rows: this.term.rows };
   }
 
-  output(data: string) {
-    this.term.write(this.decoder.decode(data));
+  output(data: string, onConsumed?: () => void) {
+    this.term.write(this.decoder.decode(data), onConsumed);
   }
 
   showMessage(message: string, timeout: number) {}
@@ -43,18 +43,25 @@ export class Xterm {
   setWindowTitle(title: string) {}
 
   onInput(callback: (input: string) => void) {
-    this.term.onData((data, v) => {
+    if (this.inputListener) this.inputListener.dispose();
+    this.inputListener = this.term.onData(data => {
       callback(data);
     });
   }
 
   onResize(callback: (colmuns: number, rows: number) => void) {
-    this.term.onResize(data => {
+    if (this.terminalResizeListener) this.terminalResizeListener.dispose();
+    this.terminalResizeListener = this.term.onResize(data => {
       callback(data.cols, data.rows);
     });
   }
   setPreferences(value: object) {}
   deactivate(): void {
+    window.removeEventListener('resize', this.resizeListener);
+    if (this.inputListener) this.inputListener.dispose();
+    if (this.terminalResizeListener) this.terminalResizeListener.dispose();
+    this.inputListener = undefined;
+    this.terminalResizeListener = undefined;
     if (this.term) {
       this.term.blur();
     }
@@ -62,11 +69,13 @@ export class Xterm {
 
   reset(): void {
     this.removeMessage();
+    this.decoder = new lib.UTF8Decoder();
+    window.addEventListener('resize', this.resizeListener);
     this.term.reset();
   }
 
   close(): void {
-    window.removeEventListener('resize', this.resizeListener);
+    this.deactivate();
     this.term.dispose();
   }
 }

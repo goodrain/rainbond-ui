@@ -37,6 +37,11 @@ import runtimeStatus from './runtime-status';
 
 const { Option } = Select;
 
+const getUpgradeItemKey = ({ service }) => {
+  const { type, service_id, service_key } = service;
+  return `${type}:${type === 'add' ? service_key : service_id}`;
+};
+
 // eslint-disable-next-line react/no-redundant-should-component-update
 @Form.create()
 @connect(({ user, global, application, teamControl, enterprise }) => ({
@@ -130,48 +135,36 @@ export default class AppList extends PureComponent {
         if (this.unmounted || requestId !== this.previewRequestId) return;
         this.setState({ upgradeListLoading: false });
         if (res && res.status_code === 200) {
-          let upgrade_component_ids = [];
-          if (res.list) {
-            upgrade_component_ids = res.list.map(item => {
-              if (item.service.type == 'add') {
-                return item.service.service_key;
-              }
-              if (item.service.can_upgrade) {
-                return item.service.service_id;
-              }
-              return null;
+          const upgradeInfo = [...(res.list || [])];
+          const appUpgradeInfo = res.bean && res.bean.upgrade_info;
+          if (appUpgradeInfo && appUpgradeInfo.k8s_resources) {
+            upgradeInfo.push({
+              service: {
+                can_upgrade: true,
+                current_version: '1.0',
+                have_change: true,
+                service_cname: '应用属性变更',
+                service_id: 'upgrade_info',
+                service_key: 'upgrade_info',
+                type: 'upgrade'
+              },
+              upgrade_info: appUpgradeInfo
             });
-            upgrade_component_ids.push('upgrade_info')
           }
-          const appObj = {}
-          const service = {
-            can_upgrade: true,
-            current_version: "1.0",
-            have_change: true,
-            service_cname: "应用属性变更",
-            service_id: "upgrade_info",
-            service_key: "upgrade_info",
-            type: "upgrade"
-          }
-          appObj.service = service
-          appObj.upgrade_info = res.bean.upgrade_info
           this.setState(
             {
-              upgradeInfo: res.list || [],
+              upgradeInfo,
               upgradeListLoading: false,
-              upgrade_component_ids,
+              upgrade_component_ids: upgradeInfo
+                .filter(item => item.service.can_upgrade)
+                .map(getUpgradeItemKey),
               selectVersion: true
             },
             () => {
-              const { upgradeInfo } = this.state
-              if (res.bean.upgrade_info && res.bean.upgrade_info.k8s_resources) {
-                upgradeInfo.push(appObj)
-              }
+              this.props.form.resetFields(['services']);
+              this.handleSelectComponent(upgradeInfo[0] || null);
               if (callback) {
                 callback();
-              }
-              if (res.list.length > 0) {
-                this.handleSelectComponent(res.list[0]);
               }
             }
           );
@@ -690,18 +683,9 @@ export default class AppList extends PureComponent {
       upgradeGroupID
     } = this.getParameter();
     const version = form.getFieldValue('upgradeVersions');
-    const services = upgradeInfo.filter(item => {
-      if (
-        item.service.type == 'add' &&
-        values.services.includes(item.service.service_key)
-      ) {
-        return item.service;
-      }
-      if (values.services.includes(item.service.service_id)) {
-        return item.service;
-      }
-      return null;
-    });
+    const services = upgradeInfo.filter(item =>
+      values.services.includes(getUpgradeItemKey(item))
+    );
     dispatch({
       type: 'global/CloudAppUpdatedTasks',
       payload: {
@@ -736,35 +720,11 @@ export default class AppList extends PureComponent {
     this.getUpdatedInfo(value, callback);
   };
   handleSelectComponent = select_component => {
-    const { upgradeInfo } = this.state;
-    if (select_component.service.service_id === 'upgrade_info') {
-      this.setState({
-        isAppOrComponent: true
-      })
-    } else {
-      this.setState({
-        isAppOrComponent: false
-      })
-    }
-    if (select_component.service.service_id) {
-      const show_upgrade_infos = upgradeInfo.filter(
-        item => item.service.service_id == select_component.service.service_id
-      );
-      this.setState({
-        select_component_id: select_component.service.service_id,
-        show_component:
-          show_upgrade_infos.length > 0 ? show_upgrade_infos[0] : null
-      });
-    } else {
-      const show_upgrade_infos = upgradeInfo.filter(
-        item => item.service.service_key == select_component.service.service_key
-      );
-      this.setState({
-        select_component_id: select_component.service.service_key,
-        show_component:
-          show_upgrade_infos.length > 0 ? show_upgrade_infos[0] : null
-      });
-    }
+    this.setState({
+      isAppOrComponent: !!select_component && select_component.service.service_id === 'upgrade_info',
+      select_component_id: select_component ? getUpgradeItemKey(select_component) : null,
+      show_component: select_component
+    });
   };
   handleSubmit = event => {
     if (event && event.preventDefault) event.preventDefault();
@@ -1058,27 +1018,20 @@ export default class AppList extends PureComponent {
                                   upgradeInfo.length > 0 &&
                                   upgradeInfo.map(item => {
                                     const { service } = item;
+                                    const itemKey = getUpgradeItemKey(item);
 
                                     return (
                                       <Col
+                                        key={itemKey}
                                         span={24}
-                                        className={`${styles.zslMt} ${select_component_id ===
-                                            item.service.service_id ||
-                                            select_component_id ===
-                                            item.service.service_key
-                                            ? styles.active
-                                            : ''
-                                          }`}
+                                        className={`${styles.zslMt} ${select_component_id === itemKey ? styles.active : ''}`}
                                         onClick={() => {
                                           this.handleSelectComponent(item);
                                         }}
                                       >
                                         <div style={{ width: '100%', display: 'flex', alignItems: 'center' }}>
                                           <Checkbox
-                                            value={
-                                              service.service_id ||
-                                              service.service_key
-                                            }
+                                            value={itemKey}
                                             disabled={!service.can_upgrade}
                                             style={{ width: '30px' }}
                                           />

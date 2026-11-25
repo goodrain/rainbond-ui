@@ -367,3 +367,105 @@ test('scope change invalidates the upload session and ignores all old completion
   await submit(h);
   assert.equal(h.submissions.length, 0);
 });
+
+test('VMDK URL and local asset submissions preserve source format and never initialize Noble credentials', async () => {
+  const h = mount();
+  act(() => h.instance.selectCustomLink());
+  setFields(h, { service_cname: 'vmdk-vm', k8s_component_name: 'vmdk-vm', image_name: 'windows-vmdk',
+    vm_url: 'https://images.invalid/Windows.VMDK', os_name: 'Windows 10' });
+  await submit(h);
+  assert.equal(h.submissions[0].format, 'vmdk');
+  assert.equal(h.submissions[0].source_type, 'url');
+  for (const key of ['login_method', 'ssh_username', 'ssh_public_key', 'os_family']) assert.equal(h.submissions[0][key], undefined);
+  const asset = { id: 9, name: 'windows-vmdk', status: 'ready', image_url: 'registry.invalid/converted-root:tag',
+    format: 'VMDK', arch: 'amd64', os_name: 'Windows 10' };
+  h.render({ virtualMachineImage: [asset] });
+  act(() => h.instance.handleChangeImageSource({ target: { value: 'existing' } }));
+  act(() => h.instance.applyLocalImageSelection(asset));
+  await submit(h);
+  assert.equal(h.submissions[1].format, 'vmdk');
+  assert.equal(h.submissions[1].asset_id, 9);
+  assert.equal(h.submissions[1].source_type, 'existing');
+  assert.equal(h.submissions[1].login_method, undefined);
+});
+
+test('the upload picker offers VMDK and a neutral filename uses the actual VMDK header', async () => {
+  const h = mount({ initialSourceType: 'upload' });
+  startUploadSession(h, 'vmdk-upload');
+  assert.ok(root.querySelector('input[type="file"]').getAttribute('accept').split(',').includes('.vmdk'));
+  setFields(h, { service_cname: 'upload-vm', k8s_component_name: 'upload-vm', image_name: 'windows-image', os_name: 'Windows 10' });
+  act(() => h.instance.setState({ existFileList: ['neutral.img'] }));
+  const bytes = Uint8Array.from([0x4b, 0x44, 0x4d, 0x56, 1, 0, 0, 0]);
+  const file = { uid: 'vmdk-header', name: 'neutral.img', status: 'done', originFileObj: {
+    slice(start, end) { assert.equal(start, 0); assert.equal(end, 64 * 1024); return { arrayBuffer: async () => bytes.buffer }; }
+  } };
+  selectUpload(h, file); await flush(); await submit(h);
+  assert.equal(h.submissions.length, 1); assert.equal(h.submissions[0].format, 'vmdk');
+  assert.equal(h.submissions[0].source_type, 'upload'); assert.equal(h.submissions[0].ssh_username, undefined);
+});
+
+test('known compressed VMDK is blocked before upload or URL submission', async () => {
+  const h = mount({ initialSourceType: 'upload' }); startUploadSession(h, 'compressed-vmdk');
+  act(() => h.instance.setState({ existFileList: ['previous.qcow2'] }));
+  selectUpload(h, { uid: 'previous', name: 'previous.qcow2', status: 'done' });
+  assert.ok(h.instance.getConfirmedUpload());
+  let accepted;
+  act(() => { accepted = h.instance.beforeUpload({ uid: 'compressed', name: 'disk.vmdk.gz' }); });
+  assert.equal(accepted, false);
+  assert.equal(h.instance.uploadFileOwners.has('compressed'), false);
+  assert.equal(h.instance.getConfirmedUpload(), null, 'a rejected new selection cannot submit the previous artifact');
+  act(() => h.instance.handleChangeImageSource({ target: { value: 'url' } }));
+  act(() => h.instance.selectCustomLink());
+  setFields(h, { service_cname: 'vmdk-vm', k8s_component_name: 'vmdk-vm', image_name: 'windows-vmdk',
+    vm_url: 'https://images.invalid/disk.vmdk.xz', os_name: 'Windows 10' });
+  await submit(h); assert.equal(h.submissions.length, 0);
+});
+
+test('descriptor-only uploads expose the consolidate instruction and remain unsubmitted', async () => {
+  const h = mount({ initialSourceType: 'upload' }); startUploadSession(h, 'descriptor-vmdk');
+  setFields(h, { service_cname: 'vmdk-vm', k8s_component_name: 'vmdk-vm', image_name: 'windows-vmdk', os_name: 'Windows 10' });
+  act(() => h.instance.setState({ existFileList: ['disk.vmdk'] }));
+  const bytes = Uint8Array.from(Buffer.from('# Disk DescriptorFile\nRW 4096 FLAT "external-fixture-flat.vmdk" 0\n'));
+  selectUpload(h, { uid: 'descriptor', name: 'disk.vmdk', status: 'done', originFileObj: {
+    slice() { return { arrayBuffer: async () => bytes.buffer }; }
+  } });
+  await flush(); assert.equal(h.instance.uploadHeader.errorKey, 'vmdkSingleFileRequired');
+  assert.equal(JSON.stringify(h.instance.uploadHeader).includes('external-fixture-flat'), false);
+  await submit(h); assert.equal(h.submissions.length, 0);
+});
+
+test('real URL and upload forms preserve gzip transport and keep source qualifiers separate', async () => {
+  const h = mount();
+  act(() => h.instance.selectCustomLink());
+  setFields(h, { service_cname: 'wrapped-vm', k8s_component_name: 'wrapped-vm', image_name: 'wrapped-disk',
+    vm_url: 'https://images.invalid/system.img.gz', os_name: 'Linux guest' });
+  await submit(h);
+  assert.equal(h.submissions[0].format, 'img.gz');
+  assert.equal(h.submissions[0].event_id, undefined);
+  act(() => h.instance.handleChangeImageSource({ target: { value: 'upload' } }));
+  startUploadSession(h, 'wrapper-event');
+  setFields(h, { image_name: 'wrapped-disk', os_name: 'Linux guest' });
+  act(() => h.instance.setState({ existFileList: ['system.raw.gz'] }));
+  const bytes = Uint8Array.from([0x1f, 0x8b, 8, 0]);
+  selectUpload(h, { uid: 'wrapper-file', name: 'system.raw.gz', status: 'done', originFileObj: {
+    slice() { return { arrayBuffer: async () => bytes.buffer }; }
+  } });
+  await flush(); await submit(h);
+  assert.equal(h.submissions[1].format, 'raw.gz');
+  assert.equal(h.submissions[1].source_type, 'upload');
+  assert.equal(h.submissions[1].vm_url, undefined);
+});
+
+test('actual exported root format wins over VMDK provenance during local selection', async () => {
+  const asset = { id: 10, name: 'exported-root', status: 'ready', image_url: 'registry.invalid/root:tag',
+    source_uri: 'https://images.invalid/original.vmdk', format: 'vmdk', arch: 'amd64', os_name: 'Windows 10',
+    disks: [{ disk_role: 'root', source_type: 'registry', format: 'qcow2' }] };
+  const h = mount({ initialSourceType: 'existing', virtualMachineImage: [asset] });
+  act(() => h.instance.applyLocalImageSelection(asset));
+  setFields(h, { service_cname: 'exported-vm', k8s_component_name: 'exported-vm' });
+  await submit(h);
+  assert.equal(h.submissions[0].asset_id, 10);
+  assert.equal(h.submissions[0].format, 'qcow2');
+  assert.equal(h.submissions[0].vm_url, undefined);
+  assert.equal(h.submissions[0].login_method, undefined);
+});

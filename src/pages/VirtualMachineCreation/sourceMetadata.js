@@ -1,9 +1,9 @@
 const { isVMAssetSelectable } = require('../../components/ImageVirtualMachineForm/assetReadiness');
 const { normalizeAssetRuntimeSnapshot } = require('../../components/ImageVirtualMachineForm/runtimeFieldMerge');
-const { safeVmRuntimeFields, inferVmSourceFormat, normalizeVmSourceFormat } = require('../../utils/vmQuickStart');
+const { safeVmRuntimeFields, inferVmSourceFormat, normalizeVmAssetFormat } = require('../../utils/vmQuickStart');
 
 const OFFICIAL_IMAGE_URL =
-  'https://cloud-images.ubuntu.com/minimal/releases/noble/release/ubuntu-24.04-minimal-cloudimg-amd64.img';
+  'https://plugins.tos-cn-beijing.volces.com/vm/ubuntu-24.04-minimal-cloudimg-amd64.img';
 
 function validImageUrl(value) {
   try {
@@ -35,9 +35,10 @@ function filename(value) {
 // of the image bytes or a guarantee that the image is bootable.
 function describeSource(value = {}) {
   const name = filename(value.filename || value.name || value.path || '');
-  const format = (typeof value.format === 'string' ? value.format.toLowerCase().slice(0, 32) : '') || inferVmSourceFormat(name);
-  const knownIso = value.mediaKind === 'iso' || format === 'iso' || /\.iso$/i.test(name);
-  const knownDisk = value.mediaKind === 'image' || ['img', 'raw', 'qcow2', 'vmdk', 'vdi', 'vhd', 'vhdx'].includes(format) || /\.(img|raw|qcow2|vmdk|vdi|vhd|vhdx)$/i.test(name);
+  const format = (typeof value.format === 'string' ? value.format.trim().toLowerCase().slice(0, 32) : '') || inferVmSourceFormat(name);
+  const mediaFormat = ['img.gz', 'raw.gz'].includes(format) ? format.split('.')[0] : format;
+  const knownIso = value.mediaKind === 'iso' || mediaFormat === 'iso' || /\.iso$/i.test(name);
+  const knownDisk = value.mediaKind === 'image' || ['img', 'raw', 'qcow2', 'vmdk', 'vdi', 'vhd', 'vhdx'].includes(mediaFormat) || /\.(img|raw|qcow2|vmdk|vdi|vhd|vhdx)$/i.test(name);
   return {
     name: name || (typeof value.name === 'string' ? value.name.slice(0, 256) : ''),
     mediaKind: knownIso ? 'iso' : knownDisk ? 'image' : 'unknown',
@@ -68,8 +69,9 @@ function describeUrl(value) {
 // local workflow state. The raw asset and runtime snapshot are never retained.
 function describeAssets(assets) {
   return (Array.isArray(assets) ? assets : []).filter(asset => asset && typeof asset === 'object').map((asset, index) => {
+    const actualFormat = normalizeVmAssetFormat(asset);
     const metadata = {
-      format: asset.format,
+      format: actualFormat || asset.format,
       os: asset.os_name || asset.os_type,
       architecture: asset.arch,
       firmware: asset.boot_mode || asset.firmware
@@ -88,7 +90,7 @@ function describeAssets(assets) {
         ? { image_name: asset.name } : {}),
       ...(typeof asset.arch === 'string' && /^[a-z0-9][a-z0-9_-]{0,31}$/.test(asset.arch)
         ? { arch: asset.arch } : {}),
-      ...(normalizeVmSourceFormat(asset.format) ? { format: normalizeVmSourceFormat(asset.format) } : {}),
+      ...(actualFormat ? { format: actualFormat } : {}),
       ...safeVmRuntimeFields({ ...snapshot, boot_mode: asset.boot_mode || snapshot.boot_mode })
     };
     return {
