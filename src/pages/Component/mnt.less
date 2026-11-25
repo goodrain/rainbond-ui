@@ -4,6 +4,18 @@
   }
 }
 
+.volumeCapacity {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+
+  :global(.ant-tag) {
+    margin: 0;
+    white-space: nowrap;
+  }
+}
+
 .vmDiskImage {
   display: block;
   overflow: hidden;

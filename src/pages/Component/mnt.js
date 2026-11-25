@@ -409,7 +409,7 @@ export default class Index extends PureComponent {
       failed: 'red'
     };
     const tag = (
-      <Tag color={colorByStatus[status]} style={{ marginLeft: 8 }}>
+      <Tag color={colorByStatus[status]}>
         {formatMessage({ id: `componentOverview.body.mnt.expansion_status.${status}` })}
       </Tag>
     );
@@ -433,8 +433,8 @@ export default class Index extends PureComponent {
       capacity = `${actualCapacity || targetCapacity}GB`;
     }
     return (
-      <span>
-        {capacity}
+      <span className={styles.volumeCapacity}>
+        <span>{capacity}</span>
         {this.renderExpansionStatus(data)}
       </span>
     );
