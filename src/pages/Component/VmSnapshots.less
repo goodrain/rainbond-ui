@@ -1,26 +1,8 @@
 @import '~antd/lib/style/themes/default.less';
 
 .snapshotsCard {
-  :global(.ant-card-head) {
-    padding: 0;
-    border-bottom: 0;
-  }
-
   :global(.ant-card-body) {
     padding: 0;
-  }
-
-  :global(.ant-card-head-wrapper) {
-    flex-wrap: wrap;
-    column-gap: 16px;
-  }
-
-  :global(.ant-card-head-title) {
-    flex: 1 1 auto;
-  }
-
-  :global(.ant-card-extra) {
-    margin-left: 0;
   }
 }
 
@@ -68,7 +50,9 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-end;
   gap: 8px;
+  margin-bottom: 12px;
 }
 
 .feedback {
