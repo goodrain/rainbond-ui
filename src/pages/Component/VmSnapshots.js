@@ -330,12 +330,11 @@ export class VmSnapshots extends PureComponent {
         capabilityReady={current && !this.state.capabilityRefreshing && this.state.capabilityStatus === 'ready' &&
           this.state.capability?.supported === true && this.state.capability?.complete === true}
         dispatch={this.props.dispatch} onAccepted={() => this.read('list')}>
-      {(trigger, feedback) => <Card className={styles.snapshotsCard} bordered={false}
-        title={formatMessage({ id: 'componentOverview.vmWorkspace.snapshotsTitle' })} size="small"
-        extra={<div className={styles.actions}>
+      {(trigger, feedback) => <Card className={styles.snapshotsCard} bordered={false} size="small">
+        <div className={styles.actions}>
           {trigger}
           <Button size="small" icon="reload" loading={listRefreshing} disabled={!current} onClick={() => this.read('list')}>{text('refresh')}</Button>
-        </div>}>
+        </div>
       {this.renderCapability()}
       {feedback}
       {this.renderRestoreStatus()}

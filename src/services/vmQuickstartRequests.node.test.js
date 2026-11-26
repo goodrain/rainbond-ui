@@ -333,6 +333,25 @@ test('VMDK source formats reach the real VM create service unchanged without log
   }
 });
 
+test('all supported disk formats reach the existing VM HTTP API unchanged', async () => {
+  const calls = [];
+  const createVM = loadService('createApp.js', 'createAppByVirtualMachine', (url, options) => calls.push({ url, options }));
+  for (const format of ['qcow2', 'raw', 'img', 'vmdk', 'vdi', 'vhd', 'vhdx']) {
+    for (const source of [
+      { source_type: 'url', vm_url: `https://images.invalid/disk.${format}` },
+      { source_type: 'upload', event_id: 'disk-upload-event' },
+      { source_type: 'existing', asset_id: '9', image_name: 'stored-disk' }
+    ]) await createVM({ team_name: 'team-a', group_id: 7, arch: 'amd64', format, ...source });
+  }
+  assert.equal(calls.length, 21);
+  calls.forEach((call, index) => {
+    assert.equal(call.url, '/backend/console/teams/team-a/apps/vm_run');
+    assert.equal(call.options.data.format, ['qcow2', 'raw', 'img', 'vmdk', 'vdi', 'vhd', 'vhdx'][Math.floor(index / 3)]);
+    for (const field of ['login_method', 'login_password', 'ssh_username', 'ssh_public_key'])
+      assert.equal(call.options.data[field], undefined);
+  });
+});
+
 test('URL and event uploads preserve img/raw gzip transport at the HTTP boundary', async () => {
   const calls = [];
   const createVM = loadService('createApp.js', 'createAppByVirtualMachine', (url, options) => calls.push({ url, options }));

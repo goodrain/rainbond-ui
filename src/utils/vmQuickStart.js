@@ -6,7 +6,7 @@ const UBUNTU_NOBLE_QCOW2_URL =
 const PUBLIC_KEY_TYPES = /^(ssh-ed25519|ssh-rsa|ecdsa-sha2-nistp(?:256|384|521))$/;
 const ADDITIONAL_PUBLIC_KEY = /(?:^| )(?:ssh-(?:rsa|ed25519|dss)|ecdsa-sha2-nistp(?:256|384|521)|sk-(?:ssh-ed25519|ecdsa-sha2-nistp256)@openssh\.com) +[A-Za-z0-9+/]+={0,2}(?: |$)/;
 const ALIAS_PATTERN = /^[a-z0-9][a-z0-9-]{0,62}$/;
-const SUPPORTED_VM_SOURCE_FORMATS = Object.freeze(['img', 'iso', 'qcow2', 'raw', 'vmdk', 'img.gz', 'raw.gz', 'tar.gz', 'tar.xz', 'gz', 'xz', 'tar']);
+const SUPPORTED_VM_SOURCE_FORMATS = Object.freeze(['img', 'iso', 'qcow2', 'raw', 'vmdk', 'vdi', 'vhd', 'vhdx', 'img.gz', 'raw.gz', 'tar.gz', 'tar.xz', 'gz', 'xz', 'tar']);
 const VM_UPLOAD_ACCEPT = SUPPORTED_VM_SOURCE_FORMATS.map(format => `.${format}`).join(',');
 let imageNameSequence = 0;
 
@@ -36,7 +36,7 @@ function inferVmSourceFormat(fileOrUrl) {
   if (transport) return transport[1].toLowerCase();
   // A filename can identify the inner media before a supported compression
   // suffix. This is only a source hint, never inspection of archive contents.
-  const media = path.match(/\.(iso|qcow2|raw|img|vmdk)(?:\.(?:gz|xz))?$/i);
+  const media = path.match(/\.(iso|qcow2|raw|img|vmdk|vdi|vhd|vhdx)(?:\.(?:gz|xz))?$/i);
   if (media) return media[1].toLowerCase();
   const archive = path.match(/\.(tar\.gz|tar\.xz|gz|xz|tar)$/i);
   return archive ? archive[1].toLowerCase() : '';
@@ -47,7 +47,8 @@ function getVmSourceImportIssue(fileOrUrl) {
   let path = fileOrUrl;
   try { path = new URL(fileOrUrl).pathname; } catch (_) { path = path.split(/[?#]/)[0]; }
   try { path = decodeURIComponent(path); } catch (_) { /* The importer validates undecodable paths. */ }
-  return /\.vmdk(?:\.(?:gz|xz|tar|tgz|txz|zip|bz2|zst))+$/i.test(path) ? 'vmdkCompressedUnsupported' : '';
+  if (/\.vmdk(?:\.(?:gz|xz|tar|tgz|txz|zip|bz2|zst))+$/i.test(path)) return 'vmdkCompressedUnsupported';
+  return /\.(?:vdi|vhd|vhdx)(?:\.(?:gz|xz|tar|tgz|txz|zip|bz2|zst))+$/i.test(path) ? 'diskCompressedUnsupported' : '';
 }
 
 const VM_UPLOAD_HEADER_BYTES = 64 * 1024;
@@ -66,22 +67,48 @@ function readVmUploadHeader(blob) {
   });
 }
 
-// Inspect only the selected file's header. Extensions remain a hint for raw
-// disks and compressed media; the backend validates and converts their content.
+function isVhdFooter(bytes) {
+  if (bytes.length !== 512 || String.fromCharCode(...bytes.slice(0, 8)) !== 'conectix') return false;
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  if (view.getUint32(12) !== 0x00010000 || ![2, 3].includes(view.getUint32(60))) return false;
+  // VHD uses a big-endian footer and the one's complement of its byte sum,
+  // excluding the checksum at offset 64. This is a format hint, not validation
+  // of the full disk or its parent/dependency metadata; Builder owns that check.
+  let sum = 0;
+  for (let i = 0; i < bytes.length; i += 1) {
+    if (i < 64 || i >= 68) sum += bytes[i];
+  }
+  return ((~sum) >>> 0) === view.getUint32(64);
+}
+
+// Read at most the header and a VHD footer. These are source-format hints only;
+// the backend validates the complete disk before publishing its original bytes.
 async function inspectVmUploadFormat(file) {
   const bytes = new Uint8Array(await readVmUploadHeader(file.slice(0, VM_UPLOAD_HEADER_BYTES)));
+  // Existing compressed transports keep their filename hints. Do not inspect
+  // compressed payload bytes as if they were a plain disk or optical image.
+  if ((bytes[0] === 0x1f && bytes[1] === 0x8b) ||
+      (bytes.length >= 6 && [0xfd, 0x37, 0x7a, 0x58, 0x5a, 0].every((value, index) => bytes[index] === value))) return '';
   if (bytes.length >= 8 && bytes[0] === 0x51 && bytes[1] === 0x46 && bytes[2] === 0x49 && bytes[3] === 0xfb &&
       bytes[4] === 0 && bytes[5] === 0 && bytes[6] === 0 && [2, 3].includes(bytes[7])) return 'qcow2';
-  // These signatures identify VMDK media, not a verified standalone disk. The
-  // importer checks backing chains/extents before converting it to QCOW2.
+  // A signature identifies the disk family, not a verified standalone disk.
   const magic = String.fromCharCode(...bytes.slice(0, 4));
   if (magic === 'KDMV' || magic === 'COWD') return 'vmdk';
+  if (bytes.length >= 68 && new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint32(64, true) === 0xbeda107f)
+    return 'vdi';
+  if (bytes.length >= 8 && String.fromCharCode(...bytes.slice(0, 8)) === 'vhdxfile') return 'vhdx';
   const textStart = bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf ? 3 : 0;
   const descriptor = String.fromCharCode(...bytes.slice(textStart, textStart + 256)).trimStart();
   if (descriptor.startsWith('# Disk DescriptorFile')) {
     const error = new Error('VM image requires a standalone VMDK');
     error.code = 'vm_vmdk_requires_single_file';
     throw error;
+  }
+  // A fixed VHD's footer is at the end, not the beginning. Check it before ISO
+  // markers because guest data inside a VHD may itself contain an ISO image.
+  if (Number.isSafeInteger(file.size) && file.size >= 512) {
+    const footer = new Uint8Array(await readVmUploadHeader(file.slice(file.size - 512, file.size)));
+    if (isVhdFooter(footer)) return 'vhd';
   }
   // ISO9660 volume descriptors start at logical sector 16.
   if (bytes.length >= 32775 && String.fromCharCode(...bytes.slice(32769, 32774)) === 'CD001') return 'iso';
