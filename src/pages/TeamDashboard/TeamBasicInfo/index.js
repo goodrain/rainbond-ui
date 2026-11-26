@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { Button, Dropdown, Input, Spin, Pagination, Tooltip, Icon, Menu, Select, Modal, notification } from 'antd';
 import { connect } from 'dva';
-import { FormattedMessage } from 'umi';
 import { formatMessage } from '@/utils/intl';
 import VisterBtn from '../../../components/visitBtnForAlllink';
 import CreateComponentModal from '../../../components/CreateComponentModal';
@@ -702,11 +701,15 @@ export default class index extends Component {
       cardLayoutMode,
       marketAvailable,
       marketResolved,
-      featuredMarketApps
+      featuredMarketApps,
+      appListLoaded,
+      appListQuery,
+      appListTotal
     } = this.state;
     const isCompactCards = cardLayoutMode !== CARD_LAYOUT_MODE.DEFAULT;
     const isMiniCards = cardLayoutMode === CARD_LAYOUT_MODE.MINI;
     const isAppCreate = teamAppCreatePermission?.isAccess;
+    const showSearchEmpty = appListLoaded && appListQuery && appListTotal === 0;
     const teamHotAppListClassName = [
       styles.teamHotAppList,
       isCompactCards ? styles.teamHotAppListCompact : '',
@@ -833,15 +836,24 @@ export default class index extends Component {
       return (
         <div className={teamHotAppListClassName} ref={this.setCardListNode}>
           {/* 居中提示文字：已有起步卡片时不再重复提示 */}
-          {starterCardCount === 0 && (
-            <div className={styles.emptyTip}>
-              {formatMessage({
-                id: showStarterCards && !isAppCreate
-                  ? 'firstDeployGuide.noCreatePermission'
-                  : 'teamOverview.noAppTip'
-              })}
-            </div>
-          )}
+              {starterCardCount === 0 && (
+                <div className={styles.emptyTip}>
+                  <div>
+                    {formatMessage({
+                      id: showSearchEmpty
+                        ? 'teamOverview.noSearchResult'
+                        : showStarterCards && !isAppCreate
+                          ? 'firstDeployGuide.noCreatePermission'
+                          : 'teamOverview.noAppTip'
+                    })}
+                  </div>
+                  {showSearchEmpty && (
+                    <Button data-testid="rbd-app-search-clear" type="link" onClick={() => this.onSearch('')}>
+                      {formatMessage({ id: 'teamOverview.clearSearch' })}
+                    </Button>
+                  )}
+                </div>
+              )}
           {/* 新增应用卡片 */}
           {isAppCreate && (
             this.renderCreateAppCard()
@@ -938,16 +950,17 @@ export default class index extends Component {
                 style={{ width: 180, marginRight: 10 }}
               />
               <Select
+                data-testid="rbd-app-sort"
                 style={{ width: this.state.language ? '140px' : '170px' }}
                 placeholder={formatMessage({ id: 'teamOverview.sortTips' })}
                 value={sortValue}
                 onChange={this.handleSortChange}
               >
                 <Option title={formatMessage({ id: 'teamOverview.runStatusSort' })} value={1}>
-                  <FormattedMessage id="teamOverview.runStatusSort" />
+                  {formatMessage({ id: 'teamOverview.runStatusSort' })}
                 </Option>
                 <Option title={formatMessage({ id: 'teamOverview.updateTimeSort' })} value={2}>
-                  <FormattedMessage id="teamOverview.updateTimeSort" />
+                  {formatMessage({ id: 'teamOverview.updateTimeSort' })}
                 </Option>
               </Select>
             </div>

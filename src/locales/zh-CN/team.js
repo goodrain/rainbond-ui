@@ -45,6 +45,8 @@ const teamOverview = {
   'teamOverview.resourceOccupied':'资源占用',
   'teamOverview.memory':'内存',
   'teamOverview.noAppTip':'您暂未创建任何应用',
+  'teamOverview.noSearchResult': '没有找到匹配的应用',
+  'teamOverview.clearSearch': '清空搜索',
   'teamOverview.selectMethodTip':'选择方式快速创建',
   'teamOverview.supportMethods':'支持多种构建方式',
   'firstDeployGuide.recommended': '推荐',
