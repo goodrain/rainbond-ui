@@ -30,6 +30,18 @@ test('media hints come from metadata or filename paths without inventing format 
   assert.equal(describeSource({ name: 'opaque-download', format: 'iso' }).mediaKind, 'iso');
 });
 
+test('all supported disk formats agree between display metadata and existing asset creation', () => {
+  for (const format of ['qcow2', 'raw', 'img', 'vmdk', 'vdi', 'vhd', 'vhdx']) {
+    assert.deepEqual(describeUrl(`https://images.invalid/disk.${format.toUpperCase()}`),
+      { name: `disk.${format.toUpperCase()}`, mediaKind: 'image', format });
+    const [asset] = describeAssets([{ id: 9, name: 'stored-disk', status: 'ready',
+      image_url: 'registry.invalid/disk:stored', format: format.toUpperCase() }]);
+    assert.equal(asset.source.format, format);
+    assert.equal(asset.creation.format, format);
+    assert.equal(asset.selectable, true);
+  }
+});
+
 test('existing assets reuse native readiness and separate creation identity from display metadata', () => {
   const assets = describeAssets([
     { id: 1, name: 'installer', display_name: 'OS installer', status: 'ready', image_url: 'https://host.invalid/install.iso?private=hidden', extra: { data: 'excluded' }, blob: { type: 'excluded' } },
