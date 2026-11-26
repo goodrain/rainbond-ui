@@ -389,6 +389,39 @@ test('VMDK URL and local asset submissions preserve source format and never init
   assert.equal(h.submissions[1].login_method, undefined);
 });
 
+test('all supported disk formats survive the real URL, asset and upload form paths', async () => {
+  for (const format of ['qcow2', 'raw', 'img', 'vmdk', 'vdi', 'vhd', 'vhdx']) {
+    const h = mount();
+    act(() => h.instance.selectCustomLink());
+    setFields(h, { service_cname: 'imported-vm', k8s_component_name: 'imported-vm',
+      image_name: `disk-image-${format}`, vm_url: `https://images.invalid/system.${format}`, os_name: 'Existing guest' });
+    await submit(h);
+    assert.equal(h.submissions[0].format, format);
+    assert.equal(h.submissions[0].source_type, 'url');
+    const asset = { id: 9, name: `stored-${format}`, status: 'ready', image_url: 'registry.invalid/owned/disk:stored',
+      format: format.toUpperCase(), arch: 'amd64', os_name: 'Existing guest' };
+    h.render({ virtualMachineImage: [asset] });
+    act(() => h.instance.handleChangeImageSource({ target: { value: 'existing' } }));
+    act(() => h.instance.applyLocalImageSelection(asset));
+    await submit(h);
+    assert.equal(h.submissions[1].format, format);
+    assert.equal(h.submissions[1].source_type, 'existing');
+    act(() => h.instance.handleChangeImageSource({ target: { value: 'upload' } }));
+    startUploadSession(h, `upload-${format}`);
+    assert.ok(root.querySelector('input[type="file"]').getAttribute('accept').split(',').includes(`.${format}`));
+    setFields(h, { image_name: `uploaded-${format}`, os_name: 'Existing guest' });
+    act(() => h.instance.setState({ existFileList: [`system.${format}`] }));
+    h.instance.readUploadFormat = async () => format;
+    selectUpload(h, { uid: `selected-${format}`, name: `system.${format}`, status: 'done', originFileObj: { slice() {} } });
+    await flush(); await submit(h);
+    assert.equal(h.submissions[2].format, format);
+    assert.equal(h.submissions[2].source_type, 'upload');
+    for (const request of h.submissions)
+      for (const key of ['login_method', 'ssh_username', 'ssh_public_key', 'os_family']) assert.equal(request[key], undefined);
+    act(() => ReactDOM.unmountComponentAtNode(root));
+  }
+});
+
 test('the upload picker offers VMDK and a neutral filename uses the actual VMDK header', async () => {
   const h = mount({ initialSourceType: 'upload' });
   startUploadSession(h, 'vmdk-upload');

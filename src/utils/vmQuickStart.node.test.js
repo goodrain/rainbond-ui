@@ -115,6 +115,7 @@ test('explicit source suffixes preserve ISO, QCOW2, raw, and generic img hints',
 
 const sourceFormatCases = [
   ['disk.img', 'img'], ['installer.iso', 'iso'], ['disk.qcow2', 'qcow2'], ['disk.raw', 'raw'], ['disk.vmdk', 'vmdk'],
+  ['disk.vdi', 'vdi'], ['disk.VHD', 'vhd'], ['https://images.invalid/disk%2EVHDX?format=qcow2', 'vhdx'],
   ['archive.tar.gz', 'tar.gz'], ['archive.tar.xz', 'tar.xz'],
   ['archive.gz', 'gz'], ['archive.xz', 'xz'], ['archive.tar', 'tar'],
   ['installer.iso.gz', 'iso'], ['installer.iso.xz', 'iso'],
@@ -123,13 +124,49 @@ const sourceFormatCases = [
 ];
 
 test('format normalization is finite and preserves compound archive formats', () => {
-  assert.deepEqual(SUPPORTED_VM_SOURCE_FORMATS, ['img', 'iso', 'qcow2', 'raw', 'vmdk', 'img.gz', 'raw.gz', 'tar.gz', 'tar.xz', 'gz', 'xz', 'tar']);
+  assert.deepEqual(SUPPORTED_VM_SOURCE_FORMATS, ['img', 'iso', 'qcow2', 'raw', 'vmdk', 'vdi', 'vhd', 'vhdx', 'img.gz', 'raw.gz', 'tar.gz', 'tar.xz', 'gz', 'xz', 'tar']);
   sourceFormatCases.forEach(([filename, expected]) => assert.equal(inferVmSourceFormat(filename), expected));
   assert.equal(normalizeVmSourceFormat(' TAR.GZ '), 'tar.gz');
   ['not-format', 'qcow2.extra', 'zip', 'tar.bz2', undefined].forEach(value =>
     assert.equal(normalizeVmSourceFormat(value), ''));
   ['disk.zip', 'disk.tar.bz2', 'disk.qcow2.gz.extra', 'download?filename=disk.raw.gz'].forEach(filename =>
     assert.equal(inferVmSourceFormat(filename), ''));
+});
+
+test('all supported disk formats survive URL, upload and existing creation without Noble defaults', async () => {
+  for (const format of ['qcow2', 'raw', 'img', 'vmdk', 'vdi', 'vhd', 'vhdx']) {
+    assert.equal(normalizeVmSourceFormat(` ${format.toUpperCase()} `), format);
+    assert.ok(VM_UPLOAD_ACCEPT.split(',').includes(`.${format}`));
+    for (const source of [
+      { source_type: 'url', vm_url: `https://images.invalid/system.${format}?download=1` },
+      { source_type: 'upload', event_id: 'selected-upload-event' },
+      { source_type: 'existing', asset_id: '9', image_name: 'selected-disk' }
+    ]) {
+      const { api, calls } = fakeApi();
+      const result = await runVmCreation({ payload: { team_name: 'team-a', group_id: 868,
+        arch: 'amd64', format, os_name: 'Existing guest', ...source } }, api);
+      assert.equal(result.status, 'submitted');
+      assert.equal(calls[0].body.format, format);
+      assert.equal(calls[0].body.source_type, source.source_type);
+      for (const field of ['login_method', 'login_password', 'ssh_username', 'ssh_public_key', 'os_family'])
+        assert.equal(calls[0].body[field], undefined);
+    }
+  }
+});
+
+test('new disk formats reject compressed and archived wrappers before creation', async () => {
+  for (const format of ['vdi', 'vhd', 'vhdx']) {
+    for (const wrapper of ['gz', 'xz', 'tar', 'tar.gz', 'tgz', 'txz', 'zip', 'bz2', 'zst']) {
+      const vm_url = `https://images.invalid/disk.${format.toUpperCase()}.${wrapper}?name=plain.raw`;
+      assert.equal(getVmSourceImportIssue(vm_url), 'diskCompressedUnsupported');
+      const { api, calls } = fakeApi();
+      assert.equal((await runVmCreation({ payload: { team_name: 'team-a', group_id: 868,
+        source_type: 'url', vm_url, arch: 'amd64', format } }, api)).status, 'failed');
+      assert.equal(calls.length, 0);
+    }
+  }
+  for (const value of ['disk.raw.gz', 'disk.img.gz', 'disk.qcow2.xz', 'ordinary.tar.gz'])
+    assert.equal(getVmSourceImportIssue(value), '');
 });
 
 test('existing asset format uses the actual root disk before source provenance hints', () => {
