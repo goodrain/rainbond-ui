@@ -930,7 +930,12 @@ const CreateComponentModal = ({ visible, onCancel, dispatch, currentEnterprise, 
       'mysql': 'MySQL',
       'postgresql': 'PostgreSQL',
       'rabbitmq': 'RabbitMQ',
-      'redis': 'Redis'
+      'redis': 'Redis',
+      'mongodb': 'MongoDB',
+      'kafka': 'Kafka',
+      'elasticsearch': 'Elasticsearch',
+      'minio': 'MinIO',
+      'clickhouse': 'ClickHouse'
     };
     return typeMap[type?.toLowerCase()] || type || formatMessage({ id: 'componentOverview.body.CreateComponentModal.database' });
   };

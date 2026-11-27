@@ -13,7 +13,8 @@ import parameter from './parameter'
 import globalUtil from '../../utils/global';
 
 @connect(
-  ({ user, appControl, global, teamControl, enterprise, loading }) => ({
+  ({ user, appControl, global, teamControl, enterprise, loading, kubeblocks }) => ({
+    clusterDetail: kubeblocks.clusterDetail,
     currUser: user.currentUser,
     appDetail: appControl.appDetail,
     pods: appControl.pods,
@@ -134,7 +135,7 @@ export default class advancedSettings extends Component {
         key: 'parameter',
         tab: formatMessage({ id: 'componentOverview.body.tab.bar.parameter' }),
         auth: ['isOtherSetting'],
-        condition: () => method === 'kubeblocks_component'
+        condition: () => method === 'kubeblocks_component' && this.props.clusterDetail?.basic?.support_parameter === true
       }
     ];
     const extendTabs = getExtendTabs(method);

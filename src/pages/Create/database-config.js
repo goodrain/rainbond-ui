@@ -458,6 +458,7 @@ export default class Index extends PureComponent {
       cluster_name: service_cname,                              // 数据库集群名称（必填，**重要：将作为 Rainbond 组件的中文显示名称**）
       database_type: database_type,                             // 数据库类型（必填）
       version: basicInfo.dbVersion || 'latest',                 // 数据库版本（必填）
+      topology: basicInfo.topology || '',
       cpu: formatKubeBlocksCpuValue(normalizedCpuMillicores),   // CPU 配置（必填）
       memory: formatKubeBlocksMemoryValue(normalizedMemoryMB),  // 内存配置（必填）
       storage_size: `${basicInfo.disk_cap || 50}Gi`,           // 存储大小（必填）

@@ -1857,7 +1857,7 @@ class Main extends PureComponent {
         tab: formatMessage({ id: 'kubeblocks.database.backup.tab' }),
         auth: ['isStorage', 'isTelescopic'],
         condition: (appDetail) =>
-          appDetail?.service?.extend_method === 'kubeblocks_component'
+          appDetail?.service?.extend_method === 'kubeblocks_component' && this.props.clusterDetail?.basic?.support_backup === true
       },
       {
         key: 'monitor',

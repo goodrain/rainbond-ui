@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react';
 import { Form } from 'antd';
 import BasicInfo from '../DatabaseBasicInfo';
 import BackupConfig from '../DatabaseBackupConfig';
+import { getEngineProfile } from '../../utils/kubeblocksCapabilities';
 
 @Form.create()
 class Index extends PureComponent {
@@ -98,6 +99,7 @@ class Index extends PureComponent {
                     dbVersions={dbVersions}
                     storageClasses={storageClasses}
                     databaseType={databaseType}
+                    engineProfile={getEngineProfile(this.props.databaseTypes, databaseType)}
                     onRef={this.onRefBasicInfo}
                     onSubmit={this.handleBasicInfoSubmit}
                 />

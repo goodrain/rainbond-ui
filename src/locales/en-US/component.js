@@ -1,6 +1,13 @@
 // 组件下的信息
 
 const componentOverview = {
+  'kubeblocks.engine.topology': 'Deployment topology',
+  'kubeblocks.engine.component_layout': 'Independent component',
+  'kubeblocks.engine.mongodb.limits': 'Replica set with 1, 3, 5 or 7 members. A single member has no HA. Sharding and parameter changes are unavailable. Backups use dump. Endpoints are for applications inside Kubernetes.',
+  'kubeblocks.engine.kafka.limits': 'Combined KRaft mode with a fixed member count after creation. Clients must reach every broker inside Kubernetes. Resource, data-volume and parameter changes are supported. Backup, restore and automatic Internet exposure are unavailable.',
+  'kubeblocks.engine.elasticsearch.limits': 'Mixed-role cluster without Kibana. Replica counts can only increase. Parameter changes are unavailable. Backups use full-backup. Endpoints are for applications inside Kubernetes.',
+  'kubeblocks.engine.minio.limits': 'Fixed at 4 replicas. S3 API uses port 9000 and the console uses 9001. CPU and memory can change. Replica changes, volume expansion, parameters and backups of MinIO itself are unavailable.',
+  'kubeblocks.engine.clickhouse.limits': 'Standalone mode with 1 replica. Native connections use port 9000 and HTTP uses 8123. Resources, volumes, XML parameters and full backups are supported. Sharding and Keeper management are unavailable.',
   "componentRecycle.title": "Recycle bin",
   "componentRecycle.description": "Recycled components retain their configuration and storage. Restored VMs remain stopped. Permanent deletion cannot be undone.",
   "componentRecycle.loadFailed": "Unable to load the recycle bin. Refresh to retry.",

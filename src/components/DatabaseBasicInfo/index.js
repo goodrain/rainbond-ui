@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Card, Form, Slider, InputNumber, Select, Radio, Input, Icon } from 'antd';
+import { Alert, Card, Form, Slider, InputNumber, Select, Radio, Input, Icon } from 'antd';
 import { formatMessage } from '@/utils/intl';
 import styles from './index.less';
 
@@ -10,6 +10,7 @@ const BASIC_INFO_FIELDS = [
     'min_memory',
     'min_cpu',
     'dbVersion',
+    'topology',
     'replicas',
     'storageClass',
     'disk_cap'
@@ -157,7 +158,13 @@ export default class Index extends PureComponent {
         return num;
     }
 
-    getFieldNames = () => BASIC_INFO_FIELDS;
+    componentDidUpdate(prevProps) {
+        if (prevProps.engineProfile?.component !== this.props.engineProfile?.component) {
+            this.props.form.resetFields(['replicas', 'topology', 'dbVersion']);
+        }
+    }
+
+    getFieldNames = () => this.props.engineProfile ? BASIC_INFO_FIELDS : BASIC_INFO_FIELDS.filter(field => field !== 'topology');
 
     normalizeSubmitValues = (fieldsValue = {}) => {
         const { memoryMarksObj, cpuMarksObj } = this.state;
@@ -187,7 +194,7 @@ export default class Index extends PureComponent {
     };
 
     render() {
-        const { form, dbVersions = [], storageClasses = [], databaseType = '' } = this.props;
+        const { form, dbVersions = [], storageClasses = [], databaseType = '', engineProfile } = this.props;
         const { getFieldDecorator } = form;
         const {
             memoryMarks,
@@ -285,9 +292,17 @@ export default class Index extends PureComponent {
                         </Form.Item>
 
                         {/* 副本数配置 */}
+                        {engineProfile && <Form.Item {...formItemLayout} label={formatMessage({ id: 'kubeblocks.engine.topology' })}>
+                            {getFieldDecorator('topology', { initialValue: engineProfile.topology || '' })(
+                                <Select disabled>
+                                    <Option value={engineProfile.topology || ''}>{engineProfile.topology || formatMessage({ id: 'kubeblocks.engine.component_layout' })}</Option>
+                                </Select>
+                            )}
+                            <Alert showIcon type="info" message={formatMessage({ id: `kubeblocks.engine.${databaseType}.limits` })} />
+                        </Form.Item>}
                         <Form.Item {...formItemLayout} label={formatMessage({ id: 'kubeblocks.database.config.replicas_label' })}>
                             {getFieldDecorator('replicas', {
-                                initialValue: 1,
+                                initialValue: engineProfile?.default_replicas || 1,
                                 rules: [
                                     {
                                         required: true,
@@ -295,7 +310,9 @@ export default class Index extends PureComponent {
                                     }
                                 ]
                             })(
-                                <InputNumber
+                                engineProfile?.allowed_replicas ? <Select style={{ width: '180px' }}>
+                                    {engineProfile.allowed_replicas.map(value => <Option key={value} value={value}>{value}</Option>)}
+                                </Select> : <InputNumber
                                     style={{ width: '180px' }}
                                     min={1}
                                     max={10}

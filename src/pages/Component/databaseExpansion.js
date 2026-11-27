@@ -6,6 +6,7 @@ import {
   Form,
   InputNumber,
   notification,
+  Select,
   Slider,
   Spin
 } from 'antd';
@@ -22,6 +23,7 @@ import licenseUtil from '../../utils/license';
 import pluginUtil from '../../utils/pulginUtils';
 import { formatMessage } from '@/utils/intl';
 import styles from './Index.less';
+import { getScalingRules } from '../../utils/kubeblocksCapabilities';
 
 const DATABASE_MIN_CPU_MILLI = 250;
 const DATABASE_MIN_MEMORY_MI = 512;
@@ -660,6 +662,7 @@ export default class Index extends PureComponent {
     if (!clusterDetail) {
       return null;
     }
+    const scalingRules = getScalingRules(clusterDetail);
     const formItemLayout = {
       labelCol: {
         xs: {
@@ -745,6 +748,8 @@ export default class Index extends PureComponent {
           />
         )}
         {/* 手动伸缩   */}
+        {clusterDetail?.basic?.profile && <Alert showIcon type="info" style={{ marginBottom: 12 }}
+          message={formatMessage({ id: `kubeblocks.engine.${clusterDetail.basic.type}.limits` })} />}
         <Card
           className={styles.clerBorder}
           border={false}
@@ -832,8 +837,11 @@ export default class Index extends PureComponent {
               {getFieldDecorator('replicas', {
                 initialValue: this.state.replicasValue || 1
               })(
-                <InputNumber
-                  disabled={!this.state.editBillInfo}
+                scalingRules.replicas ? <Select style={{ width: 200 }}
+                  disabled={!this.state.editBillInfo || !scalingRules.canScaleReplicas} onChange={this.handleReplicasChange}>
+                  {scalingRules.replicas.map(value => <Select.Option key={value} value={value}>{value}</Select.Option>)}
+                </Select> : <InputNumber
+                  disabled={!this.state.editBillInfo || !scalingRules.canScaleReplicas}
                   style={{ width: 200 }}
                   min={1}
                   max={65535}
@@ -850,9 +858,9 @@ export default class Index extends PureComponent {
                 initialValue: this.state.storageGiValue || 1
               })(
                 <InputNumber
-                  disabled={!this.state.editBillInfo}
+                  disabled={!this.state.editBillInfo || !scalingRules.canExpandVolume}
                   style={{ width: 200 }}
-                  min={1}
+                  min={clusterDetail?.resource?.storage || 1}
                 />
               )}
               <span style={{ marginLeft: 8 }}>Gi</span>

@@ -1,6 +1,13 @@
 // 组件下的信息
 
 const componentOverview = {
+  'kubeblocks.engine.topology': '部署拓扑',
+  'kubeblocks.engine.component_layout': '独立组件',
+  'kubeblocks.engine.mongodb.limits': '副本集模式，支持 1、3、5、7 副本；单副本不具备高可用。不提供分片和参数配置，备份使用 dump。连接地址供集群内应用使用。',
+  'kubeblocks.engine.kafka.limits': 'KRaft 合并模式，创建后副本数固定；客户端需要访问集群内所有 Broker。支持资源、数据盘和参数调整，不提供备份恢复或自动外网访问。',
+  'kubeblocks.engine.elasticsearch.limits': '混合角色集群，不含 Kibana。副本只支持扩容；不提供参数配置，备份使用 full-backup。连接地址供集群内应用使用。',
+  'kubeblocks.engine.minio.limits': '固定 4 副本；S3 API 端口 9000，管理端口 9001。支持 CPU 和内存调整，不提供副本调整、磁盘扩容、参数或自身备份。',
+  'kubeblocks.engine.clickhouse.limits': '单机模式，固定 1 副本；Native 端口 9000，HTTP 端口 8123。支持资源、磁盘、XML 参数和完整备份；不提供分片或 Keeper 管理。',
   "componentRecycle.title": "回收站",
   "componentRecycle.description": "已回收的组件保留原配置和存储。恢复后虚拟机保持关闭；永久删除后无法撤销。",
   "componentRecycle.loadFailed": "回收站读取失败，请刷新重试",
