@@ -52,7 +52,7 @@ function assertEffectUsesAttempt(program, effectName, serviceName) {
   assert.ok(serviceCall, `${effectName} should call ${serviceName}`);
   assert.equal(serviceCall.arguments[1].type, 'Identifier', `${effectName} should pass the original payload to ${serviceName}`);
   assert.equal(serviceCall.arguments[1].name, 'payload', `${effectName} should not add attempt_id to the request payload`);
-  const telemetryOptions = serviceCall.arguments.find(argument => argument.type === 'CallExpression' && argument.callee.name === 'createRequestTelemetryOptions');
+  const telemetryOptions = callExpressions(serviceCall.arguments).find(argument => argument.type === 'CallExpression' && argument.callee.name === 'createRequestTelemetryOptions');
   assert.ok(telemetryOptions, `${effectName} should pass request options created from its attempt id`);
   assert.equal(telemetryOptions.arguments[0].name, 'attemptId', `${effectName} should reuse its started event attempt id`);
 }
@@ -83,13 +83,17 @@ function assertServiceAttemptHeader(file, name, args, storedAttemptType) {
   const program = parse(file);
   const exported = program.body.find(item => item.type === 'ExportNamedDeclaration' && item.declaration && item.declaration.id.name === name).declaration;
   const helper = program.body.find(item => item.type === 'FunctionDeclaration' && item.id.name === 'getAttemptHeaders');
+  const vmPasswordHelper = program.body.find(item => item.type === 'FunctionDeclaration' && item.id.name === 'vmPasswordFieldsAtHttpBoundary');
   const calls = [];
-  const service = new Function('request', 'apiconfig', 'buildAttemptHeaders', 'getServiceAttempt', 'getComposeAttempt',
+  const service = new Function('request', 'apiconfig', 'buildAttemptHeaders', 'getServiceAttempt', 'getComposeAttempt', 'VM_LOGIN_METHODS', 'assertNoVmPasswordPayload', 'safeVmCredentialError', 'getVmPasswordUsernameError', 'getVmLoginPasswordError', 'normalizeVmLoginGroupId', 'isLinuxQcow2QuickStart', 'globalUtil', 'requestVmCreationStorage',
     `${helper ? generate(helper).code : ''}
+${vmPasswordHelper ? generate(vmPasswordHelper).code : ''}
 ${generate(exported).code}
 return ${name};`)(
     (url, options) => { calls.push({ url, options }); return Promise.resolve({}); }, { baseUrl: '' },
-    attemptId => attemptId ? { 'X-Rainbond-Attempt-Id': attemptId } : undefined, () => storedAttemptType === 'service' ? attempt : null, () => storedAttemptType === 'compose' ? attempt : null
+    attemptId => attemptId ? { 'X-Rainbond-Attempt-Id': attemptId } : undefined, () => storedAttemptType === 'service' ? attempt : null, () => storedAttemptType === 'compose' ? attempt : null,
+    ['password'], () => {}, () => new Error('VM error'), () => '', () => '', () => 'group', () => true,
+    { getCurrTeamName: () => 'team', getCurrRegionName: () => 'region' }, () => Promise.resolve({})
   );
   const attempt = '123e4567-e89b-42d3-a456-426614174000';
   return Promise.resolve(service(...args(attempt))).then(() => {
@@ -108,7 +112,9 @@ const commandCreateServices = ['installHelmAppCmd', 'installRamAppCmd', 'install
 
 test('create and deploy services send attempt IDs only in headers', async () => {
   await Promise.all([
-    ...createServices.map(name => assertServiceAttemptHeader(createServicePath, name, attempt => [{ team_name: 'team' }, { returnErrorMetadata: true, attemptId: attempt }])),
+    ...createServices.map(name => assertServiceAttemptHeader(createServicePath, name, attempt => name === 'createAppByVirtualMachine'
+      ? [{ team_name: 'team' }, undefined, { returnErrorMetadata: true, attemptId: attempt }]
+      : [{ team_name: 'team' }, { returnErrorMetadata: true, attemptId: attempt }])),
     ...commandCreateServices.map(name => assertServiceAttemptHeader(createServicePath, name, attempt => [{ team_name: 'team' }, undefined, { returnErrorMetadata: true, attemptId: attempt }])),
     assertServiceAttemptHeader(appServicePath, 'deploy', attempt => [{ team_name: 'team', app_alias: 'app' }, undefined, { returnErrorMetadata: true, attemptId: attempt }]),
     assertServiceAttemptHeader(createServicePath, 'installApp', attempt => [{ team_name: 'team', app_id: 'market' }, undefined, { returnErrorMetadata: true, attemptId: attempt }]),

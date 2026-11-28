@@ -52,13 +52,16 @@ function loadAttempts(storage) {
 function loadService(filename, name, request, attempts) {
   const program = parse(filename);
   const helper = program.body.find(node => node.type === 'FunctionDeclaration' && node.id.name === 'getAttemptHeaders');
+  const vmPasswordHelper = program.body.find(node => node.type === 'FunctionDeclaration' && node.id.name === 'vmPasswordFieldsAtHttpBoundary');
   const node = program.body.find(item => item.type === 'ExportNamedDeclaration' && item.declaration && item.declaration.id.name === name).declaration;
   assert.ok(node, `${name} service should exist`);
-  return new Function('request', 'apiconfig', 'buildAttemptHeaders', 'getServiceAttempt', 'getComposeAttempt',
-    `${helper ? generate(helper).code : ''}\n${generate(node).code}\nreturn ${name};`)(
+  return new Function('request', 'apiconfig', 'buildAttemptHeaders', 'getServiceAttempt', 'getComposeAttempt', 'VM_LOGIN_METHODS', 'assertNoVmPasswordPayload', 'safeVmCredentialError', 'getVmPasswordUsernameError', 'getVmLoginPasswordError', 'normalizeVmLoginGroupId', 'isLinuxQcow2QuickStart', 'globalUtil', 'requestVmCreationStorage',
+    `${helper ? generate(helper).code : ''}\n${vmPasswordHelper ? generate(vmPasswordHelper).code : ''}\n${generate(node).code}\nreturn ${name};`)(
     request, { baseUrl: '' },
     attemptId => attemptId ? { 'X-Rainbond-Attempt-Id': attemptId } : undefined,
-    attempts.getServiceAttempt, attempts.getComposeAttempt
+    attempts.getServiceAttempt, attempts.getComposeAttempt,
+    ['password'], () => {}, () => new Error('VM error'), () => '', () => '', () => 'group', () => true,
+    { getCurrTeamName: () => 'team', getCurrRegionName: () => 'region' }, () => Promise.resolve({})
   );
 }
 
@@ -66,7 +69,7 @@ function loadCreateEffect(name, dependencies, attempts, events) {
   const program = parse(createModelPath);
   const helpers = ['buildCreateAppProperties', 'getOperationDeployType', 'trackCreateStarted', 'trackCreateSucceeded', 'trackCreateFailed', 'isRequestFailure']
     .map(helper => generate(declaration(program, helper)).code).join('\n');
-  const names = ['captureAppOperation', 'startServiceAttempt', 'bindServiceAttempt', 'startComposeAttempt', 'bindComposeAttempt', 'clearServiceAttempt', 'createAttemptId', 'createRequestTelemetryOptions', 'getDeployType', ...Object.keys(dependencies)];
+  const names = ['captureAppOperation', 'startServiceAttempt', 'bindServiceAttempt', 'startComposeAttempt', 'bindComposeAttempt', 'clearServiceAttempt', 'createAttemptId', 'createRequestTelemetryOptions', 'getDeployType', 'assertNoVmPasswordPayload', 'safeVmCredentialError', ...Object.keys(dependencies)];
   return new Function(...names, `${helpers}\nreturn ({${generate(effect(program, name)).code}}).${name};`)(
     (...args) => events.push(args),
     attempts.startServiceAttempt,
@@ -77,6 +80,7 @@ function loadCreateEffect(name, dependencies, attempts, events) {
     attempts.createAttemptId,
     attempts.createRequestTelemetryOptions,
     attempts.getDeployType,
+    () => {}, () => new Error('VM error'),
     ...Object.values(dependencies)
   );
 }
