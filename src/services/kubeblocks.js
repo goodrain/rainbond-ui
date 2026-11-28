@@ -1,5 +1,6 @@
 import request from '@/utils/request';
 import apiconfig from '../../config/api.config';
+import { buildAttemptHeaders } from '../utils/operationAttempt';
 
 /**
  * 获取 KubeBlocks 可创建的数据库类型
@@ -99,14 +100,15 @@ export async function deleteBackupRepo(params, handleError) {
  * @param {String} params.config.k8s_app - 数据库英文名称
  * @returns {Promise<Object>} 返回格式与标准组件部署完成后一致，包含 service_alias, group_id 等信息
  */
-export async function createDatabaseCluster(params, handleError) {
+export async function createDatabaseCluster(params, handleError, telemetryOptions = {}) {
     const { team_name, config } = params;
     return request(
         `${apiconfig.baseUrl}/console/teams/${team_name}/apps/kubeblocks`,
         {
             method: 'POST',
             data: config,
-            handleError
+            handleError,
+            headers: buildAttemptHeaders((telemetryOptions || {}).attemptId)
         }
     );
 }

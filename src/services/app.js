@@ -2,6 +2,7 @@
 /* eslint-disable no-undef */
 import apiconfig from '../../config/api.config';
 import request from '../utils/request';
+import { buildAttemptHeaders, getServiceAttempt } from '../utils/operationAttempt';
 import { captureTopologyOperation } from '../utils/topologyRefresh';
 
 /* 删除应用的某个版本 */
@@ -156,7 +157,8 @@ export function deploy(body = {}, handleError, telemetryOptions = {}) {
         group_version: body.group_version
       },
       handleError,
-      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata
+      returnErrorMetadata: (telemetryOptions || {}).returnErrorMetadata,
+      headers: buildAttemptHeaders((telemetryOptions || {}).attemptId)
     }
   );
 }
@@ -781,6 +783,7 @@ export async function getPorts(
 
 /* 获取单个端口配置，不创建或开放访问入口 */
 export async function getPortDetail(body = {}, handleError) {
+  const headers = buildAttemptHeaders(getServiceAttempt(body));
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/ports/${body.port}`,
     {
@@ -788,7 +791,8 @@ export async function getPortDetail(body = {}, handleError) {
       showLoading: body.showLoading,
       showMessage: body.showMessage,
       sensitiveError: body.sensitiveError === true,
-      handleError
+      handleError,
+      ...(headers ? { headers } : {})
     }
   );
 }
@@ -1686,12 +1690,14 @@ export async function getVolumeOpts(
   },
   handleError
 ) {
+  const headers = buildAttemptHeaders(getServiceAttempt(body));
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/volume-opts`,
     {
       method: 'get',
       ...(body.sensitiveError === true ? { sensitiveError: true } : {}),
-      ...(handleError ? { handleError } : {})
+      ...(handleError ? { handleError } : {}),
+      ...(headers ? { headers } : {})
     }
   );
 }
@@ -2681,13 +2687,15 @@ export async function editAppCreateInfo(
   handleError
 ) {
   const { sensitiveError, ...data } = body;
+  const headers = buildAttemptHeaders(getServiceAttempt(body));
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/check_update`,
     {
       method: 'put',
       data,
       ...(sensitiveError === true ? { sensitiveError: true } : {}),
-      handleError
+      handleError,
+      ...(headers ? { headers } : {})
     }
   );
 }

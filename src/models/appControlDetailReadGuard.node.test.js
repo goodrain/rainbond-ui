@@ -23,14 +23,15 @@ function harness({ getDetail, onView, onPut } = {}) {
     return getDetail ? getDetail(payload, handleError, response) : Promise.resolve(response);
   };
   const effect = new Function(
-    'getDetail', 'captureMeaningfulActive', 'buildAppControlProperties', 'isRunningStatus', 'markFirstDeploySuccessOnce',
+    'getDetail', 'captureMeaningfulActive', 'buildAppControlProperties', 'isRunningStatus', 'markFirstDeploySuccessOnce', 'getDeployType',
     `return ({ ${effectSource} }).fetchDetail;`
   )(
     service,
     (event, properties) => { telemetry.push({ event, properties }); if (onView) onView(); },
     (payload, extra = {}) => ({ team_name: payload.team_name, app_alias: payload.app_alias, ...extra }),
     status => status === 'running',
-    properties => telemetry.push({ event: 'first_deploy', properties })
+    properties => telemetry.push({ event: 'first_deploy', properties }),
+    require('../utils/operationAttempt').getDeployType
   );
   const action = {
     payload: { team_name: 'team-a', app_alias: 'vm-a' },

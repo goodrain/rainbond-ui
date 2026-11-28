@@ -468,8 +468,13 @@ test('DVA catches unexpected helper failures and its telemetry excludes credenti
   const tracking = [];
   const module = { exports: {} };
   const noop = () => {};
+  const attemptDependencies = {
+    startServiceAttempt: () => 'attempt-id', bindServiceAttempt: noop, clearServiceAttempt: noop,
+    createRequestTelemetryOptions: attemptId => ({ attemptId }), getDeployType: () => 'virtual_machine'
+  };
   vm.runInNewContext(source, {
     ...require('./vmLoginCredentials'),
+    ...attemptDependencies,
     module,
     captureAppOperation: (...args) => tracking.push(args),
     captureMarketInstall: noop,
@@ -678,8 +683,13 @@ test('the general DVA effect calls the real pipeline and emits only its safe res
   const module = { exports: {} };
   const noop = () => {};
   const generalRunner = () => {};
+  const attemptDependencies = {
+    startServiceAttempt: () => 'attempt-id', bindServiceAttempt: noop, clearServiceAttempt: noop,
+    createRequestTelemetryOptions: attemptId => ({ attemptId }), getDeployType: () => 'virtual_machine'
+  };
   vm.runInNewContext(source, {
     ...require('./vmLoginCredentials'),
+    ...attemptDependencies,
     module, captureAppOperation: noop, captureMarketInstall: noop,
     runVmQuickStart: noop, runVmCreation: generalRunner,
     createAppByVirtualMachine: noop, getPortDetail: noop, getVolumeOpts: noop,
@@ -711,8 +721,14 @@ function workflowModelWithServices(services) {
   const source = fs.readFileSync(path.join(__dirname, '../models/createApp.js'), 'utf8')
     .replace(/^import[\s\S]*?from '[^']+';/gm, '').replace('export default', 'module.exports =');
   const module = { exports: {} };
+  const noop = () => {};
+  const attemptDependencies = {
+    startServiceAttempt: () => 'attempt-id', bindServiceAttempt: noop, clearServiceAttempt: noop,
+    createRequestTelemetryOptions: attemptId => ({ attemptId }), getDeployType: () => 'virtual_machine'
+  };
   vm.runInNewContext(source, {
     ...require('./vmLoginCredentials'),
+    ...attemptDependencies,
     module, captureAppOperation: () => {}, captureMarketInstall: () => {},
     runVmQuickStart, runVmCreation,
     createAppByVirtualMachine: services.createVm,

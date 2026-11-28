@@ -45,6 +45,7 @@ import {
   captureAppOperation,
   captureMarketInstall
 } from '../posthog';
+import { bindComposeAttempt, bindServiceAttempt, clearServiceAttempt, createAttemptId, createRequestTelemetryOptions, getDeployType, startComposeAttempt, startServiceAttempt } from '../utils/operationAttempt';
 
 const REQUEST_TELEMETRY_OPTIONS = { returnErrorMetadata: true };
 
@@ -61,27 +62,44 @@ function buildCreateAppProperties(payload = {}, overrides = {}) {
     source: payload.source,
     marketName: payload.marketName,
     install_source: payload.install_from_cloud ? 'cloud_market' : payload.install_source,
-    deploy_type: payload.deploy_type,
+    deploy_type: getDeployType(payload),
     ...overrides
   };
 }
 
-function trackCreateSucceeded(actionType, payload) {
-  const properties = buildCreateAppProperties(payload, { action_type: actionType });
+function getOperationDeployType(actionType, payload) {
+  const types = {
+    source_code_create: 'source_code',
+    third_party_code_create: 'source_code',
+    compose_create: 'docker_compose',
+    docker_run_create: 'image',
+    virtual_machine_create: 'virtual_machine',
+    package_build_create: 'source_code',
+    helm_app_install: 'helm',
+    helm_cmd_install: 'helm',
+    helm_upload_install: 'helm'
+  };
+  return types[actionType] || getDeployType(payload);
+}
+
+function trackCreateSucceeded(actionType, payload, attemptId) {
+  const properties = buildCreateAppProperties(payload, { action_type: actionType, attempt_id: attemptId, deploy_type: getOperationDeployType(actionType, payload) });
   captureAppOperation(actionType, 'succeeded', properties);
 }
 
-function trackCreateStarted(actionType, payload) {
-  captureAppOperation(actionType, 'started', buildCreateAppProperties(payload, { action_type: actionType }));
+function trackCreateStarted(actionType, payload, attemptId) {
+  captureAppOperation(actionType, 'started', buildCreateAppProperties(payload, { action_type: actionType, attempt_id: attemptId, deploy_type: getOperationDeployType(actionType, payload) }));
 }
 
-function trackCreateFailed(actionType, payload, error) {
+function trackCreateFailed(actionType, payload, error, attemptId) {
   const failure = (error && error.requestTelemetry) || error || {};
   captureAppOperation(actionType, 'failed', buildCreateAppProperties(payload, {
     action_type: actionType,
+    attempt_id: attemptId,
     error_category: failure.error_category || 'request_failed',
     error_code: failure.error_code || failure.status || failure.code || 'request_failed',
-    http_status: failure.http_status || 0
+    http_status: failure.http_status || 0,
+    deploy_type: getOperationDeployType(actionType, payload)
   }));
 }
 
@@ -103,6 +121,7 @@ function* runVirtualMachineWorkflow({ payload, resume, onProgress, callback, isA
 
   let result;
   let latestProgress;
+  let attemptId;
   const reportProgress = progress => {
     if (!active()) return;
     latestProgress = {
@@ -114,9 +133,28 @@ function* runVirtualMachineWorkflow({ payload, resume, onProgress, callback, isA
   };
   try {
     assertNoVmPasswordPayload(payload);
-    trackCreateStarted(actionType, payload || {});
+    attemptId = startServiceAttempt(payload || {});
+    trackCreateStarted(actionType, payload || {}, attemptId);
     result = yield call(runner, { payload, resume, onProgress: reportProgress }, {
-      createVm: body => invoke(createAppByVirtualMachine, body, { isActive: active, readCredentials, passwordBootstrapSupported: passwordBootstrapSupported === true }),
+      createVm: body => {
+        const bindCreatedAttempt = data => {
+          if (data && !isRequestFailure(data)) {
+            bindServiceAttempt(
+              { team_name: body.team_name, service_alias: data.bean && data.bean.service_alias },
+              attemptId,
+              payload
+            );
+          }
+          return data;
+        };
+        const data = invoke(createAppByVirtualMachine, body, {
+          isActive: active,
+          readCredentials,
+          passwordBootstrapSupported: passwordBootstrapSupported === true,
+          ...createRequestTelemetryOptions(attemptId)
+        });
+        return data && typeof data.then === 'function' ? data.then(bindCreatedAttempt) : bindCreatedAttempt(data);
+      },
       getPortDetail: body => invoke(getPortDetail, body),
       getVolumeOpts: body => invoke(getVolumeOpts, body),
       configure: body => invoke(editAppCreateInfo, body),
@@ -130,8 +168,11 @@ function* runVirtualMachineWorkflow({ payload, resume, onProgress, callback, isA
       ...latestProgress, status: 'failed', error: 'quickStartInvalidRequest'
     };
   }
-  if (result.status === 'submitted') trackCreateSucceeded(actionType, payload || {});
-  else trackCreateFailed(actionType, payload || {}, { code: result.error });
+  const attemptPayload = { team_name: payload && payload.team_name, service_alias: result.serviceAlias };
+  if (result.status === 'submitted') trackCreateSucceeded(actionType, payload || {}, attemptId);
+  else trackCreateFailed(actionType, payload || {}, { code: result.error }, attemptId);
+  clearServiceAttempt(attemptPayload);
+  clearServiceAttempt(payload || {});
   if (callback && active()) callback(result);
 }
 
@@ -157,17 +198,28 @@ export default {
       }
     },
     *installApp({ payload, callback,handleError }, { call }) {
-      captureMarketInstall('started', buildCreateAppProperties(payload));
+      const attemptId = startServiceAttempt(payload);
+      captureMarketInstall('started', buildCreateAppProperties(payload, { attempt_id: attemptId, deploy_type: 'app_market' }));
       try {
-        const data = yield call(installApp, payload, handleError);
-        if (data) {
-          captureMarketInstall('succeeded', buildCreateAppProperties(payload));
-        }
-        if (data && callback) {
-          callback(data);
+        const data = yield call(installApp, payload, handleError, createRequestTelemetryOptions(attemptId));
+        if (data && !isRequestFailure(data)) {
+          captureMarketInstall('succeeded', buildCreateAppProperties(payload, { attempt_id: attemptId, deploy_type: 'app_market' }));
+          if (callback) {
+            callback(data);
+          }
+        } else {
+          const failure = (data && data.requestTelemetry) || data || {};
+          captureMarketInstall('failed', buildCreateAppProperties(payload, {
+            attempt_id: attemptId,
+            deploy_type: 'app_market',
+            error_category: failure.error_category || 'request_failed',
+            error_code: failure.error_code || failure.status || failure.code || 'request_failed',
+            http_status: failure.http_status || 0
+          }));
         }
       } catch (e) {
         captureMarketInstall('failed', buildCreateAppProperties(payload, {
+          attempt_id: attemptId,
           error_category: 'request_failed',
           error_code: e && (e.status || e.code || e.name)
         }));
@@ -211,24 +263,27 @@ export default {
       }
     },
     *installHelmApp({ payload, callback }, { call }) {
-      trackCreateStarted('helm_app_install', payload);
-      const data = yield call(installHelmApp, payload, REQUEST_TELEMETRY_OPTIONS);
+      const attemptId = createAttemptId();
+      trackCreateStarted('helm_app_install', payload, attemptId);
+      const data = yield call(installHelmApp, payload, createRequestTelemetryOptions(attemptId));
       if (data && !isRequestFailure(data)) {
-        trackCreateSucceeded('helm_app_install', payload);
+        trackCreateSucceeded('helm_app_install', payload, attemptId);
       } else {
-        trackCreateFailed('helm_app_install', payload, data);
+        trackCreateFailed('helm_app_install', payload, data, attemptId);
       }
       if (data && !isRequestFailure(data) && callback) {
         callback(data);
       }
     },
     *createAppByCode({ payload, callback }, { call }) {
-      trackCreateStarted('source_code_create', payload);
-      const data = yield call(createAppByCode, payload, REQUEST_TELEMETRY_OPTIONS);
+      const attemptId = startServiceAttempt(payload);
+      trackCreateStarted('source_code_create', payload, attemptId);
+      const data = yield call(createAppByCode, payload, createRequestTelemetryOptions(attemptId));
       if (data && !isRequestFailure(data)) {
-        trackCreateSucceeded('source_code_create', payload);
+          bindServiceAttempt({ team_name: payload.team_name, service_alias: data.bean && data.bean.service_alias }, attemptId, payload);
+        trackCreateSucceeded('source_code_create', payload, attemptId);
       } else {
-        trackCreateFailed('source_code_create', payload, data);
+        trackCreateFailed('source_code_create', payload, data, attemptId);
       }
       if (data && !isRequestFailure(data) && callback) {
         setTimeout(() => {
@@ -237,12 +292,14 @@ export default {
       }
     },
     *createThirtAppByCode({ payload, callback }, { call }) {
-      trackCreateStarted('third_party_code_create', payload);
-      const data = yield call(createThirtAppByCodes, payload, REQUEST_TELEMETRY_OPTIONS);
+      const attemptId = createAttemptId();
+      trackCreateStarted('third_party_code_create', payload, attemptId);
+      const data = yield call(createThirtAppByCodes, payload, createRequestTelemetryOptions(attemptId));
       if (data && !isRequestFailure(data)) {
-        trackCreateSucceeded('third_party_code_create', payload);
+        bindServiceAttempt({ team_name: payload.team_name, service_alias: data.bean && data.bean.service_alias }, attemptId, payload);
+        trackCreateSucceeded('third_party_code_create', payload, attemptId);
       } else {
-        trackCreateFailed('third_party_code_create', payload, data);
+        trackCreateFailed('third_party_code_create', payload, data, attemptId);
       }
       if (data && !isRequestFailure(data) && callback) {
         setTimeout(() => {
@@ -252,12 +309,13 @@ export default {
     },
 
     *createThirdPartyServices({ payload, callback }, { call }) {
-      trackCreateStarted('third_party_service_create', payload);
-      const data = yield call(createThirdPartyServices, payload, REQUEST_TELEMETRY_OPTIONS);
+      const attemptId = createAttemptId();
+      trackCreateStarted('third_party_service_create', payload, attemptId);
+      const data = yield call(createThirdPartyServices, payload, createRequestTelemetryOptions(attemptId));
       if (data && !isRequestFailure(data)) {
-        trackCreateSucceeded('third_party_service_create', payload);
+        trackCreateSucceeded('third_party_service_create', payload, attemptId);
       } else {
-        trackCreateFailed('third_party_service_create', payload, data);
+        trackCreateFailed('third_party_service_create', payload, data, attemptId);
       }
       if (data && !isRequestFailure(data) && callback) {
         setTimeout(() => {
@@ -306,8 +364,16 @@ export default {
       }
     },
     *createJarWarFormSubmit({ payload, callback }, { call }) {
-      const data = yield call(createJarWarFormSubmit, payload);
-      if (data && callback) {
+      const attemptId = startServiceAttempt(payload);
+      trackCreateStarted('package_build_create', payload, attemptId);
+      const data = yield call(createJarWarFormSubmit, payload, createRequestTelemetryOptions(attemptId));
+      if (data && !isRequestFailure(data)) {
+        bindServiceAttempt({ team_name: payload.team_name, service_alias: data.bean && data.bean.service_alias }, attemptId, payload);
+        trackCreateSucceeded('package_build_create', payload, attemptId);
+      } else {
+        trackCreateFailed('package_build_create', payload, data, attemptId);
+      }
+      if (data && !isRequestFailure(data) && callback) {
         setTimeout(() => {
           callback(data);
         });
@@ -321,7 +387,7 @@ export default {
         });
       }
     },
-
+    
     *deleteJarWarUploadStatus({ payload, callback, handleError }, { call }) {
       try {
         const data = yield call(deleteJarWarUploadStatus, payload);
@@ -339,12 +405,14 @@ export default {
       }
     },
     *createAppByCompose({ payload, callback }, { call }) {
-      trackCreateStarted('compose_create', payload);
-      const data = yield call(createAppByCompose, payload, REQUEST_TELEMETRY_OPTIONS);
+      const attemptId = startComposeAttempt(payload);
+      trackCreateStarted('compose_create', payload, attemptId);
+      const data = yield call(createAppByCompose, payload, createRequestTelemetryOptions(attemptId));
       if (data && !isRequestFailure(data)) {
-        trackCreateSucceeded('compose_create', payload);
+        bindComposeAttempt({ team_name: payload.team_name, group_id: data.bean && data.bean.group_id, compose_id: data.bean && data.bean.compose_id }, attemptId);
+        trackCreateSucceeded('compose_create', payload, attemptId);
       } else {
-        trackCreateFailed('compose_create', payload, data);
+        trackCreateFailed('compose_create', payload, data, attemptId);
       }
       if (data && !isRequestFailure(data) && callback) {
         setTimeout(() => {
@@ -353,12 +421,14 @@ export default {
       }
     },
     *createAppByDockerrun({ payload, callback }, { call }) {
-      trackCreateStarted('docker_run_create', payload);
-      const data = yield call(createAppByDockerrun, payload, REQUEST_TELEMETRY_OPTIONS);
+      const attemptId = startServiceAttempt(payload);
+      trackCreateStarted('docker_run_create', payload, attemptId);
+      const data = yield call(createAppByDockerrun, payload, createRequestTelemetryOptions(attemptId));
       if (data && !isRequestFailure(data)) {
-        trackCreateSucceeded('docker_run_create', payload);
+        bindServiceAttempt({ team_name: payload.team_name, service_alias: data.bean && data.bean.service_alias }, attemptId, payload);
+        trackCreateSucceeded('docker_run_create', payload, attemptId);
       } else {
-        trackCreateFailed('docker_run_create', payload, data);
+        trackCreateFailed('docker_run_create', payload, data, attemptId);
       }
       if (data && !isRequestFailure(data) && callback) {
         setTimeout(() => {
@@ -367,9 +437,13 @@ export default {
       }
     },
     *buildApps({ payload, callback, handleError }, { call }) {
-      const data = yield call(buildApp, payload, handleError);
-      if (data && callback) {
-        callback(data);
+      try {
+        const data = yield call(buildApp, payload, handleError);
+        if (data && callback) {
+          callback(data);
+        }
+      } finally {
+        clearServiceAttempt(payload);
       }
     },
     *helmAppInstall({ payload, callback, handleError }, { call }) {
@@ -385,19 +459,20 @@ export default {
       }
     },
     *installHelmAppCmd({ payload, callback, handleError }, { call }) {
-      trackCreateStarted('helm_cmd_install', payload);
+      const attemptId = createAttemptId();
+      trackCreateStarted('helm_cmd_install', payload, attemptId);
       try {
-        const data = yield call(installHelmAppCmd, payload, handleError, REQUEST_TELEMETRY_OPTIONS);
+        const data = yield call(installHelmAppCmd, payload, handleError, createRequestTelemetryOptions(attemptId));
         if (data && !isRequestFailure(data)) {
-          trackCreateSucceeded('helm_cmd_install', payload);
+          trackCreateSucceeded('helm_cmd_install', payload, attemptId);
         } else {
-          trackCreateFailed('helm_cmd_install', payload, data);
+          trackCreateFailed('helm_cmd_install', payload, data, attemptId);
         }
         if (data && !isRequestFailure(data) && callback) {
           callback(data);
         }
       } catch (e) {
-        trackCreateFailed('helm_cmd_install', payload, e);
+        trackCreateFailed('helm_cmd_install', payload, e, attemptId);
         if (handleError) {
           handleError(e);
         } else {
@@ -412,19 +487,20 @@ export default {
       }
     },
     *installRamAppCmd({ payload, callback, handleError }, { call }) {
-      trackCreateStarted('ram_cmd_install', payload);
+      const attemptId = createAttemptId();
+      trackCreateStarted('ram_cmd_install', payload, attemptId);
       try {
-        const data = yield call(installRamAppCmd, payload, handleError, REQUEST_TELEMETRY_OPTIONS);
+        const data = yield call(installRamAppCmd, payload, handleError, createRequestTelemetryOptions(attemptId));
         if (data && !isRequestFailure(data)) {
-          trackCreateSucceeded('ram_cmd_install', payload);
+          trackCreateSucceeded('ram_cmd_install', payload, attemptId);
         } else {
-          trackCreateFailed('ram_cmd_install', payload, data);
+          trackCreateFailed('ram_cmd_install', payload, data, attemptId);
         }
         if (data && !isRequestFailure(data) && callback) {
           callback(data);
         }
       } catch (e) {
-        trackCreateFailed('ram_cmd_install', payload, e);
+        trackCreateFailed('ram_cmd_install', payload, e, attemptId);
         if (handleError) {
           handleError(e);
         }
@@ -438,21 +514,27 @@ export default {
         } catch (_) { return false; }
       };
       if (!active()) return;
+      const attemptId = startServiceAttempt(payload);
       try {
         assertNoVmPasswordPayload(payload);
-        trackCreateStarted('virtual_machine_create', payload);
+        trackCreateStarted('virtual_machine_create', payload, attemptId);
         const guardedError = error => { if (active() && handleError) handleError(error); };
         const data = yield call(createAppByVirtualMachine, payload, guardedError, {
-          readCredentials, passwordBootstrapSupported: passwordBootstrapSupported === true, isActive: active, ...REQUEST_TELEMETRY_OPTIONS
+          readCredentials, passwordBootstrapSupported: passwordBootstrapSupported === true,
+          isActive: active, ...createRequestTelemetryOptions(attemptId)
         });
         if (!active()) return;
-        if (data && !isRequestFailure(data)) trackCreateSucceeded('virtual_machine_create', payload);
-        else trackCreateFailed('virtual_machine_create', payload, data);
+        if (data && !isRequestFailure(data)) {
+          bindServiceAttempt({ team_name: payload.team_name, service_alias: data.bean && data.bean.service_alias }, attemptId, payload);
+          trackCreateSucceeded('virtual_machine_create', payload, attemptId);
+        } else {
+          trackCreateFailed('virtual_machine_create', payload, data, attemptId);
+        }
         if (data && !isRequestFailure(data) && callback) callback(data);
       } catch (error) {
         if (!active()) return;
         const safeError = payload?.login_method === 'password' ? safeVmCredentialError() : error;
-        trackCreateFailed('virtual_machine_create', payload, safeError);
+        trackCreateFailed('virtual_machine_create', payload, safeError, attemptId);
         if (handleError) handleError(safeError);
       }
     },
@@ -546,19 +628,20 @@ export default {
       }
     },
     *installHelmUploadApp({ payload, callback, handleError }, { call }) {
-      trackCreateStarted('helm_upload_install', payload);
+      const attemptId = createAttemptId();
+      trackCreateStarted('helm_upload_install', payload, attemptId);
       try {
-        const data = yield call(installHelmUploadApp, payload, handleError, REQUEST_TELEMETRY_OPTIONS);
+        const data = yield call(installHelmUploadApp, payload, handleError, createRequestTelemetryOptions(attemptId));
         if (data && !isRequestFailure(data)) {
-          trackCreateSucceeded('helm_upload_install', payload);
+          trackCreateSucceeded('helm_upload_install', payload, attemptId);
         } else {
-          trackCreateFailed('helm_upload_install', payload, data);
+          trackCreateFailed('helm_upload_install', payload, data, attemptId);
         }
         if(data && !isRequestFailure(data) && callback) {
           callback(data);
         }
       } catch (e) {
-        trackCreateFailed('helm_upload_install', payload, e);
+        trackCreateFailed('helm_upload_install', payload, e, attemptId);
         if (handleError) {
           handleError(e);
         }

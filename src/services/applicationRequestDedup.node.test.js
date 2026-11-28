@@ -15,6 +15,10 @@ function loadApplicationService(request) {
       "import request from '../utils/request';",
       'const request = global.__request;'
     )
+    .replace(
+      "import { buildAttemptHeaders, getComposeAttempt } from '../utils/operationAttempt';",
+      'const buildAttemptHeaders = () => undefined; const getComposeAttempt = () => null;'
+    )
     .replace(/export async function/g, 'async function')
     .replace(/export function/g, 'function')
     .concat('\nmodule.exports = { getGroupDetail };\n');

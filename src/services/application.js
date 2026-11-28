@@ -2,6 +2,7 @@
 /* eslint-disable no-undef */
 import apiconfig from '../../config/api.config';
 import request from '../utils/request';
+import { buildAttemptHeaders, getComposeAttempt } from '../utils/operationAttempt';
 
 const groupDetailRequests = {};
 
@@ -714,7 +715,8 @@ export async function buildCompose(
       method: 'post',
       data: {
         compose_id: body.compose_id
-      }
+      },
+      headers: buildAttemptHeaders(getComposeAttempt(body))
     }
   );
 }

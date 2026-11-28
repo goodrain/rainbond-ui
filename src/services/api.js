@@ -1,6 +1,7 @@
 import { stringify } from 'qs';
 import apiconfig from '../../config/api.config';
 import request from '../utils/request';
+import { buildAttemptHeaders } from '../utils/operationAttempt';
 import app from '@/locales/en-US/app';
 import { getTeamRegionOverview as getSharedTeamRegionOverview } from './team';
 import { isSuccessfulPluginResponse, notifyEnterprisePluginsChanged } from '../utils/pluginInitialization';
@@ -381,12 +382,13 @@ export async function getApplication(body = {}) {
   );
 }
 /* 基于记录重新部署 */
-export async function getAppRedeploy(body = {}, handleError) {
+export async function getAppRedeploy(body = {}, handleError, telemetryOptions = {}) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/groups/${body.group_id}/upgrade-records/${body.record_id}/deploy`,
     {
       method: 'post',
-      handleError
+      handleError,
+      headers: buildAttemptHeaders((telemetryOptions || {}).attemptId)
     }
   );
 }

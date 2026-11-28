@@ -160,6 +160,7 @@ import {
 } from '../services/app';
 import { getGroupApps } from '../services/application';
 import { captureTopologyOperation } from '../utils/topologyRefresh';
+import { createAttemptId, createRequestTelemetryOptions, getDeployType } from '../utils/operationAttempt';
 import { addCertificate, getCertificates } from '../services/team';
 import {
   captureAppOperation,
@@ -175,6 +176,7 @@ import {
 const { observeComponentUpgrade } = require('../utils/componentUpgradeFeedback');
 
 let portsRequestSequence = 0;
+
 const REQUEST_TELEMETRY_OPTIONS = { returnErrorMetadata: true };
 
 function buildAppControlProperties(payload = {}, overrides = {}) {
@@ -183,7 +185,7 @@ function buildAppControlProperties(payload = {}, overrides = {}) {
     app_alias: payload.app_alias || payload.service_alias,
     app_id: payload.app_id || payload.group_id,
     component_id: payload.service_id,
-    deploy_type: payload.deploy_type,
+    deploy_type: payload.service_source ? getDeployType(payload) : 'other',
     ...overrides
   };
 }
@@ -191,7 +193,8 @@ function buildAppControlProperties(payload = {}, overrides = {}) {
 function trackOperationSucceeded(actionType, payload, response) {
   captureAppOperation(actionType, 'succeeded', buildAppControlProperties(payload, {
     action_type: actionType,
-    event_id: response && response.event_id
+    event_id: response && response.event_id,
+    ...(payload.attempt_id ? { attempt_id: payload.attempt_id } : {})
   }));
 }
 
@@ -201,7 +204,8 @@ function trackOperationFailed(actionType, payload, error) {
     action_type: actionType,
     error_category: failure.error_category || 'request_failed',
     error_code: failure.error_code || failure.status || failure.code || 'request_failed',
-    http_status: failure.http_status || 0
+    http_status: failure.http_status || 0,
+    ...(payload.attempt_id ? { attempt_id: payload.attempt_id } : {})
   }));
 }
 
@@ -351,13 +355,21 @@ export default {
     },
     *putDeploy({ payload, callback, handleError }, { call }) {
       const refreshTopology = captureTopologyOperation(payload);
-      captureAppOperation('deploy', 'started', buildAppControlProperties(payload));
-      const response = yield call(deploy, payload, handleError, REQUEST_TELEMETRY_OPTIONS);
+      const attemptId = createAttemptId();
+      captureAppOperation('deploy', 'started', buildAppControlProperties(payload, { attempt_id: attemptId }));
+      const operationPayload = { ...payload, attempt_id: attemptId };
+      let response;
+      try {
+        response = yield call(deploy, payload, handleError, createRequestTelemetryOptions(attemptId));
+      } catch (error) {
+        trackOperationFailed('deploy', operationPayload, error);
+        throw error;
+      }
       refreshTopology(response);
       if (response && !isRequestFailure(response)) {
-        trackOperationSucceeded('deploy', payload, response);
+        trackOperationSucceeded('deploy', operationPayload, response);
       } else {
-        trackOperationFailed('deploy', payload, response);
+        trackOperationFailed('deploy', operationPayload, response);
       }
       if (response && !isRequestFailure(response) && callback) {
         callback(response);
@@ -742,7 +754,7 @@ export default {
             app_alias: payload && (payload.app_alias || payload.service_alias || (detail.service && detail.service.service_alias)),
             action_type: 'first_app_deploy',
             stage: 'detail_running',
-            deploy_type: detail.service && detail.service.service_source
+            deploy_type: getDeployType({ source_type: detail.service && detail.service.service_source })
           }));
         }
         if (!active()) return;
