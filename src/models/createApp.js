@@ -121,6 +121,7 @@ function* runVirtualMachineWorkflow({ payload, resume, onProgress, callback, isA
 
   let result;
   let latestProgress;
+  let attemptId;
   const reportProgress = progress => {
     if (!active()) return;
     latestProgress = {
@@ -132,9 +133,28 @@ function* runVirtualMachineWorkflow({ payload, resume, onProgress, callback, isA
   };
   try {
     assertNoVmPasswordPayload(payload);
-    trackCreateStarted(actionType, payload || {});
+    attemptId = startServiceAttempt(payload || {});
+    trackCreateStarted(actionType, payload || {}, attemptId);
     result = yield call(runner, { payload, resume, onProgress: reportProgress }, {
-      createVm: body => invoke(createAppByVirtualMachine, body, { isActive: active, readCredentials, passwordBootstrapSupported: passwordBootstrapSupported === true }),
+      createVm: body => {
+        const bindCreatedAttempt = data => {
+          if (data && !isRequestFailure(data)) {
+            bindServiceAttempt(
+              { team_name: body.team_name, service_alias: data.bean && data.bean.service_alias },
+              attemptId,
+              payload
+            );
+          }
+          return data;
+        };
+        const data = invoke(createAppByVirtualMachine, body, {
+          isActive: active,
+          readCredentials,
+          passwordBootstrapSupported: passwordBootstrapSupported === true,
+          ...createRequestTelemetryOptions(attemptId)
+        });
+        return data && typeof data.then === 'function' ? data.then(bindCreatedAttempt) : bindCreatedAttempt(data);
+      },
       getPortDetail: body => invoke(getPortDetail, body),
       getVolumeOpts: body => invoke(getVolumeOpts, body),
       configure: body => invoke(editAppCreateInfo, body),
@@ -148,8 +168,11 @@ function* runVirtualMachineWorkflow({ payload, resume, onProgress, callback, isA
       ...latestProgress, status: 'failed', error: 'quickStartInvalidRequest'
     };
   }
-  if (result.status === 'submitted') trackCreateSucceeded(actionType, payload || {});
-  else trackCreateFailed(actionType, payload || {}, { code: result.error });
+  const attemptPayload = { team_name: payload && payload.team_name, service_alias: result.serviceAlias };
+  if (result.status === 'submitted') trackCreateSucceeded(actionType, payload || {}, attemptId);
+  else trackCreateFailed(actionType, payload || {}, { code: result.error }, attemptId);
+  clearServiceAttempt(attemptPayload);
+  clearServiceAttempt(payload || {});
   if (callback && active()) callback(result);
 }
 
@@ -302,7 +325,7 @@ export default {
     },
     *createJarWarServices({ payload, callback, handleError }, { call }) {
       try {
-        const data = yield call(createJarWarServices, payload);
+        const data = yield call(createJarWarServices, payload, handleError);
         if (data && callback) {
           setTimeout(() => {
             callback(data);
@@ -318,7 +341,7 @@ export default {
     },
     *createJarWarUploadStatus({ payload, callback, handleError }, { call }) {
       try {
-        const data = yield call(createJarWarUploadStatus, payload);
+        const data = yield call(createJarWarUploadStatus, payload, handleError);
         if (data && callback) {
           setTimeout(() => {
             callback(data);

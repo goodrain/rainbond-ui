@@ -90,11 +90,12 @@ export async function createThirdPartyServices(body = {}, telemetryOptions = {})
 /*
    Jar、War包上传文件获取事件记录
 */
-export async function createJarWarServices(body = {}) {
+export async function createJarWarServices(body = {}, handleError) {
   return request(
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/package_build/record`,
     {
       method: 'post',
+      handleError,
       data: {
         region: body.region,
         component_id: body && body.component_id ? body.component_id : ''
@@ -470,6 +471,7 @@ export function buildApp(body = {}, handleError) {
     `${apiconfig.baseUrl}/console/teams/${body.team_name}/apps/${body.app_alias}/build`,
     {
       method: 'post',
+      sensitiveError: body.sensitiveError === true,
       data: {
         is_deploy: body.is_deploy,
         nodejs_type: body.nodejs_type,

@@ -25,6 +25,11 @@ function harness(request) {
       if (name.endsWith('/sourceBuildPayload')) return { sanitizePackageToolPayload: value => value };
       if (name.endsWith('/global')) return { getCurrTeamName: () => 'team-a', getCurrRegionName: () => 'region-a' };
       if (name.endsWith('/vmCreationStorage')) return require('../utils/vmCreationStorage');
+      if (name.endsWith('/operationAttempt')) return {
+        buildAttemptHeaders: attemptId => attemptId ? { 'X-Rainbond-Attempt-Id': attemptId } : undefined,
+        getComposeAttempt: () => null,
+        getServiceAttempt: () => null
+      };
       if (name.endsWith('/vmQuickStart')) return quickStart;
       if (name.endsWith('/vmLoginCredentials')) {
         const file = path.resolve(__dirname, '../utils/vmLoginCredentials.js');

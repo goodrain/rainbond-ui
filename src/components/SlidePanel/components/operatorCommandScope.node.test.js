@@ -59,7 +59,13 @@ async function withCommandFixture(verify, { owned = true, billing = false, fakeT
       './requestSlowTelemetry': require('../../../utils/requestSlowTelemetry'),
       './marketInstallPreflight': { renderPreflightContent() {} },
       '../../config/api.config': { baseUrl: '' },
-      '../utils/sourceBuildPayload': require('../../../utils/sourceBuildPayload')
+      '../utils/sourceBuildPayload': require('../../../utils/sourceBuildPayload'),
+      '../utils/operationAttempt': {
+        buildAttemptHeaders: () => undefined, getServiceAttempt: () => null, getComposeAttempt: () => null,
+        startServiceAttempt: () => 'attempt-id', bindServiceAttempt() {}, clearServiceAttempt() {},
+        startComposeAttempt: () => 'attempt-id', bindComposeAttempt() {}, createAttemptId: () => 'attempt-id',
+        createRequestTelemetryOptions: attemptId => ({ returnErrorMetadata: true, attemptId }), getDeployType: () => 'image'
+      }
     };
     const load = (name, overrides = {}) => {
       const module = { exports: {} };

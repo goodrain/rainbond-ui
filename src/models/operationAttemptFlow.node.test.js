@@ -10,6 +10,7 @@ const root = path.join(__dirname, '..');
 const createModelPath = path.join(__dirname, 'createApp.js');
 const applicationModelPath = path.join(__dirname, 'application.js');
 const createServicePath = path.join(root, 'services/createApp.js');
+const appServicePath = path.join(root, 'services/app.js');
 const applicationServicePath = path.join(root, 'services/application.js');
 const operationAttemptPath = path.join(root, 'utils/operationAttempt.js');
 
@@ -85,6 +86,25 @@ function loadCreateEffect(name, dependencies, attempts, events) {
   );
 }
 
+function loadVmWorkflowEffect(dependencies, attempts, events) {
+  const program = parse(createModelPath);
+  const helpers = ['buildCreateAppProperties', 'getOperationDeployType', 'trackCreateStarted', 'trackCreateSucceeded', 'trackCreateFailed', 'isRequestFailure', 'runVirtualMachineWorkflow']
+    .map(helper => generate(declaration(program, helper)).code).join('\n');
+  const names = ['captureAppOperation', 'startServiceAttempt', 'bindServiceAttempt', 'clearServiceAttempt', 'createRequestTelemetryOptions', 'getDeployType', 'assertNoVmPasswordPayload', 'safeVmCredentialError', 'runVmCreation', ...Object.keys(dependencies)];
+  return new Function(...names, `${helpers}\nreturn ({${generate(effect(program, 'createVirtualMachineWorkflow')).code}}).createVirtualMachineWorkflow;`)(
+    (...args) => events.push(args),
+    attempts.startServiceAttempt,
+    attempts.bindServiceAttempt,
+    attempts.clearServiceAttempt,
+    attempts.createRequestTelemetryOptions,
+    attempts.getDeployType,
+    () => {},
+    () => new Error('VM error'),
+    require('../utils/vmQuickStart').runVmCreation,
+    ...Object.values(dependencies)
+  );
+}
+
 function loadComposeBuildEffect(buildCompose, attempts) {
   const program = parse(applicationModelPath);
   return new Function('buildCompose', 'clearComposeAttempt', `return ({${generate(effect(program, 'buildCompose')).code}}).buildCompose;`)(buildCompose, attempts.clearComposeAttempt);
@@ -141,6 +161,43 @@ test('source, image, VM, OAuth, and package creates bind generated aliases throu
     assert.equal(expectedHeader(calls, '/apps/gr12ab34/build'), attemptId);
     assert.equal(attempts.getServiceAttempt({ team_name: 'team', app_alias: 'gr12ab34' }), null);
   }
+});
+
+test('VM workflow binds one attempt through vm_run, volume options, check update, and build', async () => {
+  const storage = new Map();
+  const attempts = loadAttempts(storage);
+  const calls = [];
+  const request = (url, options) => {
+    calls.push({ url, options });
+    if (url.endsWith('/apps/vm_run')) return Promise.resolve({ status_code: 200, bean: { service_alias: 'gr12ab34' } });
+    if (url.endsWith('/volume-opts')) return Promise.resolve({ status_code: 200, list: [{ volume_type: 'rbd' }] });
+    return Promise.resolve({ status_code: 200 });
+  };
+  const dependencies = {
+    createAppByVirtualMachine: loadService(createServicePath, 'createAppByVirtualMachine', request, attempts),
+    getPortDetail: loadService(appServicePath, 'getPortDetail', request, attempts),
+    getVolumeOpts: loadService(appServicePath, 'getVolumeOpts', request, attempts),
+    editAppCreateInfo: loadService(appServicePath, 'editAppCreateInfo', request, attempts),
+    buildApp: loadService(createServicePath, 'buildApp', request, attempts)
+  };
+  const events = [];
+  const workflow = loadVmWorkflowEffect(dependencies, attempts, events);
+  const iterator = workflow({ payload: {
+    team_name: 'team', group_id: 1, service_cname: 'vm', k8s_component_name: 'vm',
+    source_type: 'upload', event_id: 'upload-event', arch: 'amd64', disk_volume_type: 'rbd'
+  } }, { call: (...args) => args });
+  const call = iterator.next().value;
+  const result = await call[0](...call.slice(1));
+  assert.equal(iterator.next(result).done, true);
+  assert.equal(result.status, 'submitted', result.error);
+
+  const attemptId = events[0][2].attempt_id;
+  assert.equal(events[1][2].attempt_id, attemptId);
+  assert.equal(expectedHeader(calls, '/apps/vm_run'), attemptId);
+  assert.equal(expectedHeader(calls, '/volume-opts'), attemptId);
+  assert.equal(expectedHeader(calls, '/check_update'), attemptId);
+  assert.equal(expectedHeader(calls, '/apps/gr12ab34/build'), attemptId);
+  assert.equal(attempts.getServiceAttempt({ team_name: 'team', app_alias: 'gr12ab34' }), null);
 });
 
 test('compose create response binds group and compose IDs through check and compose build', async () => {

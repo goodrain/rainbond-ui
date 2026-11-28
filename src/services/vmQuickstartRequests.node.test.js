@@ -30,6 +30,7 @@ function loadService(file, name, request) {
         if (dependency.endsWith('/vmCreationStorage')) return require('../utils/vmCreationStorage');
         if (dependency.endsWith('/vmLoginCredentials')) return require('../utils/vmLoginCredentials');
         if (dependency.endsWith('/vmQuickStart')) return require('../utils/vmQuickStart');
+        if (dependency.endsWith('/operationAttempt')) return require('../utils/operationAttempt');
         throw new Error('Unexpected VM service dependency');
       }
     }, { filename: sourceFile });
@@ -39,9 +40,9 @@ function loadService(file, name, request) {
   const declaration = parse(source).program.body.find(node =>
     node.type === 'ExportNamedDeclaration' && node.declaration?.id?.name === name
   ).declaration;
-  return new Function('request', 'apiconfig',
+  return new Function('request', 'apiconfig', 'buildAttemptHeaders', 'getServiceAttempt',
     `${source.slice(declaration.start, declaration.end)}\nreturn ${name};`
-  )(request, { baseUrl: '/backend' });
+  )(request, { baseUrl: '/backend' }, require('../utils/operationAttempt').buildAttemptHeaders, require('../utils/operationAttempt').getServiceAttempt);
 }
 
 function requestHarness(outcome) {
