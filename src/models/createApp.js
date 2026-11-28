@@ -45,7 +45,7 @@ import {
   captureAppOperation,
   captureMarketInstall
 } from '../posthog';
-import { bindComposeAttempt, bindServiceAttempt, clearServiceAttempt, createAttemptId, createRequestTelemetryOptions, getDeployType, startComposeAttempt, startServiceAttempt } from '../utils/operationAttempt';
+import { bindComposeAttempt, bindServiceAttempt, clearServiceAttempt, createAttemptId, createRequestTelemetryOptions, getDeployType, getServiceAttempt, startComposeAttempt, startServiceAttempt } from '../utils/operationAttempt';
 
 const REQUEST_TELEMETRY_OPTIONS = { returnErrorMetadata: true };
 
@@ -133,7 +133,11 @@ function* runVirtualMachineWorkflow({ payload, resume, onProgress, callback, isA
   };
   try {
     assertNoVmPasswordPayload(payload);
-    attemptId = startServiceAttempt(payload || {});
+    const resumeAttemptPayload = resume && resume.serviceAlias
+      ? { team_name: payload && payload.team_name, service_alias: resume.serviceAlias }
+      : null;
+    attemptId = (resumeAttemptPayload && getServiceAttempt(resumeAttemptPayload)) ||
+      startServiceAttempt(resumeAttemptPayload || payload || {});
     trackCreateStarted(actionType, payload || {}, attemptId);
     result = yield call(runner, { payload, resume, onProgress: reportProgress }, {
       createVm: body => {
@@ -169,9 +173,12 @@ function* runVirtualMachineWorkflow({ payload, resume, onProgress, callback, isA
     };
   }
   const attemptPayload = { team_name: payload && payload.team_name, service_alias: result.serviceAlias };
-  if (result.status === 'submitted') trackCreateSucceeded(actionType, payload || {}, attemptId);
-  else trackCreateFailed(actionType, payload || {}, { code: result.error }, attemptId);
-  clearServiceAttempt(attemptPayload);
+  if (result.status === 'submitted') {
+    trackCreateSucceeded(actionType, payload || {}, attemptId);
+    clearServiceAttempt(attemptPayload);
+  } else {
+    trackCreateFailed(actionType, payload || {}, { code: result.error }, attemptId);
+  }
   clearServiceAttempt(payload || {});
   if (callback && active()) callback(result);
 }
@@ -387,7 +394,7 @@ export default {
         });
       }
     },
-    
+
     *deleteJarWarUploadStatus({ payload, callback, handleError }, { call }) {
       try {
         const data = yield call(deleteJarWarUploadStatus, payload);

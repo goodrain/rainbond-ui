@@ -103,6 +103,7 @@ export async function createJarWarServices(body = {}, handleError) {
     }
   );
 }
+
 /*
    Jar、War包上传文件状态
 */
@@ -349,6 +350,7 @@ export async function createAppByVirtualMachine(body = {}, handleError, telemetr
     headers: getAttemptHeaders(body, telemetryOptions)
   });
 }
+
 /*
    虚拟机获取本地镜像
 */
