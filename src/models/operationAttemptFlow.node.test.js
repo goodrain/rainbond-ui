@@ -90,9 +90,10 @@ function loadVmWorkflowEffect(dependencies, attempts, events) {
   const program = parse(createModelPath);
   const helpers = ['buildCreateAppProperties', 'getOperationDeployType', 'trackCreateStarted', 'trackCreateSucceeded', 'trackCreateFailed', 'isRequestFailure', 'runVirtualMachineWorkflow']
     .map(helper => generate(declaration(program, helper)).code).join('\n');
-  const names = ['captureAppOperation', 'startServiceAttempt', 'bindServiceAttempt', 'clearServiceAttempt', 'createRequestTelemetryOptions', 'getDeployType', 'assertNoVmPasswordPayload', 'safeVmCredentialError', 'runVmCreation', ...Object.keys(dependencies)];
+  const names = ['captureAppOperation', 'getServiceAttempt', 'startServiceAttempt', 'bindServiceAttempt', 'clearServiceAttempt', 'createRequestTelemetryOptions', 'getDeployType', 'assertNoVmPasswordPayload', 'safeVmCredentialError', 'runVmCreation', ...Object.keys(dependencies)];
   return new Function(...names, `${helpers}\nreturn ({${generate(effect(program, 'createVirtualMachineWorkflow')).code}}).createVirtualMachineWorkflow;`)(
     (...args) => events.push(args),
+    attempts.getServiceAttempt,
     attempts.startServiceAttempt,
     attempts.bindServiceAttempt,
     attempts.clearServiceAttempt,
@@ -195,6 +196,59 @@ test('VM workflow binds one attempt through vm_run, volume options, check update
   assert.equal(events[1][2].attempt_id, attemptId);
   assert.equal(expectedHeader(calls, '/apps/vm_run'), attemptId);
   assert.equal(expectedHeader(calls, '/volume-opts'), attemptId);
+  assert.equal(expectedHeader(calls, '/check_update'), attemptId);
+  assert.equal(expectedHeader(calls, '/apps/gr12ab34/build'), attemptId);
+  assert.equal(attempts.getServiceAttempt({ team_name: 'team', app_alias: 'gr12ab34' }), null);
+});
+
+test('VM retry reuses the failed creation attempt through volume options, check update, and build', async () => {
+  const storage = new Map();
+  const attempts = loadAttempts(storage);
+  const calls = [];
+  let volumeRequests = 0;
+  const request = (url, options) => {
+    calls.push({ url, options });
+    if (url.endsWith('/apps/vm_run')) return Promise.resolve({ status_code: 200, bean: { service_alias: 'gr12ab34' } });
+    if (url.endsWith('/volume-opts')) {
+      volumeRequests += 1;
+      return Promise.resolve(volumeRequests === 1 ? { status_code: 500 } : { status_code: 200, list: [{ volume_type: 'rbd' }] });
+    }
+    return Promise.resolve({ status_code: 200 });
+  };
+  const dependencies = {
+    createAppByVirtualMachine: loadService(createServicePath, 'createAppByVirtualMachine', request, attempts),
+    getPortDetail: loadService(appServicePath, 'getPortDetail', request, attempts),
+    getVolumeOpts: loadService(appServicePath, 'getVolumeOpts', request, attempts),
+    editAppCreateInfo: loadService(appServicePath, 'editAppCreateInfo', request, attempts),
+    buildApp: loadService(createServicePath, 'buildApp', request, attempts)
+  };
+  const events = [];
+  const workflow = loadVmWorkflowEffect(dependencies, attempts, events);
+  const payload = {
+    team_name: 'team', group_id: 1, service_cname: 'vm', k8s_component_name: 'vm',
+    source_type: 'upload', event_id: 'upload-event', arch: 'amd64', disk_volume_type: 'rbd'
+  };
+  const run = async resume => {
+    const iterator = workflow({ payload, resume }, { call: (...args) => args });
+    const call = iterator.next().value;
+    const result = await call[0](...call.slice(1));
+    assert.equal(iterator.next(result).done, true);
+    return result;
+  };
+
+  const failed = await run();
+  const attemptId = events[0][2].attempt_id;
+  assert.equal(failed.status, 'failed');
+  assert.equal(failed.serviceAlias, 'gr12ab34');
+  assert.equal(events[1][2].attempt_id, attemptId);
+  assert.equal(attempts.getServiceAttempt({ team_name: 'team', app_alias: 'gr12ab34' }), attemptId);
+
+  const retried = await run(failed);
+  assert.equal(retried.status, 'submitted', retried.error);
+  assert.equal(events[2][2].attempt_id, attemptId);
+  assert.equal(events[3][2].attempt_id, attemptId);
+  assert.deepEqual(requestHeaders(calls, '/apps/vm_run'), [attemptId]);
+  assert.deepEqual(requestHeaders(calls, '/volume-opts'), [attemptId, attemptId]);
   assert.equal(expectedHeader(calls, '/check_update'), attemptId);
   assert.equal(expectedHeader(calls, '/apps/gr12ab34/build'), attemptId);
   assert.equal(attempts.getServiceAttempt({ team_name: 'team', app_alias: 'gr12ab34' }), null);
